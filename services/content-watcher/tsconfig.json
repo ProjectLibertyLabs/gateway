@@ -1,0 +1,38 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Base",
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": "./src",
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "noImplicitThis": false,
+        "outDir": "dist",
+        "paths": {
+            "#app/*": [
+                "*"
+            ]
+        },
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "strictPropertyInitialization": false,
+        "target": "es2022",
+        "typeRoots": [
+            "node_modules/@types"
+        ]
+    },
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "node_modules/**",
+        "./dist/**",
+        "/tools/**"
+    ]
+}

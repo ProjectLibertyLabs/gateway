@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  content-publishing-service:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.docker.dev
+    volumes:
+    - ./:/app
+    networks:
+      - content-publishing-service-network-dev
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - content-publishing-service-network-dev
+    volumes:
+      - redis_data:/data
+
+  frequency:
+    image: frequencychain/instant-seal-node:latest
+    ports:
+      - 9944:9944
+    networks:
+      - content-publishing-service-network-dev
+    container_name: frequency-node
+
+volumes:
+  redis_data:
+
+networks:
+  content-publishing-service-network-dev:

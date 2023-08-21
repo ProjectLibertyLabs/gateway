@@ -1,2 +1,3 @@
-# content-publishing-service
-A microservice to publish DSNP content to frequency 
+# Content Publisher
+
+A microservice to publish DSNP content to frequency.

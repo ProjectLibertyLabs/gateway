@@ -1,7 +1,7 @@
 import { Controller, Get, HttpStatus, Logger } from '@nestjs/common';
 
-@Controller('content-publishing-service')
-export class ContentPublishingServiceController {
+@Controller('api')
+export class ApiController {
   private readonly logger: Logger;
 
   constructor() {

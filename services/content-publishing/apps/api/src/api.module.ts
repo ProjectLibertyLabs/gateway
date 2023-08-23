@@ -3,7 +3,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { ContentPublishingServiceController } from './content-publishing-service.controller';
+import { ApiController } from './api.controller';
 import { ConfigService } from './config/config.service';
 import { ConfigModule } from './config/config.module';
 import { DevelopmentController } from './development.controller';
@@ -45,7 +45,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
     BlockchainModule,
   ],
   providers: [ConfigService],
-  controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ContentPublishingServiceController] : [ContentPublishingServiceController],
+  controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ApiController] : [ApiController],
   exports: [],
 })
-export class ContentPublishingServiceModule {}
+export class ApiModule {}

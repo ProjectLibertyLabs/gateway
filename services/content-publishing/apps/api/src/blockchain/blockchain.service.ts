@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-import { ConfigService } from '#app/config/config.service';
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { firstValueFrom } from 'rxjs';
@@ -10,6 +9,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option, u128 } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
+import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
 @Injectable()

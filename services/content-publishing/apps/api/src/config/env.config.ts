@@ -18,8 +18,6 @@ export const configModuleOptions: ConfigModuleOptions = {
       }
       return value;
     }),
-    PROVIDER_BASE_URL: Joi.string().uri().required(),
-    PROVIDER_ACCESS_TOKEN: Joi.string(),
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
       .min(1)
       .default(3 * 60),

@@ -11,7 +11,7 @@ import { plainToClass } from 'class-transformer';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 
-@Controller('content-publishing-service/dev')
+@Controller('api/dev')
 export class DevelopmentController {
   private readonly logger: Logger;
 

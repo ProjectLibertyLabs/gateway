@@ -39,8 +39,6 @@ describe('ContentPublishingConfigService', () => {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
     PROVIDER_ID: undefined,
-    PROVIDER_BASE_URL: undefined,
-    PROVIDER_ACCESS_TOKEN: undefined,
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
     QUEUE_HIGH_WATER: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
@@ -88,26 +86,6 @@ describe('ContentPublishingConfigService', () => {
       const { PROVIDER_ID: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ PROVIDER_ID: 'bad string', ...env })).rejects.toBeDefined();
       await expect(setupConfigService({ PROVIDER_ID: '-1', ...env })).rejects.toBeDefined();
-    });
-
-    it('missing provider base url should fail', async () => {
-      const { PROVIDER_BASE_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
-
-    it('invalid provider base url should fail', async () => {
-      const { PROVIDER_BASE_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ PROVIDER_BASE_URL: 'invalid url', ...env })).rejects.toBeDefined();
-    });
-
-    it('missing provider access token should be ok', async () => {
-      const { PROVIDER_ACCESS_TOKEN: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).resolves.toBeDefined();
-    });
-
-    it('empty provider access token should fail', async () => {
-      const { PROVIDER_ACCESS_TOKEN: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ PROVIDER_ACCESS_TOKEN: '', ...env })).rejects.toBeDefined();
     });
 
     it('invalid scan interval should fail', async () => {
@@ -198,14 +176,6 @@ describe('ContentPublishingConfigService', () => {
 
     it('should get frequency url', () => {
       expect(contentPublishingConfigService.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_URL?.toString());
-    });
-
-    it('should get provider base url', () => {
-      expect(contentPublishingConfigService.providerBaseUrl.toString()).toStrictEqual(ALL_ENV.PROVIDER_BASE_URL);
-    });
-
-    it('should get provider api token', () => {
-      expect(contentPublishingConfigService.providerApiToken!.toString()).toStrictEqual(ALL_ENV.PROVIDER_ACCESS_TOKEN);
     });
 
     it('should get scan interval', () => {

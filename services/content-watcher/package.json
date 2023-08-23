@@ -1,13 +1,13 @@
 {
   "name": "content-publishing-service",
-  "version": "1.0.0",
-  "description": "A microservice to ContentPublishing graphs in DSNP/Frequency",
-  "main": "dist/src/main.js",
+  "version": "0.1.0",
+  "description": "Services to publish content on DSNP/Frequency",
+  "main": "dist/apps/api/main.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "env TS_NODE_BASEURL=./dist/src node -r tsconfig-paths/register dist/src/main.js",
-    "start:dev": "set -a ; . .env.dev ; ts-node-dev -r tsconfig-paths/register src/main.ts",
-    "start:dev:docker": "npm ci && ts-node-dev -r tsconfig-paths/register src/main.ts",
+    "start": "env TS_NODE_BASEURL=./dist/app/api node -r tsconfig-paths/register dist/apps/api/main.js",
+    "start:dev": "set -a ; . .env.dev ; ts-node-dev -r tsconfig-paths/register apps/api/src/main.ts",
+    "start:dev:docker": "npm ci && ts-node-dev -r tsconfig-paths/register apps/api/src/main.ts",
     "docker-build": "docker build -t content-publishing-service .",
     "docker-build:dev": "docker-compose -f docker-compose.dev.yaml build",
     "docker-run": "docker build -t content-publishing-service-deploy . ; docker run -p 6379:6379 --env-file .env.dev content-publishing-service-deploy",
@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/AmplicaLabs/content-publishing-service#readme",
   "dependencies": {
-    "@dsnp/graph-sdk": "^0.0.11",
     "@frequency-chain/api-augment": "1.7.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs/axios": "^2.0.0",

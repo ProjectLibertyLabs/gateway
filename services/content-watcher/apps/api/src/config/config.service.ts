@@ -2,17 +2,14 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { ICapacityLimit } from '#app/interfaces/capacity-limit.interface';
-import type { EnvironmentType } from '@dsnp/graph-sdk';
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
   PROVIDER_ID: string;
-  PROVIDER_BASE_URL: URL;
-  PROVIDER_ACCESS_TOKEN: string;
   BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   QUEUE_HIGH_WATER: number;
   WEBHOOK_FAILURE_THRESHOLD: number;
@@ -39,14 +36,6 @@ export class ConfigService {
 
   public get frequencyUrl(): URL {
     return this.nestConfigService.get('FREQUENCY_URL')!;
-  }
-
-  public get providerBaseUrl(): URL {
-    return this.nestConfigService.get<URL>('PROVIDER_BASE_URL')!;
-  }
-
-  public get providerApiToken(): string | undefined {
-    return this.nestConfigService.get<string>('PROVIDER_ACCESS_TOKEN');
   }
 
   public getBlockchainScanIntervalMinutes(): number {

@@ -40,8 +40,6 @@ You must also minimally map `appendonlydir` (or the entire `dir`) to a persisten
 If you choose to build & deploy the application yourself, simply install the prerequisites:
 * NodeJS 18
 
-Note that, at present, due to limitaions in the `@dsnp/graph-sdk` module, the applcation can only be run on a `linux/amd64` platform. Support for other platforms is contingent on building & installing the `@dsnp/graph-sdk` module from source, which is outside the scope of this document.
-
 To build the application:
 ```
     npm run build
@@ -62,11 +60,7 @@ The following is a list of environment variables that may be set to control the 
 |-|-|-|-|
 |`FREQUENCY_URL`|**yes**|Blockchain URL|_none_|
 |`PROVIDER_ID`|**yes**|MSA ID of provider|_none_|
-|`PROVIDER_BASE_URL`|**yes**|URL of provider graph query endpoint|_none_|
-|`PROVIDER_ACCESS_TOKEN`|no|Optional access token to be used with requests to provider graph query endpoint|_none_|
 |`PROVIDER_ACCOUNT_SEED_PHRASE`|**yes**|Seed phrase for provider control keypair|_none_|
 |`REDIS_URL`|**yes**|URL used to connect to Redis instance|_none_<br/>\*preset to the internal Redis URL in the standalone container|
 |`BLOCKCHAIN_SCAN_INTERVAL_MINUTES`|no|# of minutes to wait in between scans of the blockchain|180|
 |`QUEUE_HIGH_WATER`|no|# of pending graph scan queue entries to allow before pausing blockchain scanning until the next scan cycle|1000|
-|`GRAPH_ENVIRONMENT_TYPE`|**yes**|Indicates which blockchain network to connect to.<br/>Possible values:<br/>* `Mainnet`<br/>* `Rococo`<br/>* `Dev`|_none_|
-|`GRAPH_ENVIRONMENT_DEV_CONFIG`|no<br/>*required for 'Dev' Graph Environment|JSON configuration object for GraphSDK configuration. Used to test against a local development Frequency node|_none_|

@@ -1,8 +1,3 @@
-export interface LocationDto {
-  name: string;
-  accuracy?: number;
-  altitude?: number;
-  longitude?: number;
-  radius?: number;
-  units?: 'cm' | 'm' | 'km' | 'inches' | 'feet' | 'miles';
-}
+export * from './dtos/announcement.dto';
+export * from './dtos/activity.dto';
+export * from './dtos/common.dto';

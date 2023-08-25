@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import metadata from '../metadata';
 
-// TODO: Add more swagger options and document the API
-export const initSwagger = (app: INestApplication, apiPath: string) => {
+export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const options = new DocumentBuilder()
     .setTitle('Content Publishing Service API')
     .setDescription('Content Publishing Service API')
@@ -13,6 +13,7 @@ export const initSwagger = (app: INestApplication, apiPath: string) => {
     })
     .addCookieAuth('SESSION')
     .build();
+  await SwaggerModule.loadPluginMetadata(metadata);
   const document = SwaggerModule.createDocument(app, options, {
     extraModels: [],
   });

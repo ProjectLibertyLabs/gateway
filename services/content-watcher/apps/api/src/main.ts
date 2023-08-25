@@ -25,7 +25,7 @@ async function bootstrap() {
   try {
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe());
-    initSwagger(app, "/api/docs/swagger");
+    await initSwagger(app, '/api/docs/swagger');
     await app.listen(3000);
   } catch (e) {
     await app.close();

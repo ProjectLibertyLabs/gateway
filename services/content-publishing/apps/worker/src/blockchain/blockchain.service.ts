@@ -9,7 +9,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option, u128 } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../../api/src/config/config.service';
 import { Extrinsic } from './extrinsic';
 
 @Injectable()
@@ -134,5 +134,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async getCurrentEpochLength(): Promise<number> {
     const epochLength: u32 = await this.query('capacity', 'epochLength');
     return typeof epochLength === 'number' ? epochLength : epochLength.toNumber();
+  }
+
+  public async capacityBatchLimit(): Promise<number> {
+    return this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
   }
 }

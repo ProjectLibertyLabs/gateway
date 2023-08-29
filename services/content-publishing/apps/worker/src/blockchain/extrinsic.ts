@@ -31,7 +31,7 @@ import { IsEvent } from '@polkadot/types/metadata/decorate/types';
 import { Codec, ISubmittableResult, AnyTuple } from '@polkadot/types/types';
 import { filter, firstValueFrom, map, pipe, tap } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../../api/src/config/config.service';
 import { EventError } from './event-error';
 
 export type EventMap = { [key: string]: Event };

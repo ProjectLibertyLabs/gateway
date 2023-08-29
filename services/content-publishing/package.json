@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/AmplicaLabs/content-publishing-service#readme",
   "dependencies": {
+    "@jest/globals": "^29.5.0",
     "@frequency-chain/api-augment": "1.7.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs/axios": "^2.0.0",
@@ -63,7 +64,6 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
-    "@jest/globals": "^29.5.0",
     "@polkadot/typegen": "10.9.1",
     "@types/jest": "^29.5.2",
     "@types/time-constants": "^1.0.0",

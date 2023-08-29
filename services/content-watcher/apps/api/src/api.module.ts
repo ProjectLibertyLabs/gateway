@@ -7,7 +7,6 @@ import { ApiController } from './api.controller';
 import { ConfigService } from './config/config.service';
 import { ConfigModule } from './config/config.module';
 import { DevelopmentController } from './development.controller';
-import { BlockchainModule } from './blockchain/blockchain.module';
 
 @Module({
   imports: [
@@ -42,7 +41,6 @@ import { BlockchainModule } from './blockchain/blockchain.module';
       ignoreErrors: false,
     }),
     ScheduleModule.forRoot(),
-    BlockchainModule,
   ],
   providers: [ConfigService],
   controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ApiController] : [ApiController],

@@ -3,6 +3,19 @@
  */
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
+import { IsHexadecimal, IsNotEmpty, IsNumberString } from 'class-validator';
+
+export class DsnpUserIdParam {
+  @IsNotEmpty()
+  @IsNumberString({ no_symbols: true })
+  userDsnpId: string;
+}
+
+export class DsnpContentHashParam {
+  @IsNotEmpty()
+  @IsHexadecimal({ message: 'targetContentHash must be in hexadecimal format!' })
+  targetContentHash: string;
+}
 
 export class AnnouncementResponseDto {
   referenceId: string;

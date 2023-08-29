@@ -12,7 +12,11 @@ import { createKeys } from '../blockchain/create-keys';
 export class IPFSPublisher {
   private logger: Logger;
 
-  constructor(private configService: ConfigService, private blockchainService: BlockchainService, private eventEmitter: EventEmitter2) {
+  constructor(
+    private configService: ConfigService,
+    private blockchainService: BlockchainService,
+    private eventEmitter: EventEmitter2,
+  ) {
     this.logger = new Logger(IPFSPublisher.name);
   }
 
@@ -47,14 +51,17 @@ export class IPFSPublisher {
       });
 
       const totalCapUsedPerEpoch = await Promise.all(batchPromises);
-      const totalCapacityUsed = totalCapUsedPerEpoch.reduce((acc, curr) => {
-        const epoch = Object.keys(curr)[0];
-        if (acc[epoch]) {
-          acc[epoch] += curr[epoch];
-        }
-        acc[epoch] = curr[epoch];
-        return acc;
-      }, {} as { [key: string]: bigint });
+      const totalCapacityUsed = totalCapUsedPerEpoch.reduce(
+        (acc, curr) => {
+          const epoch = Object.keys(curr)[0];
+          if (acc[epoch]) {
+            acc[epoch] += curr[epoch];
+          }
+          acc[epoch] = curr[epoch];
+          return acc;
+        },
+        {} as { [key: string]: bigint },
+      );
 
       this.logger.debug(`Total capacity used: ${JSON.stringify(totalCapacityUsed)}`);
       return totalCapacityUsed;

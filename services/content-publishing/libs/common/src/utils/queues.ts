@@ -17,6 +17,11 @@ export namespace QueueConstants {
    * Name of the queue that has all the jobs and items that needs to run periodically or check their status
    */
   export const STATUS_QUEUE_NAME = 'statusQueue';
+
+  /**
+   * Name of the queue that has all the transaction receipts
+   */
+  export const TRANSACTION_RECEIPT_QUEUE_NAME = 'transactionReceiptQueue';
   /**
    * All of the announcement type queues
    */

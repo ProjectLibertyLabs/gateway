@@ -26,12 +26,11 @@
 
 import { ApiRx } from '@polkadot/api';
 import { SubmittableExtrinsic, ApiTypes, AugmentedEvent } from '@polkadot/api/types';
-import { Call, Event } from '@polkadot/types/interfaces';
+import { Call, Event, EventRecord, Hash } from '@polkadot/types/interfaces';
 import { IsEvent } from '@polkadot/types/metadata/decorate/types';
 import { Codec, ISubmittableResult, AnyTuple } from '@polkadot/types/types';
 import { filter, firstValueFrom, map, pipe, tap } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { ConfigService } from '../../../api/src/config/config.service';
 import { EventError } from './event-error';
 
 export type EventMap = { [key: string]: Event };
@@ -63,54 +62,24 @@ export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C exte
     return this.event;
   }
 
-  public signAndSend(nonce?: number): Promise<ParsedEventResult> {
-    return firstValueFrom(
-      this.extrinsic.signAndSend(this.keys, { nonce }).pipe(
-        filter(({ status }) => status.isInBlock || status.isFinalized),
-        this.parseResult(this.event),
-      ),
+  public signAndSend(nonce?: number): Promise<[Hash, EventMap]> {
+    return firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce }).pipe(filter(({ status }) => status.isInBlock || status.isFinalized))).then(
+      ({ status, events, txHash }) => {
+        if (status.isInBlock || status.isFinalized) {
+          const eventMap: EventMap = {};
+          events.forEach((record: EventRecord) => {
+            const { event } = record;
+            eventMap[eventKey(event)] = event;
+          });
+          return [txHash, eventMap];
+        }
+        throw new Error(`Transaction failed to finalize: ${txHash}`);
+      },
     );
   }
 
   public getCall(): Call {
     const call = this.api.createType('Call', this.extrinsic);
     return call;
-  }
-
-  // eslint-disable-next-line no-shadow
-  private parseResult<ApiType extends ApiTypes = 'rxjs', T extends AnyTuple = AnyTuple, N = unknown>(targetEvent?: AugmentedEvent<ApiType, T, N>) {
-    return pipe(
-      tap((result: ISubmittableResult) => {
-        if (result.dispatchError) {
-          const err = new EventError(result.dispatchError);
-          throw err;
-        }
-      }),
-      map((result: ISubmittableResult) =>
-        result.events.reduce((acc, { event }) => {
-          acc[eventKey(event)] = event;
-          if (targetEvent && targetEvent.is(event)) {
-            acc.defaultEvent = event;
-          }
-          if (this.api.events.sudo.Sudid.is(event)) {
-            const { sudoResult } = event.data;
-            if (sudoResult.isErr) {
-              const err = new EventError(sudoResult.asErr);
-              throw err;
-            }
-          }
-          return acc;
-        }, {} as EventMap),
-      ),
-      map((em) => {
-        const result: ParsedEventResult = [undefined, {}];
-        if (targetEvent && targetEvent.is(em?.defaultEvent)) {
-          result[0] = em.defaultEvent;
-        }
-        result[1] = em;
-        return result;
-      }),
-      // tap((events) => console.log(events)),
-    );
   }
 }

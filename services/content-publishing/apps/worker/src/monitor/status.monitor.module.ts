@@ -6,17 +6,16 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { PublishingService } from './publishing.service';
+import { StatusMonitoringService } from './status.monitor.service';
 import { ConfigModule } from '../../../api/src/config/config.module';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
-import { IPFSPublisher } from './ipfs.publisher';
 import { QueueConstants } from '../../../../libs/common/src';
 
 @Module({
   imports: [
-    BlockchainModule,
     ConfigModule,
+    BlockchainModule,
     EventEmitterModule,
     RedisModule.forRootAsync(
       {
@@ -53,31 +52,31 @@ import { QueueConstants } from '../../../../libs/common/src';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.PUBLISH_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 1,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: false,
-          removeOnFail: false,
-        },
-      },
-      {
         name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
           backoff: {
             type: 'exponential',
           },
-          removeOnComplete: false,
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
+        name: QueueConstants.PUBLISH_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
           removeOnFail: false,
         },
       },
     ),
   ],
   controllers: [],
-  providers: [PublishingService, IPFSPublisher],
-  exports: [BullModule, PublishingService, IPFSPublisher],
+  providers: [StatusMonitoringService],
+  exports: [BullModule, StatusMonitoringService],
 })
-export class PublisherModule {}
+export class StatusMonitorModule {}

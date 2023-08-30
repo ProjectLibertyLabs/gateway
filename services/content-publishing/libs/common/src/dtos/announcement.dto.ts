@@ -5,10 +5,10 @@
 import { IsEnum, IsInt, IsNotEmpty, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
-import { DSNP_CONTENT_URI_REGEX, DSNP_EMOJI_REGEX } from '../constants';
+import { DSNP_CONTENT_URI_REGEX, DSNP_EMOJI_REGEX } from './validation.dto';
 
 // eslint-disable-next-line no-shadow
-export enum AnnouncementTypeDto {
+export enum UpdateAnnouncementTypeDto {
   BROADCAST = 'broadcast',
   REPLY = 'reply',
 }
@@ -32,8 +32,8 @@ export class ReplyDto {
 }
 
 export class UpdateDto {
-  @IsEnum(AnnouncementTypeDto)
-  targetAnnouncementType: AnnouncementTypeDto;
+  @IsEnum(UpdateAnnouncementTypeDto)
+  targetAnnouncementType: UpdateAnnouncementTypeDto;
 
   @IsNotEmpty()
   @ValidateNested()
@@ -63,3 +63,5 @@ export class ProfileDto {
   @Type(() => ProfileActivityDto)
   profile: ProfileActivityDto;
 }
+
+export type RequestTypeDto = BroadcastDto | ReplyDto | ReactionDto | UpdateDto | ProfileDto;

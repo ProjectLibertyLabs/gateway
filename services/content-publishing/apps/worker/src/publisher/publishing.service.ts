@@ -11,9 +11,10 @@ import { ConfigService } from '../../../api/src/config/config.service';
 import { IPublisherJob } from '../interfaces/publisher-job.interface';
 import { IPFSPublisher } from './ipfs.publisher';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
+import { QueueConstants } from '../../../../libs/common/src';
 
 @Injectable()
-@Processor('publishQueue', {
+@Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class PublishingService extends WorkerHost implements OnApplicationBootstrap, OnModuleDestroy {
@@ -23,7 +24,7 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue('publishQueue') private publishQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,

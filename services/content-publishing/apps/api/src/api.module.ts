@@ -7,10 +7,19 @@ import { ApiController } from './api.controller';
 import { ConfigService } from './config/config.service';
 import { ConfigModule } from './config/config.module';
 import { DevelopmentController } from './development.controller';
+import { QueueConstants } from '../../../libs/common/src';
+import { ApiService } from './api.service';
 
 @Module({
   imports: [
-    BullModule,
+    BullModule.forRoot({
+      connection: {
+        enableOfflineQueue: false,
+      },
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.REQUEST_QUEUE_NAME,
+    }),
     ConfigModule,
     RedisModule.forRootAsync(
       {
@@ -42,7 +51,7 @@ import { DevelopmentController } from './development.controller';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService],
+  providers: [ConfigService, ApiService],
   controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ApiController] : [ApiController],
   exports: [],
 })

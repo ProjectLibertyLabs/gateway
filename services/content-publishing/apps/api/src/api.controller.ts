@@ -3,24 +3,26 @@ import { v4 as uuidv4 } from 'uuid';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import {
+  AnnouncementResponseDto,
+  AnnouncementTypeDto,
   BroadcastDto,
+  DSNP_VALID_MIME_TYPES,
+  DsnpContentHashParam,
+  DsnpUserIdParam,
+  FilesUploadDto,
+  ProfileDto,
   ReactionDto,
   ReplyDto,
   UpdateDto,
-  ProfileDto,
-  AnnouncementResponseDto,
-  FilesUploadDto,
   UploadResponseDto,
-  DsnpUserIdParam,
-  DsnpContentHashParam,
 } from '../../../libs/common/src';
-import { DSNP_VALID_MIME_TYPES } from '../../../libs/common/src/constants';
+import { ApiService } from './api.service';
 
 @Controller('api')
 export class ApiController {
   private readonly logger: Logger;
 
-  constructor() {
+  constructor(private apiService: ApiService) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -66,54 +68,36 @@ export class ApiController {
   @Post('content/:userDsnpId/broadcast')
   @HttpCode(202)
   async broadcast(@Param() userDsnpId: DsnpUserIdParam, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
-    this.logger.log(`broadcast ${userDsnpId}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto);
   }
 
   @Post('content/:userDsnpId/reply')
   @HttpCode(202)
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
-    this.logger.log(`reply ${userDsnpId}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto);
   }
 
   @Post('content/:userDsnpId/reaction')
   @HttpCode(202)
   async reaction(@Param() userDsnpId: DsnpUserIdParam, @Body() reactionDto: ReactionDto): Promise<AnnouncementResponseDto> {
-    this.logger.log(`reaction ${userDsnpId}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.REACTION, userDsnpId.userDsnpId, reactionDto);
   }
 
   @Put('content/:userDsnpId/:targetContentHash')
   @HttpCode(202)
   async update(@Param() userDsnpId: DsnpUserIdParam, @Param() targetContentHash: DsnpContentHashParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
-    this.logger.log(`update ${userDsnpId}/${targetContentHash}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, targetContentHash.targetContentHash);
   }
 
   @Delete('content/:userDsnpId/:targetContentHash')
   @HttpCode(202)
   async delete(@Param() userDsnpId: DsnpUserIdParam, @Param() targetContentHash: DsnpContentHashParam): Promise<AnnouncementResponseDto> {
-    this.logger.log(`delete ${userDsnpId}/${targetContentHash}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, undefined, targetContentHash.targetContentHash);
   }
 
   @Put('profile/:userDsnpId')
   @HttpCode(202)
   async profile(@Param() userDsnpId: DsnpUserIdParam, @Body() profileDto: ProfileDto): Promise<AnnouncementResponseDto> {
-    this.logger.log(`profile ${userDsnpId}`);
-    return {
-      referenceId: uuidv4(),
-    };
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto);
   }
 }

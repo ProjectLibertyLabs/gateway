@@ -11,6 +11,7 @@ import { ConfigModule } from '../../../api/src/config/config.module';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { IPFSPublisher } from './ipfs.publisher';
+import { QueueConstants } from '../../../../libs/common/src';
 
 @Module({
   imports: [
@@ -51,7 +52,7 @@ import { IPFSPublisher } from './ipfs.publisher';
       inject: [ConfigService],
     }),
     BullModule.registerQueue({
-      name: 'publishQueue',
+      name: QueueConstants.PUBLISH_QUEUE_NAME,
       defaultJobOptions: {
         attempts: 1,
         backoff: {

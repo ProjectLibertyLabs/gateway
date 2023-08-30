@@ -22,7 +22,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from '../constants';
+import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from './validation.dto';
 
 // eslint-disable-next-line no-shadow
 export enum UnitTypeDto {

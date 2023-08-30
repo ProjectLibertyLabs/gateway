@@ -9,6 +9,8 @@ import { WorkerService } from './worker.service';
 import { ConfigService } from '../../api/src/config/config.service';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { ConfigModule } from '../../api/src/config/config.module';
+import { BatchAnnouncementService } from './batch_announcer/batch.announcer.service';
+import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { StatusMonitoringService } from './monitor/status.monitor.service';
 
@@ -47,8 +49,9 @@ import { StatusMonitoringService } from './monitor/status.monitor.service';
     ScheduleModule.forRoot(),
     PublisherModule,
     BlockchainModule,
+    BatchAnnouncerModule,
     StatusMonitorModule,
   ],
-  providers: [ConfigService, WorkerService, PublishingService, StatusMonitoringService],
+  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, StatusMonitoringService],
 })
 export class WorkerModule {}

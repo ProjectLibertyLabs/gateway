@@ -1,4 +1,4 @@
-import { Hash } from "@polkadot/types/interfaces";
+import { Hash } from '@polkadot/types/interfaces';
 
 export interface IStatusMonitorJob {
   id: string;

@@ -9,6 +9,8 @@ import { WorkerService } from './worker.service';
 import { ConfigService } from '../../api/src/config/config.service';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { ConfigModule } from '../../api/src/config/config.module';
+import { StatusMonitorModule } from './monitor/status.monitor.module';
+import { StatusMonitoringService } from './monitor/status.monitor.service';
 
 @Module({
   imports: [
@@ -45,7 +47,8 @@ import { ConfigModule } from '../../api/src/config/config.module';
     ScheduleModule.forRoot(),
     PublisherModule,
     BlockchainModule,
+    StatusMonitorModule,
   ],
-  providers: [ConfigService, WorkerService, PublishingService],
+  providers: [ConfigService, WorkerService, PublishingService, StatusMonitoringService],
 })
 export class WorkerModule {}

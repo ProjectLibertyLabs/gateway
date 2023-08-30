@@ -50,8 +50,7 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
   async process(job: Job<IPublisherJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
-      // TODO: this is only performing one message per batch, figure out how to batch multiple messages
-      const totalCapacityUsed = await this.ipfsPublisher.publish([job.data]);
+      const totalCapacityUsed = await this.ipfsPublisher.publish(job.data);
       await this.setEpochCapacity(totalCapacityUsed);
 
       this.logger.verbose(`Successfully completed job ${job.id}`);

@@ -7,6 +7,10 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
+  IPFS_ENDPOINT: URL;
+  IPFS_GATEWAY_URL: URL;
+  IPFS_BASIC_AUTH_USER: string;
+  IPFS_BASIC_AUTH_SECRET: string;
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
   PROVIDER_ID: string;
@@ -76,5 +80,29 @@ export class ConfigService {
 
   public getCapacityLimit(): ICapacityLimit {
     return this.capacityLimit;
+  }
+
+  public getIpfsEndpoint(): string {
+    return this.nestConfigService.get<string>('IPFS_ENDPOINT')!;
+  }
+
+  public getIpfsGatewayUrl(): string {
+    return this.nestConfigService.get<string>('IPFS_GATEWAY_URL')!;
+  }
+
+  public getIpfsBasicAuthUser(): string {
+    return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_USER')!;
+  }
+
+  public getIpfsBasicAuthSecret(): string {
+    return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_SECRET')!;
+  }
+
+  public getIpfsCidPlaceholder(cid): string {
+    const gatewayUrl = this.getIpfsGatewayUrl();
+    if (!gatewayUrl || !gatewayUrl.includes('[CID]')) {
+      return `https://ipfs.io/ipfs/${cid}`;
+    }
+    return gatewayUrl.replace('[CID]', cid);
   }
 }

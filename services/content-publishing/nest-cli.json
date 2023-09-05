@@ -1,4 +1,14 @@
 {
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api",
   "projects": {
     "common": {
       "type": "library",
@@ -27,11 +37,5 @@
         "tsConfigPath": "apps/worker/tsconfig.app.json"
       }
     }
-  },
-  "compilerOptions": {
-    "tsConfigPath": "apps/api/tsconfig.app.json"
-  },
-  "monorepo": true,
-  "root": "apps/api",
-  "sourceRoot": "apps/api/src"
+  }
 }

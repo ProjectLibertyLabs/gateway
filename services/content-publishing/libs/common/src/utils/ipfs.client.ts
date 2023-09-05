@@ -8,6 +8,7 @@ import { CID } from 'multiformats/cid';
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
 import { base58btc } from 'multiformats/bases/base58';
 import { create } from 'multiformats/hashes/digest';
+import { randomUUID } from 'crypto';
 import { ConfigService } from '../../../../apps/api/src/config/config.service';
 
 export interface FilePin {
@@ -53,10 +54,10 @@ export class IpfsService {
     }
     const cid = CID.parse(data.Hash).toV1();
 
-    this.logger.debug(`Pinned file: ${filename} with size: ${data.Size} and cid: ${cid.toString(base58btc)}`);
+    this.logger.debug(`Pinned file: ${filename} with size: ${data.Size} and cid: ${cid}`);
 
     return {
-      cid: cid.toString(base58btc),
+      cid: cid.toString(),
       cidBytes: cid.bytes,
       fileName: data.Name,
       size: data.Size,
@@ -64,14 +65,33 @@ export class IpfsService {
     };
   }
 
-  public async ipfsPin(mimeType: string, file: Buffer): Promise<FilePin> {
-    const hash = await this.ipfsHashBuffer(file);
+  public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash: boolean = true): Promise<FilePin> {
+    const fileName = calculateDsnpHash ? await this.ipfsHashBuffer(file) : randomUUID().toString();
     const extension = getExtension(mimeType);
     if (extension === false) {
       throw new Error(`unknown mimetype: ${mimeType}`);
     }
-    const ipfs = await this.ipfsPinBuffer(`${hash}.${extension}`, mimeType, file);
-    return { ...ipfs, hash };
+    const ipfs = await this.ipfsPinBuffer(`${fileName}.${extension}`, mimeType, file);
+    return { ...ipfs, hash: calculateDsnpHash ? fileName : '' };
+  }
+
+  // TODO: bugfix: when the cid does not exist the endpoint will get stuck indefinitely
+  public async getPinned(cid: string): Promise<Buffer> {
+    const ipfsGet = `${this.configService.getIpfsEndpoint()}/api/v0/cat?arg=${cid}`;
+    const ipfsAuthUser = this.configService.getIpfsBasicAuthUser();
+    const ipfsAuthSecret = this.configService.getIpfsBasicAuthSecret();
+    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
+
+    const headers = {
+      Accept: '*/*',
+      Connection: 'keep-alive',
+      authorization: ipfsAuth,
+    };
+
+    const response = await axios.post(ipfsGet, null, { headers, responseType: 'arraybuffer' });
+
+    const { data } = response;
+    return data;
   }
 
   private async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {

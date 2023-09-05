@@ -30,3 +30,9 @@ export const DURATION_REGEX = /^-?P(([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([
  */
 export const DSNP_VALID_MIME_TYPES =
   /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm)$/;
+/**
+ * checks to see if provided mime type is an image
+ */
+export function isImage(mimeType: string): boolean {
+  return mimeType != null && mimeType.toLowerCase().startsWith('image');
+}

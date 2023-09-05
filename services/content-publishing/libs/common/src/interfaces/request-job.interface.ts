@@ -7,4 +7,5 @@ export interface IRequestJob {
   dsnpUserId: string;
   targetContentHash?: string;
   content?: RequestTypeDto;
+  dependencyAttempt: number;
 }

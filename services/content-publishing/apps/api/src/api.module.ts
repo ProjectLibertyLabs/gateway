@@ -20,6 +20,9 @@ import { ApiService } from './api.service';
     BullModule.registerQueue({
       name: QueueConstants.REQUEST_QUEUE_NAME,
     }),
+    BullModule.registerQueue({
+      name: QueueConstants.ASSET_QUEUE_NAME,
+    }),
     ConfigModule,
     RedisModule.forRootAsync(
       {

@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
 
@@ -8,11 +6,7 @@ import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interf
 export class IPFSAnnouncer {
   private logger: Logger;
 
-  constructor(
-    private configService: ConfigService,
-    private blockchainService: BlockchainService,
-    private eventEmitter: EventEmitter2,
-  ) {
+  constructor(private configService: ConfigService) {
     this.logger = new Logger(IPFSAnnouncer.name);
   }
 

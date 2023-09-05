@@ -13,6 +13,10 @@ import { BatchAnnouncementService } from './batch_announcer/batch.announcer.serv
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { StatusMonitoringService } from './monitor/status.monitor.service';
+import { AssetProcessorModule } from './asset_processor/asset.processor.module';
+import { AssetProcessorService } from './asset_processor/asset.processor.service';
+import { RequestProcessorModule } from './request_processor/request.processor.module';
+import { RequestProcessorService } from './request_processor/request.processor.service';
 
 @Module({
   imports: [
@@ -51,7 +55,9 @@ import { StatusMonitoringService } from './monitor/status.monitor.service';
     BlockchainModule,
     BatchAnnouncerModule,
     StatusMonitorModule,
+    AssetProcessorModule,
+    RequestProcessorModule,
   ],
-  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, StatusMonitoringService],
+  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, StatusMonitoringService, AssetProcessorService, RequestProcessorService],
 })
 export class WorkerModule {}

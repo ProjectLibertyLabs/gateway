@@ -2,6 +2,10 @@ import { AnnouncementTypeDto } from '../dtos/common.dto';
 
 export namespace QueueConstants {
   /**
+   * Name of the queue that has all incoming asset uploads
+   */
+  export const ASSET_QUEUE_NAME = 'assetQueue';
+  /**
    * Name of the queue that has all incoming requests
    */
   export const REQUEST_QUEUE_NAME = 'requestQueue';

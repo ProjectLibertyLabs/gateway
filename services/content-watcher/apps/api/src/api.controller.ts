@@ -1,10 +1,11 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseFilePipeBuilder, Post, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiService } from './api.service';
 import {
   AnnouncementResponseDto,
   AnnouncementTypeDto,
+  AssetIncludedRequestDto,
   BroadcastDto,
   DSNP_VALID_MIME_TYPES,
   DsnpContentHashParam,
@@ -16,7 +17,6 @@ import {
   UpdateDto,
   UploadResponseDto,
 } from '../../../libs/common/src';
-import { ApiService } from './api.service';
 
 @Controller('api')
 export class ApiController {
@@ -59,21 +59,20 @@ export class ApiController {
     files: // eslint-disable-next-line no-undef
     Array<Express.Multer.File>,
   ): Promise<UploadResponseDto> {
-    this.logger.log(`upload ${files.length}`);
-    return {
-      assetIds: files.map((_) => uuidv4()),
-    };
+    return this.apiService.addAssets(files);
   }
 
   @Post('content/:userDsnpId/broadcast')
   @HttpCode(202)
   async broadcast(@Param() userDsnpId: DsnpUserIdParam, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
+    await this.apiService.validateAssets(broadcastDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto);
   }
 
   @Post('content/:userDsnpId/reply')
   @HttpCode(202)
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
+    await this.apiService.validateAssets(replyDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto);
   }
 
@@ -86,6 +85,7 @@ export class ApiController {
   @Put('content/:userDsnpId/:targetContentHash')
   @HttpCode(202)
   async update(@Param() userDsnpId: DsnpUserIdParam, @Param() targetContentHash: DsnpContentHashParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
+    await this.apiService.validateAssets(updateDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, targetContentHash.targetContentHash);
   }
 
@@ -98,6 +98,7 @@ export class ApiController {
   @Put('profile/:userDsnpId')
   @HttpCode(202)
   async profile(@Param() userDsnpId: DsnpUserIdParam, @Body() profileDto: ProfileDto): Promise<AnnouncementResponseDto> {
+    await this.apiService.validateAssets(profileDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto);
   }
 }

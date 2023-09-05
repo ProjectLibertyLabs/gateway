@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ValidationError } from 'class-validator';
 import { ApiModule } from './api.module';
 import { initSwagger } from './config/swagger_config';
 

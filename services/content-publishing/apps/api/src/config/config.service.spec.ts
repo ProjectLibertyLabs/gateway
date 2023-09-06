@@ -38,6 +38,10 @@ describe('ContentPublishingConfigService', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
+    IPFS_ENDPOINT: undefined,
+    IPFS_GATEWAY_URL: undefined,
+    IPFS_BASIC_AUTH_USER: undefined,
+    IPFS_BASIC_AUTH_SECRET: undefined,
     PROVIDER_ID: undefined,
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
     QUEUE_HIGH_WATER: undefined,

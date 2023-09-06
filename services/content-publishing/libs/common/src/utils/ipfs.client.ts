@@ -6,9 +6,9 @@ import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
-import { base58btc } from 'multiformats/bases/base58';
 import { create } from 'multiformats/hashes/digest';
 import { randomUUID } from 'crypto';
+import { base58btc } from 'multiformats/bases/base58';
 import { ConfigService } from '../../../../apps/api/src/config/config.service';
 
 export interface FilePin {

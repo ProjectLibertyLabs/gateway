@@ -48,6 +48,7 @@ export class ApiController {
         .addFileTypeValidator({
           fileType: DSNP_VALID_MIME_TYPES,
         })
+        // TODO: add a validator to check overall uploaded size
         .addMaxSizeValidator({
           // this is in bytes (2 GB)
           maxSize: 2 * 1000 * 1000 * 1000,

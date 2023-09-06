@@ -43,7 +43,7 @@ export class AssetProcessorService extends WorkerHost {
     const secondsPassed = Math.round((Date.now() - job.timestamp) / 1000);
     const expectedSecondsToExpire = 5 * 60; // TODO: get from config
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);
-    const result = await this.redis.pipeline().del(job.data.contentLocation).expire(job.data.metadataLocation, secondsToExpire, 'LT').exec();
+    const result = await this.redis.pipeline().expire(job.data.contentLocation, secondsToExpire, 'LT').expire(job.data.metadataLocation, secondsToExpire, 'LT').exec();
     this.logger.debug(result);
   }
 }

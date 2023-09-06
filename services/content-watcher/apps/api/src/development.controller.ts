@@ -8,12 +8,16 @@ import { Controller, Logger, Post, Body, Param, Query, HttpException, HttpStatus
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { QueueConstants } from '../../../libs/common/src';
+import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 
 @Controller('api/dev')
 export class DevelopmentController {
   private readonly logger: Logger;
 
-  constructor(@InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue) {
+  constructor(
+    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    private ipfsService: IpfsService,
+  ) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -23,5 +27,18 @@ export class DevelopmentController {
     const job = await this.requestQueue.getJob(jobId);
     this.logger.log(job);
     return job;
+  }
+
+  @Get('/asset/:assetId')
+  // eslint-disable-next-line consistent-return
+  async getAsset(@Param('assetId') assetId: string) {
+    try {
+      return this.ipfsService.getPinned(assetId);
+    } catch (error: any) {
+      if (error.response) {
+        console.error(error.response.data);
+      }
+      throw error;
+    }
   }
 }

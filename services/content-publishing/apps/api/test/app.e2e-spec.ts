@@ -4,11 +4,14 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
 
 describe('AppController E2E request verification!', () => {
   let app: INestApplication;
   let module: TestingModule;
+  // eslint-disable-next-line no-promise-executor-return
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const validLocation = {
     name: 'name of location',
     accuracy: 97,
@@ -28,18 +31,25 @@ describe('AppController E2E request verification!', () => {
       name: '#taggedUser',
     },
   ];
-  const validContentNoAssets = {
+  const validContentNoUploadedAssets = {
     content: 'test broadcast message',
     published: '1970-01-01T00:00:00+00:00',
     name: 'name of note content',
+    assets: [
+      {
+        type: 'link',
+        name: 'link asset',
+        href: 'http://example.com',
+      },
+    ],
     tag: validTags,
     location: validLocation,
   };
-  const validBroadCastNoAssets = {
-    content: validContentNoAssets,
+  const validBroadCastNoUploadedAssets = {
+    content: validContentNoUploadedAssets,
   };
-  const validReplyNoAssets = {
-    content: validContentNoAssets,
+  const validReplyNoUploadedAssets = {
+    content: validContentNoUploadedAssets,
     inReplyTo: 'dsnp://78187493520/0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   };
   const validReaction = {
@@ -47,7 +57,7 @@ describe('AppController E2E request verification!', () => {
     apply: 5,
     inReplyTo: 'dsnp://78187493520/0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
   };
-  const validProfileNoAssets = {
+  const validProfileNoUploadedAssets = {
     summary: 'profile summary',
     published: '1970-01-01T00:00:00+00:00',
     name: 'name of profile content',
@@ -77,7 +87,7 @@ describe('AppController E2E request verification!', () => {
       const invalidDsnpUserId = '2gsjhdaj';
       return request(app.getHttpServer())
         .post(`/api/content/${invalidDsnpUserId}/broadcast`)
-        .send(validBroadCastNoAssets)
+        .send(validBroadCastNoUploadedAssets)
         .expect(400)
         .expect((res) => expect(res.text).toContain('must be a number string'));
     });
@@ -92,12 +102,66 @@ describe('AppController E2E request verification!', () => {
   });
 
   describe('(POST) /api/content/:dsnpUserId/broadcast', () => {
-    it('valid request without assets should work!', () =>
+    it('valid request without uploaded assets should work!', () =>
       request(app.getHttpServer())
         .post(`/api/content/123/broadcast`)
-        .send(validBroadCastNoAssets)
+        .send(validBroadCastNoUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('valid request with uploaded assets should work!', async () => {
+      const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      await sleep(1000);
+      const validBroadCastWithUploadedAssets = {
+        content: {
+          ...validContentNoUploadedAssets,
+          assets: [
+            {
+              type: 'image',
+              name: 'image asset',
+              references: [
+                {
+                  referenceId: response.body.assetIds[0],
+                  height: 123,
+                  width: 321,
+                },
+              ],
+            },
+          ],
+        },
+      };
+      return request(app.getHttpServer())
+        .post(`/api/content/123/broadcast`)
+        .send(validBroadCastWithUploadedAssets)
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    }, 15000);
+
+    it('request with not uploaded assets should fail!', async () => {
+      const badAssetCid = 'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy';
+      const validBroadCastWithUploadedAssets = {
+        content: {
+          ...validContentNoUploadedAssets,
+          assets: [
+            {
+              type: 'image',
+              name: 'image asset',
+              references: [
+                {
+                  referenceId: badAssetCid,
+                },
+              ],
+            },
+          ],
+        },
+      };
+      return request(app.getHttpServer())
+        .post(`/api/content/123/broadcast`)
+        .send(validBroadCastWithUploadedAssets)
+        .expect(400)
+        .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
+    });
 
     it('empty body should fail', () => {
       const body = {};
@@ -349,9 +413,67 @@ describe('AppController E2E request verification!', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())
         .post(`/api/content/123/reply`)
-        .send(validReplyNoAssets)
+        .send(validReplyNoUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('valid request with uploaded assets should work!', async () => {
+      const file = Buffer.from('h'.repeat(30 * 1000 * 1000)); // 30MB
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      await sleep(1000);
+      const validReplyWithUploadedAssets = {
+        ...validReplyNoUploadedAssets,
+        content: {
+          ...validContentNoUploadedAssets,
+          assets: [
+            {
+              type: 'image',
+              name: 'image asset',
+              references: [
+                {
+                  referenceId: response.body.assetIds[0],
+                  height: 123,
+                  width: 321,
+                },
+              ],
+            },
+          ],
+        },
+      };
+      return request(app.getHttpServer())
+        .post(`/api/content/123/reply`)
+        .send(validReplyWithUploadedAssets)
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    }, 15000);
+
+    it('request with not uploaded assets should fail!', async () => {
+      const badAssetCid = 'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy';
+      const validReplyWithUploadedAssets = {
+        ...validReplyNoUploadedAssets,
+        content: {
+          ...validContentNoUploadedAssets,
+          assets: [
+            {
+              type: 'image',
+              name: 'image asset',
+              references: [
+                {
+                  referenceId: badAssetCid,
+                  height: 123,
+                  width: 321,
+                },
+              ],
+            },
+          ],
+        },
+      };
+      return request(app.getHttpServer())
+        .post(`/api/content/123/reply`)
+        .send(validReplyWithUploadedAssets)
+        .expect(400)
+        .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
+    });
 
     it('empty body should fail', () => {
       const body = {};
@@ -366,7 +488,7 @@ describe('AppController E2E request verification!', () => {
       request(app.getHttpServer())
         .post(`/api/content/123/reply`)
         .send({
-          content: validContentNoAssets,
+          content: validContentNoUploadedAssets,
         })
         .expect(400)
         .expect((res) => expect(res.text).toContain('inReplyTo must be a string')));
@@ -375,7 +497,7 @@ describe('AppController E2E request verification!', () => {
       request(app.getHttpServer())
         .post(`/api/content/123/reply`)
         .send({
-          content: validContentNoAssets,
+          content: validContentNoUploadedAssets,
           inReplyTo: 'shgdjas72gsjajasa',
         })
         .expect(400)
@@ -427,17 +549,73 @@ describe('AppController E2E request verification!', () => {
         .put(`/api/content/123/0x7653423447AF`)
         .send({
           targetAnnouncementType: 'broadcast',
-          content: validContentNoAssets,
+          content: validContentNoUploadedAssets,
         })
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('valid request with uploaded assets should work!', async () => {
+      const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      await sleep(1000);
+      const validContentWithUploadedAssets = {
+        ...validContentNoUploadedAssets,
+        assets: [
+          {
+            type: 'image',
+            name: 'image asset',
+            references: [
+              {
+                referenceId: response.body.assetIds[0],
+                height: 123,
+                width: 321,
+              },
+            ],
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .put(`/api/content/123/0x7653423447AF`)
+        .send({
+          targetAnnouncementType: 'broadcast',
+          content: validContentWithUploadedAssets,
+        })
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    }, 15000);
+
+    it('request with not uploaded assets should fail!', async () => {
+      const badAssetCid = 'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy';
+      const validBroadCastWithUploadedAssets = {
+        ...validContentNoUploadedAssets,
+        assets: [
+          {
+            type: 'image',
+            name: 'image asset',
+            references: [
+              {
+                referenceId: badAssetCid,
+              },
+            ],
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .put(`/api/content/123/0x7653423447AF`)
+        .send({
+          targetAnnouncementType: 'broadcast',
+          content: validBroadCastWithUploadedAssets,
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
+    });
 
     it('invalid targetAnnouncementType should fail', () =>
       request(app.getHttpServer())
         .put(`/api/content/123/0x7653423447AF`)
         .send({
           targetAnnouncementType: 'invalid',
-          content: validContentNoAssets,
+          content: validContentNoUploadedAssets,
         })
         .expect(400)
         .expect((res) => expect(res.text).toContain('targetAnnouncementType must be one of the following values')));
@@ -456,10 +634,77 @@ describe('AppController E2E request verification!', () => {
       request(app.getHttpServer())
         .put(`/api/profile/123`)
         .send({
-          profile: validProfileNoAssets,
+          profile: validProfileNoUploadedAssets,
         })
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('valid request with uploaded assets should work!', async () => {
+      const file = Buffer.from('n'.repeat(30 * 1000 * 1000)); // 30MB
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file.jpg').expect(202);
+      await sleep(1000);
+      const validUploadWithUploadedAssets = {
+        ...validProfileNoUploadedAssets,
+        icon: [
+          {
+            referenceId: response.body.assetIds[0],
+            height: 123,
+            width: 321,
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .put(`/api/profile/123`)
+        .send({
+          profile: validUploadWithUploadedAssets,
+        })
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    }, 15000);
+
+    it('request with not uploaded icon should fail!', async () => {
+      const badAssetCid = 'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy';
+      const validUploadWithUploadedAssets = {
+        ...validProfileNoUploadedAssets,
+        icon: [
+          {
+            referenceId: badAssetCid,
+            height: 123,
+            width: 321,
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .put(`/api/profile/123`)
+        .send({
+          profile: validUploadWithUploadedAssets,
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
+    });
+
+    it('request with non-image uploaded assets should fail!', async () => {
+      const file = Buffer.from('s'.repeat(30 * 1000 * 1000)); // 30MB
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file.mp3').expect(202);
+      await sleep(1000);
+      const profileContent = {
+        ...validProfileNoUploadedAssets,
+        icon: [
+          {
+            referenceId: response.body.assetIds[0],
+            height: 123,
+            width: 321,
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .put(`/api/profile/123`)
+        .send({
+          profile: profileContent,
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('is not an image!'));
+    }, 15000);
 
     it('empty profile should fail', () =>
       request(app.getHttpServer())
@@ -502,16 +747,43 @@ describe('AppController E2E request verification!', () => {
     it('valid request should work!', () =>
       request(app.getHttpServer())
         .put(`/api/asset/upload`)
-        .attach('files', Buffer.from(validContentNoAssets.toString()), 'image.jpg')
+        .attach('files', Buffer.from(validContentNoUploadedAssets.toString()), 'image.jpg')
         .expect(202)
         .expect((res) => expect(res.text).toContain('assetIds')));
 
     it('invalid mime should fail', () =>
       request(app.getHttpServer())
         .put(`/api/asset/upload`)
-        .attach('files', Buffer.from(validContentNoAssets.toString()), 'doc.txt')
+        .attach('files', Buffer.from(validContentNoUploadedAssets.toString()), 'doc.txt')
         .expect(422)
         .expect((res) => expect(res.text).toContain('expected type is')));
+
+    it('valid request should work!', async () => {
+      const file1 = Buffer.from('a'.repeat(30 * 1000)); // 30KB
+      const file2 = Buffer.from('t'.repeat(30 * 1000 * 1000)); // 30MB
+      const file3 = Buffer.from('z'.repeat(100 * 1000 * 1000)); // 100MB
+      await request(app.getHttpServer())
+        .put(`/api/asset/upload`)
+        .attach('files', file1, 'file1.jpg')
+        .attach('files', file2, 'file2.mp3')
+        .attach('files', file3, 'file3.mpeg')
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('assetIds'));
+    }, 15000);
+
+    it('upload asset should be uploaded to IPFS', async () => {
+      const buffer = new Uint32Array(100 * 1000);
+      randomFill(buffer, (err, buf) => {
+        if (err) throw err;
+      });
+      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', Buffer.from(buffer), 'file1.jpg').expect(202);
+      const assetId = response.body.assetIds[0];
+      await sleep(2000);
+      return request(app.getHttpServer())
+        .get(`/api/dev/asset/${assetId}`)
+        .expect(200)
+        .expect((res) => expect(Buffer.from(res.body)).toEqual(Buffer.from(buffer)));
+    }, 15000);
   });
 
   afterEach(async () => {
@@ -520,5 +792,5 @@ describe('AppController E2E request verification!', () => {
     } catch (err) {
       console.error(err);
     }
-  });
+  }, 15000);
 });

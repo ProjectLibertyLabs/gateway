@@ -9,6 +9,7 @@ import { ConfigModule } from './config/config.module';
 import { DevelopmentController } from './development.controller';
 import { QueueConstants } from '../../../libs/common/src';
 import { ApiService } from './api.service';
+import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 
 @Module({
   imports: [
@@ -54,7 +55,7 @@ import { ApiService } from './api.service';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService, ApiService],
+  providers: [ConfigService, ApiService, IpfsService],
   controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ApiController] : [ApiController],
   exports: [],
 })

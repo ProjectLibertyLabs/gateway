@@ -55,11 +55,11 @@ export class BatchAnnouncer {
 
     await writer.close();
     const buffer = await this.bufferPublishStream(publishStream);
-    const [cid, hash] = await this.pinStringToIPFS(buffer);
+    const [cid, hash, size] = await this.pinParquetFileToIPFS(buffer);
     const ipfsUrl = await this.formIpfsUrl(cid);
     this.logger.debug(`Batch ${batchId} published to IPFS at ${ipfsUrl}`);
     this.logger.debug(`Batch ${batchId} hash: ${hash}`);
-    return { id: batchId, schemaId, data: { cid, payloadLength: buffer.length } };
+    return { id: batchId, schemaId, data: { cid, payloadLength: size } };
   }
 
   private async bufferPublishStream(publishStream: PassThrough): Promise<Buffer> {
@@ -78,9 +78,9 @@ export class BatchAnnouncer {
     });
   }
 
-  private async pinStringToIPFS(buf: Buffer): Promise<[string, string]> {
-    const { cid, size } = await this.ipfsService.ipfsPin('application/octet-stream', buf);
-    return [cid.toString(), size.toString()];
+  private async pinParquetFileToIPFS(buf: Buffer): Promise<[string, string, number]> {
+    const { cid, hash, size } = await this.ipfsService.ipfsPin('application/octet-stream', buf);
+    return [cid.toString(), hash, size];
   }
 
   private async formIpfsUrl(cid: string): Promise<string> {

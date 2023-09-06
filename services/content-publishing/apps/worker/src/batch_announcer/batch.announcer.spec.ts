@@ -72,7 +72,7 @@ describe('BatchAnnouncer', () => {
     mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockBlockchainService.getSchema.mockReturnValue({ model: JSON.stringify(broadcast) });
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 'mockSize' });
+    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 10, hash: 'mockHash' });
 
     const batchJob = {
       batchId: 'mockBatchId',

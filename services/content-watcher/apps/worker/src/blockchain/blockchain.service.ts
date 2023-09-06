@@ -7,8 +7,8 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
-import { u32, Option, u128 } from '@polkadot/types';
-import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
+import { u32, Option } from '@polkadot/types';
+import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { Extrinsic } from './extrinsic';
 
@@ -138,5 +138,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async capacityBatchLimit(): Promise<number> {
     return this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
+  }
+
+  public async getSchema(schemaId: number): Promise<PalletSchemasSchema> {
+    const schema: PalletSchemasSchema = await this.query('schemas', 'schemas', schemaId);
+    return schema;
   }
 }

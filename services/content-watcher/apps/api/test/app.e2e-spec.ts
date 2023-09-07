@@ -91,14 +91,6 @@ describe('AppController E2E request verification!', () => {
         .expect(400)
         .expect((res) => expect(res.text).toContain('must be a number string'));
     });
-
-    it('invalid DsnpContentHashParam should fail', () => {
-      const invalidContentHashParam = '2gsjhdaj';
-      return request(app.getHttpServer())
-        .delete(`/api/content/123/${invalidContentHashParam}`)
-        .expect(400)
-        .expect((res) => expect(res.text).toContain('must be in hexadecimal format'));
-    });
   });
 
   describe('(POST) /api/content/:dsnpUserId/broadcast', () => {
@@ -543,11 +535,12 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('inReplyTo must match')));
   });
 
-  describe('(PUT) /api/content/:dsnpUserId/:contentHash', () => {
+  describe('(PUT) /api/content/:dsnpUserId', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())
-        .put(`/api/content/123/0x7653423447AF`)
+        .put(`/api/content/123`)
         .send({
+          targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
           content: validContentNoUploadedAssets,
         })
@@ -575,8 +568,9 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/content/123/0x7653423447AF`)
+        .put(`/api/content/123`)
         .send({
+          targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
           content: validContentWithUploadedAssets,
         })
@@ -601,8 +595,9 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/content/123/0x7653423447AF`)
+        .put(`/api/content/123`)
         .send({
+          targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
           content: validBroadCastWithUploadedAssets,
         })
@@ -612,21 +607,57 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid targetAnnouncementType should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/content/123/0x7653423447AF`)
+        .put(`/api/content/123`)
         .send({
+          targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'invalid',
           content: validContentNoUploadedAssets,
         })
         .expect(400)
         .expect((res) => expect(res.text).toContain('targetAnnouncementType must be one of the following values')));
+
+    it('invalid targetContentHash should fail', () =>
+      request(app.getHttpServer())
+        .put(`/api/content/123`)
+        .send({
+          targetContentHash: '6328462378',
+          targetAnnouncementType: 'reply',
+          content: validContentNoUploadedAssets,
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
   });
 
-  describe('(DELETE) /api/content/:dsnpUserId/contentHash', () => {
+  describe('(DELETE) /api/content/:dsnpUserId', () => {
     it('valid request should work!', () =>
       request(app.getHttpServer())
-        .delete(`/api/content/123/0x7653423447AF`)
+        .delete(`/api/content/123`)
+        .send({
+          targetContentHash: '0x7653423447AF',
+          targetAnnouncementType: 'reply',
+        })
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('invalid targetAnnouncementType should fail', () =>
+      request(app.getHttpServer())
+        .delete(`/api/content/123`)
+        .send({
+          targetContentHash: '0x7653423447AF',
+          targetAnnouncementType: 'invalid',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetAnnouncementType must be one of the following values')));
+
+    it('invalid targetContentHash should fail', () =>
+      request(app.getHttpServer())
+        .delete(`/api/content/123`)
+        .send({
+          targetContentHash: '6328462378',
+          targetAnnouncementType: 'reply',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
   });
 
   describe('(PUT) /api/profile/:userDsnpId', () => {

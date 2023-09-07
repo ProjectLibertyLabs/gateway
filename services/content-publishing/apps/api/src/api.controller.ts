@@ -8,12 +8,12 @@ import {
   AssetIncludedRequestDto,
   BroadcastDto,
   DSNP_VALID_MIME_TYPES,
-  DsnpContentHashParam,
   DsnpUserIdParam,
   FilesUploadDto,
   ProfileDto,
   ReactionDto,
   ReplyDto,
+  TombstoneDto,
   UpdateDto,
   UploadResponseDto,
 } from '../../../libs/common/src';
@@ -83,17 +83,17 @@ export class ApiController {
     return this.apiService.enqueueRequest(AnnouncementTypeDto.REACTION, userDsnpId.userDsnpId, reactionDto);
   }
 
-  @Put('content/:userDsnpId/:targetContentHash')
+  @Put('content/:userDsnpId')
   @HttpCode(202)
-  async update(@Param() userDsnpId: DsnpUserIdParam, @Param() targetContentHash: DsnpContentHashParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
+  async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
     await this.apiService.validateAssets(updateDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, targetContentHash.targetContentHash);
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto);
   }
 
-  @Delete('content/:userDsnpId/:targetContentHash')
+  @Delete('content/:userDsnpId')
   @HttpCode(202)
-  async delete(@Param() userDsnpId: DsnpUserIdParam, @Param() targetContentHash: DsnpContentHashParam): Promise<AnnouncementResponseDto> {
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, undefined, targetContentHash.targetContentHash);
+  async delete(@Param() userDsnpId: DsnpUserIdParam, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
   }
 
   @Put('profile/:userDsnpId')

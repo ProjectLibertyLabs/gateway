@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -34,13 +34,12 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async enqueueRequest(announcementType: AnnouncementTypeDto, dsnpUserId: string, content?: RequestTypeDto, targetContentHash?: string): Promise<AnnouncementResponseDto> {
+  async enqueueRequest(announcementType: AnnouncementTypeDto, dsnpUserId: string, content?: RequestTypeDto): Promise<AnnouncementResponseDto> {
     const data = {
       content,
       id: '',
       announcementType,
       dsnpUserId,
-      targetContentHash,
       dependencyAttempt: 0,
     } as IRequestJob;
     data.id = this.calculateJobId(data);

@@ -5,7 +5,6 @@ export interface IRequestJob {
   id: string;
   announcementType: AnnouncementTypeDto;
   dsnpUserId: string;
-  targetContentHash?: string;
   content?: RequestTypeDto;
   dependencyAttempt: number;
 }

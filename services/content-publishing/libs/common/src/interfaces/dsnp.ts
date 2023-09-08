@@ -18,7 +18,7 @@ export enum AnnouncementType {
 type TombstoneFields = {
   announcementType: AnnouncementType.Tombstone;
   targetAnnouncementType: AnnouncementType;
-  targetSignature: string;
+  targetContentHash: string;
 };
 
 type BroadcastFields = {
@@ -46,13 +46,20 @@ type ProfileFields = {
   url: string;
 };
 
+type UpdateFields = {
+  announcementType: AnnouncementType.Update;
+  targetAnnouncementType: AnnouncementType;
+  targetContentHash: string;
+  url: string;
+};
+
 /**
  * TypedAnnouncement: an Announcement with a particular AnnouncementType
  */
 export type TypedAnnouncement<T extends AnnouncementType> = {
   announcementType: T;
   fromId: string;
-} & (TombstoneFields | BroadcastFields | ReplyFields | ReactionFields | ProfileFields);
+} & (TombstoneFields | BroadcastFields | ReplyFields | ReactionFields | ProfileFields | UpdateFields);
 
 /**
  * Announcement: an Announcement intended for inclusion in a batch file
@@ -85,6 +92,11 @@ export type ReplyAnnouncement = TypedAnnouncement<AnnouncementType.Reply>;
 export type ReactionAnnouncement = TypedAnnouncement<AnnouncementType.Reaction>;
 
 /**
+ * UpdateAnnouncement: an Announcement of type Update
+ */
+export type UpdateAnnouncement = TypedAnnouncement<AnnouncementType.Update>;
+
+/**
  * createTombstone() generates a tombstone announcement from a given URL and
  * hash.
  *
@@ -93,10 +105,10 @@ export type ReactionAnnouncement = TypedAnnouncement<AnnouncementType.Reaction>;
  * @param targetSignature - The signature of the target announcement
  * @returns A TombstoneAnnouncement
  */
-export const createTombstone = (fromId: string, targetType: AnnouncementType, targetSignature: string): TombstoneAnnouncement => ({
+export const createTombstone = (fromId: string, targetType: AnnouncementType, targetContentHash: string): TombstoneAnnouncement => ({
   announcementType: AnnouncementType.Tombstone,
   targetAnnouncementType: targetType,
-  targetSignature,
+  targetContentHash,
   fromId,
 });
 
@@ -180,4 +192,26 @@ export const createNote = (content: string, published: Date, options?: Partial<A
   published: published.toISOString(),
   content,
   ...options,
+});
+
+/**
+ * createUpdate() generates an update announcement from a given URL, hash and
+ * content uri.
+ * @param fromId   - The id of the user from whom the announcement is posted
+ * @param url       - The URL of the activity content to reference
+ * @param hash      - The hash of the content at the URL
+ * @param targetType - The DSNP announcement type of the target announcement
+ * @param targetHash - The hash of the target announcement
+ * @returns An UpdateAnnouncement
+ * @remarks
+ * The targetHash is the hash of the target announcement. This is used to
+ * ensure that the target announcement has not been modified since the update
+ * announcement was created.
+ */
+export const createUpdate = (fromId: string, url: string, hash: string, targetType: AnnouncementType, targetHash: string): UpdateAnnouncement => ({
+  announcementType: AnnouncementType.Update,
+  fromId,
+  targetAnnouncementType: targetType,
+  targetContentHash: targetHash,
+  url,
 });

@@ -10,6 +10,7 @@ import { ConfigService } from '../../../api/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
 import { RequestProcessorService } from './request.processor.service';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 
 @Module({
   imports: [
@@ -53,8 +54,26 @@ import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
     BullModule.registerQueue({
       name: QueueConstants.REQUEST_QUEUE_NAME,
     }),
+    BullModule.registerQueue({
+      name: QueueConstants.BROADCAST_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.REPLY_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.REACTION_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.UPDATE_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.PROFILE_QUEUE_NAME,
+    }),
   ],
-  providers: [RequestProcessorService, IpfsService],
-  exports: [BullModule, RequestProcessorService, IpfsService],
+  providers: [RequestProcessorService, IpfsService, DsnpAnnouncementProcessor],
+  exports: [BullModule, RequestProcessorService, IpfsService, DsnpAnnouncementProcessor],
 })
 export class RequestProcessorModule {}

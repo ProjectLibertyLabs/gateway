@@ -1,11 +1,12 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
+import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { DelayedError, Job } from 'bullmq';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { AnnouncementTypeDto, BroadcastDto, IRequestJob, ProfileDto, QueueConstants, ReplyDto, UpdateDto } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME)
@@ -13,7 +14,8 @@ export class RequestProcessorService extends WorkerHost {
   private logger: Logger;
 
   constructor(
-    @InjectRedis() private redis: Redis,
+    @InjectRedis() private cacheManager: Redis,
+    private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {
@@ -24,15 +26,19 @@ export class RequestProcessorService extends WorkerHost {
   async process(job: Job<IRequestJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     this.logger.debug(job.asJSON());
-    const assets = this.getAssetReferencesFromRequestJob(job.data);
-
-    const pinnedAssets = assets.map((cid) => this.ipfsService.getPinned(cid));
-    const pinnedResult = await Promise.all(pinnedAssets);
-    // if any of assets does not exists delay the job for a future attempt
-    if (pinnedResult.some((buffer) => !buffer)) {
-      await this.delayJobAndIncrementAttempts(job);
-    } else {
-      // TODO: create attachments from assets
+    try {
+      const assets = this.getAssetReferencesFromRequestJob(job.data);
+      const pinnedAssets = assets.map((cid) => this.ipfsService.getPinned(cid));
+      const pinnedResult = await Promise.all(pinnedAssets);
+      // if any of assets does not exists delay the job for a future attempt
+      if (pinnedResult.some((buffer) => !buffer)) {
+        await this.delayJobAndIncrementAttempts(job);
+      } else {
+        await this.dsnpAnnouncementProcessor.collectAnnouncementAndQueue(job.data);
+      }
+    } catch (e) {
+      this.logger.error(e);
+      throw e;
     }
   }
 

@@ -38,7 +38,7 @@ export class IPFSPublisher {
     try {
       const currrentEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const [txHash, eventMap] = await this.blockchainService
-        .createExtrinsic({ pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' }, { eventPallet: 'messages', event: 'MessagesStored' }, providerKeys, [tx])
+        .createExtrinsic({ pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' }, { eventPallet: 'messages', event: 'MessagesStored' }, providerKeys, tx)
         .signAndSend();
       if (!txHash) {
         throw new Error('Tx hash is undefined');

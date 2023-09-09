@@ -16,7 +16,7 @@ import {
   RequestTypeDto,
   UploadResponseDto,
 } from '../../../libs/common/src';
-import { calculateDsnpHash, calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
+import { calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
 import { IAssetJob, IAssetMetadata } from '../../../libs/common/src/interfaces/asset-job.interface';
 import { RedisUtils } from '../../../libs/common/src/utils/redis';
 import getAssetDataKey = RedisUtils.getAssetDataKey;
@@ -34,7 +34,12 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async enqueueRequest(announcementType: AnnouncementTypeDto, dsnpUserId: string, content?: RequestTypeDto): Promise<AnnouncementResponseDto> {
+  async enqueueRequest(
+    announcementType: AnnouncementTypeDto,
+    dsnpUserId: string,
+    content: RequestTypeDto,
+    assetToMimeType?: Map<string, string>,
+  ): Promise<AnnouncementResponseDto> {
     const data = {
       content,
       id: '',
@@ -43,6 +48,10 @@ export class ApiService {
       dependencyAttempt: 0,
     } as IRequestJob;
     data.id = this.calculateJobId(data);
+    if (assetToMimeType) {
+      // not used in id calculation since the order in map might not be deterministic
+      data.assetToMimeType = assetToMimeType;
+    }
     const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from config
     this.logger.debug(job);
     return {
@@ -50,7 +59,7 @@ export class ApiService {
     };
   }
 
-  async validateAssets(content: AssetIncludedRequestDto): Promise<void> {
+  async validateAssetsAndFetchMetadata(content: AssetIncludedRequestDto): Promise<Map<string, string> | undefined> {
     const checkingList: Array<{ onlyImage: boolean; referenceId: string }> = [];
     if (content.profile) {
       content.profile.icon?.forEach((reference) => checkingList.push({ onlyImage: true, referenceId: reference.referenceId }));
@@ -68,13 +77,16 @@ export class ApiService {
 
     const redisResults = await Promise.all(checkingList.map((obj) => this.redis.get(getAssetMetadataKey(obj.referenceId))));
     const errors: string[] = [];
+    const map = new Map();
     redisResults.forEach((res, index) => {
       if (res === null) {
         errors.push(`${content.profile ? 'profile.icon' : 'content.assets'}.referenceId ${checkingList[index].referenceId} does not exist!`);
-      } else if (checkingList[index].onlyImage) {
-        // checks if attached asset is an image
+      } else {
         const metadata: IAssetMetadata = JSON.parse(res);
-        if (!isImage(metadata.mimeType)) {
+        map[checkingList[index].referenceId] = metadata.mimeType;
+
+        // checks if attached asset is an image
+        if (checkingList[index].onlyImage && !isImage(metadata.mimeType)) {
           errors.push(`profile.icon.referenceId ${checkingList[index].referenceId} is not an image!`);
         }
       }
@@ -82,6 +94,7 @@ export class ApiService {
     if (errors.length > 0) {
       throw new HttpErrorByCode[400](errors);
     }
+    return map;
   }
 
   // TODO: make all these operations transactional
@@ -142,7 +155,7 @@ export class ApiService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  calculateJobId(jobWithoutId: IRequestJob): string {
+  private calculateJobId(jobWithoutId: IRequestJob): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }

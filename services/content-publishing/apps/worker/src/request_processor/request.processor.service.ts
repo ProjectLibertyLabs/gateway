@@ -27,7 +27,7 @@ export class RequestProcessorService extends WorkerHost {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     this.logger.debug(job.asJSON());
     try {
-      const assets = this.getAssetReferencesFromRequestJob(job.data);
+      const assets: string[] = job.data.assetToMimeType ? Object.keys(job.data.assetToMimeType) : [];
       const pinnedAssets = assets.map((cid) => this.ipfsService.getPinned(cid));
       const pinnedResult = await Promise.all(pinnedAssets);
       // if any of assets does not exists delay the job for a future attempt
@@ -45,26 +45,6 @@ export class RequestProcessorService extends WorkerHost {
   // eslint-disable-next-line class-methods-use-this
   @OnWorkerEvent('completed')
   onCompleted() {}
-
-  // eslint-disable-next-line class-methods-use-this
-  private getAssetReferencesFromRequestJob(job: IRequestJob): Array<string> {
-    const assets: string[] = [];
-    // eslint-disable-next-line default-case
-    switch (job.announcementType) {
-      case AnnouncementTypeDto.BROADCAST:
-        (job.content as BroadcastDto).content.assets?.forEach((a) => a.references?.forEach((r) => assets.push(r.referenceId)));
-        break;
-      case AnnouncementTypeDto.REPLY:
-        (job.content as ReplyDto).content.assets?.forEach((a) => a.references?.forEach((r) => assets.push(r.referenceId)));
-        break;
-      case AnnouncementTypeDto.UPDATE:
-        (job.content as UpdateDto).content.assets?.forEach((a) => a.references?.forEach((r) => assets.push(r.referenceId)));
-        break;
-      case AnnouncementTypeDto.PROFILE:
-        (job.content as ProfileDto).profile.icon?.forEach((r) => assets.push(r.referenceId));
-    }
-    return assets;
-  }
 
   // eslint-disable-next-line class-methods-use-this
   private async delayJobAndIncrementAttempts(job: Job<IRequestJob, any, string>) {

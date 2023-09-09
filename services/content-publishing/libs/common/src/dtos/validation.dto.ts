@@ -1,3 +1,5 @@
+import { AnnouncementTypeDto } from './common.dto';
+
 /**
  * Regex for ISO 8601
  * - T separation
@@ -40,4 +42,15 @@ export const DSNP_VALID_MIME_TYPES =
  */
 export function isImage(mimeType: string): boolean {
   return mimeType != null && mimeType.toLowerCase().startsWith('image');
+}
+/**
+ * checks to see if the type might have some assets
+ */
+export function isAssetIncludedType(announcementType: AnnouncementTypeDto): boolean {
+  return (
+    announcementType === AnnouncementTypeDto.PROFILE ||
+    announcementType === AnnouncementTypeDto.BROADCAST ||
+    announcementType === AnnouncementTypeDto.REPLY ||
+    announcementType === AnnouncementTypeDto.UPDATE
+  );
 }

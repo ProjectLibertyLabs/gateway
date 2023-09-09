@@ -66,15 +66,15 @@ export class ApiController {
   @Post('content/:userDsnpId/broadcast')
   @HttpCode(202)
   async broadcast(@Param() userDsnpId: DsnpUserIdParam, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
-    await this.apiService.validateAssets(broadcastDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto);
+    const metadata = await this.apiService.validateAssetsAndFetchMetadata(broadcastDto as AssetIncludedRequestDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto, metadata);
   }
 
   @Post('content/:userDsnpId/reply')
   @HttpCode(202)
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
-    await this.apiService.validateAssets(replyDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto);
+    const metadata = await this.apiService.validateAssetsAndFetchMetadata(replyDto as AssetIncludedRequestDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto, metadata);
   }
 
   @Post('content/:userDsnpId/reaction')
@@ -86,8 +86,8 @@ export class ApiController {
   @Put('content/:userDsnpId')
   @HttpCode(202)
   async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
-    await this.apiService.validateAssets(updateDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto);
+    const metadata = await this.apiService.validateAssetsAndFetchMetadata(updateDto as AssetIncludedRequestDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, metadata);
   }
 
   @Delete('content/:userDsnpId')
@@ -99,7 +99,7 @@ export class ApiController {
   @Put('profile/:userDsnpId')
   @HttpCode(202)
   async profile(@Param() userDsnpId: DsnpUserIdParam, @Body() profileDto: ProfileDto): Promise<AnnouncementResponseDto> {
-    await this.apiService.validateAssets(profileDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto);
+    const metadata = await this.apiService.validateAssetsAndFetchMetadata(profileDto as AssetIncludedRequestDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto, metadata);
   }
 }

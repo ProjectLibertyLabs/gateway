@@ -66,6 +66,7 @@ describe('DsnpAnnouncementProcessor', () => {
           published: '2021-01-01T00:00:00.000Z',
         },
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
@@ -91,6 +92,7 @@ describe('DsnpAnnouncementProcessor', () => {
         },
         inReplyTo: 'dsnp://123/reply/1',
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
@@ -115,6 +117,7 @@ describe('DsnpAnnouncementProcessor', () => {
         inReplyTo: 'dsnp://123/reply/1',
         apply: 10,
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
@@ -141,6 +144,7 @@ describe('DsnpAnnouncementProcessor', () => {
         targetAnnouncementType: ModifiableAnnouncementTypeDto.REPLY,
         targetContentHash: 'dsnp://123/reply/1',
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
@@ -171,6 +175,7 @@ describe('DsnpAnnouncementProcessor', () => {
           ],
         },
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
@@ -194,6 +199,7 @@ describe('DsnpAnnouncementProcessor', () => {
         targetAnnouncementType: ModifiableAnnouncementTypeDto.BROADCAST,
         targetContentHash: 'dsnp://123/broadcast/1',
       },
+      assetToMimeType: new Map(),
     };
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);

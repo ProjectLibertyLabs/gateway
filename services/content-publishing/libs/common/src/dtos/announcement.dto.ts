@@ -80,4 +80,4 @@ export class ProfileDto {
 }
 
 export type RequestTypeDto = BroadcastDto | ReplyDto | ReactionDto | UpdateDto | ProfileDto | TombstoneDto;
-export type AssetIncludedRequestDto = BroadcastDto & ReplyDto & UpdateDto & ProfileDto & TombstoneDto;
+export type AssetIncludedRequestDto = BroadcastDto & ReplyDto & UpdateDto & ProfileDto;

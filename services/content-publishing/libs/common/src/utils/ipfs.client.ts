@@ -88,7 +88,7 @@ export class IpfsService {
       authorization: ipfsAuth,
     };
 
-    const response = await axios.post(ipfsGet, null, { headers, responseType: 'blob' });
+    const response = await axios.post(ipfsGet, null, { headers, responseType: 'arraybuffer' });
 
     const { data } = response;
     return data;

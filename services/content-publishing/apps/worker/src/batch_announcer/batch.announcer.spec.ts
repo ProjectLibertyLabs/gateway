@@ -4,6 +4,8 @@ import assert from 'assert';
 import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Redis from 'ioredis-mock';
+import { stringToHex } from '@polkadot/util';
+import { Bytes } from '@polkadot/types';
 import { BatchAnnouncer } from './batch.announcer';
 
 // Create a mock for the dependencies
@@ -72,7 +74,7 @@ describe('BatchAnnouncer', () => {
   it('should announce a batch to IPFS', async () => {
     // Mock the necessary dependencies' behavior
     mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
-    mockBlockchainService.getSchema.mockReturnValue({ model: JSON.stringify(broadcast) });
+    mockBlockchainService.getSchema.mockReturnValue({ model: Buffer.from(stringToHex(JSON.stringify(broadcast))) });
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 10, hash: 'mockHash' });
 

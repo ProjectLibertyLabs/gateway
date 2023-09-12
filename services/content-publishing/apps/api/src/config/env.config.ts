@@ -1,10 +1,14 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
 import { mnemonicValidate } from '@polkadot/util-crypto';
+import { EnvironmentDto } from '../../../../libs/common/src';
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
+    ENVIRONMENT: Joi.string()
+      .valid(...Object.values(EnvironmentDto))
+      .required(),
     IPFS_ENDPOINT: Joi.string().uri().required(),
     IPFS_GATEWAY_URL: Joi.string().required(), // This is parse as string as the required format of this not a valid uri, check .env.template
     IPFS_BASIC_AUTH_USER: Joi.string().allow('').default(''),
@@ -26,14 +30,7 @@ export const configModuleOptions: ConfigModuleOptions = {
       .min(1)
       .default(3 * 60),
     QUEUE_HIGH_WATER: Joi.number().min(100).default(1000),
-    PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string()
-      .required()
-      .custom((value: string, helpers) => {
-        if (!mnemonicValidate(value)) {
-          return helpers.error('any.invalid');
-        }
-        return value;
-      }),
+    PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
     WEBHOOK_FAILURE_THRESHOLD: Joi.number().min(1).default(3),
     WEBHOOK_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(10),
     HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),

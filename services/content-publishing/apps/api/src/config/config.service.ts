@@ -5,8 +5,10 @@ https://docs.nestjs.com/providers#services
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
+import { EnvironmentDto } from '../../../../libs/common/src';
 
 export interface ConfigEnvironmentVariables {
+  ENVIRONMENT: EnvironmentDto;
   IPFS_ENDPOINT: URL;
   IPFS_GATEWAY_URL: URL;
   IPFS_BASIC_AUTH_USER: string;
@@ -32,6 +34,10 @@ export class ConfigService {
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.capacityLimit = JSON.parse(nestConfigService.get('CAPACITY_LIMIT')!);
+  }
+
+  public get environment(): EnvironmentDto {
+    return this.nestConfigService.get<EnvironmentDto>('ENVIRONMENT')!;
   }
 
   public get redisUrl(): URL {

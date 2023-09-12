@@ -17,6 +17,7 @@ import { AssetProcessorModule } from './asset_processor/asset.processor.module';
 import { AssetProcessorService } from './asset_processor/asset.processor.service';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { RequestProcessorService } from './request_processor/request.processor.service';
+import { BatchingProcessorModule } from './batching_processor/batching.processor.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { RequestProcessorService } from './request_processor/request.processor.s
     StatusMonitorModule,
     AssetProcessorModule,
     RequestProcessorModule,
+    BatchingProcessorModule,
   ],
   providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, StatusMonitoringService, AssetProcessorService, RequestProcessorService],
 })

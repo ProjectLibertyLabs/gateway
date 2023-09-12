@@ -5,6 +5,7 @@ import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { PalletSchemasSchema } from '@polkadot/types/lookup';
+import { hexToString } from '@polkadot/util';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../../../api/src/config/config.service';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
@@ -28,33 +29,32 @@ export class BatchAnnouncer {
     this.logger.debug(`Announcing batch ${batchJob.batchId} on IPFS`);
     const { batchId, schemaId, announcements } = batchJob;
 
-    let frequencySchema: PalletSchemasSchema;
-
     const schemaCacheKey = `schema:${schemaId}`;
-    const cachedSchema = await this.cacheManager.get(schemaCacheKey);
-    if (cachedSchema) {
-      frequencySchema = JSON.parse(cachedSchema);
-    } else {
-      frequencySchema = await this.blockchainService.getSchema(schemaId);
-      await this.cacheManager.set(schemaCacheKey, JSON.stringify(frequencySchema));
+    let cachedSchema: string | null = await this.cacheManager.get(schemaCacheKey);
+    if (!cachedSchema) {
+      const schemaResponse = await this.blockchainService.getSchema(schemaId);
+      cachedSchema = JSON.stringify(schemaResponse);
+      await this.cacheManager.set(schemaCacheKey, cachedSchema);
     }
 
-    const schema = JSON.parse(frequencySchema.model.toString());
+    const frequencySchema: PalletSchemasSchema = JSON.parse(cachedSchema);
+    const hexString: string = Buffer.from(frequencySchema.model).toString('utf8');
+    const schema = JSON.parse(hexToString(hexString));
     if (!schema) {
       throw new Error(`Unable to parse schema for schemaId ${schemaId}`);
     }
 
     const [parquetSchema, writerOptions] = fromFrequencySchema(schema);
     const publishStream = new PassThrough();
-
+    const parquetBufferAwait = this.bufferPublishStream(publishStream);
     const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
-
-    announcements.forEach(async (announcement) => {
-      writer.appendRow(announcement);
-    });
-
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const announcement of announcements) {
+      await writer.appendRow(announcement);
+    }
     await writer.close();
-    const buffer = await this.bufferPublishStream(publishStream);
+
+    const buffer = await parquetBufferAwait;
     const [cid, hash, size] = await this.pinParquetFileToIPFS(buffer);
     const ipfsUrl = await this.formIpfsUrl(cid);
     this.logger.debug(`Batch ${batchId} published to IPFS at ${ipfsUrl}`);
@@ -64,7 +64,7 @@ export class BatchAnnouncer {
 
   private async bufferPublishStream(publishStream: PassThrough): Promise<Buffer> {
     this.logger.debug('Buffering publish stream');
-    return new Promise((resolve, reject) => {
+    return new Promise<Buffer>((resolve, reject) => {
       const buffers: Buffer[] = [];
       publishStream.on('data', (data) => {
         buffers.push(data);

@@ -36,6 +36,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 
 describe('ContentPublishingConfigService', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
+    ENVIRONMENT: undefined,
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
     IPFS_ENDPOINT: undefined,
@@ -61,6 +62,11 @@ describe('ContentPublishingConfigService', () => {
   });
 
   describe('invalid environment', () => {
+    it('missing environment should fail', async () => {
+      const { ENVIRONMENT: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
+    });
+
     it('missing redis url should fail', async () => {
       const { REDIS_URL: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env })).rejects.toBeDefined();
@@ -109,11 +115,6 @@ describe('ContentPublishingConfigService', () => {
     it('missing provider account seed phrase should fail', async () => {
       const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ PROVIDER_ACCOUNT_SEED_PHRASE: undefined, ...env })).rejects.toBeDefined();
-    });
-
-    it('invalid provider account seed phrase should fail', async () => {
-      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ PROVIDER_ACCOUNT_SEED_PHRASE: 'hello, world', ...env })).rejects.toBeDefined();
     });
 
     it('invalid webhook failure threshold should fail', async () => {

@@ -24,6 +24,24 @@ import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
     BullModule.registerQueue({
       name: QueueConstants.ASSET_QUEUE_NAME,
     }),
+    BullModule.registerQueue({
+      name: QueueConstants.BROADCAST_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.REPLY_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.REACTION_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.UPDATE_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.PROFILE_QUEUE_NAME,
+    }),
     ConfigModule,
     RedisModule.forRootAsync(
       {
@@ -56,7 +74,7 @@ import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
     ScheduleModule.forRoot(),
   ],
   providers: [ConfigService, ApiService, IpfsService],
-  controllers: process.env?.ENABLE_DEV_CONTROLLER === 'true' ? [DevelopmentController, ApiController] : [ApiController],
+  controllers: process.env?.ENVIRONMENT === 'dev' ? [DevelopmentController, ApiController] : [ApiController],
   exports: [],
 })
 export class ApiModule {}

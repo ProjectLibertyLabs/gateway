@@ -33,3 +33,10 @@ export enum AnnouncementTypeDto {
   TOMBSTONE = 'tombstone',
   PROFILE = 'profile',
 }
+
+// eslint-disable-next-line no-shadow
+export enum EnvironmentDto {
+  MAIN_NET = 'mainnet',
+  ROCOCO = 'rococo',
+  DEV = 'dev',
+}

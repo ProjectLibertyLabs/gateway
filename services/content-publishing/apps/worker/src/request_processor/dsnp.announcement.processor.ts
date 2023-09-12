@@ -329,7 +329,7 @@ export class DsnpAnnouncementProcessor {
 
   private async processReaction(content: ReactionDto, dsnpUserId: string): Promise<ReactionAnnouncement> {
     this.logger.debug(`Processing reaction ${content.emoji} for ${content.inReplyTo}`);
-    return createReaction(dsnpUserId, content.emoji, content.inReplyTo);
+    return createReaction(dsnpUserId, content.emoji, content.inReplyTo, content.apply);
   }
 
   private async processUpdate(

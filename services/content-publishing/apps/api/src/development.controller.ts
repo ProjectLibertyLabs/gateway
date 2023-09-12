@@ -1,6 +1,5 @@
 /*
 This is a controller providing some endpoints useful for development and testing.
-To use it, simply rename and remove the '.dev' extension
 */
 
 // eslint-disable-next-line max-classes-per-file
@@ -10,7 +9,7 @@ import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
 import { AnnouncementTypeDto, QueueConstants } from '../../../libs/common/src';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
-import { Announcement, AnnouncementType, BroadcastAnnouncement, createBroadcast } from '../../../libs/common/src/interfaces/dsnp';
+import { AnnouncementType, createBroadcast, createProfile, createReaction, createReply, createTombstone, createUpdate } from '../../../libs/common/src/interfaces/dsnp';
 import { calculateDsnpHash } from '../../../libs/common/src/utils/ipfs';
 
 @Controller('api/dev')
@@ -68,19 +67,38 @@ export class DevelopmentController {
     for (let i = 0; i < count; i++) {
       let data: any;
       // eslint-disable-next-line default-case
+      const fromId = `${Math.floor(Math.random() * 100000000)}`;
+      const hash = `${Math.floor(Math.random() * 100000000)}`;
       switch (queueType) {
         case AnnouncementTypeDto.BROADCAST:
-        case AnnouncementTypeDto.PROFILE:
-        case AnnouncementTypeDto.UPDATE:
-        case AnnouncementTypeDto.REPLY:
-        case AnnouncementTypeDto.REACTION:
-        case AnnouncementTypeDto.TOMBSTONE:
-          data = createBroadcast(`${Math.floor(Math.random() * 100000000)}`, `https://example.com/${Math.floor(Math.random() * 100000000)}`, '1289739821');
+          data = createBroadcast(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash);
           break;
+        case AnnouncementTypeDto.PROFILE:
+          data = createProfile(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash);
+          break;
+        case AnnouncementTypeDto.UPDATE:
+          data = createUpdate(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash, AnnouncementType.Broadcast, `${Math.floor(Math.random() * 100000000)}`);
+          break;
+        case AnnouncementTypeDto.REPLY:
+          data = createReply(
+            fromId,
+            `https://example.com/${Math.floor(Math.random() * 100000000)}`,
+            hash,
+            `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`,
+          );
+          break;
+        case AnnouncementTypeDto.REACTION:
+          data = createReaction(fromId, '🤌🏼', `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`, 1);
+          break;
+        case AnnouncementTypeDto.TOMBSTONE:
+          data = createTombstone(fromId, AnnouncementType.Reply, hash);
+          break;
+        default:
+          throw new Error('Announcement type not supported');
       }
       // eslint-disable-next-line no-await-in-loop
-      const hash = await calculateDsnpHash(Buffer.from(JSON.stringify(data)));
-      promises.push(this.queueMapper.get(queueType)!.add(`Dummy Job - ${data.id}`, data, { jobId: hash, removeOnFail: false, removeOnComplete: 2000 }));
+      const jobId = await calculateDsnpHash(Buffer.from(JSON.stringify(data)));
+      promises.push(this.queueMapper.get(queueType)!.add(`Dummy Job - ${data.id}`, data, { jobId, removeOnFail: false, removeOnComplete: true }));
     }
     await Promise.all(promises);
   }

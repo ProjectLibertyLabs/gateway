@@ -38,6 +38,7 @@ type ReactionFields = {
   announcementType: AnnouncementType.Reaction;
   emoji: string;
   inReplyTo: string;
+  apply: number;
 };
 
 type ProfileFields = {
@@ -48,6 +49,7 @@ type ProfileFields = {
 
 type UpdateFields = {
   announcementType: AnnouncementType.Update;
+  contentHash: string;
   targetAnnouncementType: AnnouncementType;
   targetContentHash: string;
   url: string;
@@ -153,11 +155,13 @@ export const createReply = (fromId: string, url: string, hash: string, inReplyTo
  * @param fromId   - The id of the user from whom the announcement is posted
  * @param emoji     - The emoji to respond with
  * @param inReplyTo - The DSNP Content Uri of the parent announcement
+ * @param apply -
  * @returns A ReactionAnnouncement
  */
-export const createReaction = (fromId: string, emoji: string, inReplyTo: string): ReactionAnnouncement => ({
+export const createReaction = (fromId: string, emoji: string, inReplyTo: string, apply: number): ReactionAnnouncement => ({
   announcementType: AnnouncementType.Reaction,
   emoji,
+  apply,
   fromId,
   inReplyTo,
 });
@@ -211,6 +215,7 @@ export const createNote = (content: string, published: Date, options?: Partial<A
 export const createUpdate = (fromId: string, url: string, hash: string, targetType: AnnouncementType, targetHash: string): UpdateAnnouncement => ({
   announcementType: AnnouncementType.Update,
   fromId,
+  contentHash: hash,
   targetAnnouncementType: targetType,
   targetContentHash: targetHash,
   url,

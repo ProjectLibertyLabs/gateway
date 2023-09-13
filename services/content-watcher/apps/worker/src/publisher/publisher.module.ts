@@ -7,9 +7,9 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { PublishingService } from './publishing.service';
-import { ConfigModule } from '../../../api/src/config/config.module';
-import { ConfigService } from '../../../api/src/config/config.service';
-import { BlockchainModule } from '../blockchain/blockchain.module';
+import { ConfigModule } from '../../../../libs/common/src/config/config.module';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { IPFSPublisher } from './ipfs.publisher';
 import { QueueConstants } from '../../../../libs/common/src';
 

@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import metadata from '../metadata';
+import metadata from '../../../../apps/api/src/metadata';
 
 export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const options = new DocumentBuilder()

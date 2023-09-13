@@ -4,8 +4,8 @@ https://docs.nestjs.com/providers#services
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { EnvironmentDto } from '..';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
-import { EnvironmentDto } from '../../../../libs/common/src';
 
 export interface ConfigEnvironmentVariables {
   ENVIRONMENT: EnvironmentDto;

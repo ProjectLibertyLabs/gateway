@@ -5,7 +5,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { Announcement } from '../../../../libs/common/src/interfaces/dsnp';
 import { RedisUtils } from '../../../../libs/common/src/utils/redis';
 import { IBatchMetadata } from '../../../../libs/common/src/interfaces/batch.interface';

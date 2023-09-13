@@ -4,12 +4,12 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ApiController } from './api.controller';
-import { ConfigService } from './config/config.service';
-import { ConfigModule } from './config/config.module';
 import { DevelopmentController } from './development.controller';
 import { QueueConstants } from '../../../libs/common/src';
 import { ApiService } from './api.service';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
+import { ConfigModule } from '../../../libs/common/src/config/config.module';
+import { ConfigService } from '../../../libs/common/src/config/config.service';
 
 @Module({
   imports: [

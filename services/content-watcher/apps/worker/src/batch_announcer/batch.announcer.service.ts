@@ -5,7 +5,7 @@ import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BatchAnnouncer } from './batch.announcer';
 import { CAPACITY_EPOCH_TIMEOUT_NAME } from '../../../../libs/common/src/constants';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';

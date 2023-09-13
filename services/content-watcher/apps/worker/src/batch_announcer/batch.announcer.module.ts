@@ -7,11 +7,11 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BatchAnnouncementService } from './batch.announcer.service';
-import { ConfigModule } from '../../../api/src/config/config.module';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigModule } from '../../../../libs/common/src/config/config.module';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BatchAnnouncer } from './batch.announcer';
 import { QueueConstants } from '../../../../libs/common/src';
-import { BlockchainModule } from '../blockchain/blockchain.module';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 
 @Module({

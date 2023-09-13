@@ -29,7 +29,7 @@ import {
   ModifiableAnnouncementTypeDto,
 } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { calculateDsnpHash } from '../../../../libs/common/src/utils/ipfs';
 import {
   AnnouncementType,

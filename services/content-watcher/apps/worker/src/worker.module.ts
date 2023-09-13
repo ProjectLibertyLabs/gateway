@@ -6,9 +6,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { PublishingService } from './publisher/publishing.service';
 import { PublisherModule } from './publisher/publisher.module';
 import { WorkerService } from './worker.service';
-import { ConfigService } from '../../api/src/config/config.service';
-import { BlockchainModule } from './blockchain/blockchain.module';
-import { ConfigModule } from '../../api/src/config/config.module';
+import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { BatchAnnouncementService } from './batch_announcer/batch.announcer.service';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
@@ -18,6 +16,8 @@ import { AssetProcessorService } from './asset_processor/asset.processor.service
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { RequestProcessorService } from './request_processor/request.processor.service';
 import { BatchingProcessorModule } from './batching_processor/batching.processor.module';
+import { ConfigModule } from '../../../libs/common/src/config/config.module';
+import { ConfigService } from '../../../libs/common/src/config/config.service';
 
 @Module({
   imports: [

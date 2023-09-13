@@ -3,7 +3,7 @@ import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ValidationError } from 'class-validator';
 import { ApiModule } from './api.module';
-import { initSwagger } from './config/swagger_config';
+import { initSwagger } from '../../../libs/common/src/config/swagger_config';
 
 const logger = new Logger('main');
 

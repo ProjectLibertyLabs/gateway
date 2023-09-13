@@ -3,7 +3,7 @@ import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import { AnnouncementTypeDto, IRequestJob, ModifiableAnnouncementTypeDto, TagTypeDto } from '../../../../libs/common/src';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 
 const mockQueue = {

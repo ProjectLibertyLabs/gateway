@@ -3,7 +3,7 @@ import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
 import { IAssetJob } from '../../../../libs/common/src/interfaces/asset-job.interface';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';

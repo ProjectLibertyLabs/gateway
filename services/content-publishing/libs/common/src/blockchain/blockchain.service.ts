@@ -9,7 +9,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
 @Injectable()

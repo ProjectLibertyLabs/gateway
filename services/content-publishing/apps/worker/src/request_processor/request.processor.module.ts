@@ -5,8 +5,8 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { ConfigModule } from '../../../api/src/config/config.module';
-import { ConfigService } from '../../../api/src/config/config.service';
+import { ConfigModule } from '../../../../libs/common/src/config/config.module';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
 import { RequestProcessorService } from './request.processor.service';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';

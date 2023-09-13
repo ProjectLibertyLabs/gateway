@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
 import { mnemonicValidate } from '@polkadot/util-crypto';
-import { EnvironmentDto } from '../../../../libs/common/src';
+import { EnvironmentDto } from '..';
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,

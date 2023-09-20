@@ -3,6 +3,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 import { ApiController } from './api.controller';
 import { DevelopmentController } from './development.controller';
 import { QueueConstants } from '../../../libs/common/src';
@@ -17,6 +20,10 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       connection: {
         enableOfflineQueue: false,
       },
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
     }),
     BullModule.registerQueue({
       name: QueueConstants.REQUEST_QUEUE_NAME,
@@ -41,6 +48,60 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     }),
     BullModule.registerQueue({
       name: QueueConstants.PROFILE_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.BATCH_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.STATUS_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+    }),
+
+    BullBoardModule.forFeature({
+      name: QueueConstants.REQUEST_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.ASSET_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.BROADCAST_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.REPLY_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.REACTION_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.UPDATE_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.PROFILE_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.BATCH_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.STATUS_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+      adapter: BullMQAdapter,
     }),
     ConfigModule,
     RedisModule.forRootAsync(

@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseFilePipeBuilder, Post, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { BullBoardInstance, InjectBullBoard } from '@bull-board/nestjs';
 import { ApiService } from './api.service';
 import {
   AnnouncementResponseDto,
@@ -22,8 +23,16 @@ import {
 export class ApiController {
   private readonly logger: Logger;
 
-  constructor(private apiService: ApiService) {
+  constructor(
+    private apiService: ApiService,
+    @InjectBullBoard() private readonly bullBoard: BullBoardInstance,
+  ) {
     this.logger = new Logger(this.constructor.name);
+  }
+
+  @Get('bull-board')
+  async getBullBoard() {
+    return this.bullBoard;
   }
 
   // eslint-disable-next-line class-methods-use-this

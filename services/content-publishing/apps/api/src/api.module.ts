@@ -26,10 +26,10 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       adapter: ExpressAdapter,
     }),
     BullModule.registerQueue({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
+      name: QueueConstants.ASSET_QUEUE_NAME,
     }),
     BullModule.registerQueue({
-      name: QueueConstants.ASSET_QUEUE_NAME,
+      name: QueueConstants.REQUEST_QUEUE_NAME,
     }),
     BullModule.registerQueue({
       name: QueueConstants.BROADCAST_QUEUE_NAME,
@@ -53,18 +53,21 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       name: QueueConstants.BATCH_QUEUE_NAME,
     }),
     BullModule.registerQueue({
-      name: QueueConstants.STATUS_QUEUE_NAME,
+      name: QueueConstants.PUBLISH_QUEUE_NAME,
     }),
     BullModule.registerQueue({
       name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.STATUS_QUEUE_NAME,
     }),
 
     BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
+      name: QueueConstants.ASSET_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.ASSET_QUEUE_NAME,
+      name: QueueConstants.REQUEST_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
@@ -96,11 +99,15 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.STATUS_QUEUE_NAME,
+      name: QueueConstants.PUBLISH_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.STATUS_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     ConfigModule,

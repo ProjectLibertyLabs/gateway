@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { AnnouncementTypeDto, BroadcastDto, IRequestJob, ProfileDto, QueueConstants, ReplyDto, UpdateDto } from '../../../../libs/common/src';
+import { IRequestJob, QueueConstants } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 
@@ -30,7 +30,7 @@ export class RequestProcessorService extends WorkerHost {
       const assets: string[] = job.data.assetToMimeType ? Object.keys(job.data.assetToMimeType) : [];
       const pinnedAssets = assets.map((cid) => this.ipfsService.getPinned(cid));
       const pinnedResult = await Promise.all(pinnedAssets);
-      // if any of assets does not exists delay the job for a future attempt
+      // if any of assets does not exist delay the job for a future attempt
       if (pinnedResult.some((buffer) => !buffer)) {
         await this.delayJobAndIncrementAttempts(job);
       } else {
@@ -51,9 +51,9 @@ export class RequestProcessorService extends WorkerHost {
     const { data } = job;
     data.dependencyAttempt += 1;
     if (data.dependencyAttempt <= 3) {
-      // attempts 10 seconds, 20 seconds, 40 seconds
-      const delayedTime = 2 ** data.dependencyAttempt * 5 * 1000;
-      await job.moveToDelayed(Date.now() + delayedTime, job.token); // TODO: get from config
+      // exponential backoff
+      const delayedTime = 2 ** data.dependencyAttempt * this.configService.getAssetUploadVerificationDelaySeconds() * 1000;
+      await job.moveToDelayed(Date.now() + delayedTime, job.token);
       await job.update(data);
       throw new DelayedError();
     } else {

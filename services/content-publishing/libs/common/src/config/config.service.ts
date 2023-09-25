@@ -25,6 +25,12 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRIES: number;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   CAPACITY_LIMIT: ICapacityLimit;
+  FILE_UPLOAD_MAX_SIZE_IN_BYTES: number;
+  API_PORT: number;
+  ASSET_EXPIRATION_INTERVAL_SECONDS: number;
+  BATCH_INTERVAL_SECONDS: number;
+  BATCH_MAX_COUNT: number;
+  ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: number;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -110,5 +116,29 @@ export class ConfigService {
       return `https://ipfs.io/ipfs/${cid}`;
     }
     return gatewayUrl.replace('[CID]', cid);
+  }
+
+  public getFileUploadMaxSizeInBytes(): number {
+    return this.nestConfigService.get<number>('FILE_UPLOAD_MAX_SIZE_IN_BYTES')!;
+  }
+
+  public getApiPort(): number {
+    return this.nestConfigService.get<number>('API_PORT')!;
+  }
+
+  public getAssetExpirationIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('ASSET_EXPIRATION_INTERVAL_SECONDS')!;
+  }
+
+  public getBatchIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('BATCH_INTERVAL_SECONDS')!;
+  }
+
+  public getBatchMaxCount(): number {
+    return this.nestConfigService.get<number>('BATCH_MAX_COUNT')!;
+  }
+
+  public getAssetUploadVerificationDelaySeconds(): number {
+    return this.nestConfigService.get<number>('ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS')!;
   }
 }

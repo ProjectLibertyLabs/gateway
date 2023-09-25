@@ -3,7 +3,7 @@ This is a controller providing some endpoints useful for development and testing
 */
 
 // eslint-disable-next-line max-classes-per-file
-import { Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import { Controller, Get, Logger, NotFoundException, Param, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
@@ -50,14 +50,10 @@ export class DevelopmentController {
   @Get('/asset/:assetId')
   // eslint-disable-next-line consistent-return
   async getAsset(@Param('assetId') assetId: string) {
-    try {
-      return this.ipfsService.getPinned(assetId);
-    } catch (error: any) {
-      if (error.response) {
-        console.error(error.response.data);
-      }
-      throw error;
+    if (await this.ipfsService.isPinned(assetId)) {
+      return this.ipfsService.getPinned(assetId, false);
     }
+    throw new NotFoundException(`${assetId} does not exist`);
   }
 
   @Post('/dummy/announcement/:queueType/:count')

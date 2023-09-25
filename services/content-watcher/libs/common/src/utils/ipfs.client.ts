@@ -75,8 +75,18 @@ export class IpfsService {
     return { ...ipfs, hash: calculateDsnpHash ? fileName : '' };
   }
 
-  // TODO: bugfix: when the cid does not exist the endpoint will get stuck indefinitely
-  public async getPinned(cid: string): Promise<Buffer> {
+  /**
+   * returns pinned file
+   * if the file does not exist the request will time out, so it is recommended to always check existence before calling
+   * the cat endpoint
+   * @param cid
+   * @param checkExistence
+   * @returns buffer of the data if exists and an empty buffer if not
+   */
+  public async getPinned(cid: string, checkExistence: boolean = true): Promise<Buffer> {
+    if (checkExistence && !(await this.isPinned(cid))) {
+      return Promise.resolve(Buffer.alloc(0));
+    }
     const ipfsGet = `${this.configService.getIpfsEndpoint()}/api/v0/cat?arg=${cid}`;
     const ipfsAuthUser = this.configService.getIpfsBasicAuthUser();
     const ipfsAuthSecret = this.configService.getIpfsBasicAuthSecret();
@@ -92,6 +102,29 @@ export class IpfsService {
 
     const { data } = response;
     return data;
+  }
+
+  public async isPinned(cid: string): Promise<boolean> {
+    const parsedCid = CID.parse(cid);
+    const v0Cid = parsedCid.toV0().toString();
+    const ipfsGet = `${this.configService.getIpfsEndpoint()}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
+    const ipfsAuthUser = this.configService.getIpfsBasicAuthUser();
+    const ipfsAuthSecret = this.configService.getIpfsBasicAuthSecret();
+    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
+
+    const headers = {
+      Accept: '*/*',
+      Connection: 'keep-alive',
+      authorization: ipfsAuth,
+    };
+
+    const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' }).catch((error) => {
+      // when pid does not exist this call returns 500 which is not great
+      if (error.response && error.response.status !== 500) {
+        this.logger.error(error.toJSON());
+      }
+    });
+    return response && response.data && JSON.stringify(response.data).indexOf(v0Cid) >= 0;
   }
 
   private async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {

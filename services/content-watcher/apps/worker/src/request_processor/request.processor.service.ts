@@ -31,7 +31,7 @@ export class RequestProcessorService extends WorkerHost {
       const pinnedAssets = assets.map((cid) => this.ipfsService.getPinned(cid));
       const pinnedResult = await Promise.all(pinnedAssets);
       // if any of assets does not exist delay the job for a future attempt
-      if (pinnedResult.some((buffer) => !buffer)) {
+      if (pinnedResult.some((buffer) => !buffer || buffer.length === 0)) {
         await this.delayJobAndIncrementAttempts(job);
       } else {
         await this.dsnpAnnouncementProcessor.collectAnnouncementAndQueue(job.data);

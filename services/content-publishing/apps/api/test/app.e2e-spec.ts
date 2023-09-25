@@ -815,6 +815,11 @@ describe('AppController E2E request verification!', () => {
         .expect(200)
         .expect((res) => expect(Buffer.from(res.body)).toEqual(Buffer.from(buffer)));
     }, 15000);
+
+    it('not uploaded asset should return not found', async () => {
+      const assetId = 'bafybeieva67sj7hiiywi4kxsamcc2t2y2pptni2ki6gu63azj3pkznbzna';
+      return request(app.getHttpServer()).get(`/api/dev/asset/${assetId}`).expect(404);
+    });
   });
 
   afterEach(async () => {

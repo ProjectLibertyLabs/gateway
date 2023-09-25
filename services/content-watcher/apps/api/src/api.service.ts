@@ -52,7 +52,7 @@ export class ApiService {
       // not used in id calculation since the order in map might not be deterministic
       data.assetToMimeType = assetToMimeType;
     }
-    const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from config
+    const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
     this.logger.debug(job);
     return {
       referenceId: data.id,

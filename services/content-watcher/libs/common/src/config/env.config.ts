@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi, { number } from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
 import { mnemonicValidate } from '@polkadot/util-crypto';
 import { EnvironmentDto } from '..';
@@ -36,6 +36,12 @@ export const configModuleOptions: ConfigModuleOptions = {
     HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
     HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
+    FILE_UPLOAD_MAX_SIZE_IN_BYTES: Joi.number().min(1).required(),
+    API_PORT: Joi.number().min(0).default(3000),
+    ASSET_EXPIRATION_INTERVAL_SECONDS: Joi.number().min(1).required(),
+    BATCH_INTERVAL_SECONDS: Joi.number().min(1).required(),
+    BATCH_MAX_COUNT: Joi.number().min(1).required(),
+    ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: Joi.number().min(0).required(),
     CAPACITY_LIMIT: Joi.string()
       .custom((value: string, helpers) => {
         try {

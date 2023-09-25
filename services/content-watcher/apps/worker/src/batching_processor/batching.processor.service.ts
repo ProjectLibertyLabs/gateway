@@ -32,7 +32,7 @@ export class BatchingProcessorService {
     const metadata = await this.getMetadataFromRedis(queueName);
     if (metadata) {
       const openTimeMs = Math.round(Date.now() - metadata.startTimestamp);
-      const batchTimeoutInMs = 12 * 1000; // TODO: get from config
+      const batchTimeoutInMs = this.configService.getBatchIntervalSeconds() * 1000;
       if (openTimeMs >= batchTimeoutInMs) {
         await this.closeBatch(queueName, metadata.batchId, false);
       } else {
@@ -61,7 +61,7 @@ export class BatchingProcessorService {
         .exec();
       this.logger.debug(result);
 
-      const timeout = 12 * 1000; // TODO: get from config
+      const timeout = this.configService.getBatchIntervalSeconds() * 1000;
       this.addBatchTimeout(queueName, metadata.batchId, timeout);
     } else {
       // continue on active batch
@@ -75,8 +75,7 @@ export class BatchingProcessorService {
         .exec();
       this.logger.debug(result);
 
-      // TODO: get from config
-      if (currentBatchMetadata.rowCount >= 100) {
+      if (currentBatchMetadata.rowCount >= this.configService.getBatchMaxCount()) {
         await this.closeBatch(queueName, currentBatchMetadata.batchId, false);
       }
     }

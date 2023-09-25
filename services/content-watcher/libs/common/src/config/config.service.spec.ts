@@ -53,6 +53,12 @@ describe('ContentPublishingConfigService', () => {
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     CAPACITY_LIMIT: undefined,
+    FILE_UPLOAD_MAX_SIZE_IN_BYTES: undefined,
+    API_PORT: undefined,
+    ASSET_EXPIRATION_INTERVAL_SECONDS: undefined,
+    BATCH_INTERVAL_SECONDS: undefined,
+    BATCH_MAX_COUNT: undefined,
+    ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: undefined,
   };
 
   beforeAll(() => {
@@ -163,6 +169,36 @@ describe('ContentPublishingConfigService', () => {
       await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env })).rejects.toBeDefined();
       await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env })).rejects.toBeDefined();
     });
+
+    it('invalid max file size should fail', async () => {
+      const { FILE_UPLOAD_MAX_SIZE_IN_BYTES: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ FILE_UPLOAD_MAX_SIZE_IN_BYTES: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid api port should fail', async () => {
+      const { API_PORT: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid asset expiration interval should fail', async () => {
+      const { ASSET_EXPIRATION_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ ASSET_EXPIRATION_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid batch interval should fail', async () => {
+      const { BATCH_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ BATCH_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid batch max count should fail', async () => {
+      const { BATCH_MAX_COUNT: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ BATCH_MAX_COUNT: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid asset upload verification delay should fail', async () => {
+      const { ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: -1, ...env })).rejects.toBeDefined();
+    });
   });
 
   describe('valid environment', () => {
@@ -221,6 +257,30 @@ describe('ContentPublishingConfigService', () => {
 
     it('should get capacity limit', () => {
       expect(contentPublishingConfigService.getCapacityLimit()).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+    });
+
+    it('should get file upload max size in bytes', () => {
+      expect(contentPublishingConfigService.getFileUploadMaxSizeInBytes()).toStrictEqual(parseInt(ALL_ENV.FILE_UPLOAD_MAX_SIZE_IN_BYTES as string, 10));
+    });
+
+    it('should get api port', () => {
+      expect(contentPublishingConfigService.getApiPort()).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
+    });
+
+    it('should get asset expiration interval in seconds', () => {
+      expect(contentPublishingConfigService.getAssetExpirationIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.ASSET_EXPIRATION_INTERVAL_SECONDS as string, 10));
+    });
+
+    it('should get asset upload verification delay in seconds', () => {
+      expect(contentPublishingConfigService.getAssetUploadVerificationDelaySeconds()).toStrictEqual(parseInt(ALL_ENV.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS as string, 10));
+    });
+
+    it('should get batch interval in seconds', () => {
+      expect(contentPublishingConfigService.getBatchIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.BATCH_INTERVAL_SECONDS as string, 10));
+    });
+
+    it('should get batch max count', () => {
+      expect(contentPublishingConfigService.getBatchMaxCount()).toStrictEqual(parseInt(ALL_ENV.BATCH_MAX_COUNT as string, 10));
     });
   });
 });

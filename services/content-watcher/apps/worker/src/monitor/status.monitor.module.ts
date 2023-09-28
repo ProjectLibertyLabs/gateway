@@ -6,7 +6,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { StatusMonitoringService } from './status.monitor.service';
+import { TxStatusMonitoringService } from './tx.status.monitor.service';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
@@ -54,7 +54,7 @@ import { QueueConstants } from '../../../../libs/common/src';
       {
         name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
         defaultJobOptions: {
-          attempts: 1,
+          attempts: 3,
           backoff: {
             type: 'exponential',
           },
@@ -76,7 +76,7 @@ import { QueueConstants } from '../../../../libs/common/src';
     ),
   ],
   controllers: [],
-  providers: [StatusMonitoringService],
-  exports: [BullModule, StatusMonitoringService],
+  providers: [TxStatusMonitoringService],
+  exports: [BullModule, TxStatusMonitoringService],
 })
 export class StatusMonitorModule {}

@@ -63,19 +63,17 @@ export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C exte
   }
 
   public signAndSend(nonce?: number): Promise<[Hash, EventMap]> {
-    return firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce }).pipe(filter(({ status }) => status.isInBlock || status.isFinalized))).then(
-      ({ status, events, txHash }) => {
-        if (status.isInBlock || status.isFinalized) {
-          const eventMap: EventMap = {};
-          events.forEach((record: EventRecord) => {
-            const { event } = record;
-            eventMap[eventKey(event)] = event;
-          });
-          return [txHash, eventMap];
-        }
-        throw new Error(`Transaction failed to finalize: ${txHash}`);
-      },
-    );
+    return firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce })).then(({ status, events, txHash }) => {
+      if (status.isFinalized || status.isInBlock) {
+        const eventMap: EventMap = {};
+        events.forEach((record: EventRecord) => {
+          const { event } = record;
+          eventMap[eventKey(event)] = event;
+        });
+        return [txHash, eventMap];
+      }
+      return [txHash, {}];
+    });
   }
 
   public getCall(): Call {

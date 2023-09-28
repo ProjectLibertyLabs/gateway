@@ -6,12 +6,14 @@ import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IPublisherJob } from '../interfaces/publisher-job.interface';
 import { IPFSPublisher } from './ipfs.publisher';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
 import { QueueConstants } from '../../../../libs/common/src';
+import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
@@ -24,6 +26,7 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
+    @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
@@ -50,16 +53,16 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
   async process(job: Job<IPublisherJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
-      const totalCapacityUsed = await this.ipfsPublisher.publish(job.data);
-      await this.setEpochCapacity(totalCapacityUsed);
-
+      const currentBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
+      const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
+      const txHash = await this.ipfsPublisher.publish(job.data);
+      await this.sendJobToTxReceiptQueue(job.data, txHash, currentBlockHash, currentCapacityEpoch.toString());
       this.logger.verbose(`Successfully completed job ${job.id}`);
       return { success: true };
     } catch (e) {
-      this.logger.error(`Job ${job.id} failed (attempts=${job.attemptsMade})`);
+      this.logger.error(`Job ${job.id} failed (attempts=${job.attemptsMade})error: ${e}`);
       if (e instanceof Error && e.message.includes('Inability to pay some fees')) {
         this.eventEmitter.emit('capacity.exhausted');
-        // TODO: revisit this logic
       }
       throw e;
     } finally {
@@ -67,24 +70,17 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
     }
   }
 
-  private async setEpochCapacity(totalCapacityUsed: { [key: string]: bigint }): Promise<void> {
-    Object.entries(totalCapacityUsed).forEach(async ([epoch, capacityUsed]) => {
-      const epochCapacityKey = `epochCapacity:${epoch}`;
-
-      try {
-        const epochCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0);
-        const newEpochCapacity = epochCapacity + capacityUsed;
-
-        const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
-        const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-
-        await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
-      } catch (error) {
-        this.logger.error(`Error setting epoch capacity: ${error}`);
-
-        throw error;
-      }
-    });
+  async sendJobToTxReceiptQueue(jobData: IPublisherJob, txHash: Hash, lastFinalizedBlockHash: BlockHash, epoch: string): Promise<void> {
+    const job: ITxMonitorJob = {
+      id: txHash.toString(),
+      epoch,
+      lastFinalizedBlockHash,
+      txHash,
+      referencePublishJob: jobData,
+    };
+    // add a delay of 1 block to allow the tx reciept to go through before checking
+    const delay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    await this.txReceiptQueue.add(`Tx Receipt Job - ${job.id}`, job, { jobId: job.id, removeOnFail: false, removeOnComplete: 1000, delay });
   }
 
   private async checkCapacity(): Promise<void> {

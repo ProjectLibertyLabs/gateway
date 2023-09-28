@@ -4,11 +4,12 @@ import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { firstValueFrom } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
+import { Hash } from 'crypto';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
@@ -58,6 +59,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
     return this.apiPromise.rpc.chain.getBlockHash(block);
+  }
+
+  public getBlock(block: BlockHash): Promise<SignedBlock> {
+    return this.apiPromise.rpc.chain.getBlock(block);
+  }
+
+  public async getLatestFinalizedBlockHash(): Promise<BlockHash> {
+    return (await this.apiPromise.rpc.chain.getFinalizedHead()) as BlockHash;
+  }
+
+  public async getLatestFinalizedBlockNumber(): Promise<bigint> {
+    return (await this.apiPromise.rpc.chain.getBlock()).block.header.number.toBigInt();
   }
 
   public async getBlockNumberForHash(hash: string): Promise<number | undefined> {

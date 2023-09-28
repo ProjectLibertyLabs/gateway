@@ -10,7 +10,7 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
 import { BatchAnnouncementService } from './batch_announcer/batch.announcer.service';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
-import { StatusMonitoringService } from './monitor/status.monitor.service';
+import { TxStatusMonitoringService } from './monitor/tx.status.monitor.service';
 import { AssetProcessorModule } from './asset_processor/asset.processor.module';
 import { AssetProcessorService } from './asset_processor/asset.processor.service';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
@@ -60,6 +60,6 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     RequestProcessorModule,
     BatchingProcessorModule,
   ],
-  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, StatusMonitoringService, AssetProcessorService, RequestProcessorService],
+  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, TxStatusMonitoringService, AssetProcessorService, RequestProcessorService],
 })
 export class WorkerModule {}

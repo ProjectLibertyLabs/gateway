@@ -6,6 +6,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { PalletSchemasSchema } from '@polkadot/types/lookup';
 import { hexToString } from '@polkadot/util';
+import { RedisUtils } from '../../../../libs/common/src/utils/redis';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
@@ -34,7 +35,7 @@ export class BatchAnnouncer {
     if (!cachedSchema) {
       const schemaResponse = await this.blockchainService.getSchema(schemaId);
       cachedSchema = JSON.stringify(schemaResponse);
-      await this.cacheManager.set(schemaCacheKey, cachedSchema);
+      await this.cacheManager.setex(schemaCacheKey, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
     }
 
     const frequencySchema: PalletSchemasSchema = JSON.parse(cachedSchema);

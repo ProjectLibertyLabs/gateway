@@ -5,6 +5,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
+import * as fs from 'fs';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { Announcement } from '../../../../libs/common/src/interfaces/dsnp';
 import { RedisUtils } from '../../../../libs/common/src/utils/redis';
@@ -14,6 +15,7 @@ import getBatchDataKey = RedisUtils.getBatchDataKey;
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
 import { DsnpSchemas } from '../../../../libs/common/src/utils/dsnp.schema';
 import { QueueConstants } from '../../../../libs/common/src';
+import getBatchLockKey = RedisUtils.getLockKey;
 
 @Injectable()
 export class BatchingProcessorService {
@@ -26,6 +28,14 @@ export class BatchingProcessorService {
     private configService: ConfigService,
   ) {
     this.logger = new Logger(this.constructor.name);
+    redis.defineCommand('addToBatch', {
+      numberOfKeys: 2,
+      lua: fs.readFileSync('lua/addToBatch.lua', 'utf8'),
+    });
+    redis.defineCommand('lockBatch', {
+      numberOfKeys: 4,
+      lua: fs.readFileSync('lua/lockBatch.lua', 'utf8'),
+    });
   }
 
   async setupActiveBatchTimeout(queueName: string) {
@@ -45,39 +55,25 @@ export class BatchingProcessorService {
   async process(job: Job<Announcement, any, string>, queueName: string): Promise<any> {
     this.logger.log(`Processing job ${job.id} from ${queueName}`);
 
-    const currentBatchMetadata = await this.getMetadataFromRedis(queueName);
-    if (!currentBatchMetadata) {
-      this.logger.log(`Processing job ${job.id} no current batch`);
-      // No active batch exists, creating a new one
-      const metadata = {
-        batchId: randomUUID().toString(),
-        startTimestamp: Date.now(),
-        rowCount: 1,
-      } as IBatchMetadata;
-      const result = await this.redis
-        .multi()
-        .set(getBatchMetadataKey(queueName), JSON.stringify(metadata))
-        .hsetnx(getBatchDataKey(queueName), job.id!, JSON.stringify(job.data))
-        .exec();
-      this.logger.debug(result);
+    const batchId = randomUUID().toString();
+    const newMetadata = JSON.stringify({
+      batchId,
+      startTimestamp: Date.now(),
+      rowCount: 1,
+    } as IBatchMetadata);
+    const newData = JSON.stringify(job.data);
 
+    // @ts-ignore
+    const rowCount = await this.redis.addToBatch(getBatchMetadataKey(queueName), getBatchDataKey(queueName), newMetadata, job.id!, newData);
+    this.logger.log(rowCount);
+    if (rowCount === 1) {
+      this.logger.log(`Processing job ${job.id} with a new batch`);
       const timeout = this.configService.getBatchIntervalSeconds() * 1000;
-      this.addBatchTimeout(queueName, metadata.batchId, timeout);
-    } else {
-      // continue on active batch
-      this.logger.log(`Processing job ${job.id} existing batch ${currentBatchMetadata.batchId}`);
-
-      currentBatchMetadata.rowCount += 1;
-      const result = await this.redis
-        .multi()
-        .set(getBatchMetadataKey(queueName), JSON.stringify(currentBatchMetadata))
-        .hsetnx(getBatchDataKey(queueName), job.id!, JSON.stringify(job.data))
-        .exec();
-      this.logger.debug(result);
-
-      if (currentBatchMetadata.rowCount >= this.configService.getBatchMaxCount()) {
-        await this.closeBatch(queueName, currentBatchMetadata.batchId, false);
-      }
+      this.addBatchTimeout(queueName, batchId, timeout);
+    } else if (rowCount >= this.configService.getBatchMaxCount()) {
+      await this.closeBatch(queueName, batchId, false);
+    } else if (rowCount === -1) {
+      throw new Error(`invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.getBatchMaxCount()}`);
     }
   }
 
@@ -87,22 +83,51 @@ export class BatchingProcessorService {
 
   private async closeBatch(queueName: string, batchId: string, timeout: boolean) {
     this.logger.log(`Closing batch for ${queueName} ${batchId} ${timeout}`);
-    const metadata = await this.getMetadataFromRedis(queueName);
-    const batch = await this.redis.hgetall(getBatchDataKey(queueName));
+
+    const batchMetaDataKey = getBatchMetadataKey(queueName);
+    const batchDataKey = getBatchDataKey(queueName);
+    const lockedBatchMetaDataKey = getBatchLockKey(batchMetaDataKey);
+    const lockedBatchDataKey = getBatchLockKey(batchDataKey);
+    // @ts-ignore
+    const response = await this.redis.lockBatch(
+      batchMetaDataKey,
+      batchDataKey,
+      lockedBatchMetaDataKey,
+      lockedBatchDataKey,
+      Date.now(),
+      RedisUtils.BATCH_LOCK_EXPIRE_SECONDS * 1000,
+    );
+    this.logger.debug(JSON.stringify(response));
+    const status = response[0];
+
+    if (status === 0) {
+      this.logger.log(`No meta-data for closing batch ${queueName} ${batchId}. Ignore...`);
+      return;
+    }
+    if (status === -2) {
+      this.logger.log(`Previous batch is still locked ${queueName}. Ignore...`);
+      return;
+    }
+    if (status === -1) {
+      this.logger.log(`Previous batch is not closed for ${queueName} and we are going to close it first`);
+    }
+    const batch = response[1];
+    const metaData: IBatchMetadata = JSON.parse(response[2]);
     const announcements: Announcement[] = [];
-    Object.keys(batch).forEach((key) => {
-      const announcement: Announcement = JSON.parse(batch[key]);
+    for (let i = 0; i < batch.length; i += 2) {
+      const announcement: Announcement = JSON.parse(batch[i + 1]);
       announcements.push(announcement);
-    });
-    const job = {
-      batchId,
-      schemaId: DsnpSchemas.getSchemaId(this.configService.environment, QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
-      announcements,
-    } as IBatchAnnouncerJobData;
-    await this.outputQueue.add(`Batch Job - ${metadata?.batchId}`, job, { jobId: metadata?.batchId, removeOnFail: false, removeOnComplete: 100 });
-    this.logger.debug(batch);
+    }
+    if (announcements.length > 0) {
+      const job = {
+        batchId: metaData.batchId,
+        schemaId: DsnpSchemas.getSchemaId(this.configService.environment, QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
+        announcements,
+      } as IBatchAnnouncerJobData;
+      await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, { jobId: metaData.batchId, removeOnFail: false, removeOnComplete: 100 });
+    }
     try {
-      const result = await this.redis.multi().del(getBatchMetadataKey(queueName)).del(getBatchDataKey(queueName)).exec();
+      const result = await this.redis.multi().del(lockedBatchMetaDataKey).del(lockedBatchDataKey).exec();
       this.logger.debug(result);
       const timeoutName = BatchingProcessorService.getTimeoutName(queueName, batchId);
       if (this.schedulerRegistry.doesExist('timeout', timeoutName)) {
@@ -110,6 +135,10 @@ export class BatchingProcessorService {
       }
     } catch (e) {
       this.logger.error(e);
+    }
+    if (status === -1) {
+      this.logger.log(`after closing the previous leftover locked batch now we are going to close ${queueName}`);
+      await this.closeBatch(queueName, batchId, timeout);
     }
   }
 

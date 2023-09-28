@@ -97,21 +97,28 @@ export class ApiService {
     return map;
   }
 
-  // TODO: make all these operations transactional
-  // eslint-disable-next-line no-undef,class-methods-use-this
+  // eslint-disable-next-line no-undef
   async addAssets(files: Array<Express.Multer.File>): Promise<UploadResponseDto> {
     // calculate ipfs cid references
     const referencePromises: Promise<string>[] = files.map((file) => calculateIpfsCID(file.buffer));
     const references = await Promise.all(referencePromises);
 
-    // add assets to redis
-    const redisDataOps = files.map((f, index) => this.redis.set(getAssetDataKey(references[index]), f.buffer));
-    const addedData = await Promise.all(redisDataOps);
-    this.logger.debug(addedData);
-
-    // add asset jobs to the queue
+    let dataTransaction = this.redis.multi();
+    let metadataTransaction = this.redis.multi();
     const jobs: any[] = [];
     files.forEach((f, index) => {
+      // adding data and metadata to the transaction
+      dataTransaction = dataTransaction.setex(getAssetDataKey(references[index]), RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, f.buffer);
+      metadataTransaction = metadataTransaction.setex(
+        getAssetMetadataKey(references[index]),
+        RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+        JSON.stringify({
+          ipfsCid: references[index],
+          mimeType: f.mimetype,
+          createdOn: Date.now(),
+        } as IAssetMetadata),
+      );
+      // adding asset job to the jobs
       jobs.push({
         name: `Asset Job - ${references[index]}`,
         data: {
@@ -132,22 +139,23 @@ export class ApiService {
         } as BulkJobOptions,
       });
     });
+
+    // currently we are applying 3 different transactions on redis
+    // 1: Storing the content data
+    // 2: Adding asset jobs
+    // 3: Storing the content metadata
+    // even though all these transactions are applied separately, the overall behavior will clean up any partial failures eventually
+    // partial failure scenarios:
+    //    1: adding jobs failure: at this point we already successfully stored the data content in redis, but since all
+    //       of this stored data has expire-time, it would eventually get cleaned up
+    //    2: metadata transaction failure: at this point we already stored the data content and jobs and those two are
+    //       enough to process the asset on the worker side, the worker will clean up both of them after processing
+    const dataOps = await dataTransaction.exec();
+    this.checkTransactionResult(dataOps);
     const queuedJobs = await this.assetQueue.addBulk(jobs);
     this.logger.debug(queuedJobs);
-
-    // add metadata to redis
-    const redisMetadataOps = files.map((f, index) =>
-      this.redis.set(
-        getAssetMetadataKey(references[index]),
-        JSON.stringify({
-          ipfsCid: references[index],
-          mimeType: f.mimetype,
-          createdOn: Date.now(),
-        } as IAssetMetadata),
-      ),
-    );
-    const addedMetadata = await Promise.all(redisMetadataOps);
-    this.logger.debug(addedMetadata);
+    const metaDataOps = await metadataTransaction.exec();
+    this.checkTransactionResult(metaDataOps);
 
     return {
       assetIds: references,
@@ -158,5 +166,15 @@ export class ApiService {
   private calculateJobId(jobWithoutId: IRequestJob): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
+  }
+
+  private checkTransactionResult(result: [error: Error | null, result: unknown][] | null) {
+    this.logger.log(result);
+    for (let index = 0; result && index < result.length; index += 1) {
+      const [err, _id] = result[index];
+      if (err) {
+        throw err;
+      }
+    }
   }
 }

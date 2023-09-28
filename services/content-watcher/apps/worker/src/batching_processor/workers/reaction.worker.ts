@@ -1,21 +1,16 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
-import Redis from 'ioredis';
 import { QueueConstants } from '../../../../../libs/common/src';
 import { BatchingProcessorService } from '../batching.processor.service';
 import { Announcement } from '../../../../../libs/common/src/interfaces/dsnp';
 
 @Injectable()
-@Processor(QueueConstants.REACTION_QUEUE_NAME)
+@Processor(QueueConstants.REACTION_QUEUE_NAME, { concurrency: 2 })
 export class ReactionWorker extends WorkerHost implements OnApplicationBootstrap {
   private logger: Logger;
 
-  constructor(
-    @InjectRedis() private redis: Redis,
-    private batchingProcessorService: BatchingProcessorService,
-  ) {
+  constructor(private batchingProcessorService: BatchingProcessorService) {
     super();
     this.logger = new Logger(this.constructor.name);
   }

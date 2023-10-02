@@ -5,7 +5,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { PublishingService } from './publisher/publishing.service';
 import { PublisherModule } from './publisher/publisher.module';
-import { WorkerService } from './worker.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { BatchAnnouncementService } from './batch_announcer/batch.announcer.service';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
@@ -60,6 +59,6 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     RequestProcessorModule,
     BatchingProcessorModule,
   ],
-  providers: [BatchAnnouncementService, ConfigService, WorkerService, PublishingService, TxStatusMonitoringService, AssetProcessorService, RequestProcessorService],
+  providers: [BatchAnnouncementService, ConfigService, PublishingService, TxStatusMonitoringService, AssetProcessorService, RequestProcessorService],
 })
 export class WorkerModule {}

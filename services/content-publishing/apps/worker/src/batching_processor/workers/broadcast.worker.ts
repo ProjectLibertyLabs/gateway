@@ -4,15 +4,13 @@ import { Job } from 'bullmq';
 import { QueueConstants } from '../../../../../libs/common/src';
 import { BatchingProcessorService } from '../batching.processor.service';
 import { Announcement } from '../../../../../libs/common/src/interfaces/dsnp';
+import { BaseConsumer } from '../../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.BROADCAST_QUEUE_NAME, { concurrency: 2 })
-export class BroadcastWorker extends WorkerHost implements OnApplicationBootstrap {
-  private logger: Logger;
-
+export class BroadcastWorker extends BaseConsumer implements OnApplicationBootstrap {
   constructor(private batchingProcessorService: BatchingProcessorService) {
     super();
-    this.logger = new Logger(this.constructor.name);
   }
 
   async onApplicationBootstrap() {
@@ -26,5 +24,7 @@ export class BroadcastWorker extends WorkerHost implements OnApplicationBootstra
   @OnWorkerEvent('completed')
   async onCompleted(job: Job<Announcement, any, string>) {
     await this.batchingProcessorService.onCompleted(job, QueueConstants.BROADCAST_QUEUE_NAME);
+    // calling in the end for graceful shutdowns
+    super.onCompleted(job);
   }
 }

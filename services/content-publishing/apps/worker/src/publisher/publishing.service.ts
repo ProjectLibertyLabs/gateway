@@ -14,14 +14,13 @@ import { IPFSPublisher } from './ipfs.publisher';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
 import { QueueConstants } from '../../../../libs/common/src';
 import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
+import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
-export class PublishingService extends WorkerHost implements OnApplicationBootstrap, OnModuleDestroy {
-  private logger: Logger;
-
+export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
   private capacityExhausted = false;
 
   constructor(
@@ -35,19 +34,20 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
     private eventEmitter: EventEmitter2,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
   }
 
   public async onApplicationBootstrap() {
     await this.checkCapacity();
   }
 
-  public onModuleDestroy() {
+  async onModuleDestroy(): Promise<any> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (e) {
       // 💀 //
     }
+    // calling in the end for graceful shutdowns
+    await super.onModuleDestroy();
   }
 
   async process(job: Job<IPublisherJob, any, string>): Promise<any> {
@@ -147,11 +147,5 @@ export class PublishingService extends WorkerHost implements OnApplicationBootst
     } catch (err) {
       // ignore
     }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @OnWorkerEvent('completed')
-  onCompleted() {
-    // do some stuff
   }
 }

@@ -7,19 +7,17 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
 import { QueueConstants } from '../../../../libs/common/src';
 import { IAssetJob } from '../../../../libs/common/src/interfaces/asset-job.interface';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.ASSET_QUEUE_NAME)
-export class AssetProcessorService extends WorkerHost {
-  private logger: Logger;
-
+export class AssetProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private redis: Redis,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
   }
 
   async process(job: Job<IAssetJob, any, string>): Promise<any> {
@@ -45,5 +43,7 @@ export class AssetProcessorService extends WorkerHost {
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);
     const result = await this.redis.pipeline().expire(job.data.contentLocation, secondsToExpire, 'LT').expire(job.data.metadataLocation, secondsToExpire, 'LT').exec();
     this.logger.debug(result);
+    // calling in the end for graceful shutdowns
+    super.onCompleted(job);
   }
 }

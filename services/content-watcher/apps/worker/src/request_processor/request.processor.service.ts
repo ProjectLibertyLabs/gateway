@@ -1,18 +1,17 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
-import { DelayedError, Job, Queue } from 'bullmq';
+import { Processor } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
+import { DelayedError, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IRequestJob, QueueConstants } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
+import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME)
-export class RequestProcessorService extends WorkerHost {
-  private logger: Logger;
-
+export class RequestProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
@@ -20,7 +19,6 @@ export class RequestProcessorService extends WorkerHost {
     private ipfsService: IpfsService,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
   }
 
   async process(job: Job<IRequestJob, any, string>): Promise<any> {
@@ -41,10 +39,6 @@ export class RequestProcessorService extends WorkerHost {
       throw e;
     }
   }
-
-  // eslint-disable-next-line class-methods-use-this
-  @OnWorkerEvent('completed')
-  onCompleted() {}
 
   // eslint-disable-next-line class-methods-use-this
   private async delayJobAndIncrementAttempts(job: Job<IRequestJob, any, string>) {

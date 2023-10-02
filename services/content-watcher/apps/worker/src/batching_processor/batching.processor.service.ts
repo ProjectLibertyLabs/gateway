@@ -154,6 +154,10 @@ export class BatchingProcessorService {
 
   private addBatchTimeout(queueName: string, batchId: string, timeoutMs: number) {
     const timeoutHandler = setTimeout(async () => this.closeBatch(queueName, batchId, true), timeoutMs);
-    this.schedulerRegistry.addTimeout(BatchingProcessorService.getTimeoutName(queueName, batchId), timeoutHandler);
+    const timeoutName = BatchingProcessorService.getTimeoutName(queueName, batchId);
+    if (this.schedulerRegistry.doesExist('timeout', timeoutName)) {
+      this.schedulerRegistry.deleteTimeout(timeoutName);
+    }
+    this.schedulerRegistry.addTimeout(timeoutName, timeoutHandler);
   }
 }

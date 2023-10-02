@@ -1,26 +1,24 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Processor, InjectQueue } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
-import { map, tap, timeout } from 'rxjs';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
 import { QueueConstants } from '../../../../libs/common/src';
 import { SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
+import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME, {
   concurrency: 2,
 })
-export class TxStatusMonitoringService extends WorkerHost implements OnApplicationBootstrap, OnModuleDestroy {
-  private logger: Logger;
-
+export class TxStatusMonitoringService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue,
@@ -30,19 +28,6 @@ export class TxStatusMonitoringService extends WorkerHost implements OnApplicati
     private eventEmitter: EventEmitter2,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
-  }
-
-  public async onApplicationBootstrap() {
-    this.logger.debug('Starting publishing service');
-  }
-
-  public onModuleDestroy() {
-    try {
-      this.logger.debug('Shutting down publishing service');
-    } catch (e) {
-      // 🐂 //
-    }
   }
 
   async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
@@ -64,7 +49,7 @@ export class TxStatusMonitoringService extends WorkerHost implements OnApplicati
       }
 
       // handle failure to find tx in block list after
-      // TODO - handle requeing of publish job in case of failure 
+      // TODO - handle requeing of publish job in case of failure
       // Issue: https://github.com/AmplicaLabs/content-publishing-service/issues/18
       if (!txBlockHash && job.attemptsMade >= (job.opts.attempts ?? 3)) {
         this.logger.error(`Job ${job.id} failed after ${job.attemptsMade} attempts`);
@@ -77,12 +62,6 @@ export class TxStatusMonitoringService extends WorkerHost implements OnApplicati
     } finally {
       // do some stuff
     }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  @OnWorkerEvent('completed')
-  onCompleted() {
-    // do some stuff
   }
 
   private async crawlBlockList(txHash: Hash, epoch: string, blockList: bigint[]): Promise<BlockHash | undefined> {

@@ -80,7 +80,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     };
     // add a delay of 1 block to allow the tx reciept to go through before checking
     const delay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    await this.txReceiptQueue.add(`Tx Receipt Job - ${job.id}`, job, { jobId: job.id, removeOnFail: false, removeOnComplete: 1000, delay });
+    await this.txReceiptQueue.add(job.id, job, { jobId: job.id, removeOnFail: false, removeOnComplete: 1000, delay });
   }
 
   private async checkCapacity(): Promise<void> {

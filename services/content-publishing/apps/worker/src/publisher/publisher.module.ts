@@ -12,6 +12,7 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { IPFSPublisher } from './ipfs.publisher';
 import { QueueConstants } from '../../../../libs/common/src';
+import { NonceService } from './nonce.service';
 
 @Module({
   imports: [
@@ -77,7 +78,7 @@ import { QueueConstants } from '../../../../libs/common/src';
     ),
   ],
   controllers: [],
-  providers: [PublishingService, IPFSPublisher],
+  providers: [PublishingService, IPFSPublisher, NonceService],
   exports: [BullModule, PublishingService, IPFSPublisher],
 })
 export class PublisherModule {}

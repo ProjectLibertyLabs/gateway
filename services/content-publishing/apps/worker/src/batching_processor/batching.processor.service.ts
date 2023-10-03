@@ -124,7 +124,7 @@ export class BatchingProcessorService {
         schemaId: DsnpSchemas.getSchemaId(this.configService.environment, QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
         announcements,
       } as IBatchAnnouncerJobData;
-      await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, { jobId: metaData.batchId, removeOnFail: false, removeOnComplete: 100 });
+      await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, { jobId: metaData.batchId, removeOnFail: false, removeOnComplete: 1000 });
     }
     try {
       const result = await this.redis.multi().del(lockedBatchMetaDataKey).del(lockedBatchDataKey).exec();

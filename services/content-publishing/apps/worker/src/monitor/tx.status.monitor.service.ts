@@ -41,12 +41,17 @@ export class TxStatusMonitoringService extends BaseConsumer {
       }
       const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'messages', event: 'MessageStored' }]);
 
+      this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+
+      if (txResult.success && txResult.blockHash && !txResult.error) {
+        this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
+        return txResult;
+      }
+
       // if tx has not yet included in a block, throw error to retry till max attempts
       if (!txResult.blockHash && !txResult.error) {
         throw new Error(`Tx not found in block list, retrying (attempts=${job.attemptsMade})`);
       }
-
-      this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
 
       if (txResult.error && job.attemptsMade <= (job.opts.attempts ?? 3)) {
         this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);

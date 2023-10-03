@@ -7,6 +7,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IPublisherJob } from '../interfaces/publisher-job.interface';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
+import { NonceService } from './nonce.service';
 
 @Injectable()
 export class IPFSPublisher {
@@ -15,6 +16,7 @@ export class IPFSPublisher {
   constructor(
     private configService: ConfigService,
     private blockchainService: BlockchainService,
+    private nonceService: NonceService,
   ) {
     this.logger = new Logger(IPFSPublisher.name);
   }
@@ -35,7 +37,8 @@ export class IPFSPublisher {
         providerKeys,
         tx,
       );
-      const [txHash] = await ext.signAndSend();
+      const nonce = await this.nonceService.getNextNonce();
+      const [txHash] = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');
       }

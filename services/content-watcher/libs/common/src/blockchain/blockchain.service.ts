@@ -157,6 +157,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
+  public async getNonce(account: Uint8Array): Promise<number> {
+    return this.rpc('system', 'accountNextIndex', account);
+  }
+
   public async crawlBlockListForTx(
     txHash: Hash,
     blockList: bigint[],

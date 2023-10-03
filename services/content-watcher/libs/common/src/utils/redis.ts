@@ -7,6 +7,7 @@ export namespace RedisUtils {
    * batch Lock expire time which applies during closing operation
    */
   export const BATCH_LOCK_EXPIRE_SECONDS = 6;
+  export const CHAIN_NONCE_KEY = 'chain:nonce';
   const ASSET_DATA_KEY_PREFIX = 'asset:data';
   const ASSET_METADATA_KEY_PREFIX = 'asset:metadata';
   const BATCH_DATA_KEY_PREFIX = 'batch:data';

@@ -1,7 +1,7 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Processor, InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
@@ -11,6 +11,7 @@ import { QueueConstants } from '../../../../libs/common/src';
 import { SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BaseConsumer } from '../BaseConsumer';
+import { IPublisherJob } from '../interfaces/publisher-job.interface';
 
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME, {
@@ -34,42 +35,44 @@ export class TxStatusMonitoringService extends BaseConsumer {
       const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: bigint[] = [];
-      const blockDelay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
       for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1n) {
         blockList.push(i);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'messages', event: 'MessagesStored' }]);
+      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
 
-      this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+      if (!txResult.found) {
+        if (job.attemptsMade < (job.opts.attempts ?? 3)) {
+          // if tx has not yet included in a block, throw error to retry till max attempts
+          throw new Error(`Tx not found in block list, retrying (attempts=${job.attemptsMade})`);
+        } else {
+          this.logger.warn(`Could not fetch the transaction adding to publish again! ${job.id}`);
+          // could not find the transaction, this might happen if transaction never gets into a block
+          await this.retryPublishJob(job.data.referencePublishJob);
+        }
+      } else {
+        // found the tx
+        await this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+        if (txResult.error) {
+          this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
+          const errorReport = await this.handleMessagesFailure(job.data.id, txResult.error);
 
-      if (txResult.success && txResult.blockHash && !txResult.error) {
-        this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-        return txResult;
-      }
+          if (errorReport.pause) {
+            await this.publishQueue.pause();
+          }
 
-      // if tx has not yet included in a block, throw error to retry till max attempts
-      if (!txResult.blockHash && !txResult.error) {
-        throw new Error(`Tx not found in block list, retrying (attempts=${job.attemptsMade})`);
-      }
-
-      if (txResult.error && job.attemptsMade <= (job.opts.attempts ?? 3)) {
-        this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
-        const errorReport = await this.handleMessagesFailure(job.data.id, txResult.error);
-        const failedError = new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
-
-        if (errorReport.pause) {
-          await this.publishQueue.pause();
+          if (errorReport.retry) {
+            await this.retryPublishJob(job.data.referencePublishJob);
+          } else {
+            throw new UnrecoverableError(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+          }
         }
 
-        if (errorReport.retry) {
-          this.logger.debug(`Retrying job ${job.data.id}`);
-          await this.publishQueue.removeRepeatableByKey(job.data.referencePublishJob.id);
-          await this.publishQueue.add(job.data.referencePublishJob.id, job.data.referencePublishJob, { delay: blockDelay });
+        if (txResult.success) {
+          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
         }
       }
-      await this.txReceiptQueue.removeRepeatableByKey(job.data.id);
-      throw new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+      return txResult;
     } catch (e) {
       this.logger.error(e);
       throw e;
@@ -85,8 +88,6 @@ export class TxStatusMonitoringService extends BaseConsumer {
           // Re-try the job in the publish queue
           return { pause: false, retry: true };
         case 'UnAuthorizedDelegate':
-          // Re-try the job in the publish, could be a signing error
-          return { pause: false, retry: true };
         case 'InvalidMessageSourceAccount':
         case 'InvalidSchemaId':
         case 'ExceedsMaxMessagePayloadSizeBytes':
@@ -120,5 +121,11 @@ export class TxStatusMonitoringService extends BaseConsumer {
     } catch (error) {
       this.logger.error(`Error setting epoch capacity: ${error}`);
     }
+  }
+
+  private async retryPublishJob(publishJob: IPublisherJob) {
+    this.logger.debug(`Retrying job ${publishJob.id}`);
+    await this.publishQueue.remove(publishJob.id);
+    await this.publishQueue.add(`Retrying publish job - ${publishJob.id}`, publishJob, { jobId: publishJob.id });
   }
 }

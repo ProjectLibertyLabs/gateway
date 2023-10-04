@@ -54,24 +54,12 @@ import { QueueConstants } from '../../../../libs/common/src';
       {
         name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
         defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
           removeOnComplete: true,
           removeOnFail: false,
         },
       },
       {
         name: QueueConstants.PUBLISH_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 1,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
       },
     ),
   ],

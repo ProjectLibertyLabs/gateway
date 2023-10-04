@@ -1,21 +1,26 @@
 --[[
 Input:
-KEYS[1] nonce key
-ARGV[1] current nonce
+KEYS[N] nonce keys
+ARGV[1] number of keys
+ARGV[2] key expire time in seconds
 Output:
-N OK (current nonce)
+-1 ERROR (none of keys worked)
+N OK (chosen key index)
 ]]
-local nonceKey = KEYS[1]
-local currentNonce = tonumber(ARGV[1])
+local keysSize = tonumber(ARGV[1])
+local expireInSeconds = tonumber(ARGV[2])
 local rcall = redis.call
 
-local nonce = rcall("GET",nonceKey)
-if not nonce or tonumber(nonce) < currentNonce then
-   rcall('SET', nonceKey, currentNonce)
-else
-   rcall('INCR', nonceKey)
-end
-return rcall("GET", nonceKey)
+local i = 1
+repeat
+    local nextKey = KEYS[i]
+    if rcall("EXISTS", nextKey) ==  0 then
+        rcall('SETEX', nextKey, expireInSeconds , 1)
+        return i
+    end
+    i = i + 1
+until( i > keysSize)
+return -1
 
 
 

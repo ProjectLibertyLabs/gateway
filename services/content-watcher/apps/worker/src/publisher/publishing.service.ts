@@ -25,7 +25,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue,
+    @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
@@ -78,9 +78,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       txHash,
       referencePublishJob: jobData,
     };
-    // add a delay of 1 block to allow the tx reciept to go through before checking
-    const delay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    await this.txReceiptQueue.add(job.id, job, { jobId: job.id, removeOnFail: false, removeOnComplete: 1000, delay });
+    // add a delay of 1 block to allow the tx receipt to go through before checking
+    const initialDelay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    const retryDelay = 3 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    await this.txReceiptQueue.add(`Receipt Job - ${job.id}`, job, { jobId: job.id, delay: initialDelay, attempts: 4, backoff: { type: 'exponential', delay: retryDelay } });
   }
 
   private async checkCapacity(): Promise<void> {

@@ -20,7 +20,7 @@ export class NonceService implements OnApplicationBootstrap {
   ) {
     this.logger = new Logger(NonceService.name);
     redis.defineCommand('incrementNonce', {
-      numberOfKeys: 1,
+      numberOfKeys: RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK,
       lua: fs.readFileSync('lua/incrementNonce.lua', 'utf8'),
     });
   }
@@ -33,9 +33,25 @@ export class NonceService implements OnApplicationBootstrap {
 
   async getNextNonce(): Promise<number> {
     const nonce = await this.blockchainService.getNonce(this.accountId);
+    const keys = this.getNextPossibleKeys(nonce);
     // @ts-ignore
-    const nextNonce = await this.redis.incrementNonce(RedisUtils.CHAIN_NONCE_KEY, nonce);
+    const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, RedisUtils.NONCE_KEY_EXPIRE_SECONDS);
+    if (nextNonceIndex === -1) {
+      this.logger.warn(`nextNonce was full even with ${RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
+      return Number(nonce) + RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK;
+    }
+    const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);
     return nextNonce;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getNextPossibleKeys(currentNonce: number): string[] {
+    const keys: string[] = [];
+    for (let i = 0; i < RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
+      const key = currentNonce + i;
+      keys.push(RedisUtils.getNonceKey(`${key}`));
+    }
+    return keys;
   }
 }

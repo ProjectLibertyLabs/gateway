@@ -1,6 +1,5 @@
-import Joi, { number } from 'joi';
+import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
-import { mnemonicValidate } from '@polkadot/util-crypto';
 import { EnvironmentDto } from '..';
 
 export const configModuleOptions: ConfigModuleOptions = {

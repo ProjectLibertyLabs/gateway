@@ -1,7 +1,36 @@
 version: '3'
 
 services:
-  content-publishing-service:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data/redis
+    networks:
+      - content-publishing-service
+
+  frequency:
+    image: frequencychain/instant-seal-node:latest
+    ports:
+      - 9944:9944
+    networks:
+      - content-publishing-service
+    volumes:
+      - frequency_data:/data/frequency
+
+  kubo_ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - 4001:4001
+      - 5001:5001
+      - 8080:8080
+    networks:
+      - content-publishing-service
+    volumes:
+      - ipfs_data:/data/ipfs
+
+  content-publishing-service-api:
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -9,30 +38,42 @@ services:
       - 3000:3000
     env_file:
       - .env.docker.dev
+    environment:
+      - START_PROCESS=api
+      - REDIS_URL=redis://redis:6379
     volumes:
-    - ./:/app
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
     networks:
-      - content-publishing-service-network-dev
+      - content-publishing-service
 
-  redis:
-    image: redis:latest
-    ports:
-      - 6379:6379
-    networks:
-      - content-publishing-service-network-dev
+  content-publishing-service-worker:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    env_file:
+      - .env.docker.dev
+    environment:
+      - START_PROCESS=worker
+      - REDIS_URL=redis://redis:6379
     volumes:
-      - redis_data:/data
-
-  frequency:
-    image: frequencychain/instant-seal-node:latest
-    ports:
-      - 9944:9944
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
     networks:
-      - content-publishing-service-network-dev
-    container_name: frequency-node
+      - content-publishing-service
 
 volumes:
   redis_data:
+  ipfs_data:
+  frequency_data:
 
 networks:
-  content-publishing-service-network-dev:
+  content-publishing-service:
+
+

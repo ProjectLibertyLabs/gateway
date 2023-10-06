@@ -14,7 +14,6 @@
     "start:worker:dev": "set -a ; . .env ; nest start worker",
     "start:api:debug": "set -a ; . .env ; nest start api --debug --watch",
     "start:worker:debug": "set -a ; . .env ;nest start worker --debug --watch",
-    "start:dev:docker": "npm ci && ts-node-dev -r tsconfig-paths/register apps/api/src/main.ts",
     "docker-build": "docker build -t content-publishing-service .",
     "docker-build:dev": "docker-compose -f docker-compose.dev.yaml build",
     "docker-run": "docker build -t content-publishing-service-deploy . ; docker run -p 6379:6379 --env-file .env content-publishing-service-deploy",

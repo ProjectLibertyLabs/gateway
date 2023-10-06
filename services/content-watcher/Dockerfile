@@ -1,32 +1,28 @@
-FROM --platform=linux/amd64 node:18 as build
+# Use a multi-stage build for efficiency
+FROM node:18 AS builder
 
-# TODO: The deployment docker image should install the content publishing
-#       service from NPM rather than building from source
-WORKDIR /app
+WORKDIR /usr/src/app
+
 COPY package*.json ./
+
 RUN npm install
 
-# Build / Copy the rest of the application files to the container and build
 COPY . .
+
+# Build the application
 RUN npm run build
 
-FROM build as app-only
+# Production stage
+FROM node:18
 
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/dist ./dist
+COPY package*.json ./
+
+RUN npm install --only=production
 EXPOSE 3000
+ENV START_PROCESS="api"
 
-ENTRYPOINT npm start
 
-FROM build as standalone
-
-# Install Redis on top of the base image
-RUN apt-get -y update
-RUN apt-get -y install redis
-RUN sed -e 's/^appendonly .*$/appendonly yes/' /etc/redis/redis.conf > /etc/redis/redis.conf.appendonly
-RUN mv /etc/redis/redis.conf.appendonly /etc/redis/redis.conf
-
-ENV REDIS_URL=redis://localhost:6379
-
-VOLUME [ "/var/lib/redis" ]
-
-# Start the application
-ENTRYPOINT service redis-server start && npm start
+CMD ["sh", "-c", "if [ \"$START_PROCESS\" = \"api\" ]; then npm run start:api:prod; else npm run start:worker:prod; fi"]

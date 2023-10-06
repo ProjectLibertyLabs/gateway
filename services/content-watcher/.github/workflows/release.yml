@@ -20,7 +20,7 @@ env:
   NEW_RELEASE_TAG_FROM_UI: ${{github.event.inputs.release-version}}
   TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'v0.0.1')}}
   DOCKER_HUB_PROFILE: amplicalabs
-  IMAGE_NAME: content-publishing-service
+  IMAGE_NAME: content-publishing-service-api
 
 jobs:
   build-and-publish-container-image:
@@ -45,24 +45,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{env.NEW_RELEASE_TAG_FROM_UI}}
-      - name: Set up tags for standalone image
-        id: standalone-tags
+      - name: Set up tags for cp image
+        id: cp-tags
         uses: docker/metadata-action@v4
         with:
           flavor: |
             latest=auto
-            prefix=standalone-,onlatest=true
-          images: |
-            ${{env.DOCKER_HUB_PROFILE}}/${{env.IMAGE_NAME}}
-          tags: |
-            type=semver,pattern={{version}}
-      - name: Set up tags for app-only image
-        id: app-only-tags
-        uses: docker/metadata-action@v4
-        with:
-          flavor: |
-            latest=auto
-            prefix=apponly-,onlatest=true
+            prefix=api-,onlatest=true
           images: |
             ${{env.DOCKER_HUB_PROFILE}}/${{env.IMAGE_NAME}}
           tags: |
@@ -79,21 +68,11 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USERNAME_FC}}
           password: ${{secrets.DOCKERHUB_TOKEN_FC}}
-      - name: Build and Push Standalone (Complete) Container Image
+      - name: Build and Push Content-Publishing-Service Image
         uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64
           push: ${{env.TEST_RUN != 'true'}}
           file: ./Dockerfile
-          target: standalone
-          tags: ${{ steps.standalone-tags.outputs.tags }}
-      - name: Build and Push App-Only Container Image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          platforms: linux/amd64
-          push: ${{env.TEST_RUN != 'true'}}
-          file: ./Dockerfile
-          target: app-only
-          tags: ${{ steps.app-only-tags.outputs.tags }}
+          tags: ${{ steps.cp-tags.outputs.tags }}

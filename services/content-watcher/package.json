@@ -1,5 +1,5 @@
 {
-  "name": "content-publishing-service",
+  "name": "content-watcher-service",
   "version": "0.1.0",
   "description": "Services to publish content on DSNP/Frequency",
   "main": "dist/apps/api/main.js",
@@ -14,10 +14,10 @@
     "start:worker:dev": "set -a ; . .env ; nest start worker",
     "start:api:debug": "set -a ; . .env ; nest start api --debug --watch",
     "start:worker:debug": "set -a ; . .env ;nest start worker --debug --watch",
-    "docker-build": "docker build -t content-publishing-service .",
+    "docker-build": "docker build -t content-watcher-service .",
     "docker-build:dev": "docker-compose -f docker-compose.dev.yaml build",
-    "docker-run": "docker build -t content-publishing-service-deploy . ; docker run -p 6379:6379 --env-file .env content-publishing-service-deploy",
-    "docker-run:dev": "docker-compose -f docker-compose.dev.yaml up -d ; docker-compose -f docker-compose.dev.yaml logs -f content-publishing-service",
+    "docker-run": "docker build -t content-watcher-service-deploy . ; docker run -p 6379:6379 --env-file .env content-watcher-service-deploy",
+    "docker-run:dev": "docker-compose -f docker-compose.dev.yaml up -d ; docker-compose -f docker-compose.dev.yaml logs -f content-watcher-service",
     "docker-stop:dev": "docker-compose -f docker-compose.dev.yaml stop",
     "clean": "rm -Rf dist",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -28,15 +28,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmplicaLabs/content-publishing-service.git"
+    "url": "git+https://github.com/AmplicaLabs/content-watcher-service.git"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/AmplicaLabs/content-publishing-service/issues"
+    "url": "https://github.com/AmplicaLabs/content-watcher-service/issues"
   },
-  "homepage": "https://github.com/AmplicaLabs/content-publishing-service#readme",
+  "homepage": "https://github.com/AmplicaLabs/content-watcher-service#readme",
   "dependencies": {
     "@bull-board/api": "^5.8.3",
     "@bull-board/express": "^5.8.3",

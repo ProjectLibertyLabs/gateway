@@ -8,14 +8,14 @@ services:
     volumes:
       - redis_data:/data/redis
     networks:
-      - content-publishing-service
+      - content-watcher-service
 
   frequency:
     image: frequencychain/instant-seal-node:latest
     ports:
       - 9944:9944
     networks:
-      - content-publishing-service
+      - content-watcher-service
     volumes:
       - frequency_data:/data/frequency
 
@@ -26,11 +26,11 @@ services:
       - 5001:5001
       - 8080:8080
     networks:
-      - content-publishing-service
+      - content-watcher-service
     volumes:
       - ipfs_data:/data/ipfs
 
-  content-publishing-service-api:
+  content-watcher-service-api:
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -48,32 +48,15 @@ services:
       - frequency
       - kubo_ipfs
     networks:
-      - content-publishing-service
-
-  content-publishing-service-worker:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
-    env_file:
-      - .env.docker.dev
-    environment:
-      - START_PROCESS=worker
-      - REDIS_URL=redis://redis:6379
-    volumes:
-      - ./:/app
-    depends_on:
-      - redis
-      - frequency
-      - kubo_ipfs
-    networks:
-      - content-publishing-service
+      - content-watcher-service
 
 volumes:
   redis_data:
   ipfs_data:
   frequency_data:
 
+
 networks:
-  content-publishing-service:
+  content-watcher-service:
 
 

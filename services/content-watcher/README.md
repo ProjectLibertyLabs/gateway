@@ -25,7 +25,7 @@ Follow these steps to set up and run Content Publisher:
 1. Clone the Content Publisher repository to your local machine:
 
    ```bash
-   git clone https://github.com/amplicalabls/content-publishing-service.git
+   git clone https://github.com/amplicalabls/content-watcher-service.git
    ```
 
 2. Modify any environment variables in the `.env` file as needed. For docker compose env `.env.docker.dev` file is used.

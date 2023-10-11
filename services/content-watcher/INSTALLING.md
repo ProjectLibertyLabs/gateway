@@ -9,9 +9,9 @@ The application requires a Redis server that is configured with `Append-only fil
 
 ### Standalone (complete) image
 
-The standalone container image is meant to be a complete solution for a provider. It contains a single instance of the main application, plus a pre-configured Redis server. Simply download the latest [container image](https://hub.docker.com/r/amplicalabs/content-publishing-service/) and deploy using your favorite container management system.
+The standalone container image is meant to be a complete solution for a provider. It contains a single instance of the main application, plus a pre-configured Redis server. Simply download the latest [container image](https://hub.docker.com/r/amplicalabs/content-watcher-service/) and deploy using your favorite container management system.
 ```
-    docker pull amplicalabs/content-publishing-service:standalone-latest
+    docker pull amplicalabs/content-watcher-service:standalone-latest
 ```
 
 The internal Redis server included in the complete image is already configured for persistence; it is simply necessary to configure your container pod to map the directory `/var/lib/redis` to a persistent storage volume.
@@ -22,9 +22,9 @@ Follow the instructions below for [configuration](#configuration), with the exce
 
 ### App-only image
 
-The app-only image is meant to be used for providers who would rather utilize a Redis instance in their own (or their cloud infrastructure provider's) external Redis instance or service. To download the latest [container image](https://hub.docker.com/r/amplicalabs/content-publishing-service/), simply:
+The app-only image is meant to be used for providers who would rather utilize a Redis instance in their own (or their cloud infrastructure provider's) external Redis instance or service. To download the latest [container image](https://hub.docker.com/r/amplicalabs/content-watcher-service/), simply:
 ```
-    docker pull amplicalabs/content-publishing-service:apponly-latest
+    docker pull amplicalabs/content-watcher-service:apponly-latest
 ```
 In this case, you need to ensure that the following settings are configured in your Redis instance:
 ```

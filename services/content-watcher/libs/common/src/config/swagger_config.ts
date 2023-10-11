@@ -4,8 +4,8 @@ import metadata from '../../../../apps/api/src/metadata';
 
 export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const options = new DocumentBuilder()
-    .setTitle('Content Publishing Service API')
-    .setDescription('Content Publishing Service API')
+    .setTitle('Content Watcher Service API')
+    .setDescription('Content Watcher Service API')
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',

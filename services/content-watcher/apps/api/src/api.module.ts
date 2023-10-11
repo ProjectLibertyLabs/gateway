@@ -7,7 +7,6 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { ApiController } from './api.controller';
-import { DevelopmentController } from './development.controller';
 import { QueueConstants } from '../../../libs/common/src';
 import { ApiService } from './api.service';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
@@ -163,7 +162,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     ScheduleModule.forRoot(),
   ],
   providers: [ConfigService, ApiService, IpfsService],
-  controllers: process.env?.ENVIRONMENT === 'dev' ? [DevelopmentController, ApiController] : [ApiController],
+  controllers: [ApiController],
   exports: [],
 })
 export class ApiModule {}

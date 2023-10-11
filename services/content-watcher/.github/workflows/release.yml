@@ -20,7 +20,7 @@ env:
   NEW_RELEASE_TAG_FROM_UI: ${{github.event.inputs.release-version}}
   TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'v0.0.1')}}
   DOCKER_HUB_PROFILE: amplicalabs
-  IMAGE_NAME: content-publishing-service-api
+  IMAGE_NAME: content-watcher-service
 
 jobs:
   build-and-publish-container-image:
@@ -68,7 +68,7 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USERNAME_FC}}
           password: ${{secrets.DOCKERHUB_TOKEN_FC}}
-      - name: Build and Push Content-Publishing-Service Image
+      - name: Build and Push content-watcher-service Image
         uses: docker/build-push-action@v4
         with:
           context: .

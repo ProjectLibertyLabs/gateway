@@ -141,7 +141,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@content-publishing-common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@content-watcher-common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
   }
 }

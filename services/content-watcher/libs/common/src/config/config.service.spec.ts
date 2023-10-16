@@ -34,7 +34,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   return moduleRef.get<ConfigService>(ConfigService);
 };
 
-describe('ContentPublishingConfigService', () => {
+describe('ContentWatcherConfigService', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     ENVIRONMENT: undefined,
     REDIS_URL: undefined,
@@ -124,45 +124,45 @@ describe('ContentPublishingConfigService', () => {
   });
 
   describe('valid environment', () => {
-    let contentPublishingConfigService: ConfigService;
+    let contentWatcherConfigService: ConfigService;
     beforeAll(async () => {
-      contentPublishingConfigService = await setupConfigService(ALL_ENV);
+      contentWatcherConfigService = await setupConfigService(ALL_ENV);
     });
 
     it('should be defined', () => {
-      expect(contentPublishingConfigService).toBeDefined();
+      expect(contentWatcherConfigService).toBeDefined();
     });
 
     it('should get redis url', () => {
-      expect(contentPublishingConfigService.redisUrl?.toString()).toStrictEqual(ALL_ENV.REDIS_URL?.toString());
+      expect(contentWatcherConfigService.redisUrl?.toString()).toStrictEqual(ALL_ENV.REDIS_URL?.toString());
     });
 
     it('should get frequency url', () => {
-      expect(contentPublishingConfigService.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_URL?.toString());
+      expect(contentWatcherConfigService.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_URL?.toString());
     });
 
     it('should get scan interval', () => {
-      expect(contentPublishingConfigService.getBlockchainScanIntervalMinutes()).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10));
+      expect(contentWatcherConfigService.getBlockchainScanIntervalMinutes()).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10));
     });
 
     it('should get queue high water mark', () => {
-      expect(contentPublishingConfigService.getQueueHighWater()).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
+      expect(contentWatcherConfigService.getQueueHighWater()).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
     });
 
     it('should get health check success threshold', () => {
-      expect(contentPublishingConfigService.getHealthCheckSuccessThreshold()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
+      expect(contentWatcherConfigService.getHealthCheckSuccessThreshold()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
     });
 
     it('should get health check max retry interval', () => {
-      expect(contentPublishingConfigService.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
+      expect(contentWatcherConfigService.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
     });
 
     it('should get health check max retries', () => {
-      expect(contentPublishingConfigService.getHealthCheckMaxRetries()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
+      expect(contentWatcherConfigService.getHealthCheckMaxRetries()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
     });
 
     it('should get api port', () => {
-      expect(contentPublishingConfigService.getApiPort()).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
+      expect(contentWatcherConfigService.getApiPort()).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
     });
   });
 });

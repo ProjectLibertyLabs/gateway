@@ -1,11 +1,18 @@
 openapi: 3.0.0
 paths:
-  "/api/health":
+  /api/health:
     get:
       operationId: ApiController_health
       parameters: []
       responses:
         '200':
+          description: ''
+  /api/resetScanner:
+    post:
+      operationId: ApiController_resetScanner
+      parameters: []
+      responses:
+        '201':
           description: ''
 info:
   title: Content Watcher Service API
@@ -25,4 +32,5 @@ components:
       type: apiKey
       in: cookie
       name: SESSION
-  schemas:
+  schemas: {}
+  responses: {}

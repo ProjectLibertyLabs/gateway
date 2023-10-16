@@ -1,24 +1,12 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
-import {
-  AnnouncementResponseDto,
-  AnnouncementTypeDto,
-  AssetIncludedRequestDto,
-  IRequestJob,
-  isImage,
-  QueueConstants,
-  RequestTypeDto,
-  UploadResponseDto,
-} from '../../../libs/common/src';
-import { calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
-import { IAssetJob, IAssetMetadata } from '../../../libs/common/src/interfaces/asset-job.interface';
-import { RedisUtils } from '../../../libs/common/src/utils/redis';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { IRequestJob } from '../../../libs/common/src';
+import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
+import { LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
 
 @Injectable()
 export class ApiService {
@@ -26,10 +14,13 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
+    private readonly scannerService: ScannerService,
   ) {
     this.logger = new Logger(this.constructor.name);
+  }
+
+  public setLastSeenBlockNumber(blockNumber: number) {
+    return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
   }
 
   // eslint-disable-next-line class-methods-use-this

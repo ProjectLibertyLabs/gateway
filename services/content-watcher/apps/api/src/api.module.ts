@@ -12,10 +12,13 @@ import { ApiService } from './api.service';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
+import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 
 @Module({
   imports: [
     ConfigModule,
+    ScannerModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -51,10 +54,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ASSET_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.REQUEST_QUEUE_NAME,
+        name: QueueConstants.IPFS_QUEUE,
       },
       {
         name: QueueConstants.BROADCAST_QUEUE_NAME,
@@ -74,18 +74,6 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       {
         name: QueueConstants.PROFILE_QUEUE_NAME,
       },
-      {
-        name: QueueConstants.BATCH_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.PUBLISH_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.STATUS_QUEUE_NAME,
-      },
     ),
 
     // Bullboard UI
@@ -94,11 +82,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       adapter: ExpressAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.ASSET_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
+      name: QueueConstants.IPFS_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
@@ -125,22 +109,6 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       name: QueueConstants.PROFILE_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.BATCH_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.PUBLISH_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.STATUS_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -161,7 +129,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService, ApiService, IpfsService],
+  providers: [ConfigService, ApiService, IpfsService, ScannerService],
   controllers: [ApiController],
   exports: [],
 })

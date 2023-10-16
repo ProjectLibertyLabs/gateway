@@ -2,32 +2,12 @@ import { AnnouncementTypeDto } from '../dtos/common.dto';
 
 export namespace QueueConstants {
   /**
-   * Name of the queue that has all incoming asset uploads
+   * Name of the queue that has all incoming IPFS messages from the blockchain
    */
-  export const ASSET_QUEUE_NAME = 'assetQueue';
-  /**
-   * Name of the queue that has all incoming requests
-   */
-  export const REQUEST_QUEUE_NAME = 'requestQueue';
-  /**
-   * Name of the queue that has all individual announcements batched together
-   */
-  export const BATCH_QUEUE_NAME = 'batchQueue';
-  /**
-   * Name of the queue that has all items that needs to be published to Frequency chain
-   */
-  export const PUBLISH_QUEUE_NAME = 'publishQueue';
-  /**
-   * Name of the queue that has all the jobs and items that needs to run periodically or check their status
-   */
-  export const STATUS_QUEUE_NAME = 'statusQueue';
+  export const IPFS_QUEUE = 'ipfsQueue';
 
   /**
-   * Name of the queue that has all the transaction receipts
-   */
-  export const TRANSACTION_RECEIPT_QUEUE_NAME = 'transactionReceiptQueue';
-  /**
-   * All of the announcement type queues
+   * Name of the queue that has all outgoing announcements from the blockchain
    */
   export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
   export const REPLY_QUEUE_NAME = 'replyQueue';

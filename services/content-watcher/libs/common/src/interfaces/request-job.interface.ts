@@ -1,11 +1,7 @@
-import { RequestTypeDto } from '../dtos/announcement.dto';
-import { AnnouncementTypeDto } from '../dtos/common.dto';
+import { IChainWatchOptions } from './chain.filter.interface';
 
 export interface IRequestJob {
   id: string;
-  announcementType: AnnouncementTypeDto;
-  dsnpUserId: string;
-  assetToMimeType?: Map<string, string>;
-  content?: RequestTypeDto;
-  dependencyAttempt: number;
+  blocksToCrawl: string[];
+  filters: IChainWatchOptions;
 }

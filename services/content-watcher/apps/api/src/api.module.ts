@@ -12,10 +12,13 @@ import { ApiService } from './api.service';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
+import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 
 @Module({
   imports: [
     ConfigModule,
+    ScannerModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -126,7 +129,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService, ApiService, IpfsService],
+  providers: [ConfigService, ApiService, IpfsService, ScannerService],
   controllers: [ApiController],
   exports: [],
 })

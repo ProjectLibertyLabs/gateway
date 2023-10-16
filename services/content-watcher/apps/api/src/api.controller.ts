@@ -33,4 +33,9 @@ export class ApiController {
       status: HttpStatus.OK,
     };
   }
+
+  @Post('updateLastScannedBlock')
+  updateLastScannedBlock(@Body() body: { blockNumber: number }) {
+    return this.apiService.setLastSeenBlockNumber(body.blockNumber);
+  }
 }

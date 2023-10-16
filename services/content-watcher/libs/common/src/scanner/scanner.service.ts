@@ -71,8 +71,9 @@ export class ScannerService implements OnApplicationBootstrap {
 
     this.scanInProgress = true;
     let lastScannedBlock = await this.getLastSeenBlockNumber();
-    let latestBlockHash = await this.blockchainService.getBlockHash(lastScannedBlock);
-
+    const currentBlockNumber = lastScannedBlock + 1n;
+    let latestBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+  
     if (!latestBlockHash.some((byte) => byte !== 0)) {
       this.logger.log('No new blocks to read; no scan performed.');
       this.scanInProgress = false;

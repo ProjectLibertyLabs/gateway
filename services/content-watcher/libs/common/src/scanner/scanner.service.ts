@@ -67,7 +67,7 @@ export class ScannerService implements OnApplicationBootstrap {
     }
 
     const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
-    const eventsToWatch: IChainWatchOptions = JSON.parse(chainWatchFilters ?? '');
+    const eventsToWatch: IChainWatchOptions = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
     this.scanInProgress = true;
     let lastScannedBlock = await this.getLastSeenBlockNumber();

@@ -19,7 +19,7 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  public setLastSeenBlockNumber(blockNumber: number) {
+  public setLastSeenBlockNumber(blockNumber: bigint) {
     return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
   }
 

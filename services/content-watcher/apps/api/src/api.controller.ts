@@ -34,8 +34,8 @@ export class ApiController {
     };
   }
 
-  @Post('updateLastScannedBlock')
-  updateLastScannedBlock(@Body() body: { blockNumber: number }) {
-    return this.apiService.setLastSeenBlockNumber(body.blockNumber);
+  @Post('resetScanner')
+  resetScanner(@Body() body: { blockNumber?: bigint }) {
+    return this.apiService.setLastSeenBlockNumber(body.blockNumber ?? 0n);
   }
 }

@@ -131,7 +131,7 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService, ApiService, IpfsService, ScannerService],
+  providers: [ApiService],
   controllers: [ApiController],
   exports: [],
 })

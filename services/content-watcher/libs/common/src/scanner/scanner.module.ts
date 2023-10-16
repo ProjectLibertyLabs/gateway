@@ -45,7 +45,7 @@ import { BlockchainService } from '../blockchain/blockchain.service';
     ScheduleModule.forRoot(),
   ],
   controllers: [],
-  providers: [ConfigService, BlockchainService, ScannerService],
+  providers: [ScannerService],
   exports: [ScannerService],
 })
 export class ScannerModule {}

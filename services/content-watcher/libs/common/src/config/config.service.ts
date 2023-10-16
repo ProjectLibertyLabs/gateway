@@ -5,7 +5,6 @@ https://docs.nestjs.com/providers#services
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { EnvironmentDto } from '..';
-import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
   ENVIRONMENT: EnvironmentDto;

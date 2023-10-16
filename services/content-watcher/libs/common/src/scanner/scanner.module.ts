@@ -10,6 +10,7 @@ import { ScannerService } from './scanner.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants } from '../utils/queues';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { QueueConstants } from '../utils/queues';
     ScheduleModule.forRoot(),
   ],
   controllers: [],
-  providers: [ScannerService],
+  providers: [ConfigService, BlockchainService, ScannerService],
   exports: [ScannerService],
 })
 export class ScannerModule {}

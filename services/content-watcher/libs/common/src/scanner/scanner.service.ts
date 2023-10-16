@@ -25,10 +25,10 @@ export class ScannerService implements OnApplicationBootstrap {
   private scanInProgress = false;
 
   constructor(
-    @InjectRedis() private readonly cache: Redis,
-    @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private readonly configService: ConfigService,
     private readonly blockchainService: BlockchainService,
+    @InjectRedis() private readonly cache: Redis,
+    @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
   ) {
     this.logger = new Logger(ScannerService.name);

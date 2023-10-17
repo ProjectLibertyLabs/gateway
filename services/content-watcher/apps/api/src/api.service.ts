@@ -32,6 +32,16 @@ export class ApiService {
     await this.redis.set(EVENTS_TO_WATCH_KEY, JSON.stringify(watchOptions));
   }
 
+  public pauseScanner() {
+    this.logger.warn('Pausing scanner');
+    return this.scannerService.pauseScanner();
+  }
+
+  public resumeScanner() {
+    this.logger.warn('Resuming scanner');
+    return this.scannerService.resumeScanner();
+  }
+
   // eslint-disable-next-line class-methods-use-this
   private calculateJobId(jobWithoutId: IRequestJob): string {
     const stringVal = JSON.stringify(jobWithoutId);

@@ -24,6 +24,8 @@ export class ScannerService implements OnApplicationBootstrap {
 
   private scanInProgress = false;
 
+  private paused = false;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly blockchainService: BlockchainService,
@@ -51,6 +53,16 @@ export class ScannerService implements OnApplicationBootstrap {
     this.schedulerRegistry.addInterval('blockchainScan', interval);
   }
 
+  public async pauseScanner() {
+    this.logger.debug('Pausing scanner');
+    this.paused = true;
+  }
+
+  public async resumeScanner() {
+    this.logger.debug('Resuming scanner');
+    this.paused = false;
+  }
+
   async scan() {
     try {
       this.logger.debug('Starting scanner');
@@ -60,6 +72,10 @@ export class ScannerService implements OnApplicationBootstrap {
         return;
       }
 
+      if (this.paused) {
+        this.logger.debug('Scanner is paused');
+        return;
+      }
       let queueSize = await this.ipfsQueue.count();
 
       if (queueSize > 0) {

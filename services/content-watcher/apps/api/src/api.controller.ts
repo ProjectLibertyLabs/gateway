@@ -50,4 +50,14 @@ export class ApiController {
   setWatchOptions(@Body() watchOptions: IChainWatchOptionsDto) {
     return this.apiService.setWatchOptions(watchOptions);
   }
+
+  @Post('pauseScanner')
+  pauseScanner() {
+    return this.apiService.pauseScanner();
+  }
+
+  @Post('startScanner')
+  startScanner() {
+    return this.apiService.resumeScanner();
+  }
 }

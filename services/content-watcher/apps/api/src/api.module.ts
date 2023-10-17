@@ -76,9 +76,6 @@ import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,
       },
       {
-        name: QueueConstants.UPDATE_QUEUE_NAME,
-      },
-      {
         name: QueueConstants.PROFILE_QUEUE_NAME,
       },
     ),
@@ -110,10 +107,6 @@ import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.UPDATE_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({

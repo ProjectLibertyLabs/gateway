@@ -55,7 +55,7 @@ import { IpfsService } from '../utils/ipfs.client';
       {
         name: QueueConstants.IPFS_QUEUE,
         defaultJobOptions: {
-          attempts: 1,
+          attempts: 3,
           backoff: {
             type: 'exponential',
           },
@@ -74,9 +74,6 @@ import { IpfsService } from '../utils/ipfs.client';
       },
       {
         name: QueueConstants.PROFILE_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.UPDATE_QUEUE_NAME,
       },
       {
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,

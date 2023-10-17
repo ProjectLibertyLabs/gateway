@@ -18,7 +18,6 @@ export namespace QueueConstants {
   export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
   export const REPLY_QUEUE_NAME = 'replyQueue';
   export const REACTION_QUEUE_NAME = 'reactionQueue';
-  export const UPDATE_QUEUE_NAME = 'updateQueue';
   export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
   export const PROFILE_QUEUE_NAME = 'profileQueue';
   /**
@@ -28,7 +27,6 @@ export namespace QueueConstants {
     [AnnouncementTypeDto.BROADCAST, BROADCAST_QUEUE_NAME],
     [AnnouncementTypeDto.REPLY, REPLY_QUEUE_NAME],
     [AnnouncementTypeDto.REACTION, REACTION_QUEUE_NAME],
-    [AnnouncementTypeDto.UPDATE, UPDATE_QUEUE_NAME],
     [AnnouncementTypeDto.TOMBSTONE, TOMBSTONE_QUEUE_NAME],
     [AnnouncementTypeDto.PROFILE, PROFILE_QUEUE_NAME],
   ]);
@@ -39,7 +37,6 @@ export namespace QueueConstants {
     [BROADCAST_QUEUE_NAME, AnnouncementTypeDto.BROADCAST],
     [REPLY_QUEUE_NAME, AnnouncementTypeDto.REPLY],
     [REACTION_QUEUE_NAME, AnnouncementTypeDto.REACTION],
-    [UPDATE_QUEUE_NAME, AnnouncementTypeDto.UPDATE],
     [TOMBSTONE_QUEUE_NAME, AnnouncementTypeDto.TOMBSTONE],
     [PROFILE_QUEUE_NAME, AnnouncementTypeDto.PROFILE],
   ]);

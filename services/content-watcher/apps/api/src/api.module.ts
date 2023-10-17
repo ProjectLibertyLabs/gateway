@@ -14,6 +14,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
+import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
     BlockchainModule,
     ScannerModule,
     CrawlerModule,
+    IPFSProcessorModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -74,9 +76,6 @@ import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,
       },
       {
-        name: QueueConstants.UPDATE_QUEUE_NAME,
-      },
-      {
         name: QueueConstants.PROFILE_QUEUE_NAME,
       },
     ),
@@ -108,10 +107,6 @@ import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.UPDATE_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({

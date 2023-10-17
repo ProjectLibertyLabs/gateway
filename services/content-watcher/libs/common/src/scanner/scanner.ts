@@ -36,7 +36,7 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const startingBlock = BigInt(this.configService.startingBlock)-1n;
+    const startingBlock = BigInt(this.configService.startingBlock) - 1n;
     this.setLastSeenBlockNumber(startingBlock);
     this.scheduleInitialScan();
     this.scheduleBlockchainScan();
@@ -181,6 +181,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
 
       const ipfsQueueJob = createIPFSQueueJob(
+        schemaId.toNumber(),
         messageResponse.msa_id.unwrap().toString(),
         messageResponse.provider_msa_id.unwrap().toString(),
         blockNumber.toBigInt(),

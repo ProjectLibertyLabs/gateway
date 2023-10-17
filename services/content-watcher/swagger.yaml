@@ -62,7 +62,11 @@ paths:
               $ref: '#/components/schemas/ContentSearchRequestDto'
       responses:
         '200':
-          description: ''
+          description: Returns a jobId to be used to retrieve the results
+          content:
+            application/json:
+              schema:
+                type: string
 info:
   title: Content Watcher Service API
   description: Content Watcher Service API
@@ -131,3 +135,4 @@ components:
         - startBlock
         - endBlock
         - filters
+  responses: {}

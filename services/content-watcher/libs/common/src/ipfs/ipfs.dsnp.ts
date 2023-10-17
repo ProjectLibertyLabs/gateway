@@ -16,7 +16,8 @@ import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { RedisUtils } from '../utils/redis';
-import { Announcement } from '../interfaces/dsnp';
+import { Announcement, AnnouncementType, BroadcastAnnouncement, ProfileAnnouncement, ReactionAnnouncement, ReplyAnnouncement, TombstoneAnnouncement } from '../interfaces/dsnp';
+import { AnnouncementResponse } from '../interfaces/announcement_response';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -79,10 +80,72 @@ export class IPFSContentProcessor extends BaseConsumer {
           records[announcementRecordCast.announcementType.toString()] = [announcementRecordCast];
         }
       }
+
+      await this.buildAndQueueDSNPAnnouncements(records, schema, job.data);
+
+      this.logger.log(`IPFS Job ${job.id} completed`);
     } catch (e) {
       this.logger.error(`IPFS Job ${job.id} failed with error: ${e}`);
       throw e;
     }
+  }
+
+  private async buildAndQueueDSNPAnnouncements(records: Map<string, Announcement>, schema: any, jobData: IIPFSJob): Promise<void> {
+    let jobRequestId = jobData.requestId;
+    if (!jobRequestId) {
+      jobRequestId = '🖨️ from Frequency';
+    }
+
+    records.forEach(async (mapRecord) => {
+      switch (mapRecord.announcementType) {
+        case AnnouncementType.Broadcast: {
+          const broadCastResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as BroadcastAnnouncement,
+            requestId: jobRequestId,
+          };
+          await this.broadcastQueue.add('Broadcast', broadCastResponse);
+          break;
+        }
+        case AnnouncementType.Tombstone: {
+          const tombstoneResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as TombstoneAnnouncement,
+            requestId: jobRequestId,
+          };
+          await this.tombstoneQueue.add('Tombstone', tombstoneResponse);
+          break;
+        }
+        case AnnouncementType.Reaction: {
+          const reactionResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as ReactionAnnouncement,
+            requestId: jobRequestId,
+          };
+          await this.reactionQueue.add('Reaction', reactionResponse);
+          break;
+        }
+        case AnnouncementType.Reply: {
+          const replyResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as ReplyAnnouncement,
+            requestId: jobRequestId,
+          };
+          await this.replyQueue.add('Reply', replyResponse);
+          break;
+        }
+        case AnnouncementType.Profile: {
+          const profileResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as ProfileAnnouncement,
+            requestId: jobRequestId,
+          };
+          break;
+        }
+        default:
+          throw new Error(`Unknown announcement type ${mapRecord}`);
+      }
+    });
   }
 
   private async isQueueFull(queue: Queue): Promise<boolean> {

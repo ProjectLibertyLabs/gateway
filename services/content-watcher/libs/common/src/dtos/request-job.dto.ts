@@ -22,5 +22,8 @@ export class ContentSearchRequestDto {
   endBlock: string;
 
   @IsOptional()
+  @ApiProperty({
+    description: 'The schemaIds/dsnpIds to filter by',
+  })
   filters: IChainWatchOptionsDto;
 }

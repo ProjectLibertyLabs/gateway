@@ -124,43 +124,6 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  async crawlBlockListWithFilters(blockList: bigint[], filters: ChainWatchOptionsDto): Promise<void> {
-    this.logger.debug(`Crawling block list with filters: ${JSON.stringify(filters)}`);
-
-    // eslint-disable-next-line no-await-in-loop
-    while ((await this.ipfsQueue.count()) > 0 && this.scanInProgress) {
-      this.logger.log('Scan already in progress: waiting for IPFS Job queue to empty');
-    }
-
-    this.scanInProgress = true;
-
-    try {
-      await this.processBlockList(blockList, filters);
-      this.scanInProgress = false;
-    } catch (err) {
-      this.logger.error(err);
-    }
-  }
-
-  private async processBlockList(blockList: bigint[], filters: ChainWatchOptionsDto) {
-    const promises: Promise<void>[] = [];
-
-    blockList.forEach(async (blockNumber) => {
-      const latestBlockHash = await this.blockchainService.getBlockHash(blockNumber);
-
-      // eslint-disable-next-line no-await-in-loop
-      const events = await this.fetchEventsFromBlockchain(latestBlockHash);
-      // eslint-disable-next-line no-await-in-loop
-      const filteredEvents = await this.processEvents(events, filters);
-      // eslint-disable-next-line no-await-in-loop
-      await this.queueIPFSJobs(filteredEvents);
-
-      promises.push(Promise.resolve());
-    });
-
-    await Promise.all(promises);
-  }
-
   private async fetchEventsFromBlockchain(latestBlockHash: any) {
     return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
   }

@@ -63,14 +63,4 @@ export class ApiService {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }
-
-  private checkTransactionResult(result: [error: Error | null, result: unknown][] | null) {
-    this.logger.log(result);
-    for (let index = 0; result && index < result.length; index += 1) {
-      const [err, _id] = result[index];
-      if (err) {
-        throw err;
-      }
-    }
-  }
 }

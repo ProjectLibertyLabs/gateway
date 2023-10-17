@@ -67,7 +67,12 @@ export class ApiController {
     description: 'Search for DSNP content by id, startBlock, endBlock, and filters',
     type: ContentSearchRequestDto,
   })
-  search(@Body() searchRequest: ContentSearchRequestDto) {
-    return this.apiService.searchContent(searchRequest);
+  async search(@Body() searchRequest: ContentSearchRequestDto) {
+    const jobResult = await this.apiService.searchContent(searchRequest);
+
+    return {
+      status: HttpStatus.OK,
+      jobId: jobResult.id,
+    };
   }
 }

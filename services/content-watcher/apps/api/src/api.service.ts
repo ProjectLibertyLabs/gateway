@@ -4,7 +4,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ContentSearchRequestDto } from '../../../libs/common/src';
+import { ContentSearchRequestDto, QueueConstants } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
 import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
@@ -15,6 +15,7 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
+    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
     this.logger = new Logger(this.constructor.name);
@@ -43,7 +44,18 @@ export class ApiService {
   }
 
   public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {
+    const jobId = contentSearchRequestDto.id ?? this.calculateJobId(contentSearchRequestDto);
     this.logger.debug(`Searching for content with request ${JSON.stringify(contentSearchRequestDto)}`);
+
+    const job = await this.requestQueue.getJob(jobId);
+    if (job && !(await job.isCompleted())) {
+      this.logger.debug(`Found existing job ${jobId}`);
+      return job;
+    }
+    this.requestQueue.remove(jobId);
+    const jobPromise = this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
+    this.logger.debug(`Added job ${jobId}`);
+    return jobPromise;
   }
 
   // eslint-disable-next-line class-methods-use-this

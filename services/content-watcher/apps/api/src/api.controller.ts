@@ -15,6 +15,7 @@ import {
   UpdateDto,
   ResetScannerDto,
 } from '../../../libs/common/src';
+import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Controller('api')
 export class ApiController {
@@ -38,6 +39,15 @@ export class ApiController {
     type: ResetScannerDto,
   })
   resetScanner(@Body() resetScannerDto: ResetScannerDto) {
-    return this.apiService.setLastSeenBlockNumber(BigInt(resetScannerDto.blockNumber?? 0n));
+    return this.apiService.setLastSeenBlockNumber(BigInt(resetScannerDto.blockNumber ?? 0n));
+  }
+
+  @Post('setWatchOptions')
+  @ApiBody({
+    description: 'watchOptions',
+    type: IChainWatchOptionsDto,
+  })
+  setWatchOptions(@Body() watchOptions: IChainWatchOptionsDto) {
+    return this.apiService.setWatchOptions(watchOptions);
   }
 }

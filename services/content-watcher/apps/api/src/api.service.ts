@@ -6,7 +6,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { IRequestJob } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
-import { LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
+import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
+import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Injectable()
 export class ApiService {
@@ -22,6 +23,13 @@ export class ApiService {
   public setLastSeenBlockNumber(blockNumber: bigint) {
     this.logger.warn(`Setting last seen block number to ${blockNumber}`);
     return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
+  }
+
+  public async setWatchOptions(watchOptions: IChainWatchOptionsDto) {
+    this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
+    const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
+    this.logger.warn(`Current watch options are ${currentWatchOptions}`);
+    await this.redis.set(EVENTS_TO_WATCH_KEY, JSON.stringify(watchOptions));
   }
 
   // eslint-disable-next-line class-methods-use-this

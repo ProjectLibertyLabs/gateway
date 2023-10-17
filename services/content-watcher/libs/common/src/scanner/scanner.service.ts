@@ -15,7 +15,7 @@ import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../constants';
-import { IChainWatchOptions } from '../interfaces/chain.filter.interface';
+import { IChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 
 @Injectable()
@@ -68,7 +68,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
 
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
-      const eventsToWatch: IChainWatchOptions = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
+      const eventsToWatch: IChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
       this.scanInProgress = true;
       let lastScannedBlock = await this.getLastSeenBlockNumber();
@@ -109,7 +109,7 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  async crawlBlockListWithFilters(blockList: bigint[], filters: IChainWatchOptions): Promise<void> {
+  async crawlBlockListWithFilters(blockList: bigint[], filters: IChainWatchOptionsDto): Promise<void> {
     this.logger.debug(`Crawling block list with filters: ${JSON.stringify(filters)}`);
 
     // eslint-disable-next-line no-await-in-loop
@@ -127,7 +127,7 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async processBlockList(blockList: bigint[], filters: IChainWatchOptions) {
+  private async processBlockList(blockList: bigint[], filters: IChainWatchOptionsDto) {
     const promises: Promise<void>[] = [];
 
     blockList.forEach(async (blockNumber) => {
@@ -150,7 +150,7 @@ export class ScannerService implements OnApplicationBootstrap {
     return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
   }
 
-  private async processEvents(events: any, eventsToWatch: IChainWatchOptions) {
+  private async processEvents(events: any, eventsToWatch: IChainWatchOptionsDto) {
     const filteredEvents = await Promise.all(
       events.map(async (event) => {
         if (event.section === 'messages' && event.method === 'MessagesStored') {

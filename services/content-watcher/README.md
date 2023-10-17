@@ -1,10 +1,10 @@
-# Content Publisher
+# Content Watcher
 
-Content Publisher is a microservice designed to publish DSNP (Decentralized Social Networking Protocol) content to the Frequency blockchain. This README provides step-by-step instructions to set up and run the service.
+Content Watcher is a service that watches for events on Frequency and produces DSNP content to respective output channels.
 
 ## Table of Contents
 
-- [Content Publisher](#content-publisher)
+- [Content Watcher](#content-watcher)
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
@@ -14,15 +14,15 @@ Content Publisher is a microservice designed to publish DSNP (Decentralized Soci
 
 Before you begin, ensure you have met the following requirements:
 
-- **Docker:** Content Publisher is designed to run in a Docker environment. Make sure Docker is installed on your system.
+- **Docker:** Content Watcher is designed to run in a Docker environment. Make sure Docker is installed on your system.
 
 ## Getting Started
 
-Follow these steps to set up and run Content Publisher:
+Follow these steps to set up and run Content Watcher:
 
 ### Clone the Repository
 
-1. Clone the Content Publisher repository to your local machine:
+1. Clone the Content Watcher repository to your local machine:
 
    ```bash
    git clone https://github.com/amplicalabls/content-watcher-service.git

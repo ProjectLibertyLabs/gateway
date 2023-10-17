@@ -5,10 +5,9 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
-import { Vec, u16, u32 } from '@polkadot/types';
+import { Vec } from '@polkadot/types';
 import { BlockPaginationResponseMessage, MessageResponse, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
-import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
@@ -106,12 +105,12 @@ export class ScannerService implements OnApplicationBootstrap {
         // eslint-disable-next-line no-await-in-loop
         const events = await at.query.system.events();
         // eslint-disable-next-line no-await-in-loop
-        const filteredEvents = await this.processEvents(events, eventsToWatch);
-        if (filteredEvents.length > 0) {
-          this.logger.log(`Found ${filteredEvents.length} events to process`);
+        const messages = await this.processEvents(events, eventsToWatch);
+        if (messages.length > 0) {
+          this.logger.debug(`Found ${messages.length} messages to process`);
         }
         // eslint-disable-next-line no-await-in-loop
-        await this.queueIPFSJobs(filteredEvents);
+        await this.queueIPFSJobs(messages);
         // eslint-disable-next-line no-await-in-loop
         await this.saveProgress(lastScannedBlock);
         lastScannedBlock += 1n;
@@ -148,17 +147,21 @@ export class ScannerService implements OnApplicationBootstrap {
             to_block: blockNumber.toBigInt() + 1n,
           };
 
-          const messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
-          this.logger.log(`message response: ${JSON.stringify(messageResponse)}`);
+          let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
           const messages: Vec<MessageResponse> = messageResponse.content;
-          while (messageResponse.has_next) {
+          this.logger.error(JSON.stringify(messageResponse));
+          while (messageResponse.has_next.toHuman()) {
             paginationRequest = {
               from_block: blockNumber.toBigInt(),
               from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
               page_size: 1000,
               to_block: blockNumber.toBigInt() + 1n,
             };
-            messages.push(...messageResponse.content);
+            // eslint-disable-next-line no-await-in-loop
+            messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+            if (messageResponse.content.length > 0) {
+              messages.push(...messageResponse.content);
+            }
           }
           return messages;
         }
@@ -167,34 +170,32 @@ export class ScannerService implements OnApplicationBootstrap {
     );
 
     const collectedMessages: MessageResponse[] = [];
-
     filteredEvents.forEach((event) => {
       if (event) {
-        collectedMessages.push(...event);
+        collectedMessages.push(...event.toArray());
       }
     });
-
     return collectedMessages;
   }
 
   private async queueIPFSJobs(messages: MessageResponse[]) {
-    const jobs = messages.map(async (messageResponse) => {
-      if (messageResponse.cid.isNone) {
+    const promises = messages.map(async (messageResponse) => {
+      if (!messageResponse.cid || messageResponse.cid.isNone) {
         return;
       }
+
       const ipfsQueueJob = createIPFSQueueJob(
-        messageResponse.msa_id.unwrap().toString(),
-        messageResponse.provider_msa_id.unwrap().toString(),
+        messageResponse.msa_id.isNone ? messageResponse.provider_msa_id.toString() : messageResponse.msa_id.unwrap().toString(),
+        messageResponse.provider_msa_id.toString(),
         messageResponse.cid.unwrap().toString(),
         messageResponse.index.toNumber(),
         '',
       );
-
       // eslint-disable-next-line no-await-in-loop
       await this.ipfsQueue.add(`IPFS Job: ${ipfsQueueJob.key}`, ipfsQueueJob.data, { jobId: ipfsQueueJob.key });
     });
-    // eslint-disable-next-line no-await-in-loop
-    await Promise.all(jobs);
+
+    await Promise.all(promises);
   }
 
   private async getLastSeenBlockNumber(): Promise<bigint> {

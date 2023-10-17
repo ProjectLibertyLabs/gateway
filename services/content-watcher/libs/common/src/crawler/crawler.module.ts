@@ -43,6 +43,14 @@ import { QueueConstants } from '../utils/queues';
     }),
     BullModule.registerQueue({
       name: QueueConstants.REQUEST_QUEUE_NAME,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     }),
     ScheduleModule.forRoot(),
   ],

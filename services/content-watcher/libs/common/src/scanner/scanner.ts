@@ -36,7 +36,7 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const startingBlock = BigInt(this.configService.startingBlock)-1n;
+    const startingBlock = BigInt(this.configService.startingBlock) - 1n;
     this.setLastSeenBlockNumber(startingBlock);
     this.scheduleInitialScan();
     this.scheduleBlockchainScan();

@@ -28,8 +28,8 @@ export class CrawlerService extends BaseConsumer {
     super();
   }
 
-  async process(job: Job<ContentSearchRequestDto, any, string>, token?: string | undefined): Promise<any> {
-    this.logger.log(`Processing job ${job.id}`);
+  async process(job: Job<ContentSearchRequestDto, any, string>): Promise<any> {
+    this.logger.log(`Processing crawler job ${job.id}`);
     const blockList: bigint[] = [];
     const blockStart = BigInt(job.data.startBlock);
     const blockEnd = BigInt(job.data.endBlock);

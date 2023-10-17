@@ -14,6 +14,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
+import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
     BlockchainModule,
     ScannerModule,
     CrawlerModule,
+    IPFSProcessorModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],

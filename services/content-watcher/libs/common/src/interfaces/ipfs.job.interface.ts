@@ -16,6 +16,7 @@ export function createIPFSQueueJob(msaId: string, providerId: string, blockNumbe
       cid,
       blockNumber,
       index,
+      requestId,
     } as IIPFSJob,
   };
 }

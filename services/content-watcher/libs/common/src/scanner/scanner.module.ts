@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '../config/config.module';
-import { ScannerService } from './scanner.service';
+import { ScannerService } from './scanner';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants } from '../utils/queues';

@@ -5,7 +5,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ContentSearchRequestDto, QueueConstants } from '../../../libs/common/src';
-import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
+import { ScannerService } from '../../../libs/common/src/scanner/scanner';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 

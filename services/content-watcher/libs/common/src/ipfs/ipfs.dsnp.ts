@@ -104,7 +104,9 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as BroadcastAnnouncement,
             requestId: jobRequestId,
           };
-          await this.broadcastQueue.add('Broadcast', broadCastResponse);
+          if (!(await this.isQueueFull(this.broadcastQueue))) {
+            await this.broadcastQueue.add('Broadcast', broadCastResponse);
+          }
           break;
         }
         case AnnouncementType.Tombstone: {
@@ -113,7 +115,9 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as TombstoneAnnouncement,
             requestId: jobRequestId,
           };
-          await this.tombstoneQueue.add('Tombstone', tombstoneResponse);
+          if (!(await this.isQueueFull(this.tombstoneQueue))) {
+            await this.tombstoneQueue.add('Tombstone', tombstoneResponse);
+          }
           break;
         }
         case AnnouncementType.Reaction: {
@@ -122,7 +126,9 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as ReactionAnnouncement,
             requestId: jobRequestId,
           };
-          await this.reactionQueue.add('Reaction', reactionResponse);
+          if (!(await this.isQueueFull(this.reactionQueue))) {
+            await this.reactionQueue.add('Reaction', reactionResponse);
+          }
           break;
         }
         case AnnouncementType.Reply: {
@@ -131,7 +137,9 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as ReplyAnnouncement,
             requestId: jobRequestId,
           };
-          await this.replyQueue.add('Reply', replyResponse);
+          if (!(await this.isQueueFull(this.replyQueue))) {
+            await this.replyQueue.add('Reply', replyResponse);
+          }
           break;
         }
         case AnnouncementType.Profile: {
@@ -140,7 +148,9 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as ProfileAnnouncement,
             requestId: jobRequestId,
           };
-          this.profileQueue.add('Profile', profileResponse);
+          if (!(await this.isQueueFull(this.profileQueue))) {
+            this.profileQueue.add('Profile', profileResponse);
+          }
           break;
         }
         default:
@@ -152,6 +162,11 @@ export class IPFSContentProcessor extends BaseConsumer {
   private async isQueueFull(queue: Queue): Promise<boolean> {
     const highWater = this.configService.getQueueHighWater();
     const queueStats = await queue.getJobCounts();
-    return queueStats.waiting + queueStats.active >= highWater;
+    const canAddJobs = queueStats.waiting + queueStats.active >= highWater;
+    if (canAddJobs) {
+      this.logger.log(`Queue ${queue.name} is full`);
+      throw new Error(`Queue ${queue.name} is full`);
+    }
+    return canAddJobs;
   }
 }

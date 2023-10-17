@@ -8,25 +8,15 @@ export interface IIPFSJob {
   requestId?: string;
 }
 
-export function createIPFSQueueJob(
-  schemaId: number,
-  msaId: string,
-  providerId: string,
-  blockNumber: bigint,
-  cid: string,
-  index: number,
-  requestId: string,
-): { key: string; data: IIPFSJob } {
+export function createIPFSQueueJob(msaId: string, providerId: string, cid: string, index: number, requestId: string): { key: string; data: IIPFSJob } {
   return {
-    key: `${msaId}:${providerId}:${blockNumber}:${index}:${schemaId}`,
+    key: `${msaId}:${providerId}:${index}:${requestId}`,
     data: {
       msaId,
       providerId,
       cid,
-      blockNumber,
       index,
       requestId,
-      schemaId,
     } as IIPFSJob,
   };
 }

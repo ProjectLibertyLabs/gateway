@@ -5,11 +5,12 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
-import { u16, u32 } from '@polkadot/types';
-import { SchemaId } from '@frequency-chain/api-augment/interfaces';
+import { Vec, u16, u32 } from '@polkadot/types';
+import { BlockPaginationResponseMessage, MessageResponse, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
 import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
@@ -101,9 +102,14 @@ export class ScannerService implements OnApplicationBootstrap {
 
       while (!this.paused && !latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
         // eslint-disable-next-line no-await-in-loop
-        const events = await this.fetchEventsFromBlockchain(latestBlockHash);
+        const at = await this.blockchainService.apiPromise.at(latestBlockHash.toHex());
+        // eslint-disable-next-line no-await-in-loop
+        const events = await at.query.system.events();
         // eslint-disable-next-line no-await-in-loop
         const filteredEvents = await this.processEvents(events, eventsToWatch);
+        if (filteredEvents.length > 0) {
+          this.logger.log(`Found ${filteredEvents.length} events to process`);
+        }
         // eslint-disable-next-line no-await-in-loop
         await this.queueIPFSJobs(filteredEvents);
         // eslint-disable-next-line no-await-in-loop
@@ -126,65 +132,59 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async fetchEventsFromBlockchain(latestBlockHash: any) {
-    return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
-  }
-
-  private async processEvents(events: any, eventsToWatch: ChainWatchOptionsDto) {
-    const filteredEvents = await Promise.all(
+  private async processEvents(events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponse[]> {
+    const filteredEvents: (Vec<MessageResponse> | null)[] = await Promise.all(
       events.map(async (event) => {
-        if (event.section === 'messages' && event.method === 'MessagesStored') {
-          if (eventsToWatch.schemaIds.length > 0 && !eventsToWatch.schemaIds.includes(event.data[0].toString())) {
+        if (event.event.section === 'messages' && event.event.method === 'MessagesStored') {
+          if (eventsToWatch.schemaIds.length > 0 && !eventsToWatch.schemaIds.includes(event.event.data[0].toString())) {
             return null;
           }
-
-          const schemaId = event.data[0] as SchemaId;
-          const blockNumber = event.data[1] as BlockNumber;
-          const paginationRequest = {
+          const schemaId = event.event.data[0] as SchemaId;
+          const blockNumber = event.event.data[1] as BlockNumber;
+          let paginationRequest = {
             from_block: blockNumber.toBigInt(),
             from_index: 0,
             page_size: 1000,
             to_block: blockNumber.toBigInt() + 1n,
           };
 
-          const messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
-          const senderMsaId = messageResponse.msa_id.unwrap().toString();
-          const providerMsaId = messageResponse.provider_msa_id.unwrap().toString();
-
-          if (eventsToWatch.dsnpIds.length === 0 || eventsToWatch.dsnpIds.includes(senderMsaId) || eventsToWatch.dsnpIds.includes(providerMsaId)) {
-            return event;
+          const messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+          this.logger.log(`message response: ${JSON.stringify(messageResponse)}`);
+          const messages: Vec<MessageResponse> = messageResponse.content;
+          while (messageResponse.has_next) {
+            paginationRequest = {
+              from_block: blockNumber.toBigInt(),
+              from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
+              page_size: 1000,
+              to_block: blockNumber.toBigInt() + 1n,
+            };
+            messages.push(...messageResponse.content);
           }
+          return messages;
         }
         return null;
       }),
     );
 
-    return filteredEvents.filter((event) => event !== null);
+    const collectedMessages: MessageResponse[] = [];
+
+    filteredEvents.forEach((event) => {
+      if (event) {
+        collectedMessages.push(...event);
+      }
+    });
+
+    return collectedMessages;
   }
 
-  private async queueIPFSJobs(events) {
-    const jobs = events.map(async (event) => {
-      const schemaId: u16 = event.data?.schemaId;
-      const blockNumber: u32 = event.data?.blockNumber;
-      const paginationRequest = {
-        from_block: blockNumber.toBigInt(),
-        from_index: 0,
-        page_size: 1000,
-        to_block: blockNumber.toBigInt() + 1n,
-      };
-
-      // eslint-disable-next-line no-await-in-loop
-      const messageResponse = await firstValueFrom(this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest));
-
+  private async queueIPFSJobs(messages: MessageResponse[]) {
+    const jobs = messages.map(async (messageResponse) => {
       if (messageResponse.cid.isNone) {
         return;
       }
-
       const ipfsQueueJob = createIPFSQueueJob(
-        schemaId.toNumber(),
         messageResponse.msa_id.unwrap().toString(),
         messageResponse.provider_msa_id.unwrap().toString(),
-        blockNumber.toBigInt(),
         messageResponse.cid.unwrap().toString(),
         messageResponse.index.toNumber(),
         '',

@@ -31,7 +31,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IChainWatchOptionsDto'
+              $ref: '#/components/schemas/ChainWatchOptionsDto'
       responses:
         '201':
           description: ''
@@ -90,7 +90,7 @@ components:
           type: integer
       required:
         - blockNumber
-    IChainWatchOptionsDto:
+    ChainWatchOptionsDto:
       type: object
       properties:
         schemaIds:
@@ -126,7 +126,7 @@ components:
         filters:
           description: The schemaIds/dsnpIds to filter by
           allOf:
-            - $ref: '#/components/schemas/IChainWatchOptionsDto'
+            - $ref: '#/components/schemas/ChainWatchOptionsDto'
       required:
         - startBlock
         - endBlock

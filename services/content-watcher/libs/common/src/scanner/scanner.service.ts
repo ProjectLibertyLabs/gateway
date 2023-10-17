@@ -8,14 +8,13 @@ import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { u16, u32 } from '@polkadot/types';
 import { SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
-import { async, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
-import { IEventLike } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../constants';
-import { IChainWatchOptionsDto } from '../dtos/chain.watch.dto';
+import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 
 @Injectable()
@@ -84,7 +83,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
 
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
-      const eventsToWatch: IChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
+      const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
       this.scanInProgress = true;
       let lastScannedBlock = await this.getLastSeenBlockNumber();
@@ -125,7 +124,7 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  async crawlBlockListWithFilters(blockList: bigint[], filters: IChainWatchOptionsDto): Promise<void> {
+  async crawlBlockListWithFilters(blockList: bigint[], filters: ChainWatchOptionsDto): Promise<void> {
     this.logger.debug(`Crawling block list with filters: ${JSON.stringify(filters)}`);
 
     // eslint-disable-next-line no-await-in-loop
@@ -143,7 +142,7 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async processBlockList(blockList: bigint[], filters: IChainWatchOptionsDto) {
+  private async processBlockList(blockList: bigint[], filters: ChainWatchOptionsDto) {
     const promises: Promise<void>[] = [];
 
     blockList.forEach(async (blockNumber) => {
@@ -166,7 +165,7 @@ export class ScannerService implements OnApplicationBootstrap {
     return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
   }
 
-  private async processEvents(events: any, eventsToWatch: IChainWatchOptionsDto) {
+  private async processEvents(events: any, eventsToWatch: ChainWatchOptionsDto) {
     const filteredEvents = await Promise.all(
       events.map(async (event) => {
         if (event.section === 'messages' && event.method === 'MessagesStored') {

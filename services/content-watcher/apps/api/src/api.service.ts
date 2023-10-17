@@ -7,7 +7,7 @@ import { Queue } from 'bullmq';
 import { ContentSearchRequestDto, QueueConstants } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
-import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
+import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Injectable()
 export class ApiService {
@@ -26,7 +26,7 @@ export class ApiService {
     return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
   }
 
-  public async setWatchOptions(watchOptions: IChainWatchOptionsDto) {
+  public async setWatchOptions(watchOptions: ChainWatchOptionsDto) {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
     this.logger.warn(`Current watch options are ${currentWatchOptions}`);

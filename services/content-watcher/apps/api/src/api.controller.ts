@@ -1,22 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseFilePipeBuilder, Post, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { ApiService } from './api.service';
 import {
-  AnnouncementTypeDto,
-  AssetIncludedRequestDto,
-  BroadcastDto,
-  DSNP_VALID_MIME_TYPES,
-  DsnpUserIdParam,
-  ProfileDto,
-  ReactionDto,
-  ReplyDto,
-  TombstoneDto,
-  UpdateDto,
   ResetScannerDto,
   ContentSearchRequestDto,
 } from '../../../libs/common/src';
-import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
+import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Controller('api')
 export class ApiController {
@@ -46,9 +35,9 @@ export class ApiController {
   @Post('setWatchOptions')
   @ApiBody({
     description: 'watchOptions: Filter contents by schemaIds and/or dsnpIds',
-    type: IChainWatchOptionsDto,
+    type: ChainWatchOptionsDto,
   })
-  setWatchOptions(@Body() watchOptions: IChainWatchOptionsDto) {
+  setWatchOptions(@Body() watchOptions: ChainWatchOptionsDto) {
     return this.apiService.setWatchOptions(watchOptions);
   }
 

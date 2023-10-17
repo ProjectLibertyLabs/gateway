@@ -8,7 +8,7 @@ import { IsArray, IsOptional } from 'class-validator';
  * @property {string[]} schemaIds - The schema ids for which content should be watched for
  * @property {string[]} msa_ids - The msa ids for which content should be watched for
  */
-export class IChainWatchOptionsDto {
+export class ChainWatchOptionsDto {
   // Specific schema ids to watch for
   @IsOptional()
   @IsArray()

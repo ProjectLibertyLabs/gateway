@@ -1,6 +1,6 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IChainWatchOptionsDto } from './chain.watch.dto';
+import { ChainWatchOptionsDto } from './chain.watch.dto';
 
 export class ContentSearchRequestDto {
   @IsOptional()
@@ -25,5 +25,5 @@ export class ContentSearchRequestDto {
   @ApiProperty({
     description: 'The schemaIds/dsnpIds to filter by',
   })
-  filters: IChainWatchOptionsDto;
+  filters: ChainWatchOptionsDto;
 }

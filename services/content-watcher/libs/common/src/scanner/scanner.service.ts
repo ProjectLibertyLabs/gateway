@@ -97,7 +97,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
       this.logger.log(`Starting scan from block #${currentBlockNumber} (${latestBlockHash})`);
 
-      while (!latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
+      while (!this.paused &&!latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
         // eslint-disable-next-line no-await-in-loop
         const events = await this.fetchEventsFromBlockchain(latestBlockHash);
         // eslint-disable-next-line no-await-in-loop

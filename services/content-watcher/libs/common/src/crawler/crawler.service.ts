@@ -1,19 +1,15 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
+import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { u16, u32 } from '@polkadot/types';
 import { SchemaId } from '@frequency-chain/api-augment/interfaces';
-import { Job, Queue, Worker } from 'bullmq';
+import { Job, Queue } from 'bullmq';
 import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
-import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';

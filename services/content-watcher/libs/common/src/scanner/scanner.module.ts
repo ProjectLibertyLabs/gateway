@@ -10,7 +10,6 @@ import { ScannerService } from './scanner.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants } from '../utils/queues';
-import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Module({
   imports: [

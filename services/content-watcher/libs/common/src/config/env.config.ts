@@ -14,6 +14,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     IPFS_BASIC_AUTH_SECRET: Joi.string().allow('').default(''),
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
+    STARTING_BLOCK: Joi.string().default('0'),
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
       .min(1)
       .default(3 * 60),

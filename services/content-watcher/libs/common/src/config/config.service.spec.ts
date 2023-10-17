@@ -39,6 +39,7 @@ describe('ContentWatcherConfigService', () => {
     ENVIRONMENT: undefined,
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
+    STARTING_BLOCK: undefined,
     IPFS_ENDPOINT: undefined,
     IPFS_GATEWAY_URL: undefined,
     IPFS_BASIC_AUTH_USER: undefined,

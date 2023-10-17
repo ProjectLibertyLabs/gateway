@@ -123,6 +123,7 @@ export class CrawlerService extends BaseConsumer {
       }
 
       const ipfsQueueJob = createIPFSQueueJob(
+        schemaId.toNumber(),
         messageResponse.msa_id.unwrap().toString(),
         messageResponse.provider_msa_id.unwrap().toString(),
         blockNumber.toBigInt(),

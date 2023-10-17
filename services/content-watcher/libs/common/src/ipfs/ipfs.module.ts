@@ -11,6 +11,7 @@ import { ConfigService } from '../config/config.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { QueueConstants } from '..';
 import { IPFSContentProcessor } from './ipfs.dsnp';
+import { IpfsService } from '../utils/ipfs.client';
 
 @Module({
   imports: [
@@ -83,7 +84,7 @@ import { IPFSContentProcessor } from './ipfs.dsnp';
     ),
   ],
   controllers: [],
-  providers: [IPFSContentProcessor],
-  exports: [BullModule, IPFSContentProcessor],
+  providers: [IPFSContentProcessor, IpfsService],
+  exports: [BullModule, IPFSContentProcessor, IpfsService],
 })
 export class IPFSProcessorModule {}

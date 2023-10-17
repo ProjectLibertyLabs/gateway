@@ -20,6 +20,7 @@ export class ApiService {
   }
 
   public setLastSeenBlockNumber(blockNumber: bigint) {
+    this.logger.warn(`Setting last seen block number to ${blockNumber}`);
     return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
   }
 

@@ -3,19 +3,17 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ApiService } from './api.service';
 import {
-  AnnouncementResponseDto,
   AnnouncementTypeDto,
   AssetIncludedRequestDto,
   BroadcastDto,
   DSNP_VALID_MIME_TYPES,
   DsnpUserIdParam,
-  FilesUploadDto,
   ProfileDto,
   ReactionDto,
   ReplyDto,
   TombstoneDto,
   UpdateDto,
-  UploadResponseDto,
+  ResetScannerDto,
 } from '../../../libs/common/src';
 
 @Controller('api')
@@ -35,7 +33,11 @@ export class ApiController {
   }
 
   @Post('resetScanner')
-  resetScanner(@Body() body: { blockNumber?: bigint }) {
-    return this.apiService.setLastSeenBlockNumber(body.blockNumber ?? 0n);
+  @ApiBody({
+    description: 'blockNumber',
+    type: ResetScannerDto,
+  })
+  resetScanner(@Body() resetScannerDto: ResetScannerDto) {
+    return this.apiService.setLastSeenBlockNumber(BigInt(resetScannerDto.blockNumber?? 0n));
   }
 }

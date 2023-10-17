@@ -7,6 +7,12 @@ export namespace QueueConstants {
   export const IPFS_QUEUE = 'ipfsQueue';
 
   /**
+   * Name of the queue that has all incoming requests for specific announcements
+   * from the blockchain
+   */
+  export const REQUEST_QUEUE_NAME = 'requestQueue';
+
+  /**
    * Name of the queue that has all outgoing announcements from the blockchain
    */
   export const BROADCAST_QUEUE_NAME = 'broadcastQueue';

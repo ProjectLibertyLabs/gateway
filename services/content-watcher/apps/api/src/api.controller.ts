@@ -1,22 +1,8 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Logger, Param, ParseFilePipeBuilder, Post, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { ApiService } from './api.service';
-import {
-  AnnouncementResponseDto,
-  AnnouncementTypeDto,
-  AssetIncludedRequestDto,
-  BroadcastDto,
-  DSNP_VALID_MIME_TYPES,
-  DsnpUserIdParam,
-  FilesUploadDto,
-  ProfileDto,
-  ReactionDto,
-  ReplyDto,
-  TombstoneDto,
-  UpdateDto,
-  UploadResponseDto,
-} from '../../../libs/common/src';
+import { ResetScannerDto, ContentSearchRequestDto } from '../../../libs/common/src';
+import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Controller('api')
 export class ApiController {
@@ -34,8 +20,45 @@ export class ApiController {
     };
   }
 
-  @Post('updateLastScannedBlock')
-  updateLastScannedBlock(@Body() body: { blockNumber: number }) {
-    return this.apiService.setLastSeenBlockNumber(body.blockNumber);
+  @Post('resetScanner')
+  @ApiBody({
+    description: 'blockNumber',
+    type: ResetScannerDto,
+  })
+  resetScanner(@Body() resetScannerDto: ResetScannerDto) {
+    return this.apiService.setLastSeenBlockNumber(BigInt(resetScannerDto.blockNumber ?? 0n));
+  }
+
+  @Post('setWatchOptions')
+  @ApiBody({
+    description: 'watchOptions: Filter contents by schemaIds and/or dsnpIds',
+    type: ChainWatchOptionsDto,
+  })
+  setWatchOptions(@Body() watchOptions: ChainWatchOptionsDto) {
+    return this.apiService.setWatchOptions(watchOptions);
+  }
+
+  @Post('pauseScanner')
+  pauseScanner() {
+    return this.apiService.pauseScanner();
+  }
+
+  @Post('startScanner')
+  startScanner() {
+    return this.apiService.resumeScanner();
+  }
+
+  @Put('search')
+  @ApiBody({
+    description: 'Search for DSNP content by id, startBlock, endBlock, and filters',
+    type: ContentSearchRequestDto,
+  })
+  async search(@Body() searchRequest: ContentSearchRequestDto) {
+    const jobResult = await this.apiService.searchContent(searchRequest);
+
+    return {
+      status: HttpStatus.OK,
+      jobId: jobResult.id,
+    };
   }
 }

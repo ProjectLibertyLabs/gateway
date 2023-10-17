@@ -9,15 +9,15 @@ import { ExpressAdapter } from '@bull-board/express';
 import { ApiController } from './api.controller';
 import { QueueConstants } from '../../../libs/common/src';
 import { ApiService } from './api.service';
-import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
-import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
+import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 
 @Module({
   imports: [
     ConfigModule,
+    BlockchainModule,
     ScannerModule,
     RedisModule.forRootAsync(
       {
@@ -54,6 +54,9 @@ import { ScannerService } from '../../../libs/common/src/scanner/scanner.service
     }),
     BullModule.registerQueue(
       {
+        name: QueueConstants.REQUEST_QUEUE_NAME,
+      },
+      {
         name: QueueConstants.IPFS_QUEUE,
       },
       {
@@ -80,6 +83,10 @@ import { ScannerService } from '../../../libs/common/src/scanner/scanner.service
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.REQUEST_QUEUE_NAME,
+      adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.IPFS_QUEUE,
@@ -129,7 +136,7 @@ import { ScannerService } from '../../../libs/common/src/scanner/scanner.service
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ConfigService, ApiService, IpfsService, ScannerService],
+  providers: [ApiService],
   controllers: [ApiController],
   exports: [],
 })

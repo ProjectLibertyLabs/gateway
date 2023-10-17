@@ -24,6 +24,11 @@ export class FilesUploadDto {
   files: any[];
 }
 
+export class ResetScannerDto {
+  @ApiProperty()
+  blockNumber?: bigint;
+}
+
 // eslint-disable-next-line no-shadow
 export enum AnnouncementTypeDto {
   BROADCAST = 'broadcast',

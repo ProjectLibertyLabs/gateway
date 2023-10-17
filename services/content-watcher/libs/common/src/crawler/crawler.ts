@@ -31,7 +31,9 @@ export class CrawlerService extends BaseConsumer {
   async process(job: Job<ContentSearchRequestDto, any, string>, token?: string | undefined): Promise<any> {
     this.logger.log(`Processing job ${job.id}`);
     const blockList: bigint[] = [];
-    for (let i = job.data.startBlock; i <= job.data.endBlock; i += 1) {
+    const blockStart = BigInt(job.data.startBlock);
+    const blockEnd = BigInt(job.data.endBlock);
+    for (let i = blockStart; i <= blockEnd; i += 1n) {
       blockList.push(BigInt(i));
     }
     await this.processBlockList(job.data.id, blockList, job.data.filters);
@@ -44,11 +46,19 @@ export class CrawlerService extends BaseConsumer {
 
     blockList.forEach(async (blockNumber) => {
       const latestBlockHash = await this.blockchainService.getBlockHash(blockNumber);
-
+      if (latestBlockHash.isEmpty) {
+        return;
+      }
       // eslint-disable-next-line no-await-in-loop
       const events = await this.fetchEventsFromBlockchain(latestBlockHash);
+      this.logger.debug(`Processing ${events.length} events for block ${blockNumber}`);
+
       // eslint-disable-next-line no-await-in-loop
       const filteredEvents = await this.processEvents(events, filters);
+      if (filteredEvents.length === 0) {
+        this.logger.debug(`No events found for block ${blockNumber}`);
+        return;
+      }
       // eslint-disable-next-line no-await-in-loop
       await this.queueIPFSJobs(id, filteredEvents);
 

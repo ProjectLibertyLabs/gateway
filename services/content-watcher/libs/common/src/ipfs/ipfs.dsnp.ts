@@ -42,7 +42,6 @@ export class IPFSContentProcessor extends BaseConsumer {
 
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
-      this.checkHighWater();
       this.logger.log(`IPFS Processing job ${job.id}`);
       this.logger.debug(`IPFS CID: ${job.data.cid} for schemaId: ${job.data.schemaId}`);
       const cid = CID.parse(job.data.cid);
@@ -86,5 +85,9 @@ export class IPFSContentProcessor extends BaseConsumer {
     }
   }
 
-  private checkHighWater(): void {}
+  private async isQueueFull(queue: Queue): Promise<boolean> {
+    const highWater = this.configService.getQueueHighWater();
+    const queueStats = await queue.getJobCounts();
+    return queueStats.waiting + queueStats.active >= highWater;
+  }
 }

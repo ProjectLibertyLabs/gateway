@@ -7,7 +7,6 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CID } from 'multiformats';
 import { hexToString } from '@polkadot/util';
 import { PalletSchemasSchema } from '@polkadot/types/lookup';
-import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import parquet from '@dsnp/parquetjs';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants } from '..';
@@ -92,10 +91,6 @@ export class IPFSContentProcessor extends BaseConsumer {
 
   private async buildAndQueueDSNPAnnouncements(records: Map<string, Announcement>, schema: any, jobData: IIPFSJob): Promise<void> {
     let jobRequestId = jobData.requestId;
-    if (!jobRequestId) {
-      jobRequestId = '🖨️ from Frequency';
-    }
-
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
         case AnnouncementType.Broadcast: {

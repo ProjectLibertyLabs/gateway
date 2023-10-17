@@ -90,7 +90,7 @@ export class IPFSContentProcessor extends BaseConsumer {
   }
 
   private async buildAndQueueDSNPAnnouncements(records: Map<string, Announcement>, schema: any, jobData: IIPFSJob): Promise<void> {
-    let jobRequestId = jobData.requestId;
+    const jobRequestId = jobData.requestId;
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
         case AnnouncementType.Broadcast: {

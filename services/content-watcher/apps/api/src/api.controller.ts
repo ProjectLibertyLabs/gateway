@@ -1,10 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { ApiService } from './api.service';
-import {
-  ResetScannerDto,
-  ContentSearchRequestDto,
-} from '../../../libs/common/src';
+import { ResetScannerDto, ContentSearchRequestDto } from '../../../libs/common/src';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
 @Controller('api')

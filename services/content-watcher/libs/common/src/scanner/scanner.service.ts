@@ -171,7 +171,7 @@ export class ScannerService implements OnApplicationBootstrap {
           const senderMsaId = messageResponse.msa_id.unwrap().toString();
           const providerMsaId = messageResponse.provider_msa_id.unwrap().toString();
 
-          if (eventsToWatch.msa_ids.length === 0 || eventsToWatch.msa_ids.includes(senderMsaId) || eventsToWatch.msa_ids.includes(providerMsaId)) {
+          if (eventsToWatch.dsnpIds.length === 0 || eventsToWatch.dsnpIds.includes(senderMsaId) || eventsToWatch.dsnpIds.includes(providerMsaId)) {
             return event;
           }
         }

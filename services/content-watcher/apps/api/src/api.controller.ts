@@ -44,7 +44,7 @@ export class ApiController {
 
   @Post('setWatchOptions')
   @ApiBody({
-    description: 'watchOptions',
+    description: 'watchOptions: Filter contents by schemaIds and/or dsnpIds',
     type: IChainWatchOptionsDto,
   })
   setWatchOptions(@Body() watchOptions: IChainWatchOptionsDto) {

@@ -13,12 +13,14 @@ import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
+import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
 
 @Module({
   imports: [
     ConfigModule,
     BlockchainModule,
     ScannerModule,
+    CrawlerModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],

@@ -34,19 +34,16 @@ export class CrawlerService extends BaseConsumer {
 
   async process(job: Job<ContentSearchRequestDto, any, string>, token?: string | undefined): Promise<any> {
     this.logger.log(`Processing job ${job.id}`);
-  }
-
-  async crawlBlockListWithFilters(blockList: bigint[], filters: ChainWatchOptionsDto): Promise<void> {
-    this.logger.debug(`Crawling block list with filters: ${JSON.stringify(filters)}`);
-
-    try {
-      await this.processBlockList(blockList, filters);
-    } catch (err) {
-      this.logger.error(err);
+    const blockList: bigint[] = [];
+    for (let i = job.data.startBlock; i <= job.data.endBlock; i += 1) {
+      blockList.push(BigInt(i));
     }
+    await this.processBlockList(job.data.id, blockList, job.data.filters);
+
+    this.logger.log(`Finished processing job ${job.id}`);
   }
 
-  private async processBlockList(blockList: bigint[], filters: ChainWatchOptionsDto) {
+  private async processBlockList(id: string, blockList: bigint[], filters: ChainWatchOptionsDto) {
     const promises: Promise<void>[] = [];
 
     blockList.forEach(async (blockNumber) => {
@@ -57,7 +54,7 @@ export class CrawlerService extends BaseConsumer {
       // eslint-disable-next-line no-await-in-loop
       const filteredEvents = await this.processEvents(events, filters);
       // eslint-disable-next-line no-await-in-loop
-      await this.queueIPFSJobs(filteredEvents);
+      await this.queueIPFSJobs(id, filteredEvents);
 
       promises.push(Promise.resolve());
     });
@@ -101,7 +98,7 @@ export class CrawlerService extends BaseConsumer {
     return filteredEvents.filter((event) => event !== null);
   }
 
-  private async queueIPFSJobs(events) {
+  private async queueIPFSJobs(id: string, events) {
     const jobs = events.map(async (event) => {
       const schemaId: u16 = event.data?.schemaId;
       const blockNumber: u32 = event.data?.blockNumber;
@@ -125,6 +122,7 @@ export class CrawlerService extends BaseConsumer {
         blockNumber.toBigInt(),
         messageResponse.cid.unwrap().toString(),
         messageResponse.index.toNumber(),
+        id,
       );
 
       // eslint-disable-next-line no-await-in-loop

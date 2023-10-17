@@ -184,6 +184,7 @@ export class ScannerService implements OnApplicationBootstrap {
         blockNumber.toBigInt(),
         messageResponse.cid.unwrap().toString(),
         messageResponse.index.toNumber(),
+        '',
       );
 
       // eslint-disable-next-line no-await-in-loop

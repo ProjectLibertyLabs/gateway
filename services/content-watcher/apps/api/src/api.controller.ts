@@ -14,6 +14,7 @@ import {
   TombstoneDto,
   UpdateDto,
   ResetScannerDto,
+  ContentSearchRequestDto,
 } from '../../../libs/common/src';
 import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 
@@ -59,5 +60,14 @@ export class ApiController {
   @Post('startScanner')
   startScanner() {
     return this.apiService.resumeScanner();
+  }
+
+  @Put('search')
+  @ApiBody({
+    description: 'Search for DSNP content by id, startBlock, endBlock, and filters',
+    type: ContentSearchRequestDto,
+  })
+  search(@Body() searchRequest: ContentSearchRequestDto) {
+    return this.apiService.searchContent(searchRequest);
   }
 }

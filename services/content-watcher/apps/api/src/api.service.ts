@@ -4,7 +4,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { IRequestJob } from '../../../libs/common/src';
+import { ContentSearchRequestDto } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
 import { IChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
@@ -42,8 +42,12 @@ export class ApiService {
     return this.scannerService.resumeScanner();
   }
 
+  public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {
+    this.logger.debug(`Searching for content with request ${JSON.stringify(contentSearchRequestDto)}`);
+  }
+  
   // eslint-disable-next-line class-methods-use-this
-  private calculateJobId(jobWithoutId: IRequestJob): string {
+  private calculateJobId(jobWithoutId: ContentSearchRequestDto): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }

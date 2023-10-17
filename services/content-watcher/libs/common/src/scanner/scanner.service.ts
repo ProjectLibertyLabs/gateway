@@ -8,7 +8,7 @@ import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { u16, u32 } from '@polkadot/types';
 import { SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
-import { firstValueFrom } from 'rxjs';
+import { async, firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
 import { IEventLike } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
@@ -52,51 +52,61 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   async scan() {
-    this.logger.debug('Starting scanner');
+    try {
+      this.logger.debug('Starting scanner');
 
-    if (this.scanInProgress) {
-      this.logger.debug('Scan already in progress');
-      return;
-    }
+      if (this.scanInProgress) {
+        this.logger.debug('Scan already in progress');
+        return;
+      }
 
-    let queueSize = await this.ipfsQueue.count();
+      let queueSize = await this.ipfsQueue.count();
 
-    if (queueSize > 0) {
-      this.logger.log('Deferring next blockchain scan until queue is empty');
-      return;
-    }
+      if (queueSize > 0) {
+        this.logger.log('Deferring next blockchain scan until queue is empty');
+        return;
+      }
 
-    const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
-    const eventsToWatch: IChainWatchOptions = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
+      const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
+      const eventsToWatch: IChainWatchOptions = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
-    this.scanInProgress = true;
-    let lastScannedBlock = await this.getLastSeenBlockNumber();
-    const currentBlockNumber = lastScannedBlock + 1n;
-    let latestBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
-  
-    if (!latestBlockHash.some((byte) => byte !== 0)) {
-      this.logger.log('No new blocks to read; no scan performed.');
+      this.scanInProgress = true;
+      let lastScannedBlock = await this.getLastSeenBlockNumber();
+      const currentBlockNumber = lastScannedBlock + 1n;
+      let latestBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+
+      if (!latestBlockHash.some((byte) => byte !== 0)) {
+        this.logger.log('No new blocks to read; no scan performed.');
+        this.scanInProgress = false;
+        return;
+      }
+      this.logger.log(`Starting scan from block #${currentBlockNumber} (${latestBlockHash})`);
+
+      while (!latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
+        // eslint-disable-next-line no-await-in-loop
+        const events = await this.fetchEventsFromBlockchain(latestBlockHash);
+        // eslint-disable-next-line no-await-in-loop
+        const filteredEvents = await this.processEvents(events, eventsToWatch);
+        // eslint-disable-next-line no-await-in-loop
+        await this.queueIPFSJobs(filteredEvents);
+        // eslint-disable-next-line no-await-in-loop
+        await this.saveProgress(lastScannedBlock);
+        lastScannedBlock += 1n;
+        // eslint-disable-next-line no-await-in-loop
+        latestBlockHash = await this.blockchainService.getBlockHash(lastScannedBlock);
+        // eslint-disable-next-line no-await-in-loop
+        queueSize = await this.ipfsQueue.count();
+      }
+      if (latestBlockHash.isEmpty) {
+        this.logger.log(`Scan reached end-of-chain at block ${lastScannedBlock - 1n}`);
+      } else if (queueSize > this.configService.getQueueHighWater()) {
+        this.logger.log('Queue soft limit reached; pausing scan until next iteration');
+      }
+    } catch (err) {
+      this.logger.error(err);
+    } finally {
       this.scanInProgress = false;
-      return;
     }
-
-    while (!latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
-      // eslint-disable-next-line no-await-in-loop
-      const events = await this.fetchEventsFromBlockchain(latestBlockHash);
-      // eslint-disable-next-line no-await-in-loop
-      const jobs = await this.processEvents(events, eventsToWatch);
-      // eslint-disable-next-line no-await-in-loop
-      await this.queueIPFSJobs(jobs);
-      // eslint-disable-next-line no-await-in-loop
-      await this.saveProgress(lastScannedBlock);
-      lastScannedBlock += 1n;
-      // eslint-disable-next-line no-await-in-loop
-      latestBlockHash = await this.blockchainService.getBlockHash(lastScannedBlock);
-      // eslint-disable-next-line no-await-in-loop
-      queueSize = await this.ipfsQueue.count();
-    }
-
-    this.scanInProgress = false;
   }
 
   async crawlBlockListWithFilters(blockList: bigint[], filters: IChainWatchOptions): Promise<void> {
@@ -140,13 +150,14 @@ export class ScannerService implements OnApplicationBootstrap {
     return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
   }
 
-  private async processEvents(events: IEventLike[], eventsToWatch: IChainWatchOptions) {
-    const eventsPromises = events.map(async (event: IEventLike) => {
-      if (eventsToWatch.msa_ids.length > 0 || eventsToWatch.schemaIds.length > 0) {
-        if (this.blockchainService.api.events.messages.MessagesStored.is(event) || this.blockchainService.api.events.messages.MessagesUpdated.is(event)) {
+  private async processEvents(events: any, eventsToWatch: IChainWatchOptions) {
+    const filteredEvents = await Promise.all(
+      events.map(async (event) => {
+        if (event.section === 'messages' && event.method === 'MessagesStored') {
           if (eventsToWatch.schemaIds.length > 0 && !eventsToWatch.schemaIds.includes(event.data[0].toString())) {
-            return false;
+            return null;
           }
+
           const schemaId = event.data[0] as SchemaId;
           const blockNumber = event.data[1] as BlockNumber;
           const paginationRequest = {
@@ -155,25 +166,24 @@ export class ScannerService implements OnApplicationBootstrap {
             page_size: 1000,
             to_block: blockNumber.toBigInt() + 1n,
           };
-          // eslint-disable-next-line no-await-in-loop
-          const messageResponse = await firstValueFrom(this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest));
+
+          const messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
           const senderMsaId = messageResponse.msa_id.unwrap().toString();
           const providerMsaId = messageResponse.provider_msa_id.unwrap().toString();
-          if (eventsToWatch.msa_ids.includes(senderMsaId) || eventsToWatch.msa_ids.includes(providerMsaId)) {
-            return true;
+
+          if (eventsToWatch.msa_ids.length === 0 || eventsToWatch.msa_ids.includes(senderMsaId) || eventsToWatch.msa_ids.includes(providerMsaId)) {
+            return event;
           }
         }
-      } else {
-        return true;
-      }
-      return false;
-    });
+        return null;
+      }),
+    );
 
-    return events.filter((_, index) => eventsPromises[index]);
+    return filteredEvents.filter((event) => event !== null);
   }
 
   private async queueIPFSJobs(events) {
-    const jobs = events.map(async (event: { data: { schemaId: u16; blockNumber: u32 } }) => {
+    const jobs = events.map(async (event) => {
       const schemaId: u16 = event.data?.schemaId;
       const blockNumber: u32 = event.data?.blockNumber;
       const paginationRequest = {

@@ -140,6 +140,7 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: mapRecord as ProfileAnnouncement,
             requestId: jobRequestId,
           };
+          this.profileQueue.add('Profile', profileResponse);
           break;
         }
         default:

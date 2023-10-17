@@ -56,10 +56,10 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.IPFS_QUEUE,
+        name: QueueConstants.REQUEST_QUEUE_NAME,
       },
       {
-        name: QueueConstants.REQUEST_QUEUE_NAME,
+        name: QueueConstants.IPFS_QUEUE,
       },
       {
         name: QueueConstants.BROADCAST_QUEUE_NAME,
@@ -87,11 +87,11 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
       adapter: ExpressAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.IPFS_QUEUE,
+      name: QueueConstants.REQUEST_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
+      name: QueueConstants.IPFS_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({

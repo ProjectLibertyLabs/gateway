@@ -11,8 +11,57 @@ paths:
     post:
       operationId: ApiController_resetScanner
       parameters: []
+      requestBody:
+        required: true
+        description: blockNumber
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetScannerDto'
       responses:
         '201':
+          description: ''
+  /api/setWatchOptions:
+    post:
+      operationId: ApiController_setWatchOptions
+      parameters: []
+      requestBody:
+        required: true
+        description: 'watchOptions: Filter contents by schemaIds and/or dsnpIds'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IChainWatchOptionsDto'
+      responses:
+        '201':
+          description: ''
+  /api/pauseScanner:
+    post:
+      operationId: ApiController_pauseScanner
+      parameters: []
+      responses:
+        '201':
+          description: ''
+  /api/startScanner:
+    post:
+      operationId: ApiController_startScanner
+      parameters: []
+      responses:
+        '201':
+          description: ''
+  /api/search:
+    put:
+      operationId: ApiController_search
+      parameters: []
+      requestBody:
+        required: true
+        description: Search for DSNP content by id, startBlock, endBlock, and filters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentSearchRequestDto'
+      responses:
+        '200':
           description: ''
 info:
   title: Content Watcher Service API
@@ -32,5 +81,48 @@ components:
       type: apiKey
       in: cookie
       name: SESSION
-  schemas: {}
-  responses: {}
+  schemas:
+    ResetScannerDto:
+      type: object
+      properties:
+        blockNumber:
+          format: int64
+          type: integer
+      required:
+        - blockNumber
+    IChainWatchOptionsDto:
+      type: object
+      properties:
+        schemaIds:
+          description: Specific schema ids to watch for
+          example:
+            - '1'
+            - '19'
+          type: array
+          items:
+            type: string
+        dsnpIds:
+          description: Specific dsnpIds (msa_id) to watch for
+          example:
+            - '10074'
+            - '100001'
+          type: array
+          items:
+            type: string
+      required:
+        - schemaIds
+        - dsnpIds
+    ContentSearchRequestDto:
+      type: object
+      properties:
+        startBlock:
+          type: string
+          description: The starting block number to search from
+          example: '100'
+        endBlock:
+          type: string
+          description: The ending block number to search to
+          example: '101'
+      required:
+        - startBlock
+        - endBlock

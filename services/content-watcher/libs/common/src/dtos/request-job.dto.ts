@@ -1,6 +1,6 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
-import { IChainWatchOptionsDto } from './chain.watch.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { IChainWatchOptionsDto } from './chain.watch.dto';
 
 export class ContentSearchRequestDto {
   @IsOptional()

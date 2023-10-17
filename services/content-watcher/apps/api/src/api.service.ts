@@ -45,7 +45,7 @@ export class ApiService {
   public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {
     this.logger.debug(`Searching for content with request ${JSON.stringify(contentSearchRequestDto)}`);
   }
-  
+
   // eslint-disable-next-line class-methods-use-this
   private calculateJobId(jobWithoutId: ContentSearchRequestDto): string {
     const stringVal = JSON.stringify(jobWithoutId);

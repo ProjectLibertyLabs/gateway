@@ -4,22 +4,22 @@ export namespace QueueConstants {
   /**
    * Name of the queue that has all incoming IPFS messages from the blockchain
    */
-  export const IPFS_QUEUE = 'ipfsQueue';
+  export const IPFS_QUEUE = 'contentIpfsQueue';
 
   /**
    * Name of the queue that has all incoming requests for specific announcements
    * from the blockchain
    */
-  export const REQUEST_QUEUE_NAME = 'requestQueue';
+  export const REQUEST_QUEUE_NAME = 'contentRequestQueue';
 
   /**
    * Name of the queue that has all outgoing announcements from the blockchain
    */
-  export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
-  export const REPLY_QUEUE_NAME = 'replyQueue';
-  export const REACTION_QUEUE_NAME = 'reactionQueue';
-  export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
-  export const PROFILE_QUEUE_NAME = 'profileQueue';
+  export const BROADCAST_QUEUE_NAME = 'watchBroadcastQueue';
+  export const REPLY_QUEUE_NAME = 'watchReplyQueue';
+  export const REACTION_QUEUE_NAME = 'watchReactionQueue';
+  export const TOMBSTONE_QUEUE_NAME = 'watchTombstoneQueue';
+  export const PROFILE_QUEUE_NAME = 'watchProfileQueue';
   /**
    * Map between announcement type and it's queueName
    */

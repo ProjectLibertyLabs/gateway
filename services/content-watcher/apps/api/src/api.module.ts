@@ -59,9 +59,25 @@ import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
     BullModule.registerQueue(
       {
         name: QueueConstants.REQUEST_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.IPFS_QUEUE,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.BROADCAST_QUEUE_NAME,

@@ -40,6 +40,14 @@ import { QueueConstants } from '../utils/queues';
     }),
     BullModule.registerQueue({
       name: QueueConstants.IPFS_QUEUE,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     }),
     BullModule.registerQueue({
       name: QueueConstants.REQUEST_QUEUE_NAME,

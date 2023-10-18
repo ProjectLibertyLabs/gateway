@@ -7,7 +7,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, DispatchError, DispatchInfo, Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128 } from '@polkadot/types';
+import { u32, Option, u128, u16 } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';

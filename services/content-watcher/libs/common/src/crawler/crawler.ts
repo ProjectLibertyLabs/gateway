@@ -90,7 +90,6 @@ export class CrawlerService extends BaseConsumer {
 
           let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
           const messages: Vec<MessageResponse> = messageResponse.content;
-          this.logger.error(JSON.stringify(messageResponse));
           while (messageResponse.has_next.toHuman()) {
             paginationRequest = {
               from_block: blockNumber.toBigInt(),

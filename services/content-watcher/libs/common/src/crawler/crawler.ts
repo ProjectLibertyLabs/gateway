@@ -15,6 +15,7 @@ import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { ContentSearchRequestDto } from '../dtos/request-job.dto';
+import { REGISTERED_WEBHOOK_KEY } from '../constants';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME, {
@@ -31,6 +32,11 @@ export class CrawlerService extends BaseConsumer {
 
   async process(job: Job<ContentSearchRequestDto, any, string>): Promise<any> {
     this.logger.log(`Processing crawler job ${job.id}`);
+    const registeredWebhook = await this.cache.get(REGISTERED_WEBHOOK_KEY);
+
+    if (!registeredWebhook) {
+      throw new Error('No registered webhook to send data to');
+    }
     const blockList: bigint[] = [];
     const blockStart = BigInt(job.data.startBlock);
     const blockEnd = BigInt(job.data.endBlock);

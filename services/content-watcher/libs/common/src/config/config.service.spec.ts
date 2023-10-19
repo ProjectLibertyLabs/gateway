@@ -49,6 +49,7 @@ describe('ContentWatcherConfigService', () => {
     HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
+    WEB_HOOK_POST_MAX_RETRIES: undefined,
     API_PORT: undefined,
   };
 

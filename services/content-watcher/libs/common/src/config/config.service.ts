@@ -20,6 +20,7 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_SUCCESS_THRESHOLD: number;
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
+  WEB_HOOK_POST_MAX_RETRIES: number;
   API_PORT: number;
 }
 
@@ -94,5 +95,9 @@ export class ConfigService {
 
   public getApiPort(): number {
     return this.nestConfigService.get<number>('API_PORT')!;
+  }
+
+  public getWebookMaxRetries(): number {
+    return this.nestConfigService.get<number>('WEB_HOOK_POST_MAX_RETRIES')!;
   }
 }

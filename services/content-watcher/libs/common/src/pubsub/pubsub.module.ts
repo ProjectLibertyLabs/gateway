@@ -6,25 +6,20 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { ApiController } from './api.controller';
-import { QueueConstants } from '../../../libs/common/src';
-import { ApiService } from './api.service';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
-import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
-import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
+import { ConfigModule } from '../config/config.module';
+import { ConfigService } from '../config/config.service';
+import { QueueConstants } from '../utils/queues';
+import { PubSubService } from './pubsub.service';
+import { BroadcastSubscriber } from './announcers/broadcast';
+import { ProfileSubscriber } from './announcers/profile';
+import { ReactionSubscriber } from './announcers/reaction';
+import { ReplySubscriber } from './announcers/reply';
+import { TomstoneSubscriber } from './announcers/tombstone';
+import { UpdateSubscriber } from './announcers/update';
 
 @Module({
   imports: [
     ConfigModule,
-    BlockchainModule,
-    ScannerModule,
-    CrawlerModule,
-    IPFSProcessorModule,
-    PubSubModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -60,84 +55,72 @@ import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.REQUEST_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.IPFS_QUEUE,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
         name: QueueConstants.BROADCAST_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.REPLY_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.REACTION_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.PROFILE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.UPDATE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
     ),
-
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.IPFS_QUEUE,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.BROADCAST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REPLY_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REACTION_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.PROFILE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.UPDATE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -158,8 +141,8 @@ import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService],
-  controllers: [ApiController],
-  exports: [],
+  providers: [PubSubService, BroadcastSubscriber, ProfileSubscriber, ReactionSubscriber, ReplySubscriber, TomstoneSubscriber, UpdateSubscriber],
+  controllers: [],
+  exports: [PubSubService],
 })
-export class ApiModule {}
+export class PubSubModule {}

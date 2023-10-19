@@ -8,7 +8,16 @@ import { QueueConstants, calculateJobId } from '..';
 import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
-import { Announcement, AnnouncementType, BroadcastAnnouncement, ProfileAnnouncement, ReactionAnnouncement, ReplyAnnouncement, TombstoneAnnouncement } from '../interfaces/dsnp';
+import {
+  Announcement,
+  AnnouncementType,
+  BroadcastAnnouncement,
+  ProfileAnnouncement,
+  ReactionAnnouncement,
+  ReplyAnnouncement,
+  TombstoneAnnouncement,
+  UpdateAnnouncement,
+} from '../interfaces/dsnp';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
 
 @Injectable()
@@ -24,6 +33,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
     @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {
@@ -47,11 +57,10 @@ export class IPFSContentProcessor extends BaseConsumer {
 
       const reader = await parquet.ParquetReader.openBuffer(contentBuffer);
       const cursor = reader.getCursor();
-      const records: Announcement[] = [];
+      const records: any[] = [];
       let record = await cursor.next();
       while (record) {
-        const announcementRecordCast = record as Announcement;
-        records.push(announcementRecordCast);
+        records.push(record);
         // eslint-disable-next-line no-await-in-loop
         record = await cursor.next();
       }
@@ -65,7 +74,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     }
   }
 
-  private async buildAndQueueDSNPAnnouncements(records: Announcement[], jobData: IIPFSJob): Promise<void> {
+  private async buildAndQueueDSNPAnnouncements(records: any[], jobData: IIPFSJob): Promise<void> {
     const jobRequestId = jobData.requestId;
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
@@ -129,8 +138,20 @@ export class IPFSContentProcessor extends BaseConsumer {
           }
           break;
         }
+        case AnnouncementType.Update: {
+          const updateResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as UpdateAnnouncement,
+            requestId: jobRequestId,
+          };
+          if (!(await this.isQueueFull(this.profileQueue))) {
+            const jobId = calculateJobId(updateResponse);
+            this.updateQueue.add('Update', updateResponse, { jobId });
+          }
+          break;
+        }
         default:
-          throw new Error(`Unknown announcement type ${mapRecord}`);
+          throw new Error(`Unknown announcement type ${JSON.stringify(mapRecord)}`);
       }
     });
   }

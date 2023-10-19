@@ -17,5 +17,8 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const document = SwaggerModule.createDocument(app, options, {
     extraModels: [],
   });
+
+  const fs = require('fs');
+  fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup(apiPath, app, document);
 };

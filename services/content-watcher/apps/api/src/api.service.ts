@@ -6,8 +6,10 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ContentSearchRequestDto, QueueConstants, calculateJobId } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
+import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
+import { WebhookRegistrationDto } from '../../../libs/common/src/dtos/subscription.webhook.dto';
+import { AnnouncementType } from '../../../libs/common/src/interfaces/dsnp';
 
 @Injectable()
 export class ApiService {
@@ -58,9 +60,34 @@ export class ApiService {
     return jobPromise;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  private calculateJobId(jobWithoutId: ContentSearchRequestDto): string {
-    const stringVal = JSON.stringify(jobWithoutId);
-    return createHash('sha1').update(stringVal).digest('base64url');
+  public async setWebhook(webhookRegistration: WebhookRegistrationDto) {
+    const webhookId = createHash('sha256').update(webhookRegistration.url).digest('hex');
+    this.logger.debug(`Setting webhook ${webhookId} to ${JSON.stringify(webhookRegistration)}`);
+    const currentRegistedWebooks = await this.redis.get(REGISTERED_WEBHOOK_KEY);
+
+    let currentWebhookRegistrationDtos: { announcementType: string; urls: string[] }[] = [];
+    if (currentRegistedWebooks) {
+      currentWebhookRegistrationDtos = JSON.parse(currentRegistedWebooks);
+    }
+
+    webhookRegistration.announcementTypes.forEach((announcementType) => {
+      const index = currentWebhookRegistrationDtos.findIndex((webhookRegistrationDto) => webhookRegistrationDto.announcementType === announcementType.toLowerCase());
+      if (index === -1) {
+        currentWebhookRegistrationDtos.push({ announcementType: announcementType.toLowerCase(), urls: [webhookRegistration.url] });
+      } else {
+        currentWebhookRegistrationDtos[index].urls.push(webhookRegistration.url);
+      }
+    });
+  }
+
+  public async clearAllWebhooks() {
+    this.logger.debug('Clearing all webhooks');
+    await this.redis.del(REGISTERED_WEBHOOK_KEY);
+  }
+
+  public async getRegisteredWebhooks() {
+    this.logger.debug('Getting registered webhooks');
+    const registeredWebhooks = await this.redis.get(REGISTERED_WEBHOOK_KEY);
+    return registeredWebhooks ? JSON.parse(registeredWebhooks) : [];
   }
 }

@@ -18,3 +18,9 @@ export const LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY: string = 'lastSeenBlockNumberSc
  * @type {string}
  */
 export const EVENTS_TO_WATCH_KEY: string = 'eventsToWatch';
+
+/**
+ * Registered Webhook key for Redis
+ * @type {string}
+ */
+export const REGISTERED_WEBHOOK_KEY: string = 'registeredWebhook';

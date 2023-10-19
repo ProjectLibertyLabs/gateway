@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
 import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { ApiService } from './api.service';
 import { ResetScannerDto, ContentSearchRequestDto } from '../../../libs/common/src';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
+import { WebhookRegistrationDto } from '../../../libs/common/src/dtos/subscription.webhook.dto';
 
 @Controller('api')
 export class ApiController {
@@ -63,6 +64,38 @@ export class ApiController {
     return {
       status: HttpStatus.OK,
       jobId: jobResult.id,
+    };
+  }
+
+  @Put('registerWebhook')
+  @ApiBody({
+    description: 'Register a webhook to be called when a new content is created',
+    type: WebhookRegistrationDto,
+  })
+  async registerWebhook(@Body() webhookRegistrationDto: WebhookRegistrationDto) {
+    this.logger.debug(`Registering webhook ${JSON.stringify(webhookRegistrationDto)}`);
+    await this.apiService.setWebhook(webhookRegistrationDto);
+    return {
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Delete('clearAllWebHooks')
+  async clearAllWebHooks() {
+    this.logger.debug('Unregistering webhooks');
+    await this.apiService.clearAllWebhooks();
+    return {
+      status: HttpStatus.OK,
+    };
+  }
+
+  @Get('getRegisteredWebhooks')
+  async getRegisteredWebhooks() {
+    this.logger.debug('Getting registered webhooks');
+    const registeredWebhooks = await this.apiService.getRegisteredWebhooks();
+    return {
+      status: HttpStatus.OK,
+      registeredWebhooks,
     };
   }
 }

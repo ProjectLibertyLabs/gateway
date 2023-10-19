@@ -15,6 +15,7 @@ import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
 import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
+import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
     ScannerModule,
     CrawlerModule,
     IPFSProcessorModule,
+    PubSubModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],

@@ -13,7 +13,7 @@ import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../constants';
+import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 
@@ -83,7 +83,12 @@ export class ScannerService implements OnApplicationBootstrap {
         this.logger.log('Deferring next blockchain scan until queue is empty');
         return;
       }
+      const registeredWebhook = await this.cache.get(REGISTERED_WEBHOOK_KEY);
 
+      if (!registeredWebhook) {
+        this.logger.log('No registered webhooks; no scan performed.');
+        return;
+      }
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 

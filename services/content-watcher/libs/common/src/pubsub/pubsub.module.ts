@@ -1,23 +1,25 @@
-/*
-https://docs.nestjs.com/modules
-*/
-
-import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
-import { BlockchainModule } from '../blockchain/blockchain.module';
-import { QueueConstants } from '..';
-import { IPFSContentProcessor } from './ipfs.dsnp';
-import { IpfsService } from '../utils/ipfs.client';
+import { QueueConstants } from '../utils/queues';
+import { PubSubService } from './pubsub.service';
+import { BroadcastSubscriber } from './announcers/broadcast';
+import { ProfileSubscriber } from './announcers/profile';
+import { ReactionSubscriber } from './announcers/reaction';
+import { ReplySubscriber } from './announcers/reply';
+import { TomstoneSubscriber } from './announcers/tombstone';
+import { UpdateSubscriber } from './announcers/update';
 
 @Module({
   imports: [
-    BlockchainModule,
     ConfigModule,
-    EventEmitterModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -53,29 +55,7 @@ import { IpfsService } from '../utils/ipfs.client';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.IPFS_QUEUE,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
         name: QueueConstants.BROADCAST_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.REACTION_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 3,
           backoff: {
@@ -97,7 +77,7 @@ import { IpfsService } from '../utils/ipfs.client';
         },
       },
       {
-        name: QueueConstants.PROFILE_QUEUE_NAME,
+        name: QueueConstants.REACTION_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 3,
           backoff: {
@@ -119,6 +99,17 @@ import { IpfsService } from '../utils/ipfs.client';
         },
       },
       {
+        name: QueueConstants.PROFILE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
         name: QueueConstants.UPDATE_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 3,
@@ -130,9 +121,28 @@ import { IpfsService } from '../utils/ipfs.client';
         },
       },
     ),
+    EventEmitterModule.forRoot({
+      // Use this instance throughout the application
+      global: true,
+      // set this to `true` to use wildcards
+      wildcard: false,
+      // the delimiter used to segment namespaces
+      delimiter: '.',
+      // set this to `true` if you want to emit the newListener event
+      newListener: false,
+      // set this to `true` if you want to emit the removeListener event
+      removeListener: false,
+      // the maximum amount of listeners that can be assigned to an event
+      maxListeners: 10,
+      // show event name in memory leak message when more than maximum amount of listeners is assigned
+      verboseMemoryLeak: false,
+      // disable throwing uncaughtException if an error event is emitted and it has no listeners
+      ignoreErrors: false,
+    }),
+    ScheduleModule.forRoot(),
   ],
+  providers: [PubSubService, BroadcastSubscriber, ProfileSubscriber, ReactionSubscriber, ReplySubscriber, TomstoneSubscriber, UpdateSubscriber],
   controllers: [],
-  providers: [IPFSContentProcessor, IpfsService],
-  exports: [BullModule, IPFSContentProcessor, IpfsService],
+  exports: [PubSubService],
 })
-export class IPFSProcessorModule {}
+export class PubSubModule {}

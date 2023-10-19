@@ -78,6 +78,8 @@ export class ApiService {
         currentWebhookRegistrationDtos[index].urls.push(webhookRegistration.url);
       }
     });
+
+    await this.redis.set(REGISTERED_WEBHOOK_KEY, JSON.stringify(currentWebhookRegistrationDtos));
   }
 
   public async clearAllWebhooks() {
@@ -85,7 +87,7 @@ export class ApiService {
     await this.redis.del(REGISTERED_WEBHOOK_KEY);
   }
 
-  public async getRegisteredWebhooks() {
+  public async getRegisteredWebhooks(): Promise<WebhookRegistrationDto[]> {
     this.logger.debug('Getting registered webhooks');
     const registeredWebhooks = await this.redis.get(REGISTERED_WEBHOOK_KEY);
     return registeredWebhooks ? JSON.parse(registeredWebhooks) : [];

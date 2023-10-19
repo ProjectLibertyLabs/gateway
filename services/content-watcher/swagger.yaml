@@ -67,6 +67,40 @@ paths:
             application/json:
               schema:
                 type: string
+  /api/registerWebhook:
+    put:
+      operationId: ApiController_registerWebhook
+      parameters: []
+      requestBody:
+        required: true
+        description: Register a webhook to be called when a new content is created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistrationDto'
+      responses:
+        '200':
+          description: ''
+  /api/clearAllWebHooks:
+    delete:
+      operationId: ApiController_clearAllWebHooks
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /api/getRegisteredWebhooks:
+    get:
+      operationId: ApiController_getRegisteredWebhooks
+      parameters: []
+      responses:
+        '200':
+          description: Returns a list of registered webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookRegistrationDto'
 info:
   title: Content Watcher Service API
   description: Content Watcher Service API
@@ -135,4 +169,22 @@ components:
         - startBlock
         - endBlock
         - filters
+    WebhookRegistrationDto:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Webhook URL
+          example: https://example.com/webhook
+        announcementTypes:
+          description: Announcement types to send to the webhook
+          example:
+            - Broadcast
+            - Reaction
+          type: array
+          items:
+            type: string
+      required:
+        - url
+        - announcementTypes
   responses: {}

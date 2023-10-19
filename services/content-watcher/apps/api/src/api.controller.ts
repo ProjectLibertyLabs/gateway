@@ -90,6 +90,10 @@ export class ApiController {
   }
 
   @Get('getRegisteredWebhooks')
+  @ApiOkResponse({
+    description: 'Returns a list of registered webhooks',
+    type: [WebhookRegistrationDto],
+  })
   async getRegisteredWebhooks() {
     this.logger.debug('Getting registered webhooks');
     const registeredWebhooks = await this.apiService.getRegisteredWebhooks();

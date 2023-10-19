@@ -65,21 +65,69 @@ import { IpfsService } from '../utils/ipfs.client';
       },
       {
         name: QueueConstants.BROADCAST_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.REACTION_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.REPLY_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.PROFILE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
       {
         name: QueueConstants.UPDATE_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
     ),
   ],

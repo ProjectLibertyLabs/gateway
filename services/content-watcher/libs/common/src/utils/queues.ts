@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { AnnouncementTypeDto } from '../dtos/common.dto';
 
 export namespace QueueConstants {
@@ -41,3 +42,8 @@ export namespace QueueConstants {
     [PROFILE_QUEUE_NAME, AnnouncementTypeDto.PROFILE],
   ]);
 }
+
+export const calculateJobId = (jobWithoutId: any): string => {
+  const stringVal = JSON.stringify(jobWithoutId);
+  return createHash('sha1').update(stringVal).digest('base64url');
+};

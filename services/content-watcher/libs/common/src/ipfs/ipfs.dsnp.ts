@@ -4,7 +4,7 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { ConfigService } from '../config/config.service';
-import { QueueConstants } from '..';
+import { QueueConstants, calculateJobId } from '..';
 import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
@@ -33,14 +33,14 @@ export class IPFSContentProcessor extends BaseConsumer {
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
       this.logger.log(`IPFS Processing job ${job.id}`);
-      if(!job.data.cid) {
+      if (!job.data.cid) {
         this.logger.error(`IPFS Job ${job.id} failed with no CID`);
         return;
       }
       const cidStr = hexToString(job.data.cid);
       const contentBuffer = await this.ipfsService.getPinned(cidStr, true);
 
-      if(contentBuffer.byteLength === 0) {
+      if (contentBuffer.byteLength === 0) {
         this.logger.log(`IPFS Job ${job.id} completed with no content`);
         return;
       }
@@ -52,6 +52,7 @@ export class IPFSContentProcessor extends BaseConsumer {
       while (record) {
         const announcementRecordCast = record as Announcement;
         records.push(announcementRecordCast);
+        // eslint-disable-next-line no-await-in-loop
         record = await cursor.next();
       }
 
@@ -75,7 +76,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.broadcastQueue))) {
-            await this.broadcastQueue.add('Broadcast', broadCastResponse);
+            const jobId = calculateJobId(broadCastResponse);
+            await this.broadcastQueue.add('Broadcast', broadCastResponse, { jobId });
           }
           break;
         }
@@ -86,7 +88,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.tombstoneQueue))) {
-            await this.tombstoneQueue.add('Tombstone', tombstoneResponse);
+            const jobId = calculateJobId(tombstoneResponse);
+            await this.tombstoneQueue.add('Tombstone', tombstoneResponse, { jobId });
           }
           break;
         }
@@ -97,7 +100,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.reactionQueue))) {
-            await this.reactionQueue.add('Reaction', reactionResponse);
+            const jobId = calculateJobId(reactionResponse);
+            await this.reactionQueue.add('Reaction', reactionResponse, { jobId });
           }
           break;
         }
@@ -108,7 +112,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.replyQueue))) {
-            await this.replyQueue.add('Reply', replyResponse);
+            const jobId = calculateJobId(replyResponse);
+            await this.replyQueue.add('Reply', replyResponse, { jobId });
           }
           break;
         }
@@ -119,7 +124,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.profileQueue))) {
-            this.profileQueue.add('Profile', profileResponse);
+            const jobId = calculateJobId(profileResponse);
+            this.profileQueue.add('Profile', profileResponse, { jobId });
           }
           break;
         }

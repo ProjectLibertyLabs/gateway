@@ -33,7 +33,10 @@ export class IPFSContentProcessor extends BaseConsumer {
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
       this.logger.log(`IPFS Processing job ${job.id}`);
-      this.logger.debug(`IPFS CID: ${job.data.cid} for schemaId: ${job.data.schemaId}`);
+      if(!job.data.cid) {
+        this.logger.error(`IPFS Job ${job.id} failed with no CID`);
+        return;
+      }
       const cidStr = hexToString(job.data.cid);
       const contentBuffer = await this.ipfsService.getPinned(cidStr, true);
 
@@ -41,14 +44,15 @@ export class IPFSContentProcessor extends BaseConsumer {
         this.logger.log(`IPFS Job ${job.id} completed with no content`);
         return;
       }
+
       const reader = await parquet.ParquetReader.openBuffer(contentBuffer);
       const cursor = reader.getCursor();
       const records: Announcement[] = [];
-
-      const record = await cursor.next();
+      let record = await cursor.next();
       while (record) {
         const announcementRecordCast = record as Announcement;
         records.push(announcementRecordCast);
+        record = await cursor.next();
       }
 
       await this.buildAndQueueDSNPAnnouncements(records, job.data);

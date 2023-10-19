@@ -78,6 +78,9 @@ import { IpfsService } from '../utils/ipfs.client';
       {
         name: QueueConstants.TOMBSTONE_QUEUE_NAME,
       },
+      {
+        name: QueueConstants.UPDATE_QUEUE_NAME,
+      },
     ),
   ],
   controllers: [],

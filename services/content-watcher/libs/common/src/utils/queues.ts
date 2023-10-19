@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { AnnouncementTypeDto } from '../dtos/common.dto';
 
 export namespace QueueConstants {
@@ -20,6 +21,7 @@ export namespace QueueConstants {
   export const REACTION_QUEUE_NAME = 'watchReactionQueue';
   export const TOMBSTONE_QUEUE_NAME = 'watchTombstoneQueue';
   export const PROFILE_QUEUE_NAME = 'watchProfileQueue';
+  export const UPDATE_QUEUE_NAME = 'watchUpdateQueue';
   /**
    * Map between announcement type and it's queueName
    */
@@ -29,6 +31,7 @@ export namespace QueueConstants {
     [AnnouncementTypeDto.REACTION, REACTION_QUEUE_NAME],
     [AnnouncementTypeDto.TOMBSTONE, TOMBSTONE_QUEUE_NAME],
     [AnnouncementTypeDto.PROFILE, PROFILE_QUEUE_NAME],
+    [AnnouncementTypeDto.UPDATE, UPDATE_QUEUE_NAME],
   ]);
   /**
    * Map between queue name and it's announcement type
@@ -39,5 +42,11 @@ export namespace QueueConstants {
     [REACTION_QUEUE_NAME, AnnouncementTypeDto.REACTION],
     [TOMBSTONE_QUEUE_NAME, AnnouncementTypeDto.TOMBSTONE],
     [PROFILE_QUEUE_NAME, AnnouncementTypeDto.PROFILE],
+    [UPDATE_QUEUE_NAME, AnnouncementTypeDto.UPDATE],
   ]);
 }
+
+export const calculateJobId = (jobWithoutId: any): string => {
+  const stringVal = JSON.stringify(jobWithoutId);
+  return createHash('sha1').update(stringVal).digest('base64url');
+};

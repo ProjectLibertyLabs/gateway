@@ -4,11 +4,20 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { ConfigService } from '../config/config.service';
-import { QueueConstants } from '..';
+import { QueueConstants, calculateJobId } from '..';
 import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
-import { Announcement, AnnouncementType, BroadcastAnnouncement, ProfileAnnouncement, ReactionAnnouncement, ReplyAnnouncement, TombstoneAnnouncement } from '../interfaces/dsnp';
+import {
+  Announcement,
+  AnnouncementType,
+  BroadcastAnnouncement,
+  ProfileAnnouncement,
+  ReactionAnnouncement,
+  ReplyAnnouncement,
+  TombstoneAnnouncement,
+  UpdateAnnouncement,
+} from '../interfaces/dsnp';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
 
 @Injectable()
@@ -24,6 +33,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
     @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {
@@ -33,25 +43,25 @@ export class IPFSContentProcessor extends BaseConsumer {
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
       this.logger.log(`IPFS Processing job ${job.id}`);
-      if(!job.data.cid) {
+      if (!job.data.cid) {
         this.logger.error(`IPFS Job ${job.id} failed with no CID`);
         return;
       }
       const cidStr = hexToString(job.data.cid);
       const contentBuffer = await this.ipfsService.getPinned(cidStr, true);
 
-      if(contentBuffer.byteLength === 0) {
+      if (contentBuffer.byteLength === 0) {
         this.logger.log(`IPFS Job ${job.id} completed with no content`);
         return;
       }
 
       const reader = await parquet.ParquetReader.openBuffer(contentBuffer);
       const cursor = reader.getCursor();
-      const records: Announcement[] = [];
+      const records: any[] = [];
       let record = await cursor.next();
       while (record) {
-        const announcementRecordCast = record as Announcement;
-        records.push(announcementRecordCast);
+        records.push(record);
+        // eslint-disable-next-line no-await-in-loop
         record = await cursor.next();
       }
 
@@ -64,7 +74,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     }
   }
 
-  private async buildAndQueueDSNPAnnouncements(records: Announcement[], jobData: IIPFSJob): Promise<void> {
+  private async buildAndQueueDSNPAnnouncements(records: any[], jobData: IIPFSJob): Promise<void> {
     const jobRequestId = jobData.requestId;
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
@@ -75,7 +85,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.broadcastQueue))) {
-            await this.broadcastQueue.add('Broadcast', broadCastResponse);
+            const jobId = calculateJobId(broadCastResponse);
+            await this.broadcastQueue.add('Broadcast', broadCastResponse, { jobId });
           }
           break;
         }
@@ -86,7 +97,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.tombstoneQueue))) {
-            await this.tombstoneQueue.add('Tombstone', tombstoneResponse);
+            const jobId = calculateJobId(tombstoneResponse);
+            await this.tombstoneQueue.add('Tombstone', tombstoneResponse, { jobId });
           }
           break;
         }
@@ -97,7 +109,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.reactionQueue))) {
-            await this.reactionQueue.add('Reaction', reactionResponse);
+            const jobId = calculateJobId(reactionResponse);
+            await this.reactionQueue.add('Reaction', reactionResponse, { jobId });
           }
           break;
         }
@@ -108,7 +121,8 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.replyQueue))) {
-            await this.replyQueue.add('Reply', replyResponse);
+            const jobId = calculateJobId(replyResponse);
+            await this.replyQueue.add('Reply', replyResponse, { jobId });
           }
           break;
         }
@@ -119,12 +133,25 @@ export class IPFSContentProcessor extends BaseConsumer {
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.profileQueue))) {
-            this.profileQueue.add('Profile', profileResponse);
+            const jobId = calculateJobId(profileResponse);
+            this.profileQueue.add('Profile', profileResponse, { jobId });
+          }
+          break;
+        }
+        case AnnouncementType.Update: {
+          const updateResponse: AnnouncementResponse = {
+            schemaId: jobData.schemaId,
+            announcement: mapRecord as UpdateAnnouncement,
+            requestId: jobRequestId,
+          };
+          if (!(await this.isQueueFull(this.profileQueue))) {
+            const jobId = calculateJobId(updateResponse);
+            this.updateQueue.add('Update', updateResponse, { jobId });
           }
           break;
         }
         default:
-          throw new Error(`Unknown announcement type ${mapRecord}`);
+          throw new Error(`Unknown announcement type ${JSON.stringify(mapRecord)}`);
       }
     });
   }

@@ -4,7 +4,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ContentSearchRequestDto, QueueConstants } from '../../../libs/common/src';
+import { ContentSearchRequestDto, QueueConstants, calculateJobId } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
@@ -44,7 +44,7 @@ export class ApiService {
   }
 
   public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {
-    const jobId = contentSearchRequestDto.id ?? this.calculateJobId(contentSearchRequestDto);
+    const jobId = contentSearchRequestDto.id ?? calculateJobId(contentSearchRequestDto);
     this.logger.debug(`Searching for content with request ${JSON.stringify(contentSearchRequestDto)}`);
 
     const job = await this.requestQueue.getJob(jobId);

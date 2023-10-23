@@ -3,13 +3,13 @@ import { Job, Queue } from 'bullmq';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
+import { bases } from 'multiformats/basics';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants, calculateJobId } from '..';
 import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
 import {
-  Announcement,
   AnnouncementType,
   BroadcastAnnouncement,
   ProfileAnnouncement,
@@ -19,7 +19,6 @@ import {
   UpdateAnnouncement,
 } from '../interfaces/dsnp';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
-import { bases } from "multiformats/basics";
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -122,7 +121,7 @@ export class IPFSContentProcessor extends BaseConsumer {
             announcement: {
               fromId: reactionRecord.fromId,
               announcementType: reactionRecord.announcementType,
-              inReplyTo:reactionRecord.inReplyTo,
+              inReplyTo: reactionRecord.inReplyTo,
               emoji: reactionRecord.emoji,
               apply: reactionRecord.apply,
             },
@@ -138,7 +137,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const replyRecord = mapRecord as ReplyAnnouncement;
           const replyResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement:{
+            announcement: {
               fromId: replyRecord.fromId,
               announcementType: replyRecord.announcementType,
               url: replyRecord.url,
@@ -157,7 +156,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const profileRecord = mapRecord as ProfileAnnouncement;
           const profileResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement:{
+            announcement: {
               fromId: profileRecord.fromId,
               announcementType: profileRecord.announcementType,
               url: profileRecord.url,

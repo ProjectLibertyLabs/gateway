@@ -2,12 +2,9 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { REGISTERED_WEBHOOK_KEY } from '../constants';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
 import { ConfigService } from '../config/config.service';
-import { QueueConstants } from '../utils/queues';
 
 @Injectable()
 export class PubSubService {
@@ -41,6 +38,8 @@ export class PubSubService {
         let retries = 0;
         while (retries < this.configService.getWebookMaxRetries()) {
           try {
+            this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
+            this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
             // eslint-disable-next-line no-await-in-loop
             await axios.post(webhookUrl, message);
             this.logger.debug(`Announcement sent to webhook: ${webhookUrl}`);

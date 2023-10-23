@@ -181,10 +181,12 @@ components:
           example:
             - Broadcast
             - Reaction
+            - Tombstone
+            - Reply
+            - Update
           type: array
           items:
             type: string
       required:
         - url
         - announcementTypes
-  responses: {}

@@ -13,7 +13,7 @@ export class WebhookRegistrationDto {
   @IsArray()
   @ApiProperty({
     description: 'Announcement types to send to the webhook',
-    example: ['Broadcast', 'Reaction'],
+    example: ['Broadcast', 'Reaction', 'Tombstone', 'Reply', 'Update'],
   })
   announcementTypes: string[]; // Announcement types to send to the webhook
 }

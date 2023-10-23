@@ -19,6 +19,7 @@ import {
   UpdateAnnouncement,
 } from '../interfaces/dsnp';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
+import { bases } from "multiformats/basics";
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -79,9 +80,15 @@ export class IPFSContentProcessor extends BaseConsumer {
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
         case AnnouncementType.Broadcast: {
+          const recordAnnouncement = mapRecord as BroadcastAnnouncement;
           const broadCastResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as BroadcastAnnouncement,
+            announcement: {
+              fromId: recordAnnouncement.fromId,
+              contentHash: bases.base58btc.encode(recordAnnouncement.contentHash as any),
+              url: recordAnnouncement.url,
+              announcementType: recordAnnouncement.announcementType,
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.broadcastQueue))) {
@@ -91,9 +98,15 @@ export class IPFSContentProcessor extends BaseConsumer {
           break;
         }
         case AnnouncementType.Tombstone: {
+          const tombRecord = mapRecord as TombstoneAnnouncement;
           const tombstoneResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as TombstoneAnnouncement,
+            announcement: {
+              fromId: tombRecord.fromId,
+              targetAnnouncementType: tombRecord.targetAnnouncementType,
+              targetContentHash: bases.base58btc.encode(tombRecord.targetContentHash as any),
+              announcementType: tombRecord.announcementType,
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.tombstoneQueue))) {
@@ -103,9 +116,16 @@ export class IPFSContentProcessor extends BaseConsumer {
           break;
         }
         case AnnouncementType.Reaction: {
+          const reactionRecord = mapRecord as ReactionAnnouncement;
           const reactionResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as ReactionAnnouncement,
+            announcement: {
+              fromId: reactionRecord.fromId,
+              announcementType: reactionRecord.announcementType,
+              inReplyTo:reactionRecord.inReplyTo,
+              emoji: reactionRecord.emoji,
+              apply: reactionRecord.apply,
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.reactionQueue))) {
@@ -115,9 +135,16 @@ export class IPFSContentProcessor extends BaseConsumer {
           break;
         }
         case AnnouncementType.Reply: {
+          const replyRecord = mapRecord as ReplyAnnouncement;
           const replyResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as ReplyAnnouncement,
+            announcement:{
+              fromId: replyRecord.fromId,
+              announcementType: replyRecord.announcementType,
+              url: replyRecord.url,
+              inReplyTo: replyRecord.inReplyTo,
+              contentHash: bases.base58btc.encode(replyRecord.contentHash as any),
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.replyQueue))) {
@@ -127,9 +154,15 @@ export class IPFSContentProcessor extends BaseConsumer {
           break;
         }
         case AnnouncementType.Profile: {
+          const profileRecord = mapRecord as ProfileAnnouncement;
           const profileResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as ProfileAnnouncement,
+            announcement:{
+              fromId: profileRecord.fromId,
+              announcementType: profileRecord.announcementType,
+              url: profileRecord.url,
+              contentHash: bases.base58btc.encode(profileRecord.contentHash as any),
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.profileQueue))) {
@@ -139,9 +172,17 @@ export class IPFSContentProcessor extends BaseConsumer {
           break;
         }
         case AnnouncementType.Update: {
+          const updateRecord = mapRecord as UpdateAnnouncement;
           const updateResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
-            announcement: mapRecord as UpdateAnnouncement,
+            announcement: {
+              fromId: updateRecord.fromId,
+              announcementType: updateRecord.announcementType,
+              url: updateRecord.url,
+              contentHash: bases.base58btc.encode(updateRecord.contentHash as any),
+              targetAnnouncementType: updateRecord.targetAnnouncementType,
+              targetContentHash: bases.base58btc.encode(updateRecord.targetContentHash as any),
+            },
             requestId: jobRequestId,
           };
           if (!(await this.isQueueFull(this.profileQueue))) {

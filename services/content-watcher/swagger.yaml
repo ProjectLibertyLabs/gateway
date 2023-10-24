@@ -140,7 +140,9 @@ components:
           items:
             type: string
         dsnpIds:
-          description: Specific dsnpIds (msa_id) to watch for
+          description: Specific dsnpIds (msa_id) to watch for, these are the ids of the
+            publisher of the messages on frequency. If you want to watch for all messages
+            on frequency, leave this blank.
           example:
             - '10074'
             - '100001'

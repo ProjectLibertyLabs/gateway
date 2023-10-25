@@ -16,6 +16,7 @@ import { QueueConstants } from '../utils/queues';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
+import { RedisUtils } from '../utils/redis';
 
 @Injectable()
 export class ScannerService implements OnApplicationBootstrap {
@@ -211,6 +212,6 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   private async setLastSeenBlockNumber(b: bigint): Promise<void> {
-    await this.cache.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, b.toString());
+    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b.toString());
   }
 }

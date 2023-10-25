@@ -9,7 +9,7 @@ import { ScannerService } from '../../../libs/common/src/scanner/scanner';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 import { WebhookRegistrationDto } from '../../../libs/common/src/dtos/subscription.webhook.dto';
-import { AnnouncementType } from '../../../libs/common/src/interfaces/dsnp';
+import { RedisUtils } from '../../../libs/common/src/utils/redis';
 
 @Injectable()
 export class ApiService {
@@ -25,7 +25,7 @@ export class ApiService {
 
   public setLastSeenBlockNumber(blockNumber: bigint) {
     this.logger.warn(`Setting last seen block number to ${blockNumber}`);
-    return this.redis.set(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, blockNumber.toString());
+    return this.redis.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, blockNumber.toString());
   }
 
   public async setWatchOptions(watchOptions: ChainWatchOptionsDto) {

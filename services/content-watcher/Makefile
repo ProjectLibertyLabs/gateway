@@ -22,11 +22,7 @@ clean-watcher:
 
 .PHONY: start-watcher
 start-watcher:
-	@(npm run docker-run:dev)
-
-.PHONY: stop-watcher
-stop-watcher:
-	@(npm run docker-stop:dev)
+	@(nest start api --watch)
 
 ######
 ###### Misc targets

@@ -14,7 +14,7 @@
     "docker-build": "docker build -t content-watcher-service .",
     "docker-build:dev": "docker-compose -f docker-compose.dev.yaml build",
     "docker-run": " build -t content-watcher-service-deploy . ; docker run -p 6379:6379 --env-file .env content-watcher-service-deploy",
-    "docker-run:dev": "docker-compose -f docker-compose.dev.yaml up -d ; docker-compose -f docker-compose.dev.yaml logs -f content-watcher-service",
+    "docker-run:dev": "docker-compose -f docker-compose.dev.yaml up -d ; docker-compose -f docker-compose.dev.yaml logs",
     "docker-stop:dev": "docker-compose -f docker-compose.dev.yaml stop",
     "clean": "rm -Rf dist",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

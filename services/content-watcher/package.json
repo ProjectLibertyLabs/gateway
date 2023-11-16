@@ -21,7 +21,7 @@
     "pretest": "cp env.template .env",
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --config ./apps/api/test/jest-e2e.json --detectOpenHandles",
-    "local:init": "cd scripts/chain-setup && npm i && npm run main",
+    "local:init": "node scripts/chain-setup/local-chain-setup.cjs",
     "local:publish": "cd scripts/content-setup && npm i && npm run main"
   },
   "repository": {

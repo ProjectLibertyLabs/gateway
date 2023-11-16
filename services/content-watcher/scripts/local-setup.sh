@@ -86,11 +86,15 @@ function teardown() {
 }
 
 function startup() {
-    # Start containers for chain & DB
-    docker compose --project-name ${PROJECT_NAME} -f ${TOPDIR}/docker-compose.dev.yaml ${PROFILE} up -d
+    # Start containers for chain, ipfs & redis
+    ## start frequency service first as we want to set the chain state
+    docker compose --project-name ${PROJECT_NAME} -f ${TOPDIR}/docker-compose.dev.yaml ${PROFILE} up -d frequency
+    
+    # Set up chain scenario, i.e. set provider, delegation and schemas
+    ( cd ${TOPDIR} && npm i && npm run local:init )
 
-    # Set up chain scenario
-    ( cd ${TOPDIR}/scripts/chain-setup && npm i && npm run main)
+    # start rest of services
+    docker compose --project-name ${PROJECT_NAME} -f ${TOPDIR}/docker-compose.dev.yaml ${PROFILE} up -d
 
     # publish some content
     ( cd ${TOPDIR}/scripts/content-setup && npm i && npm run main)

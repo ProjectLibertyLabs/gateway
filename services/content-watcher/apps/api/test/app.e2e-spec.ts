@@ -28,8 +28,8 @@ describe('Content Watcher E2E request verification!', () => {
     await app.init();
     const blockchainService = app.get<BlockchainService>(BlockchainService);
     await blockchainService.isReady();
-  });
-  it('(Put) /api/registerWebhook', async () => {
+
+    // register webhook '(Put) /api/registerWebhook'
     const webhookRegistrationDto = {
       url: 'http://localhost:3000/api/webhook',
       announcementTypes: ['Broadcast', 'Reaction', 'Tombstone', 'Reply', 'Update'],
@@ -50,6 +50,20 @@ describe('Content Watcher E2E request verification!', () => {
       .post('/api/resetScanner')
       .send(resetScannerDto)
       .expect(201);
+  });
+
+  it('(Put) /api/search - search for content', async () => {
+    const searchRequest = {
+      startBlock: '0',
+      endBlock: '100',
+    };
+    const response = await request(app.getHttpServer())
+      .put('/api/search')
+      .send(searchRequest)
+      .expect(200);
+    expect(response.body).toHaveProperty('jobId');
+    const jobId = response.body.jobId;
+    expect(jobId).not.toBeNull();
   });
 
   afterEach(async () => {

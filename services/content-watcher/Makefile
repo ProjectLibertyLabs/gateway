@@ -25,6 +25,18 @@ start-watcher:
 	@(nest start api --watch)
 
 ######
+###### Testing targets
+######
+
+.PHONY: test-services-start
+test-services-start:
+	@scripts/local-setup.sh -n cw-e2e -i
+
+.PHONY: test-services-stop
+test-services-stop:
+	@scripts/local-setup.sh -n cw-e2e -d
+
+######
 ###### Misc targets
 ######
 

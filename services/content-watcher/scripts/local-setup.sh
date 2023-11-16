@@ -96,6 +96,9 @@ function startup() {
     # start rest of services
     docker compose --project-name ${PROJECT_NAME} -f ${TOPDIR}/docker-compose.dev.yaml ${PROFILE} up -d
 
+    # sleep for 5 seconds to wait for chain to start and service to be registered
+    sleep 5
+    
     # publish some content
     ( cd ${TOPDIR}/scripts/content-setup && npm i && npm run main)
     

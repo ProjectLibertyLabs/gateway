@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
+import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
 
 describe('Content Watcher E2E request verification!', () => {
   let app: INestApplication;
@@ -25,9 +26,31 @@ describe('Content Watcher E2E request verification!', () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableShutdownHooks();
     await app.init();
+    const blockchainService = app.get<BlockchainService>(BlockchainService);
+    await blockchainService.isReady();
+  });
+  it('(Put) /api/registerWebhook', async () => {
+    const webhookRegistrationDto = {
+      url: 'http://localhost:3000/api/webhook',
+      announcementTypes: ['Broadcast', 'Reaction', 'Tombstone', 'Reply', 'Update'],
+    };
+    const response = await request(app.getHttpServer())
+      .put('/api/registerWebhook')
+      .send(webhookRegistrationDto)
+      .expect(200);
   });
 
   it('(GET) /api/health', () => request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200 }));
+
+  it('(Post) /api/resetScanner', async () => {
+    const resetScannerDto = {
+      blockNumber: 0,
+    };
+    const response = await request(app.getHttpServer())
+      .post('/api/resetScanner')
+      .send(resetScannerDto)
+      .expect(201);
+  });
 
   afterEach(async () => {
     try {

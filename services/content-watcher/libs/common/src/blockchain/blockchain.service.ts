@@ -39,6 +39,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     this.logger.log('Blockchain API ready.');
   }
 
+  public async isReady(): Promise<boolean> {
+    await this.apiPromise.isReady;
+    return true;
+  }
+  
   public async onApplicationShutdown(signal?: string | undefined) {
     const promises: Promise<any>[] = [];
     if (this.api) {

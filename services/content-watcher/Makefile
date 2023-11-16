@@ -36,6 +36,10 @@ test-services-start:
 test-services-stop:
 	@scripts/local-setup.sh -n cw-e2e -d
 
+.PHONY: test-e2e
+test-e2e:
+	@(npm run test:e2e)
+
 ######
 ###### Misc targets
 ######

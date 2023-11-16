@@ -22,7 +22,5 @@ COPY package*.json ./
 
 RUN npm install --only=production
 EXPOSE 3000
-ENV START_PROCESS="api"
 
-
-CMD ["sh", "-c", "if [ \"$START_PROCESS\" = \"api\" ]; then npm run start:api:prod; else npm run start:worker:prod; fi"]
+CMD ["sh", "-c", "npm run start:api:prod"]

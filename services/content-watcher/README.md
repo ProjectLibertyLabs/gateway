@@ -9,6 +9,7 @@ Content Watcher is a service that watches for events on Frequency and produces D
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
     - [Clone the Repository](#clone-the-repository)
+    - [Run a full e2e test](#run-a-full-e2e-test)
 
 ## Prerequisites
 
@@ -28,14 +29,30 @@ Follow these steps to set up and run Content Watcher:
    git clone https://github.com/amplicalabls/content-watcher-service.git
    ```
 
-2. Modify any environment variables in the `.env` file as needed. For docker compose env `.env.docker.dev` file is used.
+### Run a full e2e test
 
-3. Run the following command to start the service:
+1. Run the following make command to spin up the entire stack:
 
    ```bash
-    docker-compose -f docker-compose.dev.yaml up
+   make test-start-services
+   ```
+
+   This will setup the following services:
+
+    - **Frequency:** A local instance of Frequency will be with default as instant sealing mode.
+    - **Redis:** A local instance of Redis will be spun up and configured to be used by content publishing and content watcher services.
+    - **Kubo IPFS:** A local instance of IPFS will be spun up and configured to be used for content publishing and retrieval.
+    - **Content Publishing API**: A local instance of the content publishing API will be used to publish content to IPFS and Frequency for content watcher tests.
+    - **Content Publishing Worker**: A local instance of the content publishing worker will be used to publish content to IPFS and Frequency for content watcher tests via dedicated processors.
+
+   Following setup scenarios will be run while stack is brought up:
+
+   - **Chain Setup Scenario**: A provider with MSA=1 will be created with some users accounts along with delegation to provider. Capacity will be staked to MSA=1 to enable provider to publish content on behalf of users.
+   - **DSNP Schemas**: DSNP schemas will be registered on Frequency.
+   - **Publish some example content**: Some example content will be published to IPFS and Frequency. Check out [Content Publishing BullBoard](http://0.0.0.0:3001/queues) to see the progress of content publishing.
+
+2. Run the following make command to run the content watcher tests:
+
+   ```bash
+    make test-e2e
     ```
-
-4. Visit [Swagger UI](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
-
-5. Visit [Bullboard](http://localhost:3000/queues) to view the job queue and the status of the jobs.

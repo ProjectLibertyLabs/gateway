@@ -48,10 +48,7 @@ describe('Content Watcher E2E request verification!', () => {
       blockNumber: '0',
     };
     const response = await request(app.getHttpServer()).post('/api/resetScanner').send(resetScannerDto).expect(201);
-
-    // wait for the scanner to finish
-    await sleep(5000);
-  });
+  }, 15000);
 
   it('(Put) /api/search - search for content', async () => {
     const searchRequest = {
@@ -62,7 +59,7 @@ describe('Content Watcher E2E request verification!', () => {
     expect(response.body).toHaveProperty('jobId');
     const { jobId } = response.body;
     expect(jobId).not.toBeNull();
-  });
+  }, 15000);
 
   afterEach(async () => {
     try {

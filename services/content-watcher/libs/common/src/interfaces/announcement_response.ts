@@ -5,6 +5,7 @@ import { Announcement } from './dsnp';
 export interface AnnouncementResponse {
   requestId?: string;
   schemaId: string;
+  blockNumber: string;
   announcement: Announcement;
 }
 

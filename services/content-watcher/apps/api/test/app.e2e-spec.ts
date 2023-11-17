@@ -31,7 +31,6 @@ describe('Content Watcher E2E request verification!', () => {
     const blockchainService = app.get<BlockchainService>(BlockchainService);
     await blockchainService.isReady();
 
-    nock('http://localhost:3005').post('/api/webhook').reply(200, { success: true });
 
     // register webhook '(Put) /api/registerWebhook'
     const webhookRegistrationDto = {

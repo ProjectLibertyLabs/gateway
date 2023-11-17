@@ -56,3 +56,5 @@ Follow these steps to set up and run Content Watcher:
    ```bash
     make test-e2e
     ```
+
+3. Alternatively, create .env file, run `nest start api` to content watcher as standalone, register a webhook with content watcher using [swagger](http://0.0.0.0:3000/api/docs/swagger#) and try some api to scan content.

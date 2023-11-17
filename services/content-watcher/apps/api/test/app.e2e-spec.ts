@@ -4,8 +4,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import nock from 'nock';
 import { ApiModule } from '../src/api.module';
 import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
+import { ResetScannerDto } from '../../../libs/common/src';
 
 describe('Content Watcher E2E request verification!', () => {
   let app: INestApplication;
@@ -29,27 +31,26 @@ describe('Content Watcher E2E request verification!', () => {
     const blockchainService = app.get<BlockchainService>(BlockchainService);
     await blockchainService.isReady();
 
+    nock('http://localhost:3005').post('/api/webhook').reply(200, { success: true });
+
     // register webhook '(Put) /api/registerWebhook'
     const webhookRegistrationDto = {
-      url: 'http://localhost:3000/api/webhook',
+      url: 'http://localhost:3005/api/webhook',
       announcementTypes: ['Broadcast', 'Reaction', 'Tombstone', 'Reply', 'Update'],
     };
-    const response = await request(app.getHttpServer())
-      .put('/api/registerWebhook')
-      .send(webhookRegistrationDto)
-      .expect(200);
+    const response = await request(app.getHttpServer()).put('/api/registerWebhook').send(webhookRegistrationDto).expect(200);
   });
 
   it('(GET) /api/health', () => request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200 }));
 
   it('(Post) /api/resetScanner', async () => {
-    const resetScannerDto = {
-      blockNumber: 0,
+    const resetScannerDto: ResetScannerDto = {
+      blockNumber: '0',
     };
-    const response = await request(app.getHttpServer())
-      .post('/api/resetScanner')
-      .send(resetScannerDto)
-      .expect(201);
+    const response = await request(app.getHttpServer()).post('/api/resetScanner').send(resetScannerDto).expect(201);
+
+    // wait for the scanner to finish
+    await sleep(5000);
   });
 
   it('(Put) /api/search - search for content', async () => {
@@ -57,12 +58,9 @@ describe('Content Watcher E2E request verification!', () => {
       startBlock: '0',
       endBlock: '100',
     };
-    const response = await request(app.getHttpServer())
-      .put('/api/search')
-      .send(searchRequest)
-      .expect(200);
+    const response = await request(app.getHttpServer()).put('/api/search').send(searchRequest).expect(200);
     expect(response.body).toHaveProperty('jobId');
-    const jobId = response.body.jobId;
+    const { jobId } = response.body;
     expect(jobId).not.toBeNull();
   });
 

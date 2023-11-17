@@ -57,4 +57,7 @@ Follow these steps to set up and run Content Watcher:
     make test-e2e
     ```
 
-3. Alternatively, create .env file, run `nest start api` to content watcher as standalone, register a webhook with content watcher using [swagger](http://0.0.0.0:3000/api/docs/swagger#) and try some api to scan content.
+3. Alternatively, create .env file, run `nest start api` to start content watcher as standalone, register a webhook with content watcher using [swagger](http://0.0.0.0:3000/api/docs/swagger#) and try following scenarios:
+
+   - **Reset scanner**: Reset scanner will reset the scanner to start from the beginning of the chain or whichever block is chose to start with. Upon successful parse respective announcement will be made to the webhook.
+   - **Put a search request**: Put a search request will put a search request on the queue. The request requires a start block and end block. Upon successful parse respective announcement will be made to the webhook.

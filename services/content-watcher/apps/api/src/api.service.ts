@@ -32,7 +32,7 @@ export class ApiService {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
     this.logger.warn(`Current watch options are ${currentWatchOptions}`);
-    await this.redis.set(EVENTS_TO_WATCH_KEY, JSON.stringify(watchOptions));
+    await this.redis.setex(EVENTS_TO_WATCH_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(watchOptions));
   }
 
   public pauseScanner() {
@@ -55,8 +55,11 @@ export class ApiService {
       return job;
     }
     this.requestQueue.remove(jobId);
-    const jobPromise = this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
-    this.logger.debug(`Added job ${jobId}`);
+    // eslint-disable-next-line no-param-reassign
+    contentSearchRequestDto.id = jobId;
+    const jobPromise = await this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
+    const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;
+    await this.redis.setex(JOB_REQUEST_WATCH_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(contentSearchRequestDto.filters));
     return jobPromise;
   }
 

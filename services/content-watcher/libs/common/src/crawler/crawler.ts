@@ -83,7 +83,7 @@ export class CrawlerService extends BaseConsumer {
     const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
       events.map(async (event) => {
         if (event.event.section === 'messages' && event.event.method === 'MessagesStored') {
-          if (eventsToWatch.schemaIds && !eventsToWatch.schemaIds.includes(event.event.data[0].toString())) {
+          if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(event.event.data[0]?.toString())) {
             return null;
           }
           const schemaId = event.event.data[0] as SchemaId;

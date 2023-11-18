@@ -14,10 +14,38 @@ services:
     image: frequencychain/instant-seal-node:latest
     ports:
       - 9944:9944
+    profiles: ['', 'instant']
     networks:
       - content-watcher-service
+    container_name: frequency
     volumes:
-      - frequency_data:/data/frequency
+      - chainstorage:/data
+
+  frequency-interval:
+    image: frequencychain/instant-seal-node:latest
+    command: --sealing=interval --sealing-interval 3 --sealing-create-empty-blocks
+    ports:
+      - 9944:9944
+    profiles:
+      - 'interval'
+    networks:
+      - content-watcher-service
+    container_name: frequency-interval-node
+    volumes:
+      - chainstorage:/data
+
+  frequency-manual:
+    image: frequencychain/instant-seal-node:latest
+    command: --sealing=manual
+    ports:
+      - 9944:9944
+    profiles:
+      - 'manual'
+    networks:
+      - content-watcher-service
+    container_name: frequency-manual-node
+    volumes:
+      - chainstorage:/data
 
   kubo_ipfs:
     image: ipfs/kubo:latest
@@ -30,16 +58,30 @@ services:
     volumes:
       - ipfs_data:/data/ipfs
 
-  content-watcher-service-api:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
+  content-publishing-service-api:
+    image: amplicalabs/content-publishing-service:api-0.0.2-rc4
     ports:
-      - 3000:3000
+      - 3001:3001
     env_file:
-      - .env.docker.dev
+      - .env.cp.docker.dev
     environment:
       - START_PROCESS=api
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+    networks:
+      - content-watcher-service
+
+  content-publishing-service-worker:
+    image: amplicalabs/content-publishing-service:api-0.0.2-rc4
+    env_file:
+      - .env.cp.docker.dev
+    environment:
+      - START_PROCESS=worker
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./:/app
@@ -53,8 +95,8 @@ services:
 volumes:
   redis_data:
   ipfs_data:
-  frequency_data:
-
+  chainstorage:
+    external: false
 
 networks:
   content-watcher-service:

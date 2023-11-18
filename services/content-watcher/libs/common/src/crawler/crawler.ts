@@ -16,6 +16,7 @@ import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { ContentSearchRequestDto } from '../dtos/request-job.dto';
 import { REGISTERED_WEBHOOK_KEY } from '../constants';
+import { MessageResponseWithSchemaId } from '../interfaces/announcement_response';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME, {
@@ -78,11 +79,11 @@ export class CrawlerService extends BaseConsumer {
     return (await this.blockchainService.queryAt(latestBlockHash, 'system', 'events')).toArray();
   }
 
-  private async processEvents(events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponse[]> {
-    const filteredEvents: (Vec<MessageResponse> | null)[] = await Promise.all(
+  private async processEvents(events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
+    const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
       events.map(async (event) => {
         if (event.event.section === 'messages' && event.event.method === 'MessagesStored') {
-          if (eventsToWatch.schemaIds.length > 0 && !eventsToWatch.schemaIds.includes(event.event.data[0].toString())) {
+          if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(event.event.data[0]?.toString())) {
             return null;
           }
           const schemaId = event.event.data[0] as SchemaId;
@@ -109,36 +110,48 @@ export class CrawlerService extends BaseConsumer {
               messages.push(...messageResponse.content);
             }
           }
-          return messages;
+          const messagesWithSchemaId: MessageResponseWithSchemaId = {
+            schemaId: schemaId.toString(),
+            messages,
+          };
+          return messagesWithSchemaId;
         }
         return null;
       }),
     );
-
-    const collectedMessages: MessageResponse[] = [];
+    const collectedMessages: MessageResponseWithSchemaId[] = [];
     filteredEvents.forEach((event) => {
       if (event) {
-        collectedMessages.push(...event.toArray());
+        collectedMessages.push(event);
       }
     });
+
     return collectedMessages;
   }
 
-  private async queueIPFSJobs(id: string, messages: MessageResponse[]) {
+  private async queueIPFSJobs(requestId: string, messages: MessageResponseWithSchemaId[]): Promise<void> {
     const promises = messages.map(async (messageResponse) => {
-      if (!messageResponse.cid || messageResponse.cid.isNone) {
-        return;
-      }
+      const { schemaId } = messageResponse;
+      const innerPromises = messageResponse.messages.map(async (message) => {
+        if (!message.cid || message.cid.isNone) {
+          return;
+        }
 
-      const ipfsQueueJob = createIPFSQueueJob(
-        messageResponse.msa_id.isNone ? messageResponse.provider_msa_id.toString() : messageResponse.msa_id.unwrap().toString(),
-        messageResponse.provider_msa_id.toString(),
-        messageResponse.cid.unwrap().toString(),
-        messageResponse.index.toNumber(),
-        id,
-      );
+        const ipfsQueueJob = createIPFSQueueJob(
+          message.block_number.toString(),
+          message.msa_id.isNone ? message.provider_msa_id.toString() : message.msa_id.unwrap().toString(),
+          message.provider_msa_id.toString(),
+          schemaId,
+          message.cid.unwrap().toString(),
+          message.index.toNumber(),
+          requestId,
+        );
+        // eslint-disable-next-line no-await-in-loop
+        await this.ipfsQueue.add(`IPFS Job: ${ipfsQueueJob.key}`, ipfsQueueJob.data, { jobId: ipfsQueueJob.key });
+      });
+
       // eslint-disable-next-line no-await-in-loop
-      await this.ipfsQueue.add(`IPFS Job: ${ipfsQueueJob.key}`, ipfsQueueJob.data, { jobId: ipfsQueueJob.key });
+      await Promise.all(innerPromises);
     });
 
     await Promise.all(promises);

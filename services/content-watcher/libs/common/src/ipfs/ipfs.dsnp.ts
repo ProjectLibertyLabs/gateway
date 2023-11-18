@@ -76,12 +76,14 @@ export class IPFSContentProcessor extends BaseConsumer {
 
   private async buildAndQueueDSNPAnnouncements(records: any[], jobData: IIPFSJob): Promise<void> {
     const jobRequestId = jobData.requestId;
+    const blockNumer = jobData.blockNumber;
     records.forEach(async (mapRecord) => {
       switch (mapRecord.announcementType) {
         case AnnouncementType.Broadcast: {
           const recordAnnouncement = mapRecord as BroadcastAnnouncement;
           const broadCastResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: recordAnnouncement.fromId,
               contentHash: bases.base58btc.encode(recordAnnouncement.contentHash as any),
@@ -100,6 +102,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const tombRecord = mapRecord as TombstoneAnnouncement;
           const tombstoneResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: tombRecord.fromId,
               targetAnnouncementType: tombRecord.targetAnnouncementType,
@@ -118,6 +121,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const reactionRecord = mapRecord as ReactionAnnouncement;
           const reactionResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: reactionRecord.fromId,
               announcementType: reactionRecord.announcementType,
@@ -137,6 +141,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const replyRecord = mapRecord as ReplyAnnouncement;
           const replyResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: replyRecord.fromId,
               announcementType: replyRecord.announcementType,
@@ -156,6 +161,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const profileRecord = mapRecord as ProfileAnnouncement;
           const profileResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: profileRecord.fromId,
               announcementType: profileRecord.announcementType,
@@ -174,6 +180,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           const updateRecord = mapRecord as UpdateAnnouncement;
           const updateResponse: AnnouncementResponse = {
             schemaId: jobData.schemaId,
+            blockNumber: blockNumer,
             announcement: {
               fromId: updateRecord.fromId,
               announcementType: updateRecord.announcementType,

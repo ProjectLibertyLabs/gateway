@@ -2,9 +2,10 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
-import { REGISTERED_WEBHOOK_KEY } from '../constants';
+import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
 import { ConfigService } from '../config/config.service';
+import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 
 @Injectable()
 export class PubSubService {
@@ -19,7 +20,13 @@ export class PubSubService {
 
   async process(message: AnnouncementResponse, messageType: string) {
     this.logger.debug(`Sending announcements to webhooks`);
-
+    // if any specific dsnpIds are request out of system, filter others out
+    if (message.requestId && !(await this.filterJobRequest(message.requestId, message.announcement.fromId))) {
+      return;
+    }
+    if (!(await this.filterChainWatch(message.announcement.fromId))) {
+      return;
+    }
     // Get the registered webhooks for the specific messageType
     const registeredWebhook = await this.redis.get(REGISTERED_WEBHOOK_KEY);
     let currentWebhookRegistrationDtos: { announcementType: string; urls: string[] }[] = [];
@@ -52,5 +59,30 @@ export class PubSubService {
         }
       });
     }
+  }
+
+  private async filterChainWatch(dsnpId: string): Promise<boolean> {
+    const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
+    const watchOptions: ChainWatchOptionsDto = currentWatchOptions ? JSON.parse(currentWatchOptions) : null;
+    if (watchOptions?.dsnpIds?.length > 0) {
+      if (watchOptions.dsnpIds.includes(dsnpId)) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+
+  private async filterJobRequest(jobId: string, dsnpId: string): Promise<boolean> {
+    const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;
+    const jobRequestWatch = await this.redis.get(JOB_REQUEST_WATCH_KEY);
+    const jobRequestWatchOptions: ChainWatchOptionsDto = jobRequestWatch ? JSON.parse(jobRequestWatch) : null;
+    if (jobRequestWatchOptions?.dsnpIds?.length > 0) {
+      if (jobRequestWatchOptions.dsnpIds.includes(dsnpId)) {
+        return true;
+      }
+      return false;
+    }
+    return true;
   }
 }

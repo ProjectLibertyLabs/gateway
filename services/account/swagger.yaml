@@ -1,0 +1,13 @@
+openapi: 3.0.0
+description: 'Graph Service API'
+info:
+  title: Graph Service API
+  version: 0.1.0
+paths:
+  /api/health:
+    get:
+      operationId: ApiController_health
+      parameters: []
+      responses:
+        '200':
+          description: ''

@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data/redis
+    networks:
+      - graph-service-service
+
+  frequency:
+    image: frequencychain/instant-seal-node:latest
+    ports:
+      - 9944:9944
+    profiles: ['', 'instant']
+    networks:
+      - graph-service-service
+    container_name: frequency
+    volumes:
+      - chainstorage:/data
+
+  frequency-interval:
+    image: frequencychain/instant-seal-node:latest
+    command: --sealing=interval --sealing-interval 3 --sealing-create-empty-blocks
+    ports:
+      - 9944:9944
+    profiles:
+      - 'interval'
+    networks:
+      - graph-service-service
+    container_name: frequency-interval-node
+    volumes:
+      - chainstorage:/data
+
+  frequency-manual:
+    image: frequencychain/instant-seal-node:latest
+    command: --sealing=manual
+    ports:
+      - 9944:9944
+    profiles:
+      - 'manual'
+    networks:
+      - graph-service-service
+    container_name: frequency-manual-node
+    volumes:
+      - chainstorage:/data
+
+volumes:
+  redis_data:
+  chainstorage:
+    external: false
+
+networks:
+  graph-service-service:
+
+

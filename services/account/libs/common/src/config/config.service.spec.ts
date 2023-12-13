@@ -42,6 +42,7 @@ describe('GraphSericeConfig', () => {
     API_PORT: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
     GRAPH_ENVIRONMENT_DEV_CONFIG: undefined,
+    PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
   };
 
   beforeAll(() => {
@@ -119,6 +120,10 @@ describe('GraphSericeConfig', () => {
 
     it('should get graph environment dev config', () => {
       expect(graphServiceConfig.getGraphEnvironmentConfig()).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_DEV_CONFIG);
+    });
+
+    it('should get provider account seed phrase', () => {
+      expect(graphServiceConfig.getProviderAccountSeedPhrase()).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
     });
   });
 });

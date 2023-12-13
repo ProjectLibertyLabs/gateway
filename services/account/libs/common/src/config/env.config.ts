@@ -23,5 +23,6 @@ export const configModuleOptions: ConfigModuleOptions = {
           return value;
         }),
     }),
+    PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
   }),
 };

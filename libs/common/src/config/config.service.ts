@@ -13,6 +13,7 @@ export interface ConfigEnvironmentVariables {
   API_PORT: number;
   GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
   GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
+  PROVIDER_ACCOUNT_SEED_PHRASE: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -46,6 +47,10 @@ export class ConfigService {
 
   public getGraphEnvironmentConfig(): string {
     return this.nestConfigService.get<string>('GRAPH_ENVIRONMENT_DEV_CONFIG')!;
+  }
+
+  public getProviderAccountSeedPhrase(): string {
+    return this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')!;
   }
 
   public get redisUrl(): URL {

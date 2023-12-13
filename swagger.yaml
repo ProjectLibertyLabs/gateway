@@ -1,13 +1,173 @@
 openapi: 3.0.0
-description: 'Graph Service API'
-info:
-  title: Graph Service API
-  version: 0.1.0
 paths:
   /api/health:
     get:
       operationId: ApiController_health
+      summary: Check the health status of the service
       parameters: []
       responses:
         '200':
-          description: ''
+          description: Service is healthy
+      tags:
+        - graph-service
+  /api/graphs:
+    get:
+      operationId: ApiController_getGraphs
+      summary: Fetch graphs for specified dsnpIds and blockNumber
+      parameters:
+        - name: dsnpIds
+          required: true
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: blockNumber
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Graphs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGraphDto'
+      tags:
+        - graph-service
+  /api/update-graph:
+    post:
+      operationId: ApiController_updateGraph
+      summary: Request an update to given users graph
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderGraphDto'
+      responses:
+        '201':
+          description: Successfully queued job to update user graph
+      tags:
+        - graph-service
+  /api/watch-graphs:
+    put:
+      operationId: ApiController_watchGraphs
+      summary: Watch graphs for specified dsnpIds and receive updates
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WatchGraphsDto'
+      responses:
+        '200':
+          description: Successfully started watching graphs
+      tags:
+        - graph-service
+info:
+  title: Graph Service
+  description: Graph Service API
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Enter JWT token
+    cookie:
+      type: apiKey
+      in: cookie
+      name: SESSION
+  schemas:
+    UserGraphDto:
+      type: object
+      properties:
+        dsnpId:
+          type: string
+        dsnpGraphEdge:
+          type: array
+          items:
+            type: object
+      required:
+        - dsnpId
+    ConnectionDto:
+      type: object
+      properties:
+        dsnpId:
+          type: string
+        privacyType:
+          type: string
+          enum:
+            - private
+            - public
+        direction:
+          type: string
+          enum:
+            - connectionTo
+            - connectionFrom
+            - bidirectional
+        connectionType:
+          type: string
+          enum:
+            - follow
+            - friendship
+      required:
+        - dsnpId
+        - privacyType
+        - direction
+        - connectionType
+    GraphKeyPairDto:
+      type: object
+      properties:
+        publicKey:
+          type: string
+        privateKey:
+          type: string
+        keyType:
+          type: string
+          enum:
+            - X25519
+      required:
+        - publicKey
+        - privateKey
+        - keyType
+    ProviderGraphDto:
+      type: object
+      properties:
+        dsnpId:
+          type: string
+        connections:
+          type: object
+          properties:
+            data:
+              required: true
+              type: array
+              items:
+                $ref: '#/components/schemas/ConnectionDto'
+        graphKeyPairs:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphKeyPairDto'
+      required:
+        - dsnpId
+        - connections
+    WatchGraphsDto:
+      type: object
+      properties:
+        dsnpIds:
+          type: array
+          items:
+            type: string
+        webhookEndpoint:
+          type: string
+      required:
+        - dsnpIds
+        - webhookEndpoint

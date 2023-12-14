@@ -4,12 +4,14 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { ApiController } from './api.controller';
 import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
+import { QueueConstants } from '../../../libs/common/src';
 
 @Module({
   imports: [
@@ -48,12 +50,6 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
       },
       inject: [ConfigService],
     }),
-
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -71,6 +67,18 @@ import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain
       verboseMemoryLeak: false,
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
+    }),
+    BullModule.registerQueue({
+      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+    }),
+    // Bullboard UI
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      adapter: BullMQAdapter,
     }),
     ScheduleModule.forRoot(),
   ],

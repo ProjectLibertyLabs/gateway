@@ -47,6 +47,41 @@ services:
     volumes:
       - chainstorage:/data
 
+  graph-service-api:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.docker.dev
+    environment:
+      - START_PROCESS=api
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+    networks:
+      - graph-service-service
+
+  graph-service-worker:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    env_file:
+      - .env.docker.dev
+    environment:
+      - START_PROCESS=worker
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+    networks:
+      - graph-service-service
 volumes:
   redis_data:
   chainstorage:

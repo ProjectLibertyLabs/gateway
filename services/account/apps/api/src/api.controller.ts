@@ -1,7 +1,7 @@
 import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Query, Body, Put } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from './api.service';
-import { GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
+import { GraphChangeRepsonseDto, GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
 import { WatchGraphsDto } from '../../../libs/common/src/dtos/watch-graphs.dto';
 
 @Controller('api')
@@ -54,16 +54,11 @@ export class ApiController {
   @Post('update-graph')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request an update to given users graph' })
-  @ApiCreatedResponse({ description: 'Successfully queued job to update user graph' })
+  @ApiCreatedResponse({ description: 'Graph update request created successfully', type: GraphChangeRepsonseDto })
   @ApiBody({ type: ProviderGraphDto })
-  async updateGraph(@Body() providerGraphDto: ProviderGraphDto) {
+  async updateGraph(@Body() providerGraphDto: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
     try {
-      // TODO: Uncomment this line once the ApiService is implemented
-      // const result = await this.apiService.updateGraph(providerGraphDto);
-      return {
-        status: HttpStatus.CREATED,
-        data: 'Successfully queued job to update user graph',
-      };
+      return await this.apiService.enqueueRequest(providerGraphDto);
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to update graph');

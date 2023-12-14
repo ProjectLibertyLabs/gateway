@@ -49,7 +49,11 @@ paths:
               $ref: '#/components/schemas/ProviderGraphDto'
       responses:
         '201':
-          description: Successfully queued job to update user graph
+          description: Graph update request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphChangeRepsonseDto'
       tags:
         - graph-service
   /api/watch-graphs:
@@ -87,6 +91,16 @@ components:
       in: cookie
       name: SESSION
   schemas:
+    DsnpGraphEdge:
+      type: object
+      properties:
+        userId:
+          type: string
+        since:
+          type: number
+      required:
+        - userId
+        - since
     UserGraphDto:
       type: object
       properties:
@@ -95,7 +109,7 @@ components:
         dsnpGraphEdge:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/DsnpGraphEdge'
       required:
         - dsnpId
     ConnectionDto:
@@ -142,6 +156,8 @@ components:
     ProviderGraphDto:
       type: object
       properties:
+        id:
+          type: string
         dsnpId:
           type: string
         connections:
@@ -157,8 +173,12 @@ components:
           items:
             $ref: '#/components/schemas/GraphKeyPairDto'
       required:
+        - id
         - dsnpId
         - connections
+    GraphChangeRepsonseDto:
+      type: object
+      properties: {}
     WatchGraphsDto:
       type: object
       properties:

@@ -10,6 +10,8 @@ import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
+import { GraphNotifierModule } from './graph_notifier/graph.publisher.processor.module';
+import { GraphNotifierService } from './graph_notifier/graph.publisher.processor.service';
 
 @Module({
   imports: [
@@ -47,7 +49,8 @@ import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.p
     BlockchainModule,
     RequestProcessorModule,
     GraphUpdatePublisherModule,
+    GraphNotifierModule,
   ],
-  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService],
+  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService],
 })
 export class WorkerModule {}

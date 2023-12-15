@@ -8,7 +8,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
-import { GraphUpdatePublisherService } from './graph.publisher.processor.service';
+import { GraphNotifierService } from './graph.publisher.processor.service';
 
 @Module({
   imports: [
@@ -46,20 +46,11 @@ import { GraphUpdatePublisherService } from './graph.publisher.processor.service
       },
       inject: [ConfigService],
     }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
-      },
-    ),
+    BullModule.registerQueue({
+      name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+    }),
   ],
-  providers: [GraphUpdatePublisherService],
-  exports: [BullModule, GraphUpdatePublisherService],
+  providers: [GraphNotifierService],
+  exports: [BullModule, GraphNotifierService],
 })
-export class GraphUpdatePublisherModule {}
+export class GraphNotifierModule {}

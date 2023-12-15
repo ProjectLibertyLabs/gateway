@@ -8,6 +8,8 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
 import { RequestProcessorService } from './request_processor/request.processor.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
+import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
 
 @Module({
   imports: [
@@ -44,7 +46,8 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     ScheduleModule.forRoot(),
     BlockchainModule,
     RequestProcessorModule,
+    GraphUpdatePublisherModule,
   ],
-  providers: [ConfigService, RequestProcessorService],
+  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService],
 })
 export class WorkerModule {}

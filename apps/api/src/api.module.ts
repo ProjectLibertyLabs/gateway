@@ -68,9 +68,14 @@ import { QueueConstants } from '../../../libs/common/src';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    BullModule.registerQueue({
-      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      },
+    ),
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',
@@ -78,6 +83,10 @@ import { QueueConstants } from '../../../libs/common/src';
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
       adapter: BullMQAdapter,
     }),
     ScheduleModule.forRoot(),

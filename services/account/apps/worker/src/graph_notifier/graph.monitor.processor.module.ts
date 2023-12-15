@@ -8,7 +8,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
-import { GraphNotifierService } from './graph.publisher.processor.service';
+import { GraphNotifierService } from './graph.monitor.processor.service';
 
 @Module({
   imports: [

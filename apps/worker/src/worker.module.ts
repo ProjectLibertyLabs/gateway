@@ -10,8 +10,8 @@ import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
-import { GraphNotifierModule } from './graph_notifier/graph.publisher.processor.module';
-import { GraphNotifierService } from './graph_notifier/graph.publisher.processor.service';
+import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
+import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
 
 @Module({
   imports: [

@@ -11,9 +11,12 @@ export interface ConfigEnvironmentVariables {
   FREQUENCY_URL: URL;
   QUEUE_HIGH_WATER: number;
   API_PORT: number;
+  RECONNECTION_SERVICE_REQUIRED: boolean;
+  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
   GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
+  PROVIDER_ID: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -25,12 +28,24 @@ export class ConfigService {
     this.logger = new Logger(this.constructor.name);
   }
 
+  public getProviderId(): string {
+    return this.nestConfigService.get<string>('PROVIDER_ID')!;
+  }
+
   public getQueueHighWater(): number {
     return this.nestConfigService.get<number>('QUEUE_HIGH_WATER')!;
   }
 
   public getApiPort(): number {
     return this.nestConfigService.get<number>('API_PORT')!;
+  }
+
+  public getReconnectionServiceRequired(): boolean {
+    return this.nestConfigService.get<boolean>('RECONNECTION_SERVICE_REQUIRED')!;
+  }
+
+  public getBlockchainScanIntervalMinutes(): number {
+    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_MINUTES')!;
   }
 
   public getRedisUrl(): URL {

@@ -75,6 +75,12 @@ import { QueueConstants } from '../../../libs/common/src';
       {
         name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
       },
+      {
+        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+      },
+      {
+        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+      },
     ),
     // Bullboard UI
     BullBoardModule.forRoot({
@@ -87,6 +93,14 @@ import { QueueConstants } from '../../../libs/common/src';
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: QueueConstants.RECONNECT_REQUEST_QUEUE,
       adapter: BullMQAdapter,
     }),
     ScheduleModule.forRoot(),

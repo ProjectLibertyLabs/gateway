@@ -11,12 +11,20 @@ export interface ConfigEnvironmentVariables {
   FREQUENCY_URL: URL;
   QUEUE_HIGH_WATER: number;
   API_PORT: number;
-  RECONNECTION_SERVICE_REQUIRED: boolean;
-  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
   GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
+  RECONNECTION_SERVICE_REQUIRED: boolean;
+  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
+  PROVIDER_BASE_URL: string;
+  PROVIDER_ACCESS_TOKEN: string;
+  WEBHOOK_FAILURE_THRESHOLD: number;
+  HEALTH_CHECK_SUCCESS_THRESHOLD: number;
+  WEBHOOK_RETRY_INTERVAL_SECONDS: number;
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
+  HEALTH_CHECK_MAX_RETRIES: number;
+  PAGE_SIZE: number;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -26,6 +34,14 @@ export class ConfigService {
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.logger = new Logger(this.constructor.name);
+  }
+
+  public get providerBaseUrl(): URL {
+    return this.nestConfigService.get<URL>('PROVIDER_BASE_URL')!;
+  }
+
+  public get providerApiToken(): string | undefined {
+    return this.nestConfigService.get<string>('PROVIDER_ACCESS_TOKEN');
   }
 
   public getProviderId(): string {
@@ -74,5 +90,33 @@ export class ConfigService {
 
   public get frequencyUrl(): URL {
     return this.nestConfigService.get('FREQUENCY_URL')!;
+  }
+
+  public getHealthCheckMaxRetries(): number {
+    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRIES')!;
+  }
+
+  public getHealthCheckMaxRetryIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS')!;
+  }
+
+  public getHealthCheckSuccessThreshold(): number {
+    return this.nestConfigService.get<number>('HEALTH_CHECK_SUCCESS_THRESHOLD')!;
+  }
+
+  public getWebhookFailureThreshold(): number {
+    return this.nestConfigService.get<number>('WEBHOOK_FAILURE_THRESHOLD')!;
+  }
+
+  public getWebhookRetryIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
+  }
+
+  public get webhookRetryIntervalSeconds(): number {
+    return this.nestConfigService.get('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
+  }
+
+  public getPageSize(): number {
+    return this.nestConfigService.get('PAGE_SIZE')!;
   }
 }

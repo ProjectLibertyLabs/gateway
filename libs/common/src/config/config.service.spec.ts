@@ -46,6 +46,14 @@ describe('GraphSericeConfig', () => {
     GRAPH_ENVIRONMENT_DEV_CONFIG: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
+    PROVIDER_BASE_URL: undefined,
+    PROVIDER_ACCESS_TOKEN: undefined,
+    WEBHOOK_FAILURE_THRESHOLD: undefined,
+    HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
+    WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
+    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
+    HEALTH_CHECK_MAX_RETRIES: undefined,
+    PAGE_SIZE: undefined,
   };
 
   beforeAll(() => {
@@ -139,6 +147,38 @@ describe('GraphSericeConfig', () => {
 
     it('should get provider id', () => {
       expect(graphServiceConfig.getProviderId()).toStrictEqual(ALL_ENV.PROVIDER_ID);
+    });
+
+    it('should get provider base url', () => {
+      expect(graphServiceConfig.providerBaseUrl?.toString()).toStrictEqual(ALL_ENV.PROVIDER_BASE_URL?.toString());
+    });
+
+    it('should get provider api token', () => {
+      expect(graphServiceConfig.providerApiToken).toStrictEqual(ALL_ENV.PROVIDER_ACCESS_TOKEN);
+    });
+
+    it('should get webhook failure threshold', () => {
+      expect(graphServiceConfig.getWebhookFailureThreshold()).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10));
+    });
+
+    it('should get health check success threshold', () => {
+      expect(graphServiceConfig.getHealthCheckSuccessThreshold()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
+    });
+
+    it('should get webhook retry interval seconds', () => {
+      expect(graphServiceConfig.getWebhookRetryIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10));
+    });
+
+    it('should get health check max retry interval seconds', () => {
+      expect(graphServiceConfig.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
+    });
+
+    it('should get health check max retries', () => {
+      expect(graphServiceConfig.getHealthCheckMaxRetries()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
+    });
+
+    it('should get page size', () => {
+      expect(graphServiceConfig.getPageSize()).toStrictEqual(parseInt(ALL_ENV.PAGE_SIZE as string, 10));
     });
   });
 });

@@ -16,3 +16,4 @@ export * from './dtos/graph.update.job';
 export * from './dtos/graph-update-job.interface';
 export * from './utils/nonce.service';
 export * from './utils/queues';
+export * from './utils/provider-webhook.service';

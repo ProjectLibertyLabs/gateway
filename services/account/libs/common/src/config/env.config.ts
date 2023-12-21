@@ -39,5 +39,16 @@ export const configModuleOptions: ConfigModuleOptions = {
       }
       return value;
     }),
+    PROVIDER_BASE_URL: Joi.string().uri().when('RECONNECTION_SERVICE_REQUIRED', {
+      is: true,
+      then: Joi.string().required(),
+    }),
+    PROVIDER_ACCESS_TOKEN: Joi.string().default(''),
+    WEBHOOK_FAILURE_THRESHOLD: Joi.number().min(1).default(3),
+    WEBHOOK_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(10),
+    HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),
+    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
+    HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
+    PAGE_SIZE: Joi.number().min(1).default(100),
   }),
 };

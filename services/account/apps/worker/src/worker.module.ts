@@ -12,6 +12,8 @@ import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.pr
 import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
+import { ProviderWebhookService, QueueConstants } from '../../../libs/common/src';
+import { BlockchainScannerService } from '../../../libs/common/src/blockchain/blockchain-scanner.service';
 
 @Module({
   imports: [
@@ -45,12 +47,26 @@ import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.s
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
+    BullModule.registerQueue(
+      {
+        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+      },
+      {
+        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+      },
+    ),
     ScheduleModule.forRoot(),
     BlockchainModule,
     RequestProcessorModule,
     GraphUpdatePublisherModule,
     GraphNotifierModule,
   ],
-  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService],
+  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService, ProviderWebhookService, BlockchainScannerService],
 })
 export class WorkerModule {}

@@ -3,7 +3,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
 import { createKeys } from '../blockchain/create-keys';
-import { RedisUtils } from './redis';
+import { RedisUtils } from '../utils/redis';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../config/config.service';
 

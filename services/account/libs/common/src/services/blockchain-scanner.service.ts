@@ -7,7 +7,7 @@ import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { ConfigService } from '../config/config.service';
-import { BlockchainService } from './blockchain.service';
+import { BlockchainService } from '../blockchain/blockchain.service';
 import { QueueConstants } from '../utils/queues';
 import { UpdateTransitiveGraphs, createReconnectionJob } from '../dtos/graph-update-job.interface';
 

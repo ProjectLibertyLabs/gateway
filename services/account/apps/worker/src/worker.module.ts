@@ -13,7 +13,7 @@ import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.p
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
 import { ProviderWebhookService, QueueConstants } from '../../../libs/common/src';
-import { BlockchainScannerService } from '../../../libs/common/src/blockchain/blockchain-scanner.service';
+import { BlockchainScannerService } from '../../../libs/common/src/services/blockchain-scanner.service';
 
 @Module({
   imports: [

@@ -18,4 +18,9 @@ export namespace QueueConstants {
    * Name of the queue that processes graph change notifications
    */
   export const GRAPH_CHANGE_NOTIFY_QUEUE = 'graphChangeNotify';
+
+  /**
+   * Prefix for Redis keys that store webhook endpoints
+   */
+  export const REDIS_WATCHER_PREFIX = 'graph-service-watcher';
 }

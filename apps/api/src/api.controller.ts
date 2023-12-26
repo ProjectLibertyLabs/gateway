@@ -72,8 +72,8 @@ export class ApiController {
   @ApiBody({ type: WatchGraphsDto })
   async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto) {
     try {
-      // TODO: Uncomment this line once the ApiService is implemented
-      // const result = await this.apiService.watchGraphs(watchGraphsDto);
+      // eslint-disable-next-line no-await-in-loop
+      await this.apiService.watchGraphs(watchGraphsDto);
       return {
         status: HttpStatus.OK,
         data: 'Successfully started watching graphs',

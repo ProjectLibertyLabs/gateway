@@ -28,4 +28,11 @@ export class GraphNotifierService extends BaseConsumer {
       throw e;
     }
   }
+
+  async getWebhookList(dsnpId: string): Promise<string[]> {
+    const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${dsnpId}`;
+    const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
+
+    return redisList || [];
+  }
 }

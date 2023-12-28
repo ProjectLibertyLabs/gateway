@@ -6,9 +6,6 @@ import { ConnectionDto } from './connections.dto';
 
 export class ProviderGraphDto {
   @IsNotEmpty()
-  id: string;
-
-  @IsNotEmpty()
   @IsString()
   dsnpId: string;
 

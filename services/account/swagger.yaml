@@ -156,8 +156,6 @@ components:
     ProviderGraphDto:
       type: object
       properties:
-        id:
-          type: string
         dsnpId:
           type: string
         connections:
@@ -173,7 +171,6 @@ components:
           items:
             $ref: '#/components/schemas/GraphKeyPairDto'
       required:
-        - id
         - dsnpId
         - connections
     GraphChangeRepsonseDto:

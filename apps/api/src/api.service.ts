@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { GraphChangeRepsonseDto, ProviderGraphDto, QueueConstants, WatchGraphsDto } from '../../../libs/common/src';
+import { GraphChangeRepsonseDto, ProviderGraphDto, ProviderGraphJob, QueueConstants, WatchGraphsDto } from '../../../libs/common/src';
 
 @Injectable()
 export class ApiService implements OnApplicationShutdown {
@@ -24,14 +24,14 @@ export class ApiService implements OnApplicationShutdown {
   }
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
-    const data = {
-      ...request,
-      id: this.calculateJobId(request),
+    const data: ProviderGraphJob = {
+      providerGraphDto: request,
+      referenceId: this.calculateJobId(request),
     };
-    const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
+    const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, { jobId: data.referenceId, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
     this.logger.debug(job);
     return {
-      referenceId: data.id,
+      referenceId: data.referenceId,
     };
   }
 

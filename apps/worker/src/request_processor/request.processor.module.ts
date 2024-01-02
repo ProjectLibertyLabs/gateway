@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import { QueueConstants, GraphStateManager } from '../../../../libs/common/src';
 import { RequestProcessorService } from './request.processor.service';
 
 @Module({
@@ -50,7 +50,7 @@ import { RequestProcessorService } from './request.processor.service';
       name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
     }),
   ],
-  providers: [RequestProcessorService],
+  providers: [RequestProcessorService, GraphStateManager],
   exports: [BullModule, RequestProcessorService],
 })
 export class RequestProcessorModule {}

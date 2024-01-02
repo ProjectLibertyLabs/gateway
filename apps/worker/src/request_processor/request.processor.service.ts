@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ProviderGraphDto, QueueConstants } from '../../../../libs/common/src';
+import { GraphStateManager, ProviderGraphDto, QueueConstants } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
@@ -13,6 +13,7 @@ export class RequestProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
     private configService: ConfigService,
+    private graphStateManagementService: GraphStateManager,
   ) {
     super();
   }

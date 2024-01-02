@@ -18,4 +18,5 @@ export * from './services/nonce.service';
 export * from './utils/queues';
 export * from './services/provider-webhook.service';
 export * from './services/async_debouncer';
+export * from './services/graph-state-manager';
 export * from './constants';

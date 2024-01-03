@@ -9,10 +9,12 @@ import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants, GraphStateManager } from '../../../../libs/common/src';
 import { RequestProcessorService } from './request.processor.service';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 
 @Module({
   imports: [
     ConfigModule,
+    BlockchainModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -46,9 +48,17 @@ import { RequestProcessorService } from './request.processor.service';
       },
       inject: [ConfigService],
     }),
-    BullModule.registerQueue({
-      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      },
+      {
+        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+      },
+    ),
   ],
   providers: [RequestProcessorService, GraphStateManager],
   exports: [BullModule, RequestProcessorService],

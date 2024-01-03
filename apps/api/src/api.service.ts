@@ -4,7 +4,8 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { GraphChangeRepsonseDto, ProviderGraphDto, ProviderGraphJob, QueueConstants, WatchGraphsDto } from '../../../libs/common/src';
+import { GraphChangeRepsonseDto, ProviderGraphDto, ProviderGraphUpdateJob, QueueConstants, WatchGraphsDto } from '../../../libs/common/src';
+import { ConfigService } from '../../../libs/common/src/config/config.service';
 
 @Injectable()
 export class ApiService implements OnApplicationShutdown {
@@ -13,6 +14,7 @@ export class ApiService implements OnApplicationShutdown {
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
+    private configService: ConfigService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -24,9 +26,13 @@ export class ApiService implements OnApplicationShutdown {
   }
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
-    const data: ProviderGraphJob = {
-      providerGraphDto: request,
+    const providerId = this.configService.getProviderId();
+    const data: ProviderGraphUpdateJob = {
+      dsnpId: request.dsnpId,
+      providerId,
+      connections: request.connections.data,
       referenceId: this.calculateJobId(request),
+      updateConnection: this.configService.getReconnectionServiceRequired(),
     };
     const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, { jobId: data.referenceId, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
     this.logger.debug(job);

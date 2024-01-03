@@ -48,9 +48,14 @@ import { GraphReconnectionService } from './graph.reconnection.processor.service
       },
       inject: [ConfigService],
     }),
-    BullModule.registerQueue({
-      name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      },
+    ),
   ],
   providers: [GraphReconnectionService],
   exports: [BullModule, GraphReconnectionService],

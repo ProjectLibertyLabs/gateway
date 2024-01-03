@@ -7,17 +7,16 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphDto, ProviderGraphJob, ProviderWebhookService, QueueConstants } from '../../../../libs/common/src';
+import { ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService, QueueConstants } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
 export class GraphReconnectionService extends BaseConsumer {
-  private webhookOk = true;
-
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectRequestQueue: Queue,
+    @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueuue: Queue,
     private configService: ConfigService,
     private providerWebhookService: ProviderWebhookService,
     private emitter: EventEmitter2,
@@ -36,15 +35,18 @@ export class GraphReconnectionService extends BaseConsumer {
           this.logger.debug(`No connections found for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`);
           return;
         }
-        const providerGraphJob: ProviderGraphJob = {
+        const providerGraphJob: ProviderGraphUpdateJob = {
           referenceId: job.id ?? '',
-          providerGraphDto: {
-            dsnpId: job.data.dsnpId.toString(),
-            connections: { data: graphConnections },
-            graphKeyPairs,
-          },
+          dsnpId: job.data.dsnpId,
+          providerId: job.data.providerId,
+          connections: graphConnections,
+          graphKeyPairs,
+          updateConnection: false,
         };
-        this.reconnectRequestQueue.add(QueueConstants.RECONNECT_REQUEST_QUEUE, providerGraphJob);
+        this.graphChangeRequestQueuue.add(`Provider Graph Job - ${providerGraphJob.referenceId}`, providerGraphJob, {
+          removeOnFail: false,
+          removeOnComplete: 2000,
+        });
         this.logger.debug(`Found ${graphConnections.length} connections for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`);
       } catch (e) {
         this.logger.error(`Error getting user graph from provider: ${e}`);

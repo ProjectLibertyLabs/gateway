@@ -45,7 +45,7 @@ export class GraphReconnectionService extends BaseConsumer {
         };
         this.graphChangeRequestQueuue.add(`Provider Graph Job - ${providerGraphJob.referenceId}`, providerGraphJob, {
           removeOnFail: false,
-          removeOnComplete: 2000,
+          removeOnComplete: false,
         });
         this.logger.debug(`Found ${graphConnections.length} connections for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`);
       } catch (e) {

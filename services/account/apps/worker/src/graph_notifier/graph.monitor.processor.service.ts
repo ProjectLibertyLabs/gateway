@@ -1,18 +1,26 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Processor } from '@nestjs/bullmq';
+import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Job } from 'bullmq';
+import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { RegistryError } from '@polkadot/types/types';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import { ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
+import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
+import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)
 export class GraphNotifierService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
+    @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private changeRequestQueue: Queue,
+    @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
+    private blockchainService: BlockchainService,
     private configService: ConfigService,
   ) {
     super();
@@ -21,12 +29,124 @@ export class GraphNotifierService extends BaseConsumer {
   async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
-      // TODO: add logic to process graph tx checks and subsequent notifications
-      this.logger.debug(job.asJSON());
+      const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
+      const txCapacityEpoch = job.data.epoch;
+      const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
+      const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const blockList: bigint[] = [];
+
+      for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1n) {
+        blockList.push(i);
+      }
+      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
+      if (!txResult.found) {
+        this.logger.error(`Tx ${job.data.txHash} not found in block list`);
+        throw new Error(`Tx ${job.data.txHash} not found in block list`);
+      } else {
+        // Set current epoch capacity
+        await this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+        if (txResult.error) {
+          this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
+          const errorReport = await this.handleMessagesFailure(txResult.error);
+          if (errorReport.pause) {
+            this.logger.debug(`Pausing queue ${job.data.referencePublishJob.referenceId}`);
+            await this.changeRequestQueue.pause();
+            await this.publishQueue.pause();
+            await this.reconnectionQueue.pause();
+          }
+          if (errorReport.retry) {
+            await this.retryRequestJob(job.data.referencePublishJob.referenceId);
+          } else {
+            throw new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+          }
+        }
+
+        if (txResult.success) {
+          await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
+          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
+          // TODO send out data to webhooks registered for this dsnpId
+          // Get DSNPGraphEdge from debounced queue and send to webhooks
+          const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
+          this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
+          
+        }
+      }
     } catch (e) {
       this.logger.error(e);
       throw e;
     }
+  }
+
+  private async removeSuccessJobs(referenceId: string): Promise<void> {
+    this.logger.debug(`Removing success jobs for ${referenceId}`);
+    this.changeRequestQueue.remove(referenceId);
+    this.publishQueue.remove(referenceId);
+    this.reconnectionQueue.remove(referenceId);
+  }
+
+  private async retryRequestJob(requestReferenceId: string): Promise<void> {
+    this.logger.debug(`Retrying graph change request job ${requestReferenceId}`);
+    const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(requestReferenceId);
+    if (!requestJob) {
+      this.logger.debug(`Job ${requestReferenceId} not found in queue`);
+      return;
+    }
+    await this.changeRequestQueue.remove(requestReferenceId);
+    await this.changeRequestQueue.add(`Retrying publish job - ${requestReferenceId}`, requestJob.data, {
+      jobId: requestReferenceId,
+      removeOnFail: false,
+      removeOnComplete: false,
+    });
+  }
+
+  private async setEpochCapacity(epoch: string, capacityWithdrew: bigint): Promise<void> {
+    const epochCapacityKey = `epochCapacity:${epoch}`;
+
+    try {
+      const savedCapacity = await this.cacheManager.get(epochCapacityKey);
+      const epochCapacity = BigInt(savedCapacity ?? 0);
+      const newEpochCapacity = epochCapacity + capacityWithdrew;
+
+      const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
+      const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+      await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
+    } catch (error) {
+      this.logger.error(`Error setting epoch capacity: ${error}`);
+    }
+  }
+
+  private async handleMessagesFailure(moduleError: RegistryError): Promise<{ pause: boolean; retry: boolean }> {
+    try {
+      switch (moduleError.method) {
+        case 'StalePageState':
+        case 'ProofHasExpired':
+        case 'ProofNotYetValid':
+        case 'InvalidSignature':
+          // Re-try the job in the request change queue
+          return { pause: false, retry: true };
+        case 'InvalidSchemaId':
+          return { pause: true, retry: false };
+        case 'InvalidMessageSourceAccount':
+        case 'UnauthorizedDelegate':
+        case 'CorruptedState':
+        case 'InvalidItemAction':
+        case 'PageIdExceedsMaxAllowed':
+        case 'PageExceedsMaxPageSizeBytes':
+        case 'UnsupportedOperationForSchema':
+        case 'InvalidPayloadLocation':
+        case 'SchemaPayloadLocationMismatch':
+          // fail the job since this is unrecoverable
+          return { pause: false, retry: false };
+        default:
+          this.logger.error(`Unknown module error ${moduleError}`);
+          break;
+      }
+    } catch (error) {
+      this.logger.error(`Error handling module error: ${error}`);
+    }
+
+    // unknown error, pause the queue
+    return { pause: false, retry: false };
   }
 
   async getWebhookList(dsnpId: string): Promise<string[]> {

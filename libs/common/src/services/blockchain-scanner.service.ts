@@ -87,7 +87,11 @@ export class BlockchainScannerService implements OnApplicationBootstrap {
           if (job && ((await job.isCompleted()) || (await job.isFailed()))) {
             await job.retry();
           } else {
-            await this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
+            await this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, {
+              jobId,
+              removeOnComplete: false,
+              removeOnFail: false,
+            });
           }
         });
 

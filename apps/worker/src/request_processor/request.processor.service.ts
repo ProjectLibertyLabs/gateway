@@ -236,7 +236,11 @@ export class RequestProcessorService extends BaseConsumer {
             if (isDelegatedConnection) {
               const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
               this.reconnectionQueue.remove(jobId);
-              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
+              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, {
+                jobId,
+                removeOnComplete: false,
+                removeOnFail: false,
+              });
             }
             break;
           }

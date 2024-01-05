@@ -9,9 +9,11 @@ import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants } from '../../../../libs/common/src';
 import { GraphNotifierService } from './graph.monitor.processor.service';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 
 @Module({
   imports: [
+    BlockchainModule,
     ConfigModule,
     RedisModule.forRootAsync(
       {
@@ -46,9 +48,20 @@ import { GraphNotifierService } from './graph.monitor.processor.service';
       },
       inject: [ConfigService],
     }),
-    BullModule.registerQueue({
-      name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      },
+      {
+        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      },
+      {
+        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+      },
+    ),
   ],
   providers: [GraphNotifierService],
   exports: [BullModule, GraphNotifierService],

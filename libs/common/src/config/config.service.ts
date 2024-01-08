@@ -11,6 +11,7 @@ export interface ConfigEnvironmentVariables {
   FREQUENCY_URL: URL;
   QUEUE_HIGH_WATER: number;
   API_PORT: number;
+  DEBOUNCE_SECONDS: number;
   GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
   GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
@@ -118,5 +119,9 @@ export class ConfigService {
 
   public getPageSize(): number {
     return this.nestConfigService.get('PAGE_SIZE')!;
+  }
+
+  public getDebounceSeconds(): number {
+    return this.nestConfigService.get<number>('DEBOUNCE_SECONDS')!;
   }
 }

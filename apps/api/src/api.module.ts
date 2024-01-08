@@ -11,7 +11,7 @@ import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { QueueConstants } from '../../../libs/common/src';
+import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
 
 @Module({
   imports: [
@@ -105,7 +105,7 @@ import { QueueConstants } from '../../../libs/common/src';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService],
+  providers: [ApiService, GraphStateManager, ConfigService],
   controllers: [ApiController],
   exports: [],
 })

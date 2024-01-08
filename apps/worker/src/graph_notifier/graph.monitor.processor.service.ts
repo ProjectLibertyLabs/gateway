@@ -6,8 +6,9 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
+import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
+import { AsyncDebouncerService, GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
@@ -16,6 +17,8 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)
 export class GraphNotifierService extends BaseConsumer {
+  private asyncDebouncerService: AsyncDebouncerService;
+
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private changeRequestQueue: Queue,
@@ -26,6 +29,7 @@ export class GraphNotifierService extends BaseConsumer {
     private graphStateManager: GraphStateManager,
   ) {
     super();
+    this.asyncDebouncerService = new AsyncDebouncerService(this.cacheManager, this.configService, this.graphStateManager);
   }
 
   async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
@@ -66,9 +70,19 @@ export class GraphNotifierService extends BaseConsumer {
         if (txResult.success) {
           await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
           this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-          // Get DSNPGraphEdge from debounced queue and send to webhooks
           const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
           this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
+          const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
+
+          if (job.data.referencePublishJob.update.type !== 'AddKey') {
+            const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
+            const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.referencePublishJob.update.ownerDsnpUserId);
+            const schemaId: SchemaId = this.blockchainService.api.registry.createType('SchemaId', job.data.referencePublishJob.update.type);
+            const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(dsnpUserId, schemaId, graphKeyPairs);
+            if (graphEdges.length === 0) {
+              this.logger.debug(`No graph edges found for ${dsnpUserId.toString()}`);
+            }
+          }
           const notification: GraphChangeNotificationDto = {
             dsnpId: job.data.referencePublishJob.update.ownerDsnpUserId,
             update: job.data.referencePublishJob.update,

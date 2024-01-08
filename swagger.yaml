@@ -11,29 +11,25 @@ paths:
       tags:
         - graph-service
   /api/graphs:
-    get:
+    put:
       operationId: ApiController_getGraphs
-      summary: Fetch graphs for specified dsnpIds and blockNumber
-      parameters:
-        - name: dsnpIds
-          required: true
-          in: query
-          schema:
-            type: array
-            items:
-              type: string
-        - name: blockNumber
-          required: false
-          in: query
-          schema:
-            type: string
+      summary: Post a request to fetch graphs for specified dsnpIds and blockNumber
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphsQueryParamsDto'
       responses:
         '200':
           description: Graphs retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserGraphDto'
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserGraphDto'
       tags:
         - graph-service
   /api/update-graph:
@@ -91,6 +87,41 @@ components:
       in: cookie
       name: SESSION
   schemas:
+    GraphKeyPairDto:
+      type: object
+      properties:
+        publicKey:
+          type: string
+        privateKey:
+          type: string
+        keyType:
+          type: string
+          enum:
+            - X25519
+      required:
+        - publicKey
+        - privateKey
+        - keyType
+    GraphsQueryParamsDto:
+      type: object
+      properties:
+        dsnpIds:
+          type: array
+          items:
+            type: string
+        privacyType:
+          type: string
+          enum:
+            - private
+            - public
+        graphKeyPairs:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphKeyPairDto'
+      required:
+        - dsnpIds
+        - privacyType
+        - graphKeyPairs
     DsnpGraphEdge:
       type: object
       properties:
@@ -106,7 +137,7 @@ components:
       properties:
         dsnpId:
           type: string
-        dsnpGraphEdge:
+        dsnpGraphEdges:
           type: array
           items:
             $ref: '#/components/schemas/DsnpGraphEdge'
@@ -138,21 +169,6 @@ components:
         - privacyType
         - direction
         - connectionType
-    GraphKeyPairDto:
-      type: object
-      properties:
-        publicKey:
-          type: string
-        privateKey:
-          type: string
-        keyType:
-          type: string
-          enum:
-            - X25519
-      required:
-        - publicKey
-        - privateKey
-        - keyType
     ProviderGraphDto:
       type: object
       properties:

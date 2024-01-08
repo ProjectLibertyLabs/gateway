@@ -10,6 +10,7 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
 import { GraphStateManager, QueueConstants } from '../../../../libs/common/src';
 import { GraphNotifierService } from './graph.monitor.processor.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
+import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
 @Module({
   imports: [
@@ -63,7 +64,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
       },
     ),
   ],
-  providers: [GraphNotifierService, GraphStateManager],
-  exports: [BullModule, GraphNotifierService],
+  providers: [GraphNotifierService, GraphStateManager, BlockchainService, ConfigService],
+  exports: [BullModule, GraphNotifierService, BlockchainService, ConfigService],
 })
 export class GraphNotifierModule {}

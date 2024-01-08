@@ -15,8 +15,16 @@ import {
   DsnpGraphEdge,
   ConnectionType,
   PrivacyType,
+  ImportBundleBuilder,
+  KeyData,
 } from '@dsnp/graph-sdk';
+import { ItemizedStoragePageResponse, MessageSourceId, PaginatedStorageResponse } from '@frequency-chain/api-augment/interfaces';
+import { hexToU8a } from '@polkadot/util';
+import { AnyNumber } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
+import { GraphKeyPairDto } from '../dtos/graph.key.pair.dto';
+import { KeyType } from '../dtos/key.type.dto';
+import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Injectable()
 export class GraphStateManager implements OnApplicationBootstrap {
@@ -56,10 +64,13 @@ export class GraphStateManager implements OnApplicationBootstrap {
     };
   }
 
-  constructor(configService: ConfigService) {
-    const environmentType = configService.getGraphEnvironmentType();
+  constructor(
+    private configService: ConfigService,
+    private blockchainService: BlockchainService,
+  ) {
+    const environmentType = this.configService.getGraphEnvironmentType();
     if (environmentType === EnvironmentType.Dev.toString()) {
-      const configJson = configService.getGraphEnvironmentConfig();
+      const configJson = this.configService.getGraphEnvironmentConfig();
       const config: Config = JSON.parse(configJson);
       const devEnvironment: DevEnvironment = { environmentType: EnvironmentType.Dev, config };
       this.environment = devEnvironment;
@@ -83,6 +94,14 @@ export class GraphStateManager implements OnApplicationBootstrap {
       return this.graphState.getGraphConfig(this.environment);
     }
     return {} as Config;
+  }
+
+  public getPrivacyForSchema(schemaId: number): PrivacyType {
+    let privacyType = PrivacyType.Public;
+    if (this.schemaIds[ConnectionType.Follow][PrivacyType.Private] === schemaId || this.schemaIds[ConnectionType.Friendship][PrivacyType.Private] === schemaId) {
+      privacyType = PrivacyType.Private;
+    }
+    return privacyType;
   }
 
   public getSchemaIdFromConfig(connectionType: ConnectionType, privacyType: PrivacyType): number {
@@ -142,6 +161,118 @@ export class GraphStateManager implements OnApplicationBootstrap {
       return this.graphState.containsUserGraph(dsnpUserId);
     }
     return false;
+  }
+
+  public async getConnectionsWithPrivacyType(dsnpUserId: MessageSourceId, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+    const privateFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Private];
+    const privateFriendSchemaId = this.schemaIds[ConnectionType.Friendship][PrivacyType.Private];
+    const publicFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Public];
+
+    if (this.graphState && this.graphState.containsUserGraph(dsnpUserId.toString())) {
+      if (privacyType === PrivacyType.Private) {
+        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFollowSchemaId, false);
+        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFriendSchemaId, false);
+        return privateFollowConnections.concat(privateFriendConnections);
+      }
+      if (privacyType === PrivacyType.Public) {
+        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), publicFollowSchemaId, false);
+        return publicFollowConnections;
+      }
+    }
+    const bundlesImported = await this.importBundles(dsnpUserId, graphKeyPairs ?? []);
+    if (bundlesImported) {
+      if (privacyType === PrivacyType.Private) {
+        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFollowSchemaId, false);
+        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFriendSchemaId, false);
+        return privateFollowConnections.concat(privateFriendConnections);
+      }
+      if (privacyType === PrivacyType.Public) {
+        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), publicFollowSchemaId, false);
+        return publicFollowConnections;
+      }
+    }
+    return [];
+  }
+
+  async importBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<boolean> {
+    const importBundles = await this.formImportBundles(dsnpUserId, graphKeyPairs);
+    return this.importUserData(importBundles);
+  }
+
+  async formImportBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<ImportBundle[]> {
+    const publicFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Public);
+    const privateFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Private);
+    const privateFriendshipSchemaId = this.getSchemaIdFromConfig(ConnectionType.Friendship, PrivacyType.Private);
+
+    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, publicFollowSchemaId);
+    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFollowSchemaId);
+    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFriendshipSchemaId);
+    const dsnpKeys = await this.formDsnpKeys(dsnpUserId);
+    const graphKeyPairsSdk = graphKeyPairs.map(
+      (keyPair: GraphKeyPairDto): GraphKeyPair => ({
+        keyType: GraphKeyType.X25519,
+        publicKey: hexToU8a(keyPair.publicKey),
+        secretKey: hexToU8a(keyPair.privateKey),
+      }),
+    );
+    const importBundleBuilder = new ImportBundleBuilder();
+    // Only X25519 is supported for now
+    // check if all keys are of type X25519
+    const areKeysCorrectType = graphKeyPairs.every((keyPair) => keyPair.keyType === KeyType.X25519);
+    if (!areKeysCorrectType) {
+      throw new Error('Only X25519 keys are supported for now');
+    }
+
+    let importBundles: ImportBundle[];
+
+    // If no pages to import, import at least one empty page so that user graph will be created
+    if (publicFollows.length + privateFollows.length + privateFriendships.length === 0 && (graphKeyPairs.length > 0 || dsnpKeys?.keys.length > 0)) {
+      let builder = importBundleBuilder.withDsnpUserId(dsnpUserId.toString()).withSchemaId(privateFollowSchemaId);
+
+      if (dsnpKeys?.keys?.length > 0) {
+        builder = builder.withDsnpKeys(dsnpKeys);
+      }
+      if (graphKeyPairs?.length > 0) {
+        builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
+      }
+
+      importBundles = [builder.build()];
+    } else {
+      importBundles = [publicFollows, privateFollows, privateFriendships].flatMap((pageResponses: PaginatedStorageResponse[]) =>
+        pageResponses.map((pageResponse) => {
+          let builder = importBundleBuilder
+            .withDsnpUserId(pageResponse.msa_id.toString())
+            .withSchemaId(pageResponse.schema_id.toNumber())
+            .withPageData(pageResponse.page_id.toNumber(), pageResponse.payload, pageResponse.content_hash.toNumber());
+
+          if (dsnpKeys?.keys?.length > 0) {
+            builder = builder.withDsnpKeys(dsnpKeys);
+          }
+          if (graphKeyPairs?.length > 0) {
+            builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
+          }
+
+          return builder.build();
+        }),
+      );
+    }
+
+    return importBundles;
+  }
+
+  async formDsnpKeys(dsnpUserId: MessageSourceId | AnyNumber): Promise<DsnpKeys> {
+    const publicKeySchemaId = this.getGraphKeySchemaId();
+    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.rpc('statefulStorage', 'getItemizedStorage', dsnpUserId, publicKeySchemaId);
+    const keyData: KeyData[] = publicKeys.items.toArray().map((publicKey) => ({
+      index: publicKey.index.toNumber(),
+      content: hexToU8a(publicKey.payload.toHex()),
+    }));
+    const dsnpKeys: DsnpKeys = {
+      dsnpUserId: dsnpUserId.toString(),
+      keysHash: publicKeys.content_hash.toNumber(),
+      keys: keyData,
+    };
+    return dsnpKeys;
   }
 
   public getConnectionsForUserGraph(dsnpUserId: string, schemaId: number, includePending: boolean): DsnpGraphEdge[] {

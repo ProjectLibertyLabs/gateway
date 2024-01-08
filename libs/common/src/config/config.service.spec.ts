@@ -40,6 +40,7 @@ describe('GraphSericeConfig', () => {
     FREQUENCY_URL: undefined,
     QUEUE_HIGH_WATER: undefined,
     API_PORT: undefined,
+    DEBOUNCE_SECONDS: undefined,
     RECONNECTION_SERVICE_REQUIRED: undefined,
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
@@ -179,6 +180,10 @@ describe('GraphSericeConfig', () => {
 
     it('should get page size', () => {
       expect(graphServiceConfig.getPageSize()).toStrictEqual(parseInt(ALL_ENV.PAGE_SIZE as string, 10));
+    });
+
+    it('should get debounce seconds', () => {
+      expect(graphServiceConfig.getDebounceSeconds()).toStrictEqual(parseInt(ALL_ENV.DEBOUNCE_SECONDS as string, 10));
     });
   });
 });

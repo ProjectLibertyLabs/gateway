@@ -1,5 +1,5 @@
 import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Query, Body, Put } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiService } from './api.service';
 import { GraphChangeRepsonseDto, GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
 import { WatchGraphsDto } from '../../../libs/common/src/dtos/watch-graphs.dto';
@@ -28,22 +28,14 @@ export class ApiController {
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
-  @Get('graphs')
+  @Put('graphs')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch graphs for specified dsnpIds and blockNumber' })
-  @ApiOkResponse({ description: 'Graphs retrieved successfully', type: UserGraphDto })
-  async getGraphs(@Query() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
+  @ApiOperation({ summary: 'Post a request to fetch graphs for specified dsnpIds and blockNumber' })
+  @ApiOkResponse({ description: 'Graphs retrieved successfully', type: [UserGraphDto] })
+  async getGraphs(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
     try {
-      // TODO: Uncomment this line once the ApiService is implemented
-      // const graphs = await this.apiService.getGraphs(queryParams.dsnpIds, queryParams.blockNumber);
-
-      // For now, returning a dummy response
-      const dummyGraph: UserGraphDto = {
-        dsnpId: 'sampleDsnpId',
-        dsnpGraphEdge: [],
-      };
-
-      return [dummyGraph];
+      const graphs = await this.apiService.getGraphs(queryParams);
+      return graphs;
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to fetch graphs');

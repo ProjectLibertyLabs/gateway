@@ -5,8 +5,9 @@ import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
+import axios from 'axios';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
+import { GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
@@ -22,6 +23,7 @@ export class GraphNotifierService extends BaseConsumer {
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
+    private graphStateManager: GraphStateManager,
   ) {
     super();
   }
@@ -64,11 +66,31 @@ export class GraphNotifierService extends BaseConsumer {
         if (txResult.success) {
           await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
           this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-          // TODO send out data to webhooks registered for this dsnpId
           // Get DSNPGraphEdge from debounced queue and send to webhooks
           const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
           this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
-          
+          const notification: GraphChangeNotificationDto = {
+            dsnpId: job.data.referencePublishJob.update.ownerDsnpUserId,
+            update: job.data.referencePublishJob.update,
+          };
+
+          webhookList.forEach(async (webhookUrl) => {
+            let retries = 0;
+            while (retries < this.configService.getHealthCheckMaxRetries()) {
+              try {
+                this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
+                this.logger.debug(`Graph Change: ${JSON.stringify(notification)}`);
+                // eslint-disable-next-line no-await-in-loop
+                await axios.post(webhookUrl, notification);
+                this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
+                break;
+              } catch (error) {
+                this.logger.error(`Failed to send notification to webhook: ${webhookUrl}`);
+                this.logger.error(error);
+                retries += 1;
+              }
+            }
+          });
         }
       }
     } catch (e) {

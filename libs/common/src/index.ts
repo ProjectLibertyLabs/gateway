@@ -10,6 +10,7 @@ export * from './dtos/graph.key.pair.dto';
 export * from './dtos/connections.dto';
 export * from './dtos/watch-graphs.dto';
 export * from './dtos/dsnp.graph.edge.dto';
+export * from './dtos/graph.change.notification.dto';
 export * from './dtos/graph.change.request.reference';
 export * from './dtos/graph.update.job';
 export * from './interfaces/graph-update-job.interface';

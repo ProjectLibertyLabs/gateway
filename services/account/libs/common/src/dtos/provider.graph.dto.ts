@@ -10,8 +10,6 @@ export class ProviderGraphDto {
   dsnpId: string;
 
   @IsNotEmpty()
-  @IsString()
-  @ValidateNested({ each: true })
   @Type(() => ConnectionDto)
   connections: { data: ConnectionDto[] };
 

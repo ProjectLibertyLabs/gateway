@@ -3,18 +3,15 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import { ImportBundle, ConnectionType, GraphKeyPair, GraphKeyType, ImportBundleBuilder, ConnectAction, DsnpKeys, KeyData } from '@dsnp/graph-sdk';
-import { MessageSourceId, PaginatedStorageResponse, SchemaGrantResponse, ItemizedStoragePageResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
+import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys } from '@dsnp/graph-sdk';
+import { MessageSourceId, SchemaGrantResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
-import { hexToU8a } from '@polkadot/util';
 import { BaseConsumer } from '../BaseConsumer';
 import {
   ConnectionDto,
-  GraphKeyPairDto,
   GraphStateManager,
   GraphUpdateJob,
-  KeyType,
   PrivacyType,
   ProviderGraphUpdateJob,
   QueueConstants,
@@ -57,32 +54,32 @@ export class RequestProcessorService extends BaseConsumer {
         } else {
           throw new Error(`Error applying actions: ${e}`);
         }
-        const exportedUpdates = this.graphStateManager.exportUserGraphUpdates(dsnpUserId.toString());
-        // create a GraphUpdateJob for each exported update
-        const graphPublisherJobs: GraphUpdateJob[] = exportedUpdates.map((update) => ({
-          referenceId: job.data.referenceId,
-          update,
-        }));
-        // add each GraphUpdateJob to the graph publisher queue
-        graphPublisherJobs.forEach((graphPublisherJob) => {
-          this.graphChangePublisherQueue.add(`Graph Publisher Job - ${graphPublisherJob.referenceId}`, graphPublisherJob, {
-            removeOnFail: false,
-            removeOnComplete: 2000,
-          });
+      }
+      const exportedUpdates = this.graphStateManager.exportUserGraphUpdates(dsnpUserId.toString());
+      this.logger.debug(`Exported ${exportedUpdates.length} updates for user ${dsnpUserId.toString()}`);
+      // create a GraphUpdateJob for each exported update
+      const graphPublisherJobs: GraphUpdateJob[] = exportedUpdates.map((update) => ({
+        referenceId: job.data.referenceId,
+        update,
+      }));
+      // add each GraphUpdateJob to the graph publisher queue
+      graphPublisherJobs.forEach((graphPublisherJob) => {
+        this.graphChangePublisherQueue.add(`Graph Publisher Job - ${graphPublisherJob.referenceId}`, graphPublisherJob, {
+          removeOnFail: false,
+          removeOnComplete: 2000,
         });
+      });
 
-        const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
-        if (reImported) {
-          // eslint-disable-next-line no-await-in-loop
-          const userGraphExists = this.graphStateManager.graphContainsUser(dsnpUserId.toString());
-          if (!userGraphExists) {
-            throw new Error(`User graph does not exist for ${dsnpUserId.toString()}`);
-          }
-        } else {
-          throw new Error(`Error re-importing bundles for ${dsnpUserId.toString()}`);
+      const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
+      if (reImported) {
+        this.logger.debug(`Re-imported bundles for ${dsnpUserId.toString()}`);
+        // eslint-disable-next-line no-await-in-loop
+        const userGraphExists = this.graphStateManager.graphContainsUser(dsnpUserId.toString());
+        if (!userGraphExists) {
+          throw new Error(`User graph does not exist for ${dsnpUserId.toString()}`);
         }
-
-        /// TODO send DSNPGraphEdge[] to debounced queue
+      } else {
+        throw new Error(`Error re-importing bundles for ${dsnpUserId.toString()}`);
       }
     } catch (e) {
       this.logger.error(e);

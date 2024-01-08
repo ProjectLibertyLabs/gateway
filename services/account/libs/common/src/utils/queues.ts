@@ -23,4 +23,9 @@ export namespace QueueConstants {
    * Prefix for Redis keys that store webhook endpoints
    */
   export const REDIS_WATCHER_PREFIX = 'graph-service-watcher';
+
+  /**
+   * Debouncer cache key
+   */
+  export const DEBOUNCER_CACHE_KEY = 'graph-service-debouncer';
 }

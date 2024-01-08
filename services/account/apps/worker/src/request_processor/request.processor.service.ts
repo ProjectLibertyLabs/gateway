@@ -42,7 +42,7 @@ export class RequestProcessorService extends BaseConsumer {
     try {
       const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.dsnpId);
       const providerId: ProviderId = this.blockchainService.api.registry.createType('ProviderId', job.data.providerId);
-      await this.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
+      await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
       const actions: ConnectAction[] = await this.formConnections(dsnpUserId, providerId, job.data.updateConnection, job.data.connections);
       try {
@@ -71,7 +71,7 @@ export class RequestProcessorService extends BaseConsumer {
           });
         });
 
-        const reImported = await this.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
+        const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
         if (reImported) {
           // eslint-disable-next-line no-await-in-loop
           const userGraphExists = this.graphStateManager.graphContainsUser(dsnpUserId.toString());
@@ -90,79 +90,13 @@ export class RequestProcessorService extends BaseConsumer {
     }
   }
 
-  async importBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<boolean> {
-    const importBundles = await this.formImportBundles(dsnpUserId, graphKeyPairs);
-    return this.graphStateManager.importUserData(importBundles);
-  }
-
-  async formImportBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<ImportBundle[]> {
-    const publicFollowSchemaId = this.graphStateManager.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Public);
-    const privateFollowSchemaId = this.graphStateManager.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Private);
-    const privateFriendshipSchemaId = this.graphStateManager.getSchemaIdFromConfig(ConnectionType.Friendship, PrivacyType.Private);
-
-    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, publicFollowSchemaId);
-    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFollowSchemaId);
-    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFriendshipSchemaId);
-    const dsnpKeys = await this.formDsnpKeys(dsnpUserId);
-    const graphKeyPairsSdk = graphKeyPairs.map(
-      (keyPair: GraphKeyPairDto): GraphKeyPair => ({
-        keyType: GraphKeyType.X25519,
-        publicKey: hexToU8a(keyPair.publicKey),
-        secretKey: hexToU8a(keyPair.privateKey),
-      }),
-    );
-    const importBundleBuilder = new ImportBundleBuilder();
-    // Only X25519 is supported for now
-    // check if all keys are of type X25519
-    const areKeysCorrectType = graphKeyPairs.every((keyPair) => keyPair.keyType === KeyType.X25519);
-    if (!areKeysCorrectType) {
-      throw new Error('Only X25519 keys are supported for now');
-    }
-
-    let importBundles: ImportBundle[];
-
-    // If no pages to import, import at least one empty page so that user graph will be created
-    if (publicFollows.length + privateFollows.length + privateFriendships.length === 0 && (graphKeyPairs.length > 0 || dsnpKeys?.keys.length > 0)) {
-      let builder = importBundleBuilder.withDsnpUserId(dsnpUserId.toString()).withSchemaId(privateFollowSchemaId);
-
-      if (dsnpKeys?.keys?.length > 0) {
-        builder = builder.withDsnpKeys(dsnpKeys);
-      }
-      if (graphKeyPairs?.length > 0) {
-        builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
-      }
-
-      importBundles = [builder.build()];
-    } else {
-      importBundles = [publicFollows, privateFollows, privateFriendships].flatMap((pageResponses: PaginatedStorageResponse[]) =>
-        pageResponses.map((pageResponse) => {
-          let builder = importBundleBuilder
-            .withDsnpUserId(pageResponse.msa_id.toString())
-            .withSchemaId(pageResponse.schema_id.toNumber())
-            .withPageData(pageResponse.page_id.toNumber(), pageResponse.payload, pageResponse.content_hash.toNumber());
-
-          if (dsnpKeys?.keys?.length > 0) {
-            builder = builder.withDsnpKeys(dsnpKeys);
-          }
-          if (graphKeyPairs?.length > 0) {
-            builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
-          }
-
-          return builder.build();
-        }),
-      );
-    }
-
-    return importBundles;
-  }
-
   private async importConnectionKeys(graphConnections: ConnectionDto[]): Promise<void> {
     const keyPromises = graphConnections
       .filter(
         ({ direction, privacyType, connectionType }) =>
           [Direction.ConnectionTo, Direction.Bidirectional].some((dir) => dir === direction) && privacyType === PrivacyType.Private && connectionType === ConnectionType.Friendship,
       )
-      .map(({ dsnpId }) => this.formDsnpKeys(dsnpId));
+      .map(({ dsnpId }) => this.graphStateManager.formDsnpKeys(dsnpId));
     const keys = await Promise.all(keyPromises);
 
     const bundles = keys.map((dsnpKeys) => new ImportBundleBuilder().withDsnpUserId(dsnpKeys.dsnpUserId).withDsnpKeys(dsnpKeys).build());
@@ -176,7 +110,7 @@ export class RequestProcessorService extends BaseConsumer {
     isTransitive: boolean,
     graphConnections: ConnectionDto[],
   ): Promise<ConnectAction[]> {
-    const dsnpKeys: DsnpKeys = await this.formDsnpKeys(dsnpUserId);
+    const dsnpKeys: DsnpKeys = await this.graphStateManager.formDsnpKeys(dsnpUserId);
     const actions: ConnectAction[] = [];
     // this.logger.debug(`Graph connections for user ${dsnpUserId.toString()}: ${JSON.stringify(graphConnections)}`);
     // Import DSNP public graph keys for connected users in private friendship connections
@@ -274,20 +208,5 @@ export class RequestProcessorService extends BaseConsumer {
     );
 
     return actions;
-  }
-
-  async formDsnpKeys(dsnpUserId: MessageSourceId | AnyNumber): Promise<DsnpKeys> {
-    const publicKeySchemaId = this.graphStateManager.getGraphKeySchemaId();
-    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.rpc('statefulStorage', 'getItemizedStorage', dsnpUserId, publicKeySchemaId);
-    const keyData: KeyData[] = publicKeys.items.toArray().map((publicKey) => ({
-      index: publicKey.index.toNumber(),
-      content: hexToU8a(publicKey.payload.toHex()),
-    }));
-    const dsnpKeys: DsnpKeys = {
-      dsnpUserId: dsnpUserId.toString(),
-      keysHash: publicKeys.content_hash.toNumber(),
-      keys: keyData,
-    };
-    return dsnpKeys;
   }
 }

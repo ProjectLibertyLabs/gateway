@@ -1,5 +1,6 @@
-import { ArrayNotEmpty, ArrayUnique, IsArray, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
 import { GraphKeyPairDto } from './graph.key.pair.dto';
+import { PrivacyType } from './privacy.type.dto';
 
 export class GraphsQueryParamsDto {
   @IsArray()
@@ -8,12 +9,10 @@ export class GraphsQueryParamsDto {
   @IsString({ each: true })
   dsnpIds: string[];
 
-  @IsOptional()
-  @IsArray()
-  @ArrayUnique()
-  grahKeyPairs?: GraphKeyPairDto[];
+  @IsEnum(PrivacyType)
+  privacyType: PrivacyType;
 
   @IsOptional()
-  @IsString()
-  blockNumber?: string;
+  @IsArray()
+  graphKeyPairs: GraphKeyPairDto[];
 }

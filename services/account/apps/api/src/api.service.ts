@@ -4,19 +4,36 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { GraphChangeRepsonseDto, ProviderGraphDto, ProviderGraphUpdateJob, QueueConstants, WatchGraphsDto } from '../../../libs/common/src';
+import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
+import {
+  AsyncDebouncerService,
+  GraphChangeRepsonseDto,
+  GraphStateManager,
+  GraphsQueryParamsDto,
+  ProviderGraphDto,
+  ProviderGraphUpdateJob,
+  QueueConstants,
+  UserGraphDto,
+  WatchGraphsDto,
+} from '../../../libs/common/src';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
 
 @Injectable()
 export class ApiService implements OnApplicationShutdown {
   private readonly logger: Logger;
 
+  private asyncDebouncerService: AsyncDebouncerService;
+
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
+    private graphStateManager: GraphStateManager,
     private configService: ConfigService,
+    private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
+    this.asyncDebouncerService = new AsyncDebouncerService(this.redis, this.configService, this.graphStateManager);
   }
 
   onApplicationShutdown(signal?: string | undefined) {
@@ -48,6 +65,23 @@ export class ApiService implements OnApplicationShutdown {
       // eslint-disable-next-line no-await-in-loop
       await this.redis.rpush(redisKey, redisValue);
     });
+  }
+
+  async getGraphs(queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
+    const { dsnpIds, privacyType } = queryParams;
+    const graphKeyPairs = queryParams.graphKeyPairs || [];
+    const graphs: UserGraphDto[] = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const dsnpId of dsnpIds) {
+      const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', dsnpId);
+      // eslint-disable-next-line no-await-in-loop
+      const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(dsnpUserId, privacyType, graphKeyPairs);
+      graphs.push({
+        dsnpId,
+        dsnpGraphEdges: graphEdges,
+      });
+    }
+    return graphs;
   }
 
   // eslint-disable-next-line class-methods-use-this

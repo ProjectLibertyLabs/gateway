@@ -8,6 +8,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     FREQUENCY_URL: Joi.string().uri().required(),
     QUEUE_HIGH_WATER: Joi.number().min(100).default(1000),
     API_PORT: Joi.number().min(0).default(3000),
+    DEBOUNCE_SECONDS: Joi.number().min(0).default(10),
     RECONNECTION_SERVICE_REQUIRED: Joi.boolean().default(false),
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
       .min(1)

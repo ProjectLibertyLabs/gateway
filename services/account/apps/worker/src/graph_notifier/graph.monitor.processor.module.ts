@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import { GraphStateManager, QueueConstants } from '../../../../libs/common/src';
 import { GraphNotifierService } from './graph.monitor.processor.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 
@@ -63,7 +63,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
       },
     ),
   ],
-  providers: [GraphNotifierService],
+  providers: [GraphNotifierService, GraphStateManager],
   exports: [BullModule, GraphNotifierService],
 })
 export class GraphNotifierModule {}

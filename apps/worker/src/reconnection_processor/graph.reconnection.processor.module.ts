@@ -51,9 +51,19 @@ import { GraphReconnectionService } from './graph.reconnection.processor.service
     BullModule.registerQueue(
       {
         name: QueueConstants.RECONNECT_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: false,
+          removeOnFail: false,
+          attempts: 3,
+        },
       },
       {
         name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: false,
+          removeOnFail: false,
+          attempts: 3,
+        },
       },
     ),
   ],

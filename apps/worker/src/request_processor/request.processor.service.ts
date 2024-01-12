@@ -64,10 +64,7 @@ export class RequestProcessorService extends BaseConsumer {
       }));
       // add each GraphUpdateJob to the graph publisher queue
       graphPublisherJobs.forEach((graphPublisherJob) => {
-        this.graphChangePublisherQueue.add(`Graph Publisher Job - ${graphPublisherJob.referenceId}`, graphPublisherJob, {
-          removeOnFail: false,
-          removeOnComplete: 2000,
-        });
+        this.graphChangePublisherQueue.add(`Graph Publisher Job - ${graphPublisherJob.referenceId}`, graphPublisherJob);
       });
 
       const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);

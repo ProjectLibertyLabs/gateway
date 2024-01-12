@@ -12,6 +12,7 @@ services:
 
   frequency:
     image: frequencychain/instant-seal-node:latest
+    platform: linux/amd64
     ports:
       - 9944:9944
     profiles: ['', 'instant']
@@ -51,6 +52,7 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
+    platform: linux/amd64
     ports:
       - 3000:3000
     env_file:
@@ -71,6 +73,7 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
+    platform: linux/amd64
     env_file:
       - .env.dev
     environment:

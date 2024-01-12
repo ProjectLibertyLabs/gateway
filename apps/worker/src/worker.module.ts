@@ -12,7 +12,7 @@ import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.pr
 import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
-import { ProviderWebhookService, QueueConstants, GraphStateManager } from '../../../libs/common/src';
+import { ProviderWebhookService, NonceService, QueueConstants, GraphStateManager } from '../../../libs/common/src';
 import { BlockchainScannerService } from '../../../libs/common/src/services/blockchain-scanner.service';
 
 @Module({
@@ -87,6 +87,15 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
     GraphUpdatePublisherModule,
     GraphNotifierModule,
   ],
-  providers: [ConfigService, RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService, ProviderWebhookService, BlockchainScannerService, GraphStateManager],
+  providers: [
+    ConfigService,
+    RequestProcessorService,
+    GraphUpdatePublisherService,
+    GraphNotifierService,
+    ProviderWebhookService,
+    NonceService,
+    BlockchainScannerService,
+    GraphStateManager,
+  ],
 })
 export class WorkerModule {}

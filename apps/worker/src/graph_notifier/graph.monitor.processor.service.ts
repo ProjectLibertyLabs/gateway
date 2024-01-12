@@ -75,7 +75,7 @@ export class GraphNotifierService extends BaseConsumer {
           if (job.data.referencePublishJob.update.type !== 'AddKey') {
             const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
             const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.referencePublishJob.update.ownerDsnpUserId);
-            const schemaId: SchemaId = this.blockchainService.api.registry.createType('SchemaId', job.data.referencePublishJob.update.type);
+            const schemaId: SchemaId = this.blockchainService.api.registry.createType('SchemaId', job.data.referencePublishJob.update.schemaId);
             const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(dsnpUserId, schemaId, graphKeyPairs);
             if (graphEdges.length === 0) {
               this.logger.debug(`No graph edges found for ${dsnpUserId.toString()}`);

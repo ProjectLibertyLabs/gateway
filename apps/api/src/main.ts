@@ -8,7 +8,9 @@ const logger = new Logger('main');
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
-BigInt.prototype['toJSON'] = function () { return this.toString() };
+BigInt.prototype['toJSON'] = function () {
+  return this.toString();
+};
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {

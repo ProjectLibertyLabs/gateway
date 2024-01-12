@@ -22,7 +22,6 @@ export class GraphNotifierService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private changeRequestQueue: Queue,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private publishQueue: Queue,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
@@ -57,7 +56,6 @@ export class GraphNotifierService extends BaseConsumer {
           if (errorReport.pause) {
             this.logger.debug(`Pausing queue ${job.data.referencePublishJob.referenceId}`);
             await this.changeRequestQueue.pause();
-            await this.publishQueue.pause();
             await this.reconnectionQueue.pause();
           }
           if (errorReport.retry) {
@@ -116,7 +114,6 @@ export class GraphNotifierService extends BaseConsumer {
   private async removeSuccessJobs(referenceId: string): Promise<void> {
     this.logger.debug(`Removing success jobs for ${referenceId}`);
     this.changeRequestQueue.remove(referenceId);
-    this.publishQueue.remove(referenceId);
     this.reconnectionQueue.remove(referenceId);
   }
 
@@ -130,8 +127,6 @@ export class GraphNotifierService extends BaseConsumer {
     await this.changeRequestQueue.remove(requestReferenceId);
     await this.changeRequestQueue.add(`Retrying publish job - ${requestReferenceId}`, requestJob.data, {
       jobId: requestReferenceId,
-      removeOnFail: false,
-      removeOnComplete: false,
     });
   }
 

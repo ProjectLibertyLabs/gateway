@@ -89,8 +89,6 @@ export class BlockchainScannerService implements OnApplicationBootstrap {
           } else {
             await this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, {
               jobId,
-              removeOnComplete: false,
-              removeOnFail: false,
             });
           }
         });

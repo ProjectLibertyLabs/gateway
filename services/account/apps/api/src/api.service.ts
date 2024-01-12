@@ -51,7 +51,7 @@ export class ApiService implements OnApplicationShutdown {
       referenceId: this.calculateJobId(request),
       updateConnection: this.configService.getReconnectionServiceRequired(),
     };
-    const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, { jobId: data.referenceId, removeOnFail: false, removeOnComplete: false }); // TODO: should come from queue configs
+    const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, { jobId: data.referenceId });
     this.logger.debug(job);
     return {
       referenceId: data.referenceId,

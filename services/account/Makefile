@@ -17,6 +17,14 @@ clean-graph-service:
 	@rm -rf dist
 
 ######
+###### Testing targets
+######
+
+.PHONY: test-e2e
+test-e2e:
+	@(npm run test:e2e)
+
+######
 ###### Running apps targets
 ######
 

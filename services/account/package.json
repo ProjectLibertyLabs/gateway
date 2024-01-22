@@ -24,7 +24,8 @@
     "clean": "rm -Rf dist",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "pretest": "cp env.template .env",
-    "test": "jest  --coverage --verbose"
+    "test": "jest  --coverage --verbose",
+    "test:e2e": "set -a ; . .env ; jest --config ./apps/api/test/jest-e2e.json --detectOpenHandles"
   },
   "repository": {
     "type": "git",

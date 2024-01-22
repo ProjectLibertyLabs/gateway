@@ -58,6 +58,10 @@ import { GraphUpdatePublisherService } from './graph.publisher.processor.service
       },
       {
         name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
       },
     ),
   ],

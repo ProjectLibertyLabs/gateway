@@ -80,8 +80,6 @@ export class GraphUpdatePublisherService extends BaseConsumer {
       const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
       this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
-        removeOnFail: false,
-        removeOnComplete: 2000,
         delay: blockDelay,
       });
     } catch (error: any) {

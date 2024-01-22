@@ -68,6 +68,7 @@ services:
       - frequency
     networks:
       - graph-service-service
+    profiles: ['instant']
 
   graph-service-worker:
     build:
@@ -87,6 +88,7 @@ services:
       - frequency
     networks:
       - graph-service-service
+    profiles: ['instant'] 
 volumes:
   redis_data:
   chainstorage:

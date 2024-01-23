@@ -66,13 +66,13 @@ export class GraphNotifierService extends BaseConsumer {
         }
 
         if (txResult.success) {
-          await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
           this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
           const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
           this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
           const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
 
           if (job.data.referencePublishJob.update.type !== 'AddKey') {
+            this.logger.debug(`Setting graph for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
             const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
             const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.referencePublishJob.update.ownerDsnpUserId);
             const schemaId: SchemaId = this.blockchainService.api.registry.createType('SchemaId', job.data.referencePublishJob.update.schemaId);
@@ -103,6 +103,7 @@ export class GraphNotifierService extends BaseConsumer {
               }
             }
           });
+          await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
         }
       }
     } catch (e) {

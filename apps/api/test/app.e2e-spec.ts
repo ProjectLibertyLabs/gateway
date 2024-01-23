@@ -5,7 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
-import { ConnectionDto, GraphKeyPairDto, KeyType, PrivacyType, ProviderGraphDto } from '../../../libs/common/src';
+import { ConnectionDto, GraphKeyPairDto, GraphsQueryParamsDto, KeyType, PrivacyType, ProviderGraphDto } from '../../../libs/common/src';
 import { Direction } from '../../../libs/common/src/dtos/direction.dto';
 import { ConnectionType } from '../../../libs/common/src/dtos/connection.type.dto';
 
@@ -81,6 +81,19 @@ describe('Graph Service E2E request verification!', () => {
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
+    });
+
+    it('Get graph request should work', async () => {
+      const userGraphGet: GraphsQueryParamsDto = {
+        dsnpIds: ['2'],
+        privacyType: PrivacyType.Public,
+      } as GraphsQueryParamsDto;
+
+      await request(app.getHttpServer())
+        .put(`/api/graphs`)
+        .send(userGraphGet)
+        .expect(200)
+        .expect((res) => expect(res.body[0].dsnpId).toBe('2'));
     });
   });
 

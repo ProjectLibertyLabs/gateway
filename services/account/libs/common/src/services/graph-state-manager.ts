@@ -172,7 +172,9 @@ export class GraphStateManager implements OnApplicationBootstrap {
       if (privacyType === PrivacyType.Private) {
         const privateFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFollowSchemaId, false);
         const privateFriendConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFriendSchemaId, false);
-        return privateFollowConnections.concat(privateFriendConnections);
+        if (privateFollowConnections.length > 0 || privateFriendConnections.length > 0) {
+          return privateFollowConnections.concat(privateFriendConnections);
+        }
       }
       if (privacyType === PrivacyType.Public) {
         const publicFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), publicFollowSchemaId, false);

@@ -47,6 +47,9 @@ export class AsyncDebouncerService {
 
     let privacyTypeValue = PrivacyType.Public;
     if (privacyType === 'private') {
+      if (!graphKeyPairs || graphKeyPairs.length === 0) {
+        throw new Error('Graph key pairs are required for private graph');
+      }
       privacyTypeValue = PrivacyType.Private;
     }
     let graphEdges: DsnpGraphEdge[] = [];
@@ -59,14 +62,18 @@ export class AsyncDebouncerService {
     }
     const debounceTime = this.configService.getDebounceSeconds();
     await this.redis.setex(cacheKey, debounceTime, JSON.stringify(graphEdges));
-
+    // Remove the graph from the graph state after the debounce time
+    this.scheduleRemoveUserGraph(dsnpId, debounceTime);
     return Promise.resolve(graphEdges);
   }
 
-  async getInflightFuture<T>(key: string, privacyType: string): Promise<T | null> {
-    const cacheKey = this.getCacheKey(key, privacyType);
-    const cachedFuture = await this.redis.get(cacheKey);
-    return cachedFuture ? JSON.parse(cachedFuture) : null;
+  private async scheduleRemoveUserGraph(dsnpId: MessageSourceId, debounceTime: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        this.graphStateManager.removeUserGraph(dsnpId.toString());
+        resolve();
+      }, debounceTime * 1000);
+    });
   }
 
   private getCacheKey(key: string, privacyType: string): string {

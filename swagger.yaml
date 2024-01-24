@@ -159,6 +159,7 @@ components:
             - connectionTo
             - connectionFrom
             - bidirectional
+            - disconnect
         connectionType:
           type: string
           enum:

@@ -95,6 +95,81 @@ describe('Graph Service E2E request verification!', () => {
         .expect(200)
         .expect((res) => expect(res.body[0].dsnpId).toBe('2'));
     });
+
+    it('Get graph request should work with private graph', async () => {
+      const userGraphGet: GraphsQueryParamsDto = {
+        dsnpIds: ['2'],
+        privacyType: PrivacyType.Private,
+        graphKeyPairs: [
+          {
+            keyType: KeyType.X25519,
+            publicKey: '0x993052b57e8695d9124964f69f624fcc2080be7525c65b1acd089dff235a0e02',
+            privateKey: '0xf74d39829ac4a814048cbda6b35ee1c3c16fbd2b88f97d552aa344bffb5207a5',
+          } as GraphKeyPairDto,
+        ],
+      } as GraphsQueryParamsDto;
+
+      await request(app.getHttpServer())
+        .put(`/api/graphs`)
+        .send(userGraphGet)
+        .expect(200)
+        .expect((res) => expect(res.body[0].dsnpId).toBe('2'));
+    });
+  });
+
+  describe('(POST) /api/update-graph with public disconnect', () => {
+    it('Valid public graph update request should work', async () => {
+      const validGraphChangeRequest: ProviderGraphDto = {
+        dsnpId: '2',
+        connections: {
+          data: [
+            {
+              dsnpId: '4',
+              privacyType: PrivacyType.Public,
+              direction: Direction.Disconnect,
+              connectionType: ConnectionType.Follow,
+            } as ConnectionDto,
+          ],
+        },
+      };
+
+      return request(app.getHttpServer())
+        .post(`/api/update-graph`)
+        .send(validGraphChangeRequest)
+        .expect(201)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    });
+  });
+
+  describe('(POST) /api/update-graph with private disconnect', () => {
+    it('Valid private graph update request should work', async () => {
+      const validGraphChangeRequest: ProviderGraphDto = {
+        dsnpId: '2',
+        connections: {
+          data: [
+            {
+              dsnpId: '4',
+              privacyType: PrivacyType.Private,
+              direction: Direction.Disconnect,
+              connectionType: ConnectionType.Follow,
+            } as ConnectionDto,
+          ],
+        },
+        graphKeyPairs: [
+          {
+            keyType: KeyType.X25519,
+            publicKey: '0x993052b57e8695d9124964f69f624fcc2080be7525c65b1acd089dff235a0e02',
+            privateKey: '0xf74d39829ac4a814048cbda6b35ee1c3c16fbd2b88f97d552aa344bffb5207a5',
+          } as GraphKeyPairDto,
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/api/update-graph`)
+        .send(validGraphChangeRequest)
+        .expect(201)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    });
   });
 
   afterEach(async () => {

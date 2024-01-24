@@ -47,7 +47,6 @@ services:
     container_name: frequency-manual-node
     volumes:
       - chainstorage:/data
-
   graph-service-api:
     build:
       context: .
@@ -89,6 +88,7 @@ services:
     networks:
       - graph-service-service
     profiles: ['instant'] 
+
 volumes:
   redis_data:
   chainstorage:

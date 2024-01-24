@@ -3,7 +3,7 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys } from '@dsnp/graph-sdk';
+import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys, DisconnectAction, Action } from '@dsnp/graph-sdk';
 import { MessageSourceId, SchemaGrantResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
@@ -41,7 +41,7 @@ export class RequestProcessorService extends BaseConsumer {
       const providerId: ProviderId = this.blockchainService.api.registry.createType('ProviderId', job.data.providerId);
       await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
-      const actions: ConnectAction[] = await this.formConnections(dsnpUserId, providerId, job.data.updateConnection, job.data.connections);
+      const actions: Action[] = await this.formConnections(dsnpUserId, providerId, job.data.updateConnection, job.data.connections);
       try {
         if (actions.length === 0) {
           this.logger.debug(`No actions to apply for user ${dsnpUserId.toString()}`);
@@ -103,9 +103,9 @@ export class RequestProcessorService extends BaseConsumer {
     providerId: MessageSourceId | AnyNumber,
     isTransitive: boolean,
     graphConnections: ConnectionDto[],
-  ): Promise<ConnectAction[]> {
+  ): Promise<Action[]> {
     const dsnpKeys: DsnpKeys = await this.graphStateManager.formDsnpKeys(dsnpUserId);
-    const actions: ConnectAction[] = [];
+    const actions: Action[] = [];
     // this.logger.debug(`Graph connections for user ${dsnpUserId.toString()}: ${JSON.stringify(graphConnections)}`);
     // Import DSNP public graph keys for connected users in private friendship connections
     await this.importConnectionKeys(graphConnections);
@@ -164,11 +164,7 @@ export class RequestProcessorService extends BaseConsumer {
             if (isDelegatedConnection) {
               const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
               this.reconnectionQueue.remove(jobId);
-              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, {
-                jobId,
-                removeOnComplete: false,
-                removeOnFail: false,
-              });
+              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
             }
             break;
           }
@@ -188,6 +184,23 @@ export class RequestProcessorService extends BaseConsumer {
 
             actions.push(connectionAction);
 
+            if (isDelegatedConnection) {
+              const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
+              this.reconnectionQueue.remove(jobId);
+              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
+            }
+            break;
+          }
+          case 'disconnect': {
+            const connectionAction: DisconnectAction = {
+              type: 'Disconnect',
+              ownerDsnpUserId: dsnpUserId.toString(),
+              connection: {
+                dsnpUserId: connection.dsnpId,
+                schemaId,
+              },
+            };
+            actions.push(connectionAction);
             if (isDelegatedConnection) {
               const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
               this.reconnectionQueue.remove(jobId);

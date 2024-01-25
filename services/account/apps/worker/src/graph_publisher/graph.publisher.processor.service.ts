@@ -63,6 +63,18 @@ export class GraphUpdatePublisherService extends BaseConsumer {
           statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
           break;
         }
+        case 'DeletePage': {
+          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+          const tx = this.blockchainService.createExtrinsicCall(
+            { pallet: 'statefulStorage', extrinsic: 'deletePage' },
+            job.data.update.ownerDsnpUserId,
+            job.data.update.schemaId,
+            job.data.update.pageId,
+            job.data.update.prevHash,
+          );
+          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
+          break;
+        }
         default:
           break;
       }

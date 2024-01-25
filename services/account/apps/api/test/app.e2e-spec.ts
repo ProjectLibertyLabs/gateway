@@ -172,6 +172,91 @@ describe('Graph Service E2E request verification!', () => {
     });
   });
 
+  describe('(POST) /api/update-graph with private friend request from 2', () => {
+    it('Valid private graph update request should work', async () => {
+      const validGraphChangeRequest: ProviderGraphDto = {
+        dsnpId: '2',
+        connections: {
+          data: [
+            {
+              dsnpId: '3',
+              privacyType: PrivacyType.Private,
+              direction: Direction.ConnectionTo,
+              connectionType: ConnectionType.Friendship,
+            } as ConnectionDto,
+          ],
+        },
+        graphKeyPairs: [
+          {
+            keyType: KeyType.X25519,
+            publicKey: '0x993052b57e8695d9124964f69f624fcc2080be7525c65b1acd089dff235a0e02',
+            privateKey: '0xf74d39829ac4a814048cbda6b35ee1c3c16fbd2b88f97d552aa344bffb5207a5',
+          } as GraphKeyPairDto,
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/api/update-graph`)
+        .send(validGraphChangeRequest)
+        .expect(201)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    });
+  });
+
+  describe('(POST) /api/update-graph with private friend request from 3', () => {
+    it('Valid private graph update request should work', async () => {
+      const validGraphChangeRequest: ProviderGraphDto = {
+        dsnpId: '3',
+        connections: {
+          data: [
+            {
+              dsnpId: '2',
+              privacyType: PrivacyType.Private,
+              direction: Direction.ConnectionTo,
+              connectionType: ConnectionType.Friendship,
+            } as ConnectionDto,
+          ],
+        },
+        graphKeyPairs: [
+          {
+            keyType: KeyType.X25519,
+            publicKey: '0x993052b57e8695d9124964f69f624fcc2080be7525c65b1acd089dff235a0e02',
+            privateKey: '0xf74d39829ac4a814048cbda6b35ee1c3c16fbd2b88f97d552aa344bffb5207a5',
+          } as GraphKeyPairDto,
+        ],
+      };
+
+      return request(app.getHttpServer())
+        .post(`/api/update-graph`)
+        .send(validGraphChangeRequest)
+        .expect(201)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    });
+  });
+  describe('(POST) /api/update-graph with bi-directional connection', () => {
+    it('Valid public graph update request should work', async () => {
+      const validGraphChangeRequest: ProviderGraphDto = {
+        dsnpId: '2',
+        connections: {
+          data: [
+            {
+              dsnpId: '5',
+              privacyType: PrivacyType.Public,
+              direction: Direction.Bidirectional,
+              connectionType: ConnectionType.Follow,
+            } as ConnectionDto,
+          ],
+        },
+      };
+
+      return request(app.getHttpServer())
+        .post(`/api/update-graph`)
+        .send(validGraphChangeRequest)
+        .expect(201)
+        .expect((res) => expect(res.text).toContain('referenceId'));
+    });
+  });
+
   afterEach(async () => {
     await app.close();
   });

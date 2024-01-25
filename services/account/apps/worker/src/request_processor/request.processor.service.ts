@@ -39,6 +39,7 @@ export class RequestProcessorService extends BaseConsumer {
     try {
       const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.dsnpId);
       const providerId: ProviderId = this.blockchainService.api.registry.createType('ProviderId', job.data.providerId);
+      this.graphStateManager.removeUserGraph(dsnpUserId.toString());
       await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
       const actions: Action[] = await this.formConnections(dsnpUserId, providerId, job.data.updateConnection, job.data.connections);

@@ -62,7 +62,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
-          attempts: 3,
+          attempts: 1,
         },
       },
       {

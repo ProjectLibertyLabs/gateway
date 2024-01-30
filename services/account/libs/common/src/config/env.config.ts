@@ -51,5 +51,32 @@ export const configModuleOptions: ConfigModuleOptions = {
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
     HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
     PAGE_SIZE: Joi.number().min(1).default(100),
+    CAPACITY_LIMIT: Joi.string()
+      .custom((value: string, helpers) => {
+        try {
+          const obj = JSON.parse(value);
+          const schema = Joi.object({
+            type: Joi.string()
+              .required()
+              .pattern(/^(percentage|amount)$/),
+            value: Joi.alternatives()
+              .conditional('type', {
+                is: 'percentage',
+                then: Joi.number().min(0).max(100),
+                otherwise: Joi.number().min(0),
+              })
+              .required(),
+          });
+          const result = schema.validate(obj);
+          if (result.error) {
+            return helpers.error('any.invalid');
+          }
+        } catch (e) {
+          return helpers.error('any.invalid');
+        }
+
+        return value;
+      })
+      .required(),
   }),
 };

@@ -5,6 +5,7 @@ https://docs.nestjs.com/providers#services
 import { EnvironmentType } from '@dsnp/graph-sdk';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
@@ -26,15 +27,19 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
   PAGE_SIZE: number;
+  CAPACITY_LIMIT: number;
 }
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
 export class ConfigService {
+  private capacityLimit: ICapacityLimit;
+
   private logger: Logger;
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.logger = new Logger(this.constructor.name);
+    this.capacityLimit = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
   }
 
   public get providerBaseUrl(): URL {
@@ -123,5 +128,9 @@ export class ConfigService {
 
   public getDebounceSeconds(): number {
     return this.nestConfigService.get<number>('DEBOUNCE_SECONDS')!;
+  }
+
+  public getCapacityLimit(): ICapacityLimit {
+    return this.capacityLimit;
   }
 }

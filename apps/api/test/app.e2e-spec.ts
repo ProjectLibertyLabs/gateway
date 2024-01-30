@@ -54,6 +54,48 @@ describe('Graph Service E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
 
+    it('Two Valid public graph update requests should work', async () => {
+      const validGraphChangeRequests: ProviderGraphDto[] = [
+        {
+          dsnpId: '4',
+          connections: {
+            data: [
+              {
+                dsnpId: '5',
+                privacyType: PrivacyType.Public,
+                direction: Direction.ConnectionTo,
+                connectionType: ConnectionType.Follow,
+              } as ConnectionDto,
+            ],
+          },
+        },
+        {
+          dsnpId: '6',
+          connections: {
+            data: [
+              {
+                dsnpId: '3',
+                privacyType: PrivacyType.Public,
+                direction: Direction.ConnectionTo,
+                connectionType: ConnectionType.Follow,
+              } as ConnectionDto,
+            ],
+          },
+        },
+      ];
+
+      const requests = validGraphChangeRequests.map((requestPayload) => {
+        console.log(`requestPayload.dsnpId: ${requestPayload.dsnpId}`);
+        return request(app.getHttpServer())
+          .post(`/api/update-graph`)
+          .send(requestPayload)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
+
+      await Promise.all(requests);
+    });
+
     it('Valid private graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: '2',

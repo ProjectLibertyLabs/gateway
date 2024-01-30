@@ -55,6 +55,7 @@ describe('GraphSericeConfig', () => {
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     PAGE_SIZE: undefined,
+    CAPACITY_LIMIT: undefined,
   };
 
   beforeAll(() => {
@@ -97,6 +98,19 @@ describe('GraphSericeConfig', () => {
     it('invalid graph environment dev config should fail', async () => {
       const { GRAPH_ENVIRONMENT_TYPE: dummy, GRAPH_ENVIRONMENT_DEV_CONFIG: dummy2, ...env } = ALL_ENV;
       await expect(setupConfigService({ GRAPH_ENVIRONMENT_TYPE: 'Dev', GRAPH_ENVIRONMENT_DEV_CONFIG: 'invalid json', ...env })).rejects.toBeDefined();
+    });
+
+    it('missing capacity limits should fail', async () => {
+      const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ CAPACITY_LIMIT: undefined, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid capacity limit should fail', async () => {
+      const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env })).rejects.toBeDefined();
+      await expect(async () => setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env })).rejects.toBeDefined();
     });
   });
 
@@ -184,6 +198,10 @@ describe('GraphSericeConfig', () => {
 
     it('should get debounce seconds', () => {
       expect(graphServiceConfig.getDebounceSeconds()).toStrictEqual(parseInt(ALL_ENV.DEBOUNCE_SECONDS as string, 10));
+    });
+
+    it('should get capacity limit', () => {
+      expect(graphServiceConfig.getCapacityLimit()).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
     });
   });
 });

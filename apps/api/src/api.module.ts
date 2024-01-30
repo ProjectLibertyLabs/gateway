@@ -82,7 +82,7 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
-          attempts: 3,
+          attempts: 1,
         },
       },
       {

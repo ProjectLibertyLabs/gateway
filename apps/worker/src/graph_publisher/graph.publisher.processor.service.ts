@@ -1,6 +1,6 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { Hash } from '@polkadot/types/interfaces';
@@ -8,7 +8,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants, NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
@@ -18,10 +18,26 @@ import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
 
 export const SECONDS_PER_BLOCK = 12;
+const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
+/**
+ * Service responsible for publishing graph updates.
+ */
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE)
-export class GraphUpdatePublisherService extends BaseConsumer {
+export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
+  public async onApplicationBootstrap() {
+    await this.checkCapacity();
+  }
+
+  public async onApplicationShutdown(signal?: string | undefined): Promise<void> {
+    try {
+      this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
+    } catch (err) {
+      // ignore
+    }
+  }
+
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
@@ -29,7 +45,7 @@ export class GraphUpdatePublisherService extends BaseConsumer {
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
-    private emitter: EventEmitter2,
+    private schedulerRegistry: SchedulerRegistry,
   ) {
     super();
   }
@@ -40,11 +56,11 @@ export class GraphUpdatePublisherService extends BaseConsumer {
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<GraphUpdateJob, any, string>): Promise<any> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     let statefulStorageTxHash: Hash = {} as Hash;
-    const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
-    const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
     try {
+      this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+      const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
+      const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       switch (job.data.update.type) {
         case 'PersistPage': {
           let payloadData: number[] = [];
@@ -79,7 +95,7 @@ export class GraphUpdatePublisherService extends BaseConsumer {
           break;
       }
 
-      this.logger.debug(`job: ${JSON.stringify(job, null, 2)}`);
+      this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
       // Add a job to the graph change notify queue
       const txMonitorJob: ITxMonitorJob = {
@@ -91,17 +107,15 @@ export class GraphUpdatePublisherService extends BaseConsumer {
       };
       const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
+      this.logger.debug(`Adding job to graph change notify queue: ${txMonitorJob.id}`);
       this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
         delay: blockDelay,
       });
     } catch (error: any) {
-      // If error message starts with `1010: Invalid Transaction: Inability to pay some fees, e.g. account balance too low`
-      // then emit an event to pause the queues
-      if (error.message.startsWith('1010: Invalid Transaction: Inability to pay some fees')) {
-        this.emitter.emit('lowCapacity');
-      }
       this.logger.error(error);
       throw error;
+    } finally {
+      await this.checkCapacity();
     }
   }
 
@@ -114,7 +128,7 @@ export class GraphUpdatePublisherService extends BaseConsumer {
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
   async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>): Promise<Hash> {
-    this.logger.debug(`Submitting tx of size ${tx.length}`);
+    this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
@@ -123,6 +137,7 @@ export class GraphUpdatePublisherService extends BaseConsumer {
         tx,
       );
       const nonce = await this.nonceService.getNextNonce();
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
       const [txHash, _] = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');
@@ -136,22 +151,81 @@ export class GraphUpdatePublisherService extends BaseConsumer {
   }
 
   /**
-   * Handles low capacity by pausing the graph change notify queue.
-   * @returns A promise that resolves when the queue is paused.
+   * Checks the capacity of the graph publisher and takes appropriate actions based on the capacity status.
+   * If the capacity is exhausted, it pauses the graph change publish queue and sets a timeout to check the capacity again.
+   * If the capacity is refilled, it resumes the graph change publish queue and clears the timeout.
+   * If any jobs failed due to low balance/no capacity, it retries them.
+   * If any error occurs during the capacity check, it logs the error.
    */
-  @OnEvent('lowCapacity', { async: true, promisify: true })
-  private async handleLowCapacity(): Promise<void> {
-    this.logger.debug('Pausing graph change notify queue');
-    // await this.graphChangePublishQueue.pause();
-  }
+  private async checkCapacity(): Promise<void> {
+    try {
+      const capacityLimit = this.configService.getCapacityLimit();
+      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+      const { remainingCapacity } = capacityInfo;
+      const { currentEpoch } = capacityInfo;
+      const epochCapacityKey = `epochCapacity:${currentEpoch}`;
+      const epochUsedCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0); // Fetch capacity used by the service
+      let outOfCapacity = remainingCapacity <= 0n;
 
-  /**
-   * Handles capacity recovered by resuming the graph change notify queue.
-   * @returns A promise that resolves when the queue is resumed.
-   */
-  @OnEvent('capacityRecovered', { async: true, promisify: true })
-  private async handleCapacityRecovered(): Promise<void> {
-    this.logger.debug('Resuming graph change notify queue');
-    // await this.graphChangeNotifyQueue.resume();
+      if (!outOfCapacity) {
+        this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
+        if (capacityLimit.type === 'percentage') {
+          const capacityLimitPercentage = BigInt(capacityLimit.value);
+          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
+          this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
+          if (epochUsedCapacity >= capacityLimitThreshold) {
+            outOfCapacity = true;
+            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
+          }
+        } else if (epochUsedCapacity >= capacityLimit.value) {
+          outOfCapacity = true;
+          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
+        }
+      }
+
+      if (outOfCapacity) {
+        await this.graphChangePublishQueue.pause();
+        const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
+        const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+        this.logger.warn(`Capacity Exhausted: Pausing graph change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
+        try {
+          // Check if a timeout with the same name already exists
+          if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
+            // If it does, delete it
+            this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
+          }
+
+          // Add the new timeout
+          this.schedulerRegistry.addTimeout(
+            CAPACITY_EPOCH_TIMEOUT_NAME,
+            setTimeout(() => this.checkCapacity(), epochTimeout),
+          );
+        } catch (err) {
+          // Handle any errors
+          console.error(err);
+        }
+      } else {
+        this.logger.verbose('Capacity Available: Resuming graph change publish queue and clearing timeout');
+        // Get the failed jobs and check if they failed due to capacity
+        const failedJobs = await this.graphChangePublishQueue.getFailed();
+        const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
+        // Retry the failed jobs
+        await Promise.all(
+          capacityFailedJobs.map(async (job) => {
+            this.logger.debug(`Retrying job ${job.id}`);
+            job.retry();
+          }),
+        );
+        try {
+          this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
+        } catch (err) {
+          // ignore
+        }
+
+        await this.graphChangePublishQueue.resume();
+      }
+    } catch (err) {
+      this.logger.error('Caught error in checkCapacity', err);
+    }
   }
 }

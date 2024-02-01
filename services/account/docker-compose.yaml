@@ -47,10 +47,9 @@ services:
     container_name: frequency-manual-node
     volumes:
       - chainstorage:/data
-  graph-service-api:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
+
+  api:
+    image: amplicalabs/graph-service-service:api-0.0.2-rc2
     platform: linux/amd64
     ports:
       - 3000:3000
@@ -65,13 +64,11 @@ services:
       - frequency
     networks:
       - graph-service-service
-    profiles: ['instant']
     restart: on-failure
+    profiles: ['instant']
 
-  graph-service-worker:
-    build:
-      context: .
-      dockerfile: dev.Dockerfile
+  worker:
+    image: amplicalabs/graph-service-service:api-0.0.2-rc2
     platform: linux/amd64
     env_file:
       - .env.dev
@@ -84,8 +81,8 @@ services:
       - frequency
     networks:
       - graph-service-service
-    profiles: ['instant'] 
     restart: on-failure
+    profiles: ['instant'] 
 
 volumes:
   redis_data:

@@ -62,18 +62,17 @@ export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C exte
     return this.event;
   }
 
-  public signAndSend(nonce?: number): Promise<[Hash, EventMap]> {
-    return firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce })).then(({ status, events, txHash }) => {
-      if (status.isFinalized || status.isInBlock) {
-        const eventMap: EventMap = {};
-        events.forEach((record: EventRecord) => {
-          const { event } = record;
-          eventMap[eventKey(event)] = event;
-        });
-        return [txHash, eventMap];
-      }
-      return [txHash, {}];
-    });
+  public async signAndSend(nonce?: number): Promise<[Hash, EventMap]> {
+    const { status, events, txHash } = await firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce }));
+    if (status.isFinalized || status.isInBlock) {
+      const eventMap: EventMap = {};
+      events.forEach((record: EventRecord) => {
+        const { event } = record;
+        eventMap[eventKey(event)] = event;
+      });
+      return [txHash, eventMap];
+    }
+    return [txHash, {}];
   }
 
   public getCall(): Call {

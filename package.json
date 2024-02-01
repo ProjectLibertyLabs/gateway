@@ -4,7 +4,7 @@
   "description": "Graph Service enabling handling of users graph data on the Frequency Network",
   "main": "dist/apps/api/main.js",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build api && nest build worker",
     "build:swagger": "npx ts-node apps/api/src/generate-metadata.ts",
     "generate-swagger-ui": "redoc-cli bundle swagger.yaml --output=./docs/index.html",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",

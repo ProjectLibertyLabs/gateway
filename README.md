@@ -8,6 +8,7 @@ A service enabling easy interaction with DSNP private and public graphs on Frequ
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
+  - [Running E2E tests](#running-e2e-tests)
   
 ## Prerequisites
 
@@ -29,19 +30,8 @@ A service enabling easy interaction with DSNP private and public graphs on Frequ
 
    This will start Frequency, Redis and Graph Service api/worker containers.
 
-3. Run a graph scenario from [frequency scenario templates](https://github.com/AmplicaLabs/frequency-scenario-template/tree/graph-service-setup). Note the use of branch `graph-service-setup` of the frequency scenario template repo.
-
-   ```bash
-    git clone https://github.com/AmplicaLabs/frequency-scenario-template.git
-    cd frequency-scenario-template
-    git checkout graph-service-setup
-    npm run run-example --example=graph-migration-setup
-    ```
-
-    This will create `//Ferdie` as provider along with DSNPIds 2,3,4,5 and 6 as users. The template will also add a public key for each user in itemized storage needed for private graph operations.
-
-4. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
-5. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
+3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
+4. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
 
 ## Running E2E tests
 
@@ -55,21 +45,16 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 
    This will start Frequency and Redis
 
-2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run a graph scenario from [frequency scenario templates](https://github.com/AmplicaLabs/frequency-scenario-template/tree/graph-service-setup). Note the use of branch `graph-service-setup` of the frequency scenario template repo.
+2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run a graph setup with Alice as provider 1 and 2,3,4,5,6 as users.
 
-   ```bash
-    git clone https://github.com/AmplicaLabs/frequency-scenario-template.git
-    cd frequency-scenario-template
-    git checkout graph-service-setup
-    npm run run-example --example=graph-migration-setup
-    ```
-
-    This will create `//Ferdie` as provider along with DSNPIds 2,3,4,5 and 6 as users. The template will also add a public key for each user in itemized storage needed for private graph operations.
+      ```bash
+         make setup
+      ```
 
 3. Run the following command to start the graph service api and worker containers.
 
    ```bash
-   docker-compose --profile instant up -d api worker
+      docker-compose --profile instant up -d api worker
    ```
 
    This will start the graph service api and worker in development mode.
@@ -79,7 +64,7 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 5. Run the tests
 
    ```bash
-   npm run test:e2e
+      make test-e2e
    ```
 
    This will run the tests in `apps/api/test` folder.

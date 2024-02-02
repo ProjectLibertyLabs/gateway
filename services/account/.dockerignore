@@ -5,3 +5,5 @@ npm-debug.log
 dist
 .env*
 env.template
+**/node_modules
+**/test

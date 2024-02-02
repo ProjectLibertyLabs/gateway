@@ -20,6 +20,10 @@ clean-graph-service:
 ###### Testing targets
 ######
 
+.PHONY: setuup
+setup:
+	@cd apps/api/test/setup && npm install && npm run main
+
 .PHONY: test-e2e
 test-e2e:
 	@(npm run test:e2e)

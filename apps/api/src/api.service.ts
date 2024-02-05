@@ -37,7 +37,14 @@ export class ApiService implements OnApplicationShutdown {
   }
 
   onApplicationShutdown(signal?: string | undefined) {
-    this.logger.log('Cleanup on shutdown completed.');
+    try {
+      this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
+      this.redis.del(QueueConstants.DEBOUNCER_CACHE_KEY);
+      this.redis.del(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY);
+      this.logger.log('Cleanup on shutdown completed.');
+    } catch (e) {
+      this.logger.error(`Error during cleanup on shutdown: ${e}`);
+    }
   }
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {

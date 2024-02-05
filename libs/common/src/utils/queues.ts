@@ -28,4 +28,10 @@ export namespace QueueConstants {
    * Debouncer cache key
    */
   export const DEBOUNCER_CACHE_KEY = 'graph-service-debouncer';
+
+  /**
+   * Last processed dsnpId key for Redis
+   * @type {string}
+   */
+  export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedDsnpId';
 }

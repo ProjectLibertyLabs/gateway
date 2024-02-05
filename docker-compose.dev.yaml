@@ -47,7 +47,7 @@ services:
     container_name: frequency-manual-node
     volumes:
       - chainstorage:/data
-  graph-service-api:
+  api:
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -68,7 +68,7 @@ services:
     profiles: ['instant']
     restart: on-failure
 
-  graph-service-worker:
+  worker:
     build:
       context: .
       dockerfile: dev.Dockerfile

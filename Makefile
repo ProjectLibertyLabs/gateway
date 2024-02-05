@@ -20,7 +20,7 @@ clean-graph-service:
 ###### Testing targets
 ######
 
-.PHONY: setuup
+.PHONY: setup
 setup:
 	@cd apps/api/test/setup && npm install && npm run main
 

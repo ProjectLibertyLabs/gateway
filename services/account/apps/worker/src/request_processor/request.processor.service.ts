@@ -1,12 +1,13 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys, DisconnectAction, Action } from '@dsnp/graph-sdk';
 import { MessageSourceId, SchemaGrantResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
 import {
   ConnectionDto,
@@ -20,7 +21,8 @@ import {
 } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { Direction } from '../../../../libs/common/src/dtos/direction.dto';
-
+import { SECONDS_PER_BLOCK } from '../graph_publisher/graph.publisher.processor.service';
+import fs from 'fs';
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
 export class RequestProcessorService extends BaseConsumer {
@@ -32,11 +34,25 @@ export class RequestProcessorService extends BaseConsumer {
     private blockchainService: BlockchainService,
   ) {
     super();
+    cacheManager.defineCommand('updateLastProcessed', {
+      numberOfKeys: 1,
+      lua: fs.readFileSync('lua/updateLastProcessed.lua', 'utf8'),
+    });
+    this.logger = new Logger(RequestProcessorService.name);
   }
 
   async process(job: Job<ProviderGraphUpdateJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     try {
+      const lastProcessedDsnpId = await this.cacheManager.get(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY);
+      if (lastProcessedDsnpId && lastProcessedDsnpId === job.data.dsnpId) {
+        this.logger.debug(`Delaying processing of job ${job.id} for ${blockDelay}ms`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => {
+          setTimeout(r, blockDelay);
+        });
+      }
       const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.dsnpId);
       const providerId: ProviderId = this.blockchainService.api.registry.createType('ProviderId', job.data.providerId);
       this.graphStateManager.removeUserGraph(dsnpUserId.toString());
@@ -70,6 +86,9 @@ export class RequestProcessorService extends BaseConsumer {
 
       const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
       if (reImported) {
+        // Use lua script to update last processed dsnpId
+        // @ts-ignore
+        await this.cacheManager.updateLastProcessed(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY, dsnpUserId.toString(), blockDelay);
         this.logger.debug(`Re-imported bundles for ${dsnpUserId.toString()}`);
         // eslint-disable-next-line no-await-in-loop
         const userGraphExists = this.graphStateManager.graphContainsUser(dsnpUserId.toString());

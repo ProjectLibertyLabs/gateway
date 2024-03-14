@@ -1,10 +1,10 @@
-# Graph-Service
+# Account-Service
 
-A service enabling easy interaction with DSNP private and public graphs on Frequency
+A service enabling easy interaction with DSNP accounts on Frequency
 
 ## Table of Contents
 
-- [Graph-Service](#graph-service)
+- [Account-Service](#Account-service)
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
@@ -19,7 +19,7 @@ A service enabling easy interaction with DSNP private and public graphs on Frequ
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/amplicalabls/graph-service.git
+   git clone https://github.com/amplicalabls/account-service.git
    ```
 
 2. Start docker compose
@@ -28,7 +28,7 @@ A service enabling easy interaction with DSNP private and public graphs on Frequ
    docker-compose -f docker-compose.dev.yaml --profile instant up 
    ```
 
-   This will start Frequency, Redis and Graph Service api/worker containers.
+   This will start Frequency, Redis and Account Service api/worker containers.
 
 3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
 4. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
@@ -51,13 +51,13 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
          make setup
       ```
 
-3. Run the following command to start the graph service api and worker containers.
+3. Run the following command to start the account service api and worker containers.
 
    ```bash
       docker-compose --profile instant up -d api worker
    ```
 
-   This will start the graph service api and worker in development mode.
+   This will start the account service api and worker in development mode.
 
 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
 

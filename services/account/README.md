@@ -1,6 +1,12 @@
 # Account-Service
 
-A service enabling easy interaction with DSNP accounts on Frequency
+A service enabling easy interaction with DSNP accounts on Frequency.
+For example, here are some interactions that are provided by account-service:
+- Account creation (and behind the scenes delegation to the provider)
+- Username, or handle, claiming
+- Exporting private graph keys
+- Easy integration with Web3 wallets
+- Sessions??
 
 ## Table of Contents
 
@@ -70,3 +76,6 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
    This will run the tests in `apps/api/test` folder.
 
 6. Check e2e test file for more details on the test.
+
+## Development Environment 
+### What needs to be installed/setup, etc?

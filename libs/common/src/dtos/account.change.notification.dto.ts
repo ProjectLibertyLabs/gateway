@@ -1,6 +1,6 @@
 import { Update } from '@dsnp/graph-sdk';
 
-export class GraphChangeNotificationDto {
+export class AccountChangeNotificationDto {
   dsnpId: string;
 
   update: Update;

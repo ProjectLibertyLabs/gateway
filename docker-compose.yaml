@@ -8,7 +8,7 @@ services:
     volumes:
       - redis_data:/data/redis
     networks:
-      - graph-service-service
+      - account-service-service
 
   frequency:
     image: frequencychain/instant-seal-node:latest
@@ -17,7 +17,7 @@ services:
       - 9944:9944
     profiles: ['', 'instant']
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency
     volumes:
       - chainstorage:/data
@@ -30,7 +30,7 @@ services:
     profiles:
       - 'interval'
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency-interval-node
     volumes:
       - chainstorage:/data
@@ -43,13 +43,13 @@ services:
     profiles:
       - 'manual'
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency-manual-node
     volumes:
       - chainstorage:/data
 
   api:
-    image: amplicalabs/graph-service-service:api-0.0.2-rc3
+    image: amplicalabs/account-service-service:api-0.0.2-rc3
     platform: linux/amd64
     ports:
       - 3000:3000
@@ -63,12 +63,12 @@ services:
       - redis
       - frequency
     networks:
-      - graph-service-service
+      - account-service-service
     restart: on-failure
     profiles: ['instant']
 
   worker:
-    image: amplicalabs/graph-service-service:api-0.0.2-rc3
+    image: amplicalabs/account-service-service:api-0.0.2-rc3
     platform: linux/amd64
     env_file:
       - .env.dev
@@ -80,7 +80,7 @@ services:
       - redis
       - frequency
     networks:
-      - graph-service-service
+      - account-service-service
     restart: on-failure
     profiles: ['instant'] 
 
@@ -90,6 +90,6 @@ volumes:
     external: false
 
 networks:
-  graph-service-service:
+  account-service-service:
 
 

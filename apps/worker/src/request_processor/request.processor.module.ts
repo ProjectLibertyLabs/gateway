@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants, GraphStateManager } from '../../../../libs/common/src';
+import { QueueConstants, AccountStateManager } from '../../../../libs/common/src';
 import { RequestProcessorService } from './request.processor.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 
@@ -50,7 +50,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: false,
           removeOnFail: false,
@@ -58,24 +58,16 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
           attempts: 1,
         },
       },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
     ),
   ],
-  providers: [RequestProcessorService, GraphStateManager],
+  providers: [RequestProcessorService, AccountStateManager],
   exports: [BullModule, RequestProcessorService],
 })
 export class RequestProcessorModule {}

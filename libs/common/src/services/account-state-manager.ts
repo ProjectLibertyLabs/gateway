@@ -1,24 +1,4 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import {
-  Action,
-  Graph,
-  EnvironmentInterface,
-  GraphKeyPair,
-  GraphKeyType,
-  ImportBundle,
-  Update,
-  Config,
-  DevEnvironment,
-  EnvironmentType,
-  DsnpKeys,
-  DsnpPublicKey,
-  DsnpGraphEdge,
-  ConnectionType,
-  PrivacyType,
-  ImportBundleBuilder,
-  KeyData,
-} from '@dsnp/graph-sdk';
-import { ItemizedStoragePageResponse, MessageSourceId, PaginatedStorageResponse } from '@frequency-chain/api-augment/interfaces';
 import { hexToU8a } from '@polkadot/util';
 import { AnyNumber } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
@@ -27,14 +7,8 @@ import { KeyType } from '../dtos/key.type.dto';
 import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Injectable()
-export class GraphStateManager implements OnApplicationBootstrap {
-  private graphState: Graph;
-
+export class AccountStateManager implements OnApplicationBootstrap {
   private environment: EnvironmentInterface; // Environment details
-
-  private schemaIds: { [key: string]: { [key: string]: number } };
-
-  private graphKeySchemaId: number;
 
   private static graphStateFinalizer = new FinalizationRegistry((graphState: Graph) => {
     if (graphState) {
@@ -79,7 +53,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
     }
     this.graphState = new Graph(this.environment);
 
-    GraphStateManager.graphStateFinalizer.register(this, this.graphState);
+    AccountStateManager.graphStateFinalizer.register(this, this.graphState);
   }
 
   public getGraphState(): Graph {

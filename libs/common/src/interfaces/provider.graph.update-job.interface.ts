@@ -1,4 +1,3 @@
-import { ConnectionDto } from '../dtos/connections.dto';
 import { GraphKeyPairDto } from '../dtos/graph.key.pair.dto';
 
 export class ProviderGraphUpdateJob {
@@ -7,8 +6,6 @@ export class ProviderGraphUpdateJob {
   dsnpId: string;
 
   providerId: string;
-
-  connections: ConnectionDto[];
 
   graphKeyPairs?: GraphKeyPairDto[];
 

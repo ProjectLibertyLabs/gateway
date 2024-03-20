@@ -8,7 +8,7 @@ services:
     volumes:
       - redis_data:/data/redis
     networks:
-      - graph-service-service
+      - account-service-service
 
   frequency:
     image: frequencychain/instant-seal-node:latest
@@ -17,7 +17,7 @@ services:
       - 9944:9944
     profiles: ['', 'instant']
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency
     volumes:
       - chainstorage:/data
@@ -30,7 +30,7 @@ services:
     profiles:
       - 'interval'
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency-interval-node
     volumes:
       - chainstorage:/data
@@ -43,7 +43,7 @@ services:
     profiles:
       - 'manual'
     networks:
-      - graph-service-service
+      - account-service-service
     container_name: frequency-manual-node
     volumes:
       - chainstorage:/data
@@ -64,7 +64,7 @@ services:
       - redis
       - frequency
     networks:
-      - graph-service-service
+      - account-service-service
     profiles: ['instant']
     restart: on-failure
 
@@ -83,7 +83,7 @@ services:
       - redis
       - frequency
     networks:
-      - graph-service-service
+      - account-service-service
     profiles: ['instant'] 
     restart: on-failure
 
@@ -93,6 +93,6 @@ volumes:
     external: false
 
 networks:
-  graph-service-service:
+  account-service-service:
 
 

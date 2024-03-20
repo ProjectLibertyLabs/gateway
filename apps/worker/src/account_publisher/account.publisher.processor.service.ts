@@ -24,7 +24,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  * Service responsible for publishing graph updates.
  */
 @Injectable()
-@Processor(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE)
+@Processor(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE)
 export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.checkCapacity();
@@ -40,8 +40,8 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE) private graphChangeNotifyQueue: Queue,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE) private graphChangeNotifyQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,

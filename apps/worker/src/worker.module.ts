@@ -8,11 +8,11 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
 import { RequestProcessorService } from './request_processor/request.processor.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
-import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
-import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
-import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
-import { ProviderWebhookService, NonceService, QueueConstants, GraphStateManager } from '../../../libs/common/src';
+import { AccountUpdatePublisherModule } from './account_publisher/acount.publisher.processor.module';
+import { AccountUpdatePublisherService } from './account_publisher/account.publisher.processor.service';
+import { AccountNotifierModule } from './account_notifier/account.monitor.processor.module';
+import { AccountNotifierService } from './account_notifier/account.monitor.processor.service';
+import { ProviderWebhookService, NonceService, QueueConstants, AccountStateManager } from '../../../libs/common/src';
 import { BlockchainScannerService } from '../../../libs/common/src/services/blockchain-scanner.service';
 
 @Module({
@@ -49,7 +49,7 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: false,
           removeOnFail: false,
@@ -57,7 +57,7 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -65,17 +65,9 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
           removeOnFail: false,
           attempts: 3,
         },
@@ -84,18 +76,18 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
     ScheduleModule.forRoot(),
     BlockchainModule,
     RequestProcessorModule,
-    GraphUpdatePublisherModule,
-    GraphNotifierModule,
+    AccountUpdatePublisherModule,
+    AccountNotifierModule,
   ],
   providers: [
     ConfigService,
     RequestProcessorService,
-    GraphUpdatePublisherService,
-    GraphNotifierService,
+    AccountUpdatePublisherService,
+    AccountNotifierService,
     ProviderWebhookService,
     NonceService,
     BlockchainScannerService,
-    GraphStateManager,
+    AccountStateManager,
   ],
 })
 export class WorkerModule {}

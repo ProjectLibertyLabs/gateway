@@ -6,7 +6,7 @@ export const SkipTransitiveGraphs = false;
 
 // Note: DSNP IDs are u64 on Frequency, but since JS 'bigint' doesn't automatically
 //       serialize to JSON, we use strings here.
-export interface IGraphUpdateJob {
+export interface IAccountUpdateJob {
   dsnpId: string;
   providerId: string;
   processTransitiveUpdates: boolean;
@@ -21,7 +21,7 @@ export function createReconnectionJob(
   providerIdValue: ProviderId | AnyNumber | string,
   processTransitiveUpdates: boolean,
   debugDisposition?: string,
-): { key: string; data: IGraphUpdateJob } {
+): { key: string; data: IAccountUpdateJob } {
   let dsnpId: string;
   let providerId: string;
   if (typeof dsnpIdValue !== 'string') {

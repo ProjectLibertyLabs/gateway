@@ -3,17 +3,17 @@
 ######
 
 .PHONY: build
-build: build-graph-service
+build: build-account-service
 
-.PHONY:  build-graph-service
-build-graph-service:
+.PHONY:  build-account-service
+build-account-service:
 	@(npm run build)
 
-clean: clean-graph-service
+clean: clean-account-service
 	@cat /dev/null
 
-.PHONY: clean-graph-service
-clean-graph-service:
+.PHONY: clean-account-service
+clean-account-service:
 	@rm -rf dist
 
 ######
@@ -32,8 +32,8 @@ test-e2e:
 ###### Running apps targets
 ######
 
-.PHONY: start-graph-service
-start-graph-service:
+.PHONY: start-account-service
+start-account-service:
 	@(nest start api --watch)
 
 ######

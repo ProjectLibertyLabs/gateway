@@ -9,7 +9,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { NonceService, QueueConstants } from '../../../../libs/common/src';
-import { GraphUpdatePublisherService } from './graph.publisher.processor.service';
+import { GraphUpdatePublisherService } from './account.publisher.processor.service';
 
 @Module({
   imports: [
@@ -50,14 +50,14 @@ import { GraphUpdatePublisherService } from './graph.publisher.processor.service
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,

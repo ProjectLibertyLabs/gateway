@@ -8,24 +8,24 @@ import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { AsyncDebouncerService, GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
+import { AsyncDebouncerService, AccountChangeNotificationDto, AccountStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
 @Injectable()
-@Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)
+@Processor(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE)
 export class GraphNotifierService extends BaseConsumer {
   private asyncDebouncerService: AsyncDebouncerService;
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private changeRequestQueue: Queue,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE) private changeRequestQueue: Queue,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
-    private graphStateManager: GraphStateManager,
+    private graphStateManager: AccountStateManager,
   ) {
     super();
     this.asyncDebouncerService = new AsyncDebouncerService(this.cacheManager, this.configService, this.graphStateManager);
@@ -81,7 +81,7 @@ export class GraphNotifierService extends BaseConsumer {
               this.logger.debug(`No graph edges found for ${dsnpUserId.toString()}`);
             }
           }
-          const notification: GraphChangeNotificationDto = {
+          const notification: AccountChangeNotificationDto = {
             dsnpId: job.data.referencePublishJob.update.ownerDsnpUserId,
             update: job.data.referencePublishJob.update,
           };

@@ -7,8 +7,8 @@ import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { GraphStateManager, QueueConstants } from '../../../../libs/common/src';
-import { GraphNotifierService } from './graph.monitor.processor.service';
+import { AccountStateManager, QueueConstants } from '../../../../libs/common/src';
+import { AccountNotifierService } from './account.monitor.processor.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
@@ -51,7 +51,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -59,7 +59,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -71,7 +71,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
       },
     ),
   ],
-  providers: [GraphNotifierService, GraphStateManager, BlockchainService, ConfigService],
-  exports: [BullModule, GraphNotifierService, BlockchainService, ConfigService],
+  providers: [AccountNotifierService, AccountStateManager, BlockchainService, ConfigService],
+  exports: [BullModule, AccountNotifierService, BlockchainService, ConfigService],
 })
-export class GraphNotifierModule {}
+export class AccountNotifierModule {}

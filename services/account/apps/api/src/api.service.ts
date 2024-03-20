@@ -7,8 +7,8 @@ import { createHash } from 'crypto';
 import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import {
   AsyncDebouncerService,
-  GraphChangeRepsonseDto,
-  GraphStateManager,
+  AccountChangeRepsonseDto,
+  AccountStateManager,
   GraphsQueryParamsDto,
   ProviderGraphDto,
   ProviderGraphUpdateJob,
@@ -27,8 +27,8 @@ export class ApiService implements OnApplicationShutdown {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
-    private graphStateManager: GraphStateManager,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
+    private graphStateManager: AccountStateManager,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {
@@ -47,7 +47,7 @@ export class ApiService implements OnApplicationShutdown {
     }
   }
 
-  async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
+  async enqueueRequest(request: ProviderGraphDto): Promise<AccountChangeRepsonseDto> {
     const providerId = this.configService.getProviderId();
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,

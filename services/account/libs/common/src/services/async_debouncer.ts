@@ -5,7 +5,7 @@ import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfac
 import { QueueConstants } from '../utils/queues';
 import { DsnpGraphEdge } from '../dtos/dsnp.graph.edge.dto';
 import { ConfigService } from '../config/config.service';
-import { GraphStateManager } from './graph-state-manager';
+import { AccountStateManager } from './account-state-manager';
 import { GraphKeyPairDto } from '../dtos/graph.key.pair.dto';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AsyncDebouncerService {
   constructor(
     private redis: Redis,
     private readonly configService: ConfigService,
-    private readonly graphStateManager: GraphStateManager,
+    private readonly graphStateManager: AccountStateManager,
   ) {
     this.logger = new Logger(this.constructor.name);
   }

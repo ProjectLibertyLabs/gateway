@@ -11,7 +11,7 @@ import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
+import { AccountStateManager, QueueConstants } from '../../../libs/common/src';
 
 @Module({
   imports: [
@@ -70,7 +70,7 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: false,
           removeOnFail: false,
@@ -78,7 +78,7 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -86,7 +86,7 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -108,15 +108,15 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
       adapter: ExpressAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+      name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
+      name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+      name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
@@ -125,7 +125,7 @@ import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, GraphStateManager, ConfigService],
+  providers: [ApiService, AccountStateManager, ConfigService],
   controllers: [ApiController],
   exports: [],
 })

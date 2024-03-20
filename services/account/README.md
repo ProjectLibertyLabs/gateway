@@ -77,5 +77,8 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 
 6. Check e2e test file for more details on the test.
 
-## Development Environment 
+## Development Environment
+
 ### What needs to be installed/setup, etc?
+
+- Use `npm clean-install` to install the dependencies.

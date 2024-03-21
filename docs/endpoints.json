@@ -1,0 +1,626 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://localhost:5005"
+    }
+  ],
+  "info": {
+    "title": "DSNP Gateway Account Services Prototype API Documentation",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/provider": {
+      "get": {
+        "operationId": "authProvider",
+        "summary": "Return the delegation and provider information",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/challenge": {
+      "get": {
+        "operationId": "authChallenge",
+        "summary": "Return a challenge for login",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "operationId": "authLogin",
+        "summary": "Use a challenge to login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "operationId": "authLogout",
+        "summary": "Logout and invalidate the access token",
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/create": {
+      "post": {
+        "operationId": "authCreate",
+        "summary": "Creates a new DSNP Identity",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIdentityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateIdentityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "operationId": "authAccount",
+        "summary": "For polling to get the created account as authCreate can take time",
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "202": {
+            "description": "Account still pending creation"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthAccountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handles": {
+      "post": {
+        "operationId": "authHandles",
+        "summary": "Get handles for public keys",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Public key to fetch a handle"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response of accounts with handles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HandlesResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delegate": {
+      "post": {
+        "operationId": "authDelegate",
+        "summary": "Delegate to the provider with an existing DSNP Identity",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelegateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/keys/{dsnpId}": {
+      "post": {
+        "operationId": "createKeys",
+        "summary": "Create new control keys for an MSA ID.",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeysResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "getKeys",
+        "summary": "Get all control keys associated with an MSA ID.",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeysResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeKeys",
+        "summary": "Get all control keys associated with an MSA ID.",
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeysResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles": {
+      "get": {
+        "operationId": "getProfiles",
+        "summary": "Get all profiles",
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{dsnpId}": {
+      "get": {
+        "operationId": "getProfile",
+        "summary": "Get profile information for a specific user",
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "createProfile",
+        "summary": "Create/Edit the profile information for a current user",
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "accessToken"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Access token invalid or not found"
+      }
+    },
+    "schemas": {
+      "ProviderResponse": {
+        "type": "object",
+        "properties": {
+          "nodeUrl": {
+            "type": "string"
+          },
+          "ipfsGateway": {
+            "description": "IPFS Path Style Gateway base URI",
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "network": {
+            "type": "string",
+            "enum": ["local", "testnet", "mainnet"]
+          }
+        },
+        "required": ["nodeUrl", "providerId", "schemas", "network"]
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "challenge": {
+            "type": "string"
+          }
+        },
+        "required": ["challenge"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": ["SR25519"]
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["hex"]
+          },
+          "encodedValue": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "challenge": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encodedValue", "encoding", "publicKey", "challenge"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          },
+          "dsnpId": {
+            "type": "string"
+          }
+        },
+        "required": ["expires", "accessToken", "dsnpId"]
+      },
+      "CreateIdentityRequest": {
+        "type": "object",
+        "properties": {
+          "addProviderSignature": {
+            "type": "string"
+          },
+          "algo": {
+            "type": "string",
+            "enum": ["SR25519"]
+          },
+          "baseHandle": {
+            "type": "string"
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["hex"]
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "handleSignature": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["addProviderSignature", "algo", "baseHandle", "encoding", "expiration", "handleSignature", "publicKey"]
+      },
+      "CreateIdentityResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          }
+        },
+        "required": ["expires", "accessToken"]
+      },
+      "AuthAccountResponse": {
+        "type": "object",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "displayHandle": {
+            "type": "string"
+          }
+        },
+        "required": ["dsnpId"]
+      },
+      "DelegateRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": ["SR25519"]
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["hex"]
+          },
+          "encodedValue": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encodedValue", "encoding", "publicKey"]
+      },
+      "DelegateResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          }
+        },
+        "required": ["expires", "accessToken"]
+      },
+      "HandlesResponse": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": ["publicKey", "handle"]
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "fromId": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "content": {
+            "description": "JSON-encoded Activity Content Note",
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the post"
+          },
+          "displayHandle": {
+            "type": "string"
+          }
+        },
+        "required": ["fromId", "contentHash", "content", "timestamp"]
+      },
+      "EditProfileRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      }
+    }
+  }
+}

@@ -19,12 +19,12 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 #### Request Body
 
-- **Schema**: [CreateIdentityRequest](#createidentityrequest)
+- **Schema**: [CreateAccountRequest](#createaccountrequest)
 
 #### Response
 
 - **Status Code**: `200 OK`
-- **Schema**: [CreateIdentityResponse](#createidentityresponse)
+- **Schema**: [CreateAccountsResponse](#createAccountsResponse)
 
 ### 2. Get Accounts
 
@@ -42,7 +42,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Description**: Account still pending creation
 
 - **Status Code**: `200 OK`
-- **Schema**: [AuthAccountResponse](#authaccountresponse)
+- **Schema**: [AccountsResponse](#AccountsResponse)
 
 ### 3. Get Account
 
@@ -66,7 +66,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Description**: Account still pending creation
 
 - **Status Code**: `200 OK`
-- **Schema**: [AuthAccountResponse](#authaccountresponse)
+- **Schema**: [AccountsResponse](#AccountsResponse)
 
 ### 4. Create Handle
 
@@ -81,14 +81,14 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 #### Response
 
 - **Status Code**: `200 OK`
-- **Description**: Successful response of accounts with handles
+- **Description**: Successful response of account.
 - **Schema**: [HandlesResponse](#handlesresponse)
 
 ### 5. Get Handles
 
 - **Endpoint**: `/handles`
 - **Method**: `GET`
-- **Summary**: Get all control keys associated with an MSA ID.
+- **Summary**: Get the handle associated with an MSA ID.
 - **Security**: Token-based authentication
 
 #### Responses
@@ -107,7 +107,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 #### Request Body
 
-- **Schema**: [DelegateRequest](#delegaterequest)
+- **Schema**: [CreateDelegationRequest](#createdelegationrequest)
 
 #### Response
 
@@ -115,7 +115,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Schema**: UnauthorizedError
 
 - **Status Code**: `200 OK`
-- **Schema**: [DelegateResponse](#delegateresponse)
+- **Schema**: [CreateDelegationResponse](#createdelegationresponse)
 
 ### 7. Get Delegation
 
@@ -126,7 +126,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 #### Responses
 
 - **Status Code**: `200 OK`
-- **Schema**: [ProviderResponse](#providerresponse)
+- **Schema**: [DelegationResponse](#delegationresponse)
 
 ### 8. Create Keys
 
@@ -181,7 +181,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Schema**: UnauthorizedError
 
 - **Status Code**: `200 OK`
-- **Schema**: [Profile](#profile)
+- **Schema**: [ProfilesResponse](#profilesresponse)
 
 ### 11. Create Profile
 
@@ -205,7 +205,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Schema**: UnauthorizedError
 
 - **Status Code**: `200 OK`
-- **Schema**: [CreateProfileResponse](#createprofileresponse)
+- **Schema**: [ProfilesResponse](#profilesresponse)
 
 ### 12. Get Profile
 
@@ -226,7 +226,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Schema**: UnauthorizedError
 
 - **Status Code**: `200 OK`
-- **Schema**: [Profile](#profile)
+- **Schema**: [ProfilesResponse](#profilesresponse)
 
 ### 13. Create/Edit Profile
 
@@ -251,25 +251,26 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Schema**: UnauthorizedError
 
 - **Status Code**: `200 OK`
-- **Schema**: [Profile](#profile)
+- **Schema**: [ProfilesResponse](#profilesResponse)
 
 ## Components
 
-
-| Component       | Type                   | Description        | Properties                                                                                                                                                               | Required Properties                                                                      |
-| --------------- | ---------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Security Scheme |                        |                    |                                                                                                                                                                          |                                                                                          |
-|                 | http                   |                    | scheme: bearer<br>bearerFormat: accessToken                                                                                                                              |                                                                                          |
-| Responses       |                        |                    |                                                                                                                                                                          |                                                                                          |
-|                 |                        | Unauthorized Error | description: Access token invalid or not found                                                                                                                           |                                                                                          |
-| Schemas         |                        |                    |                                                                                                                                                                          |                                                                                          |
-|                 | ProviderResponse       | Object             | nodeUrl: string<br>ipfsGateway: string<br>providerId: string<br>schemas: array of integers<br>network: enum (local, testnet, mainnet)                                    | nodeUrl, providerId, schemas, network                                                    |
-|                 | CreateIdentityRequest  | Object             | addProviderSignature: string<br>algo: enum (SR25519)<br>baseHandle: string<br>encoding: enum (hex)<br>expiration: number<br>handleSignature: string<br>publicKey: string | addProviderSignature, algo, baseHandle, encoding, expiration, handleSignature, publicKey |
-|                 | CreateIdentityResponse | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
-|                 | AuthAccountResponse    | Object             | dsnpId: string<br>displayHandle: string                                                                                                                                  | dsnpId                                                                                   |
-|                 | DelegateRequest        | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
-|                 | DelegateResponse       | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
-|                 | HandlesRequest         | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
-|                 | HandlesResponse        | Object             | publicKey: string<br>handle: string                                                                                                                                      | publicKey, handle                                                                        |
-|                 | Profile                | Object             | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |
-|                 | EditProfileRequest     | Object             | content: string                                                                                                                                                          | content                                                                                  |
+| Component       | Type                     | Description        | Properties                                                                                                                                                               | Required Properties                                                                      |
+| --------------- | ------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Security Scheme |                          |                    |                                                                                                                                                                          |                                                                                          |
+|                 | http                     |                    | scheme: bearer<br>bearerFormat: accessToken                                                                                                                              |                                                                                          |
+| Responses       |                          |                    |                                                                                                                                                                          |                                                                                          |
+|                 |                          | Unauthorized Error | description: Access token invalid or not found                                                                                                                           |                                                                                          |
+| Schemas         |                          |                    |                                                                                                                                                                          |                                                                                          |
+|                 | CreateAccountRequest     | Object             | addProviderSignature: string<br>algo: enum (SR25519)<br>baseHandle: string<br>encoding: enum (hex)<br>expiration: number<br>handleSignature: string<br>publicKey: string | addProviderSignature, algo, baseHandle, encoding, expiration, handleSignature, publicKey |
+|                 | CreateAccountResponse    | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
+|                 | AccountsResponse         | Array              | dsnpId: string<br>displayHandle: string                                                                                                                                  | dsnpId                                                                                   |
+|                 | CreateDelegationRequest  | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
+|                 | CreateDelegationResponse | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
+|                 | DelegationResponse       | Object             | nodeUrl: string<br>ipfsGateway: string<br>providerId: string<br>schemas: array of integers<br>network: enum (local, testnet, mainnet)                                    | nodeUrl, providerId, schemas, network                                                    |
+|                 | HandlesRequest           | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
+|                 | HandlesResponse          | Object             | dsnpId: string<br>handle: string                                                                                                                                         | dsnpId, handle                                                                        |
+|                 | KeysResponse             | Object             | dsnpId: string<br>keys: KeyringPair                                                                                                                                      | dsnpId, keys                                                                        |
+|                 | CreateProfileRequest     | Object             | content: string                                                                                                                                                          | content                                                                                  |
+|                 | EditProfileRequest       | Object             | content: string                                                                                                                                                          | content                                                                                  |
+|                 | ProfilesResponse         | Object             | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |

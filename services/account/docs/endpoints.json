@@ -19,7 +19,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateIdentityRequest"
+                "$ref": "#/components/schemas/CreateAccountRequest"
               }
             }
           }
@@ -30,7 +30,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateIdentityResponse"
+                  "$ref": "#/components/schemas/CreateAccountsResponse"
                 }
               }
             }
@@ -57,7 +57,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthAccountResponse"
+                  "$ref": "#/components/schemas/AuthAccountsResponse"
                 }
               }
             }
@@ -86,7 +86,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthAccountResponse"
+                  "$ref": "#/components/schemas/AuthAccountsResponse"
                 }
               }
             }
@@ -430,7 +430,7 @@
         },
         "required": ["nodeUrl", "providerId", "schemas", "network"]
       },
-      "CreateIdentityRequest": {
+      "CreateAccountRequest": {
         "type": "object",
         "properties": {
           "addProviderSignature": {
@@ -459,7 +459,7 @@
         },
         "required": ["addProviderSignature", "algo", "baseHandle", "encoding", "expiration", "handleSignature", "publicKey"]
       },
-      "CreateIdentityResponse": {
+      "CreateAccountsResponse": {
         "type": "object",
         "properties": {
           "accessToken": {
@@ -471,7 +471,7 @@
         },
         "required": ["expires", "accessToken"]
       },
-      "AuthAccountResponse": {
+      "AuthAccountsResponse": {
         "type": "object",
         "properties": {
           "dsnpId": {

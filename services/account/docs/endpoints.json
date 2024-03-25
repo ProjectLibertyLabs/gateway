@@ -139,7 +139,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/KeysResponse"
+                  "$ref": "#/components/schemas/HandlesResponse"
                 }
               }
             }

@@ -8,7 +8,7 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
 import { RequestProcessorService } from './request_processor/request.processor.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { AccountUpdatePublisherModule } from './account_publisher/acount.publisher.processor.module';
+import { AccountUpdatePublisherModule } from './account_publisher/account.publisher.processor.module';
 import { AccountUpdatePublisherService } from './account_publisher/account.publisher.processor.service';
 import { AccountNotifierModule } from './account_notifier/account.monitor.processor.module';
 import { AccountNotifierService } from './account_notifier/account.monitor.processor.service';

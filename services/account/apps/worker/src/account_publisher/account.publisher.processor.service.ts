@@ -12,20 +12,18 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants, NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
-import { GraphUpdateJob } from '../../../../libs/common/src/dtos/graph.update.job';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
 /**
- * Service responsible for publishing graph updates.
+ * Service responsible for publishing account updates.
  */
 @Injectable()
 @Processor(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE)
-export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
+export class AccountUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.checkCapacity();
   }
@@ -40,8 +38,10 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
-    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE) private graphChangeNotifyQueue: Queue,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE)
+    private accountChangePublishQueue: Queue,
+    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE)
+    private accountChangeNotifyQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
@@ -51,11 +51,11 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   }
 
   /**
-   * Processes a job for graph update.
+   * Processes a job for account update.
    * @param job - The job to process.
    * @returns A promise that resolves when the job is processed.
    */
-  async process(job: Job<GraphUpdateJob, any, string>): Promise<any> {
+  async process(job: Job<any, any, string>): Promise<any> {
     let statefulStorageTxHash: Hash = {} as Hash;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
@@ -98,19 +98,19 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
       // Add a job to the graph change notify queue
-      const txMonitorJob: ITxMonitorJob = {
-        id: job.data.referenceId,
-        txHash: statefulStorageTxHash,
-        epoch: currentCapacityEpoch.toString(),
-        lastFinalizedBlockHash,
-        referencePublishJob: job.data,
-      };
+      // const txMonitorJob: ITxMonitorJob = {
+      //   id: job.data.referenceId,
+      //   txHash: statefulStorageTxHash,
+      //   epoch: currentCapacityEpoch.toString(),
+      //   lastFinalizedBlockHash,
+      //   referencePublishJob: job.data,
+      // };
       const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
-      this.logger.debug(`Adding job to graph change notify queue: ${txMonitorJob.id}`);
-      this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
-        delay: blockDelay,
-      });
+      // this.logger.debug(`Adding job to graph change notify queue: ${txMonitorJob.id}`);
+      // this.accountChangeNotifyQueue.add(`Account Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
+      //   delay: blockDelay,
+      // });
     } catch (error: any) {
       this.logger.error(error);
       throw error;
@@ -151,9 +151,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   }
 
   /**
-   * Checks the capacity of the graph publisher and takes appropriate actions based on the capacity status.
-   * If the capacity is exhausted, it pauses the graph change publish queue and sets a timeout to check the capacity again.
-   * If the capacity is refilled, it resumes the graph change publish queue and clears the timeout.
+   * Checks the capacity of the account publisher and takes appropriate actions based on the capacity status.
+   * If the capacity is exhausted, it pauses the account change publish queue and sets a timeout to check the capacity again.
+   * If the capacity is refilled, it resumes the account change publish queue and clears the timeout.
    * If any jobs failed due to low balance/no capacity, it retries them.
    * If any error occurs during the capacity check, it logs the error.
    */
@@ -184,10 +184,10 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       }
 
       if (outOfCapacity) {
-        await this.graphChangePublishQueue.pause();
+        await this.accountChangePublishQueue.pause();
         const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
         const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-        this.logger.warn(`Capacity Exhausted: Pausing graph change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
+        this.logger.warn(`Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
         try {
           // Check if a timeout with the same name already exists
           if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
@@ -205,9 +205,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           console.error(err);
         }
       } else {
-        this.logger.verbose('Capacity Available: Resuming graph change publish queue and clearing timeout');
+        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
         // Get the failed jobs and check if they failed due to capacity
-        const failedJobs = await this.graphChangePublishQueue.getFailed();
+        const failedJobs = await this.accountChangePublishQueue.getFailed();
         const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
         // Retry the failed jobs
         await Promise.all(
@@ -222,7 +222,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           // ignore
         }
 
-        await this.graphChangePublishQueue.resume();
+        await this.accountChangePublishQueue.resume();
       }
     } catch (err) {
       this.logger.error('Caught error in checkCapacity', err);

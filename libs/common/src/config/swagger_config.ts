@@ -5,8 +5,8 @@ import metadata from '../../../../apps/api/src/metadata';
 
 export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const options = new DocumentBuilder()
-    .setTitle('Graph Service')
-    .setDescription('Graph Service API')
+    .setTitle('Account Service')
+    .setDescription('Account Service API')
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',

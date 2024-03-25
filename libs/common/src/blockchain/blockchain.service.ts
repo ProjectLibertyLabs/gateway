@@ -139,7 +139,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query('capacity', 'capacityLedger', providerU64);
-    const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({ remainingCapacity: 0, totalCapacityIssued: 0 });
+    const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
+      remainingCapacity: 0,
+      totalCapacityIssued: 0,
+    });
     const currentBlock: u32 = await this.query('system', 'number');
     const currentEpoch = await this.getCurrentCapacityEpoch();
     return {
@@ -171,65 +174,81 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     txHash: Hash,
     blockList: bigint[],
     successEvents: [{ pallet: string; event: string }],
-  ): Promise<{ found: boolean; success: boolean; blockHash?: BlockHash; capacityWithDrawn?: string; error?: RegistryError }> {
-    const txReceiptPromises: Promise<{ found: boolean; success: boolean; blockHash?: BlockHash; capacityWithDrawn?: string; error?: RegistryError }>[] = blockList.map(
-      async (blockNumber) => {
-        const blockHash = await this.getBlockHash(blockNumber);
-        const block = await this.getBlock(blockHash);
-        const txInfo = block.block.extrinsics.find((extrinsic) => extrinsic.hash.toString() === txHash.toString());
+  ): Promise<{
+    found: boolean;
+    success: boolean;
+    blockHash?: BlockHash;
+    capacityWithDrawn?: string;
+    error?: RegistryError;
+  }> {
+    const txReceiptPromises: Promise<{
+      found: boolean;
+      success: boolean;
+      blockHash?: BlockHash;
+      capacityWithDrawn?: string;
+      error?: RegistryError;
+    }>[] = blockList.map(async (blockNumber) => {
+      const blockHash = await this.getBlockHash(blockNumber);
+      const block = await this.getBlock(blockHash);
+      const txInfo = block.block.extrinsics.find((extrinsic) => extrinsic.hash.toString() === txHash.toString());
 
-        if (!txInfo) {
-          return { found: false, success: false };
-        }
+      if (!txInfo) {
+        return { found: false, success: false };
+      }
 
-        this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
-        const at = await this.api.at(blockHash.toHex());
-        const eventsPromise = firstValueFrom(at.query.system.events());
+      this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
+      const at = await this.api.at(blockHash.toHex());
+      const eventsPromise = firstValueFrom(at.query.system.events());
 
-        let isTxSuccess = false;
-        let totalBlockCapacity: bigint = 0n;
-        let txError: RegistryError | undefined;
+      let isTxSuccess = false;
+      let totalBlockCapacity: bigint = 0n;
+      let txError: RegistryError | undefined;
 
-        try {
-          const events = await eventsPromise;
+      try {
+        const events = await eventsPromise;
 
-          events.forEach((record) => {
-            const { event } = record;
-            const eventName = event.section;
-            const { method } = event;
-            const { data } = event;
-            this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
+        events.forEach((record) => {
+          const { event } = record;
+          const eventName = event.section;
+          const { method } = event;
+          const { data } = event;
+          this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
 
-            // find capacity withdrawn event
-            if (eventName.search('capacity') !== -1 && method.search('Withdrawn') !== -1) {
-              // allow lowercase constructor for eslint
-              // eslint-disable-next-line new-cap
-              const currentCapacity: u128 = new u128(this.api.registry, data[1]);
-              totalBlockCapacity += currentCapacity.toBigInt();
-            }
+          // find capacity withdrawn event
+          if (eventName.search('capacity') !== -1 && method.search('Withdrawn') !== -1) {
+            // allow lowercase constructor for eslint
+            // eslint-disable-next-line new-cap
+            const currentCapacity: u128 = new u128(this.api.registry, data[1]);
+            totalBlockCapacity += currentCapacity.toBigInt();
+          }
 
-            // check custom success events
-            if (successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)) {
-              this.logger.debug(`Found success event ${eventName} ${method}`);
-              isTxSuccess = true;
-            }
+          // check custom success events
+          if (successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)) {
+            this.logger.debug(`Found success event ${eventName} ${method}`);
+            isTxSuccess = true;
+          }
 
-            // check for system extrinsic failure
-            if (eventName.search('system') !== -1 && method.search('ExtrinsicFailed') !== -1) {
-              const dispatchError = data[0] as DispatchError;
-              const moduleThatErrored = dispatchError.asModule;
-              const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-              txError = moduleError;
-              this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
-            }
-          });
-        } catch (error) {
-          this.logger.error(error);
-        }
-        this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
-        return { found: true, success: isTxSuccess, blockHash, capacityWithDrawn: totalBlockCapacity.toString(), error: txError };
-      },
-    );
+          // check for system extrinsic failure
+          if (eventName.search('system') !== -1 && method.search('ExtrinsicFailed') !== -1) {
+            const dispatchError = data[0] as DispatchError;
+            const moduleThatErrored = dispatchError.asModule;
+            const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
+            txError = moduleError;
+            this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+          }
+        });
+      } catch (error) {
+        this.logger.error(error);
+      }
+      this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
+      return {
+        found: true,
+        success: isTxSuccess,
+        blockHash,
+        capacityWithDrawn: totalBlockCapacity.toString(),
+        error: txError,
+      };
+    });
     const results = await Promise.all(txReceiptPromises);
     const result = results.find((receipt) => receipt.found);
     this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);

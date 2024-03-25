@@ -4,16 +4,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { RequestProcessorService } from './request_processor/request.processor.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { AccountUpdatePublisherModule } from './account_publisher/account.publisher.processor.module';
 import { AccountUpdatePublisherService } from './account_publisher/account.publisher.processor.service';
-import { AccountNotifierModule } from './account_notifier/account.monitor.processor.module';
-import { AccountNotifierService } from './account_notifier/account.monitor.processor.service';
-import { ProviderWebhookService, NonceService, QueueConstants, AccountStateManager } from '../../../libs/common/src';
-import { BlockchainScannerService } from '../../../libs/common/src/services/blockchain-scanner.service';
+import { ProviderWebhookService, NonceService, QueueConstants } from '../../../libs/common/src';
 
 @Module({
   imports: [
@@ -75,19 +70,8 @@ import { BlockchainScannerService } from '../../../libs/common/src/services/bloc
     ),
     ScheduleModule.forRoot(),
     BlockchainModule,
-    RequestProcessorModule,
     AccountUpdatePublisherModule,
-    AccountNotifierModule,
   ],
-  providers: [
-    ConfigService,
-    RequestProcessorService,
-    AccountUpdatePublisherService,
-    AccountNotifierService,
-    ProviderWebhookService,
-    NonceService,
-    BlockchainScannerService,
-    AccountStateManager,
-  ],
+  providers: [ConfigService, AccountUpdatePublisherService, ProviderWebhookService, NonceService],
 })
 export class WorkerModule {}

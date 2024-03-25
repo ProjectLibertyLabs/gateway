@@ -1,7 +1,16 @@
-import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Query, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Query,
+  Body,
+  Put,
+} from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiService } from './api.service';
-import { AccountChangeRepsonseDto, GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
 
 @Controller('api')
 @ApiTags('account-service')
@@ -25,21 +34,22 @@ export class ApiController {
     };
   }
 
-  @Put('accounts')
+  @Post('accounts')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new account' })
   @ApiOkResponse({ description: 'Account created successfully' })
-  @ApiBody({ type: AccountDTO})
+  // @ApiBody({ type: AccountDTO})
   /**
    * Creates an account using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A promise that resolves to an array of AccountDTO objects representing the created accounts.
    * @throws An error if the account creation fails.
    */
-  async createAccount(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
+  async createAccount(): Promise<String> {
     try {
-      const graphs = await this.apiService.createAccount(queryParams);
-      return accounts;
+      const account = await this.apiService.createAccount();
+      // REMOVE:
+      return account;
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to create account');

@@ -92,12 +92,24 @@ describe('GraphSericeConfig', () => {
 
     it('missing graph environment dev config should fail', async () => {
       const { GRAPH_ENVIRONMENT_TYPE: dummy, GRAPH_ENVIRONMENT_DEV_CONFIG: dummy2, ...env } = ALL_ENV;
-      await expect(setupConfigService({ GRAPH_ENVIRONMENT_TYPE: 'Dev', GRAPH_ENVIRONMENT_DEV_CONFIG: undefined, ...env })).rejects.toBeDefined();
+      await expect(
+        setupConfigService({
+          GRAPH_ENVIRONMENT_TYPE: 'Dev',
+          GRAPH_ENVIRONMENT_DEV_CONFIG: undefined,
+          ...env,
+        }),
+      ).rejects.toBeDefined();
     });
 
     it('invalid graph environment dev config should fail', async () => {
       const { GRAPH_ENVIRONMENT_TYPE: dummy, GRAPH_ENVIRONMENT_DEV_CONFIG: dummy2, ...env } = ALL_ENV;
-      await expect(setupConfigService({ GRAPH_ENVIRONMENT_TYPE: 'Dev', GRAPH_ENVIRONMENT_DEV_CONFIG: 'invalid json', ...env })).rejects.toBeDefined();
+      await expect(
+        setupConfigService({
+          GRAPH_ENVIRONMENT_TYPE: 'Dev',
+          GRAPH_ENVIRONMENT_DEV_CONFIG: 'invalid json',
+          ...env,
+        }),
+      ).rejects.toBeDefined();
     });
 
     it('missing capacity limits should fail', async () => {

@@ -11,22 +11,37 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ## Endpoints
 
-### 1. Create Account
+### 1. Create User Account
 
-- **Endpoint**: `/accounts`
+- **Endpoint**: `/accounts/user`
 - **Method**: `POST`
-- **Summary**: Creates a new DSNP Identity and delegations via sponsored account.
+- **Summary**: Create a new User Account with handles and delegations.
 
 #### Request Body
 
-- **Schema**: [CreateAccountRequest](#createaccountrequest)
+- **Schema**: [CreateUserAccountRequest](#createuseraccountrequest)
 
 #### Response
 
 - **Status Code**: `200 OK`
 - **Schema**: [CreateAccountsResponse](#createAccountsResponse)
 
-### 2. Get Accounts
+### 2. Create Provider Account
+
+- **Endpoint**: `/accounts/provider`
+- **Method**: `POST`
+- **Summary**: Create a new Provider Account with delegations.
+
+#### Request Body
+
+- **Schema**: [CreateProviderAccountRequest](#createprovideraccountrequest)
+
+#### Response
+
+- **Status Code**: `200 OK`
+- **Schema**: [CreateAccountsResponse](#createAccountsResponse)
+
+### 3. Get Accounts
 
 - **Endpoint**: `/accounts`
 - **Method**: `GET`
@@ -44,11 +59,11 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [AccountsResponse](#AccountsResponse)
 
-### 3. Get Account
+### 4. Get Account
 
 - **Endpoint**: `/accounts/{msaId}`
 - **Method**: `GET`
-- **Summary**: Get account for current user.
+- **Summary**: Get account for current msaId.
 - **Security**: Token-based authentication
 
 #### Parameters
@@ -68,7 +83,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [AccountsResponse](#AccountsResponse)
 
-### 4. Create Handle
+### 5. Create Handle
 
 - **Endpoint**: `/handles`
 - **Method**: `POST`
@@ -84,7 +99,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Description**: Successful response of account.
 - **Schema**: [HandlesResponse](#handlesresponse)
 
-### 5. Get Handles
+### 6. Get Handles
 
 - **Endpoint**: `/handles`
 - **Method**: `GET`
@@ -99,7 +114,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [HandlesResponse](#handlesresponse)
 
-### 6. Create Delegation
+### 7. Create Delegation
 
 - **Endpoint**: `/delegation`
 - **Method**: `POST`
@@ -117,7 +132,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [CreateDelegationResponse](#createdelegationresponse)
 
-### 7. Get Delegation
+### 8. Get Delegation
 
 - **Endpoint**: `/delegation`
 - **Method**: `GET`
@@ -128,7 +143,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [DelegationResponse](#delegationresponse)
 
-### 8. Create Keys
+### 9. Create Keys
 
 - **Endpoint**: `/keys/{dsnpId}`
 - **Method**: `POST`
@@ -148,7 +163,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [KeysResponse](#keysresponse)
 
-### 9. Get Keys
+### 10. Get Keys
 
 - **Endpoint**: `/keys/{dsnpId}`
 - **Method**: `GET`
@@ -168,7 +183,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [KeysResponse](#keysresponse)
 
-### 10. Get Profiles
+### 11. Get Profiles
 
 - **Endpoint**: `/profiles`
 - **Method**: `GET`
@@ -183,7 +198,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [ProfilesResponse](#profilesresponse)
 
-### 11. Create Profile
+### 12. Create Profile
 
 - **Endpoint**: `/profiles/{dsnpId}`
 - **Method**: `POST`
@@ -207,7 +222,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [ProfilesResponse](#profilesresponse)
 
-### 12. Get Profile
+### 13. Get Profile
 
 - **Endpoint**: `/profiles/{dsnpId}`
 - **Method**: `GET`
@@ -228,7 +243,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Status Code**: `200 OK`
 - **Schema**: [ProfilesResponse](#profilesresponse)
 
-### 13. Create/Edit Profile
+### 14. Create/Edit Profile
 
 - **Endpoint**: `/profiles/{dsnpId}`
 - **Method**: `PUT`
@@ -269,8 +284,8 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 |                 | CreateDelegationResponse | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
 |                 | DelegationResponse       | Object             | nodeUrl: string<br>ipfsGateway: string<br>providerId: string<br>schemas: array of integers<br>network: enum (local, testnet, mainnet)                                    | nodeUrl, providerId, schemas, network                                                    |
 |                 | HandlesRequest           | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
-|                 | HandlesResponse          | Object             | dsnpId: string<br>handle: string                                                                                                                                         | dsnpId, handle                                                                        |
-|                 | KeysResponse             | Object             | dsnpId: string<br>keys: KeyringPair                                                                                                                                      | dsnpId, keys                                                                        |
+|                 | HandlesResponse          | Array              | dsnpId: string<br>handle: string                                                                                                                                         | dsnpId, handle                                                                           |
+|                 | KeysResponse             | Array             | dsnpId: string<br>keys: KeyringPair                                                                                                                                      | dsnpId, keys                                                                             |
 |                 | CreateProfileRequest     | Object             | content: string                                                                                                                                                          | content                                                                                  |
 |                 | EditProfileRequest       | Object             | content: string                                                                                                                                                          | content                                                                                  |
-|                 | ProfilesResponse         | Object             | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |
+|                 | ProfilesResponse         | Array             | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |

@@ -1,16 +1,10 @@
 import { HexString } from '@polkadot/util/types';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
 import { Account } from './accounts.dto';
 
 export class CreateDelegationRequest {
-  @IsNotEmpty()
-  pallet: string;
-
-  @IsNotEmpty()
-  sctrinsicName: string;
-
-  @IsNotEmpty()
-  encodedExtrinsic: HexString;
+  userDsnpId
+  provider
 }
 
 //why return the access token? Can't we return the actual delegation informtion?

@@ -1,6 +1,6 @@
 import { HexString } from '@polkadot/util/types';
 import { IsNotEmpty } from 'class-validator';
-import { Account } from './accounts.dto';
+import { AccountWithHandle } from './accounts.dto';
 
 export class HandlesRequest {
   @IsNotEmpty()
@@ -13,5 +13,4 @@ export class HandlesRequest {
   encodedExtrinsic: HexString;
 }
 
-// Is there a case where you can return more than one handle?
-export type HandlesResponse = Account;
+export type HandlesResponse = AccountWithHandle[];

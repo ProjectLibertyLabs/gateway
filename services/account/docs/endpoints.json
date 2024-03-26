@@ -10,16 +10,16 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/accounts": {
+    "/accounts/user": {
       "post": {
-        "operationId": "createAccount",
+        "operationId": "createUserAccount",
         "summary": "Creates a new DSNP Identity and delegations via sponsored account.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateAccountRequest"
+                "$ref": "#/components/schemas/CreateUserAccountRequest"
               }
             }
           }
@@ -36,7 +36,37 @@
             }
           }
         }
-      },
+      }
+    },
+    "/accounts/provider": {
+      "post": {
+        "operationId": "createProviderAccount",
+        "summary": "Creates a new DSNP Identity and delegations via sponsored account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProviderAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAccountsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts": {
       "get": {
         "operationId": "getAccounts",
         "summary": "Get all accounts",
@@ -272,7 +302,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -303,7 +333,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateProfileResponse"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -337,7 +367,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -381,7 +411,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -404,33 +434,7 @@
       }
     },
     "schemas": {
-      "ProviderResponse": {
-        "type": "object",
-        "properties": {
-          "nodeUrl": {
-            "type": "string"
-          },
-          "ipfsGateway": {
-            "description": "IPFS Path Style Gateway base URI",
-            "type": "string"
-          },
-          "providerId": {
-            "type": "string"
-          },
-          "schemas": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "network": {
-            "type": "string",
-            "enum": ["local", "testnet", "mainnet"]
-          }
-        },
-        "required": ["nodeUrl", "providerId", "schemas", "network"]
-      },
-      "CreateAccountRequest": {
+      "CreateUserAccountRequest": {
         "type": "object",
         "properties": {
           "addProviderSignature": {
@@ -459,6 +463,32 @@
         },
         "required": ["addProviderSignature", "algo", "baseHandle", "encoding", "expiration", "handleSignature", "publicKey"]
       },
+      "CreateProviderAccountRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": ["SR25519"]
+          },
+          "baseHandle": {
+            "type": "string"
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["hex"]
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "handleSignature": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encoding", "expiration", "publicKey"]
+      },
       "CreateAccountsResponse": {
         "type": "object",
         "properties": {
@@ -471,19 +501,19 @@
         },
         "required": ["expires", "accessToken"]
       },
-      "AuthAccountsResponse": {
-        "type": "object",
+      "AccountsResponse": {
+        "type": "array",
         "properties": {
           "dsnpId": {
             "type": "string"
           },
-          "displayHandle": {
+          "handle": {
             "type": "string"
           }
         },
         "required": ["dsnpId"]
       },
-      "DelegateRequest": {
+      "CreateDelegationRequest": {
         "type": "object",
         "properties": {
           "pallet": {
@@ -498,7 +528,7 @@
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
-      "DelegateResponse": {
+      "CreateDelegationResponse": {
         "type": "object",
         "properties": {
           "accessToken": {
@@ -509,6 +539,32 @@
           }
         },
         "required": ["expires", "accessToken"]
+      },
+      "DelegationResponse": {
+        "type": "object",
+        "properties": {
+          "nodeUrl": {
+            "type": "string"
+          },
+          "ipfsGateway": {
+            "description": "IPFS Path Style Gateway base URI",
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "network": {
+            "type": "string",
+            "enum": ["local", "testnet", "mainnet"]
+          }
+        },
+        "required": ["nodeUrl", "providerId", "schemas", "network"]
       },
       "HandlesRequest": {
         "type": "object",
@@ -537,8 +593,38 @@
         },
         "required": ["publicKey", "handle"]
       },
-      "Profile": {
+      "KeysResponse": {
+        "type": "array",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "KeyringPair"
+          }
+        },
+        "required": ["dsnpId", "keys"]
+      },
+      "CreateProfileRequest": {
         "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "EditProfileRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "ProfilesResponse": {
+        "type": "Array",
         "properties": {
           "fromId": {
             "type": "string"
@@ -559,15 +645,6 @@
           }
         },
         "required": ["fromId", "contentHash", "content", "timestamp"]
-      },
-      "EditProfileRequest": {
-        "type": "object",
-        "properties": {
-          "content": {
-            "type": "string"
-          }
-        },
-        "required": ["content"]
       }
     }
   }

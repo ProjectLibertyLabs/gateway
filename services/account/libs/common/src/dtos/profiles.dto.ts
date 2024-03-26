@@ -2,21 +2,19 @@ import { Time } from '@polkadot/util/types';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateProfileRequest {
-      //anything else that needs to go here? can we just make one 
-
+  //TODO: anything else that needs to go here? can we just make one 
   @IsNotEmpty()
   content: string;
 }
 
 export class EditProfileRequest {
-    //what does content mean? I feel like the content should be itemized.
-
+    //TODO: what does content mean? I feel like the content should be itemized.
+    //TODO: why do we have to have two if they're the same type?
   @IsNotEmpty()
   content: string;
 }
 
-//don't we want this to be an array?
-export class ProfilesResponse {
+export class Profile {
   @IsNotEmpty()
   fromId: string;
 
@@ -32,3 +30,5 @@ export class ProfilesResponse {
   @IsOptional()
   displayHandle: string;
 }
+
+export type ProfilesResponse = Profile[];

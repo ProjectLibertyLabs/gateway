@@ -127,8 +127,13 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>): Promise<Hash> {
-    this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
+  async processSingleBatch(
+    providerKeys: KeyringPair,
+    tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>,
+  ): Promise<Hash> {
+    this.logger.debug(
+      `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
+    );
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
@@ -160,7 +165,9 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
   private async checkCapacity(): Promise<void> {
     try {
       const capacityLimit = this.configService.getCapacityLimit();
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+      const capacityInfo = await this.blockchainService.capacityInfo(
+        this.configService.getProviderId(),
+      );
       const { remainingCapacity } = capacityInfo;
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -171,15 +178,20 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
         if (capacityLimit.type === 'percentage') {
           const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
+          const capacityLimitThreshold =
+            (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
           this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
           if (epochUsedCapacity >= capacityLimitThreshold) {
             outOfCapacity = true;
-            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
+            this.logger.warn(
+              `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`,
+            );
           }
         } else if (epochUsedCapacity >= capacityLimit.value) {
           outOfCapacity = true;
-          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
+          this.logger.warn(
+            `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`,
+          );
         }
       }
 
@@ -187,7 +199,9 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         await this.accountChangePublishQueue.pause();
         const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
         const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-        this.logger.warn(`Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
+        this.logger.warn(
+          `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
+        );
         try {
           // Check if a timeout with the same name already exists
           if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
@@ -205,10 +219,14 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           console.error(err);
         }
       } else {
-        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+        this.logger.verbose(
+          'Capacity Available: Resuming account change publish queue and clearing timeout',
+        );
         // Get the failed jobs and check if they failed due to capacity
         const failedJobs = await this.accountChangePublishQueue.getFailed();
-        const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
+        const capacityFailedJobs = failedJobs.filter((job) =>
+          job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
+        );
         // Retry the failed jobs
         await Promise.all(
           capacityFailedJobs.map(async (job) => {

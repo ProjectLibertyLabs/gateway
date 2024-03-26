@@ -14,7 +14,9 @@ BigInt.prototype['toJSON'] = function () {
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    logger: process.env.DEBUG
+      ? ['error', 'warn', 'log', 'verbose', 'debug']
+      : ['error', 'warn', 'log'],
   });
 
   // Get event emitter & register a shutdown listener

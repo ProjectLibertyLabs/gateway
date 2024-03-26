@@ -1,5 +1,15 @@
+/* eslint-disable max-classes-per-file */
 import { HexString } from '@polkadot/util/types';
-import { ArrayNotEmpty, ArrayUnique, IsArray, IsEnum, IsHexadecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  ArrayUnique,
+  IsArray,
+  IsEnum,
+  IsHexadecimal,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 enum AlgoType {
   SR25519 = 'SR25519',

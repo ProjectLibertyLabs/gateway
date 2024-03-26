@@ -2,6 +2,7 @@
 
 A service enabling easy interaction with DSNP accounts on Frequency.
 For example, here are some interactions that are provided by account-service:
+
 - Account creation (and behind the scenes delegation to the provider)
 - Username, or handle, claiming
 - Exporting private graph keys
@@ -10,7 +11,7 @@ For example, here are some interactions that are provided by account-service:
 
 ## Table of Contents
 
-- [Account-Service](#Account-service)
+- [Account-Service](#account-service)
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)

@@ -3,8 +3,8 @@ import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
 import { Account } from './accounts.dto';
 
 export class CreateDelegationRequest {
-  userDsnpId
-  provider
+  userDsnpId;
+  provider;
 }
 
 //why return the access token? Can't we return the actual delegation informtion?

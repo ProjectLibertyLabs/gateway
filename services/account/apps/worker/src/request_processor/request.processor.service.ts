@@ -10,14 +10,7 @@ import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import fs from 'fs';
 import { BaseConsumer } from '../BaseConsumer';
-import {
-  AccountStateManager,
-  GraphUpdateJob,
-  ProviderGraphUpdateJob,
-  QueueConstants,
-  SkipTransitiveGraphs,
-  createReconnectionJob,
-} from '../../../../libs/common/src';
+import { AccountStateManager, GraphUpdateJob, ProviderGraphUpdateJob, QueueConstants, SkipTransitiveGraphs, createReconnectionJob } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { SECONDS_PER_BLOCK } from '../account_publisher/account.publisher.processor.service';
 

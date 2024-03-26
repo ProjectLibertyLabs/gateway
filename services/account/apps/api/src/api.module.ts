@@ -11,7 +11,7 @@ import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { AccountStateManager, QueueConstants } from '../../../libs/common/src';
+import { QueueConstants } from '../../../libs/common/src';
 
 @Module({
   imports: [
@@ -93,14 +93,6 @@ import { AccountStateManager, QueueConstants } from '../../../libs/common/src';
           attempts: 3,
         },
       },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
     ),
     // Bullboard UI
     BullBoardModule.forRoot({
@@ -119,13 +111,9 @@ import { AccountStateManager, QueueConstants } from '../../../libs/common/src';
       name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
       adapter: BullMQAdapter,
     }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-      adapter: BullMQAdapter,
-    }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, AccountStateManager, ConfigService],
+  providers: [ApiService, ConfigService],
   controllers: [ApiController],
   exports: [],
 })

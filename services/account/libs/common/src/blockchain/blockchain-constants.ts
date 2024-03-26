@@ -24,7 +24,10 @@ export namespace BlockchainConstants {
   const EX_PAY_CAPACITY_BATCH = 'payWithCapacityBatchAll';
   const EX_UPSERT_PAGE = 'upsertPage';
 
-  const PAY_WITH_CAPACITY_BATCH: IExtrinsicCall = { pallet: PALLET_FREQ_TX_PYMT, extrinsic: EX_PAY_CAPACITY_BATCH };
+  const PAY_WITH_CAPACITY_BATCH: IExtrinsicCall = {
+    pallet: PALLET_FREQ_TX_PYMT,
+    extrinsic: EX_PAY_CAPACITY_BATCH,
+  };
 
   /**
    * The number of blocks to crawl for a given job

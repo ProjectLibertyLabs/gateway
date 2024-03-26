@@ -5,12 +5,11 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { GraphStateManager, QueueConstants } from '../../../../libs/common/src';
-import { GraphNotifierService } from './graph.monitor.processor.service';
-import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import { NonceService, QueueConstants } from '../../../../libs/common/src';
+import { AccountUpdatePublisherService } from './account.publisher.processor.service';
 
 @Module({
   imports: [
@@ -51,27 +50,22 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
-          attempts: 3,
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
+        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
-          attempts: 3,
         },
-      },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
       },
     ),
   ],
-  providers: [GraphNotifierService, GraphStateManager, BlockchainService, ConfigService],
-  exports: [BullModule, GraphNotifierService, BlockchainService, ConfigService],
+  providers: [AccountUpdatePublisherService, NonceService],
+  exports: [BullModule, AccountUpdatePublisherService],
 })
-export class GraphNotifierModule {}
+export class AccountUpdatePublisherModule {}

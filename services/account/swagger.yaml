@@ -9,7 +9,7 @@ paths:
         '200':
           description: Service is healthy
       tags:
-        - graph-service
+        - account-service
   /api/graphs:
     put:
       operationId: ApiController_getGraphs
@@ -31,7 +31,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserGraphDto'
       tags:
-        - graph-service
+        - account-service
   /api/update-graph:
     post:
       operationId: ApiController_updateGraph
@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GraphChangeRepsonseDto'
       tags:
-        - graph-service
+        - account-service
   /api/watch-graphs:
     put:
       operationId: ApiController_watchGraphs
@@ -67,7 +67,7 @@ paths:
         '200':
           description: Successfully started watching graphs
       tags:
-        - graph-service
+        - account-service
 info:
   title: Graph Service
   description: Graph Service API

@@ -10,16 +10,16 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/accounts": {
+    "/accounts/user": {
       "post": {
-        "operationId": "createAccount",
+        "operationId": "createUserAccount",
         "summary": "Creates a new DSNP Identity and delegations via sponsored account.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateIdentityRequest"
+                "$ref": "#/components/schemas/CreateUserAccountRequest"
               }
             }
           }
@@ -30,13 +30,43 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateIdentityResponse"
+                  "$ref": "#/components/schemas/CreateAccountsResponse"
                 }
               }
             }
           }
         }
-      },
+      }
+    },
+    "/accounts/provider": {
+      "post": {
+        "operationId": "createProviderAccount",
+        "summary": "Creates a new DSNP Identity and delegations via sponsored account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProviderAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAccountsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts": {
       "get": {
         "operationId": "getAccounts",
         "summary": "Get all accounts",
@@ -57,7 +87,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthAccountResponse"
+                  "$ref": "#/components/schemas/AuthAccountsResponse"
                 }
               }
             }
@@ -86,7 +116,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthAccountResponse"
+                  "$ref": "#/components/schemas/AuthAccountsResponse"
                 }
               }
             }
@@ -272,7 +302,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -303,7 +333,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateProfileResponse"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -337,7 +367,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -381,7 +411,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfilesResponse"
                 }
               }
             }
@@ -404,33 +434,7 @@
       }
     },
     "schemas": {
-      "ProviderResponse": {
-        "type": "object",
-        "properties": {
-          "nodeUrl": {
-            "type": "string"
-          },
-          "ipfsGateway": {
-            "description": "IPFS Path Style Gateway base URI",
-            "type": "string"
-          },
-          "providerId": {
-            "type": "string"
-          },
-          "schemas": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "network": {
-            "type": "string",
-            "enum": ["local", "testnet", "mainnet"]
-          }
-        },
-        "required": ["nodeUrl", "providerId", "schemas", "network"]
-      },
-      "CreateIdentityRequest": {
+      "CreateUserAccountRequest": {
         "type": "object",
         "properties": {
           "addProviderSignature": {
@@ -459,7 +463,45 @@
         },
         "required": ["addProviderSignature", "algo", "baseHandle", "encoding", "expiration", "handleSignature", "publicKey"]
       },
-      "CreateIdentityResponse": {
+      "CreateProviderAccountRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": ["SR25519"]
+          },
+          "baseHandle": {
+            "type": "string"
+          },
+          "encoding": {
+            "type": "string",
+            "enum": ["hex"]
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "handleSignature": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encoding", "expiration", "publicKey"]
+      },
+      "CreateAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          }
+        },
+        "required": ["expires", "accessToken"]
+      },
+      "CreateProfileResponse": {
         "type": "object",
         "properties": {
           "accessToken": {
@@ -477,11 +519,26 @@
           "dsnpId": {
             "type": "string"
           },
-          "displayHandle": {
+          "handle": {
             "type": "string"
           }
         },
         "required": ["dsnpId"]
+      },
+      "CreateDelegationRequest": {
+        "type": "object",
+        "properties": {
+          "pallet": {
+            "type": "string"
+          },
+          "extrinsicName": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "string"
+          }
+        },
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
       "DelegateRequest": {
         "type": "object",
@@ -493,12 +550,27 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "hexstring"
+            "type": "string"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
       "DelegateResponse": {
+        "type": "object",
+        "properties": {
+          "pallet": {
+            "type": "string"
+          },
+          "extrinsicName": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "string"
+          }
+        },
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
+      },
+      "CreateDelegationResponse": {
         "type": "object",
         "properties": {
           "accessToken": {
@@ -510,6 +582,32 @@
         },
         "required": ["expires", "accessToken"]
       },
+      "DelegationResponse": {
+        "type": "object",
+        "properties": {
+          "nodeUrl": {
+            "type": "string"
+          },
+          "ipfsGateway": {
+            "description": "IPFS Path Style Gateway base URI",
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "network": {
+            "type": "string",
+            "enum": ["local", "testnet", "mainnet"]
+          }
+        },
+        "required": ["nodeUrl", "providerId", "schemas", "network"]
+      },
       "HandlesRequest": {
         "type": "object",
         "properties": {
@@ -520,7 +618,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "hexstring"
+            "type": "string"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
@@ -537,8 +635,62 @@
         },
         "required": ["publicKey", "handle"]
       },
-      "Profile": {
+      "ProviderResponse": {
         "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": ["publicKey", "handle"]
+      },
+      "KeysResponse": {
+        "type": "array",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "string"
+          }
+        },
+        "required": ["dsnpId", "keys"],
+        "items": {
+            "type": "string"
+        }
+      },
+      "CreateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "EditProfileRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "AuthAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "ProfilesResponse": {
+        "type": "array",
         "properties": {
           "fromId": {
             "type": "string"
@@ -558,16 +710,10 @@
             "type": "string"
           }
         },
-        "required": ["fromId", "contentHash", "content", "timestamp"]
-      },
-      "EditProfileRequest": {
-        "type": "object",
-        "properties": {
-          "content": {
+        "required": ["fromId", "contentHash", "content", "timestamp"],
+        "items": {
             "type": "string"
-          }
-        },
-        "required": ["content"]
+        }
       }
     }
   }

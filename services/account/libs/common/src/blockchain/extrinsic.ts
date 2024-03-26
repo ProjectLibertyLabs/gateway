@@ -41,7 +41,11 @@ function eventKey(event: Event): string {
 
 export type ParsedEventResult = [any, EventMap];
 
-export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C extends Codec[] = Codec[], N = unknown> {
+export class Extrinsic<
+  T extends ISubmittableResult = ISubmittableResult,
+  C extends Codec[] = Codec[],
+  N = unknown,
+> {
   private event?: IsEvent<C, N>;
 
   private extrinsic: SubmittableExtrinsic<'rxjs', T>;
@@ -51,7 +55,12 @@ export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C exte
 
   public api: ApiRx;
 
-  constructor(api: ApiRx, extrinsic: SubmittableExtrinsic<'rxjs', T>, keys: KeyringPair, targetEvent?: IsEvent<C, N>) {
+  constructor(
+    api: ApiRx,
+    extrinsic: SubmittableExtrinsic<'rxjs', T>,
+    keys: KeyringPair,
+    targetEvent?: IsEvent<C, N>,
+  ) {
     this.extrinsic = extrinsic;
     this.keys = keys;
     this.event = targetEvent;
@@ -63,7 +72,9 @@ export class Extrinsic<T extends ISubmittableResult = ISubmittableResult, C exte
   }
 
   public async signAndSend(nonce?: number): Promise<[Hash, EventMap]> {
-    const { status, events, txHash } = await firstValueFrom(this.extrinsic.signAndSend(this.keys, { nonce }));
+    const { status, events, txHash } = await firstValueFrom(
+      this.extrinsic.signAndSend(this.keys, { nonce }),
+    );
     if (status.isFinalized || status.isInBlock) {
       const eventMap: EventMap = {};
       events.forEach((record: EventRecord) => {

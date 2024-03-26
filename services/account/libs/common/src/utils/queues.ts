@@ -1,33 +1,28 @@
 export namespace QueueConstants {
   /**
-   * Name of the queue that has all reconnecting requests
-   */
-  export const RECONNECT_REQUEST_QUEUE = 'reconnectRequest';
-
-  /**
    * Name of the queue that has all incoming requests
    */
-  export const GRAPH_CHANGE_REQUEST_QUEUE = 'graphChangeRequest';
+  export const ACCOUNT_CHANGE_REQUEST_QUEUE = 'accountChangeRequest';
 
   /**
-   * Name of the queue that publishes graph changes to Frequency blockchain
+   * Name of the queue that publishes account changes to Frequency blockchain
    */
-  export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
+  export const ACCOUNT_CHANGE_PUBLISH_QUEUE = 'accountChangePublish';
 
   /**
-   * Name of the queue that processes graph change notifications
+   * Name of the queue that processes account change notifications
    */
-  export const GRAPH_CHANGE_NOTIFY_QUEUE = 'graphChangeNotify';
+  export const ACCOUNT_CHANGE_NOTIFY_QUEUE = 'accountChangeNotify';
 
   /**
    * Prefix for Redis keys that store webhook endpoints
    */
-  export const REDIS_WATCHER_PREFIX = 'graph-service-watcher';
+  export const REDIS_WATCHER_PREFIX = 'account-service-watcher';
 
   /**
    * Debouncer cache key
    */
-  export const DEBOUNCER_CACHE_KEY = 'graph-service-debouncer';
+  export const DEBOUNCER_CACHE_KEY = 'account-service-debouncer';
 
   /**
    * Last processed dsnpId key for Redis

@@ -1,11 +1,11 @@
 import { HexString } from '@polkadot/util/types';
-import { ArrayNotEmpty, ArrayUnique, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsEnum, IsHexadecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 enum AlgoType {
   SR25519 = 'SR25519',
 }
 
-export class CreateAccountRequest {
+export class CreateUserAccountRequest {
   @IsNotEmpty()
   addProviderSignature: string;
 
@@ -17,13 +17,37 @@ export class CreateAccountRequest {
   baseHandle: string;
 
   @IsNotEmpty()
-  encoding: HexString;
+  handleSignature: string;
+
+  @IsNotEmpty()
+  @IsHexadecimal()
+  encoding: string;
 
   @IsNotEmpty()
   expiration: number;
 
   @IsNotEmpty()
+  publicKey: string;
+}
+
+// TODO: Create custom validation that makes sure that if there is a baseHandle, there also is a handleSignature value.
+export class CreateProviderAccountRequest {
+  @IsNotEmpty()
+  @IsEnum({ AlgoType })
+  algo: AlgoType;
+
+  @IsOptional()
+  baseHandle: string;
+
+  @IsOptional()
   handleSignature: string;
+
+  @IsNotEmpty()
+  @IsHexadecimal()
+  encoding: string;
+
+  @IsNotEmpty()
+  expiration: number;
 
   @IsNotEmpty()
   publicKey: string;
@@ -41,8 +65,16 @@ export class Account {
   @IsNotEmpty()
   dsnpId: string;
 
+  @IsOptional()
+  handle: string;
+}
+
+export class AccountWithHandle {
   @IsNotEmpty()
-  handle: number;
+  dsnpId: string;
+
+  @IsNotEmpty()
+  handle: string;
 }
 
 export type AccountsResponse = Account[];

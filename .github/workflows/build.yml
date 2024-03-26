@@ -1,4 +1,4 @@
-name: Build And Test Graph Service
+name: Build And Test Account Service
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true

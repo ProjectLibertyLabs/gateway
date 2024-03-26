@@ -38,7 +38,7 @@ export class ApiController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new account' })
   @ApiOkResponse({ description: 'Account created successfully' })
-  // @ApiBody({ type: AccountDTO})
+  // @ApiBody({ type: AccountDTO })
   /**
    * Creates an account using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.

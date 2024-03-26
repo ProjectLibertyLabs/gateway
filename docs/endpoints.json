@@ -501,8 +501,20 @@
         },
         "required": ["expires", "accessToken"]
       },
-      "AccountsResponse": {
-        "type": "array",
+      "CreateProfileResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          }
+        },
+        "required": ["expires", "accessToken"]
+      },
+      "AuthAccountResponse": {
+        "type": "object",
         "properties": {
           "dsnpId": {
             "type": "string"
@@ -523,7 +535,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "hexstring"
+            "type": "string"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
@@ -576,7 +588,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "hexstring"
+            "type": "string"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
@@ -623,8 +635,17 @@
         },
         "required": ["content"]
       },
+      "AuthAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
       "ProfilesResponse": {
-        "type": "Array",
+        "type": "array",
         "properties": {
           "fromId": {
             "type": "string"

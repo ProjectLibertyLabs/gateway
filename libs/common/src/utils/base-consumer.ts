@@ -3,7 +3,10 @@ import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
 import { ProcessingUtils } from './processing';
 
-export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
+export abstract class BaseConsumer<T extends Worker = Worker>
+  extends WorkerHost<T>
+  implements OnModuleDestroy
+{
   protected logger: Logger;
 
   private actives: Set<string>;

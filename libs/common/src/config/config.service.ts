@@ -2,10 +2,15 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { EnvironmentType } from '@dsnp/graph-sdk';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
+
+declare enum EnvironmentType {
+  Mainnet = 'Mainnet',
+  Rococo = 'Rococo',
+  Dev = 'Dev',
+}
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
@@ -13,8 +18,8 @@ export interface ConfigEnvironmentVariables {
   QUEUE_HIGH_WATER: number;
   API_PORT: number;
   DEBOUNCE_SECONDS: number;
-  GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
-  GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
+  ACCOUNT_ENVIRONMENT_TYPE: keyof EnvironmentType;
+  ACCOUNT_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
   RECONNECTION_SERVICE_REQUIRED: boolean;
@@ -78,12 +83,12 @@ export class ConfigService {
     return this.nestConfigService.get<URL>('FREQUENCY_URL')!;
   }
 
-  public getGraphEnvironmentType(): keyof EnvironmentType {
-    return this.nestConfigService.get<keyof EnvironmentType>('GRAPH_ENVIRONMENT_TYPE')!;
+  public getAccountEnvironmentType(): keyof EnvironmentType {
+    return this.nestConfigService.get<keyof EnvironmentType>('ACCOUNT_ENVIRONMENT_TYPE')!;
   }
 
-  public getGraphEnvironmentConfig(): string {
-    return this.nestConfigService.get<string>('GRAPH_ENVIRONMENT_DEV_CONFIG')!;
+  public getAccountEnvironmentConfig(): string {
+    return this.nestConfigService.get<string>('ACCOUNT_ENVIRONMENT_DEV_CONFIG')!;
   }
 
   public getProviderAccountSeedPhrase(): string {

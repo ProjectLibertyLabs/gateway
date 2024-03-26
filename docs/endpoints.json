@@ -540,6 +540,36 @@
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
+      "DelegateRequest": {
+        "type": "object",
+        "properties": {
+          "pallet": {
+            "type": "string"
+          },
+          "extrinsicName": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "string"
+          }
+        },
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
+      },
+      "DelegateResponse": {
+        "type": "object",
+        "properties": {
+          "pallet": {
+            "type": "string"
+          },
+          "extrinsicName": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "string"
+          }
+        },
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
+      },
       "CreateDelegationResponse": {
         "type": "object",
         "properties": {
@@ -605,6 +635,18 @@
         },
         "required": ["publicKey", "handle"]
       },
+      "ProviderResponse": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": ["publicKey", "handle"]
+      },
       "KeysResponse": {
         "type": "array",
         "properties": {
@@ -612,10 +654,13 @@
             "type": "string"
           },
           "keys": {
-            "type": "KeyringPair"
+            "type": "string"
           }
         },
-        "required": ["dsnpId", "keys"]
+        "required": ["dsnpId", "keys"],
+        "items": {
+            "type": "string"
+        }
       },
       "CreateProfileRequest": {
         "type": "object",
@@ -665,7 +710,10 @@
             "type": "string"
           }
         },
-        "required": ["fromId", "contentHash", "content", "timestamp"]
+        "required": ["fromId", "contentHash", "content", "timestamp"],
+        "items": {
+            "type": "string"
+        }
       }
     }
   }

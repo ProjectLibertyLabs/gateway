@@ -29,12 +29,12 @@ jobs:
 
       - name: Build with mdBook
         working-directory: docs
-        run: mdbook build
+        run: mdbook build && ls book
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/book/html
+          path: ./docs/book
 
   # Deployment job
   deploy:

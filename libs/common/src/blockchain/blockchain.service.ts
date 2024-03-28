@@ -14,7 +14,7 @@ import {
 } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16 } from '@polkadot/types';
+import { u32, Option, u128, u16, u8 } from '@polkadot/types';
 import {
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
@@ -146,6 +146,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async getSchema(schemaId: number): Promise<PalletSchemasSchema> {
     const schema: PalletSchemasSchema = await this.query('schemas', 'schemas', schemaId);
     return schema;
+  }
+
+  public async getPublicKeyCountForMsaId(msaId: string): Promise<string> {
+    const count: u8 = await this.query('msa', 'publicKeyCountForMsaId', msaId);
+    return count.toString();
+  }
+
+  public async getHandleForMsa(msaId: string): Promise<string> {
+    return await this.rpc('handles', 'getHandleForMsa', msaId);
   }
 
   public async capacityInfo(providerId: string): Promise<{

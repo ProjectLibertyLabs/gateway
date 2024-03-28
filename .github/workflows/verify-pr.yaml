@@ -20,4 +20,4 @@ jobs:
 
       - name: Build mdBook 📚
         working-directory: docs
-        run: mdbook build
+        run: mdbook build && ls book

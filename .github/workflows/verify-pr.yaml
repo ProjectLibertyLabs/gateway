@@ -19,4 +19,5 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build mdBook 📚
+        working-directory: docs
         run: mdbook build

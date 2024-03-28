@@ -33,6 +33,23 @@ describe('Account Service E2E request verification!', () => {
       .expect(200)
       .expect({ status: 200, message: 'Service is healthy' }));
 
+  it('(GET) /accounts/:msaId with valid msaId', () => {
+    const validMsaId = '1234';
+    expect(validMsaId).not.toBeNull();
+    request(app.getHttpServer())
+      .get('/accounts/' + validMsaId)
+      .expect(200)
+      .expect({ status: 200, message: 'Found account' });
+  });
+
+  it('(GET) /accounts/:msaId with invalid msaId', () => {
+    const invalidMsaId = '1234';
+    request(app.getHttpServer())
+      .get('/accounts/' + invalidMsaId)
+      .expect(401)
+      .expect({ status: 401, message: 'Invalid msaId.' });
+  });
+
   //   describe('(POST) /api/update-graph', () => {
   //     it('Valid public graph update request should work', async () => {
   //       const validGraphChangeRequest: ProviderGraphDto = {

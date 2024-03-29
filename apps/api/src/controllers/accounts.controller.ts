@@ -21,19 +21,19 @@ export class AccountsController {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post()
+  @Post('/user')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request to create a new account' })
+  @ApiOperation({ summary: 'Request to create a new user account' })
   @ApiOkResponse({ description: 'Account created successfully' })
   /**
-   * Creates an account using the provided query parameters.
+   * Creates a user account using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A promise that resolves to an array of AccountDTO objects representing the created accounts.
    * @throws An error if the account creation fails.
    */
   createAccount() {
     try {
-      const account = this.accountsService.createAccount();
+      const account = this.accountsService.createUserAccount();
       return account;
     } catch (error) {
       this.logger.error(error);

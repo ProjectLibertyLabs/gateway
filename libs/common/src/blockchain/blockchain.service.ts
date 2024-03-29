@@ -148,6 +148,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
+  public async createMsaId() {
+    const extrinsic = this.api.tx.msa.create();
+    const txnId = submitExtinsic(extrinsic, signingAccount, extension);
+  }
+  
   public async getMsaIdMax() {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
     return parseInt(count);

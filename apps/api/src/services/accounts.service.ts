@@ -11,15 +11,15 @@ export class AccountsService {
   constructor(private blockchainService: BlockchainService) {}
 
   // eslint-disable-next-line class-methods-use-this
-  async createAccount(): Promise<string> {
+  createAccount(): string {
     return 'Account created successfully';
   }
 
-  async getAccount(msaId: string): Promise<AccountResponse> {
-    const publicKeyCountForMsaId = await this.blockchainService.getPublicKeyCountForMsaId(msaId);
-    if (publicKeyCountForMsaId !== '0') {
+  async getAccount(msaId: number): Promise<AccountResponse> {
+    const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
+    if (isValidMsaId) {
       const handle = await this.blockchainService.getHandleForMsa(msaId);
-      return { msaId: msaId, handle };
+      return { msaId: msaId.toString(), handle };
     } else throw new Error('Invalid msaId.');
   }
 }

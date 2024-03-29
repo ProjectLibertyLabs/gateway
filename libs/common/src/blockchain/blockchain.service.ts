@@ -14,7 +14,7 @@ import {
 } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16, u8 } from '@polkadot/types';
+import { u32, Option, u128, u16, u8, u64 } from '@polkadot/types';
 import {
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
@@ -148,12 +148,17 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
-  public async getPublicKeyCountForMsaId(msaId: string): Promise<string> {
-    const count: u8 = await this.query('msa', 'publicKeyCountForMsaId', msaId);
-    return count.toString();
+  public async getMsaIdMax() {
+    const count = await this.query('msa', 'currentMsaIdentifierMaximum');
+    return parseInt(count);
   }
 
-  public async getHandleForMsa(msaId: string): Promise<string> {
+  public async isValidMsaId(msaId: number): Promise<boolean> {
+    const msaIdMax = await this.getMsaIdMax();
+    return msaId > 0 && msaId < msaIdMax;
+  }
+
+  public async getHandleForMsa(msaId: number): Promise<string> {
     return await this.rpc('handles', 'getHandleForMsa', msaId);
   }
 

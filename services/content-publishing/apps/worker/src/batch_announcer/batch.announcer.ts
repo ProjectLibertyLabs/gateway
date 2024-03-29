@@ -4,7 +4,6 @@ import { ParquetWriter } from '@dsnp/parquetjs';
 import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import { PalletSchemasSchema } from '@polkadot/types/lookup';
 import { hexToString } from '@polkadot/util';
 import { RedisUtils } from '../../../../libs/common/src/utils/redis';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
@@ -33,13 +32,13 @@ export class BatchAnnouncer {
     const schemaCacheKey = `schema:${schemaId}`;
     let cachedSchema: string | null = await this.cacheManager.get(schemaCacheKey);
     if (!cachedSchema) {
-      const schemaResponse = await this.blockchainService.getSchema(schemaId);
+      const schemaResponse = await this.blockchainService.getSchemaPayload(schemaId);
       cachedSchema = JSON.stringify(schemaResponse);
       await this.cacheManager.setex(schemaCacheKey, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
     }
 
-    const frequencySchema: PalletSchemasSchema = JSON.parse(cachedSchema);
-    const hexString: string = Buffer.from(frequencySchema.model).toString('utf8');
+    const frequencySchemaPayload = JSON.parse(cachedSchema);
+    const hexString: string = Buffer.from(frequencySchemaPayload).toString('utf8');
     const schema = JSON.parse(hexToString(hexString));
     if (!schema) {
       throw new Error(`Unable to parse schema for schemaId ${schemaId}`);

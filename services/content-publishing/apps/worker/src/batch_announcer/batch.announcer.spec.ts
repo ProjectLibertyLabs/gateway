@@ -14,7 +14,7 @@ const mockConfigService = {
 };
 
 const mockBlockchainService = {
-  getSchema: jest.fn(),
+  getSchemaPayload: jest.fn(),
 };
 
 const mockIpfsService = {
@@ -74,7 +74,7 @@ describe('BatchAnnouncer', () => {
   it('should announce a batch to IPFS', async () => {
     // Mock the necessary dependencies' behavior
     mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
-    mockBlockchainService.getSchema.mockReturnValue({ model: Buffer.from(stringToHex(JSON.stringify(broadcast))) });
+    mockBlockchainService.getSchemaPayload.mockReturnValue(Buffer.from(stringToHex(JSON.stringify(broadcast))));
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 10, hash: 'mockHash' });
 
@@ -87,6 +87,6 @@ describe('BatchAnnouncer', () => {
     const result = await ipfsAnnouncer.announce(batchJob);
     assert(result);
     expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
-    expect(mockBlockchainService.getSchema).toHaveBeenCalledWith(123);
+    expect(mockBlockchainService.getSchemaPayload).toHaveBeenCalledWith(123);
   });
 });

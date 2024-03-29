@@ -10,8 +10,7 @@ import { AccountResponse } from '../../../../libs/common/src/dtos/accounts.dto';
 export class AccountsService {
   constructor(private blockchainService: BlockchainService) {}
 
-  // eslint-disable-next-line class-methods-use-this
-  createAccount(): string {
+  createUserAccount(): string {
     return 'Account created successfully';
   }
 

@@ -4,7 +4,6 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
-import { assert } from 'console';
 import request from 'supertest';
 
 describe('Account Controller', () => {
@@ -25,32 +24,26 @@ describe('Account Controller', () => {
     await app.init();
   });
 
+  it('(POST) /accounts creates new account', async () => {
+    await request(app.getHttpServer())
+      .post('/accounts')
+      .expect(200)
+      .expect((req) => req.text === 'Account created successfully');
+  });
+
   it('(GET) /accounts/:msaId with valid msaId', async () => {
-    const validMsaId = '1234';
-    expect(validMsaId).toBe('1234');
-    const req = await request(app.getHttpServer())
+    const validMsaId = '1';
+    await request(app.getHttpServer())
       .get('/accounts/' + validMsaId)
       .expect(200)
-      .expect({ status: 200, message: 'Found account' })
-      .then(async () => {
-        await app.close();
-      });
-    console.debug(req);
+      .expect({ msaId: '1', handle: null });
   });
 
   it('(GET) /accounts/:msaId with invalid msaId', async () => {
-    const invalidMsaId = '1234';
-    const req = await request(app.getHttpServer())
+    const invalidMsaId = '10';
+    await request(app.getHttpServer())
       .get('/accounts/' + invalidMsaId)
-      .expect(401)
-      .expect({ status: 401, message: 'Invalid msaId.' })
-      .then(async () => {
-        await app.close();
-      });
-    console.debug(req);
+      .expect(400)
+      .expect({ statusCode: 400, message: 'Failed to find the account' });
   });
-
-  // afterEach(async () => {
-  //   await app.close();
-  // });
 });

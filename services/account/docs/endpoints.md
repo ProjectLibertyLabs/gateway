@@ -81,7 +81,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Description**: Account still pending creation
 
 - **Status Code**: `200 OK`
-- **Schema**: [AccountsResponse](#AccountsResponse)
+- **Schema**: [AccountResponse](#AccountResponse)
 
 ### 5. Create Handle
 
@@ -145,7 +145,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ### 9. Create Keys
 
-- **Endpoint**: `/keys/{dsnpId}`
+- **Endpoint**: `/keys/:msaId`
 - **Method**: `POST`
 - **Summary**: Create new control keys for an MSA ID.
 
@@ -153,7 +153,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 | Name   | In   | Description                 | Required | Type   |
 | ------ | ---- | --------------------------- | -------- | ------ |
-| dsnpId | path | DSNP ID of the current user | Yes      | string |
+| msaId | path | DSNP ID of the current user | Yes      | string |
 
 #### Responses
 
@@ -165,7 +165,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ### 10. Get Keys
 
-- **Endpoint**: `/keys/{dsnpId}`
+- **Endpoint**: `/keys/:msaId`
 - **Method**: `GET`
 - **Summary**: Get all control keys associated with an MSA ID.
 
@@ -173,7 +173,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 | Name   | In   | Description                 | Required | Type   |
 | ------ | ---- | --------------------------- | -------- | ------ |
-| dsnpId | path | DSNP ID of the current user | Yes      | string |
+| msaId | path | DSNP ID of the current user | Yes      | string |
 
 #### Responses
 
@@ -200,7 +200,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ### 12. Create Profile
 
-- **Endpoint**: `/profiles/{dsnpId}`
+- **Endpoint**: `/profiles/:msaId`
 - **Method**: `POST`
 - **Summary**: Creates a new profile from a DSNP Identity
 
@@ -208,7 +208,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 | Name   | In   | Description                 | Required | Type   |
 | ------ | ---- | --------------------------- | -------- | ------ |
-| dsnpId | path | DSNP ID of the current user | Yes      | string |
+| msaId | path | DSNP ID of the current user | Yes      | string |
 
 #### Request Body
 
@@ -224,7 +224,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ### 13. Get Profile
 
-- **Endpoint**: `/profiles/{dsnpId}`
+- **Endpoint**: `/profiles/:msaId`
 - **Method**: `GET`
 - **Summary**: Get profile information for a specific user
 - **Security**: Token-based authentication
@@ -233,7 +233,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 | Name   | In   | Description                 | Required | Type   |
 | ------ | ---- | --------------------------- | -------- | ------ |
-| dsnpId | path | DSNP ID of the current user | Yes      | string |
+| msaId | path | DSNP ID of the current user | Yes      | string |
 
 #### Responses
 
@@ -245,7 +245,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 ### 14. Create/Edit Profile
 
-- **Endpoint**: `/profiles/{dsnpId}`
+- **Endpoint**: `/profiles/:msaId`
 - **Method**: `PUT`
 - **Summary**: Create/Edit the profile information for a current user
 - **Security**: Token-based authentication
@@ -254,7 +254,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 | Name   | In   | Description                 | Required | Type   |
 | ------ | ---- | --------------------------- | -------- | ------ |
-| dsnpId | path | DSNP ID of the current user | Yes      | string |
+| msaId | path | DSNP ID of the current user | Yes      | string |
 
 #### Request Body
 
@@ -279,13 +279,14 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 | Schemas         |                          |                    |                                                                                                                                                                          |                                                                                          |
 |                 | CreateAccountRequest     | Object             | addProviderSignature: string<br>algo: enum (SR25519)<br>baseHandle: string<br>encoding: enum (hex)<br>expiration: number<br>handleSignature: string<br>publicKey: string | addProviderSignature, algo, baseHandle, encoding, expiration, handleSignature, publicKey |
 |                 | CreateAccountResponse    | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
-|                 | AccountsResponse         | Array              | dsnpId: string<br>displayHandle: string                                                                                                                                  | dsnpId                                                                                   |
+|                 | AccountsResponse         | Array              | msaId: string<br>handle: string                                                                                                                                          | msaId                                                                                   |
+|                 | AccountResponse         | Object              | msaId: string<br>handle: string                                                                                                                                          | msaId                                                                                   |
 |                 | CreateDelegationRequest  | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
 |                 | CreateDelegationResponse | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
 |                 | DelegationResponse       | Object             | nodeUrl: string<br>ipfsGateway: string<br>providerId: string<br>schemas: array of integers<br>network: enum (local, testnet, mainnet)                                    | nodeUrl, providerId, schemas, network                                                    |
 |                 | HandlesRequest           | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
-|                 | HandlesResponse          | Array              | dsnpId: string<br>handle: string                                                                                                                                         | dsnpId, handle                                                                           |
-|                 | KeysResponse             | Array             | dsnpId: string<br>keys: KeyringPair                                                                                                                                      | dsnpId, keys                                                                             |
+|                 | HandlesResponse          | Array              | msaId: string<br>handle: string                                                                                                                                         | msaId, handle                                                                           |
+|                 | KeysResponse             | Array              | msaId: string<br>keys: KeyringPair                                                                                                                                      | msaId, keys                                                                             |
 |                 | CreateProfileRequest     | Object             | content: string                                                                                                                                                          | content                                                                                  |
 |                 | EditProfileRequest       | Object             | content: string                                                                                                                                                          | content                                                                                  |
-|                 | ProfilesResponse         | Array             | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |
+|                 | ProfilesResponse         | Array              | fromId: string<br>contentHash: string<br>content: string (JSON-encoded Activity Content Note)<br>timestamp: string (Timestamp of the post)<br>displayHandle: string      | fromId, contentHash, content, timestamp                                                  |

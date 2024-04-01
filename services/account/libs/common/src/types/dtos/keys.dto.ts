@@ -3,10 +3,10 @@ import { IsNotEmpty } from 'class-validator';
 
 export class AccountKeys {
   @IsNotEmpty()
-  msaId: string;
+  msaId: number;
 
   @IsNotEmpty()
   keys: KeyringPair;
 }
 
-export type KeysResponse = AccountKeys[];
+export type KeysResponse = AccountKeys;

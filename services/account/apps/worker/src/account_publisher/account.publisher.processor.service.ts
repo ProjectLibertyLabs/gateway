@@ -56,44 +56,48 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<any, any, string>): Promise<any> {
-    let statefulStorageTxHash: Hash = {} as Hash;
+    let accountTxnHash: Hash = {} as Hash;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
-      switch (job.data.update.type) {
-        case 'PersistPage': {
-          let payloadData: number[] = [];
-          if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
-            payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
-          }
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
-            job.data.update.ownerDsnpUserId,
-            job.data.update.schemaId,
-            job.data.update.pageId,
-            job.data.update.prevHash,
-            payloadData,
-          );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
-          break;
-        }
-        case 'DeletePage': {
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'deletePage' },
-            job.data.update.ownerDsnpUserId,
-            job.data.update.schemaId,
-            job.data.update.pageId,
-            job.data.update.prevHash,
-          );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
-          break;
-        }
-        default:
-          break;
-      }
+      const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      const tx = this.blockchainService.createExtrinsicCall({ pallet: 'msa', extrinsic: 'create' });
+      this.logger.debug(`tx: ${tx}`);
+      accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //   switch (job.data.update.type) {
+      //     case 'PersistPage': {
+      //       let payloadData: number[] = [];
+      //       if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
+      //         payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
+      //       }
+      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      //       const tx = this.blockchainService.createExtrinsicCall(
+      //         { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
+      //         job.data.update.ownerDsnpUserId,
+      //         job.data.update.schemaId,
+      //         job.data.update.pageId,
+      //         job.data.update.prevHash,
+      //         payloadData,
+      //       );
+      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //       break;
+      //     }
+      //     case 'DeletePage': {
+      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      //       const tx = this.blockchainService.createExtrinsicCall(
+      //         { pallet: 'statefulStorage', extrinsic: 'deletePage' },
+      //         job.data.update.ownerDsnpUserId,
+      //         job.data.update.schemaId,
+      //         job.data.update.pageId,
+      //         job.data.update.prevHash,
+      //       );
+      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //       break;
+      //     }
+      //     default:
+      //       break;
+      //   }
 
       this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
@@ -165,9 +169,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
   private async checkCapacity(): Promise<void> {
     try {
       const capacityLimit = this.configService.getCapacityLimit();
-      const capacityInfo = await this.blockchainService.capacityInfo(
-        this.configService.getProviderId(),
-      );
+      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
       const { remainingCapacity } = capacityInfo;
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -178,20 +180,15 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
         if (capacityLimit.type === 'percentage') {
           const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold =
-            (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
+          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
           this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
           if (epochUsedCapacity >= capacityLimitThreshold) {
             outOfCapacity = true;
-            this.logger.warn(
-              `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`,
-            );
+            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
           }
         } else if (epochUsedCapacity >= capacityLimit.value) {
           outOfCapacity = true;
-          this.logger.warn(
-            `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`,
-          );
+          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
         }
       }
 
@@ -219,9 +216,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           console.error(err);
         }
       } else {
-        this.logger.verbose(
-          'Capacity Available: Resuming account change publish queue and clearing timeout',
-        );
+        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
         // Get the failed jobs and check if they failed due to capacity
         const failedJobs = await this.accountChangePublishQueue.getFailed();
         const capacityFailedJobs = failedJobs.filter((job) =>

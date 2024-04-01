@@ -6,12 +6,14 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { ApiController } from './api.controller';
-import { ApiService } from './api.service';
+import { ApiController } from './controllers/api.controller';
+import { AccountsController } from './controllers/accounts.controller';
+import { ApiService } from './services/api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { QueueConstants } from '../../../libs/common/src';
+import { AccountsService } from './services/accounts.service';
 
 @Module({
   imports: [
@@ -113,8 +115,8 @@ import { QueueConstants } from '../../../libs/common/src';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, ConfigService],
-  controllers: [ApiController],
+  providers: [ApiService, AccountsService, ConfigService],
+  controllers: [ApiController, AccountsController],
   exports: [],
 })
 export class ApiModule {}

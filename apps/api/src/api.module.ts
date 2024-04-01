@@ -14,6 +14,8 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { QueueConstants } from '../../../libs/common/src';
 import { AccountsService } from './services/accounts.service';
+import { HandlesService } from './services/handles.service';
+import { HandlesController } from './controllers/handles.controller';
 
 @Module({
   imports: [
@@ -115,8 +117,8 @@ import { AccountsService } from './services/accounts.service';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, AccountsService, ConfigService],
-  controllers: [ApiController, AccountsController],
+  providers: [ApiService, AccountsService, HandlesService, ConfigService],
+  controllers: [ApiController, AccountsController, HandlesController],
   exports: [],
 })
 export class ApiModule {}

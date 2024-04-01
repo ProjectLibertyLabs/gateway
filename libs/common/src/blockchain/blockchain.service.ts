@@ -22,6 +22,7 @@ import {
 } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
+import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
@@ -174,8 +175,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return msaId > 0 && msaId < msaIdMax;
   }
 
-  public async getHandleForMsa(msaId: number): Promise<string> {
-    return this.rpc('handles', 'getHandleForMsa', msaId);
+  public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
+    const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
+    if (handleResponse.isSome) return handleResponse.unwrap();
+    return null;
   }
 
   public async capacityInfo(providerId: string): Promise<{

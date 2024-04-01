@@ -20,6 +20,8 @@ export default async () => {
           { ApiController: { health: {} } },
           import('./controllers/accounts.controller'),
           { AccountsController: { createAccount: { type: Object }, getAccount: { type: Object } } },
+          import('./controllers/handles.controller'),
+          { AccountsController: { createHandle: { type: Object }, getHandle: { type: Object } } },
         ],
       ],
     },

@@ -28,7 +28,7 @@ For example, here are some interactions that are provided by account-service:
    ```bash
    git clone https://github.com/amplicalabls/account-service.git
    ```
-
+2. Create an .env file by executing `npm run pretest`
 2. Start docker compose
 
    ```bash

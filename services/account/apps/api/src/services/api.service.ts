@@ -3,11 +3,9 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { createHash } from 'crypto';
-import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
-import { QueueConstants } from '../../../libs/common/src';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
+import { QueueConstants } from '../../../../libs/common/src';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
+import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
 @Injectable()
 export class ApiService implements OnApplicationShutdown {
@@ -32,11 +30,6 @@ export class ApiService implements OnApplicationShutdown {
     } catch (e) {
       this.logger.error(`Error during cleanup on shutdown: ${e}`);
     }
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async createAccount(): Promise<string> {
-    return 'Account created successfully';
   }
 
   // async enqueueRequest(request: ProviderGraphDto): Promise<AccountChangeRepsonseDto> {

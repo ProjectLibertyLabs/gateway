@@ -37,8 +37,8 @@ For example, here are some interactions that are provided by account-service:
 
    This will start Frequency, Redis and Account Service api/worker containers.
 
-2. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
-2. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
+3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
+4. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
 
 ## Running E2E tests
 

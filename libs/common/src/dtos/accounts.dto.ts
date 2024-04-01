@@ -73,7 +73,7 @@ export class CreateAccountResponse {
 
 export class Account {
   @IsNotEmpty()
-  dsnpId: string;
+  msaId: string;
 
   @IsOptional()
   handle: string;
@@ -81,10 +81,11 @@ export class Account {
 
 export class AccountWithHandle {
   @IsNotEmpty()
-  dsnpId: string;
+  msaId: string;
 
   @IsNotEmpty()
   handle: string;
 }
 
 export type AccountsResponse = Account[];
+export type AccountResponse = Account;

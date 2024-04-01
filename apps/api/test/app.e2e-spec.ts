@@ -32,32 +32,4 @@ describe('Account Service E2E request verification!', () => {
       .get('/api/health')
       .expect(200)
       .expect({ status: 200, message: 'Service is healthy' }));
-
-  //   describe('(POST) /api/update-graph', () => {
-  //     it('Valid public graph update request should work', async () => {
-  //       const validGraphChangeRequest: ProviderGraphDto = {
-  //         dsnpId: '2',
-  //         connections: {
-  //           data: [
-  //             {
-  //               dsnpId: '4',
-  //               privacyType: PrivacyType.Public,
-  //               direction: Direction.ConnectionTo,
-  //               connectionType: ConnectionType.Follow,
-  //             } as ConnectionDto,
-  //           ],
-  //         },
-  //       };
-
-  //       return request(app.getHttpServer())
-  //         .post(`/api/update-graph`)
-  //         .send(validGraphChangeRequest)
-  //         .expect(201)
-  //         .expect((res) => expect(res.text).toContain('referenceId'));
-  //     });
-  //   });
-
-  afterEach(async () => {
-    await app.close();
-  });
 });

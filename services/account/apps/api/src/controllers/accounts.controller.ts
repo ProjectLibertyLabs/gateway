@@ -57,7 +57,7 @@ export class AccountsController {
       return account;
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
+      return HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
     }
   }
 }

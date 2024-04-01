@@ -51,13 +51,13 @@ export class AccountsController {
    * @returns A promise that resolves to an array of AccountDTO objects representing the found account.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse> {
+  async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse | HttpException> {
     try {
       const account = await this.accountsService.getAccount(msaId);
       return account;
     } catch (error) {
       this.logger.error(error);
-      return HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
     }
   }
 }

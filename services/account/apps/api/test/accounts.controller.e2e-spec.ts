@@ -36,7 +36,14 @@ describe('Account Controller', () => {
     await request(app.getHttpServer())
       .get('/accounts/' + validMsaId)
       .expect(200)
-      .expect({ msaId: '1', handle: null });
+      .expect({
+        msaId: '1',
+        handle: {
+          base_handle: 'AliceHandle',
+          canonical_base: 'a11cehand1e',
+          suffix: 85,
+        },
+      });
   });
 
   it('(GET) /accounts/:msaId with invalid msaId', async () => {

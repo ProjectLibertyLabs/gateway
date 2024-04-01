@@ -43,3 +43,8 @@ start-account-service:
 .PHONY: lint
 lint:
 	@(npm run lint )
+
+.PHONY: dev-graphs
+dev-graphs:
+	madge --dot --extensions ts apps/worker/src > docs/worker-graph.gv
+	madge --dot --extensions ts apps/api/src > docs/api-graph.gv

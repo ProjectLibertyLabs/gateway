@@ -87,7 +87,7 @@ In order to run the account-service in development mode without containers, you 
 1. Start the redis server container and the frequency container. You can view the logs with your Docker setup.
 
    ```bash
-   docker-compose --profile up -d redis frequency
+   docker-compose --profile instant up -d redis frequency
    ```
 
 2. In a new terminal window, start the account-service api app. Logs will be displayed in the terminal for easy reference.

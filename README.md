@@ -16,6 +16,8 @@ For example, here are some interactions that are provided by account-service:
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
   - [Running E2E tests](#running-e2e-tests)
+  - [Devlopment Envirionment](#development-environment)
+  - [Architecture](#architecture)
   
 ## Prerequisites
 
@@ -80,6 +82,50 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 
 ## Development Environment
 
-### What needs to be installed/setup, etc?
+In order to run the account-service in development mode without containers, you can use the following commands:
 
-- Use `npm clean-install` to install the dependencies.
+1. Start the redis server container and the frequency container. You can view the logs with your Docker setup.
+
+   ```bash
+   docker-compose --profile instant up -d redis frequency
+   ```
+
+2. In a new terminal window, start the account-service api app. Logs will be displayed in the terminal for easy reference.
+
+    ```bash
+    npm run start:api:debug
+    ```
+
+3. In another terminal window, start the account-service worker app.
+
+    ```bash
+    npm run start:worker:debug
+    ```
+
+### Using the Debugger with VSCode
+
+1. Follow step 1 from the Development Environment section above to setup the redis and frequency containers.
+
+2. Use the debug panel and start the `Debug Api (NestJS via ts-node)` configuration, if you wish to debug the api.
+
+   Use the debug panel and start the `Debug Worker (NestJS via ts-node)` configuration, if you wish to debug the worker.
+
+3. Set breakpoints in the code and debug your code.
+
+4. Monitor the service worker jobs in [BullUI](http://0.0.0.0:3000/queues/).
+  
+   Any API functions that require an extrinsic to submitted to the blockchain will be queued here. The queue will manage the amount of `capacity` this service is allowed to use.
+
+   Reference the [Frequency Docs](https://docs.frequency.xyz/) for more information about extrinsics and capacity.
+
+5. Use [Swagger](http://0.0.0.0:3000/api/docs/swagger) to test the API.
+
+**Note:** Reference `.vscode/launch.json` for more details on the debug configurations and apply the concepts to your preferred debugger.
+
+## Architecture
+
+The account-service is a NestJS application that is split into two main parts: the API and the Worker.
+
+The API is responsible for handling incoming HTTP requests and the Worker is responsible for processing jobs that require blockchain interaction.
+
+The architecture block [diagram](./docs/account_service_arch.drawio) is referenced in the `docs` folder.

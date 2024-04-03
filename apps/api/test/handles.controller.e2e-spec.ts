@@ -6,7 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import request from 'supertest';
 
-describe('Account Controller', () => {
+describe('Handles Controller', () => {
   let app: INestApplication;
   let module: TestingModule;
   beforeEach(async () => {
@@ -24,17 +24,17 @@ describe('Account Controller', () => {
     await app.init();
   });
 
-  it('(POST) /accounts creates new account', async () => {
+  it('(POST) /handles creates new account', async () => {
     await request(app.getHttpServer())
-      .post('/accounts')
+      .post('/handles')
       .expect(200)
       .expect((req) => req.text === 'Account created successfully');
   });
 
-  it('(GET) /accounts/:msaId with valid msaId and handle', async () => {
+  it('(GET) /handles/:msaId with valid msaId', async () => {
     const validMsaId = '1';
     await request(app.getHttpServer())
-      .get('/accounts/' + validMsaId)
+      .get(`/handles/${validMsaId}`)
       .expect(200)
       .expect({
         msaId: '1',
@@ -46,22 +46,19 @@ describe('Account Controller', () => {
       });
   });
 
-  it('(GET) /accounts/:msaId with valid msaId and no handle', async () => {
-    const validMsaId = '2';
+  it('(GET) /handles/:msaId with valid msaId, but undefined handle', async () => {
+    const msaIdWithNoHandle = '2';
     await request(app.getHttpServer())
-      .get('/accounts/' + validMsaId)
-      .expect(200)
-      .expect({
-        msaId: '2',
-        handle: null,
-      });
+      .get(`/handles/${msaIdWithNoHandle}`)
+      .expect(400)
+      .expect({ statusCode: 400, message: 'Failed to find the handle.' });
   });
 
-  it('(GET) /accounts/:msaId with invalid msaId', async () => {
+  it('(GET) /handles/:msaId with invalid msaId', async () => {
     const invalidMsaId = '10';
     await request(app.getHttpServer())
-      .get('/accounts/' + invalidMsaId)
+      .get(`/handles/${invalidMsaId}`)
       .expect(400)
-      .expect({ statusCode: 400, message: 'Failed to find the account' });
+      .expect({ statusCode: 400, message: 'Failed to find the handle.' });
   });
 });

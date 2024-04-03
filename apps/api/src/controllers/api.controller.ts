@@ -3,7 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../services/api.service';
 
 @Controller('api')
-@ApiTags('account-service')
+@ApiTags('api')
 export class ApiController {
   private readonly logger: Logger;
 

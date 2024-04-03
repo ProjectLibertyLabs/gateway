@@ -13,4 +13,4 @@ export class HandlesRequest {
   encodedExtrinsic: HexString;
 }
 
-export type HandlesResponse = AccountWithHandle[];
+export type HandlesResponse = AccountWithHandle;

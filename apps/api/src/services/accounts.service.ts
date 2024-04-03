@@ -55,7 +55,7 @@ export class AccountsService {
       createUserAccountRequest,
     );
     this.logger.debug(JSON.stringify(job));
-    const response = { msaId: '1', handle: 'handle' };
+    const response = { msaId: 1, handle: 'handle' };
     return response;
   }
 
@@ -63,7 +63,7 @@ export class AccountsService {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const handle = await this.blockchainService.getHandleForMsa(msaId);
-      return { msaId: msaId.toString(), handle };
+      return { msaId: msaId, handle };
     }
     throw new Error('Invalid msaId.');
   }

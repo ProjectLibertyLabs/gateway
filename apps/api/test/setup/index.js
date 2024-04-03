@@ -2,7 +2,13 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { _0n, hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import { userPrivateConnections, userPrivateFollows, publicKey, userPublicFollows } from '@dsnp/frequency-schemas/dsnp';
+import {
+  userPrivateConnections,
+  userPrivateFollows,
+  publicKey,
+  userPublicFollows,
+} from '@dsnp/frequency-schemas/dsnp';
+import { Bytes, u32 } from '@polkadot/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -14,9 +20,15 @@ const sendStatusCb =
   (resolve) =>
   ({ status, events }) => {
     if (status.isInBlock || status.isFinalized) {
-      const msaCreated = events.map(({ event }) => event).find((event) => event.method === 'MsaCreated');
-      const schemaCreated = events.map(({ event }) => event).find((event) => event.method === 'SchemaCreated');
-      const itemizedPageUpdated = events.map(({ event }) => event).find((event) => event.method === 'ItemizedPageUpdated');
+      const msaCreated = events
+        .map(({ event }) => event)
+        .find((event) => event.method === 'MsaCreated');
+      const schemaCreated = events
+        .map(({ event }) => event)
+        .find((event) => event.method === 'SchemaCreated');
+      const itemizedPageUpdated = events
+        .map(({ event }) => event)
+        .find((event) => event.method === 'ItemizedPageUpdated');
       if (msaCreated) {
         resolve(msaCreated.data.msaId);
       } else {
@@ -45,8 +57,14 @@ const createViaDelegation = (api, provider) => async (keyUri, baseNonce) => {
   const addProviderPayload = api.registry.createType('PalletMsaAddProvider', rawPayload);
   const proof = signPayloadWithKeyring(delegator, addProviderPayload);
 
-  const tx = api.tx.msa.createSponsoredAccountWithDelegation(delegator.address, proof, addProviderPayload.toU8a());
-  await new Promise((resolve) => tx.signAndSend(provider, { nonce: baseNonce }, sendStatusCb(resolve)));
+  const tx = api.tx.msa.createSponsoredAccountWithDelegation(
+    delegator.address,
+    proof,
+    addProviderPayload.toU8a(),
+  );
+  await new Promise((resolve) =>
+    tx.signAndSend(provider, { nonce: baseNonce }, sendStatusCb(resolve)),
+  );
 
   const msaId = await api.query.msa.publicKeyToMsaId(delegator.address);
   if (msaId.isNone) throw new Error('Failed to create MSA');
@@ -63,7 +81,12 @@ async function main() {
     provider,
     // throwOnConnect: true,
   });
-  await Promise.race([api.isReady, new Promise((_, reject) => setTimeout(() => reject(new Error('WS Connection Timeout')), 30_000))]);
+  await Promise.race([
+    api.isReady,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('WS Connection Timeout')), 30_000),
+    ),
+  ]);
 
   console.log('API Connected');
   const keyring = new Keyring({ type: 'sr25519' });
@@ -73,39 +96,95 @@ async function main() {
   await new Promise((resolve) => api.tx.msa.create().signAndSend(alice, sendStatusCb(resolve)));
   console.log('Alice should have MSA Id 1');
   // Create Alice Provider
-  await new Promise((resolve) => api.tx.msa.createProvider('Alice').signAndSend(alice, sendStatusCb(resolve)));
+  await new Promise((resolve) =>
+    api.tx.msa.createProvider('Alice').signAndSend(alice, sendStatusCb(resolve)),
+  );
   console.log('Alice (MSA Id 1) should be a provider now');
 
   let currentNonce = (await api.rpc.system.accountNextIndex(alice.address)).toBn().toNumber();
   console.log('Current nonce: ' + currentNonce);
   // Create Schemas
-  const txSchema1 = api.tx.schemas.createSchema(JSON.stringify(userPublicFollows), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
+  const txSchema1 = api.tx.schemas.createSchema(
+    JSON.stringify(userPublicFollows),
+    'AvroBinary',
+    'Paginated',
+  );
+  await new Promise((resolve) =>
+    txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
+  );
   currentNonce++;
   console.log('Public Follow Schema created');
-  const txSchema2 = api.tx.schemas.createSchema(JSON.stringify(userPrivateFollows), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema2.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
+  const txSchema2 = api.tx.schemas.createSchema(
+    JSON.stringify(userPrivateFollows),
+    'AvroBinary',
+    'Paginated',
+  );
+  await new Promise((resolve) =>
+    txSchema2.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
+  );
   currentNonce++;
   console.log('Private Follow Schema created');
-  const txSchema3 = api.tx.schemas.createSchema(JSON.stringify(userPrivateConnections), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema3.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
+  const txSchema3 = api.tx.schemas.createSchema(
+    JSON.stringify(userPrivateConnections),
+    'AvroBinary',
+    'Paginated',
+  );
+  await new Promise((resolve) =>
+    txSchema3.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
+  );
   currentNonce++;
   console.log('Private Friend Schema created');
-  const txSchema4 = api.tx.schemas.createSchemaViaGovernance(alice.publicKey, JSON.stringify(publicKey), 'AvroBinary', 'Itemized', ['AppendOnly']);
+  const txSchema4 = api.tx.schemas.createSchemaViaGovernance(
+    alice.publicKey,
+    JSON.stringify(publicKey),
+    'AvroBinary',
+    'Itemized',
+    ['AppendOnly'],
+  );
   let sudoTx = api.tx.sudo.sudo(txSchema4);
-  await new Promise((resolve) => sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
+  await new Promise((resolve) =>
+    sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
+  );
   currentNonce++;
   console.log('Public Key Schema created');
+
+  /// Claim handle for Alice
+  const currentBlock = (await api.rpc.chain.getBlock()).block.header.number.toNumber();
+  const handle_bytes = new Bytes(api.registry, 'AliceHandle');
+  const payload_ext = {
+    baseHandle: handle_bytes,
+    expiration: currentBlock + 50,
+  };
+  const claimHandlePayload = api.registry.createType(
+    'CommonPrimitivesHandlesClaimHandlePayload',
+    payload_ext,
+  );
+  const claimHandleProof = {
+    Sr25519: u8aToHex(alice.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
+  };
+  const claimHandle = api.tx.handles.claimHandle(
+    alice.publicKey,
+    claimHandleProof,
+    claimHandlePayload,
+  );
+  await claimHandle.signAndSend(alice, { nonce: currentNonce });
+  console.log('Alices Handle Claimed!');
+  currentNonce++;
+
   // Delegations
   const delegators = ['//Bob', '//Charlie', '//Dave', '//Eve', '//Ferdie'];
   const create = createViaDelegation(api, alice);
   await Promise.all(delegators.map((delegator, i) => create(delegator, currentNonce++)));
 
-  const capacityResult  = (await api.query.capacity.capacityLedger(1));
+  const capacityResult = await api.query.capacity.capacityLedger(1);
   const capacity = capacityResult.unwrapOr({ totalCapacityIssued: 0n });
-  const stakeAmount = 2000000000000000n - (typeof capacity.totalCapacityIssued === 'bigint' ? capacity.totalCapacityIssued : capacity.totalCapacityIssued.toBigInt());
+  const stakeAmount =
+    2000000000000000n -
+    (typeof capacity.totalCapacityIssued === 'bigint'
+      ? capacity.totalCapacityIssued
+      : capacity.totalCapacityIssued.toBigInt());
   await api.tx.capacity.stake(1, stakeAmount).signAndSend(alice, { nonce: currentNonce });
-  
+
   console.log('Create Provider 1 as Alice and Delegator 2, 3, 4, 5, 6');
   console.log('Public keys added to delegators');
   console.log('Staked capacity to provider: ' + stakeAmount);

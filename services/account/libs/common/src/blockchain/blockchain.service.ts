@@ -26,9 +26,7 @@ import { Extrinsic } from './extrinsic';
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
 @Injectable()
-export class BlockchainService<T extends ISubmittableResult = ISubmittableResult>
-  implements OnApplicationBootstrap, OnApplicationShutdown
-{
+export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiRx;
 
   public apiPromise: ApiPromise;

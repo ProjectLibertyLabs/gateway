@@ -54,8 +54,7 @@ export class AccountsService {
       'Create Account',
       createUserAccountRequest,
     );
-    this.logger.debug(job);
-
+    this.logger.debug(JSON.stringify(job));
     const response = { msaId: '1', handle: 'handle' };
     return response;
   }

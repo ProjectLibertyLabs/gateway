@@ -62,7 +62,12 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-      const tx = this.blockchainService.createExtrinsicCall({ pallet: 'msa', extrinsic: 'create' });
+      // TODO: Fix createSponsoredAccountWithDelegation or use siwf. TBD.
+      const tx = await this.blockchainService.createSponsoredAccountWithDelegation(
+        job.data.publicKey,
+        job.data.signature,
+        null,
+      );
       this.logger.debug(`tx: ${tx}`);
       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
       //   switch (job.data.update.type) {
@@ -146,7 +151,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         tx,
       );
       const nonce = await this.nonceService.getNextNonce();
-      this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(ext)}, nonce:${nonce}`);
       const [txHash, _] = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');
@@ -169,7 +174,9 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
   private async checkCapacity(): Promise<void> {
     try {
       const capacityLimit = this.configService.getCapacityLimit();
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+      const capacityInfo = await this.blockchainService.capacityInfo(
+        this.configService.getProviderId(),
+      );
       const { remainingCapacity } = capacityInfo;
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -180,15 +187,20 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
         if (capacityLimit.type === 'percentage') {
           const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
+          const capacityLimitThreshold =
+            (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
           this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
           if (epochUsedCapacity >= capacityLimitThreshold) {
             outOfCapacity = true;
-            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
+            this.logger.warn(
+              `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`,
+            );
           }
         } else if (epochUsedCapacity >= capacityLimit.value) {
           outOfCapacity = true;
-          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
+          this.logger.warn(
+            `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`,
+          );
         }
       }
 
@@ -216,7 +228,9 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           console.error(err);
         }
       } else {
-        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+        this.logger.verbose(
+          'Capacity Available: Resuming account change publish queue and clearing timeout',
+        );
         // Get the failed jobs and check if they failed due to capacity
         const failedJobs = await this.accountChangePublishQueue.getFailed();
         const capacityFailedJobs = failedJobs.filter((job) =>

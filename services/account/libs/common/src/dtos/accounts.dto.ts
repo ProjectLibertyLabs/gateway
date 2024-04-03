@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import {
   ArrayNotEmpty,
@@ -11,31 +12,39 @@ import {
   IsString,
 } from 'class-validator';
 
+// eslint-disable-next-line no-shadow
 enum AlgoType {
   SR25519 = 'SR25519',
 }
 
 export class CreateUserAccountRequest {
+  @ApiProperty()
   @IsNotEmpty()
   addProviderSignature: string;
 
-  @IsNotEmpty()
-  @IsEnum({ AlgoType })
-  algo: AlgoType;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsEnum({ AlgoType })
+  // algo: AlgoType;
 
+  @ApiProperty()
   @IsNotEmpty()
   baseHandle: string;
 
+  @ApiProperty()
   @IsNotEmpty()
   handleSignature: string;
 
-  @IsNotEmpty()
-  @IsHexadecimal()
-  encoding: string;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsHexadecimal()
+  // encoding: string;
 
-  @IsNotEmpty()
-  expiration: number;
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // expiration: number;
 
+  @ApiProperty()
   @IsNotEmpty()
   publicKey: string;
 }

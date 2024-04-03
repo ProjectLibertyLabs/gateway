@@ -17,7 +17,7 @@ import {
 } from '../../../../libs/common/src/dtos/accounts.dto';
 
 @Controller('accounts')
-@ApiTags('account-service')
+@ApiTags('accounts')
 export class AccountsController {
   // private readonly logger: Logger;
   protected logger: Logger;

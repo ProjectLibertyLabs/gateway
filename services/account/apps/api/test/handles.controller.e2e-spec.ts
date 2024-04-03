@@ -34,7 +34,7 @@ describe('Handles Controller', () => {
   it('(GET) /handles/:msaId with valid msaId', async () => {
     const validMsaId = '1';
     await request(app.getHttpServer())
-      .get('/handles/' + validMsaId)
+      .get(`/handles/${validMsaId}`)
       .expect(200)
       .expect({
         msaId: '1',
@@ -49,7 +49,7 @@ describe('Handles Controller', () => {
   it('(GET) /handles/:msaId with valid msaId, but undefined handle', async () => {
     const msaIdWithNoHandle = '2';
     await request(app.getHttpServer())
-      .get('/handles/' + msaIdWithNoHandle)
+      .get(`/handles/${msaIdWithNoHandle}`)
       .expect(400)
       .expect({ statusCode: 400, message: 'Failed to find the handle.' });
   });
@@ -57,7 +57,7 @@ describe('Handles Controller', () => {
   it('(GET) /handles/:msaId with invalid msaId', async () => {
     const invalidMsaId = '10';
     await request(app.getHttpServer())
-      .get('/handles/' + invalidMsaId)
+      .get(`/handles/${invalidMsaId}`)
       .expect(400)
       .expect({ statusCode: 400, message: 'Failed to find the handle.' });
   });

@@ -23,6 +23,8 @@ import {
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
+export type Sr25519Signature = { Sr25519: `0x${string}` };
+
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiRx;
@@ -148,8 +150,22 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
+  public async createSponsoredAccountWithDelegation(
+    delegatorAddress: KeyringPair['address'],
+    signature: Sr25519Signature,
+    payload: any,
+  ) {
+    const extrinsic = this.api.tx.msa.createSponsoredAccountWithDelegation(
+      delegatorAddress,
+      signature,
+      payload,
+    );
+    return extrinsic;
+  }
+
   public async getMsaIdMax() {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
+    // eslint-disable-next-line radix
     return parseInt(count);
   }
 
@@ -159,7 +175,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getHandleForMsa(msaId: number): Promise<string> {
-    return await this.rpc('handles', 'getHandleForMsa', msaId);
+    return this.rpc('handles', 'getHandleForMsa', msaId);
   }
 
   public async capacityInfo(providerId: string): Promise<{

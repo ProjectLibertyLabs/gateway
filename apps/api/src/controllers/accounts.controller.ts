@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
@@ -8,32 +9,42 @@ import {
   Param,
   HttpException,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountsService } from '../services/accounts.service';
-import { AccountResponse } from '../../../../libs/common/src/dtos/accounts.dto';
+import {
+  AccountResponse,
+  CreateUserAccountRequest,
+} from '../../../../libs/common/src/dtos/accounts.dto';
 
 @Controller('accounts')
 @ApiTags('account-service')
 export class AccountsController {
-  private readonly logger: Logger;
+  // private readonly logger: Logger;
+  protected logger: Logger;
 
   constructor(private accountsService: AccountsService) {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post()
+  @Post('/user')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request to create a new account' })
+  @ApiOperation({ summary: 'Request to create a new user account' })
   @ApiOkResponse({ description: 'Account created successfully' })
+  @ApiBody({ type: CreateUserAccountRequest })
   /**
-   * Creates an account using the provided query parameters.
+   * Creates a user account using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A promise that resolves to an array of AccountDTO objects representing the created accounts.
    * @throws An error if the account creation fails.
    */
-  createAccount() {
+  async createAccount(
+    @Body() createUserAccountRequest: CreateUserAccountRequest,
+  ): Promise<AccountResponse> {
     try {
-      const account = this.accountsService.createAccount();
+      this.logger.debug(
+        `Creating account with request: ${JSON.stringify(createUserAccountRequest)}`,
+      );
+      const account = this.accountsService.createUserAccount(createUserAccountRequest);
       return account;
     } catch (error) {
       this.logger.error(error);

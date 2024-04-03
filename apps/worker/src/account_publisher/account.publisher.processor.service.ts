@@ -56,44 +56,53 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<any, any, string>): Promise<any> {
-    let statefulStorageTxHash: Hash = {} as Hash;
+    let accountTxnHash: Hash = {} as Hash;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
-      switch (job.data.update.type) {
-        case 'PersistPage': {
-          let payloadData: number[] = [];
-          if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
-            payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
-          }
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
-            job.data.update.ownerDsnpUserId,
-            job.data.update.schemaId,
-            job.data.update.pageId,
-            job.data.update.prevHash,
-            payloadData,
-          );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
-          break;
-        }
-        case 'DeletePage': {
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'deletePage' },
-            job.data.update.ownerDsnpUserId,
-            job.data.update.schemaId,
-            job.data.update.pageId,
-            job.data.update.prevHash,
-          );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
-          break;
-        }
-        default:
-          break;
-      }
+      const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      // TODO: Fix createSponsoredAccountWithDelegation or use siwf. TBD.
+      const tx = await this.blockchainService.createSponsoredAccountWithDelegation(
+        job.data.publicKey,
+        job.data.signature,
+        null,
+      );
+      this.logger.debug(`tx: ${tx}`);
+      accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //   switch (job.data.update.type) {
+      //     case 'PersistPage': {
+      //       let payloadData: number[] = [];
+      //       if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
+      //         payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
+      //       }
+      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      //       const tx = this.blockchainService.createExtrinsicCall(
+      //         { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
+      //         job.data.update.ownerDsnpUserId,
+      //         job.data.update.schemaId,
+      //         job.data.update.pageId,
+      //         job.data.update.prevHash,
+      //         payloadData,
+      //       );
+      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //       break;
+      //     }
+      //     case 'DeletePage': {
+      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+      //       const tx = this.blockchainService.createExtrinsicCall(
+      //         { pallet: 'statefulStorage', extrinsic: 'deletePage' },
+      //         job.data.update.ownerDsnpUserId,
+      //         job.data.update.schemaId,
+      //         job.data.update.pageId,
+      //         job.data.update.prevHash,
+      //       );
+      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
+      //       break;
+      //     }
+      //     default:
+      //       break;
+      //   }
 
       this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
@@ -142,7 +151,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         tx,
       );
       const nonce = await this.nonceService.getNextNonce();
-      this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(ext)}, nonce:${nonce}`);
       const [txHash, _] = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');

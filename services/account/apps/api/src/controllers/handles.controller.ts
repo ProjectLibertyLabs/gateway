@@ -7,10 +7,11 @@ import {
   Logger,
   Param,
   HttpException,
+  Body,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '../services/handles.service';
-import { HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
+import { HandlesRequest, HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
 
 @Controller('handles')
 @ApiTags('handles')
@@ -25,15 +26,16 @@ export class HandlesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new handle' })
   @ApiOkResponse({ description: 'Handle created successfully' })
+  @ApiBody({ type: HandlesRequest })
   /**
    * Creates a handle using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A promise that resolves to...?
    * @throws An error if the handle creation fails.
    */
-  createHandle() {
+  createHandle(@Body() createHandlesRequest: HandlesRequest) {
     try {
-      const accountWithHandle = this.handlesService.createHandle('testHandle');
+      const accountWithHandle = this.handlesService.createHandle(createHandlesRequest);
       return accountWithHandle;
     } catch (error) {
       this.logger.error(error);

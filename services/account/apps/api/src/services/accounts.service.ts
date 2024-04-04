@@ -48,15 +48,23 @@ export class AccountsService {
 
   async createUserAccount(
     createUserAccountRequest: CreateUserAccountRequest,
-  ): Promise<AccountResponse | any> {
+  ): Promise<AccountResponse> {
     // TODO: figure out how we want to handle creating accounts in relation to siwf.
     const job = await this.accountChangePublishQueue.add(
       'Create Account',
       createUserAccountRequest,
     );
     this.logger.debug(JSON.stringify(job));
-    const response = { msaId: 1, handle: 'handle' };
-    return response;
+    const response = {
+      msaId: 1,
+      handle: {
+        base_handle: 'AliceHandle',
+        canonical_base: 'a11cehand1e',
+        suffix: 85,
+      },
+    };
+    // TODO: remove in place of siwf
+    return response as unknown as AccountResponse;
   }
 
   async getAccount(msaId: number): Promise<AccountResponse> {

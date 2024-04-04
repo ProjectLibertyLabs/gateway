@@ -22,7 +22,7 @@ import {
 } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
-import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 

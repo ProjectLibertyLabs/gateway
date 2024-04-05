@@ -13,8 +13,6 @@ export class ApiService implements OnApplicationShutdown {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE)
-    private accountChangeRequestQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {

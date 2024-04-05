@@ -48,7 +48,7 @@ export class AccountsService {
 
   async createUserAccount(
     createUserAccountRequest: CreateUserAccountRequest,
-  ): Promise<AccountResponse> {
+  ): Promise<AccountResponse | any> {
     // TODO: figure out how we want to handle creating accounts in relation to siwf.
     const job = await this.accountChangePublishQueue.add(
       'Create Account',

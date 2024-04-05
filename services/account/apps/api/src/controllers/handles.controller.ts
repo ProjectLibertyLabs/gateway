@@ -7,10 +7,11 @@ import {
   Logger,
   Param,
   HttpException,
+  Body,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '../services/handles.service';
-import { HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
+import { HandlesRequest, HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
 
 @Controller('handles')
 @ApiTags('handles')
@@ -25,16 +26,18 @@ export class HandlesController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new handle' })
   @ApiOkResponse({ description: 'Handle created successfully' })
+  @ApiBody({ type: HandlesRequest })
   /**
    * Creates a handle using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A promise that resolves to...?
    * @throws An error if the handle creation fails.
    */
-  createHandle() {
+  async createHandle(@Body() createHandleRequest: HandlesRequest) {
     try {
-      const accountWithHandle = this.handlesService.createHandle('testHandle');
-      return accountWithHandle;
+      const txnId = await this.handlesService.createHandle(createHandleRequest);
+      this.logger.log(`createHandle in progress. TxnId: ${txnId}`);
+      return { status: 202, message: `createHandle in progress. TxnId: ${txnId}` };
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to create handle');
@@ -53,6 +56,7 @@ export class HandlesController {
    */
   async getHandle(@Param('msaId') msaId: number): Promise<HandlesResponse> {
     try {
+      this.logger.log('MSA ID:', msaId);
       const account = await this.handlesService.getHandle(msaId);
       return account;
     } catch (error) {

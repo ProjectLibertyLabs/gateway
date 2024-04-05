@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import request from 'supertest';
+import { createKeys } from '../../../libs/common/src/blockchain/create-keys';
 
 describe('Handles Controller', () => {
   let app: INestApplication;
@@ -25,10 +26,13 @@ describe('Handles Controller', () => {
   });
 
   it('(POST) /handles creates new account', async () => {
+    const accountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    const baseHandle = 'NewHandle';
     await request(app.getHttpServer())
       .post('/handles')
+      .send({ accountId, baseHandle })
       .expect(200)
-      .expect((req) => req.text === 'Account created successfully');
+      .expect((req) => req.text === 'Handle created successfully');
   });
 
   it('(GET) /handles/:msaId with valid msaId', async () => {

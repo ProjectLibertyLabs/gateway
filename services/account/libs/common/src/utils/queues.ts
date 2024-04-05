@@ -1,10 +1,5 @@
 export namespace QueueConstants {
   /**
-   * Name of the queue that has all incoming requests
-   */
-  export const ACCOUNT_CHANGE_REQUEST_QUEUE = 'accountChangeRequest';
-
-  /**
    * Name of the queue that publishes account changes to Frequency blockchain
    */
   export const ACCOUNT_CHANGE_PUBLISH_QUEUE = 'accountChangePublish';

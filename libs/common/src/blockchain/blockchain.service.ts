@@ -5,6 +5,7 @@ import { firstValueFrom, from } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
 import {
+  AccountId,
   BlockHash,
   BlockNumber,
   DispatchError,
@@ -14,7 +15,7 @@ import {
 } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16, u8, u64 } from '@polkadot/types';
+import { u32, Option, u128, u16, u8, u64, Bytes } from '@polkadot/types';
 import {
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
@@ -23,6 +24,8 @@ import {
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { createKeys } from './create-keys';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
@@ -175,8 +178,36 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return msaId > 0 && msaId < msaIdMax;
   }
 
+  public async claimHandle(accountId: AccountId, baseHandle: string) {
+    const handle_vec = new Bytes(this.api.registry, baseHandle);
+    const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
+    const handlePayload = {
+      baseHandle: handle_vec,
+      expiration: expiration,
+    };
+    const claimHandlePayload: any = this.api.registry.createType(
+      'CommonPrimitivesHandlesClaimHandlePayload',
+      handlePayload,
+    );
+    this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
+    this.logger.debug(`accountId: ${accountId}`);
+
+    const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+
+    const claimHandleProof = {
+      Sr25519: u8aToHex(providerKeys.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
+    };
+    return this.api.tx.handles.claimHandle(accountId, claimHandleProof, claimHandlePayload);
+  }
+
   public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
     const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
+    if (handleResponse.isSome) return handleResponse.unwrap();
+    return null;
+  }
+
+  public async publicKeyToMsaId(publicKey: string) {
+    const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;
   }

@@ -26,7 +26,7 @@ describe('Account Controller', () => {
 
   it('(POST) /accounts creates new account', async () => {
     await request(app.getHttpServer())
-      .post('/accounts')
+      .post('/accounts/user')
       .expect(200)
       .expect((req) => req.text === 'Account created successfully');
   });

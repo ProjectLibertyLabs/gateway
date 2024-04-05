@@ -9,6 +9,8 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { AccountUpdatePublisherModule } from './account_publisher/account.publisher.processor.module';
 import { AccountUpdatePublisherService } from './account_publisher/account.publisher.processor.service';
 import { ProviderWebhookService, NonceService, QueueConstants } from '../../../libs/common/src';
+import { TxnNotifierService } from './account_notifier/account.monitor.processor.service';
+import { TxnNotifierModule } from './account_notifier/account.monitor.processor.module';
 
 @Module({
   imports: [
@@ -44,14 +46,6 @@ import { ProviderWebhookService, NonceService, QueueConstants } from '../../../l
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-      {
         name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
@@ -71,7 +65,14 @@ import { ProviderWebhookService, NonceService, QueueConstants } from '../../../l
     ScheduleModule.forRoot(),
     BlockchainModule,
     AccountUpdatePublisherModule,
+    TxnNotifierModule,
   ],
-  providers: [ConfigService, AccountUpdatePublisherService, ProviderWebhookService, NonceService],
+  providers: [
+    ConfigService,
+    AccountUpdatePublisherService,
+    TxnNotifierService,
+    ProviderWebhookService,
+    NonceService,
+  ],
 })
 export class WorkerModule {}

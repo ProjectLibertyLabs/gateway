@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
-import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
 import {
   ArrayNotEmpty,

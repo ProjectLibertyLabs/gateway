@@ -178,12 +178,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return msaId > 0 && msaId < msaIdMax;
   }
 
-  public async claimHandle(accountId: AccountId, baseHandle: string) {
+  public async claimHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {
     const handle_vec = new Bytes(this.api.registry, baseHandle);
     const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
     const handlePayload = {
       baseHandle: handle_vec,
       expiration: expiration,
+      ...payload,
     };
     const claimHandlePayload: any = this.api.registry.createType(
       'CommonPrimitivesHandlesClaimHandlePayload',
@@ -200,6 +201,33 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.tx.handles.claimHandle(accountId, claimHandleProof, claimHandlePayload);
   }
 
+  public async changeHandle(
+    accountId: AccountId,
+    baseHandle: string,
+    payload: (any | undefined)[],
+  ) {
+    const handle_vec = new Bytes(this.api.registry, baseHandle);
+    const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
+    const handlePayload = {
+      baseHandle: handle_vec,
+      expiration: expiration,
+      ...payload,
+    };
+    const claimHandlePayload: any = this.api.registry.createType(
+      'CommonPrimitivesHandlesClaimHandlePayload',
+      handlePayload,
+    );
+    this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
+    this.logger.debug(`accountId: ${accountId}`);
+
+    const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+
+    const claimHandleProof = {
+      Sr25519: u8aToHex(providerKeys.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
+    };
+    return this.api.tx.handles.changeHandle(accountId, claimHandleProof, claimHandlePayload);
+  }
+
   public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
     const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
     if (handleResponse.isSome) return handleResponse.unwrap();
@@ -207,8 +235,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async publicKeyToMsaId(publicKey: string) {
+    this.logger.log(`Public Key To Msa`);
+
     const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
+    this.logger.log(`Public Key To Msa`, handleResponse.unwrap());
+
     if (handleResponse.isSome) return handleResponse.unwrap();
+    this.logger.log(`Public Key To Msa`);
+
     return null;
   }
 

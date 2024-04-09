@@ -10,6 +10,7 @@ import {
   CreateUserAccountRequest,
 } from '../../../../libs/common/src/dtos/accounts.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
+import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
 
 @Injectable()
 export class AccountsService {
@@ -28,7 +29,7 @@ export class AccountsService {
   //   async enqueueRequest(request: CreateUserAccountRequest): Promise<AccountChangeRepsonseDto> {
   //     const providerId = this.configService.getProviderId();
   //     const data: ProviderGraphUpdateJob = {
-  //       dsnpId: request.dsnpId,
+  //       msaId: request.msaId,
   //       providerId,
   //       connections: request.connections.data,
   //       graphKeyPairs: request.graphKeyPairs,
@@ -50,10 +51,10 @@ export class AccountsService {
     createUserAccountRequest: CreateUserAccountRequest,
   ): Promise<AccountResponse | any> {
     // TODO: figure out how we want to handle creating accounts in relation to siwf.
-    const job = await this.accountChangePublishQueue.add(
-      'Create Account',
+    const job = await this.accountChangePublishQueue.add('Create Account', {
       createUserAccountRequest,
-    );
+      type: AccountChangeType.CREATE_ACCOUNT,
+    });
     this.logger.debug(JSON.stringify(job));
     const response = {
       msaId: 1,

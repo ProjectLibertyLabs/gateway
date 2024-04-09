@@ -33,7 +33,7 @@ export class ApiService implements OnApplicationShutdown {
   // async enqueueRequest(request: ProviderGraphDto): Promise<AccountChangeRepsonseDto> {
   //   const providerId = this.configService.getProviderId();
   //   const data: ProviderGraphUpdateJob = {
-  //     dsnpId: request.dsnpId,
+  //     msaId: request.msaId,
   //     providerId,
   //     connections: request.connections.data,
   //     graphKeyPairs: request.graphKeyPairs,
@@ -52,8 +52,8 @@ export class ApiService implements OnApplicationShutdown {
   // }
 
   // async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<void> {
-  //   watchGraphsDto.dsnpIds.forEach(async (dsnpId) => {
-  //     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${dsnpId}`;
+  //   watchGraphsDto.msaIds.forEach(async (msaId) => {
+  //     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
   //     const redisValue = watchGraphsDto.webhookEndpoint;
   //     // eslint-disable-next-line no-await-in-loop
   //     await this.redis.rpush(redisKey, redisValue);
@@ -61,16 +61,16 @@ export class ApiService implements OnApplicationShutdown {
   // }
 
   // async getGraphs(queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
-  //   const { dsnpIds, privacyType } = queryParams;
+  //   const { msaIds, privacyType } = queryParams;
   //   const graphKeyPairs = queryParams.graphKeyPairs || [];
   //   const graphs: UserGraphDto[] = [];
   //   // eslint-disable-next-line no-restricted-syntax
-  //   for (const dsnpId of dsnpIds) {
-  //     const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', dsnpId);
+  //   for (const msaId of msaIds) {
+  //     const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', msaId);
   //     // eslint-disable-next-line no-await-in-loop
-  //     const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(dsnpUserId, privacyType, graphKeyPairs);
+  //     const graphEdges = await this.asyncDebouncerService.getGraphForMsaId(dsnpUserId, privacyType, graphKeyPairs);
   //     graphs.push({
-  //       dsnpId,
+  //       msaId,
   //       dsnpGraphEdges: graphEdges,
   //     });
   //   }

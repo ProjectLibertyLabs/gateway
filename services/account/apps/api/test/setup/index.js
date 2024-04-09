@@ -162,7 +162,7 @@ async function main() {
   const claimHandleProof = {
     Sr25519: u8aToHex(alice.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
   };
-  const claimHandle = api.tx.handles.claimHandle(
+  const claimHandle = api.tx.handles.changeHandle(
     alice.publicKey,
     claimHandleProof,
     claimHandlePayload,

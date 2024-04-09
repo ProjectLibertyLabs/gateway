@@ -76,7 +76,7 @@ import { HandlesController } from './controllers/handles.controller';
       {
         name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 20,
           removeOnFail: false,
           attempts: 1,
         },
@@ -84,7 +84,7 @@ import { HandlesController } from './controllers/handles.controller';
       {
         name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 20,
           removeOnFail: false,
           attempts: 3,
         },

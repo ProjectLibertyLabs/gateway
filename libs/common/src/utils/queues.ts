@@ -20,8 +20,8 @@ export namespace QueueConstants {
   export const DEBOUNCER_CACHE_KEY = 'account-service-debouncer';
 
   /**
-   * Last processed dsnpId key for Redis
+   * Last processed msaId key for Redis
    * @type {string}
    */
-  export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedDsnpId';
+  export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedMsaId';
 }

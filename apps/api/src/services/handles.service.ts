@@ -2,12 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { QueueConstants } from '../../../../libs/common/src';
+import { AccountChangeRepsonseDto, QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { HandlesRequest, HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
 import { Queue } from 'bullmq';
-import { ConfigService } from '@nestjs/config';
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import { ConfigService } from '../../../../libs/common/src/config/config.service';
+import type { HandleResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
+import { createHash } from 'crypto';
+import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
 
 @Injectable()
 export class HandlesService {
@@ -23,10 +25,33 @@ export class HandlesService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async createHandle(createHandleRequest: HandlesRequest): Promise<string | undefined> {
-    const job = await this.accountChangePublishQueue.add('Create Handle', createHandleRequest);
-    this.logger.debug(JSON.stringify(job));
-    return job.id;
+  private calculateJobId(jobWithoutId): string {
+    const stringVal = JSON.stringify(jobWithoutId);
+    return createHash('sha1').update(stringVal).digest('base64url');
+  }
+
+  async enqueueRequest(
+    request: HandlesRequest,
+    type: AccountChangeType,
+  ): Promise<AccountChangeRepsonseDto> {
+    const providerId = this.configService.getProviderId();
+    const data = {
+      ...request,
+      type,
+      providerId,
+      referenceId: this.calculateJobId(request),
+      updateConnection: this.configService.getReconnectionServiceRequired(),
+    };
+
+    const job = await this.accountChangePublishQueue.add(
+      `Request Job - ${data.referenceId}`,
+      data,
+      { jobId: data.referenceId },
+    );
+    this.logger.log('Job enqueued: ', JSON.stringify(job));
+    return {
+      referenceId: data.referenceId,
+    };
   }
 
   async getHandle(msaId: number): Promise<HandlesResponse> {

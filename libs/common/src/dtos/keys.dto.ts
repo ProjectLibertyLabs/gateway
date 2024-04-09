@@ -3,7 +3,7 @@ import { IsNotEmpty } from 'class-validator';
 
 export class AccountKeys {
   @IsNotEmpty()
-  dsnpId: string;
+  msaId: string;
 
   @IsNotEmpty()
   keys: KeyringPair;

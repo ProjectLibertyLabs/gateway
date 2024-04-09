@@ -4,7 +4,7 @@ import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
 import { Account } from './accounts.dto';
 
 export class CreateDelegationRequest {
-  userDsnpId;
+  userMsaId;
 
   provider;
 }

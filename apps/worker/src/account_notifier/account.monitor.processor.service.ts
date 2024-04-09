@@ -13,6 +13,7 @@ import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/account.notifier.job';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
 
 @Injectable()
 @Processor(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE)
@@ -25,7 +26,8 @@ export class TxnNotifierService extends BaseConsumer {
     super();
   }
 
-  async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
+  // async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
+  async process(job: Job<any, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
@@ -71,19 +73,16 @@ export class TxnNotifierService extends BaseConsumer {
           this.logger.verbose(
             `Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`,
           );
-          const webhookList = await this.getWebhookList(
-            job.data.referencePublishJob.update.ownerMsaId,
-          );
-          this.logger.debug(
-            `Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerMsaId}`,
-          );
+          const webhookList = await this.getWebhookList(job.data.providerId);
+          this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.providerId}`);
           // const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
           //   await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
 
-          if (job.data.referencePublishJob.update.type !== 'CreateHandle') {
-            this.logger.debug(
-              `Created handle for ${job.data.referencePublishJob.update.ownerMsaId}.`,
-            );
+          if (job.data.type === AccountChangeType.CHANGE_HANDLE) {
+            this.logger.debug(`Changed handle for ${job.data.providerId}.`);
+          }
+          if (job.data.type === AccountChangeType.CREATE_HANDLE) {
+            this.logger.debug(`Created handle for ${job.data.providerId}.`);
             // const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
             // const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType(
             //   'MessageSourceId',
@@ -95,8 +94,8 @@ export class TxnNotifierService extends BaseConsumer {
             // );
           }
           const notification = {
-            dsnpId: job.data.referencePublishJob.update.ownerMsaId,
-            update: job.data.referencePublishJob.update,
+            msaId: job.data.providerId,
+            update: job.data?.referencePublishJob?.update,
           };
 
           webhookList.forEach(async (webhookUrl) => {

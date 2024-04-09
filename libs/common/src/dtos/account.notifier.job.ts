@@ -1,5 +1,5 @@
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
-import { AccountUpdateJob } from './account.update.job';
+import { AccountUpdateJob } from './account.change.notification.dto';
 
 export interface ITxMonitorJob {
   id: string;
@@ -7,4 +7,5 @@ export interface ITxMonitorJob {
   epoch: string;
   lastFinalizedBlockHash: BlockHash;
   referencePublishJob: AccountUpdateJob;
+  providerId: string;
 }

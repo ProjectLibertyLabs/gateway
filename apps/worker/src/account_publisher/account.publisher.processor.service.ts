@@ -16,6 +16,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
 import { Extrinsic } from '../../../../libs/common/src/blockchain/extrinsic';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/account.notifier.job';
+import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -59,19 +60,30 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
    */
   async process(job: Job<any, any, string>): Promise<any> {
     let accountTxnHash: Hash = {} as Hash;
+
     try {
-      this.logger.log(`Processing job ${job.id} of type ${job.name}.... ${job.data}`);
+      this.logger.log(`Processing job ${job.id} of type ${job.name}.... ${JSON.stringify(job)}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
       let tx: SubmittableExtrinsic<any>;
       // TODO: Fix createSponsoredAccountWithDelegation or use siwf. TBD.
-      switch (job.name) {
-        case 'Create Handle': {
-          tx = await this.blockchainService.claimHandle(job.data.accountId, job.data.baseHandle);
+      switch (job.data.type) {
+        case AccountChangeType.CREATE_HANDLE: {
+          tx = await this.blockchainService.claimHandle(job.data.accountId, job.data.baseHandle, [
+            job.data.providerId,
+            job.data.payload,
+          ]);
           break;
         }
-        case 'Create Account': {
+        case AccountChangeType.CHANGE_HANDLE: {
+          tx = await this.blockchainService.changeHandle(job.data.accountId, job.data.baseHandle, [
+            job.data.providerId,
+            job.data.payload,
+          ]);
+          break;
+        }
+        case AccountChangeType.CREATE_ACCOUNT: {
           tx = await this.blockchainService.createSponsoredAccountWithDelegation(
             job.data.publicKey,
             job.data.signature,

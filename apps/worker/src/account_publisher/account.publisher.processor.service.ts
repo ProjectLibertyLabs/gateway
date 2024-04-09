@@ -134,7 +134,8 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
       this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
       // Add a job to the account change notify queue
-      const txMonitorJob: ITxMonitorJob = {
+      // const txMonitorJob: ITxMonitorJob = {
+      const txMonitorJob = {
         id: job.data.referenceId,
         txHash: accountTxnHash,
         epoch: currentCapacityEpoch.toString(),

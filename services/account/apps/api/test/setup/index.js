@@ -66,7 +66,8 @@ const createViaDelegation = (api, provider) => async (keyUri, baseNonce) => {
     tx.signAndSend(provider, { nonce: baseNonce }, sendStatusCb(resolve)),
   );
 
-  const msaId = await api.query.msa.publicKeyToMsaId(delegator);
+  const msaId = await api.query.msa.publicKeyToMsaId(delegator.address);
+
   if (msaId.isNone) throw new Error('Failed to create MSA');
   const msaIdStr = msaId.value.toString();
 

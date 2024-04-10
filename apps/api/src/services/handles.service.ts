@@ -43,7 +43,7 @@ export class HandlesService {
     };
 
     const job = await this.accountChangePublishQueue.add(
-      `Request Job - ${data.referenceId}`,
+      `Transaction Job - ${data.referenceId}`,
       data,
       { jobId: data.referenceId },
     );

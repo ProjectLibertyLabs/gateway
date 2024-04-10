@@ -10,13 +10,13 @@ import axios from 'axios';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
-import { ITxMonitorJob } from '../../../../libs/common/src/dtos/account.notifier.job';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
+import { TransactionType, TxMonitorJob } from '../../../../libs/common/src/dtos/transaction.dto';
+import { Account } from '../../../../libs/common/src/dtos/accounts.dto';
 
 @Injectable()
-@Processor(QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE)
+@Processor(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
 export class TxnNotifierService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
@@ -27,7 +27,7 @@ export class TxnNotifierService extends BaseConsumer {
   }
 
   // async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(job: Job<TxMonitorJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
@@ -73,15 +73,15 @@ export class TxnNotifierService extends BaseConsumer {
           this.logger.verbose(
             `Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`,
           );
-          const webhookList = await this.getWebhookList(job.data.providerId);
+          const webhookList = await this.getWebhookList(parseInt(job.data.providerId));
           this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.providerId}`);
           // const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
           //   await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
 
-          if (job.data.type === AccountChangeType.CHANGE_HANDLE) {
+          if (job.data.type === TransactionType.CHANGE_HANDLE) {
             this.logger.debug(`Changed handle for ${job.data.providerId}.`);
           }
-          if (job.data.type === AccountChangeType.CREATE_HANDLE) {
+          if (job.data.type === TransactionType.CREATE_HANDLE) {
             this.logger.debug(`Created handle for ${job.data.providerId}.`);
             // const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
             // const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType(
@@ -93,19 +93,14 @@ export class TxnNotifierService extends BaseConsumer {
             //   job.data.referencePublishJob.update.schemaId,
             // );
           }
-          const notification = {
-            msaId: job.data.providerId,
-            update: job.data?.referencePublishJob?.update,
-          };
 
           webhookList.forEach(async (webhookUrl) => {
             let retries = 0;
             while (retries < this.configService.getHealthCheckMaxRetries()) {
               try {
                 this.logger.debug(`Sending transaction notification to webhook: ${webhookUrl}`);
-                this.logger.debug(`Transaction: ${JSON.stringify(notification)}`);
-                // eslint-disable-next-line no-await-in-loop
-                await axios.post(webhookUrl, notification);
+                this.logger.debug(`Transaction: ${JSON.stringify(job.data)}`);
+                await axios.post(webhookUrl, job.data);
                 this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
                 break;
               } catch (error) {
@@ -193,7 +188,7 @@ export class TxnNotifierService extends BaseConsumer {
     return { pause: false, retry: false };
   }
 
-  async getWebhookList(msaId: string): Promise<string[]> {
+  async getWebhookList(msaId: Account['msaId']): Promise<string[]> {
     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
     const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
 

@@ -1,11 +1,10 @@
-import { HexString } from '@polkadot/util/types';
 import { IsNotEmpty } from 'class-validator';
-import { AccountWithHandle } from './accounts.dto';
-import { KeyringPair } from '@polkadot/keyring/types';
 import { AccountId } from '@polkadot/types/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
+import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import { TransactionType } from './transaction.dto';
 
-export class HandlesRequest {
+export class HandleRequest {
   @ApiProperty()
   @IsNotEmpty()
   accountId: AccountId;
@@ -13,14 +12,10 @@ export class HandlesRequest {
   @ApiProperty()
   @IsNotEmpty()
   baseHandle: string;
-  // @IsNotEmpty()
-  // pallet: string;
-
-  // @IsNotEmpty()
-  // ectrinsicName: string;
-
-  // @IsNotEmpty()
-  // encodedExtrinsic: HexString;
 }
 
-export type HandlesResponse = AccountWithHandle;
+export type PublishHandleRequest = HandleRequest & {
+  type: TransactionType.CHANGE_HANDLE | TransactionType.CREATE_HANDLE;
+};
+
+export type Handle = HandleResponse;

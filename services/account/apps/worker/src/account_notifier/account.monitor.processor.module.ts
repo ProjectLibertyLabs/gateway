@@ -51,7 +51,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -59,7 +59,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
         },
       },
       {
-        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,

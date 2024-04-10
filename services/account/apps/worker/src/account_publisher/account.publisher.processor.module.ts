@@ -50,14 +50,14 @@ import { AccountUpdatePublisherService } from './account.publisher.processor.ser
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
         },
       },
       {
-        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,

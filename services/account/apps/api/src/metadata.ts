@@ -5,7 +5,7 @@ export default async () => {
     '@nestjs/swagger': {
       models: [
         [
-          import('../../../libs/common/src/dtos/account.change.notification.dto'),
+          import('../../../libs/common/src/dtos/transaction.dto'),
           {
             AccountChangeNotificationDto: {
               msaId: { required: true, type: () => String },

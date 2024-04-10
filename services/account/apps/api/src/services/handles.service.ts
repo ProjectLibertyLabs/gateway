@@ -2,14 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { AccountChangeRepsonseDto, QueueConstants } from '../../../../libs/common/src';
+import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { HandlesRequest, HandlesResponse } from '../../../../libs/common/src/dtos/handles.dtos';
+import { HandleRequest, PublishHandleRequest } from '../../../../libs/common/src/dtos/handles.dtos';
 import { Queue } from 'bullmq';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import type { HandleResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { createHash } from 'crypto';
-import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
+import {
+  TransactionData,
+  TransactionRepsonse,
+} from '../../../../libs/common/src/dtos/transaction.dto';
 
 @Injectable()
 export class HandlesService {
@@ -17,51 +20,46 @@ export class HandlesService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE)
-    private accountChangePublishQueue: Queue,
+    @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
+    private transactionPublishQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
 
-  private calculateJobId(jobWithoutId): string {
+  private calculateJobId(jobWithoutId: PublishHandleRequest): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }
 
-  async enqueueRequest(
-    request: HandlesRequest,
-    type: AccountChangeType,
-  ): Promise<AccountChangeRepsonseDto> {
+  async enqueueRequest(request: PublishHandleRequest): Promise<TransactionRepsonse> {
     const providerId = this.configService.getProviderId();
-    const data = {
+    const data: TransactionData = {
       ...request,
-      type,
       providerId,
       referenceId: this.calculateJobId(request),
     };
 
-    const job = await this.accountChangePublishQueue.add(
+    const job = await this.transactionPublishQueue.add(
       `Transaction Job - ${data.referenceId}`,
       data,
       { jobId: data.referenceId },
     );
+
     this.logger.log('Job enqueued: ', JSON.stringify(job));
     return {
       referenceId: data.referenceId,
     };
   }
 
-  async getHandle(msaId: number): Promise<HandlesResponse> {
+  async getHandle(msaId: number): Promise<HandleResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const handle = await this.blockchainService.getHandleForMsa(msaId);
-      if (handle) {
-        return { msaId, handle };
-      } else {
-        throw new Error('Handle not found.');
-      }
-    } else throw new Error('Invalid msaId.');
+      if (handle) return handle;
+      throw new Error('Handle not found.');
+    }
+    throw new Error('Invalid msaId.');
   }
 }

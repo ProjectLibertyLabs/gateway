@@ -40,7 +40,6 @@ export class HandlesService {
       type,
       providerId,
       referenceId: this.calculateJobId(request),
-      updateConnection: this.configService.getReconnectionServiceRequired(),
     };
 
     const job = await this.accountChangePublishQueue.add(

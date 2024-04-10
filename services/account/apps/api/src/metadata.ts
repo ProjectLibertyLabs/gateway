@@ -8,7 +8,7 @@ export default async () => {
           import('../../../libs/common/src/dtos/account.change.notification.dto'),
           {
             AccountChangeNotificationDto: {
-              dsnpId: { required: true, type: () => String },
+              msaId: { required: true, type: () => String },
               update: { required: true, type: () => Object },
             },
           },

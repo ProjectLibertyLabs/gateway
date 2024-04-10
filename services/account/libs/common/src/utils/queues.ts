@@ -1,10 +1,5 @@
 export namespace QueueConstants {
   /**
-   * Name of the queue that has all incoming requests
-   */
-  export const ACCOUNT_CHANGE_REQUEST_QUEUE = 'accountChangeRequest';
-
-  /**
    * Name of the queue that publishes account changes to Frequency blockchain
    */
   export const ACCOUNT_CHANGE_PUBLISH_QUEUE = 'accountChangePublish';
@@ -25,8 +20,8 @@ export namespace QueueConstants {
   export const DEBOUNCER_CACHE_KEY = 'account-service-debouncer';
 
   /**
-   * Last processed dsnpId key for Redis
+   * Last processed msaId key for Redis
    * @type {string}
    */
-  export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedDsnpId';
+  export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedMsaId';
 }

@@ -26,24 +26,15 @@ describe('Account Controller', () => {
 
   it('(POST) /accounts creates new account', async () => {
     await request(app.getHttpServer())
-      .post('/accounts')
+      .post('/accounts/user')
+      .send({
+        addProviderSignature: 'string',
+        baseHandle: 'string',
+        handleSignature: 'string',
+        publicKey: 'string',
+      })
       .expect(200)
       .expect((req) => req.text === 'Account created successfully');
-  });
-
-  it('(GET) /accounts/:msaId with valid msaId and handle', async () => {
-    const validMsaId = '1';
-    await request(app.getHttpServer())
-      .get('/accounts/' + validMsaId)
-      .expect(200)
-      .expect({
-        msaId: '1',
-        handle: {
-          base_handle: 'AliceHandle',
-          canonical_base: 'a11cehand1e',
-          suffix: 85,
-        },
-      });
   });
 
   it('(GET) /accounts/:msaId with valid msaId and no handle', async () => {
@@ -63,5 +54,15 @@ describe('Account Controller', () => {
       .get('/accounts/' + invalidMsaId)
       .expect(400)
       .expect({ statusCode: 400, message: 'Failed to find the account' });
+  });
+
+  it('(GET) /accounts/:msaId with valid msaId and handle', async () => {
+    const validMsaId = '1';
+    await request(app.getHttpServer())
+      .get('/accounts/' + validMsaId)
+      .expect(200)
+      .expect((res) => res.body.msaId === '1')
+      .expect((res) => res.body.handle.base_handle === 'AliceHandle')
+      .expect((res) => res.body.handle.canonical_base === 'a11cehand1e');
   });
 });

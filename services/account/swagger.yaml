@@ -13,7 +13,7 @@ paths:
   /api/graphs:
     put:
       operationId: ApiController_getGraphs
-      summary: Post a request to fetch graphs for specified dsnpIds and blockNumber
+      summary: Post a request to fetch graphs for specified msaIds and blockNumber
       parameters: []
       requestBody:
         required: true
@@ -55,7 +55,7 @@ paths:
   /api/watch-graphs:
     put:
       operationId: ApiController_watchGraphs
-      summary: Watch graphs for specified dsnpIds and receive updates
+      summary: Watch graphs for specified msaIds and receive updates
       parameters: []
       requestBody:
         required: true
@@ -105,7 +105,7 @@ components:
     GraphsQueryParamsDto:
       type: object
       properties:
-        dsnpIds:
+        msaIds:
           type: array
           items:
             type: string
@@ -119,7 +119,7 @@ components:
           items:
             $ref: '#/components/schemas/GraphKeyPairDto'
       required:
-        - dsnpIds
+        - msaIds
         - privacyType
         - graphKeyPairs
     DsnpGraphEdge:
@@ -135,18 +135,18 @@ components:
     UserGraphDto:
       type: object
       properties:
-        dsnpId:
+        msaId:
           type: string
         dsnpGraphEdges:
           type: array
           items:
             $ref: '#/components/schemas/DsnpGraphEdge'
       required:
-        - dsnpId
+        - msaId
     ConnectionDto:
       type: object
       properties:
-        dsnpId:
+        msaId:
           type: string
         privacyType:
           type: string
@@ -166,14 +166,14 @@ components:
             - follow
             - friendship
       required:
-        - dsnpId
+        - msaId
         - privacyType
         - direction
         - connectionType
     ProviderGraphDto:
       type: object
       properties:
-        dsnpId:
+        msaId:
           type: string
         connections:
           type: object
@@ -188,7 +188,7 @@ components:
           items:
             $ref: '#/components/schemas/GraphKeyPairDto'
       required:
-        - dsnpId
+        - msaId
         - connections
     GraphChangeRepsonseDto:
       type: object
@@ -196,12 +196,12 @@ components:
     WatchGraphsDto:
       type: object
       properties:
-        dsnpIds:
+        msaIds:
           type: array
           items:
             type: string
         webhookEndpoint:
           type: string
       required:
-        - dsnpIds
+        - msaIds
         - webhookEndpoint

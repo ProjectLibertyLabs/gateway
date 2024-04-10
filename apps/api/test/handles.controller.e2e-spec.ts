@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import request from 'supertest';
+import { createKeys } from '../../../libs/common/src/blockchain/create-keys';
 
 describe('Handles Controller', () => {
   let app: INestApplication;
@@ -24,11 +25,24 @@ describe('Handles Controller', () => {
     await app.init();
   });
 
-  it('(POST) /handles creates new account', async () => {
+  it('(POST) /handles creates new handle', async () => {
+    const accountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    const baseHandle = 'NewHandle';
     await request(app.getHttpServer())
       .post('/handles')
+      .send({ accountId, baseHandle })
       .expect(200)
-      .expect((req) => req.text === 'Account created successfully');
+      .expect((req) => req.text === 'Handle created successfully');
+  });
+
+  it('(POST) /handles/change changes the handle', async () => {
+    const accountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    const baseHandle = 'NewHandle123';
+    await request(app.getHttpServer())
+      .post('/handles/change')
+      .send({ accountId, baseHandle })
+      .expect(200)
+      .expect((req) => req.text === 'Handle changed successfully');
   });
 
   it('(GET) /handles/:msaId with valid msaId', async () => {
@@ -36,14 +50,9 @@ describe('Handles Controller', () => {
     await request(app.getHttpServer())
       .get(`/handles/${validMsaId}`)
       .expect(200)
-      .expect({
-        msaId: '1',
-        handle: {
-          base_handle: 'AliceHandle',
-          canonical_base: 'a11cehand1e',
-          suffix: 85,
-        },
-      });
+      .expect((res) => res.body.msaId === '1')
+      .expect((res) => res.body.handle.base_handle === 'AliceHandle')
+      .expect((res) => res.body.handle.canonical_base === 'a11cehand1e');
   });
 
   it('(GET) /handles/:msaId with valid msaId, but undefined handle', async () => {

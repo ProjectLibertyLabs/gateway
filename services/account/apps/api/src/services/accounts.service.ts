@@ -5,7 +5,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import {
+import type {
   AccountResponse,
   CreateUserAccountRequest,
 } from '../../../../libs/common/src/dtos/accounts.dto';

@@ -14,7 +14,8 @@ import { QueueConstants, NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { TxMonitorJob, TransactionType } from '../../../../libs/common/src/dtos/transaction.dto';
+import { TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -82,12 +83,8 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           break;
         }
         case TransactionType.CREATE_ACCOUNT: {
-          tx = await this.blockchainService.createSponsoredAccountWithDelegation(
-            job.data.publicKey,
-            job.data.signature,
-            null,
-          );
-          break;
+          // TODO: add SIWF logic & remove error.
+          throw new Error('SIWF not working yet.');
         }
         default: {
           throw new Error('Invalid job name');
@@ -149,7 +146,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           delay: blockDelay,
         },
       );
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(error);
       throw error;
     } finally {
@@ -187,7 +184,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
       }
       this.logger.debug(`Tx hash: ${txHash}`);
       return txHash;
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(`Error processing batch: ${error}`);
       throw error;
     }

@@ -12,8 +12,11 @@ import { QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { TransactionType, TxMonitorJob } from '../../../../libs/common/src/dtos/transaction.dto';
-import { Account } from '../../../../libs/common/src/dtos/accounts.dto';
+import {
+  TransactionNotification,
+  TxMonitorJob,
+} from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
@@ -94,13 +97,18 @@ export class TxnNotifierService extends BaseConsumer {
             // );
           }
 
+          const notification: TransactionNotification = {
+            msaId: job.data.providerId,
+            data: job.data,
+          };
+
           webhookList.forEach(async (webhookUrl) => {
             let retries = 0;
             while (retries < this.configService.getHealthCheckMaxRetries()) {
               try {
                 this.logger.debug(`Sending transaction notification to webhook: ${webhookUrl}`);
-                this.logger.debug(`Transaction: ${JSON.stringify(job.data)}`);
-                await axios.post(webhookUrl, job.data);
+                this.logger.debug(`Transaction: ${JSON.stringify(notification)}`);
+                await axios.post(webhookUrl, notification);
                 this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
                 break;
               } catch (error) {
@@ -188,7 +196,7 @@ export class TxnNotifierService extends BaseConsumer {
     return { pause: false, retry: false };
   }
 
-  async getWebhookList(msaId: Account['msaId']): Promise<string[]> {
+  async getWebhookList(msaId: number): Promise<string[]> {
     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
     const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
 

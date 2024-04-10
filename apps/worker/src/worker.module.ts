@@ -6,11 +6,11 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { AccountUpdatePublisherModule } from './account_publisher/account.publisher.processor.module';
-import { AccountUpdatePublisherService } from './account_publisher/account.publisher.processor.service';
+import { AccountUpdatePublisherModule } from './transaction_publisher/publisher.module';
+import { AccountUpdatePublisherService } from './transaction_publisher/publisher.service';
 import { ProviderWebhookService, NonceService, QueueConstants } from '../../../libs/common/src';
-import { TxnNotifierService } from './account_notifier/account.monitor.processor.service';
-import { TxnNotifierModule } from './account_notifier/account.monitor.processor.module';
+import { TxnNotifierService } from './transaction_notifier/notifier.service';
+import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 
 @Module({
   imports: [

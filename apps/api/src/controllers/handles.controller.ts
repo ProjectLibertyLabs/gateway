@@ -11,10 +11,9 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '../services/handles.service';
-import { HandleRequest } from '../../../../libs/common/src/dtos/handles.dtos';
-import { TransactionType } from '../../../../libs/common/src/dtos/transaction.dto';
+import { HandleRequest } from '../../../../libs/common/src/types/dtos/handles.dto';
 import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
-import type { Account } from '../../../../libs/common/src/dtos/accounts.dto';
+import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 @Controller('handles')
 @ApiTags('handles')
@@ -85,7 +84,7 @@ export class HandlesController {
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.
    */
-  async getHandle(@Param('msaId') msaId: Account['msaId']): Promise<HandleResponse> {
+  async getHandle(@Param('msaId') msaId: number): Promise<HandleResponse> {
     try {
       const handle = await this.handlesService.getHandle(msaId);
       return handle;

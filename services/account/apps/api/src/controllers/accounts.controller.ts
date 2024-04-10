@@ -9,13 +9,9 @@ import {
   Param,
   HttpException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountsService } from '../services/accounts.service';
-import {
-  Account,
-  AccountResponse,
-  CreateUserAccountRequest,
-} from '../../../../libs/common/src/dtos/accounts.dto';
+import { Account, AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.dto';
 
 @Controller('accounts')
 @ApiTags('accounts')
@@ -25,32 +21,6 @@ export class AccountsController {
 
   constructor(private accountsService: AccountsService) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  @Post('/user')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request to create a new user account' })
-  @ApiOkResponse({ description: 'Account created successfully' })
-  @ApiBody({ type: CreateUserAccountRequest })
-  /**
-   * Creates a user account using the provided query parameters.
-   * @param queryParams - The query parameters for creating the account.
-   * @returns A promise that resolves to an array of AccountDTO objects representing the created accounts.
-   * @throws An error if the account creation fails.
-   */
-  async createAccount(
-    @Body() createUserAccountRequest: CreateUserAccountRequest,
-  ): Promise<AccountResponse> {
-    try {
-      this.logger.debug(
-        `Creating account with request: ${JSON.stringify(createUserAccountRequest)}`,
-      );
-      const account = this.accountsService.createUserAccount(createUserAccountRequest);
-      return account;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to create account');
-    }
   }
 
   @Get(':msaId')
@@ -63,9 +33,7 @@ export class AccountsController {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(
-    @Param('msaId') msaId: Account['msaId'],
-  ): Promise<AccountResponse> {
+  async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse> {
     try {
       const account = await this.accountsService.getAccount(msaId);
       return account;

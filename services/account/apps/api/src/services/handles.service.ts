@@ -4,7 +4,10 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { HandleRequest, PublishHandleRequest } from '../../../../libs/common/src/dtos/handles.dtos';
+import {
+  HandleRequest,
+  PublishHandleRequest,
+} from '../../../../libs/common/src/types/dtos/handles.dto';
 import { Queue } from 'bullmq';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import type { HandleResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
@@ -12,7 +15,7 @@ import { createHash } from 'crypto';
 import {
   TransactionData,
   TransactionRepsonse,
-} from '../../../../libs/common/src/dtos/transaction.dto';
+} from '../../../../libs/common/src/types/dtos/transaction.dto';
 
 @Injectable()
 export class HandlesService {

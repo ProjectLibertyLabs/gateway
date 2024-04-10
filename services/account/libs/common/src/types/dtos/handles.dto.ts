@@ -2,12 +2,12 @@ import { IsNotEmpty } from 'class-validator';
 import { AccountId } from '@polkadot/types/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
-import { TransactionType } from './transaction.dto';
+import { TransactionType } from '../enums';
 
 export class HandleRequest {
   @ApiProperty()
   @IsNotEmpty()
-  accountId: AccountId;
+  accountId: AccountId['toHuman'];
 
   @ApiProperty()
   @IsNotEmpty()

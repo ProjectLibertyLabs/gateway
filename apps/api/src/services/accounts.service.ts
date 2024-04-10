@@ -7,7 +7,6 @@ import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import type { AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { TransactionType } from '../../../../libs/common/src/types/dtos/transaction.dto';
 
 @Injectable()
 export class AccountsService {

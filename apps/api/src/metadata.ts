@@ -21,7 +21,13 @@ export default async () => {
           import('./controllers/accounts.controller'),
           { AccountsController: { createAccount: { type: Object }, getAccount: { type: Object } } },
           import('./controllers/handles.controller'),
-          { AccountsController: { createHandle: { type: Object }, getHandle: { type: Object } } },
+          {
+            HandlesController: {
+              createHandle: { type: Object },
+              changeHandle: { type: Object },
+              getHandle: { type: Object },
+            },
+          },
         ],
       ],
     },

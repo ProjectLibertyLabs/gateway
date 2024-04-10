@@ -13,8 +13,8 @@ import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '../services/handles.service';
 import { HandleRequest } from '../../../../libs/common/src/dtos/handles.dtos';
 import { TransactionType } from '../../../../libs/common/src/dtos/transaction.dto';
-import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
-import { Account } from '../../../../libs/common/src/dtos/accounts.dto';
+import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import type { Account } from '../../../../libs/common/src/dtos/accounts.dto';
 
 @Controller('handles')
 @ApiTags('handles')

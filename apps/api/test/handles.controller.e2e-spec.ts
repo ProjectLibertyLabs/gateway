@@ -5,7 +5,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import request from 'supertest';
-import { createKeys } from '../../../libs/common/src/blockchain/create-keys';
 
 describe('Handles Controller', () => {
   let app: INestApplication;

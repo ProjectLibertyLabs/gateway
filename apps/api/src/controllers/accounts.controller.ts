@@ -12,6 +12,7 @@ import {
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountsService } from '../services/accounts.service';
 import {
+  Account,
   AccountResponse,
   CreateUserAccountRequest,
 } from '../../../../libs/common/src/dtos/accounts.dto';
@@ -59,10 +60,12 @@ export class AccountsController {
   /**
    * Gets an account.
    * @param queryParams - The query parameters for creating the account.
-   * @returns A promise that resolves to an array of AccountDTO objects representing the found account.
+   * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse | HttpException> {
+  async getAccount(
+    @Param('msaId') msaId: Account['msaId'],
+  ): Promise<AccountResponse> {
     try {
       const account = await this.accountsService.getAccount(msaId);
       return account;

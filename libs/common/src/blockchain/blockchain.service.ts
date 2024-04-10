@@ -26,6 +26,7 @@ import { Extrinsic } from './extrinsic';
 import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { createKeys } from './create-keys';
+import { Handle } from '../dtos/handles.dtos';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
@@ -228,7 +229,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.tx.handles.changeHandle(accountId, claimHandleProof, claimHandlePayload);
   }
 
-  public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
+  public async getHandleForMsa(msaId: number): Promise<Handle | null> {
     const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;

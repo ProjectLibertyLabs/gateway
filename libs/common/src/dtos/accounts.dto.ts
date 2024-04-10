@@ -18,6 +18,7 @@ enum AlgoType {
   SR25519 = 'SR25519',
 }
 
+// TODO: Use types from SIWF for all creation related types
 export class CreateUserAccountRequest {
   @ApiProperty()
   @IsNotEmpty()
@@ -89,13 +90,4 @@ export class Account {
   handle?: HandleResponse | null;
 }
 
-export class AccountWithHandle {
-  @IsNotEmpty()
-  msaId: number;
-
-  @IsNotEmpty()
-  handle: HandleResponse;
-}
-
-export type AccountsResponse = Account[];
 export type AccountResponse = Account;

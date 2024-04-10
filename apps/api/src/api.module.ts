@@ -74,7 +74,7 @@ import { HandlesController } from './controllers/handles.controller';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: 20,
           removeOnFail: false,
@@ -82,7 +82,7 @@ import { HandlesController } from './controllers/handles.controller';
         },
       },
       {
-        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: 20,
           removeOnFail: false,
@@ -96,11 +96,11 @@ import { HandlesController } from './controllers/handles.controller';
       adapter: ExpressAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+      name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
       adapter: BullMQAdapter,
     }),
     ScheduleModule.forRoot(),

@@ -10,7 +10,7 @@ import {
   CreateUserAccountRequest,
 } from '../../../../libs/common/src/dtos/accounts.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { AccountChangeType } from '../../../../libs/common/src/dtos/account.change.notification.dto';
+import { TransactionType } from '../../../../libs/common/src/dtos/transaction.dto';
 
 @Injectable()
 export class AccountsService {
@@ -18,8 +18,8 @@ export class AccountsService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE)
-    private accountChangePublishQueue: Queue,
+    @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
+    private transactionPublishQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {
@@ -51,9 +51,9 @@ export class AccountsService {
     createUserAccountRequest: CreateUserAccountRequest,
   ): Promise<AccountResponse | any> {
     // TODO: figure out how we want to handle creating accounts in relation to siwf.
-    const job = await this.accountChangePublishQueue.add('Create Account', {
+    const job = await this.transactionPublishQueue.add('Create Account', {
       createUserAccountRequest,
-      type: AccountChangeType.CREATE_ACCOUNT,
+      type: TransactionType.CREATE_ACCOUNT,
     });
     this.logger.debug(JSON.stringify(job));
     const response = {

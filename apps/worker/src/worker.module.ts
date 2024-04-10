@@ -46,7 +46,7 @@ import { TxnNotifierModule } from './account_notifier/account.monitor.processor.
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
@@ -54,7 +54,7 @@ import { TxnNotifierModule } from './account_notifier/account.monitor.processor.
         },
       },
       {
-        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,

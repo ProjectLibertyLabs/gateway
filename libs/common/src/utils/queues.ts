@@ -1,13 +1,13 @@
 export namespace QueueConstants {
   /**
-   * Name of the queue that publishes account changes to Frequency blockchain
+   * Name of the queue that publishes account transactions to Frequency blockchain
    */
-  export const ACCOUNT_CHANGE_PUBLISH_QUEUE = 'accountChangePublish';
+  export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
 
   /**
-   * Name of the queue that processes account change notifications
+   * Name of the queue that processes account transaction notifications
    */
-  export const ACCOUNT_CHANGE_NOTIFY_QUEUE = 'accountChangeNotify';
+  export const TRANSACTION_NOTIFY_QUEUE = 'transactionNotify';
 
   /**
    * Prefix for Redis keys that store webhook endpoints

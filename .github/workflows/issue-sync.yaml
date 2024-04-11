@@ -102,7 +102,7 @@ jobs:
                     && localIssue.body === remoteIssue.body
                     && localIssue.state === remoteIssue.state
                     && localIssue.state_reason === remoteIssue.state_reason
-                    && JSON.stringify(localIssue.labels.sort()) === JSON.stringify(remoteIssue.labels.sort());
+                    && JSON.stringify(localIssue.labels.map(x => x.name).sort()) === JSON.stringify(remoteIssue.labels.map(x => x.name).sort());
 
                   if ( !isMatch ) {
                     console.log(`Need to update issue "${remoteIssue.title}" locally due to:`, {
@@ -127,9 +127,9 @@ jobs:
                           remote: remoteIssue.state_reason,
                         },
                         labels: {
-                          isMatch: JSON.stringify(localIssue.labels.sort()) === JSON.stringify(remoteIssue.labels.sort()),
-                          local: JSON.stringify(localIssue.labels.sort()),
-                          remote: JSON.stringify(remoteIssue.labels.sort()),
+                          isMatch: JSON.stringify(localIssue.labels.map(x => x.name).sort()) === JSON.stringify(remoteIssue.labels.map(x => x.name).sort()),
+                          local: JSON.stringify(localIssue.labels.map(x => x.name).sort()),
+                          remote: JSON.stringify(remoteIssue.labels.map(x => x.name).sort()),
                         },
                     });
 

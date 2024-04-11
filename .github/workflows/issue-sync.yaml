@@ -101,7 +101,6 @@ jobs:
                   const isMatch = localIssue.title === remoteIssue.title
                     && localIssue.body === remoteIssue.body
                     && localIssue.state === remoteIssue.state
-                    && localIssue.state_reason === remoteIssue.state_reason
                     && JSON.stringify(localIssue.labels.map(x => x.name).sort()) === JSON.stringify(remoteIssue.labels.map(x => x.name).sort());
 
                   if ( !isMatch ) {
@@ -120,11 +119,6 @@ jobs:
                           isMatch: localIssue.state === remoteIssue.state,
                           local: localIssue.state,
                           remote: remoteIssue.state,
-                        },
-                        state_reason: {
-                          isMatch: localIssue.state_reason === remoteIssue.state_reason,
-                          local: localIssue.state_reason,
-                          remote: remoteIssue.state_reason,
                         },
                         labels: {
                           isMatch: JSON.stringify(localIssue.labels.map(x => x.name).sort()) === JSON.stringify(remoteIssue.labels.map(x => x.name).sort()),

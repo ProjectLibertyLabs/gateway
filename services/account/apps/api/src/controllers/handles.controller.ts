@@ -79,7 +79,7 @@ export class HandlesController {
   @ApiOperation({ summary: 'Fetch a handle given an msaId.' })
   @ApiOkResponse({ description: 'Found account' })
   /**
-   * Gets an handle for msaId.
+   * Gets a handle for msaId.
    * @param queryParams - The msaId for finding the handle.
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.

@@ -27,6 +27,7 @@ on:
 jobs:
   create:
     runs-on: ubuntu-latest
+    permissions: write-all
     strategy:
       matrix:
         # If you change this list, also change it on the other workflows

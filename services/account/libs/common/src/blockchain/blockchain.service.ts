@@ -17,6 +17,7 @@ import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/ty
 import { u32, Option, u128, Bytes } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
+  CommonPrimitivesMsaDelegation,
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
   PalletSchemasSchema,
@@ -216,6 +217,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;
   }
+  
+  public async getCommonPrimitivesMsaDelegation(msaId: number): Promise<CommonPrimitivesMsaDelegation | null> {
+    const delegationResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
+    if (delegationResponse.isSome) return delegationResponse.unwrap();
+    return null;
+  }
 
   public async publicKeyToMsaId(publicKey: string) {
     this.logger.log(`Public Key To Msa`);
@@ -229,8 +236,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async capacityInfo(providerId: string): Promise<{
-    providerId: string;
+  public async capacityInfo(providerId: number): Promise<{
+    providerId: number;
     currentBlockNumber: number;
     nextEpochStart: number;
     remainingCapacity: bigint;

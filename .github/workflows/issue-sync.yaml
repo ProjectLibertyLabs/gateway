@@ -106,12 +106,33 @@ jobs:
 
                   if ( !isMatch ) {
                     console.log(`Need to update issue "${remoteIssue.title}" locally due to:`, {
-                      title: localIssue.title === remoteIssue.title,
-                      body: localIssue.body === remoteIssue.body,
-                      state: localIssue.state === remoteIssue.state,
-                      state_reason: localIssue.state_reason === remoteIssue.state_reason,
-                      labels: JSON.stringify(localIssue.labels.sort()) === JSON.stringify(remoteIssue.labels.sort()),
+                        title: {
+                          isMatch: localIssue.title === remoteIssue.title,
+                          local: localIssue.title,
+                          remote: remoteIssue.title,
+                        },
+                        body: {
+                          isMatch: localIssue.body === remoteIssue.body,
+                          local: localIssue.body,
+                          remote: remoteIssue.body,
+                        },
+                        state: {
+                          isMatch: localIssue.state === remoteIssue.state,
+                          local: localIssue.state,
+                          remote: remoteIssue.state,
+                        },
+                        state_reason: {
+                          isMatch: localIssue.state_reason === remoteIssue.state_reason,
+                          local: localIssue.state_reason,
+                          remote: remoteIssue.state_reason,
+                        },
+                        labels: {
+                          isMatch: JSON.stringify(localIssue.labels.sort()) === JSON.stringify(remoteIssue.labels.sort()),
+                          local: JSON.stringify(localIssue.labels.sort()),
+                          remote: JSON.stringify(remoteIssue.labels.sort()),
+                        },
                     });
+
                     // Update issue
                     const { data: { html_url } } = await github.rest.issues.update({
                       ...issueParams,

@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
-import { firstValueFrom, from } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
 import {
@@ -9,23 +9,23 @@ import {
   BlockHash,
   BlockNumber,
   DispatchError,
-  DispatchInfo,
   Hash,
   SignedBlock,
 } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16, u8, u64, Bytes } from '@polkadot/types';
+import { u32, Option, u128, Bytes } from '@polkadot/types';
 import {
+  CommonPrimitivesHandlesClaimHandlePayload,
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
   PalletSchemasSchema,
 } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { createKeys } from './create-keys';
+import { Handle } from '../types/dtos/handles.dto';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
@@ -41,7 +41,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async onApplicationBootstrap() {
     const providerUrl = this.configService.frequencyUrl!;
-    let provider: any;
+    let provider: WsProvider | HttpProvider;
     if (/^ws/.test(providerUrl.toString())) {
       provider = new WsProvider(providerUrl.toString());
     } else if (/^http/.test(providerUrl.toString())) {
@@ -154,19 +154,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
-  public async createSponsoredAccountWithDelegation(
-    delegatorAddress: KeyringPair['address'],
-    signature: Sr25519Signature,
-    payload: any,
-  ) {
-    const extrinsic = this.api.tx.msa.createSponsoredAccountWithDelegation(
-      delegatorAddress,
-      signature,
-      payload,
-    );
-    return extrinsic;
-  }
-
   public async getMsaIdMax() {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
     // eslint-disable-next-line radix
@@ -186,10 +173,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       expiration: expiration,
       ...payload,
     };
-    const claimHandlePayload: any = this.api.registry.createType(
-      'CommonPrimitivesHandlesClaimHandlePayload',
-      handlePayload,
-    );
+    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload =
+      this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', handlePayload);
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
     this.logger.debug(`accountId: ${accountId}`);
 
@@ -213,10 +198,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       expiration: expiration,
       ...payload,
     };
-    const claimHandlePayload: any = this.api.registry.createType(
-      'CommonPrimitivesHandlesClaimHandlePayload',
-      handlePayload,
-    );
+    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload =
+      this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', handlePayload);
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
     this.logger.debug(`accountId: ${accountId}`);
 
@@ -228,7 +211,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.tx.handles.changeHandle(accountId, claimHandleProof, claimHandlePayload);
   }
 
-  public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
+  public async getHandleForMsa(msaId: number): Promise<Handle | null> {
     const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;

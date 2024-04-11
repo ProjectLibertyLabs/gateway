@@ -5,7 +5,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
-import { KeyType } from '../../../libs/common/src';
 
 describe('Account Service E2E request verification!', () => {
   let app: INestApplication;

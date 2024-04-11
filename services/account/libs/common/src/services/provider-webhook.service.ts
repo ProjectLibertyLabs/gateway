@@ -51,7 +51,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
       await this.webhook.get(`/health`);
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;
-    } catch (e: any) {
+    } catch (e) {
       // Reset healthCheckSuccesses to 0 on failure. We will not go out of waiting for recovery until there
       // are a number of sequential healthy responses equaling healthCheckSuccessesThreshold.
       this.successfulHealthChecks = 0;

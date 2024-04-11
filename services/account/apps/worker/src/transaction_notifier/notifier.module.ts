@@ -5,11 +5,12 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { NonceService, QueueConstants } from '../../../../libs/common/src';
-import { AccountUpdatePublisherService } from './account.publisher.processor.service';
+import { QueueConstants } from '../../../../libs/common/src';
+import { TxnNotifierService } from './notifier.service';
+import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
+import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 
 @Module({
   imports: [
@@ -50,22 +51,24 @@ import { AccountUpdatePublisherService } from './account.publisher.processor.ser
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.ACCOUNT_CHANGE_NOTIFY_QUEUE,
+        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
+          attempts: 3,
         },
       },
       {
-        name: QueueConstants.ACCOUNT_CHANGE_PUBLISH_QUEUE,
+        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
+          attempts: 3,
         },
       },
     ),
   ],
-  providers: [AccountUpdatePublisherService, NonceService],
-  exports: [BullModule, AccountUpdatePublisherService],
+  providers: [TxnNotifierService, BlockchainService, ConfigService],
+  exports: [BullModule, TxnNotifierService, BlockchainService, ConfigService],
 })
-export class AccountUpdatePublisherModule {}
+export class TxnNotifierModule {}

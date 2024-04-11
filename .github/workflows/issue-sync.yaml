@@ -53,8 +53,6 @@ jobs:
               per_page: 100, // TODO: Handle > 100 milestones
             });
 
-            const issueTitlesManaged = [];
-
             const thirtyMinutesInMs = 30 * 60 * 1000;
 
             for (const localMilestone of localMilestones) {
@@ -66,6 +64,7 @@ jobs:
               }
 
               console.log(`Processing milestone "${localMilestone.title}" issues...`);
+              const issueTitlesManaged = [];
 
               // Find Local issues
               const { data: localIssues } = await github.rest.issues.listForRepo({

@@ -158,14 +158,14 @@ jobs:
 
                 if (!remoteIssue && !issueTitlesManaged.includes(localIssue.title)) {
                   console.log(`Issue "${localIssue.title}" no longer on remote. Removing...`);
-                  // await github.rest.issues.update({
-                  //   owner: localOwner,
-                  //   repo: localRepo,
-                  //   issue_number: localIssue.number,
-                  //   milestone: null,
-                  //   state: 'closed',
-                  //   state_reason: 'not_planned',
-                  // });
+                  await github.rest.issues.update({
+                    owner: localOwner,
+                    repo: localRepo,
+                    issue_number: localIssue.number,
+                    milestone: null,
+                    state: 'closed',
+                    state_reason: 'not_planned',
+                  });
                   console.log(`Removed issue "${localIssue.title}" from milestone and closed.`);
                 }
               } // End remove dead local issues

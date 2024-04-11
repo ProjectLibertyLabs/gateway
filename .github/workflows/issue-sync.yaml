@@ -53,6 +53,8 @@ jobs:
               per_page: 100, // TODO: Handle > 100 milestones
             });
 
+            const issueTitlesManaged = [];
+
             const thirtyMinutesInMs = 30 * 60 * 1000;
 
             for (const localMilestone of localMilestones) {
@@ -91,6 +93,8 @@ jobs:
                   state: remoteIssue.state,
                   state_reason: remoteIssue.state_reason,
                 };
+
+                issueTitlesManaged.push(remoteIssue.title);
 
                 // Check for a local issue
                 const localIssue = localIssues.find((item) => item.title === remoteIssue.title);
@@ -153,7 +157,7 @@ jobs:
                 // Check for a local issue
                 const remoteIssue = remoteIssues.find((item) => item.title === localIssue.title);
 
-                if (!remoteIssue) {
+                if (!remoteIssue && !issueTitlesManaged.includes(localIssue.title)) {
                   console.log(`Issue "${localIssue.title}" no longer on remote. Removing...`);
                   await github.rest.issues.update({
                     owner: localOwner,

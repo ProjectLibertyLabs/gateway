@@ -66,20 +66,20 @@ jobs:
               console.log(`Processing milestone "${localMilestone.title}" issues...`);
               const issueTitlesManaged = [];
 
-              // Find Local issues
+              // Find Local issues with the "repo" label
               const { data: localIssues } = await github.rest.issues.listForRepo({
                 owner: localOwner,
                 repo: localRepo,
                 milestone: localMilestone.number,
+                labels: repo,
                 per_page: 100, // TODO: Handle > 100 issues
               });
 
-              // Find remote issues with the "repo" label
+              // Find remote issues
               const { data: remoteIssues } = await github.rest.issues.listForRepo({
                 owner: owner,
                 repo: repo,
                 milestone: remoteMilestone.number,
-                labels: repo,
                 per_page: 100, // TODO: Handle > 100 issues
               });
 

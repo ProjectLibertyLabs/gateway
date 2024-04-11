@@ -55,7 +55,7 @@ export class HandlesController {
   @ApiOkResponse({ description: 'Handle changed successfully' })
   @ApiBody({ type: HandleRequest })
   /**
-   * RUsing the provided query parameters, removes the old handle and creates a new one.
+   * Using the provided query parameters, removes the old handle and creates a new one.
    * @param queryParams - The query parameters for changing the handle.
    * @returns A message that the handle change is in progress.
    * @throws An error if the handle creation fails.

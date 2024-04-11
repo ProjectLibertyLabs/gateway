@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Issue Sync
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+on:
+  schedule:
+    - cron: "* * * * *" # Every 5 minutes
+  workflow_dispatch: # Anytime someone hits the button
+
+# How to Test
+# Use act https://nektosact.com
+# Edit the matrix to only use a test repo
+# `act  -s GITHUB_TOKEN="$(gh auth token)" --container-architecture linux/amd64 schedule`
+#
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # If you change this list, also change it on the other workflows
+        repository:
+          - AmplicaLabs/reconnection-service
+          - AmplicaLabs/graph-service
+          - AmplicaLabs/account-service
+          - AmplicaLabs/content-publishing-service
+          - AmplicaLabs/content-watcher-service
+    steps:
+      - name: Sync Issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repository = "${{ matrix.repository }}";
+            const [owner, repo] = repository.split("/");
+            const localOwner = context.repo.owner;
+            const localRepo = context.repo.repo;
+
+            console.log("Syncing Issues to", {repository, owner, repo});
+
+            // Get the list of milestones on local
+            const { data: localMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
+              owner: localOwner,
+              repo: localRepo,
+              per_page: 100, // TODO: Handle > 100 milestones
+            });
+
+            const { data: remoteMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
+              owner: owner,
+              repo: repo,
+              per_page: 100, // TODO: Handle > 100 milestones
+            });
+
+            const thirtyMinutesInMs = 30 * 60 * 1000;
+
+            for (const localMilestone of localMilestones) {
+              const remoteMilestone = remoteMilestones.find((item) => item.title === localMilestone.title);
+
+              if (!remoteMilestone) {
+                console.log(`Milestone "${localMilestone.title}" doesn't exist on ${repository} currently`);
+                continue;
+              }
+
+              console.log(`Processing milestone "${localMilestone.title}" issues...`);
+
+              // Find Local issues
+              const { data: localIssues } = await github.rest.issues.listForRepo({
+                owner: localOwner,
+                repo: localRepo,
+                milestone: localMilestone.number,
+                per_page: 100, // TODO: Handle > 100 issues
+              });
+
+              // Find remote issues
+              const { data: remoteIssues } = await github.rest.issues.listForRepo({
+                owner: owner,
+                repo: repo,
+                milestone: remoteMilestone.number,
+                per_page: 100, // TODO: Handle > 100 issues
+              });
+
+              // Update local issues
+              for(const remoteIssue of remoteIssues) {
+                const issueParams = {
+                  title: remoteIssue.title,
+                  milestone: localMilestone.number,
+                  body: remoteIssue.body,
+                  labels: remoteIssue.labels,
+                  state: remoteIssue.state,
+                  state_reason: remoteIssue.state_reason,
+                };
+
+                // Check for a local issue
+                const localIssue = localIssues.find((item) => item.title === remoteIssue.title);
+                if (localIssue) {
+                  console.log(`Found local issue for "${localIssue.title}".`, remoteIssue.title);
+
+                  // Verify matching
+                  const isMatch = localIssue.title === remoteIssue.title
+                    && localIssue.body === remoteIssue.body
+                    && localIssue.state === remoteIssue.state
+                    && localIssue.state_reason === remoteIssue.state_reason
+                    && JSON.stringify(localIssue.labels) === JSON.stringify(remoteIssue.labels);
+
+                  if ( !isMatch ) {
+                    // Update issue
+                    const { data: { html_url } } = await github.rest.issues.update({
+                      ...issueParams,
+                      owner: localOwner,
+                      repo: localRepo,
+                      issue_number: localIssue.number,
+                    });
+                    console.log(`Updated issue "${remoteIssue.title}" locally: ${html_url}`);
+                  }
+
+                } else { // Create issue
+                  console.log(`Issue "${remoteIssue.title}" not found. Creating...`);
+                  const { data: { html_url } } = await github.rest.issues.create({
+                    ...issueParams,
+                    owner: localOwner,
+                    repo: localRepo,
+                  });
+                  console.log(`Created issue "${remoteIssue.title}" locally: ${html_url}`);
+                }
+              } // End update local issues
+
+              // Remove any local issues that no longer exist on the remote
+              for(const localIssue of localIssues) {
+                // Check for a local issue
+                const remoteIssue = remoteIssues.find((item) => item.title === localIssue.title);
+
+                if (!remoteIssue) {
+                  console.log(`Issue "${localIssue.title}" no longer on remote. Removing...`);
+                  await github.rest.issues.update({
+                    owner: localOwner,
+                    repo: localRepo,
+                    issue_number: localIssue.number,
+                    milestone: null,
+                    state: 'closed',
+                    state_reason: 'not_planned',
+                  });
+                  console.log(`Removed issue "${localIssue.title}" from milestone and closed.`);
+                }
+              } // End remove dead local issues
+            } // End Milestone for loop

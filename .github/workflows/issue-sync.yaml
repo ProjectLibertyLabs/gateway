@@ -44,12 +44,14 @@ jobs:
             const { data: localMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
               owner: localOwner,
               repo: localRepo,
+              state: 'all',
               per_page: 100, // TODO: Handle > 100 milestones
             });
 
             const { data: remoteMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
               owner: owner,
               repo: repo,
+              state: 'all',
               per_page: 100, // TODO: Handle > 100 milestones
             });
 
@@ -72,6 +74,7 @@ jobs:
                 repo: localRepo,
                 milestone: localMilestone.number,
                 labels: repo,
+                state: 'all',
                 per_page: 100, // TODO: Handle > 100 issues
               });
 
@@ -79,6 +82,7 @@ jobs:
               const { data: remoteIssues } = await github.rest.issues.listForRepo({
                 owner: owner,
                 repo: repo,
+                state: 'all',
                 milestone: remoteMilestone.number,
                 per_page: 100, // TODO: Handle > 100 issues
               });

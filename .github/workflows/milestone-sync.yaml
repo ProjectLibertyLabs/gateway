@@ -59,6 +59,7 @@ jobs:
             const { data: remoteMilestones } = await github.request('GET /repos/{owner}/{repo}/milestones', {
               owner: owner,
               repo: repo,
+              state: 'all',
               per_page: 100, // TODO: Handle > 100 milestones
             });
 

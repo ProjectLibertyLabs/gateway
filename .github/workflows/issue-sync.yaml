@@ -31,7 +31,7 @@ jobs:
       - name: Sync Issues
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const repository = "${{ matrix.repository }}";
             const [owner, repo] = repository.split("/");

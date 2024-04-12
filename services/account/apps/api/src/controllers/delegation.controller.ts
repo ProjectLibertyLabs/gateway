@@ -1,11 +1,19 @@
-import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DelegationService } from '../services/delegation.service';
-import { DelegationResponse } from '../../../../libs/common/src/dtos/delegation.dto';
+import { DelegationResponse } from '../../../../libs/common/src/types/dtos/delegation.dto';
 
 @Controller('delegation')
 @ApiTags('delegation')
-export class ApiController {
+export class DelegationController {
   private readonly logger: Logger;
 
   constructor(private delegationService: DelegationService) {
@@ -13,11 +21,11 @@ export class ApiController {
   }
 
   // Delegation endpoint
-  @Get('delegation/:msaId')
+  @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get the delegation information associated with an msaId.' })
   @ApiOkResponse({ description: 'Found delegation information.' })
-  async getDelegation(@Param('msaId') msaId: number): DelegationResponse {
+  async getDelegation(@Param('msaId') msaId: number): Promise<DelegationResponse> {
     try {
       const delegation = await this.delegationService.getDelegation(msaId);
       return delegation;

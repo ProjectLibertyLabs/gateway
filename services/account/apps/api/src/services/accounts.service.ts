@@ -47,7 +47,7 @@ export class AccountsService {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const handle = await this.blockchainService.getHandleForMsa(msaId);
-      return { msaId: msaId, handle };
+      return { msaId, handle };
     }
     throw new Error('Invalid msaId.');
   }

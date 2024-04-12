@@ -1,12 +1,9 @@
-import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { QueueConstants } from '../../../../libs/common/src';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { DelegationResponse } from '../../../../libs/common/src/dtos/delegation.dto';
+import { DelegationResponse } from '../../../../libs/common/src/types/dtos/delegation.dto';
 
 @Injectable()
 export class DelegationService {
@@ -23,10 +20,19 @@ export class DelegationService {
   async getDelegation(msaId: number): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
-      const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(msaId);
-      
       const providerId = this.configService.getProviderId();
-      return { msaId: msaId, handle };
+
+      const commonPrimitivesMsaDelegation =
+        await this.blockchainService.getCommonPrimitivesMsaDelegation(msaId, providerId);
+
+      if (commonPrimitivesMsaDelegation) {
+        const delegationResponse: DelegationResponse = {
+          providerId,
+          schemaPermissions: commonPrimitivesMsaDelegation.schemaPermissions,
+          revokedAt: commonPrimitivesMsaDelegation.revokedAt,
+        };
+        return delegationResponse;
+      } else throw new Error('Failed to find the delegation.');
     }
     throw new Error('Invalid msaId.');
   }

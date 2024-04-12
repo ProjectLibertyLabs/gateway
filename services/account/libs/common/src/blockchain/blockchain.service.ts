@@ -155,7 +155,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
-  public async getMsaIdMax() {
+  public async getMsaIdMax(): Promise<number> {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
     // eslint-disable-next-line radix
     return parseInt(count);
@@ -217,9 +217,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;
   }
-  
-  public async getCommonPrimitivesMsaDelegation(msaId: number): Promise<CommonPrimitivesMsaDelegation | null> {
-    const delegationResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
+
+  public async getCommonPrimitivesMsaDelegation(
+    msaId: number,
+    providerId: number,
+  ): Promise<CommonPrimitivesMsaDelegation | null> {
+    const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(
+      msaId,
+      providerId,
+    );
     if (delegationResponse.isSome) return delegationResponse.unwrap();
     return null;
   }

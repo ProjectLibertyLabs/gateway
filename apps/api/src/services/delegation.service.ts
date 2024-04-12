@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { DelegationResponse } from '../../../../libs/common/src/types/dtos/delegation.dto';
@@ -10,7 +8,6 @@ export class DelegationService {
   private readonly logger: Logger;
 
   constructor(
-    @InjectRedis() private redis: Redis,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {

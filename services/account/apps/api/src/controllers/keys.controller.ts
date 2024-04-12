@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   HttpCode,
   HttpStatus,
   Logger,
@@ -10,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysService } from '../services/keys.service';
-import { KeysResponse } from '../../../../libs/common/src/dtos/keys.dto';
+import { KeysResponse } from '../../../../libs/common/src/types/dtos/keys.dto';
 
 @Controller('keys')
 @ApiTags('keys')
@@ -21,43 +20,23 @@ export class KeysController {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post(':msaId')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request to create a new handle' })
-  @ApiOkResponse({ description: 'Handle created successfully' })
-  /**
-   * Creates keys using the provided query parameters.
-   * @param queryParams - The query parameters for creating the account.
-   * @returns A promise that resolves to...?
-   * @throws An error if the key creation fails.
-   */
-  createKeys(@Param('msaId') msaId: number) {
-    try {
-      const accountWithHandle = this.keysService.createKeys();
-      return accountWithHandle;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to create handle');
-    }
-  }
-
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch an account given an msaId.' })
-  @ApiOkResponse({ description: 'Found account' })
+  @ApiOperation({ summary: 'Fetch public keys given an msaId.' })
+  @ApiOkResponse({ description: 'Found public keys.' })
   /**
-   * Gets an account.
-   * @param queryParams - The query parameters for creating the handle.
-   * @returns A promise that resolves to an array of AccountDTO objects representing the found handle.
-   * @throws An error if the handle cannot be found.
+   * Gets public keys.
+   * @param queryParams - The query parameters for getting the public keys.
+   * @returns A promise that resolves to an array of public keys associated with the given msaId.
+   * @throws An error if no public keys can be found.
    */
   async getKeys(@Param('msaId') msaId: number): Promise<KeysResponse> {
     try {
-      const account = await this.keysService.getKeys(msaId);
-      return account;
+      const keys = await this.keysService.getKeysByMsa(msaId);
+      return keys;
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException('Failed to find the handle.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Failed to find public keys for the given msaId', HttpStatus.BAD_REQUEST);
     }
   }
 }

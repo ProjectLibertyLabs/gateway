@@ -16,6 +16,8 @@ import { QueueConstants } from '../../../libs/common/src';
 import { AccountsService } from './services/accounts.service';
 import { HandlesService } from './services/handles.service';
 import { HandlesController } from './controllers/handles.controller';
+import { DelegationService } from './services/delegation.service';
+import { DelegationController } from './controllers/delegation.controller';
 
 @Module({
   imports: [
@@ -105,8 +107,8 @@ import { HandlesController } from './controllers/handles.controller';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, AccountsService, HandlesService, ConfigService],
-  controllers: [ApiController, AccountsController, HandlesController],
+  providers: [ApiService, AccountsService, HandlesService, DelegationService, ConfigService],
+  controllers: [ApiController, AccountsController, DelegationController, HandlesController],
   exports: [],
 })
 export class ApiModule {}

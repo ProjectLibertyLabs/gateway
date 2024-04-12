@@ -1,36 +1,13 @@
-/* eslint-disable max-classes-per-file */
-import { HexString } from '@polkadot/util/types';
-import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
-import { Account } from './accounts.dto';
-
-export class CreateDelegationRequest {
-  userMsaId;
-
-  provider;
-}
-
-// why return the access token? Can't we return the actual delegation informtion?
-export class CreateDelegationResponse {
-  @IsNotEmpty()
-  accessToken: string;
-
-  @IsNotEmpty()
-  expires: number;
-}
+import { IsNotEmpty } from 'class-validator';
+import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
 
 export class DelegationResponse {
   @IsNotEmpty()
-  nodeUrl: string;
-
-  @IsOptional()
-  ipfsGateway?: string;
+  providerId: number;
 
   @IsNotEmpty()
-  providerId: string;
+  schemaPermissions: CommonPrimitivesMsaDelegation['schemaPermissions'];
 
   @IsNotEmpty()
-  schemas: number[];
-
-  @IsNotEmpty()
-  network: 'local' | 'testnet' | 'mainnet';
+  revokedAt: CommonPrimitivesMsaDelegation['revokedAt'];
 }

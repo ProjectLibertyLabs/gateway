@@ -2,7 +2,7 @@ import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { PublishHandleRequest } from './handles.dto';
 
 export type TransactionData = PublishHandleRequest & {
-  providerId: string;
+  providerId: number;
   referenceId: string;
 };
 
@@ -18,6 +18,6 @@ export class TransactionRepsonse {
 }
 
 export class TransactionNotification {
-  msaId: string;
+  msaId: number;
   data: TxMonitorJob;
 }

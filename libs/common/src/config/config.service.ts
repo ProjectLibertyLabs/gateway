@@ -55,8 +55,8 @@ export class ConfigService {
     return this.nestConfigService.get<string>('PROVIDER_ACCESS_TOKEN');
   }
 
-  public getProviderId(): string {
-    return this.nestConfigService.get<string>('PROVIDER_ID')!;
+  public getProviderId(): number {
+    return this.nestConfigService.get<number>('PROVIDER_ID')!;
   }
 
   public getQueueHighWater(): number {

@@ -6,7 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import request from 'supertest';
 
-describe('Account Controller', () => {
+describe('Delegation Controller', () => {
   let app: INestApplication;
   let module: TestingModule;
   beforeEach(async () => {
@@ -24,32 +24,36 @@ describe('Account Controller', () => {
     await app.init();
   });
 
-  it('(GET) /accounts/:msaId with valid msaId and no handle', async () => {
-    const validMsaId = '2';
+  it('(GET) /delegation/:msaId with invalid msaId', async () => {
+    const invalidMsaId = 10;
+    await request(app.getHttpServer()).get(`/delegation/${invalidMsaId}`).expect(400).expect({
+      statusCode: 400,
+      message: 'Failed to find the delegation',
+    });
+  });
+
+  it('(GET) /delegation/:msaId as a provider', async () => {
+    const validMsaId = 1;
+    await request(app.getHttpServer()).get(`/delegation/${validMsaId}`).expect(400).expect({
+      statusCode: 400,
+      message: 'Failed to find the delegation',
+    });
+  });
+
+  it('(GET) /delegation/:msaId with valid msaId', async () => {
+    const validMsaId = 2;
     await request(app.getHttpServer())
-      .get('/accounts/' + validMsaId)
+      .get(`/delegation/${validMsaId}`)
       .expect(200)
       .expect({
-        msaId: '2',
-        handle: null,
+        providerId: '1',
+        schemaPermissions: {
+          '1': 0,
+          '2': 0,
+          '3': 0,
+          '4': 0,
+        },
+        revokedAt: '0x00000000',
       });
-  });
-
-  it('(GET) /accounts/:msaId with invalid msaId', async () => {
-    const invalidMsaId = 10;
-    await request(app.getHttpServer())
-      .get('/accounts/' + invalidMsaId)
-      .expect(400)
-      .expect({ statusCode: 400, message: 'Failed to find the account' });
-  });
-
-  it('(GET) /accounts/:msaId with valid msaId and handle', async () => {
-    const validMsaId = 1;
-    await request(app.getHttpServer())
-      .get('/accounts/' + validMsaId)
-      .expect(200)
-      .expect((res) => res.body.msaId === '1')
-      .expect((res) => res.body.handle.baseHandle === 'AliceHandle')
-      .expect((res) => res.body.handle.canonicalBase === 'a11cehand1e');
   });
 });

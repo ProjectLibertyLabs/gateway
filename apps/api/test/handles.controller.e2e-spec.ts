@@ -45,17 +45,16 @@ describe('Handles Controller', () => {
   });
 
   it('(GET) /handles/:msaId with valid msaId', async () => {
-    const validMsaId = '1';
+    const validMsaId = 1;
     await request(app.getHttpServer())
       .get(`/handles/${validMsaId}`)
       .expect(200)
-      .expect((res) => res.body.msaId === '1')
-      .expect((res) => res.body.handle.base_handle === 'AliceHandle')
-      .expect((res) => res.body.handle.canonical_base === 'a11cehand1e');
+      .expect((res) => res.body.base_handle === 'AliceHandle')
+      .expect((res) => res.body.canonical_base === 'a11cehand1e');
   });
 
   it('(GET) /handles/:msaId with valid msaId, but undefined handle', async () => {
-    const msaIdWithNoHandle = '2';
+    const msaIdWithNoHandle = 2;
     await request(app.getHttpServer())
       .get(`/handles/${msaIdWithNoHandle}`)
       .expect(400)
@@ -63,7 +62,7 @@ describe('Handles Controller', () => {
   });
 
   it('(GET) /handles/:msaId with invalid msaId', async () => {
-    const invalidMsaId = '10';
+    const invalidMsaId = 10;
     await request(app.getHttpServer())
       .get(`/handles/${invalidMsaId}`)
       .expect(400)

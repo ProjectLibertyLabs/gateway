@@ -17,6 +17,7 @@ import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/ty
 import { u32, Option, u128, Bytes } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
+  CommonPrimitivesMsaDelegation,
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
   PalletSchemasSchema,
@@ -154,7 +155,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
-  public async getMsaIdMax() {
+  public async getMsaIdMax(): Promise<number> {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
     // eslint-disable-next-line radix
     return parseInt(count);
@@ -217,6 +218,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
+  public async getCommonPrimitivesMsaDelegation(
+    msaId: number,
+    providerId: number,
+  ): Promise<CommonPrimitivesMsaDelegation | null> {
+    const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(
+      msaId,
+      providerId,
+    );
+    if (delegationResponse.isSome) return delegationResponse.unwrap();
+    return null;
+  }
+
   public async publicKeyToMsaId(publicKey: string) {
     this.logger.log(`Public Key To Msa`);
 
@@ -229,8 +242,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async capacityInfo(providerId: string): Promise<{
-    providerId: string;
+  public async capacityInfo(providerId: number): Promise<{
+    providerId: number;
     currentBlockNumber: number;
     nextEpochStart: number;
     remainingCapacity: bigint;

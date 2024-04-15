@@ -13,7 +13,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
       .min(1)
       .default(3 * 60),
-    GRAPH_ENVIRONMENT_TYPE: Joi.string().required().valid('Mainnet', 'Rococo', 'Dev'),
+    GRAPH_ENVIRONMENT_TYPE: Joi.string().required().valid('Mainnet', 'TestnetPaseo', 'Rococo', 'Dev'),
     // GRAPH_ENVIRONMENT_DEV_CONFIG is optional, but if it is set, it must be a valid JSON string
     GRAPH_ENVIRONMENT_DEV_CONFIG: Joi.string().when('GRAPH_ENVIRONMENT_TYPE', {
       is: 'Dev',
@@ -50,7 +50,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
     HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
-    PAGE_SIZE: Joi.number().min(1).default(100),
+    CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: Joi.number().min(1).default(100),
     CAPACITY_LIMIT: Joi.string()
       .custom((value: string, helpers) => {
         try {

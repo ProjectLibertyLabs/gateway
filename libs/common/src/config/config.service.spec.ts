@@ -54,7 +54,7 @@ describe('GraphSericeConfig', () => {
     WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
-    PAGE_SIZE: undefined,
+    CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: undefined,
     CAPACITY_LIMIT: undefined,
   };
 
@@ -193,7 +193,7 @@ describe('GraphSericeConfig', () => {
     });
 
     it('should get page size', () => {
-      expect(graphServiceConfig.getPageSize()).toStrictEqual(parseInt(ALL_ENV.PAGE_SIZE as string, 10));
+      expect(graphServiceConfig.getPageSize()).toStrictEqual(parseInt(ALL_ENV.CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE as string, 10));
     });
 
     it('should get debounce seconds', () => {

@@ -26,7 +26,7 @@ export interface ConfigEnvironmentVariables {
   WEBHOOK_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
-  PAGE_SIZE: number;
+  CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: number;
   CAPACITY_LIMIT: number;
 }
 
@@ -123,7 +123,7 @@ export class ConfigService {
   }
 
   public getPageSize(): number {
-    return this.nestConfigService.get('PAGE_SIZE')!;
+    return this.nestConfigService.get('CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE')!;
   }
 
   public getDebounceSeconds(): number {

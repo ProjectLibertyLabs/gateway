@@ -44,7 +44,7 @@
     "@bull-board/nestjs": "^5.8.3",
     "@bull-board/ui": "^5.8.3",
     "@dsnp/frequency-schemas": "^1.0.2",
-    "@dsnp/graph-sdk": "1.0.1",
+    "@dsnp/graph-sdk": "^1.1.1",
     "@frequency-chain/api-augment": "1.7.0",
     "@jest/globals": "^29.5.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",

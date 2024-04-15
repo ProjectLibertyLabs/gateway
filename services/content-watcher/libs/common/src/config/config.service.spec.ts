@@ -36,7 +36,6 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 
 describe('ContentWatcherConfigService', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
-    ENVIRONMENT: undefined,
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
     STARTING_BLOCK: undefined,
@@ -60,11 +59,6 @@ describe('ContentWatcherConfigService', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing environment should fail', async () => {
-      const { ENVIRONMENT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
-
     it('missing redis url should fail', async () => {
       const { REDIS_URL: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env })).rejects.toBeDefined();

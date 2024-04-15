@@ -4,10 +4,8 @@ https://docs.nestjs.com/providers#services
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { EnvironmentDto } from '..';
 
 export interface ConfigEnvironmentVariables {
-  ENVIRONMENT: EnvironmentDto;
   IPFS_ENDPOINT: URL;
   IPFS_GATEWAY_URL: URL;
   IPFS_BASIC_AUTH_USER: string;
@@ -31,10 +29,6 @@ export class ConfigService {
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  public get environment(): EnvironmentDto {
-    return this.nestConfigService.get<EnvironmentDto>('ENVIRONMENT')!;
   }
 
   public get redisUrl(): URL {

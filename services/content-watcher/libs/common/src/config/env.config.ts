@@ -1,13 +1,9 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
-import { EnvironmentDto } from '..';
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
-    ENVIRONMENT: Joi.string()
-      .valid(...Object.values(EnvironmentDto))
-      .required(),
     IPFS_ENDPOINT: Joi.string().uri().required(),
     IPFS_GATEWAY_URL: Joi.string().required(), // This is parse as string as the required format of this not a valid uri, check .env.template
     IPFS_BASIC_AUTH_USER: Joi.string().allow('').default(''),

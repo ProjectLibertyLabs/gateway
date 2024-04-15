@@ -15,10 +15,7 @@ export const configModuleOptions: ConfigModuleOptions = {
       .min(1)
       .default(3 * 60),
     QUEUE_HIGH_WATER: Joi.number().min(100).default(1000),
-    HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),
-    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
-    HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
-    WEB_HOOK_POST_MAX_RETRIES: Joi.number().min(0).default(3),
+    WEBHOOK_FAILURE_THRESHOLD: Joi.number().min(0).default(3),
     API_PORT: Joi.number().min(0).default(3000),
   }),
 };

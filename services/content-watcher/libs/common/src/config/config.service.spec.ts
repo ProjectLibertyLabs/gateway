@@ -45,10 +45,7 @@ describe('ContentWatcherConfigService', () => {
     IPFS_BASIC_AUTH_SECRET: undefined,
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
     QUEUE_HIGH_WATER: undefined,
-    HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
-    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
-    HEALTH_CHECK_MAX_RETRIES: undefined,
-    WEB_HOOK_POST_MAX_RETRIES: undefined,
+    WEBHOOK_FAILURE_THRESHOLD: undefined,
     API_PORT: undefined,
   };
 
@@ -93,26 +90,6 @@ describe('ContentWatcherConfigService', () => {
       await expect(setupConfigService({ QUEUE_HIGH_WATER: 'foo', ...env })).rejects.toBeDefined();
     });
 
-    it('invalid health check success threshold should fail', async () => {
-      const { HEALTH_CHECK_SUCCESS_THRESHOLD: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ HEALTH_CHECK_SUCCESS_THRESHOLD: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ HEALTH_CHECK_SUCCESS_THRESHOLD: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ HEALTH_CHECK_SUCCESS_THRESHOLD: 'foo', ...env })).rejects.toBeDefined();
-    });
-
-    it('invalid health check max retry interval should fail', async () => {
-      const { HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 'foo', ...env })).rejects.toBeDefined();
-    });
-
-    it('invalid health check max retry interval should fail', async () => {
-      const { HEALTH_CHECK_MAX_RETRIES: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ HEALTH_CHECK_MAX_RETRIES: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ HEALTH_CHECK_MAX_RETRIES: 'foo', ...env })).rejects.toBeDefined();
-    });
-
     it('invalid api port should fail', async () => {
       const { API_PORT: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
@@ -143,18 +120,6 @@ describe('ContentWatcherConfigService', () => {
 
     it('should get queue high water mark', () => {
       expect(contentWatcherConfigService.getQueueHighWater()).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
-    });
-
-    it('should get health check success threshold', () => {
-      expect(contentWatcherConfigService.getHealthCheckSuccessThreshold()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
-    });
-
-    it('should get health check max retry interval', () => {
-      expect(contentWatcherConfigService.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
-    });
-
-    it('should get health check max retries', () => {
-      expect(contentWatcherConfigService.getHealthCheckMaxRetries()).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
     });
 
     it('should get api port', () => {

@@ -15,10 +15,7 @@ export interface ConfigEnvironmentVariables {
   STARTING_BLOCK: string;
   BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   QUEUE_HIGH_WATER: number;
-  HEALTH_CHECK_SUCCESS_THRESHOLD: number;
-  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
-  HEALTH_CHECK_MAX_RETRIES: number;
-  WEB_HOOK_POST_MAX_RETRIES: number;
+  WEBHOOK_FAILURE_THRESHOLD: number;
   API_PORT: number;
 }
 
@@ -51,18 +48,6 @@ export class ConfigService {
     return this.nestConfigService.get<number>('QUEUE_HIGH_WATER')!;
   }
 
-  public getHealthCheckSuccessThreshold(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_SUCCESS_THRESHOLD')!;
-  }
-
-  public getHealthCheckMaxRetryIntervalSeconds(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS')!;
-  }
-
-  public getHealthCheckMaxRetries(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRIES')!;
-  }
-
   public getIpfsEndpoint(): string {
     return this.nestConfigService.get<string>('IPFS_ENDPOINT')!;
   }
@@ -92,6 +77,6 @@ export class ConfigService {
   }
 
   public getWebookMaxRetries(): number {
-    return this.nestConfigService.get<number>('WEB_HOOK_POST_MAX_RETRIES')!;
+    return this.nestConfigService.get<number>('WEBHOOK_FAILURE_THRESHOLD')!;
   }
 }

@@ -204,7 +204,7 @@ export class IPFSContentProcessor extends BaseConsumer {
   }
 
   private async isQueueFull(queue: Queue): Promise<boolean> {
-    const highWater = this.configService.getQueueHighWater();
+    const highWater = this.configService.queueHighWater;
     const queueStats = await queue.getJobCounts();
     const canAddJobs = queueStats.waiting + queueStats.active >= highWater;
     if (canAddJobs) {

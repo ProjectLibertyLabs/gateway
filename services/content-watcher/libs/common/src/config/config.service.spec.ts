@@ -46,6 +46,7 @@ describe('ContentWatcherConfigService', () => {
     BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
     QUEUE_HIGH_WATER: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
+    WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
     API_PORT: undefined,
   };
 
@@ -115,15 +116,15 @@ describe('ContentWatcherConfigService', () => {
     });
 
     it('should get scan interval', () => {
-      expect(contentWatcherConfigService.getBlockchainScanIntervalMinutes()).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10));
+      expect(contentWatcherConfigService.blockchainScanIntervalMinutes).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10));
     });
 
     it('should get queue high water mark', () => {
-      expect(contentWatcherConfigService.getQueueHighWater()).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
+      expect(contentWatcherConfigService.queueHighWater).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
     });
 
     it('should get api port', () => {
-      expect(contentWatcherConfigService.getApiPort()).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
+      expect(contentWatcherConfigService.apiPort).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
     });
   });
 });

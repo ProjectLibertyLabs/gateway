@@ -16,6 +16,7 @@ export interface ConfigEnvironmentVariables {
   BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   QUEUE_HIGH_WATER: number;
   WEBHOOK_FAILURE_THRESHOLD: number;
+  WEBHOOK_RETRY_INTERVAL_SECONDS: number;
   API_PORT: number;
 }
 
@@ -40,43 +41,47 @@ export class ConfigService {
     return this.nestConfigService.get('STARTING_BLOCK')!;
   }
 
-  public getBlockchainScanIntervalMinutes(): number {
+  public get blockchainScanIntervalMinutes(): number {
     return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_MINUTES') ?? 1;
   }
 
-  public getQueueHighWater(): number {
+  public get queueHighWater(): number {
     return this.nestConfigService.get<number>('QUEUE_HIGH_WATER')!;
   }
 
-  public getIpfsEndpoint(): string {
+  public get ipfsEndpoint(): string {
     return this.nestConfigService.get<string>('IPFS_ENDPOINT')!;
   }
 
-  public getIpfsGatewayUrl(): string {
+  public get ipfsGatewayUrl(): string {
     return this.nestConfigService.get<string>('IPFS_GATEWAY_URL')!;
   }
 
-  public getIpfsBasicAuthUser(): string {
+  public get ipfsBasicAuthUser(): string {
     return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_USER')!;
   }
 
-  public getIpfsBasicAuthSecret(): string {
+  public get ipfsBasicAuthSecret(): string {
     return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_SECRET')!;
   }
 
-  public getIpfsCidPlaceholder(cid): string {
-    const gatewayUrl = this.getIpfsGatewayUrl();
+  public getIpfsCidPlaceholder(cid: string): string {
+    const gatewayUrl = this.ipfsGatewayUrl;
     if (!gatewayUrl || !gatewayUrl.includes('[CID]')) {
       return `https://ipfs.io/ipfs/${cid}`;
     }
     return gatewayUrl.replace('[CID]', cid);
   }
 
-  public getApiPort(): number {
+  public get apiPort(): number {
     return this.nestConfigService.get<number>('API_PORT')!;
   }
 
-  public getWebookMaxRetries(): number {
+  public get webookMaxRetries(): number {
     return this.nestConfigService.get<number>('WEBHOOK_FAILURE_THRESHOLD')!;
+  }
+
+  public get webhookRetryIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
   }
 }

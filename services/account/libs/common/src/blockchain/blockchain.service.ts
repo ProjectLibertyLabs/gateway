@@ -171,12 +171,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async getKeysByMsa(msaId: number): Promise<KeyInfoResponse> {
     const keyInfoResponse = this.api.rpc.msa.getKeysByMsaId(msaId);
     return (await firstValueFrom(keyInfoResponse)).unwrap();
-    // keyInfoResponse.forEach((option) => {
-    //   this.logger.log('keyInfoResponse item', option);
-    //   if (option.isSome) {
-    //     return option.unwrap();
-    //   }
-    // });
   }
 
   public async claimHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {

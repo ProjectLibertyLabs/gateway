@@ -1,3 +1,4 @@
+import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -14,9 +15,7 @@ BigInt.prototype['toJSON'] = function () {
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
-    logger: process.env.DEBUG
-      ? ['error', 'warn', 'log', 'verbose', 'debug']
-      : ['error', 'warn', 'log'],
+    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
 
   // Get event emitter & register a shutdown listener

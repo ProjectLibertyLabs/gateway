@@ -6,6 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
+// eslint-disable-next-line no-shadow
 declare enum EnvironmentType {
   Mainnet = 'Mainnet',
   Rococo = 'Rococo',
@@ -22,6 +23,8 @@ export interface ConfigEnvironmentVariables {
   ACCOUNT_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
+  SIWF_URL: string;
+  SIWF_DOMAIN: string;
   RECONNECTION_SERVICE_REQUIRED: boolean;
   BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   PROVIDER_BASE_URL: string;
@@ -57,6 +60,14 @@ export class ConfigService {
 
   public getProviderId(): number {
     return this.nestConfigService.get<number>('PROVIDER_ID')!;
+  }
+
+  public getSiwfUrl(): string {
+    return this.nestConfigService.get<string>('SIWF_URL')!;
+  }
+
+  public getSiwfDomain(): string {
+    return this.nestConfigService.get<string>('SIWF_DOMAIN')!;
   }
 
   public getQueueHighWater(): number {

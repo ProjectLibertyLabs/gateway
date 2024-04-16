@@ -39,7 +39,7 @@ For example, here are some interactions that are provided by account-service:
 
    This will start Frequency, Redis and Account Service api/worker containers.
 
-3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
+3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the account service queue.
 4. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
 
 ## Running E2E tests
@@ -54,7 +54,7 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 
    This will start Frequency and Redis
 
-2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run a graph setup with Alice as provider 1 and 2,3,4,5,6 as users.
+2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run an account setup with Alice as provider 1 and 2,3,4,5,6 as users.
 
       ```bash
          make setup

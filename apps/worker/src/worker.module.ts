@@ -1,3 +1,4 @@
+import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -6,8 +7,8 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { AccountUpdatePublisherModule } from './transaction_publisher/publisher.module';
-import { AccountUpdatePublisherService } from './transaction_publisher/publisher.service';
+import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
+import { TransactionPublisherService } from './transaction_publisher/publisher.service';
 import { ProviderWebhookService, NonceService, QueueConstants } from '../../../libs/common/src';
 import { TxnNotifierService } from './transaction_notifier/notifier.service';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
@@ -64,15 +65,9 @@ import { TxnNotifierModule } from './transaction_notifier/notifier.module';
     ),
     ScheduleModule.forRoot(),
     BlockchainModule,
-    AccountUpdatePublisherModule,
+    TransactionPublisherModule,
     TxnNotifierModule,
   ],
-  providers: [
-    ConfigService,
-    AccountUpdatePublisherService,
-    TxnNotifierService,
-    ProviderWebhookService,
-    NonceService,
-  ],
+  providers: [ConfigService, TransactionPublisherService, TxnNotifierService, ProviderWebhookService, NonceService],
 })
 export class WorkerModule {}

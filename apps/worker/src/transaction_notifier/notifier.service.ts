@@ -1,6 +1,6 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -12,10 +12,7 @@ import { QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import {
-  TransactionNotification,
-  TxMonitorJob,
-} from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TransactionNotification, TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
 import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 @Injectable()
@@ -23,13 +20,14 @@ import { TransactionType } from '../../../../libs/common/src/types/enums';
 export class TxnNotifierService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
+    @InjectQueue(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
+    private transactionNotifyQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
   ) {
     super();
   }
 
-  // async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
   async process(job: Job<TxMonitorJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
@@ -38,8 +36,7 @@ export class TxnNotifierService extends BaseConsumer {
       const previousKnownBlockNumber = (
         await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
       ).block.header.number.toBigInt();
-      const currentFinalizedBlockNumber =
-        await this.blockchainService.getLatestFinalizedBlockNumber();
+      const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: bigint[] = [];
 
       for (
@@ -49,11 +46,9 @@ export class TxnNotifierService extends BaseConsumer {
       ) {
         blockList.push(i);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(
-        job.data.txHash,
-        blockList,
-        [{ pallet: 'system', event: 'ExtrinsicSuccess' }],
-      );
+      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
+        { pallet: 'system', event: 'ExtrinsicSuccess' },
+      ]);
       if (!txResult.found) {
         this.logger.error(`Tx ${job.data.txHash} not found in block list`);
         throw new Error(`Tx ${job.data.txHash} not found in block list`);
@@ -66,16 +61,12 @@ export class TxnNotifierService extends BaseConsumer {
           if (errorReport.retry) {
             // await this.retryRequestJob(job.data.referencePublishJob.referenceId);
           } else {
-            throw new Error(
-              `Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`,
-            );
+            throw new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
           }
         }
 
         if (txResult.success) {
-          this.logger.verbose(
-            `Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`,
-          );
+          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
           const webhookList = await this.getWebhookList(job.data.providerId);
           this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.providerId}`);
           // const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
@@ -108,6 +99,7 @@ export class TxnNotifierService extends BaseConsumer {
               try {
                 this.logger.debug(`Sending transaction notification to webhook: ${webhookUrl}`);
                 this.logger.debug(`Transaction: ${JSON.stringify(notification)}`);
+                // eslint-disable-next-line no-await-in-loop
                 await axios.post(webhookUrl, notification);
                 this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
                 break;
@@ -160,9 +152,7 @@ export class TxnNotifierService extends BaseConsumer {
     }
   }
 
-  private async handleMessagesFailure(
-    moduleError: RegistryError,
-  ): Promise<{ pause: boolean; retry: boolean }> {
+  private async handleMessagesFailure(moduleError: RegistryError): Promise<{ pause: boolean; retry: boolean }> {
     try {
       switch (moduleError.method) {
         case 'StalePageState':

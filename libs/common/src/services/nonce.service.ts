@@ -35,15 +35,9 @@ export class NonceService implements OnApplicationBootstrap {
     const nonce = await this.blockchainService.getNonce(this.accountId);
     const keys = this.getNextPossibleKeys(nonce);
     // @ts-ignore
-    const nextNonceIndex = await this.redis.incrementNonce(
-      ...keys,
-      keys.length,
-      RedisUtils.NONCE_KEY_EXPIRE_SECONDS,
-    );
+    const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, RedisUtils.NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
-      this.logger.warn(
-        `nextNonce was full even with ${RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`,
-      );
+      this.logger.warn(`nextNonce was full even with ${RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
       return Number(nonce) + RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex - 1;

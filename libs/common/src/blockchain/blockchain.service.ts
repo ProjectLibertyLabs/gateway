@@ -1,17 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { options } from '@frequency-chain/api-augment';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { Observable, firstValueFrom } from 'rxjs';
-import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
-import {
-  AccountId,
-  BlockHash,
-  BlockNumber,
-  DispatchError,
-  Hash,
-  SignedBlock,
-} from '@polkadot/types/interfaces';
+import { AccountId, BlockHash, BlockNumber, DispatchError, Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
 import { u32, Option, u128, Bytes } from '@polkadot/types';
@@ -22,12 +15,12 @@ import {
   PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
-import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { createKeys } from './create-keys';
 import { Handle } from '../types/dtos/handles.dto';
-import { KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { KeysResponse } from '../types/dtos/keys.dto';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
@@ -62,6 +55,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async isReady(): Promise<boolean> {
     await this.apiPromise.isReady;
     return true;
+  }
+
+  public async getApi(): Promise<ApiPromise> {
+    await this.apiPromise.isReady;
+    return this.apiPromise;
   }
 
   public async onApplicationShutdown(signal?: string | undefined) {
@@ -133,9 +131,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public query(pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    return args
-      ? this.apiPromise.query[pallet][extrinsic](...args)
-      : this.apiPromise.query[pallet][extrinsic]();
+    return args ? this.apiPromise.query[pallet][extrinsic](...args) : this.apiPromise.query[pallet][extrinsic]();
   }
 
   public async queryAt(
@@ -174,15 +170,17 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async claimHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {
-    const handle_vec = new Bytes(this.api.registry, baseHandle);
+    const handleVec = new Bytes(this.api.registry, baseHandle);
     const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
     const handlePayload = {
-      baseHandle: handle_vec,
-      expiration: expiration,
+      baseHandle: handleVec,
+      expiration,
       ...payload,
     };
-    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload =
-      this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', handlePayload);
+    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
+      'CommonPrimitivesHandlesClaimHandlePayload',
+      handlePayload,
+    );
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
     this.logger.debug(`accountId: ${accountId}`);
 
@@ -194,20 +192,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.tx.handles.claimHandle(accountId, claimHandleProof, claimHandlePayload);
   }
 
-  public async changeHandle(
-    accountId: AccountId,
-    baseHandle: string,
-    payload: (any | undefined)[],
-  ) {
-    const handle_vec = new Bytes(this.api.registry, baseHandle);
+  public async changeHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {
+    const handleVec = new Bytes(this.api.registry, baseHandle);
     const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
     const handlePayload = {
-      baseHandle: handle_vec,
-      expiration: expiration,
+      baseHandle: handleVec,
+      expiration,
       ...payload,
     };
-    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload =
-      this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', handlePayload);
+    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
+      'CommonPrimitivesHandlesClaimHandlePayload',
+      handlePayload,
+    );
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
     this.logger.debug(`accountId: ${accountId}`);
 
@@ -229,10 +225,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     msaId: number,
     providerId: number,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
-    const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(
-      msaId,
-      providerId,
-    );
+    const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
     if (delegationResponse.isSome) return delegationResponse.unwrap();
     return null;
   }
@@ -258,10 +251,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     currentEpoch: bigint;
   }> {
     const providerU64 = this.api.createType('u64', providerId);
-    const { epochStart }: PalletCapacityEpochInfo = await this.query(
-      'capacity',
-      'currentEpochInfo',
-    );
+    const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
       'capacity',
@@ -280,13 +270,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       currentBlockNumber: currentBlock.toNumber(),
       nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
       remainingCapacity:
-        typeof remainingCapacity === 'number'
-          ? BigInt(remainingCapacity)
-          : remainingCapacity.toBigInt(),
+        typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
       totalCapacityIssued:
-        typeof totalCapacityIssued === 'number'
-          ? BigInt(totalCapacityIssued)
-          : totalCapacityIssued.toBigInt(),
+        typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
     };
   }
 
@@ -296,10 +282,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getCurrentCapacityEpochStart(): Promise<u32> {
-    const currentEpochInfo: PalletCapacityEpochInfo = await this.query(
-      'capacity',
-      'currentEpochInfo',
-    );
+    const currentEpochInfo: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     return currentEpochInfo.epochStart;
   }
 
@@ -328,9 +311,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }>[] = blockList.map(async (blockNumber) => {
       const blockHash = await this.getBlockHash(blockNumber);
       const block = await this.getBlock(blockHash);
-      const txInfo = block.block.extrinsics.find(
-        (extrinsic) => extrinsic.hash.toString() === txHash.toString(),
-      );
+      const txInfo = block.block.extrinsics.find((extrinsic) => extrinsic.hash.toString() === txHash.toString());
 
       if (!txInfo) {
         return { found: false, success: false };
@@ -364,9 +345,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
           // check custom success events
           if (
-            successEvents.find(
-              (successEvent) => successEvent.pallet === eventName && successEvent.event === method,
-            )
+            successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)
           ) {
             this.logger.debug(`Found success event ${eventName} ${method}`);
             isTxSuccess = true;

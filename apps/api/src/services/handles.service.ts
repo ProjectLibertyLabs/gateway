@@ -1,16 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import {
-  HandleRequest,
-  PublishHandleRequest,
-} from '../../../../libs/common/src/types/dtos/handles.dto';
+import { PublishHandleRequest } from '../../../../libs/common/src/types/dtos/handles.dto';
 import { Queue } from 'bullmq';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import type { HandleResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
+import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { createHash } from 'crypto';
 import {
   TransactionData,
@@ -22,7 +17,6 @@ export class HandlesService {
   private readonly logger: Logger;
 
   constructor(
-    @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
     private configService: ConfigService,

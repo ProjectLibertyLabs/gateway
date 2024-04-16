@@ -18,6 +18,8 @@ import { HandlesService } from './services/handles.service';
 import { HandlesController } from './controllers/handles.controller';
 import { DelegationService } from './services/delegation.service';
 import { DelegationController } from './controllers/delegation.controller';
+import { KeysService } from './services/keys.service';
+import { KeysController } from './controllers/keys.controller';
 
 @Module({
   imports: [
@@ -107,8 +109,21 @@ import { DelegationController } from './controllers/delegation.controller';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, AccountsService, HandlesService, DelegationService, ConfigService],
-  controllers: [ApiController, AccountsController, DelegationController, HandlesController],
+  providers: [
+    ApiService,
+    AccountsService,
+    HandlesService,
+    DelegationService,
+    KeysService,
+    ConfigService,
+  ],
+  controllers: [
+    ApiController,
+    AccountsController,
+    DelegationController,
+    KeysController,
+    HandlesController,
+  ],
   exports: [],
 })
 export class ApiModule {}

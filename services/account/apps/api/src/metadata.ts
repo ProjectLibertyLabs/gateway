@@ -30,10 +30,6 @@ export default async () => {
         [
           import('../../../libs/common/src/types/dtos/accounts.dto'),
           {
-            CreateAccountResponse: {
-              accessToken: { required: true, type: () => String },
-              expires: { required: true, type: () => Number },
-            },
             Account: {
               msaId: { required: true, type: () => Number },
               handle: { required: false, type: () => Object, nullable: true },

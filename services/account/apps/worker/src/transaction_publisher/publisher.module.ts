@@ -9,7 +9,7 @@ import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockch
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { NonceService, QueueConstants } from '../../../../libs/common/src';
-import { AccountUpdatePublisherService } from './publisher.service';
+import { TransactionPublisherService } from './publisher.service';
 
 @Module({
   imports: [
@@ -65,7 +65,7 @@ import { AccountUpdatePublisherService } from './publisher.service';
       },
     ),
   ],
-  providers: [AccountUpdatePublisherService, NonceService],
-  exports: [BullModule, AccountUpdatePublisherService],
+  providers: [TransactionPublisherService, NonceService],
+  exports: [BullModule, TransactionPublisherService],
 })
-export class AccountUpdatePublisherModule {}
+export class TransactionPublisherModule {}

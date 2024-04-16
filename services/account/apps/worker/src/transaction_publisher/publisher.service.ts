@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { Hash } from '@polkadot/types/interfaces';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { ISubmittableResult } from '@polkadot/types/types';
+import { Codec, ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
@@ -25,7 +25,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-export class AccountUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
+export class TransactionPublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.checkCapacity();
   }
@@ -66,13 +66,14 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
       let tx: SubmittableExtrinsic<any>;
-      // TODO: Fix createSponsoredAccountWithDelegation or use siwf. TBD.
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE: {
           tx = await this.blockchainService.claimHandle(job.data.accountId, job.data.baseHandle, [
             job.data.providerId,
             job.data.payload,
           ]);
+          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
+          this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.CHANGE_HANDLE: {
@@ -80,52 +81,24 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
             job.data.providerId,
             job.data.payload,
           ]);
+          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
+          this.logger.debug(`tx: ${tx}`);
           break;
         }
-        case TransactionType.CREATE_ACCOUNT: {
-          // TODO: add SIWF logic & remove error.
-          throw new Error('SIWF not working yet.');
+        case TransactionType.SIWF_SIGNUP: {
+          // eslint-disable-next-line prettier/prettier
+          const txns = job.data.calls?.map((x) =>
+            this.blockchainService.api.tx(x.encodedExtrinsic),
+          );
+          const callVec = this.blockchainService.createType('Vec<Call>', txns);
+          accountTxnHash = await this.processBatchTxn(providerKeys, callVec);
+          this.logger.debug(`txns: ${txns}`);
+          break;
         }
         default: {
-          throw new Error('Invalid job name');
+          throw new Error(`Invalid job type: ${job.data.type}`);
         }
       }
-      accountTxnHash = await this.processSingleBatch(providerKeys, tx);
-      this.logger.debug(`tx: ${tx}`);
-      //   switch (job.data.update.type) {
-      //     case 'PersistPage': {
-      //       let payloadData: number[] = [];
-      //       if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
-      //         payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
-      //       }
-      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-      //       const tx = this.blockchainService.createExtrinsicCall(
-      //         { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
-      //         job.data.update.ownerDsnpUserId,
-      //         job.data.update.schemaId,
-      //         job.data.update.pageId,
-      //         job.data.update.prevHash,
-      //         payloadData,
-      //       );
-      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
-      //       break;
-      //     }
-      //     case 'DeletePage': {
-      //       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-      //       const tx = this.blockchainService.createExtrinsicCall(
-      //         { pallet: 'statefulStorage', extrinsic: 'deletePage' },
-      //         job.data.update.ownerDsnpUserId,
-      //         job.data.update.schemaId,
-      //         job.data.update.pageId,
-      //         job.data.update.prevHash,
-      //       );
-      //       accountTxnHash = await this.processSingleBatch(providerKeys, tx);
-      //       break;
-      //     }
-      //     default:
-      //       break;
-      //   }
-
       this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
 
       // Add a job to the account change notify queue
@@ -135,17 +108,14 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         txHash: accountTxnHash,
         epoch: currentCapacityEpoch.toString(),
         lastFinalizedBlockHash,
+        referencePublishJob: job.data,
       };
       const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
       this.logger.debug(`Adding job to transaction change notify queue: ${txMonitorJob.id}`);
-      this.transactionNotifyQueue.add(
-        `Transaction Change Notify Job - ${txMonitorJob.id}`,
-        txMonitorJob,
-        {
-          delay: blockDelay,
-        },
-      );
+      this.transactionNotifyQueue.add(`Transaction Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
+        delay: blockDelay,
+      });
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -155,14 +125,14 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
   }
 
   /**
-   * Processes a single batch by submitting a transaction to the blockchain.
+   * Processes a single transaction to the blockchain.
    *
    * @param providerKeys The key pair used for signing the transaction.
    * @param tx The transaction to be submitted.
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleBatch(
+  async processSingleTxn(
     providerKeys: KeyringPair,
     tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>,
   ): Promise<Hash> {
@@ -185,7 +155,30 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
       this.logger.debug(`Tx hash: ${txHash}`);
       return txHash;
     } catch (error) {
-      this.logger.error(`Error processing batch: ${error}`);
+      this.logger.error(`Error processing single transaction: ${error}`);
+      throw error;
+    }
+  }
+
+  async processBatchTxn(providerKeys: KeyringPair, callVec: Codec): Promise<Hash> {
+    this.logger.debug(`processBatchTxn: callVec: ${callVec.toHuman()}`);
+    try {
+      const ext = this.blockchainService.createExtrinsic(
+        { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacityBatchAll' },
+        { eventPallet: 'frequencyTxPayment', event: 'CapacityPaid' },
+        providerKeys,
+        callVec,
+      );
+      const nonce = await this.nonceService.getNextNonce();
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
+      const [txHash, _] = await ext.signAndSend(nonce);
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return txHash;
+    } catch (error: any) {
+      this.logger.error(`Error processing batch transaction: ${error}`);
       throw error;
     }
   }
@@ -200,9 +193,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
   private async checkCapacity(): Promise<void> {
     try {
       const capacityLimit = this.configService.getCapacityLimit();
-      const capacityInfo = await this.blockchainService.capacityInfo(
-        this.configService.getProviderId(),
-      );
+      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
       const { remainingCapacity } = capacityInfo;
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -213,20 +204,15 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
         this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
         if (capacityLimit.type === 'percentage') {
           const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold =
-            (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
+          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
           this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
           if (epochUsedCapacity >= capacityLimitThreshold) {
             outOfCapacity = true;
-            this.logger.warn(
-              `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`,
-            );
+            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
           }
         } else if (epochUsedCapacity >= capacityLimit.value) {
           outOfCapacity = true;
-          this.logger.warn(
-            `Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`,
-          );
+          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
         }
       }
 
@@ -254,9 +240,7 @@ export class AccountUpdatePublisherService extends BaseConsumer implements OnApp
           console.error(err);
         }
       } else {
-        this.logger.verbose(
-          'Capacity Available: Resuming account change publish queue and clearing timeout',
-        );
+        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
         // Get the failed jobs and check if they failed due to capacity
         const failedJobs = await this.transactionPublishQueue.getFailed();
         const capacityFailedJobs = failedJobs.filter((job) =>

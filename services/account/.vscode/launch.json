@@ -25,6 +25,13 @@
         {
             "type": "node",
             "request": "attach",
+            "name": "Attach to API Service",
+            "port": 9229,
+            "restart": true,
+        },
+        {
+            "type": "node",
+            "request": "attach",
             "name": "Attach to Worker",
             "port": 9230,
             "restart": true,

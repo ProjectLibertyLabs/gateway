@@ -5,13 +5,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
+import { KeyType } from '../../../libs/common/src';
+import { WalletLoginRequestDTO } from '../../../libs/common/src/types/dtos/wallet.login.request.dto';
 
 describe('Account Service E2E request verification!', () => {
   let app: INestApplication;
   let module: TestingModule;
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  beforeEach(async () => {
+  beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [ApiModule],
     }).compile();
@@ -27,8 +29,66 @@ describe('Account Service E2E request verification!', () => {
   });
 
   it('(GET) /api/health', () =>
-    request(app.getHttpServer())
-      .get('/api/health')
-      .expect(200)
-      .expect({ status: 200, message: 'Service is healthy' }));
+    request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+
+  describe('(POST) /accounts/login', () => {
+    it('Sign Up With Frequency request should work', async () => {
+      const siwfRequest: WalletLoginRequestDTO = {
+        signIn: {},
+        signUp: {
+          extrinsics: [
+            {
+              pallet: 'msa',
+              extrinsicName: 'createSponsoredAccountWithDelegation',
+              encodedExtrinsic:
+                '0xed01043c01b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d9360176644186458bad3b00bbd0ac21e6c9bd5a8bed9ced7a772d11a9aac025b47f6559468808e272696f596a02af230951861027c0dc30f7163ecf316838a0723483010000000000000014000000000000000000004d000000',
+            },
+            {
+              pallet: 'handles',
+              extrinsicName: 'claimHandle',
+              encodedExtrinsic:
+                '0xb901044200b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d93601225508ae2da9804c60660a150277eb32b2a0f6b9c8f6e07dd6cad799cb31ae1dfb43896f488e9c0b7ec8b530d930b3f9b690683f2765d5def3fee3fc6540d58714656e6464794d000000',
+            },
+          ],
+        },
+      };
+
+      return request(app.getHttpServer())
+        .post(`/accounts/login`)
+        .send(siwfRequest)
+        .expect(201)
+        .expect((res) => expect(res.body.expires).toBeGreaterThan(Date.now()))
+        .expect((res) => expect(res.body.accessToken).toContain('-'));
+    });
+    it('Sign In With Frequency request should work', async () => {
+      const siwfRequest: WalletLoginRequestDTO = {
+        signIn: {
+          siwsPayload: {
+            message:
+              'localhost wants you to sign in with your Frequency account:\n5Fghb4Wt3sg9cF6Q2Qucp5jXV5pL2U9uaYXwR9R8W8SYe9np\n\nThe domain localhost wants you to sign in with your Frequency account via localhost\n\nURI: http://localhost:5173/signin/confirm\nNonce: N6rLwqyz34oUxJEXJ\nIssued At: 2024-03-05T23:18:03.041Z\nExpiration Time: 2024-03-05T23:23:03.041Z',
+            signature:
+              '0x38faa2fc6f59bef8ffccfc929fb966e1d53ba45e3af7a029ea1d636eaddcbe78a4be0f89eaf7ff7bbaef20a070ad65f9d0f876889686687ef623214fddddb18b',
+          },
+        },
+        signUp: {
+          extrinsics: [],
+        },
+      };
+
+      return request(app.getHttpServer())
+        .post(`/accounts/login`)
+        .send(siwfRequest)
+        .expect(201)
+        .expect((res) => expect(res.body.expires).toBeGreaterThan(Date.now()))
+        .expect((res) => expect(res.body.accessToken).toContain('-'));
+    });
+  });
+
+  // afterAll(async () => {
+  //   try {
+  //     await app.close();
+  //   } catch (err) {
+  //     console.error(`Failed to close application: ${err}`);
+  //   }
+  // });
 });

@@ -47,6 +47,8 @@ describe('AccountSericeConfig', () => {
     ACCOUNT_ENVIRONMENT_DEV_CONFIG: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
+    SIWF_URL: undefined,
+    SIWF_DOMAIN: undefined,
     PROVIDER_BASE_URL: undefined,
     PROVIDER_ACCESS_TOKEN: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
@@ -82,9 +84,7 @@ describe('AccountSericeConfig', () => {
 
     it('invalid frequency url should fail', async () => {
       const { FREQUENCY_URL: dummy, ...env } = ALL_ENV;
-      await expect(
-        setupConfigService({ FREQUENCY_URL: 'invalid url', ...env }),
-      ).rejects.toBeDefined();
+      await expect(setupConfigService({ FREQUENCY_URL: 'invalid url', ...env })).rejects.toBeDefined();
     });
 
     it('invalid api port should fail', async () => {
@@ -93,11 +93,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('missing graph environment dev config should fail', async () => {
-      const {
-        ACCOUNT_ENVIRONMENT_TYPE: dummy,
-        ACCOUNT_ENVIRONMENT_DEV_CONFIG: dummy2,
-        ...env
-      } = ALL_ENV;
+      const { ACCOUNT_ENVIRONMENT_TYPE: dummy, ACCOUNT_ENVIRONMENT_DEV_CONFIG: dummy2, ...env } = ALL_ENV;
       await expect(
         setupConfigService({
           ACCOUNT_ENVIRONMENT_TYPE: 'Dev',
@@ -108,11 +104,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('invalid graph environment dev config should fail', async () => {
-      const {
-        ACCOUNT_ENVIRONMENT_TYPE: dummy,
-        ACCOUNT_ENVIRONMENT_DEV_CONFIG: dummy2,
-        ...env
-      } = ALL_ENV;
+      const { ACCOUNT_ENVIRONMENT_TYPE: dummy, ACCOUNT_ENVIRONMENT_DEV_CONFIG: dummy2, ...env } = ALL_ENV;
       await expect(
         setupConfigService({
           ACCOUNT_ENVIRONMENT_TYPE: 'Dev',
@@ -145,127 +137,115 @@ describe('AccountSericeConfig', () => {
   });
 
   describe('valid environment', () => {
-    let graphServiceConfig: ConfigService;
+    let accountServiceConfig: ConfigService;
     beforeAll(async () => {
-      graphServiceConfig = await setupConfigService(ALL_ENV);
+      accountServiceConfig = await setupConfigService(ALL_ENV);
     });
 
     it('should be defined', () => {
-      expect(graphServiceConfig).toBeDefined();
+      expect(accountServiceConfig).toBeDefined();
     });
 
     it('should get redis url', () => {
-      expect(graphServiceConfig.redisUrl?.toString()).toStrictEqual(ALL_ENV.REDIS_URL?.toString());
+      expect(accountServiceConfig.redisUrl?.toString()).toStrictEqual(ALL_ENV.REDIS_URL?.toString());
     });
 
     it('should get frequency url', () => {
-      expect(graphServiceConfig.frequencyUrl?.toString()).toStrictEqual(
-        ALL_ENV.FREQUENCY_URL?.toString(),
-      );
+      expect(accountServiceConfig.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_URL?.toString());
     });
 
     it('should get queue high water mark', () => {
-      expect(graphServiceConfig.getQueueHighWater()).toStrictEqual(
-        parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10),
-      );
+      expect(accountServiceConfig.getQueueHighWater()).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
     });
 
     it('should get api port', () => {
-      expect(graphServiceConfig.getApiPort()).toStrictEqual(
-        parseInt(ALL_ENV.API_PORT as string, 10),
-      );
+      expect(accountServiceConfig.getApiPort()).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
     });
 
     it('should get reconnection service required', () => {
-      expect(graphServiceConfig.getReconnectionServiceRequired()).toStrictEqual(
+      expect(accountServiceConfig.getReconnectionServiceRequired()).toStrictEqual(
         ALL_ENV.RECONNECTION_SERVICE_REQUIRED === 'true',
       );
     });
 
     it('should get blockchain scan interval minutes', () => {
-      expect(graphServiceConfig.getBlockchainScanIntervalMinutes()).toStrictEqual(
+      expect(accountServiceConfig.getBlockchainScanIntervalMinutes()).toStrictEqual(
         parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10),
       );
     });
 
     it('should get graph environment type', () => {
-      expect(graphServiceConfig.getAccountEnvironmentType()).toStrictEqual(
-        ALL_ENV.ACCOUNT_ENVIRONMENT_TYPE,
-      );
+      expect(accountServiceConfig.getAccountEnvironmentType()).toStrictEqual(ALL_ENV.ACCOUNT_ENVIRONMENT_TYPE);
     });
 
     it('should get graph environment dev config', () => {
-      expect(graphServiceConfig.getAccountEnvironmentConfig()).toStrictEqual(
-        ALL_ENV.ACCOUNT_ENVIRONMENT_DEV_CONFIG,
-      );
+      expect(accountServiceConfig.getAccountEnvironmentConfig()).toStrictEqual(ALL_ENV.ACCOUNT_ENVIRONMENT_DEV_CONFIG);
     });
 
     it('should get provider account seed phrase', () => {
-      expect(graphServiceConfig.getProviderAccountSeedPhrase()).toStrictEqual(
-        ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE,
-      );
+      expect(accountServiceConfig.getProviderAccountSeedPhrase()).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
     });
 
     it('should get provider id', () => {
-      expect(graphServiceConfig.getProviderId()).toStrictEqual(ALL_ENV.PROVIDER_ID);
+      expect(accountServiceConfig.getProviderId()).toStrictEqual(ALL_ENV.PROVIDER_ID);
+    });
+
+    it('should get SIWF URL', () => {
+      expect(accountServiceConfig.getSiwfUrl()).toStrictEqual(ALL_ENV.SIWF_URL);
+    });
+
+    it('should get SIWF Domain', () => {
+      expect(accountServiceConfig.getSiwfDomain()).toStrictEqual(ALL_ENV.SIWF_DOMAIN);
     });
 
     it('should get provider base url', () => {
-      expect(graphServiceConfig.providerBaseUrl?.toString()).toStrictEqual(
-        ALL_ENV.PROVIDER_BASE_URL?.toString(),
-      );
+      expect(accountServiceConfig.providerBaseUrl?.toString()).toStrictEqual(ALL_ENV.PROVIDER_BASE_URL?.toString());
     });
 
     it('should get provider api token', () => {
-      expect(graphServiceConfig.providerApiToken).toStrictEqual(ALL_ENV.PROVIDER_ACCESS_TOKEN);
+      expect(accountServiceConfig.providerApiToken).toStrictEqual(ALL_ENV.PROVIDER_ACCESS_TOKEN);
     });
 
     it('should get webhook failure threshold', () => {
-      expect(graphServiceConfig.getWebhookFailureThreshold()).toStrictEqual(
+      expect(accountServiceConfig.getWebhookFailureThreshold()).toStrictEqual(
         parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10),
       );
     });
 
     it('should get health check success threshold', () => {
-      expect(graphServiceConfig.getHealthCheckSuccessThreshold()).toStrictEqual(
+      expect(accountServiceConfig.getHealthCheckSuccessThreshold()).toStrictEqual(
         parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10),
       );
     });
 
     it('should get webhook retry interval seconds', () => {
-      expect(graphServiceConfig.getWebhookRetryIntervalSeconds()).toStrictEqual(
+      expect(accountServiceConfig.getWebhookRetryIntervalSeconds()).toStrictEqual(
         parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10),
       );
     });
 
     it('should get health check max retry interval seconds', () => {
-      expect(graphServiceConfig.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(
+      expect(accountServiceConfig.getHealthCheckMaxRetryIntervalSeconds()).toStrictEqual(
         parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10),
       );
     });
 
     it('should get health check max retries', () => {
-      expect(graphServiceConfig.getHealthCheckMaxRetries()).toStrictEqual(
+      expect(accountServiceConfig.getHealthCheckMaxRetries()).toStrictEqual(
         parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10),
       );
     });
 
     it('should get page size', () => {
-      expect(graphServiceConfig.getPageSize()).toStrictEqual(
-        parseInt(ALL_ENV.PAGE_SIZE as string, 10),
-      );
+      expect(accountServiceConfig.getPageSize()).toStrictEqual(parseInt(ALL_ENV.PAGE_SIZE as string, 10));
     });
 
     it('should get debounce seconds', () => {
-      expect(graphServiceConfig.getDebounceSeconds()).toStrictEqual(
-        parseInt(ALL_ENV.DEBOUNCE_SECONDS as string, 10),
-      );
+      expect(accountServiceConfig.getDebounceSeconds()).toStrictEqual(parseInt(ALL_ENV.DEBOUNCE_SECONDS as string, 10));
     });
 
     it('should get capacity limit', () => {
-      expect(graphServiceConfig.getCapacityLimit()).toStrictEqual(
-        JSON.parse(ALL_ENV.CAPACITY_LIMIT!),
-      );
+      expect(accountServiceConfig.getCapacityLimit()).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
     });
   });
 });

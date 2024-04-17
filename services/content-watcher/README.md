@@ -29,6 +29,9 @@ Follow these steps to set up and run Content Watcher:
    git clone https://github.com/amplicalabls/content-watcher-service.git
    ```
 
+### Configure the app
+The application is configurable by means of the environment. Default environment files are provided with sane values. The available environment configuration variables are document [here](./ENVIRONMENT.md), and a sample file is located [here](./env.template)
+
 ### Run a Full End-to-End Test
 
 1. Execute the following `make` command to deploy the entire stack:

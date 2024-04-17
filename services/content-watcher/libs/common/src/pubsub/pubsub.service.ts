@@ -2,6 +2,7 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { AnnouncementResponse } from '../interfaces/announcement_response';
 import { ConfigService } from '../config/config.service';
@@ -43,7 +44,7 @@ export class PubSubService {
     if (registrationsForMessageType) {
       registrationsForMessageType.urls.forEach(async (webhookUrl) => {
         let retries = 0;
-        while (retries < this.configService.getWebookMaxRetries()) {
+        while (retries < this.configService.webookMaxRetries) {
           try {
             this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
             this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
@@ -55,6 +56,10 @@ export class PubSubService {
             this.logger.error(`Failed to send announcement to webhook: ${webhookUrl}`);
             this.logger.error(error);
             retries += 1;
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((r) => {
+              setTimeout(r, this.configService.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
+            });
           }
         }
       });

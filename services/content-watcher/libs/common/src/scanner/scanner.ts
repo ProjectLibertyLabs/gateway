@@ -50,7 +50,7 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   private scheduleBlockchainScan() {
-    const scanInterval = this.configService.getBlockchainScanIntervalMinutes() * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
+    const scanInterval = this.configService.blockchainScanIntervalMinutes * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
 
     const interval = setInterval(() => this.scan(), scanInterval);
     this.schedulerRegistry.addInterval('blockchainScan', interval);
@@ -106,7 +106,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
       this.logger.log(`Starting scan from block #${currentBlockNumber} (${latestBlockHash})`);
 
-      while (!this.paused && !latestBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
+      while (!this.paused && !latestBlockHash.isEmpty && queueSize < this.configService.queueHighWater) {
         // eslint-disable-next-line no-await-in-loop
         const at = await this.blockchainService.apiPromise.at(latestBlockHash.toHex());
         // eslint-disable-next-line no-await-in-loop
@@ -128,7 +128,7 @@ export class ScannerService implements OnApplicationBootstrap {
       }
       if (latestBlockHash.isEmpty) {
         this.logger.log(`Scan reached end-of-chain at block ${lastScannedBlock - 1n}`);
-      } else if (queueSize > this.configService.getQueueHighWater()) {
+      } else if (queueSize > this.configService.queueHighWater) {
         this.logger.log('Queue soft limit reached; pausing scan until next iteration');
       }
     } catch (err) {

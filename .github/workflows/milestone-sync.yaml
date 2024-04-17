@@ -50,7 +50,7 @@ jobs:
             const milestoneParams = {
               title: milestoneTitle,
               state: "${{ github.event.milestone.state }}",
-              description: "${{ github.event.milestone.description }}",
+              description: `${{ github.event.milestone.description }}`,
               due_on: "${{ github.event.milestone.due_on }}" || undefined,
             };
 

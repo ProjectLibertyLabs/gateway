@@ -6,6 +6,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
+import { MulterModule } from '@nestjs/platform-express';
 import { ApiController } from './api.controller';
 import { DevelopmentController } from './development.controller';
 import { QueueConstants } from '../../../libs/common/src';
@@ -161,6 +162,15 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       ignoreErrors: false,
     }),
     ScheduleModule.forRoot(),
+    MulterModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        limits: {
+          fileSize: configService.fileUploadMaxSizeInBytes,
+        },
+      }),
+      inject: [ConfigService],
+    }),
   ],
   providers: [ConfigService, ApiService, IpfsService],
   controllers: process.env?.ENVIRONMENT === 'dev' ? [DevelopmentController, ApiController] : [ApiController],

@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto, EnvironmentDto } from '../dtos/common.dto';
+import { AnnouncementTypeDto, ChainEnvironment } from '../dtos/common.dto';
 
 export namespace DsnpSchemas {
   /**
@@ -37,11 +37,12 @@ export namespace DsnpSchemas {
   /**
    * Returns schema Id by environment and announcement type
    */
-  export function getSchemaId(environment: EnvironmentDto, announcementType: AnnouncementTypeDto): number {
+  export function getSchemaId(environment: ChainEnvironment, announcementType: AnnouncementTypeDto): number {
     switch (environment) {
-      case EnvironmentDto.MAIN_NET:
+      case ChainEnvironment.MAIN_NET:
+      case ChainEnvironment.TESTNET_PASEO: // Paseo has the same schema IDs as Mainnet
         return ANNOUNCEMENT_TO_SCHEMA_ID_MAIN_NET.get(announcementType)!;
-      case EnvironmentDto.ROCOCO:
+      case ChainEnvironment.ROCOCO:
         return ANNOUNCEMENT_TO_SCHEMA_ID_ROCOCO.get(announcementType)!;
       default:
         return ANNOUNCEMENT_TO_SCHEMA_ID_DEV.get(announcementType)!;

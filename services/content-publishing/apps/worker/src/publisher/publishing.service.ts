@@ -85,8 +85,8 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   }
 
   private async checkCapacity(): Promise<void> {
-    const capacityLimit = this.configService.getCapacityLimit();
-    const capacity = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+    const { capacityLimit } = this.configService;
+    const capacity = await this.blockchainService.capacityInfo(this.configService.providerId);
     const { remainingCapacity } = capacity;
     const { currentEpoch } = capacity;
     const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -121,8 +121,8 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     this.logger.debug('Received capacity.exhausted event');
     this.capacityExhausted = true;
     await this.publishQueue.pause();
-    const capacityLimit = this.configService.getCapacityLimit();
-    const capacity = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+    const { capacityLimit } = this.configService;
+    const capacity = await this.blockchainService.capacityInfo(this.configService.providerId);
 
     this.logger.debug(`
     Capacity limit: ${JSON.stringify(capacityLimit)}

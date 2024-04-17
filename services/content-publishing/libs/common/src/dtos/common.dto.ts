@@ -35,8 +35,9 @@ export enum AnnouncementTypeDto {
 }
 
 // eslint-disable-next-line no-shadow
-export enum EnvironmentDto {
+export enum ChainEnvironment {
   MAIN_NET = 'mainnet',
   ROCOCO = 'rococo',
+  TESTNET_PASEO = 'testnet',
   DEV = 'dev',
 }

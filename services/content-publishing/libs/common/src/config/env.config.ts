@@ -1,12 +1,12 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
-import { EnvironmentDto } from '..';
+import { ChainEnvironment } from '..';
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
-    ENVIRONMENT: Joi.string()
-      .valid(...Object.values(EnvironmentDto))
+    CHAIN_ENVIRONMENT: Joi.string()
+      .valid(...Object.values(ChainEnvironment))
       .required(),
     IPFS_ENDPOINT: Joi.string().uri().required(),
     IPFS_GATEWAY_URL: Joi.string().required(), // This is parse as string as the required format of this not a valid uri, check .env.template
@@ -25,16 +25,7 @@ export const configModuleOptions: ConfigModuleOptions = {
       }
       return value;
     }),
-    BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
-      .min(1)
-      .default(3 * 60),
-    QUEUE_HIGH_WATER: Joi.number().min(100).default(1000),
     PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
-    WEBHOOK_FAILURE_THRESHOLD: Joi.number().min(1).default(3),
-    WEBHOOK_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(10),
-    HEALTH_CHECK_SUCCESS_THRESHOLD: Joi.number().min(1).default(10),
-    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(64),
-    HEALTH_CHECK_MAX_RETRIES: Joi.number().min(0).default(20),
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: Joi.number().min(1).required(),
     API_PORT: Joi.number().min(0).default(3000),
     ASSET_EXPIRATION_INTERVAL_SECONDS: Joi.number().min(1).required(),

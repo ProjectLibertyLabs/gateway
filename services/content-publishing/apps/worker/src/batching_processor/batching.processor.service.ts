@@ -6,6 +6,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { Announcement } from '../../../../libs/common/src/interfaces/dsnp';
 import { RedisUtils } from '../../../../libs/common/src/utils/redis';
@@ -42,7 +43,7 @@ export class BatchingProcessorService {
     const metadata = await this.getMetadataFromRedis(queueName);
     if (metadata) {
       const openTimeMs = Math.round(Date.now() - metadata.startTimestamp);
-      const batchTimeoutInMs = this.configService.getBatchIntervalSeconds() * 1000;
+      const batchTimeoutInMs = this.configService.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
       if (openTimeMs >= batchTimeoutInMs) {
         await this.closeBatch(queueName, metadata.batchId, false);
       } else {
@@ -68,12 +69,12 @@ export class BatchingProcessorService {
     this.logger.log(rowCount);
     if (rowCount === 1) {
       this.logger.log(`Processing job ${job.id} with a new batch`);
-      const timeout = this.configService.getBatchIntervalSeconds() * 1000;
+      const timeout = this.configService.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
       this.addBatchTimeout(queueName, batchId, timeout);
-    } else if (rowCount >= this.configService.getBatchMaxCount()) {
+    } else if (rowCount >= this.configService.batchMaxCount) {
       await this.closeBatch(queueName, batchId, false);
     } else if (rowCount === -1) {
-      throw new Error(`invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.getBatchMaxCount()}`);
+      throw new Error(`invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`);
     }
   }
 

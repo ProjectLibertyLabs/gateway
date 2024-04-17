@@ -26,7 +26,7 @@ export class NonceService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    this.accountId = createKeys(this.configService.getProviderAccountSeedPhrase()).publicKey;
+    this.accountId = createKeys(this.configService.providerAccountSeedPhrase).publicKey;
     const nextNonce = await this.getNextNonce();
     this.logger.log(`nonce is set to ${nextNonce}`);
   }

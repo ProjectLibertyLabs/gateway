@@ -49,10 +49,6 @@ export class ApiController {
           fileType: DSNP_VALID_MIME_TYPES,
         })
         // TODO: add a validator to check overall uploaded size
-        .addMaxSizeValidator({
-          // this is in bytes (2 GB)
-          maxSize: parseInt(process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES!, 10),
-        })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),

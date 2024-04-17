@@ -20,22 +20,25 @@ Before you begin, ensure you have met the following requirements:
 
 Follow these steps to set up and run Content Publisher:
 
-### Clone the Repository
+### 1. Clone the Repository
 
-1. Clone the Content Publisher repository to your local machine:
+Clone the Content Publisher repository to your local machine:
 
-   ```bash
-   git clone https://github.com/amplicalabls/content-publishing-service.git
-   ```
+```bash
+git clone https://github.com/amplicalabls/content-publishing-service.git
+```
 
-2. Modify any environment variables in the `.env` file as needed. For docker compose env `.env.docker.dev` file is used.
+### 2. Configure the application
+Modify any environment variables in the `.env` file as needed. For docker compose env `.env.docker.dev` file is used. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template)
 
-3. Run the following command to start the service:
+### 3. Start the service:
+Run the following command to start the service:
+```bash
+docker-compose -f docker-compose.dev.yaml up
+```
 
-   ```bash
-    docker-compose -f docker-compose.dev.yaml up
-    ```
+### 4. Swagger UI
+Check out the Swagger UI hosted on the app instance at [\<base url>/api/docs/swagger](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
 
-4. Visit [Swagger UI](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
-
-5. Visit [Bullboard](http://localhost:3000/queues) to view the job queue and the status of the jobs.
+### 5. Queue Management
+You may also view and manage the application's queue at [\<base url>/queues](http://localhost:3000/queues).

@@ -4,11 +4,11 @@ https://docs.nestjs.com/providers#services
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { EnvironmentDto } from '..';
+import { ChainEnvironment } from '..';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
-  ENVIRONMENT: EnvironmentDto;
+  CHAIN_ENVIRONMENT: ChainEnvironment;
   IPFS_ENDPOINT: URL;
   IPFS_GATEWAY_URL: URL;
   IPFS_BASIC_AUTH_USER: string;
@@ -16,13 +16,6 @@ export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
   PROVIDER_ID: string;
-  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
-  QUEUE_HIGH_WATER: number;
-  WEBHOOK_FAILURE_THRESHOLD: number;
-  HEALTH_CHECK_SUCCESS_THRESHOLD: number;
-  WEBHOOK_RETRY_INTERVAL_SECONDS: number;
-  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
-  HEALTH_CHECK_MAX_RETRIES: number;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   CAPACITY_LIMIT: ICapacityLimit;
   FILE_UPLOAD_MAX_SIZE_IN_BYTES: number;
@@ -36,14 +29,14 @@ export interface ConfigEnvironmentVariables {
 /// Config service to get global app and provider-specific config values.
 @Injectable()
 export class ConfigService {
-  private capacityLimit: ICapacityLimit;
+  public readonly capacityLimit: ICapacityLimit;
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.capacityLimit = JSON.parse(nestConfigService.get('CAPACITY_LIMIT')!);
   }
 
-  public get environment(): EnvironmentDto {
-    return this.nestConfigService.get<EnvironmentDto>('ENVIRONMENT')!;
+  public get environment(): ChainEnvironment {
+    return this.nestConfigService.get<ChainEnvironment>('CHAIN_ENVIRONMENT')!;
   }
 
   public get redisUrl(): URL {
@@ -54,91 +47,59 @@ export class ConfigService {
     return this.nestConfigService.get('FREQUENCY_URL')!;
   }
 
-  public getBlockchainScanIntervalMinutes(): number {
-    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_MINUTES') ?? 1;
-  }
-
-  public getQueueHighWater(): number {
-    return this.nestConfigService.get<number>('QUEUE_HIGH_WATER')!;
-  }
-
-  public getWebhookFailureThreshold(): number {
-    return this.nestConfigService.get<number>('WEBHOOK_FAILURE_THRESHOLD')!;
-  }
-
-  public getHealthCheckSuccessThreshold(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_SUCCESS_THRESHOLD')!;
-  }
-
-  public getWebhookRetryIntervalSeconds(): number {
-    return this.nestConfigService.get<number>('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
-  }
-
-  public getHealthCheckMaxRetryIntervalSeconds(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS')!;
-  }
-
-  public getHealthCheckMaxRetries(): number {
-    return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRIES')!;
-  }
-
-  public getProviderId(): string {
+  public get providerId(): string {
     return this.nestConfigService.get<string>('PROVIDER_ID')!;
   }
 
-  public getProviderAccountSeedPhrase(): string {
+  public get providerAccountSeedPhrase(): string {
     return this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')!;
   }
 
-  public getCapacityLimit(): ICapacityLimit {
-    return this.capacityLimit;
-  }
-
-  public getIpfsEndpoint(): string {
+  public get ipfsEndpoint(): string {
     return this.nestConfigService.get<string>('IPFS_ENDPOINT')!;
   }
 
-  public getIpfsGatewayUrl(): string {
+  public get ipfsGatewayUrl(): string {
     return this.nestConfigService.get<string>('IPFS_GATEWAY_URL')!;
   }
 
-  public getIpfsBasicAuthUser(): string {
+  public get ipfsBasicAuthUser(): string {
     return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_USER')!;
   }
 
-  public getIpfsBasicAuthSecret(): string {
+  public get ipfsBasicAuthSecret(): string {
     return this.nestConfigService.get<string>('IPFS_BASIC_AUTH_SECRET')!;
   }
 
-  public getIpfsCidPlaceholder(cid): string {
-    const gatewayUrl = this.getIpfsGatewayUrl();
+  public getIpfsCidPlaceholder(cid: string): string {
+    const gatewayUrl = this.ipfsGatewayUrl;
     if (!gatewayUrl || !gatewayUrl.includes('[CID]')) {
       return `https://ipfs.io/ipfs/${cid}`;
     }
     return gatewayUrl.replace('[CID]', cid);
   }
 
-  public getFileUploadMaxSizeInBytes(): number {
+  public get fileUploadMaxSizeInBytes(): number {
     return this.nestConfigService.get<number>('FILE_UPLOAD_MAX_SIZE_IN_BYTES')!;
   }
 
-  public getApiPort(): number {
+  public get apiPort(): number {
     return this.nestConfigService.get<number>('API_PORT')!;
   }
 
-  public getAssetExpirationIntervalSeconds(): number {
+  public get assetExpirationIntervalSeconds(): number {
     return this.nestConfigService.get<number>('ASSET_EXPIRATION_INTERVAL_SECONDS')!;
   }
 
-  public getBatchIntervalSeconds(): number {
+  public get batchIntervalSeconds(): number {
     return this.nestConfigService.get<number>('BATCH_INTERVAL_SECONDS')!;
   }
 
-  public getBatchMaxCount(): number {
+  public get batchMaxCount(): number {
     return this.nestConfigService.get<number>('BATCH_MAX_COUNT')!;
   }
 
-  public getAssetUploadVerificationDelaySeconds(): number {
+  public get assetUploadVerificationDelaySeconds(): number {
     return this.nestConfigService.get<number>('ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS')!;
   }
 }

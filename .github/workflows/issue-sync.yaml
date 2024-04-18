@@ -33,6 +33,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const ADDED_CONTENT = "\n--- Added by trigger ---\n";
             const repository = "${{ matrix.repository }}";
             const [owner, repo] = repository.split("/");
             const localOwner = context.repo.owner;
@@ -89,6 +90,9 @@ jobs:
 
               // Update local issues
               for(const remoteIssue of remoteIssues) {
+                const issueLink = `Linked issue: ${owner}/${repo}#${remoteIssue.number}`;
+                const remoteBody = remoteIssue.body.trimEnd();
+
                 // We add in the repo as a label to make sure we are only dealing with issues for the specific repo
                 const remoteLabelsPlusRepo = [repo, ...remoteIssue.labels.map(x => x.name)].sort();
 
@@ -105,15 +109,21 @@ jobs:
 
                 // Check for a local issue
                 const localIssue = localIssues.find((item) => item.title === remoteIssue.title);
+
                 if (localIssue) {
                   console.log(`Found local issue for "${localIssue.title}".`, remoteIssue.title);
                   const localLabels = localIssue.labels.map(x => x.name).sort();
 
+                  const strippedLocalBody = localIssue.body?.replace(new RegExp(`${ADDED_CONTENT}.*`, "s"), '').trimEnd();
+                  const addedContentMatch = new RegExp(`${ADDED_CONTENT}(.*)`, "s").exec(localIssue.body);
+                  const addedContent = addedContentMatch?.length > 1 ? addedContentMatch[1] : undefined;
+
                   // Verify matching
                   const isMatch = localIssue.title === remoteIssue.title
-                    && localIssue.body === remoteIssue.body
+                    && strippedLocalBody === remoteBody
                     && localIssue.state === remoteIssue.state
-                    && JSON.stringify(localLabels) === JSON.stringify(remoteLabelsPlusRepo);
+                    && JSON.stringify(localLabels) === JSON.stringify(remoteLabelsPlusRepo)
+                    && addedContent === issueLink;
 
                   if ( !isMatch ) {
                     console.log(`Need to update issue "${remoteIssue.title}" locally due to:`, {
@@ -123,9 +133,9 @@ jobs:
                           remote: remoteIssue.title,
                         },
                         body: {
-                          isMatch: localIssue.body === remoteIssue.body,
-                          local: localIssue.body,
-                          remote: remoteIssue.body,
+                          isMatch: strippedLocalBody === remoteBody,
+                          local: strippedLocalBody,
+                          remote: remoteBody,
                         },
                         state: {
                           isMatch: localIssue.state === remoteIssue.state,
@@ -137,11 +147,17 @@ jobs:
                           local: JSON.stringify(localLabels),
                           remote: JSON.stringify(remoteLabelsPlusRepo),
                         },
+                        linkedIssue: {
+                          isMatch: addedContent === issueLink,
+                          actual: addedContent,
+                          expected: issueLink,
+                        }
                     });
 
                     // Update issue
                     const { data: { html_url } } = await github.rest.issues.update({
                       ...issueParams,
+                      body: `${remoteBody}\n${ADDED_CONTENT}${issueLink}`,
                       owner: localOwner,
                       repo: localRepo,
                       issue_number: localIssue.number,
@@ -153,6 +169,7 @@ jobs:
                   console.log(`Issue "${remoteIssue.title}" not found. Creating...`);
                   const { data: { html_url } } = await github.rest.issues.create({
                     ...issueParams,
+                    body: `${remoteBody}\n${ADDED_CONTENT}${issueLink}`,
                     owner: localOwner,
                     repo: localRepo,
                   });

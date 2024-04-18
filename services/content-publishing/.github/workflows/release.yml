@@ -51,7 +51,6 @@ jobs:
         with:
           flavor: |
             latest=auto
-            prefix=api-,onlatest=true
           images: |
             ${{env.DOCKER_HUB_PROFILE}}/${{env.IMAGE_NAME}}
           tags: |

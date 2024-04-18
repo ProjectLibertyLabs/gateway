@@ -5,4 +5,4 @@ async function bootstrap() {
   const app = await NestFactory.createApplicationContext(WorkerModule);
   app.enableShutdownHooks();
 }
-bootstrap();
+bootstrap().catch((error) => console.error(error));

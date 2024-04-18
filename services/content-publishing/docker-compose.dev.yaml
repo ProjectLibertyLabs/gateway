@@ -11,7 +11,18 @@ services:
       - content-publishing-service
 
   frequency:
-    image: frequencychain/instant-seal-node:latest
+    image: dsnp/instant-seal-node-with-deployed-schemas:latest
+    # We need to specify the platform because it's the only image
+    # built by Frequency at the moment, and auto-pull won't work otherwise
+    platform: linux/amd64
+    # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
+    # Other options you may want to add depending on your test scenario.
+    # environment:
+    #   - SEALING_MODE=interval
+    #   - SEALING_INTERVAL=3
+    #   - CREATE_EMPTY_BLOCKS=true
+    # Uncomment below if you want to let the chain run and keep all of the historical blocks
+    # command: --state-pruning=archive
     ports:
       - 9944:9944
     networks:
@@ -31,16 +42,19 @@ services:
       - ipfs_data:/data/ipfs
 
   content-publishing-service-api:
+    pull_policy: never
+    image: content-publishing-service
     build:
       context: .
       dockerfile: dev.Dockerfile
+      tags:
+        - content-publishing-service:latest
     ports:
       - 3000:3000
     env_file:
       - .env.docker.dev
     environment:
       - START_PROCESS=api
-      - REDIS_URL=redis://redis:6379
     volumes:
       - ./:/app
     depends_on:
@@ -51,14 +65,17 @@ services:
       - content-publishing-service
 
   content-publishing-service-worker:
+    pull_policy: never
+    image: content-publishing-service
     build:
       context: .
       dockerfile: dev.Dockerfile
+      tags:
+        - content-publishing-service:latest
     env_file:
       - .env.docker.dev
     environment:
       - START_PROCESS=worker
-      - REDIS_URL=redis://redis:6379
     volumes:
       - ./:/app
     depends_on:
@@ -75,5 +92,3 @@ volumes:
 
 networks:
   content-publishing-service:
-
-

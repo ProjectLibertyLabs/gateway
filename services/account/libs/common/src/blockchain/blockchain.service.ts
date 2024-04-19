@@ -15,13 +15,12 @@ import {
   PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
-import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
-import { createKeys } from './create-keys';
-import { Handle } from '../types/dtos/handles.dto';
-import { KeysResponse } from '../types/dtos/keys.dto';
+import { Handle, PublishHandleRequest } from '../types/dtos/handles.dto';
+import { TransactionData } from '../types/dtos/transaction.dto';
+import { TransactionType } from '../types/enums';
 
 export type Sr25519Signature = { Sr25519: `0x${string}` };
 
@@ -169,50 +168,28 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return (await firstValueFrom(keyInfoResponse)).unwrap();
   }
 
-  public async claimHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {
-    const handleVec = new Bytes(this.api.registry, baseHandle);
-    const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
-    const handlePayload = {
-      baseHandle: handleVec,
-      expiration,
-      ...payload,
-    };
+  public async publishHandle(jobData: TransactionData<PublishHandleRequest>) {
+    const handleVec = new Bytes(this.api.registry, jobData.payload.baseHandle);
     const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
       'CommonPrimitivesHandlesClaimHandlePayload',
-      handlePayload,
+      {
+        baseHandle: handleVec,
+        expiration: jobData.payload.expiration,
+      },
     );
+
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
-    this.logger.debug(`accountId: ${accountId}`);
+    this.logger.debug(`accountId: ${jobData.accountId}`);
 
-    const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+    const claimHandleProof = { Sr25519: jobData.proof };
+    this.logger.debug(`claimHandleProof: ${JSON.stringify(claimHandleProof)}`);
 
-    const claimHandleProof = {
-      Sr25519: u8aToHex(providerKeys.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
-    };
-    return this.api.tx.handles.claimHandle(accountId, claimHandleProof, claimHandlePayload);
-  }
-
-  public async changeHandle(accountId: AccountId, baseHandle: string, payload: (any | undefined)[]) {
-    const handleVec = new Bytes(this.api.registry, baseHandle);
-    const expiration = Number(await this.getLatestFinalizedBlockNumber()) + 50;
-    const handlePayload = {
-      baseHandle: handleVec,
-      expiration,
-      ...payload,
-    };
-    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
-      'CommonPrimitivesHandlesClaimHandlePayload',
-      handlePayload,
-    );
-    this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
-    this.logger.debug(`accountId: ${accountId}`);
-
-    const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
-
-    const claimHandleProof = {
-      Sr25519: u8aToHex(providerKeys.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
-    };
-    return this.api.tx.handles.changeHandle(accountId, claimHandleProof, claimHandlePayload);
+    switch (jobData.type) {
+      case TransactionType.CREATE_HANDLE:
+        return this.api.tx.handles.claimHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
+      case TransactionType.CHANGE_HANDLE:
+        return this.api.tx.handles.changeHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
+    }
   }
 
   public async getHandleForMsa(msaId: number): Promise<Handle | null> {

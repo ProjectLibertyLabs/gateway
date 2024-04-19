@@ -14,7 +14,7 @@ import { QueueConstants, NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TransactionData, TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
 import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 export const SECONDS_PER_BLOCK = 12;
@@ -57,9 +57,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    * @param job - The job to process.
    * @returns A promise that resolves when the job is processed.
    */
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(job: Job<TransactionData, any, string>): Promise<any> {
     let accountTxnHash: Hash = {} as Hash;
-
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}.}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
@@ -67,39 +66,26 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
       let tx: SubmittableExtrinsic<any>;
       switch (job.data.type) {
-        case TransactionType.CREATE_HANDLE: {
-          tx = await this.blockchainService.claimHandle(job.data.accountId, job.data.baseHandle, [
-            job.data.providerId,
-            job.data.payload,
-          ]);
-          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
-          this.logger.debug(`tx: ${tx}`);
-          break;
-        }
+        case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
-          tx = await this.blockchainService.changeHandle(job.data.accountId, job.data.baseHandle, [
-            job.data.providerId,
-            job.data.payload,
-          ]);
+          tx = await this.blockchainService.publishHandle(job.data);
           accountTxnHash = await this.processSingleTxn(providerKeys, tx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.SIWF_SIGNUP: {
           // eslint-disable-next-line prettier/prettier
-          const txns = job.data.calls?.map((x) =>
-            this.blockchainService.api.tx(x.encodedExtrinsic),
-          );
+          const txns = job.data.calls?.map((x) => this.blockchainService.api.tx(x.encodedExtrinsic));
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
           accountTxnHash = await this.processBatchTxn(providerKeys, callVec);
           this.logger.debug(`txns: ${txns}`);
           break;
         }
         default: {
-          throw new Error(`Invalid job type: ${job.data.type}`);
+          throw new Error(`Invalid job type.`);
         }
       }
-      this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
+      this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
       // Add a job to the account change notify queue
       const txMonitorJob: TxMonitorJob = {
@@ -108,7 +94,6 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         txHash: accountTxnHash,
         epoch: currentCapacityEpoch.toString(),
         lastFinalizedBlockHash,
-        referencePublishJob: job.data,
       };
       const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 

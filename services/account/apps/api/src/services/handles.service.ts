@@ -32,7 +32,7 @@ export class HandlesService {
 
   async enqueueRequest(request: PublishHandleRequest): Promise<TransactionRepsonse> {
     const providerId = this.configService.getProviderId();
-    const data: TransactionData = {
+    const data: TransactionData<PublishHandleRequest> = {
       ...request,
       providerId,
       referenceId: this.calculateJobId(request),

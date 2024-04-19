@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Param,
-  HttpException,
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysService } from '../services/keys.service';
 import { KeysResponse } from '../../../../libs/common/src/types/dtos/keys.dto';

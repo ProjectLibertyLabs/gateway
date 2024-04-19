@@ -1,14 +1,9 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { Keyring } from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
-import { _0n, hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import {
-  userPrivateConnections,
-  userPrivateFollows,
-  publicKey,
-  userPublicFollows,
-} from '@dsnp/frequency-schemas/dsnp';
-import { Bytes, u32 } from '@polkadot/types';
+import { _0n, u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { userPrivateConnections, userPrivateFollows, publicKey, userPublicFollows } from '@dsnp/frequency-schemas/dsnp';
+import { Bytes } from '@polkadot/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -20,12 +15,8 @@ const sendStatusCb =
   (resolve) =>
   ({ status, events }) => {
     if (status.isInBlock || status.isFinalized) {
-      const msaCreated = events
-        .map(({ event }) => event)
-        .find((event) => event.method === 'MsaCreated');
-      const schemaCreated = events
-        .map(({ event }) => event)
-        .find((event) => event.method === 'SchemaCreated');
+      const msaCreated = events.map(({ event }) => event).find((event) => event.method === 'MsaCreated');
+      const schemaCreated = events.map(({ event }) => event).find((event) => event.method === 'SchemaCreated');
       const itemizedPageUpdated = events
         .map(({ event }) => event)
         .find((event) => event.method === 'ItemizedPageUpdated');
@@ -57,14 +48,8 @@ const createViaDelegation = (api, provider) => async (keyUri, baseNonce) => {
   const addProviderPayload = api.registry.createType('PalletMsaAddProvider', rawPayload);
   const proof = signPayloadWithKeyring(delegator, addProviderPayload);
 
-  const tx = api.tx.msa.createSponsoredAccountWithDelegation(
-    delegator.address,
-    proof,
-    addProviderPayload.toU8a(),
-  );
-  await new Promise((resolve) =>
-    tx.signAndSend(provider, { nonce: baseNonce }, sendStatusCb(resolve)),
-  );
+  const tx = api.tx.msa.createSponsoredAccountWithDelegation(delegator.address, proof, addProviderPayload.toU8a());
+  await new Promise((resolve) => tx.signAndSend(provider, { nonce: baseNonce }, sendStatusCb(resolve)));
 
   const msaId = await api.query.msa.publicKeyToMsaId(delegator.address);
 
@@ -84,9 +69,7 @@ async function main() {
   });
   await Promise.race([
     api.isReady,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('WS Connection Timeout')), 30_000),
-    ),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('WS Connection Timeout')), 30_000)),
   ]);
 
   console.log('API Connected');
@@ -97,42 +80,22 @@ async function main() {
   await new Promise((resolve) => api.tx.msa.create().signAndSend(alice, sendStatusCb(resolve)));
   console.log('Alice should have MSA Id 1');
   // Create Alice Provider
-  await new Promise((resolve) =>
-    api.tx.msa.createProvider('Alice').signAndSend(alice, sendStatusCb(resolve)),
-  );
+  await new Promise((resolve) => api.tx.msa.createProvider('Alice').signAndSend(alice, sendStatusCb(resolve)));
   console.log('Alice (MSA Id 1) should be a provider now');
 
   let currentNonce = (await api.rpc.system.accountNextIndex(alice.address)).toBn().toNumber();
   console.log('Current nonce: ' + currentNonce);
   // Create Schemas
-  const txSchema1 = api.tx.schemas.createSchema(
-    JSON.stringify(userPublicFollows),
-    'AvroBinary',
-    'Paginated',
-  );
-  await new Promise((resolve) =>
-    txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
-  );
+  const txSchema1 = api.tx.schemas.createSchema(JSON.stringify(userPublicFollows), 'AvroBinary', 'Paginated');
+  await new Promise((resolve) => txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
   currentNonce++;
   console.log('Public Follow Schema created');
-  const txSchema2 = api.tx.schemas.createSchema(
-    JSON.stringify(userPrivateFollows),
-    'AvroBinary',
-    'Paginated',
-  );
-  await new Promise((resolve) =>
-    txSchema2.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
-  );
+  const txSchema2 = api.tx.schemas.createSchema(JSON.stringify(userPrivateFollows), 'AvroBinary', 'Paginated');
+  await new Promise((resolve) => txSchema2.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
   currentNonce++;
   console.log('Private Follow Schema created');
-  const txSchema3 = api.tx.schemas.createSchema(
-    JSON.stringify(userPrivateConnections),
-    'AvroBinary',
-    'Paginated',
-  );
-  await new Promise((resolve) =>
-    txSchema3.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
-  );
+  const txSchema3 = api.tx.schemas.createSchema(JSON.stringify(userPrivateConnections), 'AvroBinary', 'Paginated');
+  await new Promise((resolve) => txSchema3.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
   currentNonce++;
   console.log('Private Friend Schema created');
   const txSchema4 = api.tx.schemas.createSchemaViaGovernance(
@@ -143,9 +106,7 @@ async function main() {
     ['AppendOnly'],
   );
   let sudoTx = api.tx.sudo.sudo(txSchema4);
-  await new Promise((resolve) =>
-    sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)),
-  );
+  await new Promise((resolve) => sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
   currentNonce++;
   console.log('Public Key Schema created');
 
@@ -156,18 +117,11 @@ async function main() {
     baseHandle: handle_bytes,
     expiration: currentBlock + 50,
   };
-  const claimHandlePayload = api.registry.createType(
-    'CommonPrimitivesHandlesClaimHandlePayload',
-    payload_ext,
-  );
+  const claimHandlePayload = api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', payload_ext);
   const claimHandleProof = {
     Sr25519: u8aToHex(alice.sign(u8aWrapBytes(claimHandlePayload.toU8a()))),
   };
-  const claimHandle = api.tx.handles.claimHandle(
-    alice.publicKey,
-    claimHandleProof,
-    claimHandlePayload,
-  );
+  const claimHandle = api.tx.handles.claimHandle(alice.publicKey, claimHandleProof, claimHandlePayload);
   await claimHandle.signAndSend(alice, { nonce: currentNonce });
   console.log('Alices Handle Claimed!');
   currentNonce++;

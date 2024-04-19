@@ -25,9 +25,9 @@ describe('Account Controller', () => {
   });
 
   it('(GET) /accounts/:msaId with valid msaId and no handle', async () => {
-    const validMsaId = '2';
+    const validMsaId = '3';
     await request(app.getHttpServer()).get(`/accounts/${validMsaId}`).expect(200).expect({
-      msaId: '2',
+      msaId: '3',
       handle: null,
     });
   });

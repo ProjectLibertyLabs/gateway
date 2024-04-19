@@ -95,7 +95,7 @@ export class TxnNotifierService extends BaseConsumer {
 
           webhookList.forEach(async (webhookUrl) => {
             let retries = 0;
-            while (retries < this.configService.getHealthCheckMaxRetries()) {
+            while (retries < this.configService.healthCheckMaxRetries) {
               try {
                 this.logger.debug(`Sending transaction notification to webhook: ${webhookUrl}`);
                 this.logger.debug(`Transaction: ${JSON.stringify(notification)}`);

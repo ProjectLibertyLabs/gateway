@@ -1,13 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import type { HandleResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
+import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { createHash } from 'crypto';
 import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { HandleRequest, PublishHandleRequest } from '../../../../libs/common/src/types/dtos/handles.dto';
+import { PublishHandleRequest } from '../../../../libs/common/src/types/dtos/handles.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { TransactionData, TransactionRepsonse } from '../../../../libs/common/src/types/dtos/transaction.dto';
 
@@ -31,7 +29,7 @@ export class HandlesService {
   }
 
   async enqueueRequest(request: PublishHandleRequest): Promise<TransactionRepsonse> {
-    const providerId = this.configService.getProviderId();
+    const { providerId } = this.configService;
     const data: TransactionData<PublishHandleRequest> = {
       ...request,
       providerId,

@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import { initSwagger } from '../../../libs/common/src/config/swagger_config';
+import { ConfigService } from '../../../libs/common/src/config/config.service';
 
 const logger = new Logger('main');
 
@@ -28,8 +29,11 @@ async function bootstrap() {
   try {
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe());
+
+    const configService = app.get<ConfigService>(ConfigService);
     await initSwagger(app, '/api/docs/swagger');
-    await app.listen(process.env.API_PORT ?? 3000);
+    logger.log(`Listening on port ${configService.apiPort}`);
+    await app.listen(configService.apiPort);
   } catch (e) {
     await app.close();
     logger.log('****** MAIN CATCH ********');

@@ -16,9 +16,8 @@ export class KeysService {
       const keyInfoResponse = await this.blockchainService.getKeysByMsa(msaId);
       this.logger.debug('Successfully found keys.');
       return keyInfoResponse.msa_keys;
-    } else {
-      this.logger.error('Invalid msaId.');
-      throw new Error('Invalid msaId.');
     }
+    this.logger.error('Invalid msaId.');
+    throw new Error('Invalid msaId.');
   }
 }

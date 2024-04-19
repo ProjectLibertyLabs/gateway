@@ -17,7 +17,7 @@ export class DelegationService {
   async getDelegation(msaId: number): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
-      const providerId = this.configService.getProviderId();
+      const { providerId } = this.configService;
 
       const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(
         msaId,
@@ -31,7 +31,8 @@ export class DelegationService {
           revokedAt: commonPrimitivesMsaDelegation.revokedAt,
         };
         return delegationResponse;
-      } else throw new Error('Failed to find the delegation.');
+      }
+      throw new Error('Failed to find the delegation.');
     }
     throw new Error('Invalid msaId.');
   }

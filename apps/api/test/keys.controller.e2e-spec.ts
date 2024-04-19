@@ -3,8 +3,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiModule } from '../src/api.module';
 import request from 'supertest';
+import { ApiModule } from '../src/api.module';
 
 describe('Keys Controller', () => {
   let app: INestApplication;
@@ -27,7 +27,7 @@ describe('Keys Controller', () => {
   it('(GET) /keys/:msaId with valid msaId', async () => {
     const validMsaId = '2';
     await request(app.getHttpServer())
-      .get('/keys/' + validMsaId)
+      .get(`/keys/${validMsaId}`)
       .expect(200)
       .expect(['5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty']);
   });
@@ -35,7 +35,7 @@ describe('Keys Controller', () => {
   it('(GET) /keys/:msaId with invalid msaId', async () => {
     const invalidMsaId = 10;
     await request(app.getHttpServer())
-      .get('/keys/' + invalidMsaId)
+      .get(`/keys/${invalidMsaId}`)
       .expect(400)
       .expect({ statusCode: 400, message: 'Failed to find public keys for the given msaId' });
   });

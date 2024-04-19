@@ -3,8 +3,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiModule } from '../src/api.module';
 import request from 'supertest';
+import { ApiModule } from '../src/api.module';
 
 describe('Handles Controller', () => {
   let app: INestApplication;

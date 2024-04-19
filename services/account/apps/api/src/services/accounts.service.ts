@@ -44,7 +44,7 @@ export class AccountsService {
   }
 
   async enqueueRequest(request, type: TransactionType): Promise<Hash> {
-    const providerId = this.configService.getProviderId();
+    const { providerId } = this.configService;
     const data = {
       ...request,
       type,
@@ -71,7 +71,7 @@ export class AccountsService {
   // eslint-disable-next-line class-methods-use-this
   async signInWithFrequency(request: WalletLoginRequestDTO): Promise<WalletLoginResponseDTO> {
     const api = await this.blockchainService.getApi();
-    const providerId = this.configService.getProviderId();
+    const { providerId } = this.configService;
     let response: WalletLoginResponseDTO;
     if (request.signUp) {
       try {

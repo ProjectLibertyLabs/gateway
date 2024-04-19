@@ -2,31 +2,18 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
-
-// eslint-disable-next-line no-shadow
-declare enum EnvironmentType {
-  Mainnet = 'Mainnet',
-  Rococo = 'Rococo',
-  Dev = 'Dev',
-}
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
-  QUEUE_HIGH_WATER: number;
   API_PORT: number;
-  DEBOUNCE_SECONDS: number;
-  ACCOUNT_ENVIRONMENT_TYPE: keyof EnvironmentType;
-  ACCOUNT_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
   SIWF_URL: string;
   SIWF_DOMAIN: string;
-  RECONNECTION_SERVICE_REQUIRED: boolean;
-  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
   PROVIDER_BASE_URL: string;
   PROVIDER_ACCESS_TOKEN: string;
   WEBHOOK_FAILURE_THRESHOLD: number;
@@ -34,20 +21,16 @@ export interface ConfigEnvironmentVariables {
   WEBHOOK_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
-  PAGE_SIZE: number;
   CAPACITY_LIMIT: number;
 }
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
 export class ConfigService {
-  private capacityLimit: ICapacityLimit;
-
-  private logger: Logger;
+  private capacityLimitObj: ICapacityLimit;
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
-    this.logger = new Logger(this.constructor.name);
-    this.capacityLimit = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
+    this.capacityLimitObj = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
   }
 
   public get providerBaseUrl(): URL {
@@ -58,51 +41,23 @@ export class ConfigService {
     return this.nestConfigService.get<string>('PROVIDER_ACCESS_TOKEN');
   }
 
-  public getProviderId(): number {
+  public get providerId(): number {
     return this.nestConfigService.get<number>('PROVIDER_ID')!;
   }
 
-  public getSiwfUrl(): string {
+  public get siwfUrl(): string {
     return this.nestConfigService.get<string>('SIWF_URL')!;
   }
 
-  public getSiwfDomain(): string {
+  public get siwfDomain(): string {
     return this.nestConfigService.get<string>('SIWF_DOMAIN')!;
   }
 
-  public getQueueHighWater(): number {
-    return this.nestConfigService.get<number>('QUEUE_HIGH_WATER')!;
-  }
-
-  public getApiPort(): number {
+  public get apiPort(): number {
     return this.nestConfigService.get<number>('API_PORT')!;
   }
 
-  public getReconnectionServiceRequired(): boolean {
-    return this.nestConfigService.get<boolean>('RECONNECTION_SERVICE_REQUIRED')!;
-  }
-
-  public getBlockchainScanIntervalMinutes(): number {
-    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_MINUTES')!;
-  }
-
-  public getRedisUrl(): URL {
-    return this.nestConfigService.get<URL>('REDIS_URL')!;
-  }
-
-  public getFrequencyUrl(): URL {
-    return this.nestConfigService.get<URL>('FREQUENCY_URL')!;
-  }
-
-  public getAccountEnvironmentType(): keyof EnvironmentType {
-    return this.nestConfigService.get<keyof EnvironmentType>('ACCOUNT_ENVIRONMENT_TYPE')!;
-  }
-
-  public getAccountEnvironmentConfig(): string {
-    return this.nestConfigService.get<string>('ACCOUNT_ENVIRONMENT_DEV_CONFIG')!;
-  }
-
-  public getProviderAccountSeedPhrase(): string {
+  public get providerAccountSeedPhrase(): string {
     return this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')!;
   }
 
@@ -114,39 +69,27 @@ export class ConfigService {
     return this.nestConfigService.get('FREQUENCY_URL')!;
   }
 
-  public getHealthCheckMaxRetries(): number {
+  public get healthCheckMaxRetries(): number {
     return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRIES')!;
   }
 
-  public getHealthCheckMaxRetryIntervalSeconds(): number {
+  public get healthCheckMaxRetryIntervalSeconds(): number {
     return this.nestConfigService.get<number>('HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS')!;
   }
 
-  public getHealthCheckSuccessThreshold(): number {
+  public get healthCheckSuccessThreshold(): number {
     return this.nestConfigService.get<number>('HEALTH_CHECK_SUCCESS_THRESHOLD')!;
   }
 
-  public getWebhookFailureThreshold(): number {
+  public get webhookFailureThreshold(): number {
     return this.nestConfigService.get<number>('WEBHOOK_FAILURE_THRESHOLD')!;
-  }
-
-  public getWebhookRetryIntervalSeconds(): number {
-    return this.nestConfigService.get<number>('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
   }
 
   public get webhookRetryIntervalSeconds(): number {
     return this.nestConfigService.get('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
   }
 
-  public getPageSize(): number {
-    return this.nestConfigService.get('PAGE_SIZE')!;
-  }
-
-  public getDebounceSeconds(): number {
-    return this.nestConfigService.get<number>('DEBOUNCE_SECONDS')!;
-  }
-
-  public getCapacityLimit(): ICapacityLimit {
-    return this.capacityLimit;
+  public get capacityLimit(): ICapacityLimit {
+    return this.capacityLimitObj;
   }
 }

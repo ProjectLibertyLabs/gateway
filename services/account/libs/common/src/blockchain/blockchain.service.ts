@@ -189,6 +189,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         return this.api.tx.handles.claimHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
       case TransactionType.CHANGE_HANDLE:
         return this.api.tx.handles.changeHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
+      default:
+        throw new Error(`Unrecognized transaction type: ${(jobData as any).type}`);
     }
   }
 

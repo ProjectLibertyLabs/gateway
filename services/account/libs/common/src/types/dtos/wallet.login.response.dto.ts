@@ -22,6 +22,8 @@ export class WalletLoginResponseDTO {
 
 export class SIWFSignupRequest {
   calls: EncodedExtrinsic[];
+
   publicKey: string;
+
   type: TransactionType.SIWF_SIGNUP;
 }

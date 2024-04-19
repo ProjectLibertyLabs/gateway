@@ -59,7 +59,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
     }
 
     if (this.failedHealthChecks > 0) {
-      if (this.failedHealthChecks >= this.configService.getHealthCheckMaxRetries()) {
+      if (this.failedHealthChecks >= this.configService.healthCheckMaxRetries) {
         this.logger.error(
           `FATAL ERROR: Failed to connect to provider webhook at '${this.configService.providerBaseUrl}' after ${this.failedHealthChecks} attempts.`,
         );
@@ -74,12 +74,12 @@ export class ProviderWebhookService implements OnModuleDestroy {
           () => this.checkProviderWebhook(),
           Math.min(
             2 ** (this.failedHealthChecks - 1) * MILLISECONDS_PER_SECOND,
-            this.configService.getHealthCheckMaxRetryIntervalSeconds() * MILLISECONDS_PER_SECOND,
+            this.configService.healthCheckMaxRetryIntervalSeconds * MILLISECONDS_PER_SECOND,
           ),
         ),
       );
     } else if (this.successfulHealthChecks > 0) {
-      if (this.successfulHealthChecks >= this.configService.getHealthCheckSuccessThreshold()) {
+      if (this.successfulHealthChecks >= this.configService.healthCheckSuccessThreshold) {
         this.logger.log(`Provider webhook responded to ${this.successfulHealthChecks} health checks; resuming queue`);
         this.eventEmitter.emit('webhook.healthy');
       } else {
@@ -87,7 +87,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
         this.schedulerRegistry.deleteTimeout(HEALTH_CHECK_TIMEOUT_NAME);
         this.schedulerRegistry.addTimeout(
           HEALTH_CHECK_TIMEOUT_NAME,
-          setTimeout(() => this.checkProviderWebhook(), this.configService.getWebhookRetryIntervalSeconds()),
+          setTimeout(() => this.checkProviderWebhook(), this.configService.webhookRetryIntervalSeconds),
         );
       }
     }

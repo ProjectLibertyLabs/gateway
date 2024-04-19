@@ -20,7 +20,7 @@ env:
   NEW_RELEASE_TAG_FROM_UI: ${{github.event.inputs.release-version}}
   TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'v0.0.1')}}
   DOCKER_HUB_PROFILE: amplicalabs
-  IMAGE_NAME: graph-service-service
+  IMAGE_NAME: graph-service
 
 jobs:
   build-and-publish-container-image:
@@ -51,7 +51,6 @@ jobs:
         with:
           flavor: |
             latest=auto
-            prefix=api-,onlatest=true
           images: |
             ${{env.DOCKER_HUB_PROFILE}}/${{env.IMAGE_NAME}}
           tags: |

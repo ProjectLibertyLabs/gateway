@@ -9,38 +9,48 @@ A service enabling easy interaction with DSNP private and public graphs on Frequ
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
   - [Running E2E tests](#running-e2e-tests)
-  
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
 
 ## Getting Started
 
-1. Clone the repository
+Follow these steps to set up and run Content Watcher:
 
+### 1. Clone the Repository
+Clone the Graph Service repository to your local machine:
    ```bash
    git clone https://github.com/amplicalabls/graph-service.git
    ```
 
-2. Start docker compose
+### 2. Configure the app
+The application receives its configuration from the environment. Each method of launching the app has its own source for the environment. If you run a container image using Kubernetes, it is likely your environment injection will be configured in a Helm chart. For local Docker-based development, you may specifiy the environment or point to an environment file (the included [docker-compose.yaml](./docker-compose.yaml) relies on the included [.env.docker.dev](./.env.docker.dev) file). If running natively using the script included in `package.json`, the app will use a local `.env` file.
 
+Environment files are documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
+
+### 3. Start the service:
+Run the following command to start the service:
    ```bash
-   docker-compose -f docker-compose.dev.yaml --profile instant up 
+   docker compose up [-d]
    ```
 
-   This will start Frequency, Redis and Graph Service api/worker containers.
+This will start Frequency, Redis and Graph Service api/worker containers.
 
-3. Go to [BullUI](http://0.0.0.0:3000/queues/)  and check the graph service queue.
-4. Check the [Swagger](http://0.0.0.0:3000/api/docs/swagger) for API documentation.
+### 4. Swagger UI
+Check out the Swagger UI hosted on the app instance at [\<base url>/api/docs/swagger](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
+
+### 5. Queue Management
+You may also view and manage the application's queue at [\<base url>/queues](http://localhost:3000/queues).
 
 ## Running E2E tests
 
-Note: using [docker compose file](docker-compose.yaml) with `instant` profile to start the services. This will start the services in development mode.
+Note: using [docker compose file](docker-compose.yaml) to start the services. This will start the services in development mode.
 
-1. Start redis and frequency with instant profile.
+1. Start redis and frequency
 
    ```bash
-   docker-compose --profile instant up  -d redis frequency
+   docker compose up  -d redis frequency
    ```
 
    This will start Frequency and Redis
@@ -54,7 +64,7 @@ Note: using [docker compose file](docker-compose.yaml) with `instant` profile to
 3. Run the following command to start the graph service api and worker containers.
 
    ```bash
-      docker-compose --profile instant up -d api worker
+      docker compose up -d api worker
    ```
 
    This will start the graph service api and worker in development mode.

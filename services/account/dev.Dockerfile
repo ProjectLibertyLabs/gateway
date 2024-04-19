@@ -1,10 +1,9 @@
-FROM node:18
+FROM node:20
 
 WORKDIR /app
-COPY . .
 
-RUN npm install
 EXPOSE 3000
-ENV START_PROCESS="api"
 
-CMD ["sh", "-c", "if [ \"$START_PROCESS\" = \"api\" ]; then npm run start:api; else npm run start:worker; fi"]
+VOLUME [ "/app" ]
+
+ENTRYPOINT [ "./scripts/docker-entrypoint.sh", "watch" ]

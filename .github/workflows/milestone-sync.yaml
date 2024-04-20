@@ -37,6 +37,7 @@ jobs:
           - AmplicaLabs/account-service
           - AmplicaLabs/content-publishing-service
           - AmplicaLabs/content-watcher-service
+          - AmplicaLabs/social-app-template
     steps:
       - name: Create/Open/Close Milestone
         uses: actions/github-script@v7

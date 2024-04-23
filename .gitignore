@@ -1,3 +1,6 @@
+# Ignore generated docs
+docs/*.html
+
 # Logs
 logs
 *.log

@@ -38,7 +38,7 @@ You must also minimally map `appendonlydir` (or the entire `dir`) to a persisten
 ## Building and Deploying the Application
 
 If you choose to build & deploy the application yourself, simply install the prerequisites:
-* NodeJS 18
+* NodeJS 20
 
 To build the application:
 ```

@@ -48,3 +48,7 @@ lint:
 dev-graphs:
 	madge --dot --extensions ts apps/worker/src > docs/worker-graph.gv
 	madge --dot --extensions ts apps/api/src > docs/api-graph.gv
+
+.PHONY: mock-webhook
+mock-webhook:
+	@cd rust-webhook-server && cargo run

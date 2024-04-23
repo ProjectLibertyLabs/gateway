@@ -1,3 +1,4 @@
+import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 

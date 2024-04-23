@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { PublishHandleRequest } from './handles.dto';
-import { SIWFSignupRequest } from './wallet.login.response.dto';
+import { PublishSIWFSignupRequest } from './wallet.login.request.dto';
 
-export type TransactionData<RequestType = PublishHandleRequest | SIWFSignupRequest> = RequestType & {
+export type TransactionData<RequestType = PublishHandleRequest | PublishSIWFSignupRequest> = RequestType & {
   providerId: number;
   referenceId: string;
 };
@@ -15,7 +15,7 @@ export type TxMonitorJob = TransactionData & {
   lastFinalizedBlockHash: BlockHash;
 };
 
-export class TransactionRepsonse {
+export class TransactionResponse {
   referenceId: string;
 }
 

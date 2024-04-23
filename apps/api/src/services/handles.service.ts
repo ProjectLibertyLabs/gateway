@@ -7,7 +7,7 @@ import { QueueConstants } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { PublishHandleRequest } from '../../../../libs/common/src/types/dtos/handles.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { TransactionData, TransactionRepsonse } from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TransactionData, TransactionResponse } from '../../../../libs/common/src/types/dtos/transaction.dto';
 
 @Injectable()
 export class HandlesService {
@@ -28,7 +28,7 @@ export class HandlesService {
     return createHash('sha1').update(stringVal).digest('base64url');
   }
 
-  async enqueueRequest(request: PublishHandleRequest): Promise<TransactionRepsonse> {
+  async enqueueRequest(request: PublishHandleRequest): Promise<TransactionResponse> {
     const { providerId } = this.configService;
     const data: TransactionData<PublishHandleRequest> = {
       ...request,

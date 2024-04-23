@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable max-classes-per-file */
 // eslint-disable-next-line no-shadow
 export enum AccountChangeType {

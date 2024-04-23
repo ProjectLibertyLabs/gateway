@@ -1,6 +1,7 @@
 /*
 https://docs.nestjs.com/modules
 */
+import '@frequency-chain/api-augment';
 
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';

@@ -1,27 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { Hash, createHash, randomUUID } from 'crypto';
-import { validateSignin, validateSignup } from '@amplica-labs/siwf';
-import { QueueConstants, TransactionType } from '../../../../libs/common/src';
+import { createHash } from 'crypto';
+import { ValidSignUpPayloads, validateSignin, validateSignup } from '@amplica-labs/siwf';
+import { QueueConstants, TransactionData, TransactionResponse, TransactionType } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import type { AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { WalletLoginRequestDTO } from '../../../../libs/common/src/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponseDTO } from '../../../../libs/common/src/types/dtos/wallet.login.response.dto';
+import {
+  PublishSIWFSignupRequest,
+  WalletLoginRequest,
+} from '../../../../libs/common/src/types/dtos/wallet.login.request.dto';
+import { WalletLoginResponse } from '../../../../libs/common/src/types/dtos/wallet.login.response.dto';
 
 export type RequestAccount = { publicKey: string; msaId?: string };
 @Injectable()
 export class AccountsService {
   private readonly logger: Logger;
 
-  // uuid auth token to Public Key
-  private authTokenRegistry: Map<string, RequestAccount> = new Map();
-
   constructor(
-    // @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
     private configService: ConfigService,
@@ -30,33 +27,33 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
+  /**
+   * Calculates the job ID based on the provided job object.
+   * @param jobWithoutId - The job object without the ID.
+   * @returns The calculated job ID.
+   */
   // eslint-disable-next-line class-methods-use-this
-  createAuthToken = async (publicKey: string): Promise<string> => {
-    const uuid = randomUUID();
-    this.authTokenRegistry.set(uuid, { publicKey });
-    return uuid;
-  };
-
-  // eslint-disable-next-line class-methods-use-this
-  private calculateJobId(jobWithoutId): string {
+  public calculateJobId(jobWithoutId): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }
 
-  async enqueueRequest(request, type: TransactionType): Promise<Hash> {
+  async enqueueRequest(request: ValidSignUpPayloads, type: TransactionType): Promise<TransactionResponse> {
     const { providerId } = this.configService;
-    const data = {
+    const data: TransactionData<PublishSIWFSignupRequest> = {
       ...request,
-      type,
+      type: TransactionType.SIWF_SIGNUP,
       providerId,
       referenceId: this.calculateJobId(request),
     };
 
-    const job = await this.transactionPublishQueue.add(`Transaction Job - ${data.referenceId}`, data, {
+    const job = await this.transactionPublishQueue.add(`SIWF Transaction Job - ${data.referenceId}`, data, {
       jobId: data.referenceId,
     });
-    this.logger.debug(`job: ${job}`);
-    return data.referenceId;
+    this.logger.debug(`enqueueRequest job: ${job.data.referenceId}`);
+    return {
+      referenceId: data.referenceId,
+    };
   }
 
   async getAccount(msaId: number): Promise<AccountResponse> {
@@ -69,22 +66,15 @@ export class AccountsService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async signInWithFrequency(request: WalletLoginRequestDTO): Promise<WalletLoginResponseDTO> {
+  async signInWithFrequency(request: WalletLoginRequest): Promise<WalletLoginResponse> {
     const api = await this.blockchainService.getApi();
     const { providerId } = this.configService;
-    let response: WalletLoginResponseDTO;
     if (request.signUp) {
       try {
-        const payload = await validateSignup(api, request.signUp, providerId.toString());
+        const siwfPayload = await validateSignup(api, request.signUp, providerId.toString());
         // Pass all this data to the transaction publisher queue
-        const referenceId = await this.enqueueRequest(payload, TransactionType.SIWF_SIGNUP);
-
-        response = {
-          accessToken: await this.createAuthToken(payload.publicKey),
-          expires: Date.now() + 60 * 60 * 24,
-          referenceId: referenceId.toString(),
-        };
-        return response;
+        const referenceId: WalletLoginResponse = await this.enqueueRequest(siwfPayload, TransactionType.SIWF_SIGNUP);
+        return referenceId;
       } catch (e: any) {
         this.logger.error(`Failed Signup validation ${e.toString()}`);
         throw new Error('Failed to sign up');
@@ -92,13 +82,10 @@ export class AccountsService {
     } else if (request.signIn) {
       try {
         const parsedSignin = await validateSignin(api, request.signIn, 'localhost');
-        const accessToken = await this.createAuthToken(parsedSignin.publicKey);
-        // TODO: expiration should be configurable
-        const expires = Date.now() + 60 * 60 * 24;
-        response = {
-          accessToken,
-          expires,
+        const response: WalletLoginResponse = {
+          referenceId: '0',
           msaId: parsedSignin.msaId,
+          publicKey: parsedSignin.publicKey,
         };
         return response;
       } catch (e) {

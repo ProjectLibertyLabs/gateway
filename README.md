@@ -116,13 +116,14 @@ To get a local copy up and running, follow these steps.
 
 In order to run this project you need:
 
-- [Docker](https://www.docker.com) or Docker compatible layer
+- [Docker](https://www.docker.com) or Docker compatible layer for running Gateway Services
+- [mdBook](https://rust-lang.github.io/mdBook/) for building documentation
 
 ### Setup
 
 Clone this repository to your desired folder:
 
-Example commands:
+Clone:
 
 ```sh
   git clone git@github.com:AmplicaLabs/gateway.git
@@ -131,17 +132,31 @@ Example commands:
 
 ### Usage
 
-To run the project, execute the following command:
-
-Example command:
+To run all Gateway services, execute the following command:
 
 ```sh
   docker compose docker-compose.all.yaml
 ```
 
+To build the Gateway Documentation:
+
+```sh
+  cd docs
+  mdbook build
+```
+
+To build and serve the Gateway Documentation:
+
+```sh
+  cd docs
+  mdbook serve
+```
+
 ### Deployment
 
-Deployment has various options. See the [Live Docs](https://amplicalabs.github.io/gateway/) for more details.
+Deployment of the Gateway services have various options. See the [Live Docs](https://amplicalabs.github.io/gateway/) for more details.
+
+Deployment of the Gateway documentation occurs via merge to `main` branch via GitHub Actions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

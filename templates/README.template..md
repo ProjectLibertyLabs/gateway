@@ -27,7 +27,7 @@ Find and replace list:
 - [🤝 Contributing](#-contributing)
 - [⭐️ Show your support](#-support)
 - [🙏 Acknowledgements](#-acknowledgements)
-- [❓FAQ](#-faq)
+- [❓FAQ](#faq)
 - [📝 License](#-license)
 
 <!-- PROJECT DESCRIPTION -->

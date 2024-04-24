@@ -26,13 +26,13 @@ const sendStatusCb =
         resolve();
       }
       if (schemaCreated) {
-        console.log('Schema Created: ' + schemaCreated.data);
+        console.log(`Schema Created: ${schemaCreated.data}`);
         resolve(schemaCreated.data.schemaId);
       } else {
         resolve();
       }
       if (itemizedPageUpdated) {
-        console.log('Itemized Page Updated: ' + itemizedPageUpdated.data);
+        console.log(`Itemized Page Updated: ${itemizedPageUpdated.data}`);
         resolve(itemizedPageUpdated.data);
       } else {
         resolve();
@@ -56,7 +56,7 @@ const createViaDelegation = (api, provider) => async (keyUri, baseNonce) => {
   if (msaId.isNone) throw new Error('Failed to create MSA');
   const msaIdStr = msaId.value.toString();
 
-  console.log(keyUri + ' should have MSA Id ' + msaIdStr);
+  console.log(`${keyUri} should have MSA Id ${msaIdStr}`);
 };
 
 async function main() {
@@ -84,7 +84,7 @@ async function main() {
   console.log('Alice (MSA Id 1) should be a provider now');
 
   let currentNonce = (await api.rpc.system.accountNextIndex(alice.address)).toBn().toNumber();
-  console.log('Current nonce: ' + currentNonce);
+  console.log(`Current nonce: ${currentNonce}`);
   // Create Schemas
   const txSchema1 = api.tx.schemas.createSchema(JSON.stringify(userPublicFollows), 'AvroBinary', 'Paginated');
   await new Promise((resolve) => txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
@@ -105,7 +105,7 @@ async function main() {
     'Itemized',
     ['AppendOnly'],
   );
-  let sudoTx = api.tx.sudo.sudo(txSchema4);
+  const sudoTx = api.tx.sudo.sudo(txSchema4);
   await new Promise((resolve) => sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
   currentNonce++;
   console.log('Public Key Schema created');
@@ -127,7 +127,7 @@ async function main() {
   currentNonce++;
 
   // Delegations
-  const delegators = ['//Bob', '//Charlie', '//Dave', '//Eve', '//Ferdie'];
+  const delegators = ['//Bob', '//Charlie', '//Dave', '//Eve'];
   const create = createViaDelegation(api, alice);
   await Promise.all(delegators.map((delegator, i) => create(delegator, currentNonce++)));
 
@@ -142,7 +142,7 @@ async function main() {
 
   console.log('Create Provider 1 as Alice and Delegator 2, 3, 4, 5, 6');
   console.log('Public keys added to delegators');
-  console.log('Staked capacity to provider: ' + stakeAmount);
+  console.log(`Staked capacity to provider: ${stakeAmount}`);
   console.log('Setup complete');
 }
 

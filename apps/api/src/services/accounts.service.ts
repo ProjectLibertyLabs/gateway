@@ -12,6 +12,7 @@ import {
   WalletLoginRequest,
 } from '../../../../libs/common/src/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '../../../../libs/common/src/types/dtos/wallet.login.response.dto';
+import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
 
 export type RequestAccount = { publicKey: string; msaId?: string };
 @Injectable()
@@ -23,6 +24,7 @@ export class AccountsService {
     private transactionPublishQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
+    private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -36,24 +38,6 @@ export class AccountsService {
   public calculateJobId(jobWithoutId): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
-  }
-
-  async enqueueRequest(request: ValidSignUpPayloads, type: TransactionType): Promise<TransactionResponse> {
-    const { providerId } = this.configService;
-    const data: TransactionData<PublishSIWFSignupRequest> = {
-      ...request,
-      type: TransactionType.SIWF_SIGNUP,
-      providerId,
-      referenceId: this.calculateJobId(request),
-    };
-
-    const job = await this.transactionPublishQueue.add(`SIWF Transaction Job - ${data.referenceId}`, data, {
-      jobId: data.referenceId,
-    });
-    this.logger.debug(`enqueueRequest job: ${job.data.referenceId}`);
-    return {
-      referenceId: data.referenceId,
-    };
   }
 
   async getAccount(msaId: number): Promise<AccountResponse> {
@@ -73,7 +57,11 @@ export class AccountsService {
       try {
         const siwfPayload = await validateSignup(api, request.signUp, providerId.toString());
         // Pass all this data to the transaction publisher queue
-        const referenceId: WalletLoginResponse = await this.enqueueRequest(siwfPayload, TransactionType.SIWF_SIGNUP);
+        const referenceId: WalletLoginResponse = await this.enqueueService.enqueueRequest<PublishSIWFSignupRequest>({
+          ...siwfPayload,
+          providerId,
+          type: TransactionType.SIWF_SIGNUP,
+        });
         return referenceId;
       } catch (e: any) {
         this.logger.error(`Failed Signup validation ${e.toString()}`);

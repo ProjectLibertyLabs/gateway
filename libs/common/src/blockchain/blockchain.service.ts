@@ -2,9 +2,9 @@
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { AccountId, BlockHash, BlockNumber, DispatchError, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, DispatchError, Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
 import { u32, Option, u128, Bytes, Vec } from '@polkadot/types';
@@ -17,13 +17,16 @@ import {
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
 import { KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
+import { decodeAddress } from '@polkadot/util-crypto';
+import { HexString } from '@polkadot/util/types';
+import { AddKeysRequest, DeleteKeysRequest } from '../types/dtos/keys.dto';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 import { Handle, PublishHandleRequest } from '../types/dtos/handles.dto';
 import { TransactionData } from '../types/dtos/transaction.dto';
 import { TransactionType } from '../types/enums';
 
-export type Sr25519Signature = { Sr25519: `0x${string}` };
+export type Sr25519Signature = { Sr25519: HexString };
 
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -169,6 +172,25 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return (await firstValueFrom(keyInfoResponse)).unwrap();
   }
 
+  public async addPublicKeyToMsa(keysRequest: AddKeysRequest): Promise<SubmittableExtrinsic<any>> {
+    const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
+    const msaIdU64 = this.api.createType('u64', payload.msaId);
+
+    const txPayload = {
+      ...payload,
+      newPublicKey: decodeAddress(payload.newPublicKey),
+      msaId: msaIdU64,
+    };
+
+    const addKeyResponse = this.api.tx.msa.addPublicKeyToMsa(
+      msaOwnerAddress,
+      { Sr25519: msaOwnerSignature },
+      { Sr25519: newKeyOwnerSignature },
+      txPayload,
+    );
+    return addKeyResponse;
+  }
+
   public async publishHandle(jobData: TransactionData<PublishHandleRequest>) {
     const handleVec = new Bytes(this.api.registry, jobData.payload.baseHandle);
     const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
@@ -182,7 +204,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
-    const claimHandleProof = { Sr25519: jobData.proof };
+    const claimHandleProof: Sr25519Signature = { Sr25519: jobData.proof };
     this.logger.debug(`claimHandleProof: ${JSON.stringify(claimHandleProof)}`);
 
     switch (jobData.type) {

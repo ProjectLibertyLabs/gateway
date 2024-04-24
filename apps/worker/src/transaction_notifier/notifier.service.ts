@@ -20,8 +20,6 @@ import { TransactionType } from '../../../../libs/common/src/types/enums';
 export class TxnNotifierService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
-    private transactionNotifyQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
   ) {

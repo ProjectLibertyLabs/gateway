@@ -60,7 +60,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   async process(job: Job<TransactionData, any, string>): Promise<any> {
     let accountTxnHash: Hash = {} as Hash;
     try {
-      this.logger.log(`Processing job ${job.id} of type ${job.name}.}`);
+      this.logger.log(`Processing job ${job.id} of type ${job.name}. DATA: ${JSON.stringify(job.data)}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
@@ -79,6 +79,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
           accountTxnHash = await this.processBatchTxn(providerKeys, callVec);
           this.logger.debug(`txns: ${txns}`);
+          break;
+        }
+        case TransactionType.ADD_KEY: {
+          tx = await this.blockchainService.addPublicKeyToMsa(job.data);
+          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
+          this.logger.debug(`tx: ${tx}`);
           break;
         }
         default: {
@@ -102,7 +108,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         delay: blockDelay,
       });
     } catch (error) {
-      this.logger.error(error);
+      // @ts-ignore
+      this.logger.error('Unknown error encountered: ', error, error?.stack);
       throw error;
     } finally {
       await this.checkCapacity();

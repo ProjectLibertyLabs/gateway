@@ -3,7 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import metadata from '../../../../apps/api/src/metadata';
 
-export const initSwagger = async (app: INestApplication, apiPath: string) => {
+export const generateSwaggerDoc = async (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle('Account Service')
     .setDescription('Account Service API')
@@ -16,9 +16,13 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
     .build();
   await SwaggerModule.loadPluginMetadata(metadata);
 
-  const document = SwaggerModule.createDocument(app, options, {
+  return SwaggerModule.createDocument(app, options, {
     extraModels: [],
   });
+};
+
+export const initSwagger = async (app: INestApplication, apiPath: string) => {
+  const document = await generateSwaggerDoc(app);
 
   // write swagger.json to disk
   fs.writeFileSync('./swagger.json', JSON.stringify(document));

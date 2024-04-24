@@ -1,0 +1,103 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data/redis
+    networks:
+      - content-watcher-service
+
+  frequency:
+    image: dsnp/instant-seal-node-with-deployed-schemas:latest
+    # We need to specify the platform because it's the only image
+    # built by Frequency at the moment, and auto-pull won't work otherwise
+    platform: linux/amd64
+    # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
+    # Other options you may want to add depending on your test scenario.
+    # environment:
+    #   - SEALING_MODE=interval
+    #   - SEALING_INTERVAL=3
+    #   - CREATE_EMPTY_BLOCKS=true
+    # Uncomment below if you want to let the chain run and keep all of the historical blocks
+    # command: --state-pruning=archive
+    ports:
+      - 9944:9944
+    networks:
+      - content-watcher-service
+    container_name: frequency
+    volumes:
+      - chainstorage:/data
+
+  kubo_ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - 4001:4001
+      - 5001:5001
+      - 8080:8080
+    networks:
+      - content-watcher-service
+    volumes:
+      - ipfs_data:/data/ipfs
+
+  content-publishing-service-api:
+    image: amplicalabs/content-publishing-service:latest
+    # For now, this is the only platform image published.
+    platform: linux/amd64
+    ports:
+      - 3001:3000
+    env_file:
+      - .env.docker.dev
+    environment:
+      - START_PROCESS=api
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+    networks:
+      - content-watcher-service
+
+  content-publishing-service-worker:
+    image: amplicalabs/content-publishing-service:latest
+    # For now, this is the only platform image published.
+    platform: linux/amd64
+    env_file:
+      - .env.docker.dev
+    environment:
+      - START_PROCESS=worker
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+    networks:
+      - content-watcher-service
+
+  content-watcher-service:
+    pull_policy: never
+    image: content-watcher-service
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      tags:
+        - content-watcher-service:latest
+    env_file:
+      - .env.docker.dev
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+      - content-publishing-service-api
+      - content-publishing-service-worker
+    networks:
+      - content-watcher-service
+
+volumes:
+  redis_data:
+  ipfs_data:
+  chainstorage:
+    external: false
+
+networks:
+  content-watcher-service:

@@ -1,11 +1,11 @@
 # Use a multi-stage build for efficiency
-FROM node:18 AS builder
+FROM node:20 AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -13,14 +13,21 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:18
+FROM node:20
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /app/dist ./dist
 COPY package*.json ./
 
-RUN npm install --only=production
+RUN npm ci --omit=dev
+
+# We want jq and curl in the final image, but we don't need the support files
+RUN apt-get update && \
+	apt-get install -y jq curl tini && \
+	apt-get clean && \
+	rm -rf /usr/share/doc /usr/share/man /usr/share/zsh
+
 EXPOSE 3000
 
-CMD ["sh", "-c", "npm run start:api:prod"]
+ENTRYPOINT ["/usr/bin/tini", "--", "npm", "run", "start:prod"]

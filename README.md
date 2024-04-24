@@ -68,8 +68,10 @@ Each Gateway services is an independent microservice.
 
 <details>
 <summary>Account Service</summary>
-  - [API Documentation](https://amplicalabs.github.io/account-service/)
-  - [GitHub](https://github.com/AmplicaLabs/account-service)
+
+- [API Documentation](https://amplicalabs.github.io/account-service/)
+- [GitHub](https://github.com/AmplicaLabs/account-service)
+
 </details>
 
 <details>

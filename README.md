@@ -183,7 +183,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- ACKNOWLEDGEMENTS -->
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgements
 
 Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
 

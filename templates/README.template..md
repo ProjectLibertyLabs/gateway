@@ -213,7 +213,7 @@ If you like this project...join the zoom calls or loom at the label for `good-fi
 
 <!-- ACKNOWLEDGEMENTS -->
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgements
 
 > Give credit to everyone who inspired our codebase.
 

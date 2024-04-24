@@ -51,7 +51,7 @@ flowchart LR;
   S --> F(Frequency Node)
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ## 🛠 Built With <a name="built-with"></a>
 
@@ -83,7 +83,7 @@ flowchart LR;
 - **[key_feature_2]**
 - **[key_feature_3]**
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- LIVE Docs -->
 
@@ -91,7 +91,7 @@ flowchart LR;
 
 - [Live Docs](https://amplicalabs.github.io/{gateway-service-repo})
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 
@@ -188,7 +188,7 @@ Example:
 
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 
@@ -199,7 +199,7 @@ Contributions, issues, and feature requests are welcome!
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Open Issues](https://github.com/AmplicaLabs/{gateway-service-repo}/issues)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- SUPPORT -->
 
@@ -209,7 +209,7 @@ Contributions, issues, and feature requests are welcome!
 
 If you like this project...join the zoom calls or loom at the label for `good-first-issue`
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- ACKNOWLEDGEMENTS -->
 
@@ -219,7 +219,7 @@ If you like this project...join the zoom calls or loom at the label for `good-fi
 
 I would like to thank...
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- FAQ (optional) -->
 
@@ -235,7 +235,7 @@ I would like to thank...
 
   - [Answer_2]
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- LICENSE -->
 
@@ -243,4 +243,4 @@ I would like to thank...
 
 This project is [Apache 2.0](./LICENSE) licensed.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

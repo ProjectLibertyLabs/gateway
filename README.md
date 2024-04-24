@@ -57,7 +57,7 @@ flowchart LR;
     RS --> F
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ## 🛠 Built With
 
@@ -111,7 +111,7 @@ Each Gateway services is an independent microservice.
 
 - [Live Docs](https://amplicalabs.github.io/gateway/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 
@@ -167,7 +167,7 @@ Deployment of the Gateway services have various options. See the [Live Docs](htt
 
 Deployment of the Gateway documentation occurs via merge to `main` branch via GitHub Actions.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 
@@ -179,7 +179,7 @@ Contributions, issues, and feature requests are welcome!
 - [Open Issues](https://github.com/AmplicaLabs/gateway/issues)
 - See also the repositories of the individual services.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- ACKNOWLEDGEMENTS -->
 
@@ -187,7 +187,7 @@ Contributions, issues, and feature requests are welcome!
 
 Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 <!-- LICENSE -->
 
@@ -195,5 +195,5 @@ Thank you to [Frequency](https://www.frequency.xyz) for assistance and documenta
 
 This project is [Apache 2.0](./LICENSE) licensed.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 ````

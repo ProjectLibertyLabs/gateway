@@ -28,17 +28,6 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  /**
-   * Calculates the job ID based on the provided job object.
-   * @param jobWithoutId - The job object without the ID.
-   * @returns The calculated job ID.
-   */
-  // eslint-disable-next-line class-methods-use-this
-  public calculateJobId(jobWithoutId): string {
-    const stringVal = JSON.stringify(jobWithoutId);
-    return createHash('sha1').update(stringVal).digest('base64url');
-  }
-
   async getAccount(msaId: number): Promise<AccountResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {

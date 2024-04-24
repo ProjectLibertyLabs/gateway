@@ -5,19 +5,18 @@
 # 📗 Table of Contents
 
 - [📖 About the Project](#about-project)
-- [🔍 Arch Map](#arch-map)
-- [🛠 Built With](#built-with)
+- [🔍 Arch Map](#-arch-maps)
+- [🛠 Built With](#-built-with)
   - [Tech Stack](#tech-stack)
-- [🚀 Live OpenAPI Docs](#live-docs)
-- [💻 Getting Started](#getting-started)
+- [🚀 Live OpenAPI Docs](#-live-docs)
+- [💻 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
   - [Usage](#usage)
   - [Deployment](#deployment)
-- [🤝 Contributing](#contributing)
-- [🙏 Acknowledgements](#acknowledgements)
-- [❓ FAQ (OPTIONAL)](#faq)
-- [📝 License](#license)
+- [🤝 Contributing](#-contributing)
+- [🙏 Acknowledgements](#-acknowledgements)
+- [📝 License](#-license)
 
 <!-- PROJECT DESCRIPTION -->
 
@@ -27,7 +26,7 @@ Gateway is a collection of services that helps make interacting with Frequency e
 
 <!-- Mermaid Arch maps -->
 
-## 🔭 Mermaid Arch maps <a name="arch-map"></a>
+## 🔭 Arch Maps
 
 ### Overview Gateway Services
 
@@ -60,11 +59,11 @@ flowchart LR;
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🛠 Built With <a name="built-with"></a>
+## 🛠 Built With
 
 Each Gateway services is an independent microservice.
 
-### Tech Stack <a name="tech-stack"></a>
+### Tech Stack
 
 <details>
 <summary>Account Service</summary>
@@ -108,7 +107,7 @@ Each Gateway services is an independent microservice.
 
 <!-- LIVE Docs -->
 
-## 🚀 Live Docs <a name="live-docs"></a>
+## 🚀 Live Docs
 
 - [Live Docs](https://amplicalabs.github.io/gateway/)
 
@@ -116,7 +115,7 @@ Each Gateway services is an independent microservice.
 
 <!-- GETTING STARTED -->
 
-## 💻 Getting Started <a name="getting-started"></a>
+## 💻 Getting Started
 
 For a more detailed tutorial, visit [Live Docs](https://amplicalabs.github.io/gateway/).
 
@@ -172,7 +171,7 @@ Deployment of the Gateway documentation occurs via merge to `main` branch via Gi
 
 <!-- CONTRIBUTING -->
 
-## 🤝 Contributing <a name="contributing"></a>
+## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
 
@@ -184,7 +183,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- ACKNOWLEDGEMENTS -->
 
-## 🙏 Acknowledgments <a name="acknowledgements"></a>
+## 🙏 Acknowledgments
 
 Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
 
@@ -192,7 +191,7 @@ Thank you to [Frequency](https://www.frequency.xyz) for assistance and documenta
 
 <!-- LICENSE -->
 
-## 📝 License <a name="license"></a>
+## 📝 License
 
 This project is [Apache 2.0](./LICENSE) licensed.
 

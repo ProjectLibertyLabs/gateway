@@ -12,23 +12,23 @@ Find and replace list:
 # 📗 Table of Contents
 
 - [📖 About the Project](#about-project)
-- [🔍 Arch Map](#arch-map)
-- [🛠 Built With](#built-with)
+- [🔍 Arch Map](#-arch-maps)
+- [🛠 Built With](#-built-with)
   - [Tech Stack](#tech-stack)
   - [Key Features](#key-features)
-- [🚀 Live OpenAPI Docs](#live-docs)
-- [💻 Getting Started](#getting-started)
+- [🚀 Live OpenAPI Docs](#-live-docs)
+- [💻 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
   - [Install](#install)
   - [Usage](#usage)
   - [Run tests](#run-tests)
   - [Deployment](#deployment)
-- [🤝 Contributing](#contributing)
-- [⭐️ Show your support](#support)
-- [🙏 Acknowledgements](#acknowledgements)
-- [❓ FAQ (OPTIONAL)](#faq)
-- [📝 License](#license)
+- [🤝 Contributing](#-contributing)
+- [⭐️ Show your support](#-support)
+- [🙏 Acknowledgements](#-acknowledgements)
+- [❓FAQ](#-faq)
+- [📝 License](#-license)
 
 <!-- PROJECT DESCRIPTION -->
 
@@ -40,7 +40,7 @@ Find and replace list:
 
 <!-- Mermaid Arch maps -->
 
-## 🔭 Mermaid Arch maps <a name="arch-map"></a>
+## 🔭 Arch Maps
 
 > Describe the arch map for the project.
 
@@ -75,7 +75,7 @@ flowchart LR;
 
 <!-- Features -->
 
-### Key Features <a name="key-features"></a>
+### Key Features
 
 > Describe between 1-n\* key features of the application.
 
@@ -87,7 +87,7 @@ flowchart LR;
 
 <!-- LIVE Docs -->
 
-## 🚀 Live Docs <a name="live-demo"></a>
+## 🚀 Live Docs
 
 - [Live Docs](https://amplicalabs.github.io/{gateway-service-repo})
 
@@ -95,7 +95,7 @@ flowchart LR;
 
 <!-- GETTING STARTED -->
 
-## 💻 Getting Started <a name="getting-started"></a>
+## 💻 Getting Started
 
 > Describe how a new developer could make use of your project.
 
@@ -192,7 +192,7 @@ Example:
 
 <!-- CONTRIBUTING -->
 
-## 🤝 Contributing <a name="contributing"></a>
+## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
 
@@ -203,7 +203,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- SUPPORT -->
 
-## ⭐️ Show your support <a name="support"></a>
+## ⭐️ Show your support
 
 > Write a message to encourage readers to support our project
 
@@ -213,7 +213,7 @@ If you like this project...join the zoom calls or loom at the label for `good-fi
 
 <!-- ACKNOWLEDGEMENTS -->
 
-## 🙏 Acknowledgments <a name="acknowledgements"></a>
+## 🙏 Acknowledgments
 
 > Give credit to everyone who inspired our codebase.
 
@@ -223,9 +223,9 @@ I would like to thank...
 
 <!-- FAQ (optional) -->
 
-## ❓ FAQ (OPTIONAL) <a name="faq"></a>
+## ❓FAQ
 
-> Add at least 2 questions new developers would ask when they decide to use your project.
+> (OPTIONAL) Add at least 2 questions new developers would ask when they decide to use your project.
 
 - **[Question_1]**
 
@@ -239,7 +239,7 @@ I would like to thank...
 
 <!-- LICENSE -->
 
-## 📝 License <a name="license"></a>
+## 📝 License
 
 This project is [Apache 2.0](./LICENSE) licensed.
 

@@ -2,11 +2,13 @@
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { PublishHandleRequest } from './handles.dto';
 import { PublishSIWFSignupRequest } from './wallet.login.request.dto';
+import { PublishKeysRequest } from './keys.dto';
 
-export type TransactionData<RequestType = PublishHandleRequest | PublishSIWFSignupRequest> = RequestType & {
-  providerId: number;
-  referenceId: string;
-};
+export type TransactionData<RequestType = PublishHandleRequest | PublishSIWFSignupRequest | PublishKeysRequest> =
+  RequestType & {
+    providerId: number;
+    referenceId: string;
+  };
 
 export type TxMonitorJob = TransactionData & {
   id: string;
@@ -15,9 +17,9 @@ export type TxMonitorJob = TransactionData & {
   lastFinalizedBlockHash: BlockHash;
 };
 
-export class TransactionResponse {
+export type TransactionResponse = {
   referenceId: string;
-}
+};
 
 export class TransactionNotification {
   msaId: number;

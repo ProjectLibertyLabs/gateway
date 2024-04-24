@@ -13,37 +13,8 @@ import { TransactionData, TransactionResponse } from '../../../../libs/common/sr
 export class HandlesService {
   private readonly logger: Logger;
 
-  constructor(
-    @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-    private transactionPublishQueue: Queue,
-    private configService: ConfigService,
-    private blockchainService: BlockchainService,
-  ) {
+  constructor(private blockchainService: BlockchainService) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  private calculateJobId(jobWithoutId: PublishHandleRequest): string {
-    const stringVal = JSON.stringify(jobWithoutId);
-    return createHash('sha1').update(stringVal).digest('base64url');
-  }
-
-  async enqueueRequest(request: PublishHandleRequest): Promise<TransactionResponse> {
-    const { providerId } = this.configService;
-    const data: TransactionData<PublishHandleRequest> = {
-      ...request,
-      providerId,
-      referenceId: this.calculateJobId(request),
-    };
-
-    const job = await this.transactionPublishQueue.add(`Transaction Job - ${data.referenceId}`, data, {
-      jobId: data.referenceId,
-    });
-
-    this.logger.log('Job enqueued: ', JSON.stringify(job));
-    return {
-      referenceId: data.referenceId,
-    };
   }
 
   async getHandle(msaId: number): Promise<HandleResponse> {

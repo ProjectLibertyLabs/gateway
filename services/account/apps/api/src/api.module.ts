@@ -13,7 +13,7 @@ import { ApiService } from './services/api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { NonceService, QueueConstants } from '../../../libs/common/src';
+import { EnqueueService, QueueConstants } from '../../../libs/common/src';
 import { AccountsService } from './services/accounts.service';
 import { HandlesService } from './services/handles.service';
 import { HandlesController } from './controllers/handles.controller';
@@ -110,7 +110,15 @@ import { KeysController } from './controllers/keys.controller';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, AccountsService, HandlesService, DelegationService, KeysService, ConfigService],
+  providers: [
+    ApiService,
+    AccountsService,
+    HandlesService,
+    DelegationService,
+    KeysService,
+    ConfigService,
+    EnqueueService,
+  ],
   controllers: [ApiController, AccountsController, DelegationController, KeysController, HandlesController],
   exports: [],
 })

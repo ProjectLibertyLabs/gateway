@@ -1,7 +1,7 @@
-/* eslint-disable max-classes-per-file */
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
 
 class HandlePayload {
@@ -25,7 +25,7 @@ export class HandleRequest {
 
   @ApiProperty()
   @IsNotEmpty()
-  proof: string;
+  proof: HexString;
 }
 
 export type CreateHandleRequest = HandleRequest & {

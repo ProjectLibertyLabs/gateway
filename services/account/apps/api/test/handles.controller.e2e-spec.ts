@@ -29,7 +29,7 @@ describe('Handles Controller', () => {
     // TODO: once webhook is working, add to test so that we can check the data that comes back
     // potential cases: successful creation, handle already exists for msa, successful change, bad expiration, etc.
 
-    it('(POST) /handles a creates new handle becuase handle exists', async () => {
+    it('(POST) /handles a creates new handle', async () => {
       const accountId = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
       // NOTE: This test will fail if block height > 65
       const payload = {

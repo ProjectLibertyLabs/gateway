@@ -1,16 +1,8 @@
-/* eslint-disable no-shadow */
 /* eslint-disable max-classes-per-file */
-// eslint-disable-next-line no-shadow
-export enum AccountChangeType {
-  CHANGE_HANDLE = 'CHANGE_HANDLE',
-  CREATE_HANDLE = 'CREATE_HANDLE',
-  CREATE_ACCOUNT = 'CREATE_ACCOUNT',
-  SIWF_SIGNUP = 'SIWF_SIGNUP',
-  SIWF_SIGNIN = 'SIWF_SIGNIN',
-}
+import { TransactionType } from '../enums';
 
 type Update = {
-  type: AccountChangeType;
+  type: TransactionType;
   providerId: number;
   payload: Uint8Array;
 };

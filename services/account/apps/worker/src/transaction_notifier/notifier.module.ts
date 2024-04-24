@@ -11,6 +11,7 @@ import { QueueConstants } from '../../../../libs/common/src';
 import { TxnNotifierService } from './notifier.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
 
 @Module({
   imports: [
@@ -68,7 +69,7 @@ import { BlockchainService } from '../../../../libs/common/src/blockchain/blockc
       },
     ),
   ],
-  providers: [TxnNotifierService, BlockchainService, ConfigService],
-  exports: [BullModule, TxnNotifierService, BlockchainService, ConfigService],
+  providers: [TxnNotifierService, BlockchainService, EnqueueService, ConfigService],
+  exports: [BullModule, TxnNotifierService, BlockchainService, EnqueueService, ConfigService],
 })
 export class TxnNotifierModule {}

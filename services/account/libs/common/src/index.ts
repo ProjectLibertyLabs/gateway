@@ -8,4 +8,5 @@ export * from './types/dtos/transaction.dto';
 export * from './services/nonce.service';
 export * from './utils/queues';
 export * from './services/provider-webhook.service';
+export * from './services/enqueue-request.service';
 export * from './constants';

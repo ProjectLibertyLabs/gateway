@@ -45,7 +45,7 @@ Find and replace list:
 > Describe the arch map for the project.
 
 ```mermaid
-flowchart LR
+flowchart LR;
   S[{gateway-service-title}]
   S --> R(Redis)
   S --> F(Frequency Node)

@@ -31,8 +31,8 @@ Gateway is a collection of services that helps make interacting with Frequency e
 
 ### Overview Gateway Services
 
-flowchart LR
 ```mermaid
+flowchart LR;
     subgraph Custom Logic
         C[Client] --> S(Server)
     end

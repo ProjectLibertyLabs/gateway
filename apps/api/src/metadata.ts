@@ -1,7 +1,6 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ['../../../libs/common/src/types/enums']: await import('../../../libs/common/src/types/enums'),
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
     ['../../../libs/common/src/types/dtos/accounts.dto']: await import(
       '../../../libs/common/src/types/dtos/accounts.dto'
@@ -67,15 +66,6 @@ export default async () => {
               referenceId: { required: true, type: () => String },
               msaId: { required: false, type: () => String },
               publicKey: { required: false, type: () => String },
-            },
-            SIWFSignupRequest: {
-              calls: { required: true, type: () => [Object] },
-              publicKey: { required: true, type: () => String },
-              type: {
-                required: true,
-                type: () => String,
-                enum: t['../../../libs/common/src/types/enums'].TransactionType.SIWF_SIGNUP,
-              },
             },
           },
         ],

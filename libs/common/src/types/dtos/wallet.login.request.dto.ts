@@ -46,10 +46,6 @@ export class WalletLoginRequest {
   signUp: SignUpResponse;
 }
 
-export type SIWFSignupRequest = ValidSignUpPayloads & {
+export type PublishSIWFSignupRequest = ValidSignUpPayloads & {
   type: TransactionType.SIWF_SIGNUP;
-};
-
-export type PublishSIWFSignupRequest = SIWFSignupRequest & {
-  providerId: number;
 };

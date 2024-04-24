@@ -76,26 +76,34 @@ Each Gateway services is an independent microservice.
 
 <details>
 <summary>Graph Service</summary>
-  - [API Documentation](https://amplicalabs.github.io/graph-service/)
-  - [GitHub](https://github.com/AmplicaLabs/graph-service)
+
+- [API Documentation](https://amplicalabs.github.io/graph-service/)
+- [GitHub](https://github.com/AmplicaLabs/graph-service)
+
 </details>
 
 <details>
 <summary>Content Publishing Service</summary>
-  - [API Documentation](https://amplicalabs.github.io/content-publishing-service/)
-  - [GitHub](https://github.com/AmplicaLabs/content-publishing-service)
+
+- [API Documentation](https://amplicalabs.github.io/content-publishing-service/)
+- [GitHub](https://github.com/AmplicaLabs/content-publishing-service)
+
 </details>
 
 <details>
 <summary>Content Watcher Service</summary>
-  - [API Documentation](https://amplicalabs.github.io/content-watcher-service/)
-  - [GitHub](https://github.com/AmplicaLabs/content-watcher-service)
+
+- [API Documentation](https://amplicalabs.github.io/content-watcher-service/)
+- [GitHub](https://github.com/AmplicaLabs/content-watcher-service)
+
 </details>
 
 <details>
 <summary>Reconnection Service</summary>
-  - [API Documentation](https://amplicalabs.github.io/reconnection-service/)
-  - [GitHub](https://github.com/AmplicaLabs/reconnection-service)
+
+- [API Documentation](https://amplicalabs.github.io/reconnection-service/)
+- [GitHub](https://github.com/AmplicaLabs/reconnection-service)
+
 </details>
 
 <!-- LIVE Docs -->

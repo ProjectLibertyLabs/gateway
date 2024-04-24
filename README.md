@@ -21,7 +21,7 @@
 
 <!-- PROJECT DESCRIPTION -->
 
-# 📖 [Gateway] <a name="about-project"></a>
+# 📖 Gateway Services <a name="about-project"></a>
 
 Gateway is a collection of services that helps make interacting with Frequency easy as working with any web2 API!
 
@@ -31,8 +31,8 @@ Gateway is a collection of services that helps make interacting with Frequency e
 
 ### Overview Gateway Services
 
-````mermaid
 flowchart LR
+```mermaid
     subgraph Custom Logic
         C[Client] --> S(Server)
     end

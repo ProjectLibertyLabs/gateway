@@ -60,7 +60,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   async process(job: Job<TransactionData, any, string>): Promise<any> {
     let accountTxnHash: Hash = {} as Hash;
     try {
-      this.logger.log(`Processing job ${job.id} of type ${job.name}. DATA: ${JSON.stringify(job.data)}`);
+      this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
       const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);

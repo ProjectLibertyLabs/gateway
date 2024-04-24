@@ -1,12 +1,7 @@
 import { Controller, Get, HttpCode, HttpStatus, Logger, Param, HttpException, Post, Body } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysService } from '../services/keys.service';
-import {
-  AddKeysRequest,
-  DeleteKeysRequest,
-  KeysResponse,
-  PublishKeysRequest,
-} from '../../../../libs/common/src/types/dtos/keys.dto';
+import { AddKeysRequest, KeysResponse, PublishKeysRequest } from '../../../../libs/common/src/types/dtos/keys.dto';
 import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
 import { TransactionResponse, TransactionType } from '../../../../libs/common/src';
 

@@ -17,11 +17,3 @@ export class WalletLoginResponse {
 export type SignUpResponse = WalletLoginResponse & {
   type: TransactionType.SIWF_SIGNUP;
 };
-
-export class SIWFSignupRequest {
-  calls: EncodedExtrinsic[];
-
-  publicKey: string;
-
-  type: TransactionType.SIWF_SIGNUP;
-}

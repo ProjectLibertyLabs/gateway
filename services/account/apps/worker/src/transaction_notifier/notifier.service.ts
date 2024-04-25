@@ -12,7 +12,7 @@ import { QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { TransactionNotification, TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
+import { TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.request.dto';
 import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 @Injectable()

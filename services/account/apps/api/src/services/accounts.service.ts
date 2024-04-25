@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { createHash } from 'crypto';
 import { validateSignin, validateSignup } from '@amplica-labs/siwf';
+import type { AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.response.dto';
 import { QueueConstants, TransactionType } from '../../../../libs/common/src';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import type { AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import {
   PublishSIWFSignupRequest,

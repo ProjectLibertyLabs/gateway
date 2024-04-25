@@ -3,17 +3,17 @@ export default async () => {
   const t = {
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
     ['../../../libs/common/src/types/dtos/accounts.dto']: await import(
-      '../../../libs/common/src/types/dtos/accounts.dto'
+      '../../../libs/common/src/types/dtos/accounts.response.dto'
     ),
     ['../../../libs/common/src/types/dtos/delegation.dto']: await import(
-      '../../../libs/common/src/types/dtos/delegation.dto'
+      '../../../libs/common/src/types/dtos/delegation.response.dto'
     ),
   };
   return {
     '@nestjs/swagger': {
       models: [
         [
-          import('../../../libs/common/src/types/dtos/handles.dto'),
+          import('../../../libs/common/src/types/dtos/handles.request.dto'),
           {
             HandleRequest: {
               accountId: { required: true, type: () => String },
@@ -31,7 +31,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/keys.dto'),
+          import('../../../libs/common/src/types/dtos/keys.request.dto'),
           {
             AddKeysRequest: {
               msaOwnerAddress: { required: true, type: () => String },
@@ -42,7 +42,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/transaction.dto'),
+          import('../../../libs/common/src/types/dtos/transaction.request.dto'),
           {
             TransactionNotification: {
               msaId: { required: true, type: () => Number },
@@ -51,7 +51,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/accounts.dto'),
+          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
           {
             Account: {
               msaId: { required: true, type: () => Number },
@@ -70,7 +70,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/delegation.dto'),
+          import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
             DelegationResponse: {
               providerId: { required: true, type: () => Number },
@@ -105,7 +105,7 @@ export default async () => {
           import('./controllers/delegation.controller'),
           {
             DelegationController: {
-              getDelegation: { type: t['../../../libs/common/src/types/dtos/delegation.dto'].DelegationResponse },
+              getDelegation: { type: t['../../../libs/common/src/types/dtos/delegation.dto'].Delegation },
             },
           },
         ],

@@ -1,7 +1,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
 
-export class DelegationResponse {
+export class Delegation {
   @IsNotEmpty()
   providerId: number;
 
@@ -11,3 +11,5 @@ export class DelegationResponse {
   @IsNotEmpty()
   revokedAt: CommonPrimitivesMsaDelegation['revokedAt'];
 }
+
+export type DelegationResponse = Delegation;

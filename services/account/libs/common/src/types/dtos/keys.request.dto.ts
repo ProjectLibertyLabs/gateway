@@ -1,5 +1,4 @@
 // eslint-disable-next-line max-classes-per-file
-import { KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
@@ -19,7 +18,7 @@ class KeysRequestPayload {
   newPublicKey: string;
 }
 
-export class AddKeysRequest {
+export class KeysRequest {
   @ApiProperty()
   @IsNotEmpty()
   msaOwnerAddress: string;
@@ -37,16 +36,8 @@ export class AddKeysRequest {
   payload: KeysRequestPayload;
 }
 
-export type AddKeysTxRequest = AddKeysRequest & {
+export type AddKeyRequest = KeysRequest & {
   type: TransactionType.ADD_KEY;
 };
 
-export class DeleteKeysRequest {
-  @ApiProperty()
-  @IsNotEmpty()
-  key: string;
-}
-
-export type PublishKeysRequest = AddKeysTxRequest;
-
-export type KeysResponse = KeyInfoResponse['msa_keys'];
+export type PublishKeysRequest = AddKeyRequest;

@@ -66,7 +66,7 @@ digraph G {
 		height=0.32986,
 		pos="1567.4,541.67",
 		width=3.1181];
-	"../../../libs/common/src/dtos/transaction.dto.ts"	[color="#cfffac",
+	"../../../libs/common/src/dtos/transaction.request.dto.ts"	[color="#cfffac",
 		fontcolor="#cfffac",
 		height=0.32986,
 		pos="1567.4,499.67",
@@ -80,7 +80,7 @@ digraph G {
 		pos="1185.4,375.67",
 		width=2.7639];
 	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/constants.ts"	[pos="e,1454.7,541.13 1196.7,387.74 1222.2,416.62 1291.5,489.58 1367,520.67 1390.8,530.45 1417.4,536.34 1443.3,539.77"];
-	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/transaction.dto.ts"	[pos="e,1399.4,487.3 1202.2,387.78 1232.4,410.11 1301,457.42 1367,478.67 1373.9,480.9 1381.1,482.91 1388.3,484.71"];
+	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/transaction.request.dto.ts"	[pos="e,1399.4,487.3 1202.2,387.78 1232.4,410.11 1301,457.42 1367,478.67 1373.9,480.9 1381.1,482.91 1388.3,484.71"];
 	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/key.type.dto.ts"	[pos="e,1433,447.74 1216.2,388 1251.5,402.1 1312.5,424.75 1367,436.67 1384.6,440.52 1403.3,443.67 1421.8,446.25"];
 	"../../../libs/common/src/services/nonce.service.ts"	[height=0.32986,
 		pos="1567.4,297.67",

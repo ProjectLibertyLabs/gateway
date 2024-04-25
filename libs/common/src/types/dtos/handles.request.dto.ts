@@ -1,6 +1,6 @@
+// eslint-disable-next-line max-classes-per-file
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
 
@@ -37,5 +37,3 @@ export type ChangeHandleRequest = HandleRequest & {
 };
 
 export type PublishHandleRequest = CreateHandleRequest | ChangeHandleRequest;
-
-export type Handle = HandleResponse;

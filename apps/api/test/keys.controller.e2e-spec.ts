@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { AddKeysRequest } from '../../../libs/common/src/types/dtos/keys.dto';
+import { KeysRequest } from '@app/common/types/dtos/keys.request.dto';
 import { ApiModule } from '../src/api.module';
 
 describe('Keys Controller', () => {
@@ -29,7 +29,7 @@ describe('Keys Controller', () => {
   it('(POST) /keys/add adds a key to an msa', async () => {
     // MsaOwner is Bob
     const msaOwnerAddress = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
-    const payload: AddKeysRequest['payload'] = {
+    const payload: KeysRequest['payload'] = {
       msaId: 2,
       expiration: 65,
       // newPublicKey is Ferdie
@@ -42,7 +42,7 @@ describe('Keys Controller', () => {
     const newKeyOwnerSignature =
       '0x06e096d636af1d0681bbe299559fb4fb215047e6098fc13a82f276b76bdb8b00a27bf48daec5b2a5849d63061806da650b3f05b36b97d43872d7c9d0d1865d83';
 
-    const keysRequest: AddKeysRequest = {
+    const keysRequest: KeysRequest = {
       msaOwnerAddress,
       msaOwnerSignature,
       newKeyOwnerSignature,

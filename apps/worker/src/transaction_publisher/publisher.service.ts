@@ -9,12 +9,12 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { Codec, ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { TransactionData, TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.request.dto';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { QueueConstants, NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { TransactionData, TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.dto';
 import { TransactionType } from '../../../../libs/common/src/types/enums';
 
 export const SECONDS_PER_BLOCK = 12;

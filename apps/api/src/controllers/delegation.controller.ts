@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DelegationService } from '../services/delegation.service';
-import { DelegationResponse } from '../../../../libs/common/src/types/dtos/delegation.dto';
+import { DelegationResponse } from '../../../../libs/common/src/types/dtos/delegation.response.dto';
 
 @Controller('delegation')
 @ApiTags('delegation')

@@ -5,7 +5,8 @@ import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { ConfigService } from '../config/config.service';
 import { QueueConstants } from '../utils/queues';
-import { TransactionData, TransactionResponse } from '../types/dtos/transaction.dto';
+import { TransactionData } from '../types/dtos/transaction.request.dto';
+import { TransactionResponse } from '../types/dtos/transaction.response.dto';
 
 @Injectable()
 export class EnqueueService {

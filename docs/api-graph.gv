@@ -90,12 +90,12 @@ digraph G {
 		height=0.32986,
 		pos="1905.1,481.89",
 		width=3.1181];
-	"../../../libs/common/src/dtos/account.transaction.dto.ts"	[color="#cfffac",
+	"../../../libs/common/src/dtos/account.transaction.request.dto.ts"	[color="#cfffac",
 		fontcolor="#cfffac",
 		height=0.32986,
 		pos="1905.1,439.89",
 		width=5.566];
-	"../../../libs/common/src/dtos/accounts.dto.ts"	[color="#cfffac",
+	"../../../libs/common/src/dtos/accounts.response.dto.ts"	[color="#cfffac",
 		fontcolor="#cfffac",
 		height=0.32986,
 		pos="1905.1,769.89",
@@ -103,7 +103,7 @@ digraph G {
 	"../../../libs/common/src/dtos/handles.dtos.ts"	[height=0.32986,
 		pos="1532.5,827.89",
 		width=3.7847];
-	"../../../libs/common/src/dtos/handles.dtos.ts" -> "../../../libs/common/src/dtos/accounts.dto.ts"	[pos="e,1825.2,782.25 1612.6,815.52 1671.6,806.28 1752.4,793.64 1813.9,784.01"];
+	"../../../libs/common/src/dtos/handles.dtos.ts" -> "../../../libs/common/src/dtos/accounts.response.dto.ts"	[pos="e,1825.2,782.25 1612.6,815.52 1671.6,806.28 1752.4,793.64 1813.9,784.01"];
 	"../../../libs/common/src/dtos/key.type.dto.ts"	[color="#cfffac",
 		fontcolor="#cfffac",
 		height=0.32986,
@@ -113,7 +113,7 @@ digraph G {
 		pos="1532.5,397.89",
 		width=2.7639];
 	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/constants.ts"	[pos="e,1792.6,475.06 1560.4,410.18 1593.6,424.77 1652.1,448.65 1704.8,460.89 1729.3,466.6 1755.8,470.76 1781.3,473.79"];
-	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/transaction.dto.ts"	[pos="e,1783.6,427.54 1631.7,410.23 1655.6,413.15 1681.1,416.2 1704.8,418.89 1726.6,421.38 1749.7,423.92 1772.3,426.33"];
+	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/transaction.request.dto.ts"	[pos="e,1783.6,427.54 1631.7,410.23 1655.6,413.15 1681.1,416.2 1704.8,418.89 1726.6,421.38 1749.7,423.92 1772.3,426.33"];
 	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/dtos/key.type.dto.ts"	[pos="e,1770.7,397.89 1632.3,397.89 1671.3,397.89 1716.9,397.89 1759.4,397.89"];
 	"../../../libs/common/src/services/nonce.service.ts"	[height=0.32986,
 		pos="1905.1,355.89",
@@ -177,7 +177,7 @@ digraph G {
 		width=2.4618];
 	"api.module.ts" -> "services/handles.service.ts"	[pos="e,1191.3,717.66 606.67,608.25 620.54,612.21 636.35,616.25 651,618.89 818.73,649.2 867.68,611.41 1033,652.89 1087.1,666.47 1145.8,\
 694.13 1181.1,712.34"];
-	"controllers/accounts.controller.ts" -> "../../../libs/common/src/dtos/accounts.dto.ts"	[pos="e,1768.7,781.52 946.41,722.38 974.74,725.49 1005.3,730.1 1033,736.89 1049.7,740.98 1052.2,747.44 1069,750.89 1306.1,799.52 1589.1,\
+	"controllers/accounts.controller.ts" -> "../../../libs/common/src/dtos/accounts.response.dto.ts"	[pos="e,1768.7,781.52 946.41,722.38 974.74,725.49 1005.3,730.1 1033,736.89 1049.7,740.98 1052.2,747.44 1069,750.89 1306.1,799.52 1589.1,\
 792.81 1757.3,782.26"];
 	"controllers/accounts.controller.ts" -> "services/accounts.service.ts"	[pos="e,1190.4,631.23 946.54,709.9 974.87,706.79 1005.4,702.07 1033,694.89 1086.4,681.02 1144.7,654.21 1180.2,636.43"];
 	"controllers/api.controller.ts" -> "services/api.service.ts"	[pos="e,1163.2,572.25 877.23,661.58 921.3,645.91 1000.4,618.42 1069,597.89 1096.1,589.79 1126.3,581.71 1152.1,575.09"];
@@ -186,14 +186,14 @@ digraph G {
 	"controllers/handles.controller.ts" -> "services/handles.service.ts"	[pos="e,1125.6,736.55 943.3,750.32 996.32,746.31 1061.2,741.41 1114.1,737.41"];
 	"services/accounts.service.ts" -> "../../../libs/common/src/blockchain/blockchain.service.ts"	[pos="e,2203.9,553.25 1307,613.96 1468.3,605.05 1814,585.02 2105.5,561.89 2133.7,559.66 2163.8,556.99 2192.6,554.31"];
 	"services/accounts.service.ts" -> "../../../libs/common/src/config/config.service.ts"	[pos="e,2688,285.22 1306.7,625.87 1567.7,644.18 2312.1,684.14 2515.2,561.89 2541.9,545.85 2646.4,360.26 2682.4,295.23"];
-	"services/accounts.service.ts" -> "../../../libs/common/src/dtos/accounts.dto.ts"	[pos="e,1848,757.58 1272,631.25 1397.9,658.86 1701.5,725.46 1837,755.16"];
+	"services/accounts.service.ts" -> "../../../libs/common/src/dtos/accounts.response.dto.ts"	[pos="e,1848,757.58 1272,631.25 1397.9,658.86 1701.5,725.46 1837,755.16"];
 	"services/accounts.service.ts" -> "../../../libs/common/src/index.ts"	[pos="e,1523.9,409.89 1294.6,606.59 1316.9,600.93 1340.4,592.73 1360.2,580.89 1431.6,538.34 1491.8,457.46 1517.8,419.1"];
 	"services/api.service.ts" -> "../../../libs/common/src/blockchain/blockchain.service.ts"	[pos="e,2155.8,543.83 1289,558.64 1461.2,555.7 1895.5,548.27 2144.5,544.02"];
 	"services/api.service.ts" -> "../../../libs/common/src/config/config.service.ts"	[pos="e,2681.7,260.59 1224.1,547.81 1266.7,488.18 1465.5,224.81 1704.8,144.89 1875.6,87.821 2343.3,102.28 2515.2,155.89 2578.9,175.75 \
 2641.5,225.18 2673.2,253.03"];
 	"services/api.service.ts" -> "../../../libs/common/src/index.ts"	[pos="e,1520.4,410.08 1289.1,553.82 1312.6,550.03 1338.2,543.88 1360.2,533.89 1423.2,505.43 1483.2,448.68 1512.6,418.26"];
 	"services/handles.service.ts" -> "../../../libs/common/src/blockchain/blockchain.service.ts"	[pos="e,2276,553.18 1303.7,717.86 1463.8,695.58 1813.1,645.12 2105.5,589.89 2159.5,579.69 2220.5,566.07 2264.8,555.78"];
-	"services/handles.service.ts" -> "../../../libs/common/src/dtos/accounts.dto.ts"	[pos="e,1768.5,762.01 1303.5,735 1417.9,741.64 1619.2,753.34 1757,761.35"];
+	"services/handles.service.ts" -> "../../../libs/common/src/dtos/accounts.response.dto.ts"	[pos="e,1768.5,762.01 1303.5,735 1417.9,741.64 1619.2,753.34 1757,761.35"];
 	"services/handles.service.ts" -> "../../../libs/common/src/dtos/handles.dtos.ts"	[pos="e,1491.7,815.55 1255.3,742.21 1312.5,759.96 1418.2,792.73 1480.9,812.2"];
 	"services/handles.service.ts" -> "../../../libs/common/src/index.ts"	[pos="e,1525.1,410.25 1241.8,717.65 1272.5,702.41 1323.9,674.17 1360.2,639.89 1433.6,570.75 1495,465.76 1519.7,420.24"];
 	"generate-metadata.ts"	[color="#cfffac",

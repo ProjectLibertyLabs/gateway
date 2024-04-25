@@ -1,3 +1,6 @@
+import { RedisClient } from 'bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 export namespace RedisUtils {
   /**
    * 45 days upper limit to avoid keeping abandoned data forever
@@ -23,4 +26,16 @@ export namespace RedisUtils {
   export function getNonceKey(suffix: string) {
     return `${CHAIN_NONCE_KEY}:${suffix}`;
   }
+}
+
+export function redisEventsToEventEmitter(client: RedisClient, eventEmitter: EventEmitter2) {
+  client.on('error', (err) => {
+    eventEmitter.emit('redis.error', err);
+  });
+  client.on('ready', () => {
+    eventEmitter.emit('redis.ready');
+  });
+  client.on('close', () => {
+    eventEmitter.emit('redis.close');
+  });
 }

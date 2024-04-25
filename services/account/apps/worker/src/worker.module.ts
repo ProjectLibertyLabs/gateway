@@ -2,14 +2,19 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 import { TransactionPublisherService } from './transaction_publisher/publisher.service';
-import { ProviderWebhookService, NonceService, QueueConstants } from '../../../libs/common/src';
+import {
+  ProviderWebhookService,
+  NonceService,
+  QueueConstants,
+  redisEventsToEventEmitter,
+} from '../../../libs/common/src';
 import { TxnNotifierService } from './transaction_notifier/notifier.service';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 
@@ -19,11 +24,21 @@ import { TxnNotifierModule } from './transaction_notifier/notifier.module';
     ConfigModule,
     RedisModule.forRootAsync(
       {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+        imports: [ConfigModule, EventEmitterModule],
+        useFactory: (configService: ConfigService, eventEmitter: EventEmitter2) => ({
+          config: [
+            {
+              url: configService.redisUrl.toString(),
+              maxRetriesPerRequest: null,
+              onClientCreated(client) {
+                redisEventsToEventEmitter(client, eventEmitter);
+              },
+              readyLog: false,
+              errorLog: false,
+            },
+          ],
         }),
-        inject: [ConfigService],
+        inject: [ConfigService, EventEmitter2],
       },
       true, // isGlobal
     ),
@@ -69,5 +84,6 @@ import { TxnNotifierModule } from './transaction_notifier/notifier.module';
     TxnNotifierModule,
   ],
   providers: [ConfigService, TransactionPublisherService, TxnNotifierService, ProviderWebhookService, NonceService],
+  exports: [],
 })
 export class WorkerModule {}

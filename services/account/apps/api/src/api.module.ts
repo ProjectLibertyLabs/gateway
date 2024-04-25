@@ -1,6 +1,6 @@
 import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
@@ -13,7 +13,7 @@ import { ApiService } from './services/api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { EnqueueService, QueueConstants } from '../../../libs/common/src';
+import { EnqueueService, QueueConstants, redisEventsToEventEmitter } from '../../../libs/common/src';
 import { AccountsService } from './services/accounts.service';
 import { HandlesService } from './services/handles.service';
 import { HandlesController } from './controllers/handles.controller';
@@ -28,11 +28,21 @@ import { KeysController } from './controllers/keys.controller';
     BlockchainModule,
     RedisModule.forRootAsync(
       {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+        imports: [ConfigModule, EventEmitterModule],
+        useFactory: (configService: ConfigService, eventEmitter: EventEmitter2) => ({
+          config: [
+            {
+              url: configService.redisUrl.toString(),
+              maxRetriesPerRequest: null,
+              onClientCreated(client) {
+                redisEventsToEventEmitter(client, eventEmitter);
+              },
+              readyLog: false,
+              errorLog: false,
+            },
+          ],
         }),
-        inject: [ConfigService],
+        inject: [ConfigService, EventEmitter2],
       },
       true, // isGlobal
     ),

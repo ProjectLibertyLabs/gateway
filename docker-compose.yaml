@@ -1,0 +1,136 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - amplica-gateway
+    volumes:
+      - redis_data:/data/redis
+
+  frequency:
+    image: dsnp/instant-seal-node-with-deployed-schemas:latest
+    # We need to specify the platform because it's the only image
+    # built by Frequency at the moment, and auto-pull won't work otherwise
+    platform: linux/amd64
+    # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
+    # Other options you may want to add depending on your test scenario.
+    # environment:
+    #   - SEALING_MODE=interval
+    #   - SEALING_INTERVAL=3
+    #   - CREATE_EMPTY_BLOCKS=true
+    # The 'command' may contain additional CLI options to the Frequency node,
+    # such as:
+    # --state-pruning=archive
+    command: --offchain-worker=always --enable-offchain-indexing=true
+    ports:
+      - 9944:9944
+    networks:
+      - amplica-gateway
+    volumes:
+      - chainstorage:/data
+
+  kubo_ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - 4001:4001
+      - 5001:5001
+      - 8080:8080
+    networks:
+      - amplica-gateway
+    volumes:
+      - ipfs_data:/data/ipfs
+
+  content-publishing-service-api:
+    image: amplicalabs/content-publishing-service:latest
+    platform: linux/amd64
+    ports:
+      - 3001:3000
+    env_file:
+      - path: .env.common
+        required: true
+      - path: .env.content-publishing-service
+        required: false
+    environment:
+      - START_PROCESS=api
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+    networks:
+      - amplica-gateway
+
+  content-publishing-service-worker:
+    image: amplicalabs/content-publishing-service:latest
+    platform: linux/amd64
+    env_file:
+      - path: .env.common
+        required: true
+      - path: .env.content-publishing-service
+        required: false
+    environment:
+      - START_PROCESS=worker
+    depends_on:
+      - redis
+      - frequency
+      - kubo_ipfs
+    networks:
+      - amplica-gateway
+
+  graph-service:
+    image: amplicalabs/graph-service:latest
+    platform: linux/amd64
+    ports:
+      - 3002:3000
+    env_file:
+      - path: .env.common
+        required: true
+      - path: .env.graph-service
+        required: false
+    depends_on:
+      - redis
+      - frequency
+    networks:
+      - amplica-gateway
+
+  account-service-api:
+    image: amplicalabs/account-service:latest
+    platform: linux/amd64
+    ports:
+      - 3003:3000
+    command: api
+    env_file:
+      - path: .env.common
+        required: true
+      - path: .env.account-service
+        required: false
+    depends_on:
+      - redis
+      - frequency
+    networks:
+      - amplica-gateway
+
+  account-service-worker:
+    image: amplicalabs/account-service:latest
+    platform: linux/amd64
+    command: worker
+    env_file:
+      - path: .env.common
+        required: true
+      - path: .env.account-service
+        required: false
+    depends_on:
+      - redis
+      - frequency
+
+    networks:
+      - amplica-gateway
+
+volumes:
+  ipfs_data:
+  chainstorage:
+    external: false
+  redis_data:
+
+networks:
+  amplica-gateway:

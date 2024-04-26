@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { KeysRequest } from '@app/common/types/dtos/keys.request.dto';
+import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
 import { ApiModule } from '../src/api.module';
 
 describe('Keys Controller', () => {

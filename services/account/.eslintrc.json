@@ -1,10 +1,11 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true
-    },
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
   "extends": [
     "airbnb-base",
+    "plugin:import/typescript",
     "prettier"
   ],
   "parser": "@typescript-eslint/parser",
@@ -13,7 +14,7 @@
     "sourceType": "module"
   },
   "settings": {
-   "import/extensions": [
+    "import/extensions": [
       "error",
       "ignorePackages",
       {
@@ -22,25 +23,34 @@
         "ts": "never",
         "tsx": "never"
       }
-   ],
+    ],
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
     },
     "import/resolver": {
       "typescript": {
         "directory": "./tsconfig.json"
       },
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".d.ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".d.ts",
+          ".tsx"
+        ]
       }
     },
     "react": {
-        "version": "999.99.99"
+      "version": "999.99.99"
     }
   },
   "rules": {
     "no-console": "off",
-   "import/extensions": [
+    "import/extensions": [
       "error",
       "ignorePackages",
       {
@@ -49,8 +59,14 @@
         "ts": "never",
         "tsx": "never"
       }
-   ],
-  "import/no-unresolved": [2, { "commonjs": true, "amd": true }],
+    ],
+    "import/no-unresolved": [
+      2,
+      {
+        "commonjs": true,
+        "amd": true
+      }
+    ],
     "import/named": 2,
     "import/namespace": 2,
     "import/default": 2,
@@ -60,5 +76,8 @@
     "no-unused-vars": "off",
     "prettier/prettier": 2
   },
-  "plugins": ["import", "prettier"]
+  "plugins": [
+    "import",
+    "prettier"
+  ]
 }

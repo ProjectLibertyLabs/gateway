@@ -1,10 +1,6 @@
-/*
-https://docs.nestjs.com/providers#services
-*/
-
+import { ICapacityLimit } from '#lib/interfaces/capacity-limit.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;

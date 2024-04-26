@@ -1,22 +1,22 @@
 {
-    "name": "setup",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "main": "node index.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "type": "module",
-    "author": "",
-    "license": "UNLICENSED",
-    "dependencies": {
-        "@dsnp/frequency-schemas": "^1.1.0",
-        "@frequency-chain/api-augment": "^1.10.0",
-        "@polkadot/api": "^10.9.1",
-        "@polkadot/keyring": "^12.4.2",
-        "@polkadot/types": "^10.11.2",
-        "@polkadot/util": "^12.4.2",
-        "@polkadot/wasm-crypto": "^7.3.2"
-    }
+  "name": "setup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "main": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@dsnp/frequency-schemas": "^1.1.0",
+    "@frequency-chain/api-augment": "^1.10.0",
+    "@polkadot/api": "^10.9.1",
+    "@polkadot/keyring": "^12.4.2",
+    "@polkadot/types": "^10.11.2",
+    "@polkadot/util": "^12.4.2",
+    "@polkadot/wasm-crypto": "^7.3.2"
+  }
 }

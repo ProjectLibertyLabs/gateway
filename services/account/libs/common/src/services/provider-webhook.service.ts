@@ -1,9 +1,9 @@
+import { ConfigService } from '#lib/config/config.service';
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { ConfigService } from '../config/config.service';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
 

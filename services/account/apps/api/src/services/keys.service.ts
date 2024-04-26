@@ -1,6 +1,6 @@
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
 import { Injectable, Logger } from '@nestjs/common';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { KeysResponse } from '../../../../libs/common/src/types/dtos/keys.response.dto';
 
 @Injectable()
 export class KeysService {

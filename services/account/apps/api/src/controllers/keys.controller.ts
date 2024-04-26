@@ -1,11 +1,11 @@
-import { Controller, Get, HttpCode, HttpStatus, Logger, Param, HttpException, Post, Body } from '@nestjs/common';
+import { KeysService } from '#api/services/keys.service';
+import { EnqueueService } from '#lib/services/enqueue-request.service';
+import { TransactionType } from '#lib/types/enums';
+import { Controller, Get, HttpCode, HttpStatus, Logger, Param, HttpException, Body, Post } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AddKeyRequest, KeysRequest } from '../../../../libs/common/src/types/dtos/keys.request.dto';
-import { KeysResponse } from '../../../../libs/common/src/types/dtos/keys.response.dto';
-import { KeysService } from '../services/keys.service';
-import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
-import { TransactionType } from '../../../../libs/common/src';
-import { TransactionResponse } from '../../../../libs/common/src/types/dtos/transaction.response.dto';
+import { KeysRequest, AddKeyRequest } from '#lib/types/dtos/keys.request.dto';
+import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
+import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
 
 @Controller('keys')
 @ApiTags('keys')

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
 
 @Injectable()
 export class HandlesService {

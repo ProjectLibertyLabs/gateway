@@ -7,20 +7,22 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { ApiController } from './controllers/api.controller';
+import { ConfigModule } from '#lib/config/config.module';
+import { ConfigService } from '#lib/config/config.service';
+import { BlockchainModule } from '#lib/blockchain/blockchain.module';
+import { QueueConstants } from '#lib/utils/queues';
+import { redisEventsToEventEmitter } from '#lib/utils/redis';
+import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { AccountsController } from './controllers/accounts.controller';
-import { ApiService } from './services/api.service';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { EnqueueService, QueueConstants, redisEventsToEventEmitter } from '../../../libs/common/src';
-import { AccountsService } from './services/accounts.service';
-import { HandlesService } from './services/handles.service';
-import { HandlesController } from './controllers/handles.controller';
-import { DelegationService } from './services/delegation.service';
+import { ApiController } from './controllers/api.controller';
 import { DelegationController } from './controllers/delegation.controller';
-import { KeysService } from './services/keys.service';
+import { HandlesController } from './controllers/handles.controller';
 import { KeysController } from './controllers/keys.controller';
+import { AccountsService } from './services/accounts.service';
+import { ApiService } from './services/api.service';
+import { DelegationService } from './services/delegation.service';
+import { HandlesService } from './services/handles.service';
+import { KeysService } from './services/keys.service';
 
 @Module({
   imports: [

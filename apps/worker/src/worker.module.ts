@@ -4,19 +4,17 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { BlockchainModule } from '#lib/blockchain/blockchain.module';
+import { NonceService } from '#lib/services/nonce.service';
+import { ProviderWebhookService } from '#lib/services/provider-webhook.service';
+import { QueueConstants } from '#lib/utils/queues';
+import { ConfigModule } from '#lib/config/config.module';
+import { ConfigService } from '#lib/config/config.service';
+import { redisEventsToEventEmitter } from '#lib/utils/redis';
+import { TxnNotifierModule } from './transaction_notifier/notifier.module';
+import { TxnNotifierService } from './transaction_notifier/notifier.service';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 import { TransactionPublisherService } from './transaction_publisher/publisher.service';
-import {
-  ProviderWebhookService,
-  NonceService,
-  QueueConstants,
-  redisEventsToEventEmitter,
-} from '../../../libs/common/src';
-import { TxnNotifierService } from './transaction_notifier/notifier.service';
-import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 
 @Module({
   imports: [

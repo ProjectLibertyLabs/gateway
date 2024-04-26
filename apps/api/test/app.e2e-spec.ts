@@ -4,8 +4,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { WalletLoginRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { ApiModule } from '../src/api.module';
-import { WalletLoginRequest } from '../../../libs/common/src/types/dtos/wallet.login.request.dto';
 
 describe('Account Service E2E request verification!', () => {
   let app: INestApplication;

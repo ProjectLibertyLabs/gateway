@@ -2,10 +2,10 @@ import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
-import { createKeys } from '../blockchain/create-keys';
-import { RedisUtils } from '../utils/redis';
-import { BlockchainService } from '../blockchain/blockchain.service';
-import { ConfigService } from '../config/config.service';
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { createKeys } from '#lib/blockchain/create-keys';
+import { RedisUtils } from '#lib/utils/redis';
+import { ConfigService } from '#lib/config/config.service';
 
 @Injectable()
 export class NonceService implements OnApplicationBootstrap {

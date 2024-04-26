@@ -2,9 +2,9 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConfigService } from '#lib/config/config.service';
+import { initSwagger } from '#lib/config/swagger_config';
 import { ApiModule } from './api.module';
-import { initSwagger } from '../../../libs/common/src/config/swagger_config';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
 
 const logger = new Logger('main');
 

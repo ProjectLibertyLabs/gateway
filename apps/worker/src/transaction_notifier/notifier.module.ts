@@ -1,17 +1,13 @@
-/*
-https://docs.nestjs.com/modules
-*/
-
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { ConfigModule } from '../../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import { BlockchainModule } from '#lib/blockchain/blockchain.module';
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { QueueConstants } from '#lib/utils/queues';
+import { ConfigModule } from '#lib/config/config.module';
+import { ConfigService } from '#lib/config/config.service';
+import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { TxnNotifierService } from './notifier.service';
-import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
 
 @Module({
   imports: [

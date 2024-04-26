@@ -17,14 +17,14 @@ import {
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
 import { HandleResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { ConfigService } from '#lib/config/config.service';
+import { TransactionType } from '#lib/types/enums';
 import { HexString } from '@polkadot/util/types';
-import { KeysRequest } from '../types/dtos/keys.request.dto';
-import { ConfigService } from '../config/config.service';
+import { decodeAddress } from '@polkadot/util-crypto';
+import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
+import { PublishHandleRequest } from '#lib/types/dtos/handles.request.dto';
+import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { Extrinsic } from './extrinsic';
-import { PublishHandleRequest } from '../types/dtos/handles.request.dto';
-import { TransactionData } from '../types/dtos/transaction.request.dto';
-import { TransactionType } from '../types/enums';
 
 export type Sr25519Signature = { Sr25519: HexString };
 

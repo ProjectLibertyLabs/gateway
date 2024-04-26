@@ -2,16 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { validateSignin, validateSignup } from '@amplica-labs/siwf';
-import type { AccountResponse } from '../../../../libs/common/src/types/dtos/accounts.response.dto';
-import { QueueConstants, TransactionType } from '../../../../libs/common/src';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import {
-  PublishSIWFSignupRequest,
-  WalletLoginRequest,
-} from '../../../../libs/common/src/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponse } from '../../../../libs/common/src/types/dtos/wallet.login.response.dto';
-import { EnqueueService } from '../../../../libs/common/src/services/enqueue-request.service';
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { TransactionType } from '#lib/types/enums';
+import { QueueConstants } from '#lib/utils/queues';
+import { ConfigService } from '#lib/config/config.service';
+import { EnqueueService } from '#lib/services/enqueue-request.service';
+import { WalletLoginRequest, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
+import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
+import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
 
 @Injectable()
 export class AccountsService {

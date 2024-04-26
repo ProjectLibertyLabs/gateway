@@ -25,13 +25,12 @@
  */
 
 import { ApiRx } from '@polkadot/api';
-import { SubmittableExtrinsic, ApiTypes, AugmentedEvent } from '@polkadot/api/types';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { Call, Event, EventRecord, Hash } from '@polkadot/types/interfaces';
 import { IsEvent } from '@polkadot/types/metadata/decorate/types';
-import { Codec, ISubmittableResult, AnyTuple } from '@polkadot/types/types';
-import { filter, firstValueFrom, map, pipe, tap } from 'rxjs';
+import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { firstValueFrom } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { EventError } from './event-error';
 
 export type EventMap = { [key: string]: Event };
 

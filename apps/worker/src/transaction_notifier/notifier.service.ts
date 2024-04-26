@@ -1,19 +1,18 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IEventData, RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
-
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
-import { BaseConsumer } from '../BaseConsumer';
-import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { TxMonitorJob } from '../../../../libs/common/src/types/dtos/transaction.request.dto';
-import { TransactionType } from '../../../../libs/common/src/types/enums';
+import { BlockchainConstants } from '#lib/blockchain/blockchain-constants';
+import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { TransactionType } from '#lib/types/enums';
+import { QueueConstants } from '#lib/utils/queues';
+import { BaseConsumer } from '#worker/BaseConsumer';
+import { TxMonitorJob, SECONDS_PER_BLOCK } from 'libs/common/src';
+import { ConfigService } from '#lib/config/config.service';
 
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_NOTIFY_QUEUE)

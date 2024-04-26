@@ -1,6 +1,6 @@
+import { ApiService } from '#api/services/api.service';
 import { Controller, Get, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from '../services/api.service';
 
 @Controller('api')
 @ApiTags('api')

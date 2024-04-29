@@ -1,23 +1,54 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use crate::api::{echo_payload, health_check};
+use actix_web::middleware::Logger;
+use actix_web::{App, HttpServer};
+use apistos::app::{BuildConfig, OpenApiWrapper};
+use apistos::info::Info;
+use apistos::server::Server;
+use apistos::spec::Spec;
+use apistos::web::{get, post, resource, scope};
+use apistos::{RapidocConfig, RedocConfig, SwaggerUIConfig};
+use std::error::Error;
+use std::net::Ipv4Addr;
 
-async fn echo_payload(info: web::Json<serde_json::Value>) -> impl Responder {
-    println!("Received payload: {}", info);
-    HttpResponse::Ok().json("Payload received")
-}
-
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json("Server is healthy")
-}
+mod api;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    println!("Starting Webhook Server...");
+async fn main() -> Result<(), impl Error> {
+    const HOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
+    const PORT: u16 = 5555;
+    println!("Starting Webhook Server on http://{}:{}/api/v3", HOST, PORT);
     HttpServer::new(|| {
+        let spec = Spec {
+            info: Info {
+                title: "Webhook Server".to_string(),
+                version: "1.0".to_string(),
+                description: Some("A simple webhook server".to_string()),
+                ..Default::default()
+            },
+            servers: vec![Server {
+                url: "/".to_string(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
         App::new()
-            .route("/webhook", web::post().to(echo_payload))
-            .route("/health", web::get().to(health_check))
+            .document(spec)
+            .wrap(Logger::default())
+            .service(
+                scope("/api/v3")
+                    .service(resource("/health").route(get().to(health_check)))
+                    .service(resource("/webhook").route(post().to(echo_payload))),
+            )
+            .build_with(
+                "openapi.json",
+                BuildConfig::default()
+                    .with(RapidocConfig::new(&"/rapidoc"))
+                    .with(RedocConfig::new(&"/redoc"))
+                    .with(SwaggerUIConfig::new(&"/swagger")),
+            )
     })
-    .bind("0.0.0.0:5555")?
+    .bind((HOST, PORT))?
     .run()
     .await
 }

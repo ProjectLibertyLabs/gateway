@@ -1,1 +1,188 @@
-{"openapi":"3.0.0","paths":{"/api/health":{"get":{"operationId":"ApiController_health","summary":"Check the health status of the service","parameters":[],"responses":{"200":{"description":"Service is healthy"}},"tags":["api"]}},"/accounts/{msaId}":{"get":{"operationId":"AccountsController_getAccount","summary":"Fetch an account given an msaId.","parameters":[{"name":"msaId","required":true,"in":"path","schema":{"type":"number"}}],"responses":{"200":{"description":"Found account"}},"tags":["accounts"]}},"/accounts/siwf":{"post":{"operationId":"AccountsController_signInWithFrequency","summary":"Request to sign in with Frequency","parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WalletLoginRequest"}}}},"responses":{"201":{"description":"Signed in successfully","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WalletLoginResponse"}}}}},"tags":["accounts"]}},"/delegation/{msaId}":{"get":{"operationId":"DelegationController_getDelegation","summary":"Get the delegation information associated with an msaId.","parameters":[{"name":"msaId","required":true,"in":"path","schema":{"type":"number"}}],"responses":{"200":{"description":"Found delegation information."}},"tags":["delegation"]}},"/keys/add":{"post":{"operationId":"KeysController_addKey","summary":"add new control keys for an MSA ID","parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AddKeysRequest"}}}},"responses":{"200":{"description":"Found public keys."}},"tags":["keys"]}},"/keys/{msaId}":{"get":{"operationId":"KeysController_getKeys","summary":"Fetch public keys given an msaId.","parameters":[{"name":"msaId","required":true,"in":"path","schema":{"type":"number"}}],"responses":{"200":{"description":"Found public keys."}},"tags":["keys"]}},"/handles":{"post":{"operationId":"HandlesController_createHandle","summary":"Request to create a new handle for an account","parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HandleRequest"}}}},"responses":{"200":{"description":"Handle created successfully"}},"tags":["handles"]}},"/handles/change":{"post":{"operationId":"HandlesController_changeHandle","summary":"Request to change a handle","parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/HandleRequest"}}}},"responses":{"200":{"description":"Handle changed successfully"}},"tags":["handles"]}},"/handles/{msaId}":{"get":{"operationId":"HandlesController_getHandle","summary":"Fetch a handle given an msaId.","parameters":[{"name":"msaId","required":true,"in":"path","schema":{"type":"number"}}],"responses":{"200":{"description":"Found account"}},"tags":["handles"]}}},"info":{"title":"Account Service","description":"Account Service API","version":"1.0","contact":{}},"tags":[],"servers":[],"components":{"securitySchemes":{"bearer":{"scheme":"bearer","bearerFormat":"JWT","type":"http","description":"Enter JWT token"},"cookie":{"type":"apiKey","in":"cookie","name":"SESSION"}},"schemas":{"WalletLoginRequest":{"type":"object","properties":{"signIn":{"type":"object","description":"The wallet login request information","example":{"siwsPayload":{"message":"0x1234567890abcdef","signature":"0x1234567890abcdef"},"error":{"message":"Error message"}},"properties":{"siwsPayload":{"type":"object","properties":{"message":{"type":"string","description":"The message"},"signature":{"type":"string","description":"The signature"}}},"error":{"type":"object","properties":{"message":{"type":"string","description":"The error message"}}}}},"signUp":{"type":"object"}},"required":["signIn","signUp"]},"WalletLoginResponse":{"type":"object","properties":{"referenceId":{"type":"string"},"msaId":{"type":"string"},"publicKey":{"type":"string"}},"required":["referenceId"]},"KeysRequestPayload":{"type":"object","properties":{"msaId":{"type":"number"},"expiration":{"type":"number"},"newPublicKey":{"type":"string"}},"required":["msaId","expiration","newPublicKey"]},"AddKeysRequest":{"type":"object","properties":{"msaOwnerAddress":{"type":"string"},"msaOwnerSignature":{"type":"object"},"newKeyOwnerSignature":{"type":"object"},"payload":{"$ref":"#/components/schemas/KeysRequestPayload"}},"required":["msaOwnerAddress","msaOwnerSignature","newKeyOwnerSignature","payload"]},"HandlePayload":{"type":"object","properties":{"baseHandle":{"type":"string"},"expiration":{"type":"number"}},"required":["baseHandle","expiration"]},"HandleRequest":{"type":"object","properties":{"accountId":{"type":"string"},"payload":{"$ref":"#/components/schemas/HandlePayload"},"proof":{"type":"object"}},"required":["accountId","payload","proof"]}}}}
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "ApiController_health",
+        "summary": "Check the health status of the service",
+        "parameters": [],
+        "responses": { "200": { "description": "Service is healthy" } },
+        "tags": ["api"]
+      }
+    },
+    "/accounts/{msaId}": {
+      "get": {
+        "operationId": "AccountsController_getAccount",
+        "summary": "Fetch an account given an msaId.",
+        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
+        "responses": { "200": { "description": "Found account" } },
+        "tags": ["accounts"]
+      }
+    },
+    "/accounts/siwf": {
+      "post": {
+        "operationId": "AccountsController_signInWithFrequency",
+        "summary": "Request to sign in with Frequency",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WalletLoginRequest" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Signed in successfully",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WalletLoginResponse" } } }
+          }
+        },
+        "tags": ["accounts"]
+      }
+    },
+    "/delegation/{msaId}": {
+      "get": {
+        "operationId": "DelegationController_getDelegation",
+        "summary": "Get the delegation information associated with an msaId.",
+        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
+        "responses": { "200": { "description": "Found delegation information." } },
+        "tags": ["delegation"]
+      }
+    },
+    "/keys/add": {
+      "post": {
+        "operationId": "KeysController_addKey",
+        "summary": "add new control keys for an MSA ID",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/KeysRequest" } } }
+        },
+        "responses": { "200": { "description": "Found public keys." } },
+        "tags": ["keys"]
+      }
+    },
+    "/keys/{msaId}": {
+      "get": {
+        "operationId": "KeysController_getKeys",
+        "summary": "Fetch public keys given an msaId.",
+        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
+        "responses": { "200": { "description": "Found public keys." } },
+        "tags": ["keys"]
+      }
+    },
+    "/handles": {
+      "post": {
+        "operationId": "HandlesController_createHandle",
+        "summary": "Request to create a new handle for an account",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HandleRequest" } } }
+        },
+        "responses": { "200": { "description": "Handle created successfully" } },
+        "tags": ["handles"]
+      }
+    },
+    "/handles/change": {
+      "post": {
+        "operationId": "HandlesController_changeHandle",
+        "summary": "Request to change a handle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HandleRequest" } } }
+        },
+        "responses": { "200": { "description": "Handle changed successfully" } },
+        "tags": ["handles"]
+      }
+    },
+    "/handles/{msaId}": {
+      "get": {
+        "operationId": "HandlesController_getHandle",
+        "summary": "Fetch a handle given an msaId.",
+        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
+        "responses": { "200": { "description": "Found account" } },
+        "tags": ["handles"]
+      }
+    }
+  },
+  "info": { "title": "Account Service", "description": "Account Service API", "version": "1.0", "contact": {} },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": { "scheme": "bearer", "bearerFormat": "JWT", "type": "http", "description": "Enter JWT token" },
+      "cookie": { "type": "apiKey", "in": "cookie", "name": "SESSION" }
+    },
+    "schemas": {
+      "WalletLoginRequest": {
+        "type": "object",
+        "properties": {
+          "signIn": {
+            "type": "object",
+            "description": "The wallet login request information",
+            "example": {
+              "siwsPayload": { "message": "0x1234567890abcdef", "signature": "0x1234567890abcdef" },
+              "error": { "message": "Error message" }
+            },
+            "properties": {
+              "siwsPayload": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string", "description": "The message" },
+                  "signature": { "type": "string", "description": "The signature" }
+                }
+              },
+              "error": {
+                "type": "object",
+                "properties": { "message": { "type": "string", "description": "The error message" } }
+              }
+            }
+          },
+          "signUp": { "type": "object" }
+        },
+        "required": ["signIn", "signUp"]
+      },
+      "WalletLoginResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": { "type": "string" },
+          "msaId": { "type": "string" },
+          "publicKey": { "type": "string" }
+        },
+        "required": ["referenceId"]
+      },
+      "KeysRequestPayload": {
+        "type": "object",
+        "properties": {
+          "msaId": { "type": "number" },
+          "expiration": { "type": "number" },
+          "newPublicKey": { "type": "string" }
+        },
+        "required": ["msaId", "expiration", "newPublicKey"]
+      },
+      "KeysRequest": {
+        "type": "object",
+        "properties": {
+          "msaOwnerAddress": { "type": "string" },
+          "msaOwnerSignature": { "type": "object" },
+          "newKeyOwnerSignature": { "type": "object" },
+          "payload": { "$ref": "#/components/schemas/KeysRequestPayload" }
+        },
+        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
+      },
+      "HandlePayload": {
+        "type": "object",
+        "properties": { "baseHandle": { "type": "string" }, "expiration": { "type": "number" } },
+        "required": ["baseHandle", "expiration"]
+      },
+      "HandleRequest": {
+        "type": "object",
+        "properties": {
+          "accountId": { "type": "string" },
+          "payload": { "$ref": "#/components/schemas/HandlePayload" },
+          "proof": { "type": "object" }
+        },
+        "required": ["accountId", "payload", "proof"]
+      }
+    }
+  }
+}

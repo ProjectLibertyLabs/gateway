@@ -364,7 +364,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
           // Key Events:
           //   KeyAdded
-          if (eventName.search('keys') !== -1 && method.search('KeyAdded') !== -1) {
+          if (eventName.search('msa') !== -1 && method.search('PublicKeyAdded') !== -1) {
             events.push(record);
           }
 

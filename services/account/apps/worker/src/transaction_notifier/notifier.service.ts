@@ -94,8 +94,8 @@ export class TxnNotifierService extends BaseConsumer {
                 });
 
                 webhookResponse = {
+                  transactionType: job.data.type,
                   referenceId: job.data.referenceId,
-                  type: job.data.type,
                   msaId,
                   handle,
                   providerId: job.data.providerId,
@@ -132,8 +132,8 @@ export class TxnNotifierService extends BaseConsumer {
                   }
                 });
                 webhookResponse = {
+                  transactionType: job.data.type,
                   referenceId: job.data.referenceId,
-                  type: TransactionType.SIWF_SIGNUP,
                   accountId: address,
                   msaId,
                   handle,
@@ -143,6 +143,35 @@ export class TxnNotifierService extends BaseConsumer {
                   `SIWF ${address} Signed up handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}`,
                 );
               }
+              break;
+            case TransactionType.ADD_KEY:
+              if (!txResult.events) {
+                this.logger.error('No ADD KEY events found in tx result');
+              } else {
+                txResult.events.forEach((record) => {
+                  const { event } = record;
+                  const eventName = event.section;
+                  const { method, data } = event;
+                  // Grab the event data
+                  if (eventName.search('msa') !== -1 && method.search('PublicKeyAdded') !== -1) {
+                    data as IEventData;
+                    msaId = data[0].toString();
+                    handle = Buffer.from(data[1].toString(), 'hex').toString('utf-8');
+                    this.logger.debug(`Public Key Added for msaId: ${msaId}`);
+                  }
+                });
+
+                webhookResponse = {
+                  transactionType: job.data.type,
+                  referenceId: job.data.referenceId,
+                  msaId,
+                  handle,
+                  providerId: job.data.providerId,
+                };
+              }
+              this.logger.debug(
+                `Handles ${webhookResponse.type} finalized ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`,
+              );
               break;
             default:
               this.logger.error(`Unknown transaction type on job.data: ${jobType}`);

@@ -35,9 +35,10 @@ async function bootstrap() {
     logger.error('Redis connection timeout!');
     process.exit(1);
   }, 30_000);
+
   eventEmitter.on('redis.ready', () => {
+    logger.log('Redis Connected!');
     if (redisConnectTimeout !== null) {
-      logger.log('Redis Connected!');
       clearTimeout(redisConnectTimeout);
       redisConnectTimeout = null;
     }

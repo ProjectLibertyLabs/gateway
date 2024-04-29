@@ -140,7 +140,7 @@ async function main() {
       : capacity.totalCapacityIssued.toBigInt());
   await api.tx.capacity.stake(1, stakeAmount).signAndSend(alice, { nonce: currentNonce });
 
-  console.log('Create Provider 1 as Alice and Delegator 2, 3, 4, 5, 6');
+  console.log('Create Provider 1 as Alice and Delegator 2, 3, 4, 5');
   console.log('Public keys added to delegators');
   console.log(`Staked capacity to provider: ${stakeAmount}`);
   console.log('Setup complete');

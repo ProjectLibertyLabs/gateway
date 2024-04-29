@@ -1,0 +1,154 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Webhook Server",
+    "description": "A simple webhook server",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/v3/health": {
+      "get": {
+        "summary": "Health check",
+        "operationId": "get_api-v3-health-5038f22ce97f888faa03f3bd53fd3ff3",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/v3/webhook": {
+      "post": {
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Echo payload",
+        "description": "Echoes the payload back to the client",
+        "operationId": "post_api-v3-webhook-4119506f2bf7e18fb0bd687e28806dba",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookCallback"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookCallback"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "title": "HealthResponse",
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "WebhookCallback": {
+        "title": "WebhookCallback",
+        "oneOf": [
+          {
+            "title": "SIWFSignup",
+            "type": "object",
+            "required": [
+              "accountId",
+              "handle",
+              "msaId",
+              "providerId",
+              "referenceId",
+              "transactionType"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string"
+              },
+              "handle": {
+                "type": "string"
+              },
+              "msaId": {
+                "type": "string"
+              },
+              "providerId": {
+                "type": "string"
+              },
+              "referenceId": {
+                "type": "string"
+              },
+              "transactionType": {
+                "type": "string",
+                "enum": [
+                  "SIWFSignup"
+                ]
+              }
+            }
+          },
+          {
+            "title": "HandleChange",
+            "type": "object",
+            "required": [
+              "address",
+              "handle",
+              "msa_id",
+              "reference_id",
+              "transactionType"
+            ],
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "handle": {
+                "type": "string"
+              },
+              "msa_id": {
+                "type": "string"
+              },
+              "reference_id": {
+                "type": "string"
+              },
+              "transactionType": {
+                "type": "string",
+                "enum": [
+                  "HandleChange"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -3,13 +3,29 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkerModule } from './worker.module';
+import { redisReady } from '../../../libs/common/src';
 
 const logger = new Logger('worker_main');
 
+// bootstrap() does not have a main loop to keep the process alive.
+// We create a promise that never resolves to keep the process alive and processing events.
+const p = new Promise((resolve, reject) => {});
+
 async function bootstrap() {
+  // createApplicationContext() does not return when the redis connection is not available.
+  // Starting the timeout here to ensure that the application does not hang indefinitely.
+  const createTimeout = (message: string, duration: number): NodeJS.Timeout =>
+    setTimeout(() => {
+      logger.error(message);
+      process.exit(1);
+    }, duration);
+
+  let redisConnectTimeout: NodeJS.Timeout | null = createTimeout('Redis connection timeout!', 10_000);
+
   const app = await NestFactory.createApplicationContext(WorkerModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
+  logger.log('Nest ApplicationContext created successfully.');
 
   process.on('uncaughtException', (error) => {
     console.error('****** UNCAUGHT EXCEPTION ******', error);
@@ -23,14 +39,18 @@ async function bootstrap() {
     await app.close();
   });
 
-  // eslint-disable-next-line no-undef
-  let redisConnectTimeout: NodeJS.Timeout | null = setTimeout(() => {
-    logger.error('Redis connection timeout!');
-    process.exit(1);
-  }, 30_000);
+  // redisReady is set in redis.ts to capture the ready event from the Redis client
+  // if it happens before execution reaches this point.
+  if (redisReady) {
+    logger.log('Redis connection already up.');
+    clearTimeout(redisConnectTimeout);
+    redisConnectTimeout = null;
+  }
+
   eventEmitter.on('redis.ready', () => {
+    logger.log('Redis Connected!');
     if (redisConnectTimeout !== null) {
-      logger.log('Redis Connected!');
+      logger.log('Clearing reconnection timeout.');
       clearTimeout(redisConnectTimeout);
       redisConnectTimeout = null;
     }
@@ -40,12 +60,9 @@ async function bootstrap() {
   // This is due to https://github.com/taskforcesh/bullmq/issues/1073
   eventEmitter.on('redis.close', () => {
     // Shutdown after a disconnect of more than 30 seconds
+    logger.error('Redis Disconnect Detected! Waiting 30 seconds for reconnection before shutdown.');
     if (redisConnectTimeout === null) {
-      logger.error('Redis Disconnect Detected! Waiting 30 seconds for reconnection before shutdown.');
-      redisConnectTimeout = setTimeout(() => {
-        logger.error('Redis reconnection timeout!');
-        process.exit(1);
-      }, 30_000);
+      redisConnectTimeout = createTimeout('Redis reconnection timeout!', 30_000);
     }
   });
 
@@ -58,6 +75,8 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
+    // await here on unresolved promise, p, to process events
+    await p;
   } catch (e) {
     await app.close();
     logger.error('****** MAIN CATCH ********', e);
@@ -66,4 +85,7 @@ async function bootstrap() {
     }
   }
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  logger.error('Unhandled exception in boostrap', err);
+});

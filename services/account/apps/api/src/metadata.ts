@@ -2,16 +2,28 @@
 export default async () => {
   const t = {
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
-    ['../../../libs/common/src/types/dtos/accounts.dto']: await import(
+    ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import(
       '../../../libs/common/src/types/dtos/accounts.response.dto'
     ),
-    ['../../../libs/common/src/types/dtos/delegation.dto']: await import(
+    ['../../../libs/common/src/types/dtos/wallet.login.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/wallet.login.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/delegation.response.dto']: await import(
       '../../../libs/common/src/types/dtos/delegation.response.dto'
     ),
   };
   return {
     '@nestjs/swagger': {
       models: [
+        [
+          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
+          {
+            Account: {
+              msaId: { required: true, type: () => Number },
+              handle: { required: false, type: () => Object, nullable: true },
+            },
+          },
+        ],
         [
           import('../../../libs/common/src/types/dtos/handles.request.dto'),
           {
@@ -33,29 +45,10 @@ export default async () => {
         [
           import('../../../libs/common/src/types/dtos/keys.request.dto'),
           {
-            AddKeysRequest: {
+            KeysRequest: {
               msaOwnerAddress: { required: true, type: () => String },
               msaOwnerSignature: { required: true, type: () => String },
               newKeyOwnerSignature: { required: true, type: () => String },
-            },
-            DeleteKeysRequest: { key: { required: true, type: () => String } },
-          },
-        ],
-        [
-          import('../../../libs/common/src/types/dtos/transaction.request.dto'),
-          {
-            TransactionNotification: {
-              msaId: { required: true, type: () => Number },
-              data: { required: true, type: () => Object },
-            },
-          },
-        ],
-        [
-          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
-          {
-            Account: {
-              msaId: { required: true, type: () => Number },
-              handle: { required: false, type: () => Object, nullable: true },
             },
           },
         ],
@@ -72,7 +65,7 @@ export default async () => {
         [
           import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
-            DelegationResponse: {
+            Delegation: {
               providerId: { required: true, type: () => Number },
               schemaPermissions: { required: true },
               revokedAt: { required: true, type: () => t['@polkadot/types-codec/primitive/U32'].u32 },
@@ -86,8 +79,10 @@ export default async () => {
           import('./controllers/accounts.controller'),
           {
             AccountsController: {
-              getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.dto'].Account },
-              signInWithFrequency: { type: Object },
+              getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].Account },
+              signInWithFrequency: {
+                type: t['../../../libs/common/src/types/dtos/wallet.login.response.dto'].WalletLoginResponse,
+              },
             },
           },
         ],
@@ -105,7 +100,7 @@ export default async () => {
           import('./controllers/delegation.controller'),
           {
             DelegationController: {
-              getDelegation: { type: t['../../../libs/common/src/types/dtos/delegation.dto'].Delegation },
+              getDelegation: { type: t['../../../libs/common/src/types/dtos/delegation.response.dto'].Delegation },
             },
           },
         ],

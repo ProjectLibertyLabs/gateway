@@ -1,6 +1,11 @@
 import { RedisClient } from 'bullmq';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+// Redis can send events before the application is ready
+// redisReady is used to track if the connection is ready
+// eslint-disable-next-line import/no-mutable-exports
+export let redisReady: boolean = false;
+
 export namespace RedisUtils {
   /**
    * 45 days upper limit to avoid keeping abandoned data forever
@@ -33,6 +38,7 @@ export function redisEventsToEventEmitter(client: RedisClient, eventEmitter: Eve
     eventEmitter.emit('redis.error', err);
   });
   client.on('ready', () => {
+    redisReady = true;
     eventEmitter.emit('redis.ready');
   });
   client.on('close', () => {

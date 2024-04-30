@@ -61,7 +61,12 @@ describe('Keys Controller', () => {
     await request(app.getHttpServer())
       .get(`/keys/${validMsaId}`)
       .expect(200)
-      .expect(['5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty', '5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL']);
+      .expect({
+        msaKeys: [
+          '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty',
+          '5CiPPseXPECbkjWCa6MnjNokrgYjMqmKndv2rSnekmSK2DjL',
+        ],
+      });
   });
 
   it('(GET) /keys/:msaId with valid msaId and one key', async () => {
@@ -69,7 +74,7 @@ describe('Keys Controller', () => {
     await request(app.getHttpServer())
       .get(`/keys/${validMsaId}`)
       .expect(200)
-      .expect(['5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y']);
+      .expect({ msaKeys: ['5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y'] });
   });
 
   it('(GET) /keys/:msaId with invalid msaId', async () => {

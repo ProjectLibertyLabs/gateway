@@ -11,16 +11,23 @@ export default async () => {
     ['../../../libs/common/src/types/dtos/delegation.response.dto']: await import(
       '../../../libs/common/src/types/dtos/delegation.response.dto'
     ),
+    ['../../../libs/common/src/types/dtos/transaction.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/transaction.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/keys.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/keys.response.dto'
+    ),
   };
   return {
     '@nestjs/swagger': {
       models: [
         [
-          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
+          import('../../../libs/common/src/types/dtos/keys.request.dto'),
           {
-            Account: {
-              msaId: { required: true, type: () => Number },
-              handle: { required: false, type: () => Object, nullable: true },
+            KeysRequest: {
+              msaOwnerAddress: { required: true, type: () => String },
+              msaOwnerSignature: { required: true, type: () => String },
+              newKeyOwnerSignature: { required: true, type: () => String },
             },
           },
         ],
@@ -43,14 +50,8 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/keys.request.dto'),
-          {
-            KeysRequest: {
-              msaOwnerAddress: { required: true, type: () => String },
-              msaOwnerSignature: { required: true, type: () => String },
-              newKeyOwnerSignature: { required: true, type: () => String },
-            },
-          },
+          import('../../../libs/common/src/types/dtos/transaction.response.dto'),
+          { TransactionResponse: { referenceId: { required: true, type: () => String } } },
         ],
         [
           import('../../../libs/common/src/types/dtos/wallet.login.response.dto'),
@@ -63,25 +64,48 @@ export default async () => {
           },
         ],
         [
+          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
+          {
+            AccountResponse: {
+              msaId: { required: true, type: () => Number },
+              handle: { required: false, type: () => Object, nullable: true },
+            },
+          },
+        ],
+        [
           import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
-            Delegation: {
+            DelegationResponse: {
               providerId: { required: true, type: () => Number },
               schemaPermissions: { required: true },
               revokedAt: { required: true, type: () => t['@polkadot/types-codec/primitive/U32'].u32 },
             },
           },
         ],
+        [
+          import('../../../libs/common/src/types/dtos/keys.response.dto'),
+          { KeysResponse: { msaKeys: { required: true } } },
+        ],
       ],
       controllers: [
-        [import('./controllers/api.controller'), { ApiController: { health: {} } }],
         [
           import('./controllers/accounts.controller'),
           {
             AccountsController: {
-              getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].Account },
+              getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse },
               signInWithFrequency: {
                 type: t['../../../libs/common/src/types/dtos/wallet.login.response.dto'].WalletLoginResponse,
+              },
+            },
+          },
+        ],
+        [import('./controllers/api.controller'), { ApiController: { health: {} } }],
+        [
+          import('./controllers/delegation.controller'),
+          {
+            DelegationController: {
+              getDelegation: {
+                type: t['../../../libs/common/src/types/dtos/delegation.response.dto'].DelegationResponse,
               },
             },
           },
@@ -90,21 +114,25 @@ export default async () => {
           import('./controllers/handles.controller'),
           {
             HandlesController: {
-              createHandle: { type: Object },
-              changeHandle: { type: Object },
+              createHandle: {
+                type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse,
+              },
+              changeHandle: {
+                type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse,
+              },
               getHandle: { type: Object },
             },
           },
         ],
         [
-          import('./controllers/delegation.controller'),
+          import('./controllers/keys.controller'),
           {
-            DelegationController: {
-              getDelegation: { type: t['../../../libs/common/src/types/dtos/delegation.response.dto'].Delegation },
+            KeysController: {
+              addKey: { type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse },
+              getKeys: { type: t['../../../libs/common/src/types/dtos/keys.response.dto'].KeysResponse },
             },
           },
         ],
-        [import('./controllers/keys.controller'), { KeysController: { addKey: { type: Object }, getKeys: {} } }],
       ],
     },
   };

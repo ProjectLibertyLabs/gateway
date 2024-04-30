@@ -1,8 +1,11 @@
 import { SignInResponse, SignUpResponse, ValidSignUpPayloads } from '@amplica-labs/siwf';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { TransactionType } from '../enums';
+import { string } from 'joi';
 
 export class WalletLoginRequest {
+  @IsNotEmpty()
   @ApiProperty({
     description: 'The wallet login request information',
     type: 'object',
@@ -40,9 +43,12 @@ export class WalletLoginRequest {
       },
     },
   })
+  @ApiProperty()
+  @IsOptional()
   signIn: SignInResponse;
 
   @ApiProperty()
+  @IsOptional()
   signUp: SignUpResponse;
 }
 

@@ -16,14 +16,14 @@ import { TransactionPublisherService } from './publisher.service';
       {
         name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 20,
           removeOnFail: false,
         },
       },
       {
         name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 20,
           removeOnFail: false,
         },
       },

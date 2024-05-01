@@ -74,7 +74,8 @@
     "import/prefer-default-export": "off",
     "indent": "off",
     "no-unused-vars": "off",
-    "prettier/prettier": 2
+    "prettier/prettier": 2,
+    "no-undef": "off"
   },
   "plugins": [
     "import",

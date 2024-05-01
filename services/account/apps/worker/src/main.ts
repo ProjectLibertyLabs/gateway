@@ -2,8 +2,8 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { redisReady } from '#lib/utils/redis';
 import { WorkerModule } from './worker.module';
-import { redisReady } from '../../../libs/common/src';
 
 const logger = new Logger('worker_main');
 
@@ -20,7 +20,7 @@ async function bootstrap() {
       process.exit(1);
     }, duration);
 
-  let redisConnectTimeout: NodeJS.Timeout | null = createTimeout('Redis connection timeout!', 10_000);
+  let redisConnectTimeout: NodeJS.Timeout | null = createTimeout('Redis connection timeout!', 30_000);
 
   const app = await NestFactory.createApplicationContext(WorkerModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],

@@ -17,7 +17,7 @@ export interface ConfigEnvironmentVariables {
   WEBHOOK_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
-  CAPACITY_LIMIT: number;
+  CAPACITY_LIMIT: string;
 }
 
 /// Config service to get global app and provider-specific config values.

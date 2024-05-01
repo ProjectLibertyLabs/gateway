@@ -17,7 +17,7 @@ import { TxnNotifierService } from './notifier.service';
       {
         name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: true,
+          removeOnComplete: 20,
           removeOnFail: false,
           attempts: 3,
         },

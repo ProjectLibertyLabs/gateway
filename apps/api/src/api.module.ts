@@ -28,6 +28,24 @@ import { KeysService } from './services/keys.service';
   imports: [
     ConfigModule,
     BlockchainModule,
+    EventEmitterModule.forRoot({
+      // Use this instance throughout the application
+      global: true,
+      // set this to `true` to use wildcards
+      wildcard: false,
+      // the delimiter used to segment namespaces
+      delimiter: '.',
+      // set this to `true` if you want to emit the newListener event
+      newListener: false,
+      // set this to `true` if you want to emit the removeListener event
+      removeListener: false,
+      // the maximum amount of listeners that can be assigned to an event
+      maxListeners: 10,
+      // show event name in memory leak message when more than maximum amount of listeners is assigned
+      verboseMemoryLeak: false,
+      // disable throwing uncaughtException if an error event is emitted and it has no listeners
+      ignoreErrors: false,
+    }),
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule, EventEmitterModule],
@@ -71,24 +89,6 @@ import { KeysService } from './services/keys.service';
       },
       inject: [ConfigService],
     }),
-    EventEmitterModule.forRoot({
-      // Use this instance throughout the application
-      global: true,
-      // set this to `true` to use wildcards
-      wildcard: false,
-      // the delimiter used to segment namespaces
-      delimiter: '.',
-      // set this to `true` if you want to emit the newListener event
-      newListener: false,
-      // set this to `true` if you want to emit the removeListener event
-      removeListener: false,
-      // the maximum amount of listeners that can be assigned to an event
-      maxListeners: 10,
-      // show event name in memory leak message when more than maximum amount of listeners is assigned
-      verboseMemoryLeak: false,
-      // disable throwing uncaughtException if an error event is emitted and it has no listeners
-      ignoreErrors: false,
-    }),
     BullModule.registerQueue(
       {
         name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
@@ -96,6 +96,11 @@ import { KeysService } from './services/keys.service';
           removeOnComplete: 20,
           removeOnFail: false,
           attempts: 1,
+        },
+        // Configuring enableOfflineQueue: false will not queue jobs if the connection is lost.
+        // The REST API will return a 500 error if the connection is lost.
+        connection: {
+          enableOfflineQueue: false,
         },
       },
       {

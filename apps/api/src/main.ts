@@ -15,6 +15,12 @@ BigInt.prototype['toJSON'] = function () {
 };
 
 async function bootstrap() {
+  // Starting the disconnect timeout here to ensure that the application does not hang indefinitely.
+  let redisConnectTimeout: NodeJS.Timeout | null = setTimeout(() => {
+    logger.error('Redis connection timeout!');
+    process.exit(1);
+  }, 30_000);
+
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
@@ -29,12 +35,6 @@ async function bootstrap() {
     logger.warn('Received shutdown event');
     await app.close();
   });
-
-  // eslint-disable-next-line no-undef
-  let redisConnectTimeout: NodeJS.Timeout | null = setTimeout(() => {
-    logger.error('Redis connection timeout!');
-    process.exit(1);
-  }, 30_000);
 
   eventEmitter.on('redis.ready', () => {
     logger.log('Redis Connected!');

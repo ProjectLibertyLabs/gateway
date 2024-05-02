@@ -6,17 +6,38 @@
         "operationId": "ApiController_health",
         "summary": "Check the health status of the service",
         "parameters": [],
-        "responses": { "200": { "description": "Service is healthy" } },
-        "tags": ["api"]
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": [
+          "api"
+        ]
       }
     },
     "/accounts/{msaId}": {
       "get": {
         "operationId": "AccountsController_getAccount",
         "summary": "Fetch an account given an msaId.",
-        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
-        "responses": { "200": { "description": "Found account" } },
-        "tags": ["accounts"]
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account"
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
       }
     },
     "/accounts/siwf": {
@@ -26,24 +47,53 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WalletLoginRequest" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletLoginRequest"
+              }
+            }
+          }
         },
         "responses": {
           "201": {
             "description": "Signed in successfully",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WalletLoginResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletLoginResponse"
+                }
+              }
+            }
           }
         },
-        "tags": ["accounts"]
+        "tags": [
+          "accounts"
+        ]
       }
     },
     "/delegation/{msaId}": {
       "get": {
         "operationId": "DelegationController_getDelegation",
         "summary": "Get the delegation information associated with an msaId.",
-        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
-        "responses": { "200": { "description": "Found delegation information." } },
-        "tags": ["delegation"]
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found delegation information."
+          }
+        },
+        "tags": [
+          "delegation"
+        ]
       }
     },
     "/keys/add": {
@@ -53,19 +103,46 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/KeysRequest" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeysRequest"
+              }
+            }
+          }
         },
-        "responses": { "200": { "description": "Found public keys." } },
-        "tags": ["keys"]
+        "responses": {
+          "200": {
+            "description": "Found public keys."
+          }
+        },
+        "tags": [
+          "keys"
+        ]
       }
     },
     "/keys/{msaId}": {
       "get": {
         "operationId": "KeysController_getKeys",
         "summary": "Fetch public keys given an msaId.",
-        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
-        "responses": { "200": { "description": "Found public keys." } },
-        "tags": ["keys"]
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found public keys."
+          }
+        },
+        "tags": [
+          "keys"
+        ]
       }
     },
     "/handles": {
@@ -75,10 +152,22 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HandleRequest" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandleRequest"
+              }
+            }
+          }
         },
-        "responses": { "200": { "description": "Handle created successfully" } },
-        "tags": ["handles"]
+        "responses": {
+          "200": {
+            "description": "Handle created successfully"
+          }
+        },
+        "tags": [
+          "handles"
+        ]
       }
     },
     "/handles/change": {
@@ -88,29 +177,70 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HandleRequest" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandleRequest"
+              }
+            }
+          }
         },
-        "responses": { "200": { "description": "Handle changed successfully" } },
-        "tags": ["handles"]
+        "responses": {
+          "200": {
+            "description": "Handle changed successfully"
+          }
+        },
+        "tags": [
+          "handles"
+        ]
       }
     },
     "/handles/{msaId}": {
       "get": {
         "operationId": "HandlesController_getHandle",
         "summary": "Fetch a handle given an msaId.",
-        "parameters": [{ "name": "msaId", "required": true, "in": "path", "schema": { "type": "number" } }],
-        "responses": { "200": { "description": "Found account" } },
-        "tags": ["handles"]
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account"
+          }
+        },
+        "tags": [
+          "handles"
+        ]
       }
     }
   },
-  "info": { "title": "Account Service", "description": "Account Service API", "version": "1.0", "contact": {} },
+  "info": {
+    "title": "Account Service",
+    "description": "Account Service API",
+    "version": "1.0",
+    "contact": {}
+  },
   "tags": [],
   "servers": [],
   "components": {
     "securitySchemes": {
-      "bearer": { "scheme": "bearer", "bearerFormat": "JWT", "type": "http", "description": "Enter JWT token" },
-      "cookie": { "type": "apiKey", "in": "cookie", "name": "SESSION" }
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter JWT token"
+      },
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "SESSION"
+      }
     },
     "schemas": {
       "WalletLoginRequest": {
@@ -120,68 +250,140 @@
             "type": "object",
             "description": "The wallet login request information",
             "example": {
-              "siwsPayload": { "message": "0x1234567890abcdef", "signature": "0x1234567890abcdef" },
-              "error": { "message": "Error message" }
+              "siwsPayload": {
+                "message": "0x1234567890abcdef",
+                "signature": "0x1234567890abcdef"
+              },
+              "error": {
+                "message": "Error message"
+              }
             },
             "properties": {
               "siwsPayload": {
                 "type": "object",
                 "properties": {
-                  "message": { "type": "string", "description": "The message" },
-                  "signature": { "type": "string", "description": "The signature" }
+                  "message": {
+                    "type": "string",
+                    "description": "The message"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "The signature"
+                  }
                 }
               },
               "error": {
                 "type": "object",
-                "properties": { "message": { "type": "string", "description": "The error message" } }
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "The error message"
+                  }
+                }
               }
             }
           },
-          "signUp": { "type": "object" }
+          "signUp": {
+            "type": "object"
+          }
         },
-        "required": ["signIn", "signUp"]
+        "required": [
+          "signIn",
+          "signUp"
+        ]
       },
       "WalletLoginResponse": {
         "type": "object",
         "properties": {
-          "referenceId": { "type": "string" },
-          "msaId": { "type": "string" },
-          "publicKey": { "type": "string" }
+          "referenceId": {
+            "type": "string"
+          },
+          "msaId": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
       "KeysRequestPayload": {
         "type": "object",
         "properties": {
-          "msaId": { "type": "number" },
-          "expiration": { "type": "number" },
-          "newPublicKey": { "type": "string" }
+          "msaId": {
+            "type": "number"
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "newPublicKey": {
+            "type": "string"
+          }
         },
-        "required": ["msaId", "expiration", "newPublicKey"]
+        "required": [
+          "msaId",
+          "expiration",
+          "newPublicKey"
+        ]
       },
       "KeysRequest": {
         "type": "object",
         "properties": {
-          "msaOwnerAddress": { "type": "string" },
-          "msaOwnerSignature": { "type": "object" },
-          "newKeyOwnerSignature": { "type": "object" },
-          "payload": { "$ref": "#/components/schemas/KeysRequestPayload" }
+          "msaOwnerAddress": {
+            "type": "string"
+          },
+          "msaOwnerSignature": {
+            "type": "string"
+          },
+          "newKeyOwnerSignature": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/KeysRequestPayload"
+          }
         },
-        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
+        "required": [
+          "msaOwnerAddress",
+          "msaOwnerSignature",
+          "newKeyOwnerSignature",
+          "payload"
+        ]
       },
       "HandlePayload": {
         "type": "object",
-        "properties": { "baseHandle": { "type": "string" }, "expiration": { "type": "number" } },
-        "required": ["baseHandle", "expiration"]
+        "properties": {
+          "baseHandle": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "baseHandle",
+          "expiration"
+        ]
       },
       "HandleRequest": {
         "type": "object",
         "properties": {
-          "accountId": { "type": "string" },
-          "payload": { "$ref": "#/components/schemas/HandlePayload" },
-          "proof": { "type": "object" }
+          "accountId": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/HandlePayload"
+          },
+          "proof": {
+            "type": "string"
+          }
         },
-        "required": ["accountId", "payload", "proof"]
+        "required": [
+          "accountId",
+          "payload",
+          "proof"
+        ]
       }
     }
   }

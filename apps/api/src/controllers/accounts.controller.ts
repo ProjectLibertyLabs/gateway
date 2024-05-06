@@ -1,7 +1,7 @@
 import { AccountsService } from '#api/services/accounts.service';
 import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
+import { WalletLoginRequestDto } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
-import { WalletLoginRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -52,8 +52,8 @@ export class AccountsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to sign in with Frequency' })
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
-  @ApiBody({ type: WalletLoginRequest })
-  async signInWithFrequency(@Body() walletLoginRequest: WalletLoginRequest): Promise<WalletLoginResponse> {
+  @ApiBody({ type: WalletLoginRequestDto })
+  async signInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
     try {
       this.logger.log(`Received Sign-In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
       return await this.accountsService.signInWithFrequency(walletLoginRequest);

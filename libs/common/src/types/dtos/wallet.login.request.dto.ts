@@ -1,55 +1,79 @@
-import { SignInResponse, SignUpResponse, ValidSignUpPayloads } from '@amplica-labs/siwf';
-import { ApiProperty } from '@nestjs/swagger';
+/* eslint-disable max-classes-per-file */
+import {
+  EncodedExtrinsic,
+  ErrorResponse,
+  SignInResponse,
+  SignUpResponse,
+  SiwsPayload,
+  ValidSignUpPayloads,
+  type WalletProxyResponse,
+} from '@amplica-labs/siwf';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import { string } from 'joi';
 
-export class WalletLoginRequest {
-  @IsNotEmpty()
-  @ApiProperty({
+export class ErrorResponseDto implements ErrorResponse {
+  @ApiProperty()
+  message: string;
+}
+export class SiwsPayloadDto implements SiwsPayload {
+  @ApiProperty()
+  message: string;
+
+  @ApiProperty()
+  signature: string | HexString;
+}
+export class SignInResponseDto implements SignInResponse {
+  @ApiPropertyOptional({ type: SiwsPayloadDto })
+  @IsOptional()
+  siwsPayload?: SiwsPayloadDto | undefined;
+
+  @ApiPropertyOptional({ type: ErrorResponseDto })
+  @IsOptional()
+  error?: ErrorResponseDto | undefined;
+}
+
+export class EncodedExtrinsicDto implements EncodedExtrinsic {
+  @ApiProperty()
+  pallet: string;
+
+  @ApiProperty()
+  extrinsicName: string;
+
+  @ApiProperty()
+  encodedExtrinsic: string | HexString;
+}
+
+export class SignUpResponseDto implements SignUpResponse {
+  @IsOptional()
+  @ApiPropertyOptional({ type: [EncodedExtrinsicDto] })
+  extrinsics?: EncodedExtrinsicDto[] | undefined;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: ErrorResponseDto })
+  error?: ErrorResponseDto | undefined;
+}
+
+export class WalletLoginRequestDto implements WalletProxyResponse {
+  @ApiPropertyOptional({
     description: 'The wallet login request information',
-    type: 'object',
     example: {
       siwsPayload: {
         message: '0x1234567890abcdef',
         signature: '0x1234567890abcdef',
       },
-      error: {
+      err: {
         message: 'Error message',
       },
     },
-    properties: {
-      siwsPayload: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            description: 'The message',
-          },
-          signature: {
-            type: 'string',
-            description: 'The signature',
-          },
-        },
-      },
-      error: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            description: 'The error message',
-          },
-        },
-      },
-    },
   })
-  @ApiProperty()
   @IsOptional()
-  signIn: SignInResponse;
+  signIn: SignInResponseDto;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
-  signUp: SignUpResponse;
+  signUp: SignUpResponseDto;
 }
 
 export type PublishSIWFSignupRequest = ValidSignUpPayloads & {

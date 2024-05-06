@@ -26,7 +26,6 @@ jobs:
   build-and-publish-container-image:
     name: Build and publish container image
     runs-on: ubuntu-latest
-    container: ghcr.io/libertydsnp/frequency/ci-base-image
     steps:
       - name: Validate Version Tag
         if: env.NEW_RELEASE_TAG_FROM_UI != ''

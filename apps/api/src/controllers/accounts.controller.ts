@@ -1,5 +1,6 @@
 import { AccountsService } from '#api/services/accounts.service';
 import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
+import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
 import { WalletLoginRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
@@ -12,6 +13,20 @@ export class AccountsController {
 
   constructor(private accountsService: AccountsService) {
     this.logger = new Logger(this.constructor.name);
+  }
+
+  @Get('siwf')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get the Sign-In With Frequency Configuration' })
+  @ApiOkResponse({ description: 'Returned SIWF Configuration data', type: WalletLoginConfigResponse })
+  async getSIWFConfig(): Promise<WalletLoginConfigResponse> {
+    try {
+      return this.accountsService.getSIWFConfig();
+    } catch (error) {
+      const errorMessage = 'Failed to get the Sign-In With Frequency Configuration';
+      this.logger.error(`${errorMessage}: ${error}`);
+      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get(':msaId')

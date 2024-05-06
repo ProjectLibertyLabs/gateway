@@ -2,6 +2,9 @@
 export default async () => {
   const t = {
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
+    ['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/wallet.login.config.response.dto'
+    ),
     ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import(
       '../../../libs/common/src/types/dtos/accounts.response.dto'
     ),
@@ -73,6 +76,16 @@ export default async () => {
           },
         ],
         [
+          import('../../../libs/common/src/types/dtos/wallet.login.config.response.dto'),
+          {
+            WalletLoginConfigResponse: {
+              providerId: { required: true, type: () => String },
+              siwfUrl: { required: true, type: () => String },
+              frequencyRpcUrl: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
           import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
             DelegationResponse: {
@@ -92,6 +105,10 @@ export default async () => {
           import('./controllers/accounts.controller'),
           {
             AccountsController: {
+              getSIWFConfig: {
+                type: t['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']
+                  .WalletLoginConfigResponse,
+              },
               getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse },
               signInWithFrequency: {
                 type: t['../../../libs/common/src/types/dtos/wallet.login.response.dto'].WalletLoginResponse,

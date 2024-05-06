@@ -1,6 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BlockchainModule } from '#lib/blockchain/blockchain.module';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { QueueConstants } from '#lib/utils/queues';

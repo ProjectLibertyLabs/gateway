@@ -16,31 +16,27 @@
         ]
       }
     },
-    "/accounts/{msaId}": {
+    "/accounts/siwf": {
       "get": {
-        "operationId": "AccountsController_getAccount",
-        "summary": "Fetch an account given an msaId.",
-        "parameters": [
-          {
-            "name": "msaId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
+        "operationId": "AccountsController_getSIWFConfig",
+        "summary": "Get the Sign-In With Frequency Configuration",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "Found account"
+            "description": "Returned SIWF Configuration data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletLoginConfigResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
           "accounts"
         ]
-      }
-    },
-    "/accounts/siwf": {
+      },
       "post": {
         "operationId": "AccountsController_signInWithFrequency",
         "summary": "Request to sign in with Frequency",
@@ -65,6 +61,30 @@
                 }
               }
             }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/accounts/{msaId}": {
+      "get": {
+        "operationId": "AccountsController_getAccount",
+        "summary": "Fetch an account given an msaId.",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account"
           }
         },
         "tags": [
@@ -243,6 +263,25 @@
       }
     },
     "schemas": {
+      "WalletLoginConfigResponse": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "siwfUrl": {
+            "type": "string"
+          },
+          "frequencyRpcUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providerId",
+          "siwfUrl",
+          "frequencyRpcUrl"
+        ]
+      },
       "WalletLoginRequest": {
         "type": "object",
         "properties": {

@@ -7,7 +7,7 @@ import { TransactionType } from '#lib/types/enums';
 import { QueueConstants } from '#lib/utils/queues';
 import { ConfigService } from '#lib/config/config.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
-import { WalletLoginRequest, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
+import { WalletLoginRequestDto, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
 import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
 import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
@@ -52,7 +52,7 @@ export class AccountsService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async signInWithFrequency(request: WalletLoginRequest): Promise<WalletLoginResponse> {
+  async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponse> {
     const api = await this.blockchainService.getApi();
     const { providerId } = this.configService;
     if (request.signUp) {

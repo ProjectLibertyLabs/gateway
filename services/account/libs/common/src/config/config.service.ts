@@ -5,6 +5,7 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
+  FREQUENCY_HTTP_URL: URL;
   API_PORT: number;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
@@ -63,6 +64,10 @@ export class ConfigService {
 
   public get frequencyUrl(): URL {
     return this.nestConfigService.get('FREQUENCY_URL')!;
+  }
+
+  public get frequencyHttpUrl(): URL {
+    return this.nestConfigService.get('FREQUENCY_HTTP_URL')!;
   }
 
   public get healthCheckMaxRetries(): number {

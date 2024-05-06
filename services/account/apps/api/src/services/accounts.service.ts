@@ -10,6 +10,7 @@ import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { WalletLoginRequest, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
 import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
+import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
 
 @Injectable()
 export class AccountsService {
@@ -32,6 +33,22 @@ export class AccountsService {
       return { msaId, handle };
     }
     throw new Error('Invalid msaId.');
+  }
+
+  async getSIWFConfig(): Promise<WalletLoginConfigResponse> {
+    let response: WalletLoginConfigResponse;
+    try {
+      const { providerId, frequencyHttpUrl, siwfUrl } = this.configService;
+      response = {
+        providerId: providerId.toString(),
+        siwfUrl: siwfUrl.toString(),
+        frequencyRpcUrl: frequencyHttpUrl.toString(),
+      };
+    } catch (e) {
+      this.logger.error(`Error during SIWF config request: ${e}`);
+      throw new Error('Failed to get SIWF config');
+    }
+    return response;
   }
 
   // eslint-disable-next-line class-methods-use-this

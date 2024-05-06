@@ -194,7 +194,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       let outOfCapacity = remainingCapacity <= 0n;
 
       if (!outOfCapacity) {
-        this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
+        this.logger.debug(`      Capacity remaining: ${remainingCapacity}`);
         if (capacityLimit.type === 'percentage') {
           const capacityLimitPercentage = BigInt(capacityLimit.value);
           const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;

@@ -4,7 +4,7 @@ import { options } from '@frequency-chain/api-augment';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { firstValueFrom } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, DispatchError, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, DispatchError, EventRecord, Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
 import { u32, Option, u128, Bytes, Vec } from '@polkadot/types';
@@ -27,6 +27,24 @@ import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
+interface SIWFTxnValues {
+  msaId: string;
+  address: string;
+  handle: string;
+  newProvider: string;
+}
+
+interface HandleTxnValues {
+  msaId: string;
+  handle: string;
+  debugMsg: string;
+}
+
+interface PublicKeyValues {
+  msaId: string;
+  newPublicKey: string;
+  debugMsg: string;
+}
 
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -337,11 +355,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
           const { method, data } = event;
           this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
 
-          // find capacity withdrawn event
-          if (eventName.search('capacity') !== -1 && method.search('Withdrawn') !== -1) {
-            // allow lowercase constructor for eslint
-            // eslint-disable-next-line new-cap
-            const currentCapacity: u128 = new u128(this.api.registry, data[1]);
+          if (record.event && this.api.events.capacity.CapacityWithdrawn.is(record.event)) {
+            const currentCapacity: u128 = record.event.data.amount;
             totalBlockCapacity += currentCapacity.toBigInt();
           }
 
@@ -377,6 +392,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
           }
 
           // check for system extrinsic failure
+          // TODO: ???refactor to use the api.events.system.ExtrinsicFailed.is(record.event)
           if (eventName.search('system') !== -1 && method.search('ExtrinsicFailed') !== -1) {
             const dispatchError = data[0] as DispatchError;
             const moduleThatErrored = dispatchError.asModule;
@@ -403,4 +419,70 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);
     return result ?? { found: false, success: false };
   }
+
+  /**
+   * Handles the result of a SIWF transaction by extracting relevant values from the transaction events.
+   * @param txResultEvents - The transaction result events to process.
+   * @returns An object containing the extracted SIWF transaction values.
+   */
+  public handleSIWFTxnResult = (txResultEvents: Vec<EventRecord>): SIWFTxnValues => {
+    const siwfTxnValues: Partial<SIWFTxnValues> = {};
+
+    txResultEvents.forEach((record) => {
+      if (record.event && this.api.events.msa.MsaCreated.is(record.event)) {
+        siwfTxnValues.msaId = record.event.data.msaId.toString();
+        siwfTxnValues.address = record.event.data.key.toString();
+      } else if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
+        const handleHex = record.event.data.handle.toString();
+        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
+        const handleData = handleHex.slice(2);
+        siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
+      } else if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
+        siwfTxnValues.newProvider = record.event.data.providerId.toString();
+        const owner = record.event.data.delegatorId.toString();
+        if (owner !== siwfTxnValues.msaId) {
+          throw new Error(`DelegationGranted event owner ${owner} does not match msaId ${siwfTxnValues.msaId}`);
+        }
+      }
+    });
+    return siwfTxnValues as SIWFTxnValues;
+  };
+
+  /**
+   * Handles the publish handle transaction result events and extracts the handle and msaId from the event data.
+   * @param txResultEvents - The transaction result events to handle.
+   * @returns An object containing the extracted handle, msaId, and debug message.
+   */
+  public handlePublishHandleTxResult = (txResultEvents: Vec<EventRecord>): HandleTxnValues => {
+    const handleTxnValues: Partial<HandleTxnValues> = {};
+
+    txResultEvents.forEach((record) => {
+      // Grab the handle and msa id from the event data
+      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
+        const handleHex = record.event.data.handle.toString();
+        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
+        const handleData = handleHex.slice(2);
+        handleTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
+        handleTxnValues.msaId = record.event.data.msaId.toString();
+        handleTxnValues.debugMsg = `Handle created: ${handleTxnValues.handle} for msaId: ${handleTxnValues.msaId}`;
+      }
+    });
+
+    return handleTxnValues as HandleTxnValues;
+  };
+
+  public handlePublishKeyTxResult = (txResultEvents: Vec<EventRecord>): PublicKeyValues => {
+    const publicKeyValues: Partial<PublicKeyValues> = {};
+
+    txResultEvents.forEach((record) => {
+      // Grab the event data
+      if (record.event && this.api.events.msa.PublicKeyAdded.is(record.event)) {
+        publicKeyValues.msaId = record.event.data.msaId.toString();
+        publicKeyValues.newPublicKey = record.event.data.key.toString();
+        publicKeyValues.debugMsg = `Public Key: ${publicKeyValues.newPublicKey} Added for msaId: ${publicKeyValues.msaId}`;
+      }
+    });
+
+    return publicKeyValues as PublicKeyValues;
+  };
 }

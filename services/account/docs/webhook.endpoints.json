@@ -82,7 +82,7 @@
         "title": "WebhookCallback",
         "oneOf": [
           {
-            "title": "SIWFSignup",
+            "title": "SIWF_SIGNUP",
             "type": "object",
             "required": [
               "accountId",
@@ -111,38 +111,96 @@
               "transactionType": {
                 "type": "string",
                 "enum": [
-                  "SIWFSignup"
+                  "SIWF_SIGNUP"
                 ]
               }
             }
           },
           {
-            "title": "HandleChange",
+            "title": "CHANGE_HANDLE",
             "type": "object",
             "required": [
-              "address",
               "handle",
-              "msa_id",
-              "reference_id",
+              "msaId",
+              "providerId",
+              "referenceId",
               "transactionType"
             ],
             "properties": {
-              "address": {
-                "type": "string"
-              },
               "handle": {
                 "type": "string"
               },
-              "msa_id": {
+              "msaId": {
                 "type": "string"
               },
-              "reference_id": {
+              "providerId": {
+                "type": "string"
+              },
+              "referenceId": {
                 "type": "string"
               },
               "transactionType": {
                 "type": "string",
                 "enum": [
-                  "HandleChange"
+                  "CHANGE_HANDLE"
+                ]
+              }
+            }
+          },
+          {
+            "title": "CREATE_HANDLE",
+            "type": "object",
+            "required": [
+              "handle",
+              "msaId",
+              "providerId",
+              "referenceId",
+              "transactionType"
+            ],
+            "properties": {
+              "handle": {
+                "type": "string"
+              },
+              "msaId": {
+                "type": "string"
+              },
+              "providerId": {
+                "type": "string"
+              },
+              "referenceId": {
+                "type": "string"
+              },
+              "transactionType": {
+                "type": "string",
+                "enum": [
+                  "CREATE_HANDLE"
+                ]
+              }
+            }
+          },
+          {
+            "title": "ADD_KEY",
+            "type": "object",
+            "required": [
+              "msaId",
+              "newPublicKey",
+              "referenceId",
+              "transactionType"
+            ],
+            "properties": {
+              "msaId": {
+                "type": "string"
+              },
+              "newPublicKey": {
+                "type": "string"
+              },
+              "referenceId": {
+                "type": "string"
+              },
+              "transactionType": {
+                "type": "string",
+                "enum": [
+                  "ADD_KEY"
                 ]
               }
             }

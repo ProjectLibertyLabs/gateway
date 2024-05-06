@@ -6,6 +6,7 @@ export const configModuleOptions: ConfigModuleOptions = {
   validationSchema: Joi.object({
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
+    FREQUENCY_HTTP_URL: Joi.string().uri().required(),
     API_PORT: Joi.number().min(0).default(3000),
     PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {

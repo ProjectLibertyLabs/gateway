@@ -38,6 +38,7 @@ describe('AccountSericeConfig', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
+    FREQUENCY_HTTP_URL: undefined,
     API_PORT: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
@@ -78,6 +79,16 @@ describe('AccountSericeConfig', () => {
     it('invalid frequency url should fail', async () => {
       const { FREQUENCY_URL: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ FREQUENCY_URL: 'invalid url', ...env })).rejects.toBeDefined();
+    });
+
+    it('missing frequency http url should fail', async () => {
+      const { FREQUENCY_HTTP_URL: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid frequency http url should fail', async () => {
+      const { FREQUENCY_HTTP_URL: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ FREQUENCY_HTTP_URL: 'invalid url', ...env })).rejects.toBeDefined();
     });
 
     it('invalid api port should fail', async () => {
@@ -123,6 +134,10 @@ describe('AccountSericeConfig', () => {
 
     it('should get frequency url', () => {
       expect(accountServiceConfig.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_URL?.toString());
+    });
+
+    it('should get frequency http url', () => {
+      expect(accountServiceConfig.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_HTTP_URL?.toString());
     });
 
     it('should get api port', () => {

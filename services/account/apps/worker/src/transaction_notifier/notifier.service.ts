@@ -11,19 +11,9 @@ import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { QueueConstants } from '#lib/utils/queues';
 import { BaseConsumer } from '#worker/BaseConsumer';
-import {
-  TxMonitorJob,
-  SECONDS_PER_BLOCK,
-  TxWebhookRsp,
-  PublishHandleWebhookRsp,
-  SIWFWebhookRsp,
-  PublishKeysWebhookRsp,
-} from 'libs/common/src';
+import { TxMonitorJob, SECONDS_PER_BLOCK, TxWebhookRsp } from 'libs/common/src';
 import { ConfigService } from '#lib/config/config.service';
-import { handleSIWFTxResult } from '#worker/transaction_notifier/notifier.service.helper.siwf';
-import { handlePublishKeyTxResult } from '#worker/transaction_notifier/notifier.service.helper.publishKey';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { handlePublishHandleTxResult } from '#worker/transaction_notifier/notifier.service.helper.publishHandle';
 
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
@@ -94,13 +84,13 @@ export class TxnNotifierService extends BaseConsumer {
               if (!txResult.events) {
                 this.logger.error('No Handle events found in tx result');
               } else {
-                const { debugMsg, msaId, handle } = handlePublishHandleTxResult(txResult.events);
+                const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(txResult.events);
 
-                webhookResponse = createWebhookRsp(job, msaId, { handle });
+                webhookResponse = createWebhookRsp(job, handleTxnValues.msaId, { handle: handleTxnValues.handle });
 
-                this.logger.debug(debugMsg);
-                this.logger.debug(
-                  `Handles ${webhookResponse.transactionType} finalized ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`,
+                this.logger.debug(handleTxnValues.debugMsg);
+                this.logger.log(
+                  `Handles: ${webhookResponse.transactionType} finalized handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`,
                 );
               }
               break;
@@ -108,16 +98,15 @@ export class TxnNotifierService extends BaseConsumer {
               if (!txResult.events) {
                 this.logger.error('No SIWF events found in tx result');
               } else {
-                const { address, debugMsg, msaId, handle } = handleSIWFTxResult(txResult.events);
+                const siwfTxnValues = this.blockchainService.handleSIWFTxnResult(txResult.events);
 
-                webhookResponse = createWebhookRsp(job, msaId, {
-                  accountId: address,
-                  handle,
+                webhookResponse = createWebhookRsp(job, siwfTxnValues.msaId, {
+                  accountId: siwfTxnValues.address,
+                  handle: siwfTxnValues.handle,
                 });
 
-                this.logger.debug(debugMsg);
-                this.logger.debug(
-                  `SIWF ${address} Signed up handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}`,
+                this.logger.log(
+                  `SIWF: ${siwfTxnValues.address} Signed up handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
                 );
               }
               break;
@@ -125,13 +114,15 @@ export class TxnNotifierService extends BaseConsumer {
               if (!txResult.events) {
                 this.logger.error('No ADD KEY events found in tx result');
               } else {
-                const { debugMsg, msaId, newPublicKey } = handlePublishKeyTxResult(txResult.events);
+                const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(txResult.events);
 
-                webhookResponse = createWebhookRsp(job, msaId, { newPublicKey });
+                webhookResponse = createWebhookRsp(job, publicKeyValues.msaId, {
+                  newPublicKey: publicKeyValues.newPublicKey,
+                });
 
-                this.logger.debug(debugMsg);
-                this.logger.debug(
-                  `Keys ${webhookResponse.transactionType} added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`,
+                this.logger.debug(publicKeyValues.debugMsg);
+                this.logger.log(
+                  `Keys: Added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`,
                 );
               }
               break;

@@ -3,24 +3,24 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import {
   AnnouncementResponseDto,
   AnnouncementTypeDto,
+  ASSET_QUEUE_NAME,
   AssetIncludedRequestDto,
   IRequestJob,
   isImage,
-  QueueConstants,
+  REQUEST_QUEUE_NAME,
   RequestTypeDto,
   UploadResponseDto,
 } from '../../../libs/common/src';
 import { calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
 import { IAssetJob, IAssetMetadata } from '../../../libs/common/src/interfaces/asset-job.interface';
-import { RedisUtils } from '../../../libs/common/src/utils/redis';
-import getAssetDataKey = RedisUtils.getAssetDataKey;
-import getAssetMetadataKey = RedisUtils.getAssetMetadataKey;
+import { getAssetDataKey, getAssetMetadataKey , STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, } from '../../../libs/common/src/utils/redis';
+
 
 @Injectable()
 export class ApiService {
@@ -28,8 +28,8 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
+    @InjectQueue(REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(ASSET_QUEUE_NAME) private assetQueue: Queue,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -60,7 +60,7 @@ export class ApiService {
   }
 
   async validateAssetsAndFetchMetadata(content: AssetIncludedRequestDto): Promise<Map<string, string> | undefined> {
-    const checkingList: Array<{ onlyImage: boolean; referenceId: string }> = [];
+    const checkingList: { onlyImage: boolean; referenceId: string }[] = [];
     if (content.profile) {
       content.profile.icon?.forEach((reference) => checkingList.push({ onlyImage: true, referenceId: reference.referenceId }));
     } else if (content.content) {
@@ -98,7 +98,7 @@ export class ApiService {
   }
 
   // eslint-disable-next-line no-undef
-  async addAssets(files: Array<Express.Multer.File>): Promise<UploadResponseDto> {
+  async addAssets(files: Express.Multer.File[]): Promise<UploadResponseDto> {
     // calculate ipfs cid references
     const referencePromises: Promise<string>[] = files.map((file) => calculateIpfsCID(file.buffer));
     const references = await Promise.all(referencePromises);
@@ -108,10 +108,10 @@ export class ApiService {
     const jobs: any[] = [];
     files.forEach((f, index) => {
       // adding data and metadata to the transaction
-      dataTransaction = dataTransaction.setex(getAssetDataKey(references[index]), RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, f.buffer);
+      dataTransaction = dataTransaction.setex(getAssetDataKey(references[index]), STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, f.buffer);
       metadataTransaction = metadataTransaction.setex(
         getAssetMetadataKey(references[index]),
-        RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+        STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
         JSON.stringify({
           ipfsCid: references[index],
           mimeType: f.mimetype,

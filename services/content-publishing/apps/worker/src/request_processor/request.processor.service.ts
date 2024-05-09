@@ -1,17 +1,17 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { DelayedError, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IRequestJob, QueueConstants } from '../../../../libs/common/src';
+import { IRequestJob, REQUEST_QUEUE_NAME,  } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
-@Processor(QueueConstants.REQUEST_QUEUE_NAME)
+@Processor(REQUEST_QUEUE_NAME)
 export class RequestProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
@@ -49,7 +49,7 @@ export class RequestProcessorService extends BaseConsumer {
       // exponential backoff
       const delayedTime = 2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
       await job.moveToDelayed(Date.now() + delayedTime, job.token);
-      await job.update(data);
+      await job.updateData(data);
       throw new DelayedError();
     } else {
       throw new Error('Dependency failed!');

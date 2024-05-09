@@ -54,7 +54,7 @@ export class ApiController {
         }),
     )
     files: // eslint-disable-next-line no-undef
-    Array<Express.Multer.File>,
+    Express.Multer.File[],
   ): Promise<UploadResponseDto> {
     return this.apiService.addAssets(files);
   }

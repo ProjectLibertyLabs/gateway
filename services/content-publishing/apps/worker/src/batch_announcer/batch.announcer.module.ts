@@ -5,12 +5,12 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { BatchAnnouncementService } from './batch.announcer.service';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BatchAnnouncer } from './batch.announcer';
-import { QueueConstants } from '../../../../libs/common/src';
+import { BATCH_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '../../../../libs/common/src';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 
@@ -54,7 +54,7 @@ import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.PUBLISH_QUEUE_NAME,
+        name: PUBLISH_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
           backoff: {
@@ -65,7 +65,7 @@ import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
         },
       },
       {
-        name: QueueConstants.BATCH_QUEUE_NAME,
+        name: BATCH_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
           backoff: {

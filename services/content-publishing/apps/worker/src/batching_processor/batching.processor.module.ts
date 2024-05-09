@@ -4,11 +4,11 @@ https://docs.nestjs.com/modules
 
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import * as QueueConstants from '../../../../libs/common/src';
 import { BatchingProcessorService } from './batching.processor.service';
 import { BroadcastWorker } from './workers/broadcast.worker';
 import { ReplyWorker } from './workers/reply.worker';
@@ -55,7 +55,7 @@ import { ProfileWorker } from './workers/profile.worker';
     }),
     ScheduleModule.forRoot(),
     BullModule.registerQueue({
-      name: QueueConstants.BATCH_QUEUE_NAME,
+      name:QueueConstants.BATCH_QUEUE_NAME,
     }),
     BullModule.registerQueue({
       name: QueueConstants.BROADCAST_QUEUE_NAME,

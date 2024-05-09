@@ -65,7 +65,7 @@ export class IpfsService {
     };
   }
 
-  public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash: boolean = true): Promise<FilePin> {
+  public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash = true): Promise<FilePin> {
     const fileName = calculateDsnpHash ? await this.ipfsHashBuffer(file) : randomUUID().toString();
     const extension = getExtension(mimeType);
     if (extension === false) {
@@ -83,7 +83,7 @@ export class IpfsService {
    * @param checkExistence
    * @returns buffer of the data if exists and an empty buffer if not
    */
-  public async getPinned(cid: string, checkExistence: boolean = true): Promise<Buffer> {
+  public async getPinned(cid: string, checkExistence = true): Promise<Buffer> {
     if (checkExistence && !(await this.isPinned(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }

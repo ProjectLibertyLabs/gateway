@@ -18,7 +18,6 @@ import {
   AssetDto,
   AttachmentTypeDto,
   IRequestJob,
-  QueueConstants,
   BroadcastDto,
   ProfileDto,
   ReactionDto,
@@ -27,6 +26,12 @@ import {
   AnnouncementTypeDto,
   TombstoneDto,
   ModifiableAnnouncementTypeDto,
+  BROADCAST_QUEUE_NAME,
+  PROFILE_QUEUE_NAME,
+  REACTION_QUEUE_NAME,
+  REPLY_QUEUE_NAME,
+  TOMBSTONE_QUEUE_NAME,
+  UPDATE_QUEUE_NAME,
 } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
@@ -52,12 +57,12 @@ export class DsnpAnnouncementProcessor {
   private logger: Logger;
 
   constructor(
-    @InjectQueue(QueueConstants.BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
-    @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
-    @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
-    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
-    @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
-    @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
+    @InjectQueue(BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
+    @InjectQueue(REPLY_QUEUE_NAME) private replyQueue: Queue,
+    @InjectQueue(REACTION_QUEUE_NAME) private reactionQueue: Queue,
+    @InjectQueue(UPDATE_QUEUE_NAME) private updateQueue: Queue,
+    @InjectQueue(PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {

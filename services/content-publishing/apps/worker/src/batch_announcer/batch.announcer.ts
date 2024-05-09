@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
 import { ParquetWriter } from '@dsnp/parquetjs';
 import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import { RedisUtils } from '../../../../libs/common/src/utils/redis';
+import {  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../../libs/common/src/utils/redis';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
@@ -34,7 +34,7 @@ export class BatchAnnouncer {
     if (!cachedSchema) {
       const schemaResponse = await this.blockchainService.getSchemaPayload(schemaId);
       cachedSchema = JSON.stringify(schemaResponse);
-      await this.cacheManager.setex(schemaCacheKey, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
+      await this.cacheManager.setex(schemaCacheKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
     }
 
     const frequencySchemaPayload = JSON.parse(cachedSchema);
@@ -50,7 +50,7 @@ export class BatchAnnouncer {
     const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
     // eslint-disable-next-line no-restricted-syntax
     for await (const announcement of announcements) {
-      await writer.appendRow(announcement);
+      await writer.appendRow(announcement as Record<string, any>);
     }
     await writer.close();
 

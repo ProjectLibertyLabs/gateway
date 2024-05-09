@@ -181,7 +181,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         const eventsPromise = firstValueFrom(at.query.system.events());
 
         let isTxSuccess = false;
-        let totalBlockCapacity: bigint = 0n;
+        let totalBlockCapacity = 0n;
         let txError: RegistryError | undefined;
 
         try {

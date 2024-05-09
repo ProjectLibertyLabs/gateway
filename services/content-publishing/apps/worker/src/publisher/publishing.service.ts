@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -12,12 +12,12 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
 import { IPublisherJob } from '../interfaces/publisher-job.interface';
 import { IPFSPublisher } from './ipfs.publisher';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
-import { QueueConstants } from '../../../../libs/common/src';
+import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
 import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
-@Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
+@Processor(PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
@@ -25,8 +25,8 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
-    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
+    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,

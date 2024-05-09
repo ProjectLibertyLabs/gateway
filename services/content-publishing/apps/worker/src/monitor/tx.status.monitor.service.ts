@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue, UnrecoverableError } from 'bullmq';
@@ -7,21 +7,21 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
-import { QueueConstants } from '../../../../libs/common/src';
+import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
 import { SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
-import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
+import { NUMBER_BLOCKS_TO_CRAWL } from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BaseConsumer } from '../BaseConsumer';
 import { IPublisherJob } from '../interfaces/publisher-job.interface';
 
 @Injectable()
-@Processor(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME, {
+@Processor(TRANSACTION_RECEIPT_QUEUE_NAME, {
   concurrency: 2,
 })
 export class TxStatusMonitoringService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
-    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
+    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
   ) {
     super();
@@ -30,7 +30,7 @@ export class TxStatusMonitoringService extends BaseConsumer {
   async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
     this.logger.log(`Monitoring job ${job.id} of type ${job.name}`);
     try {
-      const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
+      const numberBlocksToParse = NUMBER_BLOCKS_TO_CRAWL;
       const txCapacityEpoch = job.data.epoch;
       const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();

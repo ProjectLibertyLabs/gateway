@@ -1,8 +1,6 @@
 import { expect, describe, jest, it, beforeEach } from '@jest/globals';
 import assert from 'assert';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
 import { Bytes } from '@polkadot/types';

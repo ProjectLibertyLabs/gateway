@@ -1,6 +1,5 @@
 import { AnnouncementTypeDto } from '../dtos/common.dto';
 
-export namespace QueueConstants {
   /**
    * Name of the queue that has all incoming asset uploads
    */
@@ -57,4 +56,4 @@ export namespace QueueConstants {
     [TOMBSTONE_QUEUE_NAME, AnnouncementTypeDto.TOMBSTONE],
     [PROFILE_QUEUE_NAME, AnnouncementTypeDto.PROFILE],
   ]);
-}
+

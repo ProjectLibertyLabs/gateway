@@ -16,7 +16,7 @@ export class AnnouncementResponseDto {
 }
 
 export class UploadResponseDto {
-  assetIds: Array<string>;
+  assetIds: string[];
 }
 
 export class FilesUploadDto {

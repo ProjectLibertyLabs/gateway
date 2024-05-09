@@ -7,7 +7,7 @@ import { Controller, Get, Logger, NotFoundException, Param, Post } from '@nestjs
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
-import { AnnouncementTypeDto, QueueConstants } from '../../../libs/common/src';
+import * as QueueConstants from '../../../libs/common/src';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { AnnouncementType, createBroadcast, createProfile, createReaction, createReply, createTombstone, createUpdate } from '../../../libs/common/src/interfaces/dsnp';
 import { calculateDsnpHash } from '../../../libs/common/src/utils/ipfs';
@@ -16,7 +16,7 @@ import { calculateDsnpHash } from '../../../libs/common/src/utils/ipfs';
 export class DevelopmentController {
   private readonly logger: Logger;
 
-  private readonly queueMapper: Map<AnnouncementTypeDto, Queue>;
+  private readonly queueMapper: Map<QueueConstants.AnnouncementTypeDto, Queue>;
 
   constructor(
     @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
@@ -30,12 +30,12 @@ export class DevelopmentController {
   ) {
     this.logger = new Logger(this.constructor.name);
     this.queueMapper = new Map([
-      [AnnouncementTypeDto.BROADCAST, broadcastQueue],
-      [AnnouncementTypeDto.REPLY, replyQueue],
-      [AnnouncementTypeDto.REACTION, reactionQueue],
-      [AnnouncementTypeDto.UPDATE, updateQueue],
-      [AnnouncementTypeDto.PROFILE, profileQueue],
-      [AnnouncementTypeDto.TOMBSTONE, tombstoneQueue],
+      [QueueConstants.AnnouncementTypeDto.BROADCAST, broadcastQueue],
+      [QueueConstants.AnnouncementTypeDto.REPLY, replyQueue],
+      [QueueConstants.AnnouncementTypeDto.REACTION, reactionQueue],
+      [QueueConstants.AnnouncementTypeDto.UPDATE, updateQueue],
+      [QueueConstants.AnnouncementTypeDto.PROFILE, profileQueue],
+      [QueueConstants.AnnouncementTypeDto.TOMBSTONE, tombstoneQueue],
     ]);
   }
 
@@ -57,7 +57,7 @@ export class DevelopmentController {
   }
 
   @Post('/dummy/announcement/:queueType/:count')
-  async populate(@Param('queueType') queueType: AnnouncementTypeDto, @Param('count') count: number) {
+  async populate(@Param('queueType') queueType: QueueConstants.AnnouncementTypeDto, @Param('count') count: number) {
     const promises: Promise<Job>[] = [];
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < count; i++) {
@@ -66,16 +66,16 @@ export class DevelopmentController {
       const fromId = `${Math.floor(Math.random() * 100000000)}`;
       const hash = `${Math.floor(Math.random() * 100000000)}`;
       switch (queueType) {
-        case AnnouncementTypeDto.BROADCAST:
+        case QueueConstants.AnnouncementTypeDto.BROADCAST:
           data = createBroadcast(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash);
           break;
-        case AnnouncementTypeDto.PROFILE:
+        case QueueConstants.AnnouncementTypeDto.PROFILE:
           data = createProfile(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash);
           break;
-        case AnnouncementTypeDto.UPDATE:
+        case QueueConstants.AnnouncementTypeDto.UPDATE:
           data = createUpdate(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash, AnnouncementType.Broadcast, `${Math.floor(Math.random() * 100000000)}`);
           break;
-        case AnnouncementTypeDto.REPLY:
+        case QueueConstants.AnnouncementTypeDto.REPLY:
           data = createReply(
             fromId,
             `https://example.com/${Math.floor(Math.random() * 100000000)}`,
@@ -83,10 +83,10 @@ export class DevelopmentController {
             `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`,
           );
           break;
-        case AnnouncementTypeDto.REACTION:
+        case QueueConstants.AnnouncementTypeDto.REACTION:
           data = createReaction(fromId, '🤌🏼', `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`, 1);
           break;
-        case AnnouncementTypeDto.TOMBSTONE:
+        case QueueConstants.AnnouncementTypeDto.TOMBSTONE:
           data = createTombstone(fromId, AnnouncementType.Reply, hash);
           break;
         default:

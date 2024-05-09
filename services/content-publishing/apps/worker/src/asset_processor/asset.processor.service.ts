@@ -1,16 +1,16 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import { ASSET_QUEUE_NAME } from '../../../../libs/common/src';
 import { IAssetJob } from '../../../../libs/common/src/interfaces/asset-job.interface';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
-@Processor(QueueConstants.ASSET_QUEUE_NAME)
+@Processor(ASSET_QUEUE_NAME)
 export class AssetProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private redis: Redis,

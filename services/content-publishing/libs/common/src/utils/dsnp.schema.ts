@@ -1,6 +1,6 @@
 import { AnnouncementTypeDto, ChainEnvironment } from '../dtos/common.dto';
 
-export namespace DsnpSchemas {
+
   /**
    * Map between announcement type and it's DSNP schema id for DEV environment
    */
@@ -48,4 +48,4 @@ export namespace DsnpSchemas {
         return ANNOUNCEMENT_TO_SCHEMA_ID_DEV.get(announcementType)!;
     }
   }
-}
+

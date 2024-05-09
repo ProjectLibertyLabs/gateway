@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
@@ -9,14 +9,12 @@ import * as fs from 'fs';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { Announcement } from '../../../../libs/common/src/interfaces/dsnp';
-import { RedisUtils } from '../../../../libs/common/src/utils/redis';
+import { getBatchMetadataKey, getBatchDataKey, getLockKey as getBatchLockKey, BATCH_LOCK_EXPIRE_SECONDS } from '../../../../libs/common/src/utils/redis';
 import { IBatchMetadata } from '../../../../libs/common/src/interfaces/batch.interface';
-import getBatchMetadataKey = RedisUtils.getBatchMetadataKey;
-import getBatchDataKey = RedisUtils.getBatchDataKey;
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
-import { DsnpSchemas } from '../../../../libs/common/src/utils/dsnp.schema';
-import { QueueConstants } from '../../../../libs/common/src';
-import getBatchLockKey = RedisUtils.getLockKey;
+import { getSchemaId } from '../../../../libs/common/src/utils/dsnp.schema';
+import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '../../../../libs/common/src';
+
 
 @Injectable()
 export class BatchingProcessorService {
@@ -24,7 +22,7 @@ export class BatchingProcessorService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private outputQueue: Queue,
+    @InjectQueue(BATCH_QUEUE_NAME) private outputQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private configService: ConfigService,
   ) {
@@ -64,7 +62,7 @@ export class BatchingProcessorService {
     } as IBatchMetadata);
     const newData = JSON.stringify(job.data);
 
-    // @ts-ignore
+    // @ts-expect-error addToBatch is a custom command
     const rowCount = await this.redis.addToBatch(getBatchMetadataKey(queueName), getBatchDataKey(queueName), newMetadata, job.id!, newData);
     this.logger.log(rowCount);
     if (rowCount === 1) {
@@ -89,14 +87,14 @@ export class BatchingProcessorService {
     const batchDataKey = getBatchDataKey(queueName);
     const lockedBatchMetaDataKey = getBatchLockKey(batchMetaDataKey);
     const lockedBatchDataKey = getBatchLockKey(batchDataKey);
-    // @ts-ignore
+    // @ts-expect-error lockBatch is a custom command
     const response = await this.redis.lockBatch(
       batchMetaDataKey,
       batchDataKey,
       lockedBatchMetaDataKey,
       lockedBatchDataKey,
       Date.now(),
-      RedisUtils.BATCH_LOCK_EXPIRE_SECONDS * 1000,
+      BATCH_LOCK_EXPIRE_SECONDS * 1000,
     );
     this.logger.debug(JSON.stringify(response));
     const status = response[0];
@@ -122,7 +120,7 @@ export class BatchingProcessorService {
     if (announcements.length > 0) {
       const job = {
         batchId: metaData.batchId,
-        schemaId: DsnpSchemas.getSchemaId(this.configService.environment, QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
+        schemaId: getSchemaId(this.configService.environment, QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
         announcements,
       } as IBatchAnnouncerJobData;
       await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, { jobId: metaData.batchId, removeOnFail: false, removeOnComplete: 1000 });

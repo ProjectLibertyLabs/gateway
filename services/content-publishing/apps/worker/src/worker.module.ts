@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { PublishingService } from './publisher/publishing.service';
 import { PublisherModule } from './publisher/publisher.module';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';

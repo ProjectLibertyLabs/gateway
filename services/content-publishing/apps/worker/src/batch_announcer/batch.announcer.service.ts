@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -9,17 +9,17 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
 import { BatchAnnouncer } from './batch.announcer';
 import { CAPACITY_EPOCH_TIMEOUT_NAME } from '../../../../libs/common/src/constants';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
-import { QueueConstants } from '../../../../libs/common/src';
+import { BATCH_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
-@Processor(QueueConstants.BATCH_QUEUE_NAME, {
+@Processor(BATCH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class BatchAnnouncementService extends BaseConsumer implements OnModuleDestroy {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private configService: ConfigService,
     private ipfsPublisher: BatchAnnouncer,
     private schedulerRegistry: SchedulerRegistry,

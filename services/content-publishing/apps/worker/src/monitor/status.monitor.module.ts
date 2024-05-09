@@ -5,12 +5,12 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { TxStatusMonitoringService } from './tx.status.monitor.service';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
-import { QueueConstants } from '../../../../libs/common/src';
+import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
 
 @Module({
   imports: [
@@ -52,14 +52,14 @@ import { QueueConstants } from '../../../../libs/common/src';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+        name: TRANSACTION_RECEIPT_QUEUE_NAME,
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
         },
       },
       {
-        name: QueueConstants.PUBLISH_QUEUE_NAME,
+        name: PUBLISH_QUEUE_NAME,
       },
     ),
   ],

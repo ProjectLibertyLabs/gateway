@@ -5,13 +5,13 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { PublishingService } from './publishing.service';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { IPFSPublisher } from './ipfs.publisher';
-import { QueueConstants } from '../../../../libs/common/src';
+import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
 import { NonceService } from './nonce.service';
 
 @Module({
@@ -54,7 +54,7 @@ import { NonceService } from './nonce.service';
     }),
     BullModule.registerQueue(
       {
-        name: QueueConstants.PUBLISH_QUEUE_NAME,
+        name: PUBLISH_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
           backoff: {
@@ -65,7 +65,7 @@ import { NonceService } from './nonce.service';
         },
       },
       {
-        name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
+        name: TRANSACTION_RECEIPT_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 3,
           backoff: {

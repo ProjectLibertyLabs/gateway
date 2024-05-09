@@ -130,7 +130,7 @@ export class AssetDto {
   @ArrayNotEmpty()
   @ArrayUnique((o) => o.referenceId)
   @Type(() => AssetReferenceDto)
-  references?: Array<AssetReferenceDto>;
+  references?: AssetReferenceDto[];
 
   @IsOptional()
   @IsString()
@@ -152,7 +152,7 @@ export class BaseActivityDto {
   @ValidateNested({ each: true })
   @IsArray()
   @Type(() => TagDto)
-  tag?: Array<TagDto>;
+  tag?: TagDto[];
 
   @IsOptional()
   @ValidateNested()
@@ -173,7 +173,7 @@ export class NoteActivityDto extends BaseActivityDto {
   @ValidateNested({ each: true })
   @IsArray()
   @Type(() => AssetDto)
-  assets?: Array<AssetDto>;
+  assets?: AssetDto[];
 }
 
 export class ProfileActivityDto extends BaseActivityDto {
@@ -182,7 +182,7 @@ export class ProfileActivityDto extends BaseActivityDto {
   @IsArray()
   @ArrayUnique((o) => o.referenceId)
   @Type(() => AssetReferenceDto)
-  icon?: Array<AssetReferenceDto>;
+  icon?: AssetReferenceDto[];
 
   @IsOptional()
   @IsString()

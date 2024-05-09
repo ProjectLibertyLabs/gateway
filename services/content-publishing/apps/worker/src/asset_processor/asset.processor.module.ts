@@ -4,8 +4,8 @@ https://docs.nestjs.com/modules
 
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { QueueConstants } from '../../../../libs/common/src';
+import { RedisModule } from '@songkeys/nestjs-redis';
+import { ASSET_QUEUE_NAME } from '../../../../libs/common/src';
 import { AssetProcessorService } from './asset.processor.service';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
@@ -48,7 +48,7 @@ import { ConfigService } from '../../../../libs/common/src/config/config.service
       inject: [ConfigService],
     }),
     BullModule.registerQueue({
-      name: QueueConstants.ASSET_QUEUE_NAME,
+      name: ASSET_QUEUE_NAME,
     }),
   ],
   providers: [AssetProcessorService, IpfsService],

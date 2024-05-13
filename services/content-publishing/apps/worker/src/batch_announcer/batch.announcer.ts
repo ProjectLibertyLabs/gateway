@@ -50,7 +50,7 @@ export class BatchAnnouncer {
     const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
     // eslint-disable-next-line no-restricted-syntax
     for await (const announcement of announcements) {
-      await writer.appendRow(announcement as Record<string, any>);
+      await writer.appendRow(announcement);
     }
     await writer.close();
 

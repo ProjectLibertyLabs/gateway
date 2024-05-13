@@ -5,11 +5,11 @@ https://docs.nestjs.com/modules
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { ConfigModule } from '../config/config.module';
 import { ConfigService } from '../config/config.service';
 import { BlockchainModule } from '../blockchain/blockchain.module';
-import { QueueConstants } from '..';
+import * as QueueConstants from '../utils/queues';
 import { IPFSContentProcessor } from './ipfs.dsnp';
 import { IpfsService } from '../utils/ipfs.client';
 

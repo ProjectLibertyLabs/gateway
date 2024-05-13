@@ -9,7 +9,7 @@ import { ConfigModule } from '../config/config.module';
 import { CrawlerService } from './crawler';
 import { BlockchainModule } from '../blockchain/blockchain.module';
 import { ConfigService } from '../config/config.service';
-import { QueueConstants } from '../utils/queues';
+import * as QueueConstants from '../utils/queues';
 
 @Module({
   imports: [

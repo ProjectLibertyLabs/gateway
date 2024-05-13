@@ -1,7 +1,7 @@
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { QueueConstants } from '../..';
+import * as QueueConstants from '../../utils/queues';
 import { BaseConsumer } from '../../utils/base-consumer';
 import { AnnouncementResponse } from '../../interfaces/announcement_response';
 import { PubSubService } from '../pubsub.service';

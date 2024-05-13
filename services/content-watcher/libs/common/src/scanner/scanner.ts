@@ -2,7 +2,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { Vec } from '@polkadot/types';
@@ -12,11 +12,11 @@ import { BlockNumber } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import { QueueConstants } from '../utils/queues';
+import * as QueueConstants from '../utils/queues';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
-import { RedisUtils } from '../utils/redis';
+import * as RedisUtils from '../utils/redis';
 import { MessageResponseWithSchemaId } from '../interfaces/announcement_response';
 
 @Injectable()

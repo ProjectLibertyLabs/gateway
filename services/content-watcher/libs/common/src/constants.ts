@@ -11,16 +11,16 @@ export const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity-epoch-timeout';
  * Last seen block number key for Redis
  * @type {string}
  */
-export const LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY: string = 'lastSeenBlockNumberScanner';
+export const LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY = 'lastSeenBlockNumberScanner';
 
 /**
  * Filters and Events to watch key for Redis
  * @type {string}
  */
-export const EVENTS_TO_WATCH_KEY: string = 'eventsToWatch';
+export const EVENTS_TO_WATCH_KEY = 'eventsToWatch';
 
 /**
  * Registered Webhook key for Redis
  * @type {string}
  */
-export const REGISTERED_WEBHOOK_KEY: string = 'registeredWebhook';
+export const REGISTERED_WEBHOOK_KEY = 'registeredWebhook';

@@ -1,14 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
-import { firstValueFrom, from } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, DispatchError, DispatchInfo, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16 } from '@polkadot/types';
-import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
+import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
@@ -120,10 +118,5 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getNonce(account: Uint8Array): Promise<number> {
     return this.rpc('system', 'accountNextIndex', account);
-  }
-
-  public async getSchema(schemaId: number): Promise<PalletSchemasSchema> {
-    const schema: PalletSchemasSchema = await this.query('schemas', 'schemas', schemaId);
-    return schema;
   }
 }

@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';

@@ -1,10 +1,7 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-undef */
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import nock from 'nock';
 import { ApiModule } from '../src/api.module';
 import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
 import { ResetScannerDto } from '../../../libs/common/src';

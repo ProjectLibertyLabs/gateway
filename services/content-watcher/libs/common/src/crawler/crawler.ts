@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Vec, u16, u32 } from '@polkadot/types';
 import { BlockPaginationResponseMessage, MessageResponse, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Job, Queue } from 'bullmq';
@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import { QueueConstants } from '../utils/queues';
+import * as QueueConstants from '../utils/queues';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';

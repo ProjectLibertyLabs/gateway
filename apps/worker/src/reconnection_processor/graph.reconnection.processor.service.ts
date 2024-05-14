@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -7,8 +7,9 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService, QueueConstants } from '../../../../libs/common/src';
+import { ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
@@ -67,7 +68,7 @@ export class GraphReconnectionService extends BaseConsumer {
     const keyPairs: GraphKeyPairDto[] = [];
 
     let hasNextPage = true;
-    let webhookFailures: number = 0;
+    let webhookFailures = 0;
 
     while (hasNextPage) {
       this.logger.debug(`Fetching connections page ${params.pageNumber} for user ${dsnpUserId.toString()} from provider ${providerId.toString()}`);

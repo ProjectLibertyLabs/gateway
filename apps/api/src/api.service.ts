@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -12,10 +12,10 @@ import {
   GraphsQueryParamsDto,
   ProviderGraphDto,
   ProviderGraphUpdateJob,
-  QueueConstants,
   UserGraphDto,
   WatchGraphsDto,
 } from '../../../libs/common/src';
+import * as QueueConstants from '../../../libs/common/src/utils/queues';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
 

@@ -4,11 +4,11 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import { QueueConstants } from '../utils/queues';
+import * as QueueConstants from '../utils/queues';
 import { UpdateTransitiveGraphs, createReconnectionJob } from '../interfaces/graph-update-job.interface';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';

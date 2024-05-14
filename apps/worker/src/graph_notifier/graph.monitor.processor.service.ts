@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -8,11 +8,12 @@ import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { AsyncDebouncerService, GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, QueueConstants, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
+import { AsyncDebouncerService, GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
-import { BlockchainConstants } from '../../../../libs/common/src/blockchain/blockchain-constants';
+import * as BlockchainConstants from '../../../../libs/common/src/blockchain/blockchain-constants';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)

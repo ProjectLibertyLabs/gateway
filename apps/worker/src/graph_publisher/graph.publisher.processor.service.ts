@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -10,12 +10,13 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants, NonceService } from '../../../../libs/common/src';
+import { NonceService } from '../../../../libs/common/src';
 import { BaseConsumer } from '../BaseConsumer';
 import { GraphUpdateJob } from '../../../../libs/common/src/dtos/graph.update.job';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
 import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';

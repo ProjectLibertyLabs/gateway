@@ -2,9 +2,9 @@ import { DispatchError } from '@polkadot/types/interfaces';
 import { SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
 export class EventError extends Error {
-  name: string = '';
+  name = '';
 
-  message: string = '';
+  message = '';
 
   stack?: string = '';
 

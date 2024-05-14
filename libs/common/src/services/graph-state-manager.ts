@@ -32,7 +32,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
   private environment: EnvironmentInterface; // Environment details
 
-  private schemaIds: { [key: string]: { [key: string]: number } };
+  private schemaIds: Record<string, Record<string, number>>;
 
   private graphKeySchemaId: number;
 

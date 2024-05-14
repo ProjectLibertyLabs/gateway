@@ -33,7 +33,7 @@ import { filter, firstValueFrom, map, pipe, tap } from 'rxjs';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { EventError } from './event-error';
 
-export type EventMap = { [key: string]: Event };
+export type EventMap = Record<string, Event>;
 
 function eventKey(event: Event): string {
   return `${event.section}.${event.method}`;

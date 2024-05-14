@@ -1,9 +1,9 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
 import { createKeys } from '../blockchain/create-keys';
-import { RedisUtils } from '../utils/redis';
+import * as RedisUtils from '../utils/redis';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../config/config.service';
 
@@ -34,7 +34,7 @@ export class NonceService implements OnApplicationBootstrap {
   async getNextNonce(): Promise<number> {
     const nonce = await this.blockchainService.getNonce(this.accountId);
     const keys = this.getNextPossibleKeys(nonce);
-    // @ts-ignore
+    // @ts-expect-error incrementNonce is defined in the constructor
     const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, RedisUtils.NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
       this.logger.warn(`nextNonce was full even with ${RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);

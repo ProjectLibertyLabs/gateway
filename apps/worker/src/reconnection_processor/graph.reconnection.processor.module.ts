@@ -4,11 +4,11 @@ https://docs.nestjs.com/modules
 
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { QueueConstants } from '../../../../libs/common/src';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 import { GraphReconnectionService } from './graph.reconnection.processor.service';
 
 @Module({

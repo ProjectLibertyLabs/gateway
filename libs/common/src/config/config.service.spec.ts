@@ -1,8 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/*
-https://docs.nestjs.com/fundamentals/testing#unit-testing
-*/
-
 import { Test } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, jest } from '@jest/globals';
 import { ConfigModule } from '@nestjs/config';
@@ -12,6 +7,7 @@ import { configModuleOptions } from './env.config';
 const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   jest.resetModules();
   Object.keys(process.env).forEach((key) => {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete process.env[key];
   });
   process.env = {
@@ -35,7 +31,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 };
 
 describe('GraphSericeConfig', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
     QUEUE_HIGH_WATER: undefined,

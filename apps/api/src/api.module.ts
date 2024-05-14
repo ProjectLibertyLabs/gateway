@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
@@ -11,7 +11,8 @@ import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { GraphStateManager, QueueConstants } from '../../../libs/common/src';
+import { GraphStateManager } from '../../../libs/common/src';
+import * as QueueConstants from '../../../libs/common/src/utils/queues';
 
 @Module({
   imports: [

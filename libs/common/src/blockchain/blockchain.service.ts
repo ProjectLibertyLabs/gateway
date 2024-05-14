@@ -8,7 +8,7 @@ import { BlockHash, BlockNumber, DispatchError, DispatchInfo, Hash, SignedBlock 
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
 import { u32, Option, u128, u16 } from '@polkadot/types';
-import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo, PalletSchemasSchema } from '@polkadot/types/lookup';
+import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
@@ -122,11 +122,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.rpc('system', 'accountNextIndex', account);
   }
 
-  public async getSchema(schemaId: number): Promise<PalletSchemasSchema> {
-    const schema: PalletSchemasSchema = await this.query('schemas', 'schemas', schemaId);
-    return schema;
-  }
-
   public async capacityInfo(providerId: string): Promise<{
     providerId: string;
     currentBlockNumber: number;
@@ -187,7 +182,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         const eventsPromise = firstValueFrom(at.query.system.events());
 
         let isTxSuccess = false;
-        let totalBlockCapacity: bigint = 0n;
+        let totalBlockCapacity = 0n;
         let txError: RegistryError | undefined;
 
         try {

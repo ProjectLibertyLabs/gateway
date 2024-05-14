@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
@@ -9,16 +9,8 @@ import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
-import {
-  ConnectionDto,
-  GraphStateManager,
-  GraphUpdateJob,
-  PrivacyType,
-  ProviderGraphUpdateJob,
-  QueueConstants,
-  SkipTransitiveGraphs,
-  createReconnectionJob,
-} from '../../../../libs/common/src';
+import { ConnectionDto, GraphStateManager, GraphUpdateJob, PrivacyType, ProviderGraphUpdateJob, SkipTransitiveGraphs, createReconnectionJob } from '../../../../libs/common/src';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { Direction } from '../../../../libs/common/src/dtos/direction.dto';
 import { SECONDS_PER_BLOCK } from '../graph_publisher/graph.publisher.processor.service';
@@ -87,7 +79,7 @@ export class RequestProcessorService extends BaseConsumer {
       const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
       if (reImported) {
         // Use lua script to update last processed dsnpId
-        // @ts-ignore
+        // @ts-expect-error updateLastProcessed is defined in the constructor
         await this.cacheManager.updateLastProcessed(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY, dsnpUserId.toString(), blockDelay);
         this.logger.debug(`Re-imported bundles for ${dsnpUserId.toString()}`);
         // eslint-disable-next-line no-await-in-loop

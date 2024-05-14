@@ -4,13 +4,14 @@ https://docs.nestjs.com/modules
 
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@songkeys/nestjs-redis';
 import { ConfigModule } from '../../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { GraphStateManager, QueueConstants } from '../../../../libs/common/src';
+import { GraphStateManager } from '../../../../libs/common/src';
 import { GraphNotifierService } from './graph.monitor.processor.service';
 import { BlockchainModule } from '../../../../libs/common/src/blockchain/blockchain.module';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
+import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 
 @Module({
   imports: [

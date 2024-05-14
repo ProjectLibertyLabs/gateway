@@ -6,9 +6,8 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { Vec } from '@polkadot/types';
-import { BlockPaginationResponseMessage, MessageResponse, SchemaId } from '@frequency-chain/api-augment/interfaces';
+import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
-import { BlockNumber } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
@@ -18,6 +17,7 @@ import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import * as RedisUtils from '../utils/redis';
 import { MessageResponseWithSchemaId } from '../interfaces/announcement_response';
+import { ApiDecoration } from '@polkadot/api/types';
 
 @Injectable()
 export class ScannerService implements OnApplicationBootstrap {
@@ -38,7 +38,7 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const startingBlock = BigInt(this.configService.startingBlock) - 1n;
+    const startingBlock = Number(this.configService.startingBlock) - 1;
     this.setLastSeenBlockNumber(startingBlock);
     this.scheduleInitialScan();
     this.scheduleBlockchainScan();
@@ -96,7 +96,7 @@ export class ScannerService implements OnApplicationBootstrap {
 
       this.scanInProgress = true;
       let lastScannedBlock = await this.getLastSeenBlockNumber();
-      const currentBlockNumber = lastScannedBlock + 1n;
+      const currentBlockNumber = lastScannedBlock + 1;
       let latestBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
 
       if (!latestBlockHash.some((byte) => byte !== 0)) {
@@ -107,12 +107,14 @@ export class ScannerService implements OnApplicationBootstrap {
       this.logger.log(`Starting scan from block #${currentBlockNumber} (${latestBlockHash})`);
 
       while (!this.paused && !latestBlockHash.isEmpty && queueSize < this.configService.queueHighWater) {
+        this.logger.log(`Scanning block #${lastScannedBlock}`);
         // eslint-disable-next-line no-await-in-loop
         const at = await this.blockchainService.apiPromise.at(latestBlockHash.toHex());
         // eslint-disable-next-line no-await-in-loop
         const events = await at.query.system.events();
+        this.logger.log(`${events.length} events in block`);
         // eslint-disable-next-line no-await-in-loop
-        const messages = await this.processEvents(events, eventsToWatch);
+        const messages = await this.processEvents(at, lastScannedBlock, events, eventsToWatch);
         if (messages.length > 0) {
           this.logger.debug(`Found ${messages.length} messages to process`);
         }
@@ -120,14 +122,14 @@ export class ScannerService implements OnApplicationBootstrap {
         await this.queueIPFSJobs(messages);
         // eslint-disable-next-line no-await-in-loop
         await this.saveProgress(lastScannedBlock);
-        lastScannedBlock += 1n;
+        lastScannedBlock += 1;
         // eslint-disable-next-line no-await-in-loop
         latestBlockHash = await this.blockchainService.getBlockHash(lastScannedBlock);
         // eslint-disable-next-line no-await-in-loop
         queueSize = await this.ipfsQueue.count();
       }
       if (latestBlockHash.isEmpty) {
-        this.logger.log(`Scan reached end-of-chain at block ${lastScannedBlock - 1n}`);
+        this.logger.log(`Scan reached end-of-chain at block ${lastScannedBlock - 1}`);
       } else if (queueSize > this.configService.queueHighWater) {
         this.logger.log('Queue soft limit reached; pausing scan until next iteration');
       }
@@ -138,30 +140,35 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async processEvents(events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
+  private async processEvents(apiAt: ApiDecoration<'promise'>, blockNumber: number, events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
+    const hasMessages = events.some(({ event }) => apiAt.events.messages.MessagesInBlock.is(event));
+    if (!hasMessages) {
+      return [];
+    }
+
+    const keys = await apiAt.query.messages.messagesV2.keys(blockNumber);
+    let schemaIds = keys.map((key) => key.args[1].toString());
+    schemaIds = Array.from(new Set(...schemaIds));
     const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
-      events.map(async (event) => {
-        if (event.event.section === 'messages' && event.event.method === 'MessagesStored') {
-          if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(event.event.data[0]?.toString())) {
+      schemaIds.map(async (schemaId) => {
+          if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(schemaId)) {
             return null;
           }
-          const schemaId = event.event.data[0] as SchemaId;
-          const blockNumber = event.event.data[1] as BlockNumber;
           let paginationRequest = {
-            from_block: blockNumber.toBigInt(),
+            from_block: blockNumber,
             from_index: 0,
             page_size: 1000,
-            to_block: blockNumber.toBigInt() + 1n,
+            to_block: blockNumber + 1,
           };
 
           let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
           const messages: Vec<MessageResponse> = messageResponse.content;
           while (messageResponse.has_next.toHuman()) {
             paginationRequest = {
-              from_block: blockNumber.toBigInt(),
+              from_block: blockNumber,
               from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
               page_size: 1000,
-              to_block: blockNumber.toBigInt() + 1n,
+              to_block: blockNumber + 1,
             };
             // eslint-disable-next-line no-await-in-loop
             messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
@@ -174,8 +181,6 @@ export class ScannerService implements OnApplicationBootstrap {
             messages,
           };
           return messagesWithSchemaId;
-        }
-        return null;
       }),
     );
     const collectedMessages: MessageResponseWithSchemaId[] = [];
@@ -215,15 +220,15 @@ export class ScannerService implements OnApplicationBootstrap {
     await Promise.all(promises);
   }
 
-  private async getLastSeenBlockNumber(): Promise<bigint> {
-    return BigInt(((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0).toString());
+  private async getLastSeenBlockNumber(): Promise<number> {
+    return Number(((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0));
   }
 
-  private async saveProgress(blockNumber: bigint): Promise<void> {
+  private async saveProgress(blockNumber: number): Promise<void> {
     await this.setLastSeenBlockNumber(blockNumber);
   }
 
-  private async setLastSeenBlockNumber(b: bigint): Promise<void> {
-    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b.toString());
+  private async setLastSeenBlockNumber(b: number): Promise<void> {
+    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b);
   }
 }

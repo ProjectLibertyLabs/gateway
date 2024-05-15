@@ -21,6 +21,7 @@ export class AccountsController {
   @ApiOkResponse({ description: 'Returned SIWF Configuration data', type: WalletLoginConfigResponse })
   async getSIWFConfig(): Promise<WalletLoginConfigResponse> {
     try {
+      this.logger.debug('Received request for Sign-In With Frequency Configuration');
       return this.accountsService.getSIWFConfig();
     } catch (error) {
       const errorMessage = 'Failed to get the Sign-In With Frequency Configuration';
@@ -32,7 +33,7 @@ export class AccountsController {
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Fetch an account given an msaId.' })
-  @ApiOkResponse({ description: 'Found account' })
+  @ApiOkResponse({ description: 'Found account', type: AccountResponse })
   /**
    * Gets an account.
    * @param queryParams - The query parameters for creating the account.
@@ -41,6 +42,7 @@ export class AccountsController {
    */
   async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse> {
     try {
+      this.logger.debug(`Received request to get account with msaId: ${msaId}`);
       return await this.accountsService.getAccount(msaId);
     } catch (error) {
       this.logger.error(error);
@@ -53,9 +55,9 @@ export class AccountsController {
   @ApiOperation({ summary: 'Request to sign in with Frequency' })
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
   @ApiBody({ type: WalletLoginRequestDto })
-  async signInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
+  async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
     try {
-      this.logger.log(`Received Sign-In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
+      this.logger.debug(`Received Sign-In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
       return await this.accountsService.signInWithFrequency(walletLoginRequest);
     } catch (error) {
       const errorMessage = 'Failed to Sign In With Frequency';

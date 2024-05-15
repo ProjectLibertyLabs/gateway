@@ -16,7 +16,7 @@ mod api;
 async fn main() -> Result<(), impl Error> {
     const HOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
     const PORT: u16 = 5555;
-    println!("Starting Webhook Server on http://{}:{}/api/v3", HOST, PORT);
+    println!("Starting Webhook Server on http://{}:{}/api/v3/webhook", HOST, PORT);
     HttpServer::new(|| {
         let spec = Spec {
             info: Info {

@@ -75,7 +75,8 @@ export class TxnNotifierService extends BaseConsumer {
         if (txResult.success) {
           this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
           const webhook = await this.getWebhook();
-          let webhookResponse: TxWebhookRsp | null = null;
+          let webhookResponse: Partial<TxWebhookRsp> = {};
+          webhookResponse.referenceId = job.data.id;
 
           const jobType: TxMonitorJob['type'] = job.data.type;
           switch (jobType) {

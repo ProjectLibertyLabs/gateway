@@ -25,6 +25,9 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const document = await generateSwaggerDoc(app);
 
   // write swagger.json to disk
-  fs.writeFileSync('./swagger.json', JSON.stringify(document));
+  fs.writeFileSync(
+    './swagger.json',
+    JSON.stringify(document, (_, v) => v, 2),
+  );
   SwaggerModule.setup(apiPath, app, document);
 };

@@ -38,7 +38,7 @@
         ]
       },
       "post": {
-        "operationId": "AccountsController_signInWithFrequency",
+        "operationId": "AccountsController_postSignInWithFrequency",
         "summary": "Request to sign in with Frequency",
         "parameters": [],
         "requestBody": {
@@ -84,7 +84,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Found account"
+            "description": "Found account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -280,6 +287,20 @@
           "providerId",
           "siwfUrl",
           "frequencyRpcUrl"
+        ]
+      },
+      "AccountResponse": {
+        "type": "object",
+        "properties": {
+          "msaId": {
+            "type": "number"
+          },
+          "displayHandle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "msaId"
         ]
       },
       "SiwsPayloadDto": {

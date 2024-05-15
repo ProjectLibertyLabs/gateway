@@ -182,7 +182,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async isValidMsaId(msaId: number): Promise<boolean> {
     const msaIdMax = await this.getMsaIdMax();
-    return msaId > 0 && msaId < msaIdMax;
+    return msaId > 0 && msaId <= msaIdMax;
   }
 
   public async getKeysByMsa(msaId: number): Promise<KeyInfoResponse> {

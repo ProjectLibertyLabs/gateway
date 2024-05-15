@@ -28,7 +28,6 @@ describe('Account Controller', () => {
     const validMsaId = '3';
     await request(app.getHttpServer()).get(`/accounts/${validMsaId}`).expect(200).expect({
       msaId: '3',
-      handle: null,
     });
   });
 
@@ -46,7 +45,6 @@ describe('Account Controller', () => {
       .get(`/accounts/${validMsaId}`)
       .expect(200)
       .expect((res) => res.body.msaId === '1')
-      .expect((res) => res.body.handle.baseHandle === 'AliceHandle')
-      .expect((res) => res.body.handle.canonicalBase === 'a11cehand1e');
+      .expect((res) => res.body.displayHandle === 'AliceHandle');
   });
 });

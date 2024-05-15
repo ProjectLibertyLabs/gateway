@@ -1,10 +1,12 @@
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class AccountResponse {
+  @ApiProperty()
   @IsNotEmpty()
   msaId: number;
 
+  @ApiPropertyOptional()
   @IsOptional()
-  handle?: HandleResponse | null;
+  displayHandle?: string;
 }

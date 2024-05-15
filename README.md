@@ -57,18 +57,26 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 1. Start redis and frequency with instant profile.
 
    ```bash
-   docker-compose up  -d redis frequency
+      docker-compose up  -d redis frequency
    ```
 
    This will start Frequency and Redis
 
 2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run an account setup with Alice as provider 1 and 2,3,4,5,6 as users.
 
-      ```bash
-         make setup
-      ```
+   ```bash
+      make setup
+   ```
 
-3. Run the following command to start the account service api and worker containers.
+3. Run the following command in another terminal or in the background to start the mock webhook server.
+
+   ```bash
+      make mock-webhook
+   ```
+
+   This will start the mock webhook server.
+
+4. Run the following command to start the account service api and worker containers.
 
    ```bash
       docker-compose up -d api worker
@@ -76,9 +84,9 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 
    This will start the account service api and worker in development mode.
 
-4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
+5. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
 
-5. Run the tests
+6. Run the tests
 
    ```bash
       make test-e2e
@@ -86,7 +94,7 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 
    This will run the tests in `apps/api/test` folder.
 
-6. Check e2e test file for more details on the test.
+7. Check e2e test file for more details on the test.
 
 ## Development Environment
 

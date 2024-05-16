@@ -1,4 +1,6 @@
 /* eslint-disable no-underscore-dangle */
+import '@frequency-chain/api-augment';
+import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
@@ -6,7 +8,6 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
 import { Vec } from '@polkadot/types';
-import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
 import { Queue } from 'bullmq';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
@@ -16,7 +17,7 @@ import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEB
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import * as RedisUtils from '../utils/redis';
-import { MessageResponseWithSchemaId } from '../interfaces/announcement_response';
+import { MessageResponseWithSchemaId } from '../interfaces/message_response_with_schema_id';
 import { ApiDecoration } from '@polkadot/api/types';
 
 @Injectable()
@@ -107,12 +108,10 @@ export class ScannerService implements OnApplicationBootstrap {
       this.logger.log(`Starting scan from block #${currentBlockNumber} (${latestBlockHash})`);
 
       while (!this.paused && !latestBlockHash.isEmpty && queueSize < this.configService.queueHighWater) {
-        this.logger.log(`Scanning block #${lastScannedBlock}`);
         // eslint-disable-next-line no-await-in-loop
         const at = await this.blockchainService.apiPromise.at(latestBlockHash.toHex());
         // eslint-disable-next-line no-await-in-loop
         const events = await at.query.system.events();
-        this.logger.log(`${events.length} events in block`);
         // eslint-disable-next-line no-await-in-loop
         const messages = await this.processEvents(at, lastScannedBlock, events, eventsToWatch);
         if (messages.length > 0) {
@@ -140,7 +139,12 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async processEvents(apiAt: ApiDecoration<'promise'>, blockNumber: number, events: Vec<FrameSystemEventRecord>, eventsToWatch: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
+  private async processEvents(
+    apiAt: ApiDecoration<'promise'>,
+    blockNumber: number,
+    events: Vec<FrameSystemEventRecord>,
+    eventsToWatch: ChainWatchOptionsDto,
+  ): Promise<MessageResponseWithSchemaId[]> {
     const hasMessages = events.some(({ event }) => apiAt.events.messages.MessagesInBlock.is(event));
     if (!hasMessages) {
       return [];
@@ -151,36 +155,36 @@ export class ScannerService implements OnApplicationBootstrap {
     schemaIds = Array.from(new Set(...schemaIds));
     const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
       schemaIds.map(async (schemaId) => {
-          if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(schemaId)) {
-            return null;
-          }
-          let paginationRequest = {
+        if (eventsToWatch?.schemaIds?.length > 0 && !eventsToWatch.schemaIds.includes(schemaId)) {
+          return null;
+        }
+        let paginationRequest = {
+          from_block: blockNumber,
+          from_index: 0,
+          page_size: 1000,
+          to_block: blockNumber + 1,
+        };
+
+        let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+        const messages: Vec<MessageResponse> = messageResponse.content;
+        while (messageResponse.has_next.toHuman()) {
+          paginationRequest = {
             from_block: blockNumber,
-            from_index: 0,
+            from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
             page_size: 1000,
             to_block: blockNumber + 1,
           };
-
-          let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
-          const messages: Vec<MessageResponse> = messageResponse.content;
-          while (messageResponse.has_next.toHuman()) {
-            paginationRequest = {
-              from_block: blockNumber,
-              from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
-              page_size: 1000,
-              to_block: blockNumber + 1,
-            };
-            // eslint-disable-next-line no-await-in-loop
-            messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
-            if (messageResponse.content.length > 0) {
-              messages.push(...messageResponse.content);
-            }
+          // eslint-disable-next-line no-await-in-loop
+          messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+          if (messageResponse.content.length > 0) {
+            messages.push(...messageResponse.content);
           }
-          const messagesWithSchemaId: MessageResponseWithSchemaId = {
-            schemaId: schemaId.toString(),
-            messages,
-          };
-          return messagesWithSchemaId;
+        }
+        const messagesWithSchemaId: MessageResponseWithSchemaId = {
+          schemaId: schemaId.toString(),
+          messages,
+        };
+        return messagesWithSchemaId;
       }),
     );
     const collectedMessages: MessageResponseWithSchemaId[] = [];
@@ -193,35 +197,35 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   private async queueIPFSJobs(messages: MessageResponseWithSchemaId[]): Promise<void> {
-    const promises = messages.map(async (messageResponse) => {
-      const { schemaId } = messageResponse;
-      const innerPromises = messageResponse.messages.map(async (message) => {
-        if (!message.cid || message.cid.isNone) {
-          return;
-        }
+    const jobs = messages.flatMap((messageResponse) =>
+      messageResponse.messages
+        .filter((message) => message.cid && message.cid.isSome)
+        .map((message) => {
+          const job = createIPFSQueueJob(
+            message.block_number.toNumber(),
+            message.msa_id.isNone ? message.provider_msa_id.toString() : message.msa_id.unwrap().toString(),
+            message.provider_msa_id.toString(),
+            messageResponse.schemaId,
+            message.cid.unwrap().toString(),
+            message.index.toNumber(),
+            '',
+          );
 
-        const ipfsQueueJob = createIPFSQueueJob(
-          message.block_number.toString(),
-          message.msa_id.isNone ? message.provider_msa_id.toString() : message.msa_id.unwrap().toString(),
-          message.provider_msa_id.toString(),
-          schemaId,
-          message.cid.unwrap().toString(),
-          message.index.toNumber(),
-          '',
-        );
-        // eslint-disable-next-line no-await-in-loop
-        await this.ipfsQueue.add(`IPFS Job: ${ipfsQueueJob.key}`, ipfsQueueJob.data, { jobId: ipfsQueueJob.key });
-      });
+          return {
+            name: `IPFS Job: ${job.key}`,
+            data: job.data,
+            opts: { jobId: job.key },
+          };
+        }),
+    );
 
-      // eslint-disable-next-line no-await-in-loop
-      await Promise.all(innerPromises);
-    });
-
-    await Promise.all(promises);
+    if (jobs && jobs.length > 0) {
+      await this.ipfsQueue.addBulk(jobs);
+    }
   }
 
   private async getLastSeenBlockNumber(): Promise<number> {
-    return Number(((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0));
+    return Number((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0);
   }
 
   private async saveProgress(blockNumber: number): Promise<void> {

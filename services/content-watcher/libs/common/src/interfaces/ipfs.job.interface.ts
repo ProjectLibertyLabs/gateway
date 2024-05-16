@@ -3,13 +3,13 @@ export interface IIPFSJob {
   providerId: string;
   schemaId: string;
   cid: string;
-  blockNumber: string;
+  blockNumber: number;
   index: number;
   requestId?: string;
 }
 
 export function createIPFSQueueJob(
-  blockNumber: string,
+  blockNumber: number,
   msaId: string,
   providerId: string,
   schemaId: string,
@@ -27,6 +27,6 @@ export function createIPFSQueueJob(
       blockNumber,
       index,
       requestId,
-    } as IIPFSJob,
+    },
   };
 }

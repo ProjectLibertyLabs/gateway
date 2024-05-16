@@ -11,6 +11,7 @@ import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
 import {
+  AnnouncementResponse,
   AnnouncementType,
   BroadcastAnnouncement,
   ProfileAnnouncement,
@@ -18,8 +19,7 @@ import {
   ReplyAnnouncement,
   TombstoneAnnouncement,
   UpdateAnnouncement,
-} from '../interfaces/dsnp';
-import { AnnouncementResponse } from '../interfaces/announcement_response';
+} from '../types/content-announcement';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {

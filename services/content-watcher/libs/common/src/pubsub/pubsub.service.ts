@@ -4,9 +4,9 @@ import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
-import { AnnouncementResponse } from '../interfaces/announcement_response';
 import { ConfigService } from '../config/config.service';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
+import { AnnouncementResponse } from '../types/content-announcement';
 
 @Injectable()
 export class PubSubService {

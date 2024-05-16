@@ -1,0 +1,276 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Content Announcement API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/content-announcements": {
+      "post": {
+        "summary": "Create a new content announcement",
+        "operationId": "createAnnouncementResponse",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnouncementResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Content announcement created successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnnouncementType": {
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          113
+        ],
+        "x-enum-varnames": [
+          "Tombstone",
+          "Broadcast",
+          "Reply",
+          "Reaction",
+          "Profile",
+          "Update",
+          "PublicFollows"
+        ]
+      },
+      "AnnouncementResponse": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "nullable": true,
+            "description": "An optional identifier for the request, may be used for tracking or correlation"
+          },
+          "schemaId": {
+            "type": "string",
+            "description": "Identifier for the schema being used or referenced"
+          },
+          "blockNumber": {
+            "type": "integer",
+            "description": "The block number on the blockchain where this announcement was recorded"
+          },
+          "announcement": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TombstoneAnnouncement"
+              },
+              {
+                "$ref": "#/components/schemas/BroadcastAnnouncement"
+              },
+              {
+                "$ref": "#/components/schemas/ReplyAnnouncement"
+              },
+              {
+                "$ref": "#/components/schemas/ReactionAnnouncement"
+              },
+              {
+                "$ref": "#/components/schemas/ProfileAnnouncement"
+              },
+              {
+                "$ref": "#/components/schemas/UpdateAnnouncement"
+              }
+            ]
+          }
+        },
+        "required": [
+          "schemaId",
+          "blockNumber",
+          "announcement"
+        ]
+      },
+      "TypedAnnouncement": {
+        "type": "object",
+        "properties": {
+          "announcementType": {
+            "type": "AnnouncementType"
+          },
+          "fromId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "announcementType",
+          "fromId"
+        ],
+        "discriminator": {
+          "propertyName": "announcementType",
+          "mapping": {
+            "0": "#/components/schemas/TombstoneAnnouncement",
+            "2": "#/components/schemas/BroadcastAnnouncement",
+            "3": "#/components/schemas/ReplyAnnouncement",
+            "4": "#/components/schemas/ReactionAnnouncement",
+            "5": "#/components/schemas/ProfileAnnouncement",
+            "6": "#/components/schemas/UpdateAnnouncement"
+          }
+        }
+      },
+      "TombstoneAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "targetAnnouncementType": {
+                "type": "integer"
+              },
+              "targetContentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "targetAnnouncementType",
+              "targetContentHash"
+            ]
+          }
+        ]
+      },
+      "BroadcastAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "contentHash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "contentHash",
+              "url"
+            ]
+          }
+        ]
+      },
+      "ReplyAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "contentHash": {
+                "type": "string"
+              },
+              "inReplyTo": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "contentHash",
+              "inReplyTo",
+              "url"
+            ]
+          }
+        ]
+      },
+      "ReactionAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "emoji": {
+                "type": "string"
+              },
+              "inReplyTo": {
+                "type": "string"
+              },
+              "apply": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "emoji",
+              "inReplyTo",
+              "apply"
+            ]
+          }
+        ]
+      },
+      "ProfileAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "contentHash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "contentHash",
+              "url"
+            ]
+          }
+        ]
+      },
+      "UpdateAnnouncement": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TypedAnnouncement"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "contentHash": {
+                "type": "string"
+              },
+              "targetAnnouncementType": {
+                "type": "integer"
+              },
+              "targetContentHash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "contentHash",
+              "targetAnnouncementType",
+              "targetContentHash",
+              "url"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

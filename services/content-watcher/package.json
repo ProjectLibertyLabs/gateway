@@ -24,7 +24,8 @@
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . ./.env.dev; jest --config ./apps/api/test/jest-e2e.json --detectOpenHandles",
     "local:init": "node scripts/chain-setup/local-chain-setup.cjs",
-    "local:publish": "cd scripts/content-setup && npm i && npm run main"
+    "local:publish": "cd scripts/content-setup && npm i && npm run main",
+    "generate-content-announcement-types": "npx @hey-api/openapi-ts -i content-announcement.openapi.json -o libs/common/src/types/content-announcement"
   },
   "repository": {
     "type": "git",
@@ -76,6 +77,7 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "^0.45.1",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.8",
     "@types/express": "^4.17.21",

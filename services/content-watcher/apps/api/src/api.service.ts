@@ -71,16 +71,18 @@ export class ApiService {
       currentWebhookRegistrationDtos = JSON.parse(currentRegistedWebooks);
     }
 
-    webhookRegistration.announcementTypes.map((a) => a.toLowerCase()).forEach((announcementType) => {
-      const existingRegistration = currentWebhookRegistrationDtos.find((currentWebhookRegistration) => currentWebhookRegistration.announcementType === announcementType);
-      if (!existingRegistration) {
-        currentWebhookRegistrationDtos.push({ announcementType: announcementType.toLowerCase(), urls: [webhookRegistration.url] });
-      } else {
-        const urls = new Set(existingRegistration.urls);
-        urls.add(webhookRegistration.url);
-        existingRegistration.urls = [...urls];
-      }
-    });
+    webhookRegistration.announcementTypes
+      .map((a) => a.toLowerCase())
+      .forEach((announcementType) => {
+        const existingRegistration = currentWebhookRegistrationDtos.find((currentWebhookRegistration) => currentWebhookRegistration.announcementType === announcementType);
+        if (!existingRegistration) {
+          currentWebhookRegistrationDtos.push({ announcementType: announcementType.toLowerCase(), urls: [webhookRegistration.url] });
+        } else {
+          const urls = new Set(existingRegistration.urls);
+          urls.add(webhookRegistration.url);
+          existingRegistration.urls = [...urls];
+        }
+      });
 
     await this.redis.set(REGISTERED_WEBHOOK_KEY, JSON.stringify(currentWebhookRegistrationDtos));
   }

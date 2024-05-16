@@ -3,10 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Vec, u16, u32 } from '@polkadot/types';
+import { Vec } from '@polkadot/types';
 import { BlockPaginationResponseMessage, MessageResponse, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import { Job, Queue } from 'bullmq';
-import { firstValueFrom } from 'rxjs';
 import { BlockNumber } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainService } from '../blockchain/blockchain.service';
@@ -16,7 +15,7 @@ import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { ContentSearchRequestDto } from '../dtos/request-job.dto';
 import { REGISTERED_WEBHOOK_KEY } from '../constants';
-import { MessageResponseWithSchemaId } from '../interfaces/announcement_response';
+import { MessageResponseWithSchemaId } from '../interfaces/message_response_with_schema_id';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME, {
@@ -138,7 +137,7 @@ export class CrawlerService extends BaseConsumer {
         }
 
         const ipfsQueueJob = createIPFSQueueJob(
-          message.block_number.toString(),
+          message.block_number.toNumber(),
           message.msa_id.isNone ? message.provider_msa_id.toString() : message.msa_id.unwrap().toString(),
           message.provider_msa_id.toString(),
           schemaId,

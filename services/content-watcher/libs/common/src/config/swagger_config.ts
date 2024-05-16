@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 import metadata from '../../../../apps/api/src/metadata';
 
 export const initSwagger = async (app: INestApplication, apiPath: string) => {
@@ -17,5 +18,9 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const document = SwaggerModule.createDocument(app, options, {
     extraModels: [],
   });
+  fs.writeFileSync(
+    './swagger.json',
+    JSON.stringify(document, (_, v) => v, 2),
+  );
   SwaggerModule.setup(apiPath, app, document);
 };

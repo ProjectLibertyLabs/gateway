@@ -5,19 +5,23 @@ import { IsArray, IsOptional } from 'class-validator';
 /**
  * Interface for chain filter options
  * @interface IChainWatchOptions
- * @property {string[]} schemaIds - The schema ids for which content should be watched for
+ * @property {number[]} schemaIds - The schema ids for which content should be watched for
  * @property {string[]} msa_ids - The msa ids for which content should be watched for
  */
 export class ChainWatchOptionsDto {
   // Specific schema ids to watch for
   @IsOptional()
   @IsArray()
-  @Type(() => String)
+  @Type(() => Number)
   @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'number',
+    },
     description: 'Specific schema ids to watch for',
-    example: ['1', '19'],
+    example: [1, 19],
   })
-  schemaIds: string[];
+  schemaIds: number[];
 
   // Specific dsnpIds (msa_id) to watch for
   @IsOptional()

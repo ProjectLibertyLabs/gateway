@@ -61,7 +61,7 @@
             "description": "An optional identifier for the request, may be used for tracking or correlation"
           },
           "schemaId": {
-            "type": "string",
+            "type": "integer",
             "description": "Identifier for the schema being used or referenced"
           },
           "blockNumber": {

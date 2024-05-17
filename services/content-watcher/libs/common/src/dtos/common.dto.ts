@@ -25,8 +25,8 @@ export class FilesUploadDto {
 }
 
 export class ResetScannerDto {
-  @ApiProperty({ type: 'string', description: 'The block number to reset the scanner to', example: '0' })
-  blockNumber: string;
+  @ApiProperty({ type: 'number', description: 'The block number to reset the scanner to', example: 0 })
+  blockNumber: number;
 }
 
 // eslint-disable-next-line no-shadow

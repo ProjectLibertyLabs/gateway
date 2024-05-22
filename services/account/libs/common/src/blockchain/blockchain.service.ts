@@ -429,20 +429,21 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const siwfTxnValues: Partial<SIWFTxnValues> = {};
 
     txResultEvents.forEach((record) => {
+      // In the sign up flow, but when msa is already created, we do not have an MsaCreated event
+      // We only have the DelegationGranted event, therefore check for events individually.
       if (record.event && this.api.events.msa.MsaCreated.is(record.event)) {
         siwfTxnValues.msaId = record.event.data.msaId.toString();
         siwfTxnValues.address = record.event.data.key.toString();
-      } else if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
+      }
+      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
         const handleHex = record.event.data.handle.toString();
         // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
         const handleData = handleHex.slice(2);
         siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-      } else if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
+      }
+      if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
         siwfTxnValues.newProvider = record.event.data.providerId.toString();
         const owner = record.event.data.delegatorId.toString();
-        if (owner !== siwfTxnValues.msaId) {
-          throw new Error(`DelegationGranted event owner ${owner} does not match msaId ${siwfTxnValues.msaId}`);
-        }
       }
     });
     return siwfTxnValues as SIWFTxnValues;

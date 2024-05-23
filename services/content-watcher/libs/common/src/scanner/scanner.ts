@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
 import '@frequency-chain/api-augment';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -15,14 +15,17 @@ import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEB
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import * as RedisUtils from '../utils/redis';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
+import { IScanReset } from '../interfaces/scan-reset.interface';
+
+const INTERVAL_SCAN_NAME = 'intervalScan';
 
 @Injectable()
-export class ScannerService implements OnApplicationBootstrap {
+export class ScannerService implements OnApplicationBootstrap, OnApplicationShutdown {
   private readonly logger: Logger;
 
   private scanInProgress = false;
-
   private paused = false;
+  private scanResetBlockNumber: number | undefined;
 
   constructor(
     private readonly configService: ConfigService,
@@ -36,32 +39,43 @@ export class ScannerService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    const startingBlock = Number(this.configService.startingBlock) - 1;
-    this.setLastSeenBlockNumber(startingBlock);
-    this.scheduleInitialScan();
-    this.scheduleBlockchainScan();
-  }
+    const startingBlock = this.configService.startingBlock;
+    if (startingBlock) {
+      this.logger.log(`Setting initial scan block to ${startingBlock}`);
+      this.setLastSeenBlockNumber(startingBlock - 1);
+    }
+    setImmediate(() => this.scan());
 
-  private scheduleInitialScan() {
-    const initialTimeout = setTimeout(() => this.scan(), 0);
-    this.schedulerRegistry.addTimeout('initialScan', initialTimeout);
-  }
-
-  private scheduleBlockchainScan() {
     const scanInterval = this.configService.blockchainScanIntervalMinutes * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
-
-    const interval = setInterval(() => this.scan(), scanInterval);
-    this.schedulerRegistry.addInterval('blockchainScan', interval);
+    this.schedulerRegistry.addInterval(INTERVAL_SCAN_NAME, setInterval(() => this.scan(), scanInterval));
   }
 
-  public async pauseScanner() {
+  onApplicationShutdown(_signal?: string | undefined) {
+    const interval = this.schedulerRegistry.getInterval(INTERVAL_SCAN_NAME);
+    clearInterval(interval);
+  }
+
+  public pauseScanner() {
     this.logger.debug('Pausing scanner');
     this.paused = true;
   }
 
-  public async resumeScanner() {
+  public resumeScanner(immediate = false) {
     this.logger.debug('Resuming scanner');
     this.paused = false;
+    if (immediate) {
+      setImmediate(() => this.scan());
+    }
+  }
+
+  public async resetScan({ blockNumber, rewindOffset, immediate }: IScanReset) {
+    this.pauseScanner();
+    let targetBlock = blockNumber ?? await this.blockchainService.getLatestFinalizedBlockNumber();
+    targetBlock -= rewindOffset ? Math.abs(rewindOffset) : 0;
+    targetBlock = Math.max(targetBlock, 1);
+    this.scanResetBlockNumber = targetBlock;
+    this.logger.log(`Resetting scan to block #${targetBlock}`);
+    this.resumeScanner(immediate);
   }
 
   async scan() {
@@ -73,18 +87,7 @@ export class ScannerService implements OnApplicationBootstrap {
         return;
       }
 
-      if (this.paused) {
-        this.logger.debug('Scanner is paused');
-        return;
-      }
-      let queueSize = await this.ipfsQueue.count();
-
-      if (queueSize > 0) {
-        this.logger.log('Deferring next blockchain scan until queue is empty');
-        return;
-      }
       const registeredWebhook = await this.cache.get(REGISTERED_WEBHOOK_KEY);
-
       if (!registeredWebhook) {
         this.logger.log('No registered webhooks; no scan performed.');
         return;
@@ -93,32 +96,38 @@ export class ScannerService implements OnApplicationBootstrap {
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
       this.scanInProgress = true;
-      let lastScannedBlock = await this.getLastSeenBlockNumber();
-      const currentBlockNumber = lastScannedBlock + 1;
-      let currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
 
-      if (currentBlockHash.isEmpty) {
-        this.logger.log('No new blocks to read; no scan performed.');
-        this.scanInProgress = false;
-        return;
-      }
-      this.logger.log(`Starting scan from block #${currentBlockNumber} (${currentBlockHash})`);
+      let first = true;
+      while (true) {
+        if (this.paused) {
+          this.logger.log('Scan paused');
+          break;
+        }
 
-      while (!this.paused && !currentBlockHash.isEmpty && queueSize < this.configService.queueHighWater) {
-        const messages = await this.chainEventProcessor.getMessagesInBlock(lastScannedBlock, eventsToWatch);
+        const queueSize = await this.ipfsQueue.count();
+        if (queueSize > this.configService.queueHighWater) {
+          this.logger.log('Queue soft limit reached; pausing scan until next interval');
+          break;
+        }
+
+        const currentBlockNumber = await this.getNextBlockNumber();
+        const currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+        if (currentBlockHash.isEmpty) {
+          this.logger.log(`No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`);
+          break;
+        }
+
+        if (first) {
+          this.logger.log(`Starting scan @ block # ${currentBlockNumber} (${currentBlockHash})`);
+          first = false;
+        }
+
+        const messages = await this.chainEventProcessor.getMessagesInBlock(currentBlockNumber, eventsToWatch);
         if (messages.length > 0) {
           this.logger.debug(`Found ${messages.length} messages to process`);
         }
         await this.chainEventProcessor.queueIPFSJobs(messages, this.ipfsQueue);
-        await this.saveProgress(lastScannedBlock);
-        lastScannedBlock += 1;
-        currentBlockHash = await this.blockchainService.getBlockHash(lastScannedBlock);
-        queueSize = await this.ipfsQueue.count();
-      }
-      if (currentBlockHash.isEmpty) {
-        this.logger.log(`Scan reached end-of-chain at block ${lastScannedBlock - 1}`);
-      } else if (queueSize > this.configService.queueHighWater) {
-        this.logger.log('Queue soft limit reached; pausing scan until next iteration');
+        await this.saveProgress(currentBlockNumber);
       }
     } catch (err) {
       this.logger.error(err);
@@ -127,8 +136,17 @@ export class ScannerService implements OnApplicationBootstrap {
     }
   }
 
-  private async getLastSeenBlockNumber(): Promise<number> {
-    return Number((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0);
+  private async getNextBlockNumber(): Promise<number> {
+    let nextBlock: number;
+    if (this.scanResetBlockNumber) {
+      await this.setLastSeenBlockNumber(this.scanResetBlockNumber - 1);
+      nextBlock = this.scanResetBlockNumber;
+      this.scanResetBlockNumber = undefined;
+    } else {
+      nextBlock = (Number(await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0) + 1;
+    }
+
+    return nextBlock;
   }
 
   private async saveProgress(blockNumber: number): Promise<void> {

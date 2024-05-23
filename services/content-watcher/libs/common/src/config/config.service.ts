@@ -37,8 +37,8 @@ export class ConfigService {
     return this.nestConfigService.get('FREQUENCY_URL')!;
   }
 
-  public get startingBlock(): string {
-    return this.nestConfigService.get('STARTING_BLOCK')!;
+  public get startingBlock(): number | undefined {
+    return this.nestConfigService.get<number>('STARTING_BLOCK')!;
   }
 
   public get blockchainScanIntervalMinutes(): number {

@@ -3,12 +3,13 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, calculateJobId } from '../../../libs/common/src';
+import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, ResetScannerDto, calculateJobId } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
+import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
 import { WebhookRegistrationDto } from '../../../libs/common/src/dtos/subscription.webhook.dto';
 import * as RedisUtils from '../../../libs/common/src/utils/redis';
+import { IScanReset } from '../../../libs/common/src/interfaces/scan-reset.interface';
 
 @Injectable()
 export class ApiService {
@@ -22,11 +23,6 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  public setLastSeenBlockNumber(blockNumber: bigint) {
-    this.logger.warn(`Setting last seen block number to ${blockNumber}`);
-    return this.redis.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, blockNumber.toString());
-  }
-
   public async setWatchOptions(watchOptions: ChainWatchOptionsDto) {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
@@ -36,12 +32,16 @@ export class ApiService {
 
   public pauseScanner() {
     this.logger.warn('Pausing scanner');
-    return this.scannerService.pauseScanner();
+    this.scannerService.pauseScanner();
   }
 
-  public resumeScanner() {
+  public resumeScanner(immediate = false) {
     this.logger.warn('Resuming scanner');
-    return this.scannerService.resumeScanner();
+    this.scannerService.resumeScanner(immediate);
+  }
+
+  public async resetScanner(resetScannerOptions: IScanReset) {
+    await this.scannerService.resetScan(resetScannerOptions);
   }
 
   public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {

@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpStatus, Logger, Post, Put, Query } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { ApiService } from './api.service';
 import { ResetScannerDto, ContentSearchRequestDto } from '../../../libs/common/src';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
@@ -27,7 +27,7 @@ export class ApiController {
     type: ResetScannerDto,
   })
   resetScanner(@Body() resetScannerDto: ResetScannerDto) {
-    return this.apiService.setLastSeenBlockNumber(BigInt(resetScannerDto.blockNumber ?? 0n));
+    return this.apiService.resetScanner(resetScannerDto);
   }
 
   @Post('setWatchOptions')
@@ -45,8 +45,15 @@ export class ApiController {
   }
 
   @Post('startScanner')
-  startScanner() {
-    return this.apiService.resumeScanner();
+  @ApiQuery({
+    name: 'immediate',
+    description: 'immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)',
+    type: 'boolean',
+    required: false,
+  })
+  startScanner(@Query('immediate') immediate?: boolean) {
+    this.logger.debug(`Resuming scan; immediate=${immediate}`);
+    return this.apiService.resumeScanner(immediate);
   }
 
   @Put('search')

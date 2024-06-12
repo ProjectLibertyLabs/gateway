@@ -25,8 +25,8 @@ export class KeysController {
   @ApiOkResponse({ description: 'Found public keys.' })
   @ApiBody({ type: KeysRequest })
   /**
-   * Gets public keys.
-   * @param queryParams - The query parameters for getting the public keys.
+   * Add new control keys for an MSA ID.
+   * @param queryParams - The query parameters for adding the public keys.
    * @returns A promise that resolves to an array of public keys associated with the given msaId.
    * @throws An error if no public keys can be found.
    */

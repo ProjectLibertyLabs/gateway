@@ -137,7 +137,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('should get frequency http url', () => {
-      expect(accountServiceConfig.frequencyUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_HTTP_URL?.toString());
+      expect(accountServiceConfig.frequencyHttpUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_HTTP_URL?.toString());
     });
 
     it('should get api port', () => {

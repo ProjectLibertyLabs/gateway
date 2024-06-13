@@ -5,7 +5,7 @@ import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import {  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../../libs/common/src/utils/redis';
+import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../../libs/common/src/utils/redis';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';

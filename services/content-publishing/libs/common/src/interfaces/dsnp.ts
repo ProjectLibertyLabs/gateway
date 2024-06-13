@@ -62,7 +62,7 @@ export type TypedAnnouncement<T extends AnnouncementType> = {
   announcementType: T;
   fromId: string;
 } & (TombstoneFields | BroadcastFields | ReplyFields | ReactionFields | ProfileFields | UpdateFields) &
-Record<string, unknown>;
+  Record<string, unknown>;
 
 /**
  * Announcement: an Announcement intended for inclusion in a batch file

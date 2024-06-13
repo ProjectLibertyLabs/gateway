@@ -5,7 +5,7 @@ import { DelayedError, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IRequestJob, REQUEST_QUEUE_NAME,  } from '../../../../libs/common/src';
+import { IRequestJob, REQUEST_QUEUE_NAME } from '../../../../libs/common/src';
 import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import { BaseConsumer } from '../BaseConsumer';

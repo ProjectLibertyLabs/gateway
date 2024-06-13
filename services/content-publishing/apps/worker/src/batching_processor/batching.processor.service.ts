@@ -15,7 +15,6 @@ import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interf
 import { getSchemaId } from '../../../../libs/common/src/utils/dsnp.schema';
 import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '../../../../libs/common/src';
 
-
 @Injectable()
 export class BatchingProcessorService {
   private logger: Logger;
@@ -88,14 +87,7 @@ export class BatchingProcessorService {
     const lockedBatchMetaDataKey = getBatchLockKey(batchMetaDataKey);
     const lockedBatchDataKey = getBatchLockKey(batchDataKey);
     // @ts-expect-error lockBatch is a custom command
-    const response = await this.redis.lockBatch(
-      batchMetaDataKey,
-      batchDataKey,
-      lockedBatchMetaDataKey,
-      lockedBatchDataKey,
-      Date.now(),
-      BATCH_LOCK_EXPIRE_SECONDS * 1000,
-    );
+    const response = await this.redis.lockBatch(batchMetaDataKey, batchDataKey, lockedBatchMetaDataKey, lockedBatchDataKey, Date.now(), BATCH_LOCK_EXPIRE_SECONDS * 1000);
     this.logger.debug(JSON.stringify(response));
     const status = response[0];
 

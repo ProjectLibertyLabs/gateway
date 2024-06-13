@@ -3,7 +3,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
 import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import {  NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey} from '../../../../libs/common/src/utils/redis';
+import { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } from '../../../../libs/common/src/utils/redis';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
 import { ConfigService } from '../../../../libs/common/src/config/config.service';
 
@@ -37,7 +37,7 @@ export class NonceService implements OnApplicationBootstrap {
     // @ts-expect-error peekNonce is a custom command
     const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
-      this.logger.warn(`nextNonce was full even with ${ NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
+      this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
       return Number(nonce) + NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex - 1;

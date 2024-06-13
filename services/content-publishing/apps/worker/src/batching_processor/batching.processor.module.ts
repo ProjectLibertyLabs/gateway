@@ -55,7 +55,7 @@ import { ProfileWorker } from './workers/profile.worker';
     }),
     ScheduleModule.forRoot(),
     BullModule.registerQueue({
-      name:QueueConstants.BATCH_QUEUE_NAME,
+      name: QueueConstants.BATCH_QUEUE_NAME,
     }),
     BullModule.registerQueue({
       name: QueueConstants.BROADCAST_QUEUE_NAME,

@@ -19,8 +19,7 @@ import {
 } from '../../../libs/common/src';
 import { calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
 import { IAssetJob, IAssetMetadata } from '../../../libs/common/src/interfaces/asset-job.interface';
-import { getAssetDataKey, getAssetMetadataKey , STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, } from '../../../libs/common/src/utils/redis';
-
+import { getAssetDataKey, getAssetMetadataKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../libs/common/src/utils/redis';
 
 @Injectable()
 export class ApiService {
@@ -64,14 +63,13 @@ export class ApiService {
     if (content.profile) {
       content.profile.icon?.forEach((reference) => checkingList.push({ onlyImage: true, referenceId: reference.referenceId }));
     } else if (content.content) {
-      content.content.assets?.forEach(
-        (asset) =>
-          asset.references?.forEach((reference) =>
-            checkingList.push({
-              onlyImage: false,
-              referenceId: reference.referenceId,
-            }),
-          ),
+      content.content.assets?.forEach((asset) =>
+        asset.references?.forEach((reference) =>
+          checkingList.push({
+            onlyImage: false,
+            referenceId: reference.referenceId,
+          }),
+        ),
       );
     }
 

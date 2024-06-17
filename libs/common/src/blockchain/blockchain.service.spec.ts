@@ -25,7 +25,6 @@ describe('BlockchainService', () => {
       getRedisUrl: jest.fn(),
       getFrequencyUrl: jest.fn(),
       getGraphEnvironmentType: jest.fn(),
-      getGraphEnvironmentConfig: jest.fn(),
       getProviderAccountSeedPhrase: jest.fn(),
       redisUrl: jest.fn(),
       frequencyUrl: jest.fn(),

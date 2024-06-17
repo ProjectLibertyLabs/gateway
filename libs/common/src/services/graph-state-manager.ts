@@ -8,7 +8,6 @@ import {
   ImportBundle,
   Update,
   Config,
-  DevEnvironment,
   EnvironmentType,
   DsnpKeys,
   DsnpPublicKey,
@@ -69,14 +68,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
     private blockchainService: BlockchainService,
   ) {
     const environmentType = this.configService.getGraphEnvironmentType();
-    if (environmentType === EnvironmentType.Dev.toString()) {
-      const configJson = this.configService.getGraphEnvironmentConfig();
-      const config: Config = JSON.parse(configJson);
-      const devEnvironment: DevEnvironment = { environmentType: EnvironmentType.Dev, config };
-      this.environment = devEnvironment;
-    } else {
-      this.environment = { environmentType: EnvironmentType[environmentType] };
-    }
+    this.environment = { environmentType: EnvironmentType[environmentType] };
     this.graphState = new Graph(this.environment);
 
     GraphStateManager.graphStateFinalizer.register(this, this.graphState);

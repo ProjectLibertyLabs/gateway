@@ -3,13 +3,7 @@ import { Keyring } from '@polkadot/keyring';
 import { waitReady } from '@polkadot/wasm-crypto';
 import { _0n, hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { userPrivateConnections, userPrivateFollows, publicKey, userPublicFollows } from '@dsnp/frequency-schemas/dsnp';
-import {
-  DsnpVersion,
-  Graph,
-  EnvironmentType,
-  ConnectionType,
-  PrivacyType,
-} from '@dsnp/graph-sdk';
+import { DsnpVersion, Graph, EnvironmentType, ConnectionType, PrivacyType } from '@dsnp/graph-sdk';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -22,16 +16,9 @@ const sendStatusCb =
   ({ status, events }) => {
     if (status.isInBlock || status.isFinalized) {
       const msaCreated = events.map(({ event }) => event).find((event) => event.method === 'MsaCreated');
-      const schemaCreated = events.map(({ event }) => event).find((event) => event.method === 'SchemaCreated');
       const itemizedPageUpdated = events.map(({ event }) => event).find((event) => event.method === 'ItemizedPageUpdated');
       if (msaCreated) {
         resolve(msaCreated.data.msaId);
-      } else {
-        resolve();
-      }
-      if (schemaCreated) {
-        console.log('Schema Created: ' + schemaCreated.data);
-        resolve(schemaCreated.data.schemaId);
       } else {
         resolve();
       }
@@ -85,24 +72,6 @@ async function main() {
 
   let currentNonce = (await api.rpc.system.accountNextIndex(alice.address)).toBn().toNumber();
   console.log('Current nonce: ' + currentNonce);
-  // Create Schemas
-  const txSchema1 = api.tx.schemas.createSchema(JSON.stringify(userPublicFollows), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema1.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
-  currentNonce++;
-  console.log('Public Follow Schema created');
-  const txSchema2 = api.tx.schemas.createSchema(JSON.stringify(userPrivateFollows), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema2.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
-  currentNonce++;
-  console.log('Private Follow Schema created');
-  const txSchema3 = api.tx.schemas.createSchema(JSON.stringify(userPrivateConnections), 'AvroBinary', 'Paginated');
-  await new Promise((resolve) => txSchema3.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
-  currentNonce++;
-  console.log('Private Friend Schema created');
-  const txSchema4 = api.tx.schemas.createSchemaViaGovernance(alice.publicKey, JSON.stringify(publicKey), 'AvroBinary', 'Itemized', ['AppendOnly']);
-  let sudoTx = api.tx.sudo.sudo(txSchema4);
-  await new Promise((resolve) => sudoTx.signAndSend(alice, { nonce: currentNonce }, sendStatusCb(resolve)));
-  currentNonce++;
-  console.log('Public Key Schema created');
   // Delegations
   const delegators = ['//Bob', '//Charlie', '//Dave', '//Eve', '//Ferdie'];
   const create = createViaDelegation(api, alice);
@@ -111,7 +80,8 @@ async function main() {
   let graphPubKey = hexToU8a('0x993052b57e8695d9124964f69f624fcc2080be7525c65b1acd089dff235a0e02');
   // let graphPrivKey = hexToU8a('0xf74d39829ac4a814048cbda6b35ee1c3c16fbd2b88f97d552aa344bffb5207a5');
   // Add public to users
-  const environment = { environmentType: EnvironmentType.Dev, config: getTestConfig(4) };
+  // When using dsnp/instant-seal-node-with-deployed-schemas, the graph environment is the same as mainnet
+  const environment = { environmentType: EnvironmentType.Mainnet };
   const graph = new Graph(environment);
 
   // eslint-disable-next-line no-restricted-syntax
@@ -120,7 +90,7 @@ async function main() {
       {
         type: 'AddGraphKey',
         ownerDsnpUserId: msaId.toString(),
-        newPublicKey: graphPubKey
+        newPublicKey: graphPubKey,
       },
     ];
     graph.applyActions(actions);
@@ -134,16 +104,22 @@ async function main() {
     ];
     let tx = api.tx.statefulStorage.applyItemActions(msaId, 4, 0, keyActions);
     // eslint-disable-next-line no-await-in-loop
-    await new Promise((resolve) => tx.signAndSend(alice, {
-      nonce: currentNonce
-    }, sendStatusCb(resolve)));
+    await new Promise((resolve) =>
+      tx.signAndSend(
+        alice,
+        {
+          nonce: currentNonce,
+        },
+        sendStatusCb(resolve),
+      ),
+    );
     currentNonce++;
   }
-  const capacityResult  = (await api.query.capacity.capacityLedger(1));
+  const capacityResult = await api.query.capacity.capacityLedger(1);
   const capacity = capacityResult.unwrapOr({ totalCapacityIssued: 0n });
   const stakeAmount = 2000000000000000n - (typeof capacity.totalCapacityIssued === 'bigint' ? capacity.totalCapacityIssued : capacity.totalCapacityIssued.toBigInt());
   await api.tx.capacity.stake(1, stakeAmount).signAndSend(alice, { nonce: currentNonce });
-  
+
   console.log('Create Provider 1 as Alice and Delegator 2, 3, 4, 5, 6');
   console.log('Public keys added to delegators');
   console.log('Staked capacity to provider: ' + stakeAmount);

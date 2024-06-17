@@ -14,7 +14,6 @@ export interface ConfigEnvironmentVariables {
   API_PORT: number;
   DEBOUNCE_SECONDS: number;
   GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
-  GRAPH_ENVIRONMENT_DEV_CONFIG?: string;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
   RECONNECTION_SERVICE_REQUIRED: boolean;
@@ -80,10 +79,6 @@ export class ConfigService {
 
   public getGraphEnvironmentType(): keyof EnvironmentType {
     return this.nestConfigService.get<keyof EnvironmentType>('GRAPH_ENVIRONMENT_TYPE')!;
-  }
-
-  public getGraphEnvironmentConfig(): string {
-    return this.nestConfigService.get<string>('GRAPH_ENVIRONMENT_DEV_CONFIG')!;
   }
 
   public getProviderAccountSeedPhrase(): string {

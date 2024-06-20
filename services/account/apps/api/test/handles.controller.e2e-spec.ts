@@ -4,13 +4,58 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
+import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@amplica-labs/frequency-scenario-template';
+import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
+import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+
+let HTTP_SERVER: any = process.env.HTTP_SERVER || 'http://0.0.0.0:3000';
 
 describe('Handles Controller', () => {
   let app: INestApplication;
   let module: TestingModule;
+  let users: ChainUser[];
+  let provider: ChainUser;
+  let currentBlockNumber: number;
+  const handles = new Array(2)
+    .fill(0)
+    .map(() => uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' }));
+  let maxMsaId: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    ({ provider, users, currentBlockNumber, maxMsaId } = await setupProviderAndUsers());
+
+    const handlePayloads = users.slice(0, 2).map((u) => getClaimHandlePayload(u, handles[0], currentBlockNumber));
+
+    // Make sure handles for our test users are in a known state:
+    // users[0] & users[1] have known handles (baseHandle = handles[0])
+    // users[2] & users[3] have no handle
+    try {
+      await Promise.allSettled([
+        ...users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()),
+        ExtrinsicHelper.claimHandleWithProvider(
+          users[0].keypair,
+          provider.keypair,
+          handlePayloads[0].proof,
+          handlePayloads[0].payload,
+        ).payWithCapacity(),
+        ExtrinsicHelper.claimHandleWithProvider(
+          users[1].keypair,
+          provider.keypair,
+          handlePayloads[1].proof,
+          handlePayloads[1].payload,
+        ).payWithCapacity(),
+      ]);
+    } catch (e) {
+      // do nothing
+      console.error(e);
+    }
+
+    const handle = await ExtrinsicHelper.apiPromise.rpc.handles.getHandleForMsa(users[0].msaId);
+    if (handle.isNone) {
+      console.error('No handle found when handle should have been claimed');
+    }
+
     module = await Test.createTestingModule({
       imports: [ApiModule],
     }).compile();
@@ -23,77 +68,76 @@ describe('Handles Controller', () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableShutdownHooks();
     await app.init();
+    HTTP_SERVER = app.getHttpServer();
+  });
+
+  afterAll(async () => {
+    // Clean up/retire any allocated handles
+    try {
+      await Promise.allSettled(users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()));
+    } catch (e) {
+      // do nothing
+    }
   });
 
   describe('Publishes Handle', () => {
     // TODO: once webhook is working, add to test so that we can check the data that comes back
     // potential cases: successful creation, handle already exists for msa, successful change, bad expiration, etc.
 
-    it('(POST) /handles a creates new handle', async () => {
-      const accountId = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
-      // NOTE: This test will fail if block height > 65
-      const payload = {
-        baseHandle: 'BobHandle',
-        expiration: 65,
-      };
-      const proof =
-        '0x28a23484d44be538e4ac41277bf48242765bb2fc51ecaef70d9a061aa1f5183a707f634ff5ee56b3209c3b04508458964c74b404a96652b5db4000435ef0418b';
+    it('(POST) /handles creates new handle', async () => {
+      // Use users[2], known to have no handle
+      const user = users[2];
+      const { payload, proof } = getClaimHandlePayload(user, handles[0], currentBlockNumber);
+      const accountId = user.keypair.address;
 
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .post('/handles')
         .send({ accountId, payload, proof })
         .expect(200)
         .expect((req) => req.text === 'Handle created successfully');
     });
 
-    it('(POST) /handles/change a provider changes the handle', async () => {
-      const accountId = '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty';
-      // NOTE: This test will fail if block height > 65
-      const payload = {
-        baseHandle: 'BobHandleChanged',
-        expiration: 65,
-      };
-      const proof =
-        '0x0a37285a9af80fd8a20954f7cb5c4c8a883020ba6c8545012dcf36ace169f65810c096466d68073de55858b1d5cd7918477f0f28da8856aece2d1eb42fa3e08a';
+    it('(POST) /handles/change changes the handle', async () => {
+      // Use users[1], known to have an existing handle
+      const user = users[1];
+      const { payload, proof } = getClaimHandlePayload(user, handles[1], currentBlockNumber);
+      const accountId = user.keypair.address;
 
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .post('/handles/change')
         .send({ accountId, payload, proof })
         .expect(200)
-        .expect((req) => req.text === 'Handle created successfully');
+        .expect((res) => res.text === 'Handle created successfully');
     });
   });
 
   describe('Gets Handle', () => {
-    it('(GET) /handles/:msaId with valid provider msaId', async () => {
-      const validMsaId = 1;
-      await request(app.getHttpServer())
-        .get(`/handles/${validMsaId}`)
-        .expect(200)
-        .expect((res) => res.body.base_handle === 'AliceHandle')
-        .expect((res) => res.body.canonical_base === 'a11cehand1e');
-    });
     it('(GET) /handles/:msaId with valid delegator msaId', async () => {
-      const validMsaId = 2;
-      await request(app.getHttpServer())
+      // Use users[0], with a known base handle
+      const user = users[0];
+      const validMsaId = user.msaId?.toString();
+      await request(HTTP_SERVER)
         .get(`/handles/${validMsaId}`)
         .expect(200)
-        .expect((res) => res.body.base_handle === 'BobHandle')
-        .expect((res) => res.body.canonical_base === 'b0bhand1e');
+        .expect((res) => res.body.base_handle === handles[0])
+        .expect((res) => res.body.canonical_base.length === res.body.base_handle.length);
     });
     it('(GET) /handles/:msaId with valid msaId, but undefined handle', async () => {
-      const msaIdWithNoHandle = 3;
-      await request(app.getHttpServer())
+      // User users[3], known to have no handle
+      const user = users[3];
+      const msaIdWithNoHandle = user.msaId?.toString();
+      await request(HTTP_SERVER)
         .get(`/handles/${msaIdWithNoHandle}`)
-        .expect(400)
-        .expect({ statusCode: 400, message: 'Failed to find the handle.' });
+        .expect(404)
+        .expect({ statusCode: 404, message: 'No handle found for MSA' });
     });
+
     it('(GET) /handles/:msaId with invalid msaId', async () => {
-      const invalidMsaId = 10;
-      await request(app.getHttpServer())
-        .get(`/handles/${invalidMsaId}`)
+      const invalidMsaId = BigInt(maxMsaId) + 1000n;
+      await request(HTTP_SERVER)
+        .get(`/handles/${invalidMsaId.toString()}`)
         .expect(400)
-        .expect({ statusCode: 400, message: 'Failed to find the handle.' });
+        .expect({ statusCode: 400, message: 'Invalid msaId.' });
     });
   });
 });

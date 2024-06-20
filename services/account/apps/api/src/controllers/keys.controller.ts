@@ -54,7 +54,7 @@ export class KeysController {
    * @returns A promise that resolves to an array of public keys associated with the given msaId.
    * @throws An error if no public keys can be found.
    */
-  async getKeys(@Param('msaId') msaId: number): Promise<KeysResponse> {
+  async getKeys(@Param('msaId') msaId: string): Promise<KeysResponse> {
     try {
       const keys = await this.keysService.getKeysByMsa(msaId);
       return keys;

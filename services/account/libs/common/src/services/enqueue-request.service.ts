@@ -29,7 +29,7 @@ export class EnqueueService {
     const { providerId } = this.configService;
     const data: TransactionData<RequestType> = {
       ...request,
-      providerId: providerId.toString(),
+      providerId,
       referenceId: this.calculateJobId(request),
     };
 

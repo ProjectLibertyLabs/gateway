@@ -40,7 +40,7 @@ export class AccountsController {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(@Param('msaId') msaId: number): Promise<AccountResponse> {
+  async getAccount(@Param('msaId') msaId: string): Promise<AccountResponse> {
     try {
       this.logger.debug(`Received request to get account with msaId: ${msaId}`);
       return await this.accountsService.getAccount(msaId);

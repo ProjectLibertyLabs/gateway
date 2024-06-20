@@ -12,7 +12,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {
       try {
         const id = BigInt(value);
-        if (id < 0) {
+        if (id < 0n) {
           throw new Error('Provider ID must be > 0');
         }
       } catch (e) {

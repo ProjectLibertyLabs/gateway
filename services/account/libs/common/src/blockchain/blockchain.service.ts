@@ -174,18 +174,28 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return schema;
   }
 
-  public async getMsaIdMax(): Promise<number> {
+  /**
+   * Return the current maximum MSA ID.
+   *
+   * NOTE: in most other places we treat MSA ID as a string to eliminate
+   * portability problems with `bigint`, but here we explicitly return it
+   * as a `bigint` because the return value of this function is used almost
+   * exclusively in the context of a mathematical comparison.
+   *
+   * @returns {bigint} The current maximum MSA ID from the chain
+   */
+  public async getMsaIdMax(): Promise<bigint> {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
     // eslint-disable-next-line radix
-    return parseInt(count);
+    return BigInt(count);
   }
 
-  public async isValidMsaId(msaId: number): Promise<boolean> {
+  public async isValidMsaId(msaId: string): Promise<boolean> {
     const msaIdMax = await this.getMsaIdMax();
-    return msaId > 0 && msaId <= msaIdMax;
+    return BigInt(msaId) > 0n && BigInt(msaId) <= msaIdMax;
   }
 
-  public async getKeysByMsa(msaId: number): Promise<KeyInfoResponse> {
+  public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse> {
     const keyInfoResponse = this.api.rpc.msa.getKeysByMsaId(msaId);
     return (await firstValueFrom(keyInfoResponse)).unwrap();
   }
@@ -235,15 +245,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async getHandleForMsa(msaId: number): Promise<HandleResponse | null> {
+  public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponse | null> {
     const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
     if (handleResponse.isSome) return handleResponse.unwrap();
     return null;
   }
 
   public async getCommonPrimitivesMsaDelegation(
-    msaId: number,
-    providerId: number,
+    msaId: AnyNumber,
+    providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
     if (delegationResponse.isSome) return delegationResponse.unwrap();
@@ -262,8 +272,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async capacityInfo(providerId: number): Promise<{
-    providerId: number;
+  public async capacityInfo(providerId: AnyNumber): Promise<{
+    providerId: string;
     currentBlockNumber: number;
     nextEpochStart: number;
     remainingCapacity: bigint;
@@ -286,7 +296,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const currentEpoch = await this.getCurrentCapacityEpoch();
     return {
       currentEpoch,
-      providerId,
+      providerId: providerId.toString(),
       currentBlockNumber: currentBlock.toNumber(),
       nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
       remainingCapacity:

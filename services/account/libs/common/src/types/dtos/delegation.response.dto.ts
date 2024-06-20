@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class DelegationResponse {
   @ApiProperty()
   @IsNotEmpty()
-  providerId: number;
+  providerId: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -7,7 +7,7 @@ import { TransactionType } from '../enums';
 class KeysRequestPayload {
   @ApiProperty()
   @IsNotEmpty()
-  msaId: number;
+  msaId: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -1,24 +1,50 @@
 {
-	// Use IntelliSense to learn about possible attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-	"version": "0.2.0",
-	"configurations": [
-		{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug chain setup",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "main"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "cwd": "${workspaceFolder}/apps/api/test/setup"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug Worker (NestJS via ts-node)",
-            "args": ["${workspaceFolder}/apps/worker/src/main.ts"],
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+            "args": [
+                "${workspaceFolder}/apps/worker/src/main.ts"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true,
             "cwd": "${workspaceRoot}"
         },
-		{
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug Api (NestJS via ts-node)",
-            "args": ["${workspaceFolder}/apps/api/src/main.ts"],
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+            "args": [
+                "${workspaceFolder}/apps/api/src/main.ts"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true,
             "cwd": "${workspaceRoot}"
         },
@@ -36,5 +62,5 @@
             "port": 9230,
             "restart": true
         }
-	]
+    ]
 }

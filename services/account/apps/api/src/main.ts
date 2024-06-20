@@ -24,6 +24,8 @@ async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
+  logger.debug('DEBUG log is enabled');
+  logger.verbose('VERBOSE log is enabled');
 
   process.on('uncaughtException', (error) => {
     console.error('****** UNCAUGHT EXCEPTION ******', error);

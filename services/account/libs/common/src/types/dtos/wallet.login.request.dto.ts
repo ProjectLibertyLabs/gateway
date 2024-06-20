@@ -9,7 +9,7 @@ import {
   type WalletProxyResponse,
 } from '@amplica-labs/siwf';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
 

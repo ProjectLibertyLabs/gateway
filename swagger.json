@@ -78,7 +78,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -158,7 +158,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -189,7 +189,7 @@
         },
         "responses": {
           "200": {
-            "description": "Handle created successfully"
+            "description": "Handle creation request enqueued"
           }
         },
         "tags": [
@@ -214,7 +214,7 @@
         },
         "responses": {
           "200": {
-            "description": "Handle changed successfully"
+            "description": "Handle change request enqueued"
           }
         },
         "tags": [
@@ -232,13 +232,13 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Found account"
+            "description": "Found a handle"
           }
         },
         "tags": [
@@ -293,7 +293,7 @@
         "type": "object",
         "properties": {
           "msaId": {
-            "type": "number"
+            "type": "string"
           },
           "displayHandle": {
             "type": "string"
@@ -310,7 +310,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -350,7 +350,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -419,7 +419,7 @@
         "type": "object",
         "properties": {
           "msaId": {
-            "type": "number"
+            "type": "string"
           },
           "expiration": {
             "type": "number"
@@ -441,10 +441,10 @@
             "type": "string"
           },
           "msaOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "newKeyOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayload"
@@ -482,7 +482,7 @@
             "$ref": "#/components/schemas/HandlePayload"
           },
           "proof": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [

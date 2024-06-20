@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 export class AccountResponse {
   @ApiProperty()
   @IsNotEmpty()
-  msaId: number;
+  msaId: string;
 
   @ApiPropertyOptional()
   @IsOptional()

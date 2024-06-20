@@ -10,12 +10,10 @@ export class HandlesService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getHandle(msaId: number): Promise<HandleResponse> {
+  async getHandle(msaId: string): Promise<HandleResponse | null> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
-      const handle = await this.blockchainService.getHandleForMsa(msaId);
-      if (handle) return handle;
-      throw new Error('Handle not found.');
+      return this.blockchainService.getHandleForMsa(msaId);
     }
     throw new Error('Invalid msaId.');
   }

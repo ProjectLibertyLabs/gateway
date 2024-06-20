@@ -14,7 +14,7 @@ export class DelegationService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getDelegation(msaId: number): Promise<DelegationResponse> {
+  async getDelegation(msaId: string): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const { providerId } = this.configService;

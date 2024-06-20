@@ -28,7 +28,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "pretest": "cp env.template .env",
     "test": "jest  --coverage --verbose",
-    "test:e2e": "set -a ; . .env ; jest --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit"
+    "test:e2e": "set -a ; . .env ; jest --verbose --silent --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
     "@bull-board/express": "^5.17.0",
     "@bull-board/nestjs": "^5.17.0",
     "@bull-board/ui": "^5.17.0",
-    "@frequency-chain/api-augment": "^1.11.1",
+    "@frequency-chain/api-augment": "~1.11.1",
     "@jest/globals": "^29.7.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs/bullmq": "^10.1.1",
@@ -76,6 +76,7 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
+    "@amplica-labs/frequency-scenario-template": "^1.1.4",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.10",
     "@types/supertest": "^6.0.2",
@@ -109,6 +110,7 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   },
+  "prettier": "./.prettierrc.json",
   "jest": {
     "moduleFileExtensions": [
       "js",

@@ -17,7 +17,7 @@ export class DelegationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get the delegation information associated with an msaId.' })
   @ApiOkResponse({ description: 'Found delegation information.' })
-  async getDelegation(@Param('msaId') msaId: number): Promise<DelegationResponse> {
+  async getDelegation(@Param('msaId') msaId: string): Promise<DelegationResponse> {
     try {
       const delegation = await this.delegationService.getDelegation(msaId);
       return delegation;

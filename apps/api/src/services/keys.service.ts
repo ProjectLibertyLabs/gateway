@@ -10,7 +10,7 @@ export class KeysService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getKeysByMsa(msaId: number): Promise<KeysResponse> {
+  async getKeysByMsa(msaId: string): Promise<KeysResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const keyInfoResponse = await this.blockchainService.getKeysByMsa(msaId);

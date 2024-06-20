@@ -26,7 +26,7 @@ npm run build
 
 # Make sure the correct set of services is running
 set -a
-. .env.dev
+. .env
 pm2 delete all
 pm2 start --cwd ${TOPDIR} ${TOPDIR}/tools/scripts/test-pm2.config.js --only mock-service
 

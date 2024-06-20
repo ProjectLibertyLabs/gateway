@@ -3,7 +3,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, ResetScannerDto, calculateJobId } from '../../../libs/common/src';
+import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, calculateJobId } from '../../../libs/common/src';
 import { ScannerService } from '../../../libs/common/src/scanner/scanner';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';

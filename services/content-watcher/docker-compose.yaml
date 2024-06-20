@@ -29,7 +29,7 @@ services:
     volumes:
       - chainstorage:/data
 
-  kubo_ipfs:
+  ipfs:
     image: ipfs/kubo:latest
     ports:
       - 4001:4001
@@ -48,12 +48,13 @@ services:
       - 3001:3000
     env_file:
       - .env.docker.dev
+      - .env.content-publishing-service
     environment:
       - START_PROCESS=api
     depends_on:
       - redis
       - frequency
-      - kubo_ipfs
+      - ipfs
     networks:
       - content-watcher-service
 
@@ -63,12 +64,13 @@ services:
     platform: linux/amd64
     env_file:
       - .env.docker.dev
+      - .env.content-publishing-service
     environment:
       - START_PROCESS=worker
     depends_on:
       - redis
       - frequency
-      - kubo_ipfs
+      - ipfs
     networks:
       - content-watcher-service
 
@@ -82,12 +84,14 @@ services:
         - content-watcher-service:latest
     env_file:
       - .env.docker.dev
+    ports:
+      - 3000:3000
     volumes:
       - ./:/app
     depends_on:
       - redis
       - frequency
-      - kubo_ipfs
+      - ipfs
       - content-publishing-service-api
       - content-publishing-service-worker
     networks:

@@ -11,7 +11,7 @@ import {
   validProfileNoUploadedAssets,
   validReaction,
   validReplyNoUploadedAssets,
-} from '#app/apps/api/test/mockRequestData';
+} from './mockRequestData';
 
 describe('AppController E2E request verification!', () => {
   let app: INestApplication;
@@ -34,30 +34,34 @@ describe('AppController E2E request verification!', () => {
     await app.init();
   });
 
-  it('(GET) /api/health', () => request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200 }));
+  it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+
+  it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+
+  it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   describe('Validate Route params', () => {
     it('invalid userDsnpId should fail', async () => {
       const invalidDsnpUserId = '2gsjhdaj';
       return request(app.getHttpServer())
-        .post(`/api/content/${invalidDsnpUserId}/broadcast`)
+        .post(`/v1/content/${invalidDsnpUserId}/broadcast`)
         .send(validBroadCastNoUploadedAssets)
         .expect(400)
         .expect((res) => expect(res.text).toContain('must be a number string'));
     });
   });
 
-  describe('(POST) /api/content/:dsnpUserId/broadcast', () => {
+  describe('(POST) /v1/content/:dsnpUserId/broadcast', () => {
     it('valid request without uploaded assets should work!', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(validBroadCastNoUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
 
     it('valid broadcast request with uploaded assets should work!', async () => {
       const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
       await sleep(1000);
       const validBroadCastWithUploadedAssets = {
         content: {
@@ -78,7 +82,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(validBroadCastWithUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId'));
@@ -103,7 +107,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(validBroadCastWithUploadedAssets)
         .expect(400)
         .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
@@ -112,7 +116,7 @@ describe('AppController E2E request verification!', () => {
     it('empty body should fail', () => {
       const body = {};
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('should not be empty'));
@@ -125,7 +129,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('content must be longer than or equal to 1 characters'));
@@ -138,7 +142,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('published must match'));
@@ -152,7 +156,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body2)
         .expect(400)
         .expect((res) => expect(res.text).toContain('published must match'));
@@ -171,7 +175,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('type must be one of the following values'));
@@ -190,7 +194,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('references should not be empty'));
@@ -217,7 +221,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('elements must be unique'));
@@ -236,7 +240,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('href must be longer than or equal to 1 character'));
@@ -256,7 +260,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('href must be a URL address'));
@@ -275,7 +279,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('name must be longer than or equal to 1 character'));
@@ -294,7 +298,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('mentionedId must be longer than or equal to 1 character'));
@@ -313,7 +317,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('type must be one of the following values'));
@@ -331,7 +335,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('units must be one of the following values'));
@@ -348,24 +352,24 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/broadcast`)
+        .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('name must be longer than or equal to 1 characters'));
     });
   });
 
-  describe('(POST) /api/content/:dsnpUserId/reply', () => {
+  describe('(POST) /v1/content/:dsnpUserId/reply', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send(validReplyNoUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('h'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
       await sleep(1000);
       const validReplyWithUploadedAssets = {
         ...validReplyNoUploadedAssets,
@@ -387,7 +391,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send(validReplyWithUploadedAssets)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId'));
@@ -415,7 +419,7 @@ describe('AppController E2E request verification!', () => {
         },
       };
       return request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send(validReplyWithUploadedAssets)
         .expect(400)
         .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
@@ -424,7 +428,7 @@ describe('AppController E2E request verification!', () => {
     it('empty body should fail', () => {
       const body = {};
       return request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send(body)
         .expect(400)
         .expect((res) => expect(res.text).toContain('should not be empty'));
@@ -432,7 +436,7 @@ describe('AppController E2E request verification!', () => {
 
     it('empty inReplyTo should fail', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send({
           content: validContentNoUploadedAssets,
         })
@@ -441,7 +445,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid inReplyTo should fail', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reply`)
+        .post(`/v1/content/123/reply`)
         .send({
           content: validContentNoUploadedAssets,
           inReplyTo: 'shgdjas72gsjajasa',
@@ -450,17 +454,17 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('inReplyTo must match')));
   });
 
-  describe('(POST) /api/content/:dsnpUserId/reaction', () => {
+  describe('(POST) /v1/content/:dsnpUserId/reaction', () => {
     it('valid request should work!', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reaction`)
+        .post(`/v1/content/123/reaction`)
         .send(validReaction)
         .expect(202)
         .expect((res) => expect(res.text).toContain('referenceId')));
 
     it('valid emoji should fail', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reaction`)
+        .post(`/v1/content/123/reaction`)
         .send({
           emoji: '2',
         })
@@ -469,7 +473,7 @@ describe('AppController E2E request verification!', () => {
 
     it('valid apply amount should fail', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reaction`)
+        .post(`/v1/content/123/reaction`)
         .send({
           emoji: '😀',
           apply: -1,
@@ -479,7 +483,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid inReplyTo should fail', () =>
       request(app.getHttpServer())
-        .post(`/api/content/123/reaction`)
+        .post(`/v1/content/123/reaction`)
         .send({
           emoji: '😀',
           apply: 0,
@@ -489,10 +493,10 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('inReplyTo must match')));
   });
 
-  describe('(PUT) /api/content/:dsnpUserId', () => {
+  describe('(PUT) /v1/content/:dsnpUserId', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())
-        .put(`/api/content/123`)
+        .put(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
@@ -503,7 +507,7 @@ describe('AppController E2E request verification!', () => {
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
       await sleep(1000);
       const validContentWithUploadedAssets = {
         ...validContentNoUploadedAssets,
@@ -522,7 +526,7 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/content/123`)
+        .put(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
@@ -549,7 +553,7 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/content/123`)
+        .put(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'broadcast',
@@ -561,7 +565,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid targetAnnouncementType should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/content/123`)
+        .put(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'invalid',
@@ -572,7 +576,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid targetContentHash should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/content/123`)
+        .put(`/v1/content/123`)
         .send({
           targetContentHash: '6328462378',
           targetAnnouncementType: 'reply',
@@ -582,10 +586,10 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
   });
 
-  describe('(DELETE) /api/content/:dsnpUserId', () => {
+  describe('(DELETE) /v1/content/:dsnpUserId', () => {
     it('valid request should work!', () =>
       request(app.getHttpServer())
-        .delete(`/api/content/123`)
+        .delete(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'reply',
@@ -595,7 +599,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid targetAnnouncementType should fail', () =>
       request(app.getHttpServer())
-        .delete(`/api/content/123`)
+        .delete(`/v1/content/123`)
         .send({
           targetContentHash: '0x7653423447AF',
           targetAnnouncementType: 'invalid',
@@ -605,7 +609,7 @@ describe('AppController E2E request verification!', () => {
 
     it('invalid targetContentHash should fail', () =>
       request(app.getHttpServer())
-        .delete(`/api/content/123`)
+        .delete(`/v1/content/123`)
         .send({
           targetContentHash: '6328462378',
           targetAnnouncementType: 'reply',
@@ -614,10 +618,10 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
   });
 
-  describe('(PUT) /api/profile/:userDsnpId', () => {
+  describe('(PUT) /v1/profile/:userDsnpId', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: validProfileNoUploadedAssets,
         })
@@ -626,7 +630,7 @@ describe('AppController E2E request verification!', () => {
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('n'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file.jpg').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file.jpg').expect(202);
       await sleep(1000);
       const validUploadWithUploadedAssets = {
         ...validProfileNoUploadedAssets,
@@ -639,7 +643,7 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: validUploadWithUploadedAssets,
         })
@@ -660,7 +664,7 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: validUploadWithUploadedAssets,
         })
@@ -670,7 +674,7 @@ describe('AppController E2E request verification!', () => {
 
     it('request with non-image uploaded assets should fail!', async () => {
       const file = Buffer.from('s'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', file, 'file.mp3').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file.mp3').expect(202);
       await sleep(1000);
       const profileContent = {
         ...validProfileNoUploadedAssets,
@@ -683,7 +687,7 @@ describe('AppController E2E request verification!', () => {
         ],
       };
       return request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: profileContent,
         })
@@ -693,14 +697,14 @@ describe('AppController E2E request verification!', () => {
 
     it('empty profile should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({})
         .expect(400)
         .expect((res) => expect(res.text).toContain('should not be empty')));
 
     it('invalid published should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: {
             published: '1980',
@@ -711,7 +715,7 @@ describe('AppController E2E request verification!', () => {
 
     it('non unique reference ids should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/profile/123`)
+        .put(`/v1/profile/123`)
         .send({
           profile: {
             icon: [
@@ -728,17 +732,17 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('elements must be unique')));
   });
 
-  describe('(PUT) /api/asset/upload', () => {
+  describe('(PUT) /v1/asset/upload', () => {
     it('valid request should work!', () =>
       request(app.getHttpServer())
-        .put(`/api/asset/upload`)
+        .put(`/v1/asset/upload`)
         .attach('files', Buffer.from(validContentNoUploadedAssets.toString()), 'image.jpg')
         .expect(202)
         .expect((res) => expect(res.text).toContain('assetIds')));
 
     it('invalid mime should fail', () =>
       request(app.getHttpServer())
-        .put(`/api/asset/upload`)
+        .put(`/v1/asset/upload`)
         .attach('files', Buffer.from(validContentNoUploadedAssets.toString()), 'doc.txt')
         .expect(422)
         .expect((res) => expect(res.text).toContain('expected type is')));
@@ -748,7 +752,7 @@ describe('AppController E2E request verification!', () => {
       const file2 = Buffer.from('t'.repeat(30 * 1000 * 1000)); // 30MB
       const file3 = Buffer.from('z'.repeat(100 * 1000 * 1000)); // 100MB
       await request(app.getHttpServer())
-        .put(`/api/asset/upload`)
+        .put(`/v1/asset/upload`)
         .attach('files', file1, 'file1.jpg')
         .attach('files', file2, 'file2.mp3')
         .attach('files', file3, 'file3.mpeg')
@@ -761,18 +765,18 @@ describe('AppController E2E request verification!', () => {
       randomFill(buffer, (err, buf) => {
         if (err) throw err;
       });
-      const response = await request(app.getHttpServer()).put(`/api/asset/upload`).attach('files', Buffer.from(buffer), 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', Buffer.from(buffer), 'file1.jpg').expect(202);
       const assetId = response.body.assetIds[0];
       await sleep(2000);
       return request(app.getHttpServer())
-        .get(`/api/dev/asset/${assetId}`)
+        .get(`/v1/dev/asset/${assetId}`)
         .expect(200)
         .expect((res) => expect(Buffer.from(res.body)).toEqual(Buffer.from(buffer)));
     }, 15000);
 
     it('not uploaded asset should return not found', async () => {
       const assetId = 'bafybeieva67sj7hiiywi4kxsamcc2t2y2pptni2ki6gu63azj3pkznbzna';
-      return request(app.getHttpServer()).get(`/api/dev/asset/${assetId}`).expect(404);
+      return request(app.getHttpServer()).get(`/v1/dev/asset/${assetId}`).expect(404);
     });
   });
 

@@ -224,7 +224,7 @@ To run the project, execute the following command:
 #### 3. Check the job in BullUI, to monitor job progress based on defined tests.
 
 ### Swagger UI
-Check out the Swagger UI hosted on the app instance at http://localhost:3000/api/docs/swagger to view the API documentation and submit requests to the service.
+Check out the Swagger UI hosted on the app instance at http://localhost:3000/docs/swagger to view the API documentation and submit requests to the service.
 
 ### Queue Management
 You may also view and manage the application's queue at http://localhost:3000/queues.

@@ -20,8 +20,8 @@ export const options = {
 };
 
 export default function() {
-    group("/api/asset/upload medium files", () => {
-        let url = BASE_URL + `/api/asset/upload`;
+    group("/v1/asset/upload medium files", () => {
+        let url = BASE_URL + `/v1/asset/upload`;
         // Request No. 1: ApiController_assetUpload large files
         {
             const data = mockAsset('lg');

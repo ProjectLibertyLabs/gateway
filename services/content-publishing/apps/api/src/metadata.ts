@@ -90,22 +90,22 @@ export default async () => {
         ],
       ],
       controllers: [
+        [import('./development.controller'), { DevelopmentController: { requestJob: {}, getAsset: { type: Object }, populate: {} } }],
+        [import('./asset.controller'), { AssetController: { assetUpload: { type: t['../../../libs/common/src/dtos/common.dto'].UploadResponseDto } } }],
         [
-          import('./api.controller'),
+          import('./content.controller'),
           {
-            ApiController: {
-              health: {},
-              assetUpload: { type: t['../../../libs/common/src/dtos/common.dto'].UploadResponseDto },
+            ContentController: {
               broadcast: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
               reply: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
               reaction: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
               update: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
               delete: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
-              profile: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto },
             },
           },
         ],
-        [import('./development.controller'), { DevelopmentController: { requestJob: {}, getAsset: { type: Object }, populate: {} } }],
+        [import('./health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
+        [import('./profile.controller'), { ProfileController: { profile: { type: t['../../../libs/common/src/dtos/common.dto'].AnnouncementResponseDto } } }],
       ],
     },
   };

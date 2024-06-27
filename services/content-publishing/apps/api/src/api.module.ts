@@ -7,13 +7,16 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { MulterModule } from '@nestjs/platform-express';
-import { ApiController } from './api.controller';
 import { DevelopmentController } from './development.controller';
 import * as QueueConstants from '../../../libs/common/src';
 import { ApiService } from './api.service';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { AssetController } from './asset.controller';
+import { ContentController } from './content.controller';
+import { HealthController } from './health.controller';
+import { ProfileController } from './profile.controller';
 
 @Module({
   imports: [
@@ -173,7 +176,10 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     }),
   ],
   providers: [ConfigService, ApiService, IpfsService],
-  controllers: process.env?.ENVIRONMENT === 'dev' ? [DevelopmentController, ApiController] : [ApiController],
+  controllers:
+    process.env?.ENVIRONMENT === 'dev'
+      ? [DevelopmentController, AssetController, ContentController, HealthController, ProfileController]
+      : [AssetController, ContentController, HealthController, ProfileController],
   exports: [],
 })
 export class ApiModule {}

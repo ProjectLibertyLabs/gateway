@@ -41,11 +41,11 @@ export const options = {
 };
 
 export default function() {
-    group("/api/content/{userDsnpId}", () => {
+    group("/v1/content/{userDsnpId}", () => {
         let userDsnpId = '1';
         // Request No. 1: ApiController_update with no assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}`;
             const body = {
                 targetContentHash: '0x7653423447AF',
                 targetAnnouncementType: 'broadcast',
@@ -61,7 +61,7 @@ export default function() {
         }
         // Request No. 2: ApiController_update with assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}`;
             const body = {
                 targetContentHash: '0x7653423447AF',
                 targetAnnouncementType: 'broadcast',
@@ -77,7 +77,7 @@ export default function() {
 
         // Request No. 3: ApiController_delete
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}`;
             let body = {
                 targetContentHash: '0x7653423447AF',
                 targetAnnouncementType: 'broadcast',
@@ -92,10 +92,10 @@ export default function() {
         }
     });
 
-    group("/api/health", () => {
+    group("/healthz", () => {
         // Request No. 1: ApiController_health
         {
-            let url = BASE_URL + `/api/health`;
+            let url = BASE_URL + `/healthz`;
             let request = http.get(url);
 
             check(request, {
@@ -104,12 +104,12 @@ export default function() {
         }
     });
 
-    group("/api/profile/{userDsnpId}", () => {
+    group("/v1/profile/{userDsnpId}", () => {
         let userDsnpId = '1'; // specify value as there is no example value for this parameter in OpenAPI spec
 
         // Request No. 1: ApiController_profile with no assets
         {
-            let url = BASE_URL + `/api/profile/${userDsnpId}`;
+            let url = BASE_URL + `/v1/profile/${userDsnpId}`;
             let body = { profile: validProfileNoUploadedAssets };
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let request = http.put(url, JSON.stringify(body), params);
@@ -120,7 +120,7 @@ export default function() {
         }
         // Request No. 2: ApiController_profile with asset
         {
-            let url = BASE_URL + `/api/profile/${userDsnpId}`;
+            let url = BASE_URL + `/v1/profile/${userDsnpId}`;
             const referenceId = getReferenceId(BASE_URL);
             let profile = Object.assign({}, validProfileNoUploadedAssets, {icon: [
                     {
@@ -139,12 +139,12 @@ export default function() {
         }
     });
 
-    group("/api/content/{userDsnpId}/broadcast", () => {
+    group("/v1/content/{userDsnpId}/broadcast", () => {
         let userDsnpId = '1';
 
         // Request No. 1: ApiController_broadcast no assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}/broadcast`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}/broadcast`;
             const body = {
                 content: validContentNoUploadedAssets,
             };
@@ -157,7 +157,7 @@ export default function() {
         }
         // Request No. 2: ApiController_broadcast with assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}/broadcast`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}/broadcast`;
             const body = {
                 content: createContentWithAsset(BASE_URL),
             };
@@ -170,12 +170,12 @@ export default function() {
         }
     });
 
-    group("/api/content/{userDsnpId}/reaction", () => {
+    group("/v1/content/{userDsnpId}/reaction", () => {
         let userDsnpId = '1';
 
         // Request No. 1: ApiController_reaction
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}/reaction`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}/reaction`;
             let body = validReaction;
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let request = http.post(url, JSON.stringify(body), params);
@@ -186,12 +186,12 @@ export default function() {
         }
     });
 
-    group("/api/content/{userDsnpId}/reply", () => {
+    group("/v1/content/{userDsnpId}/reply", () => {
         let userDsnpId = '1';
 
         // Request No. 1: ApiController_reply no assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}/reply`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}/reply`;
             let body = validReplyNoUploadedAssets;
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let request = http.post(url, JSON.stringify(body), params);
@@ -202,7 +202,7 @@ export default function() {
         }
         // Request No. 2: ApiController_reply with assets
         {
-            let url = BASE_URL + `/api/content/${userDsnpId}/reply`;
+            let url = BASE_URL + `/v1/content/${userDsnpId}/reply`;
             let body = Object.assign({}, validReplyNoUploadedAssets, {content: createContentWithAsset(BASE_URL)});
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let request = http.post(url, JSON.stringify(body), params);

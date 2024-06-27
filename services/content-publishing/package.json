@@ -5,8 +5,9 @@
   "main": "dist/apps/api/main.js",
   "scripts": {
     "build": "nest build api && nest build worker",
-    "build:swagger": "npx ts-node apps/api/src/generate-metadata.ts",
-    "generate-swagger-ui": "npx --yes @redocly/cli build-docs swagger.yaml --output=./docs/index.html",
+    "build:swagger": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
+    "build:metadata": "npx ts-node apps/api/src/generate-metadata.ts",
+    "generate-swagger-ui": "npx --yes @redocly/cli build-docs swagger.json --output=./docs/index.html",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start:api": "nest start api",
     "start:api:watch": "nest start api --watch",

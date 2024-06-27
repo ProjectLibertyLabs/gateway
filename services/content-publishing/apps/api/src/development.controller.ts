@@ -11,8 +11,9 @@ import * as QueueConstants from '../../../libs/common/src';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { AnnouncementType, createBroadcast, createProfile, createReaction, createReply, createTombstone, createUpdate } from '../../../libs/common/src/interfaces/dsnp';
 import { calculateDsnpHash } from '../../../libs/common/src/utils/ipfs';
+import {ApiOperation} from "@nestjs/swagger";
 
-@Controller('api/dev')
+@Controller('dev')
 export class DevelopmentController {
   private readonly logger: Logger;
 
@@ -40,6 +41,7 @@ export class DevelopmentController {
   }
 
   @Get('/request/:jobId')
+  @ApiOperation({ summary: 'Get a Job given a jobId' })
   async requestJob(@Param('jobId') jobId: string) {
     this.logger.log(jobId);
     const job = await this.requestQueue.getJob(jobId);
@@ -48,6 +50,7 @@ export class DevelopmentController {
   }
 
   @Get('/asset/:assetId')
+  @ApiOperation({ summary: 'Get an Asset given an assetId' })
   // eslint-disable-next-line consistent-return
   async getAsset(@Param('assetId') assetId: string) {
     if (await this.ipfsService.isPinned(assetId)) {
@@ -57,6 +60,7 @@ export class DevelopmentController {
   }
 
   @Post('/dummy/announcement/:queueType/:count')
+  @ApiOperation({ summary: 'Create dummy announcement data' })
   async populate(@Param('queueType') queueType: QueueConstants.AnnouncementTypeDto, @Param('count') count: number) {
     const promises: Promise<Job>[] = [];
     // eslint-disable-next-line no-plusplus

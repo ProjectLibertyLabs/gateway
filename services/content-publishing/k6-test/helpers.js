@@ -27,7 +27,7 @@ export const mockAsset = (size) => {
 export const getReferenceId = (baseUrl) => {
     const asset = mockAsset('sm');
     // Send the PUT request
-    const assetRequest = http.put(baseUrl + `/api/asset/upload`, asset);
+    const assetRequest = http.put(baseUrl + `/v1/asset/upload`, asset);
     let referenceId = '';
     check(assetRequest, {
         "": (r) => referenceId = JSON.parse(r.body).assetIds[0]

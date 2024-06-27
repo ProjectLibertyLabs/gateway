@@ -6,16 +6,16 @@ import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { ApiController } from './api.controller';
-import * as QueueConstants from '../../../libs/common/src';
 import { ApiService } from './api.service';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { ScannerModule } from '../../../libs/common/src/scanner/scanner.module';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { CrawlerModule } from '../../../libs/common/src/crawler/crawler.module';
-import { IPFSProcessorModule } from '../../../libs/common/src/ipfs/ipfs.module';
-import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
+import { HealthController, ScanControllerV1, SearchControllerV1, WebhookControllerV1 } from './controllers';
+import { BlockchainModule } from '@libs/common/blockchain/blockchain.module';
+import { CrawlerModule } from '@libs/common/crawler/crawler.module';
+import { IPFSProcessorModule } from '@libs/common/ipfs/ipfs.module';
+import { PubSubModule } from '@libs/common/pubsub/pubsub.module';
+import { ScannerModule } from '@libs/common/scanner/scanner.module';
+import { ConfigModule } from '@libs/common/config/config.module'
+import { ConfigService } from '@libs/common/config/config.service'
+import * as QueueConstants from '@libs/common';
 
 @Module({
   imports: [
@@ -159,7 +159,7 @@ import { PubSubModule } from '../../../libs/common/src/pubsub/pubsub.module';
     ScheduleModule.forRoot(),
   ],
   providers: [ApiService],
-  controllers: [ApiController],
+  controllers: [HealthController, ScanControllerV1, SearchControllerV1, WebhookControllerV1],
   exports: [],
 })
 export class ApiModule {}

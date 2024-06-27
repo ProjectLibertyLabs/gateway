@@ -1,0 +1,396 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_healthz",
+        "summary": "Check the health status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/livez": {
+      "get": {
+        "operationId": "HealthController_livez",
+        "summary": "Check the live status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_readyz",
+        "summary": "Check the ready status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/scanner/reset": {
+      "post": {
+        "operationId": "ScanControllerV1_resetScanner",
+        "summary": "Reset blockchain scan to a specific block number or offset from the current position",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "blockNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetScannerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "scanner"
+        ]
+      }
+    },
+    "/v1/scanner/options": {
+      "get": {
+        "operationId": "ScanControllerV1_getWatchOptions",
+        "summary": "Get the current watch options for the blockchain content event scanner",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainWatchOptionsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scanner"
+        ]
+      },
+      "post": {
+        "operationId": "ScanControllerV1_setWatchOptions",
+        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA IDs",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "watchOptions: Filter contents by schemaIds and/or dsnpIds",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChainWatchOptionsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "scanner"
+        ]
+      }
+    },
+    "/v1/scanner/pause": {
+      "post": {
+        "operationId": "ScanControllerV1_pauseScanner",
+        "summary": "Pause the blockchain scanner",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "scanner"
+        ]
+      }
+    },
+    "/v1/scanner/start": {
+      "post": {
+        "operationId": "ScanControllerV1_startScanner",
+        "summary": "Resume the blockchain content event scanner",
+        "parameters": [
+          {
+            "name": "immediate",
+            "required": false,
+            "in": "query",
+            "description": "immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "scanner"
+        ]
+      }
+    },
+    "/v1/search": {
+      "post": {
+        "operationId": "SearchControllerV1_search",
+        "summary": "Search for DSNP content by id, start/end block, and filters",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Search for DSNP content by id, startBlock, endBlock, and filters",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentSearchRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a jobId to be used to retrieve the results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/v1/webhooks": {
+      "put": {
+        "operationId": "WebhookControllerV1_registerWebhook",
+        "summary": "Register a webhook to be called when new content is encountered on the chain",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Register a webhook to be called when a new content is encountered",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "delete": {
+        "operationId": "WebhookControllerV1_clearAllWebHooks",
+        "summary": "Clear all previously registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "webhooks"
+        ]
+      },
+      "get": {
+        "operationId": "WebhookControllerV1_getRegisteredWebhooks",
+        "summary": "Get the list of currently registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns a list of registered webhooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WebhookRegistrationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "webhooks"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Content Watcher Service API",
+    "description": "Content Watcher Service API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter JWT token"
+      },
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "SESSION"
+      }
+    },
+    "schemas": {
+      "ResetScannerDto": {
+        "type": "object",
+        "properties": {
+          "blockNumber": {
+            "type": "number",
+            "minimum": 1,
+            "description": "The block number to reset the scanner to",
+            "example": 0
+          },
+          "rewindOffset": {
+            "type": "number",
+            "description": "Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block",
+            "example": 100
+          },
+          "immediate": {
+            "type": "boolean",
+            "description": "Whether to schedule the new scan immediately or wait for the next scheduled interval",
+            "example": true
+          }
+        }
+      },
+      "ChainWatchOptionsDto": {
+        "type": "object",
+        "properties": {
+          "schemaIds": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Specific schema ids to watch for",
+            "example": [
+              1,
+              19
+            ]
+          },
+          "dsnpIds": {
+            "description": "Specific dsnpIds (msa_id) to watch for",
+            "example": [
+              "10074",
+              "100001"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "schemaIds",
+          "dsnpIds"
+        ]
+      },
+      "ContentSearchRequestDto": {
+        "type": "object",
+        "properties": {
+          "startBlock": {
+            "type": "number",
+            "minimum": 1,
+            "description": "The starting block number to search from",
+            "example": 100
+          },
+          "endBlock": {
+            "type": "number",
+            "minimum": 1,
+            "description": "The ending block number to search to",
+            "example": 101
+          },
+          "filters": {
+            "description": "The schemaIds/dsnpIds to filter by",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChainWatchOptionsDto"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "startBlock",
+          "endBlock",
+          "filters",
+          "id"
+        ]
+      },
+      "WebhookRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Webhook URL",
+            "example": "https://example.com/webhook"
+          },
+          "announcementTypes": {
+            "description": "Announcement types to send to the webhook",
+            "example": [
+              "Broadcast",
+              "Reaction",
+              "Tombstone",
+              "Reply",
+              "Update"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "url",
+          "announcementTypes"
+        ]
+      }
+    }
+  }
+}

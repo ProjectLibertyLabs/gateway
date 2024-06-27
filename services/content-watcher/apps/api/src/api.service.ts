@@ -23,6 +23,11 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
+  public async getWatchOptions(): Promise<ChainWatchOptionsDto|null> {
+    const options = await this.redis.get(EVENTS_TO_WATCH_KEY);
+    return options ? JSON.parse(options) as ChainWatchOptionsDto : null;
+  }
+
   public async setWatchOptions(watchOptions: ChainWatchOptionsDto) {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);

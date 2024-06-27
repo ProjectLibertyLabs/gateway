@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
-import metadata from '../../../../apps/api/src/metadata';
+import metadata from '#api/metadata';
 
 export const initSwagger = async (app: INestApplication, apiPath: string) => {
   const options = new DocumentBuilder()

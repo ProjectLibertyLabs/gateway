@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -11,13 +11,16 @@
     "noImplicitThis": false,
     "outDir": "dist",
     "paths": {
-      "#app/*": [
-        "*"
+      "#api": [
+        "apps/api/src"
       ],
-      "@app/common": [
+      "#api/*": [
+        "apps/api/src/*"
+      ],
+      "@libs/common": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "@libs/common/*": [
         "libs/common/src/*"
       ]
     },

@@ -5,64 +5,19 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
+import {
+  validBroadCastNoUploadedAssets,
+  validContentNoUploadedAssets,
+  validProfileNoUploadedAssets,
+  validReaction,
+  validReplyNoUploadedAssets,
+} from '#app/apps/api/test/mockRequestData';
 
 describe('AppController E2E request verification!', () => {
   let app: INestApplication;
   let module: TestingModule;
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-  const validLocation = {
-    name: 'name of location',
-    accuracy: 97,
-    altitude: 10,
-    latitude: 37.26,
-    longitude: -119.59,
-    radius: 10,
-    units: 'm',
-  };
-  const validTags = [
-    {
-      type: 'mention',
-      mentionedId: 'dsnp://78187493520',
-    },
-    {
-      type: 'hashtag',
-      name: '#taggedUser',
-    },
-  ];
-  const validContentNoUploadedAssets = {
-    content: 'test broadcast message',
-    published: '1970-01-01T00:00:00+00:00',
-    name: 'name of note content',
-    assets: [
-      {
-        type: 'link',
-        name: 'link asset',
-        href: 'http://example.com',
-      },
-    ],
-    tag: validTags,
-    location: validLocation,
-  };
-  const validBroadCastNoUploadedAssets = {
-    content: validContentNoUploadedAssets,
-  };
-  const validReplyNoUploadedAssets = {
-    content: validContentNoUploadedAssets,
-    inReplyTo: 'dsnp://78187493520/0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-  };
-  const validReaction = {
-    emoji: '🤌🏼',
-    apply: 5,
-    inReplyTo: 'dsnp://78187493520/0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-  };
-  const validProfileNoUploadedAssets = {
-    summary: 'profile summary',
-    published: '1970-01-01T00:00:00+00:00',
-    name: 'name of profile content',
-    tag: validTags,
-    location: validLocation,
-  };
 
   beforeEach(async () => {
     module = await Test.createTestingModule({

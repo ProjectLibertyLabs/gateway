@@ -52,7 +52,7 @@ export class ApiService {
       data.assetToMimeType = assetToMimeType;
     }
     const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
-    this.logger.debug(job);
+    this.logger.debug('Enqueue Request Job: ', job);
     return {
       referenceId: data.id,
     };
@@ -151,7 +151,7 @@ export class ApiService {
     const dataOps = await dataTransaction.exec();
     this.checkTransactionResult(dataOps);
     const queuedJobs = await this.assetQueue.addBulk(jobs);
-    this.logger.debug(queuedJobs);
+    this.logger.debug('Add Assets Job: ', queuedJobs);
     const metaDataOps = await metadataTransaction.exec();
     this.checkTransactionResult(metaDataOps);
 
@@ -167,7 +167,7 @@ export class ApiService {
   }
 
   private checkTransactionResult(result: [error: Error | null, result: unknown][] | null) {
-    this.logger.log(result);
+    this.logger.log('Check Transaction Result: ', result);
     for (let index = 0; result && index < result.length; index += 1) {
       const [err, _id] = result[index];
       if (err) {

@@ -28,7 +28,7 @@ services:
     volumes:
       - frequency_data:/data/frequency
 
-  kubo_ipfs:
+  ipfs:
     image: ipfs/kubo:latest
     ports:
       - 4001:4001
@@ -58,7 +58,7 @@ services:
     depends_on:
       - redis
       - frequency
-      - kubo_ipfs
+      - ipfs
     networks:
       - content-publishing-service
 
@@ -79,7 +79,7 @@ services:
     depends_on:
       - redis
       - frequency
-      - kubo_ipfs
+      - ipfs
     networks:
       - content-publishing-service
 

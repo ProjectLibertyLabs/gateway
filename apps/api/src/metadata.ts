@@ -109,7 +109,7 @@ export default async () => {
           import('../../../libs/common/src/types/dtos/accounts.response.dto'),
           {
             AccountResponse: {
-              msaId: { required: true, type: () => Number },
+              msaId: { required: true, type: () => String },
               displayHandle: { required: false, type: () => String },
             },
           },
@@ -128,7 +128,7 @@ export default async () => {
           import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
             DelegationResponse: {
-              providerId: { required: true, type: () => Number },
+              providerId: { required: true, type: () => String },
               schemaPermissions: { required: true },
               revokedAt: { required: true, type: () => t['@polkadot/types-codec/primitive/U32'].u32 },
             },
@@ -155,7 +155,6 @@ export default async () => {
             },
           },
         ],
-        [import('./controllers/api.controller'), { ApiController: { health: {} } }],
         [
           import('./controllers/delegation.controller'),
           {
@@ -189,6 +188,7 @@ export default async () => {
             },
           },
         ],
+        [import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
       ],
     },
   };

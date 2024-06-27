@@ -7,8 +7,8 @@ import { KeysRequest, AddKeyRequest } from '#lib/types/dtos/keys.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
 
-@Controller('keys')
-@ApiTags('keys')
+@Controller('v1/keys')
+@ApiTags('v1/keys')
 export class KeysController {
   private readonly logger: Logger;
 

@@ -1,96 +1,8 @@
-use actix_web::web::Json;
+use crate::types::{AppState, HealthResponse, SIWFSignup, WebhookCallback};
+use actix_web::web::{self, Json};
 use actix_web::Error;
 use apistos::actix::CreatedJson;
-use apistos::{api_operation, ApiComponent};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use std::fmt::{self, Display, Formatter};
-
-#[derive(Serialize, JsonSchema, ApiComponent)]
-pub struct HealthResponse {
-    pub message: String,
-}
-
-#[derive(Deserialize, Serialize, JsonSchema, ApiComponent)]
-#[serde(tag = "transactionType")]
-pub enum WebhookCallback {
-    #[serde(rename = "SIWF_SIGNUP")]
-    SIWFSignup(SIWFSignup),
-    #[serde(rename = "CHANGE_HANDLE")]
-    HandleChange(HandleChanged),
-    #[serde(rename = "CREATE_HANDLE")]
-    HandleCreated(HandleCreated),
-    #[serde(rename = "ADD_KEY")]
-    KeyAdded(KeyAdded),
-}
-
-impl Display for WebhookCallback {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            WebhookCallback::SIWFSignup(payload) => {
-                write!(f, "\nreference_id: {}\n", payload.reference_id)?;
-                write!(f, "account_id: {}\n", payload.account_id)?;
-                write!(f, "msa_id: {}\n", payload.msa_id)?;
-                write!(f, "handle: {}\n", payload.handle)?;
-                write!(f, "provider_id: {}\n", payload.provider_id)?;
-                Ok(())
-            }
-            WebhookCallback::HandleChange(payload) => {
-                write!(f, "HandleChange: {:?}", payload)
-            }
-            WebhookCallback::HandleCreated(payload) => {
-                write!(f, "HandleCreated: {:?}", payload)
-            }
-            WebhookCallback::KeyAdded(payload) => {
-                write!(f, "KeyAdded: {:?}", payload)
-            }
-        }
-    }
-}
-#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema, ApiComponent)]
-pub struct SIWFSignup {
-    #[serde(rename = "referenceId")]
-    pub reference_id: String,
-    #[serde(rename = "accountId")]
-    pub account_id: String,
-    #[serde(rename = "msaId")]
-    pub msa_id: String,
-    pub handle: String,
-    #[serde(rename = "providerId")]
-    pub provider_id: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, JsonSchema, ApiComponent)]
-pub struct HandleChanged {
-    #[serde(rename = "referenceId")]
-    pub reference_id: String,
-    #[serde(rename = "msaId")]
-    pub msa_id: String,
-    pub handle: String,
-    #[serde(rename = "providerId")]
-    pub provider_id: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, JsonSchema, ApiComponent)]
-pub struct KeyAdded {
-    #[serde(rename = "referenceId")]
-    pub reference_id: String,
-    #[serde(rename = "msaId")]
-    pub msa_id: String,
-    #[serde(rename = "newPublicKey")]
-    pub new_public_key: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, JsonSchema, ApiComponent)]
-pub struct HandleCreated {
-    #[serde(rename = "referenceId")]
-    pub reference_id: String,
-    #[serde(rename = "msaId")]
-    pub msa_id: String,
-    pub handle: String,
-    #[serde(rename = "providerId")]
-    pub provider_id: String,
-}
+use apistos::api_operation;
 
 #[api_operation(
     tag = "webhook",
@@ -99,7 +11,8 @@ pub struct HandleCreated {
     error_code = 400
 )]
 pub(crate) async fn echo_payload(
-    body: Json<WebhookCallback>,
+    data: web::Data<AppState>,
+    body: web::Json<WebhookCallback>,
 ) -> Result<CreatedJson<WebhookCallback>, Error> {
     println!(
         "Received payload: {}",
@@ -112,6 +25,15 @@ pub(crate) async fn echo_payload(
                 "SIWFSignup: {}",
                 WebhookCallback::SIWFSignup(payload.clone())
             );
+            let mut last_payload = data.last_payload.lock().unwrap();
+            *last_payload = SIWFSignup {
+                reference_id: payload.reference_id.clone(),
+                account_id: payload.account_id.clone(),
+                msa_id: payload.msa_id.clone(),
+                handle: payload.handle.clone(),
+                provider_id: payload.provider_id.clone(),
+            };
+
             Ok(CreatedJson(WebhookCallback::SIWFSignup(payload)))
         }
         WebhookCallback::HandleChange(payload) => {
@@ -127,6 +49,25 @@ pub(crate) async fn echo_payload(
             Ok(CreatedJson(WebhookCallback::KeyAdded(payload)))
         }
     }
+}
+
+#[api_operation(
+    tag = "webhook",
+    summary = "Get payload",
+    description = "Get the payload by reference ID",
+    error_code = 404
+)]
+pub(crate) async fn get_payload(
+    data: web::Data<AppState>,
+) -> Result<CreatedJson<SIWFSignup>, Error> {
+    let payload = data.last_payload.lock().unwrap();
+    Ok(CreatedJson(SIWFSignup {
+        reference_id: payload.reference_id.clone(),
+        account_id: payload.account_id.clone(),
+        msa_id: payload.msa_id.clone(),
+        handle: payload.handle.clone(),
+        provider_id: payload.provider_id.clone(),
+    }))
 }
 
 #[api_operation(summary = "Health check")]

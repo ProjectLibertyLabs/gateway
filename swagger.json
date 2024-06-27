@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/health": {
+    "/healthz": {
       "get": {
-        "operationId": "ApiController_health",
+        "operationId": "HealthController_healthz",
         "summary": "Check the health status of the service",
         "parameters": [],
         "responses": {
@@ -12,11 +12,41 @@
           }
         },
         "tags": [
-          "api"
+          "health"
         ]
       }
     },
-    "/accounts/siwf": {
+    "/livez": {
+      "get": {
+        "operationId": "HealthController_livez",
+        "summary": "Check the live status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_readyz",
+        "summary": "Check the ready status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsController_getSIWFConfig",
         "summary": "Get the Sign-In With Frequency Configuration",
@@ -34,7 +64,7 @@
           }
         },
         "tags": [
-          "accounts"
+          "v1/accounts"
         ]
       },
       "post": {
@@ -64,11 +94,11 @@
           }
         },
         "tags": [
-          "accounts"
+          "v1/accounts"
         ]
       }
     },
-    "/accounts/{msaId}": {
+    "/v1/accounts/{msaId}": {
       "get": {
         "operationId": "AccountsController_getAccount",
         "summary": "Fetch an account given an msaId.",
@@ -95,11 +125,11 @@
           }
         },
         "tags": [
-          "accounts"
+          "v1/accounts"
         ]
       }
     },
-    "/delegation/{msaId}": {
+    "/v1/delegation/{msaId}": {
       "get": {
         "operationId": "DelegationController_getDelegation",
         "summary": "Get the delegation information associated with an msaId.",
@@ -119,11 +149,11 @@
           }
         },
         "tags": [
-          "delegation"
+          "v1/delegation"
         ]
       }
     },
-    "/keys/add": {
+    "/v1/keys/add": {
       "post": {
         "operationId": "KeysController_addKey",
         "summary": "add new control keys for an MSA ID",
@@ -144,11 +174,11 @@
           }
         },
         "tags": [
-          "keys"
+          "v1/keys"
         ]
       }
     },
-    "/keys/{msaId}": {
+    "/v1/keys/{msaId}": {
       "get": {
         "operationId": "KeysController_getKeys",
         "summary": "Fetch public keys given an msaId.",
@@ -168,11 +198,11 @@
           }
         },
         "tags": [
-          "keys"
+          "v1/keys"
         ]
       }
     },
-    "/handles": {
+    "/v1/handles": {
       "post": {
         "operationId": "HandlesController_createHandle",
         "summary": "Request to create a new handle for an account",
@@ -193,11 +223,11 @@
           }
         },
         "tags": [
-          "handles"
+          "v1/handles"
         ]
       }
     },
-    "/handles/change": {
+    "/v1/handles/change": {
       "post": {
         "operationId": "HandlesController_changeHandle",
         "summary": "Request to change a handle",
@@ -218,11 +248,11 @@
           }
         },
         "tags": [
-          "handles"
+          "v1/handles"
         ]
       }
     },
-    "/handles/{msaId}": {
+    "/v1/handles/{msaId}": {
       "get": {
         "operationId": "HandlesController_getHandle",
         "summary": "Fetch a handle given an msaId.",
@@ -242,7 +272,7 @@
           }
         },
         "tags": [
-          "handles"
+          "v1/handles"
         ]
       }
     }
@@ -310,7 +340,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [
@@ -350,7 +380,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [
@@ -441,10 +471,10 @@
             "type": "string"
           },
           "msaOwnerSignature": {
-            "type": "object"
+            "type": "string"
           },
           "newKeyOwnerSignature": {
-            "type": "object"
+            "type": "string"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayload"
@@ -482,7 +512,7 @@
             "$ref": "#/components/schemas/HandlePayload"
           },
           "proof": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [

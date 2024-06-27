@@ -71,7 +71,7 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
 
     const configService = app.get<ConfigService>(ConfigService);
-    await initSwagger(app, '/api/docs/swagger');
+    await initSwagger(app, '/docs/swagger');
     logger.log(`Listening on port ${configService.apiPort}`);
     await app.listen(configService.apiPort);
   } catch (e) {

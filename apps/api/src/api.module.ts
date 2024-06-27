@@ -15,7 +15,6 @@ import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { Redis } from 'ioredis';
 import { AccountsController } from './controllers/accounts.controller';
-import { ApiController } from './controllers/api.controller';
 import { DelegationController } from './controllers/delegation.controller';
 import { HandlesController } from './controllers/handles.controller';
 import { KeysController } from './controllers/keys.controller';
@@ -24,6 +23,7 @@ import { ApiService } from './services/api.service';
 import { DelegationService } from './services/delegation.service';
 import { HandlesService } from './services/handles.service';
 import { KeysService } from './services/keys.service';
+import { HealthController } from './controllers/health.controller';
 
 @Module({
   imports: [
@@ -116,7 +116,7 @@ import { KeysService } from './services/keys.service';
     ConfigService,
     EnqueueService,
   ],
-  controllers: [ApiController, AccountsController, DelegationController, KeysController, HandlesController],
+  controllers: [HealthController, AccountsController, DelegationController, KeysController, HandlesController],
   exports: [],
 })
 export class ApiModule {}

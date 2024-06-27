@@ -52,3 +52,11 @@ dev-graphs:
 .PHONY: mock-webhook
 mock-webhook:
 	@cd rust-webhook-server && cargo run
+
+.PHONY: dev-webhook
+dev-webhook:
+	@cd rust-webhook-server && cargo watch -x run
+
+.PHONY: dev-restart-chain
+dev-restart-chain:
+	./scripts/restart.sh

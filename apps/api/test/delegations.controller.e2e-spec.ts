@@ -45,7 +45,7 @@ describe('Delegation Controller', () => {
 
   it('(GET) /delegation/:msaId with invalid msaId', async () => {
     const invalidMsaId = BigInt(maxMsaId) + 1000n;
-    await request(app.getHttpServer()).get(`/delegation/${invalidMsaId.toString()}`).expect(400).expect({
+    await request(app.getHttpServer()).get(`/v1/delegation/${invalidMsaId.toString()}`).expect(400).expect({
       statusCode: 400,
       message: 'Failed to find the delegation',
     });
@@ -53,7 +53,7 @@ describe('Delegation Controller', () => {
 
   it('(GET) /delegation/:msaId with a valid MSA that has no delegations', async () => {
     const validMsaId = provider.msaId?.toString(); // use provider's MSA; will have no delegations
-    await request(app.getHttpServer()).get(`/delegation/${validMsaId}`).expect(400).expect({
+    await request(app.getHttpServer()).get(`/v1/delegation/${validMsaId}`).expect(400).expect({
       statusCode: 400,
       message: 'Failed to find the delegation',
     });
@@ -62,7 +62,7 @@ describe('Delegation Controller', () => {
   it('(GET) /delegation/:msaId with valid msaId that has delegations', async () => {
     const validMsaId = users[0]?.msaId?.toString();
     await request(app.getHttpServer())
-      .get(`/delegation/${validMsaId}`)
+      .get(`/v1/delegation/${validMsaId}`)
       .expect(200)
       .expect({
         providerId: provider.msaId?.toString(),

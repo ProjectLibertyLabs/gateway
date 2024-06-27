@@ -197,7 +197,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse> {
     const keyInfoResponse = this.api.rpc.msa.getKeysByMsaId(msaId);
-    return (await firstValueFrom(keyInfoResponse)).unwrap();
+    const value = await firstValueFrom(keyInfoResponse);
+    if (value.isSome) {
+      return value.unwrap();
+    }
+    throw new Error(`No keys found for msaId: ${msaId}`);
   }
 
   public async addPublicKeyToMsa(keysRequest: KeysRequest): Promise<SubmittableExtrinsic<any>> {
@@ -246,8 +250,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponse | null> {
-    const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId);
-    if (handleResponse.isSome) return handleResponse.unwrap();
+    const handleResponse = await this.rpc('handles', 'getHandleForMsa', msaId.toString());
+    if (handleResponse.isSome) {
+      return handleResponse.unwrap();
+    }
+    this.logger.error(`getHandleForMsa: No handle found for msaId: ${msaId}`);
     return null;
   }
 

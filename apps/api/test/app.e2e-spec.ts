@@ -27,8 +27,14 @@ describe('Account Service E2E request verification!', () => {
     await app.init();
   });
 
-  it('(GET) /api/health', () =>
-    request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+  it('(GET) /healthz', () =>
+    request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+
+  it('(GET) /livez', () =>
+    request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+
+  it('(GET) /readyz', () =>
+    request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   describe('(POST) /accounts/siwf', () => {
     it('Sign Up With Frequency request should work', async () => {
@@ -52,7 +58,7 @@ describe('Account Service E2E request verification!', () => {
         },
       };
 
-      return request(app.getHttpServer()).post(`/accounts/siwf`).send(siwfRequest).expect(201);
+      return request(app.getHttpServer()).post(`/v1/accounts/siwf`).send(siwfRequest).expect(201);
     });
     it('Sign In With Frequency request should work', async () => {
       const siwfRequest: WalletLoginRequestDto = {
@@ -69,7 +75,7 @@ describe('Account Service E2E request verification!', () => {
         },
       };
 
-      return request(app.getHttpServer()).post(`/accounts/siwf`).send(siwfRequest).expect(201);
+      return request(app.getHttpServer()).post(`/v1/accounts/siwf`).send(siwfRequest).expect(201);
     });
   });
 

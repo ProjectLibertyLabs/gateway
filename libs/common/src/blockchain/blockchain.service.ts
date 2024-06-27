@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap, BeforeApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { firstValueFrom, from } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
@@ -13,7 +13,7 @@ import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
 @Injectable()
-export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
+export class BlockchainService implements OnApplicationBootstrap, BeforeApplicationShutdown {
   public api: ApiRx;
 
   public apiPromise: ApiPromise;
@@ -44,7 +44,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return true;
   }
 
-  public async onApplicationShutdown(signal?: string | undefined) {
+  public async beforeApplicationShutdown(signal?: string | undefined) {
     const promises: Promise<any>[] = [];
     if (this.api) {
       promises.push(this.api.disconnect());

@@ -3,10 +3,10 @@ import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
 import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import * as QueueConstants from '../utils/queues';
-import { DsnpGraphEdge } from '../dtos/dsnp.graph.edge.dto';
+import { DsnpGraphEdge } from '../dtos/dsnp-graph-edge.dto';
 import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';
-import { GraphKeyPairDto } from '../dtos/graph.key.pair.dto';
+import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
 
 @Injectable()
 export class AsyncDebouncerService {

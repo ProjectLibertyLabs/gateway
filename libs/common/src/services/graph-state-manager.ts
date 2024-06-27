@@ -21,8 +21,8 @@ import { ItemizedStoragePageResponse, MessageSourceId, PaginatedStorageResponse 
 import { hexToU8a } from '@polkadot/util';
 import { AnyNumber } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
-import { GraphKeyPairDto } from '../dtos/graph.key.pair.dto';
-import { KeyType } from '../dtos/key.type.dto';
+import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
+import { KeyType } from '../dtos/key-type.enum';
 import { BlockchainService } from '../blockchain/blockchain.service';
 
 @Injectable()

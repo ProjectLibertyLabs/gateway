@@ -1,25 +1,25 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ['../../../libs/common/src/dtos/dsnp.graph.edge.dto']: await import('../../../libs/common/src/dtos/dsnp.graph.edge.dto'),
-    ['../../../libs/common/src/dtos/key.type.dto']: await import('../../../libs/common/src/dtos/key.type.dto'),
-    ['../../../libs/common/src/dtos/privacy.type.dto']: await import('../../../libs/common/src/dtos/privacy.type.dto'),
-    ['../../../libs/common/src/dtos/graph.key.pair.dto']: await import('../../../libs/common/src/dtos/graph.key.pair.dto'),
-    ['../../../libs/common/src/dtos/direction.dto']: await import('../../../libs/common/src/dtos/direction.dto'),
-    ['../../../libs/common/src/dtos/connection.type.dto']: await import('../../../libs/common/src/dtos/connection.type.dto'),
-    ['../../../libs/common/src/dtos/connections.dto']: await import('../../../libs/common/src/dtos/connections.dto'),
-    ['../../../libs/common/src/dtos/user.graph.dto']: await import('../../../libs/common/src/dtos/user.graph.dto'),
-    ['../../../libs/common/src/dtos/graph.change.request.reference']: await import('../../../libs/common/src/dtos/graph.change.request.reference'),
+    ['../../../libs/common/src/dtos/dsnp.graph.edge.dto']: await import('../../../libs/common/src/dtos/dsnp-graph-edge.dto'),
+    ['../../../libs/common/src/dtos/key.type.dto']: await import('../../../libs/common/src/dtos/key-type.enum'),
+    ['../../../libs/common/src/dtos/privacy.type.dto']: await import('../../../libs/common/src/dtos/privacy-type.enum'),
+    ['../../../libs/common/src/dtos/graph.key.pair.dto']: await import('../../../libs/common/src/dtos/graph-key-pair.dto'),
+    ['../../../libs/common/src/dtos/direction.dto']: await import('../../../libs/common/src/dtos/direction.enum'),
+    ['../../../libs/common/src/dtos/connection.type.dto']: await import('../../../libs/common/src/dtos/connection-type.enum'),
+    ['../../../libs/common/src/dtos/connections.dto']: await import('../../../libs/common/src/dtos/connection.dto'),
+    ['../../../libs/common/src/dtos/user.graph.dto']: await import('../../../libs/common/src/dtos/user-graph.dto'),
+    ['../../../libs/common/src/dtos/graph.change.request.reference']: await import('../../../libs/common/src/dtos/graph-change-response.dto'),
   };
   return {
     '@nestjs/swagger': {
       models: [
         [
-          import('../../../libs/common/src/dtos/dsnp.graph.edge.dto'),
+          import('../../../libs/common/src/dtos/dsnp-graph-edge.dto'),
           { DsnpGraphEdge: { userId: { required: true, type: () => String }, since: { required: true, type: () => Number } } },
         ],
         [
-          import('../../../libs/common/src/dtos/user.graph.dto'),
+          import('../../../libs/common/src/dtos/user-graph.dto'),
           {
             UserGraphDto: {
               dsnpId: { required: true, type: () => String },
@@ -28,7 +28,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/dtos/graph.key.pair.dto'),
+          import('../../../libs/common/src/dtos/graph-key-pair.dto'),
           {
             GraphKeyPairDto: {
               publicKey: { required: true, type: () => String },
@@ -38,7 +38,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/dtos/graph.query.dto'),
+          import('../../../libs/common/src/dtos/graph-query-params.dto'),
           {
             GraphsQueryParamsDto: {
               dsnpIds: { required: true, type: () => [String] },
@@ -48,7 +48,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/dtos/connections.dto'),
+          import('../../../libs/common/src/dtos/connection.dto'),
           {
             ConnectionDto: {
               dsnpId: { required: true, type: () => String },
@@ -59,7 +59,7 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/dtos/provider.graph.dto'),
+          import('../../../libs/common/src/dtos/provider-graph.dto'),
           {
             ProviderGraphDto: {
               dsnpId: { required: true, type: () => String },
@@ -73,7 +73,7 @@ export default async () => {
           { WatchGraphsDto: { dsnpIds: { required: true, type: () => [String] }, webhookEndpoint: { required: true, type: () => String } } },
         ],
         [
-          import('../../../libs/common/src/dtos/graph.change.notification.dto'),
+          import('../../../libs/common/src/dtos/graph-change-notification.dto'),
           { GraphChangeNotificationDto: { dsnpId: { required: true, type: () => String }, update: { required: true, type: () => Object } } },
         ],
       ],

@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
+import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -20,7 +20,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
 import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
 
 @Injectable()
-export class ApiService implements OnApplicationShutdown {
+export class ApiService implements BeforeApplicationShutdown {
   private readonly logger: Logger;
 
   private asyncDebouncerService: AsyncDebouncerService;
@@ -36,7 +36,7 @@ export class ApiService implements OnApplicationShutdown {
     this.asyncDebouncerService = new AsyncDebouncerService(this.redis, this.configService, this.graphStateManager);
   }
 
-  onApplicationShutdown(signal?: string | undefined) {
+  beforeApplicationShutdown(signal?: string | undefined) {
     try {
       this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
       this.redis.del(QueueConstants.DEBOUNCER_CACHE_KEY);

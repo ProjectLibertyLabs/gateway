@@ -12,7 +12,7 @@ import { BaseConsumer } from '../BaseConsumer';
 import { ConnectionDto, GraphStateManager, GraphUpdateJob, PrivacyType, ProviderGraphUpdateJob, SkipTransitiveGraphs, createReconnectionJob } from '../../../../libs/common/src';
 import * as QueueConstants from '../../../../libs/common/src/utils/queues';
 import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { Direction } from '../../../../libs/common/src/dtos/direction.dto';
+import { Direction } from '../../../../libs/common/src/dtos/direction.enum';
 import { SECONDS_PER_BLOCK } from '../graph_publisher/graph.publisher.processor.service';
 import fs from 'fs';
 @Injectable()

@@ -28,7 +28,9 @@ async function bootstrap() {
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe());
     await initSwagger(app, '/api/docs/swagger');
-    await app.listen(process.env.API_PORT ?? 3000);
+    const port = process.env.API_PORT || 3000;
+    logger.log(`Listening on port ${port}`);
+    await app.listen(port);
   } catch (e) {
     await app.close();
     logger.log('****** MAIN CATCH ********');

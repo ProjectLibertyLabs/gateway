@@ -27,7 +27,6 @@ export class ApiController {
   }
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
-  // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
   @Put('graphs')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Post a request to fetch graphs for specified dsnpIds and blockNumber' })

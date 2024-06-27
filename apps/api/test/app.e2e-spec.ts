@@ -11,10 +11,10 @@ import { ChainUser, ExtrinsicHelper } from '@amplica-labs/frequency-scenario-tem
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 
-  let app: INestApplication;
-  let testModule: TestingModule;
-  let users: ChainUser[];
-  let eventEmitter: EventEmitter2;
+let app: INestApplication;
+let testModule: TestingModule;
+let users: ChainUser[];
+let eventEmitter: EventEmitter2;
 
 describe('Graph Service E2E request verification!', () => {
   beforeAll(async () => {
@@ -38,9 +38,13 @@ describe('Graph Service E2E request verification!', () => {
     await ExtrinsicHelper.disconnect();
   });
 
-  it('(GET) /api/health', () => request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+  it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
-  describe('(POST) /api/update-graph', () => {
+  it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+
+  it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+
+  describe('(POST) /v1/update-graph', () => {
     it('Valid public graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -57,7 +61,7 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
@@ -96,7 +100,7 @@ describe('Graph Service E2E request verification!', () => {
       const requests = validGraphChangeRequests.map((requestPayload) => {
         console.log(`requestPayload.dsnpId: ${requestPayload.dsnpId}`);
         return request(app.getHttpServer())
-          .post(`/api/update-graph`)
+          .post(`/v1/update-graph`)
           .send(requestPayload)
           .expect(201)
           .expect((res) => expect(res.text).toContain('referenceId'));
@@ -128,7 +132,7 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
@@ -141,7 +145,7 @@ describe('Graph Service E2E request verification!', () => {
       } as GraphsQueryParamsDto;
 
       await request(app.getHttpServer())
-        .put(`/api/graphs`)
+        .put(`/v1/graphs`)
         .send(userGraphGet)
         .expect(200)
         .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
@@ -161,14 +165,14 @@ describe('Graph Service E2E request verification!', () => {
       } as GraphsQueryParamsDto;
 
       await request(app.getHttpServer())
-        .put(`/api/graphs`)
+        .put(`/v1/graphs`)
         .send(userGraphGet)
         .expect(200)
         .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
     });
   });
 
-  describe('(POST) /api/update-graph with public disconnect', () => {
+  describe('(POST) /v1/update-graph with public disconnect', () => {
     it('Valid public graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -185,14 +189,14 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
   });
 
-  describe('(POST) /api/update-graph with private disconnect', () => {
+  describe('(POST) /v1/update-graph with private disconnect', () => {
     it('Valid private graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -216,14 +220,14 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
   });
 
-  describe('(POST) /api/update-graph with private friend request user A -> B', () => {
+  describe('(POST) /v1/update-graph with private friend request user A -> B', () => {
     it('Valid private graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -247,14 +251,14 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
   });
 
-  describe('(POST) /api/update-graph with private friend request from user B -> A', () => {
+  describe('(POST) /v1/update-graph with private friend request from user B -> A', () => {
     it('Valid private graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[1].msaId!.toString(),
@@ -278,13 +282,13 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
   });
-  describe('(POST) /api/update-graph with bi-directional connection', () => {
+  describe('(POST) /v1/update-graph with bi-directional connection', () => {
     it('Valid public graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -301,7 +305,7 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/api/update-graph`)
+        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));

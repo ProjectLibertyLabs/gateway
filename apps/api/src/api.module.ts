@@ -6,7 +6,8 @@ import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { ApiController } from './api.controller';
+import { GraphController } from './graph.controller';
+import { HealthController } from './health.controller';
 import { ApiService } from './api.service';
 import { ConfigModule } from '../../../libs/common/src/config/config.module';
 import { ConfigService } from '../../../libs/common/src/config/config.service';
@@ -127,7 +128,7 @@ import * as QueueConstants from '../../../libs/common/src/utils/queues';
     ScheduleModule.forRoot(),
   ],
   providers: [ApiService, GraphStateManager, ConfigService],
-  controllers: [ApiController],
+  controllers: [GraphController, HealthController],
   exports: [],
 })
 export class ApiModule {}

@@ -1,15 +1,15 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ['../../../libs/common/src/dtos/dsnp.graph.edge.dto']: await import('../../../libs/common/src/dtos/dsnp-graph-edge.dto'),
-    ['../../../libs/common/src/dtos/key.type.dto']: await import('../../../libs/common/src/dtos/key-type.enum'),
-    ['../../../libs/common/src/dtos/privacy.type.dto']: await import('../../../libs/common/src/dtos/privacy-type.enum'),
-    ['../../../libs/common/src/dtos/graph.key.pair.dto']: await import('../../../libs/common/src/dtos/graph-key-pair.dto'),
-    ['../../../libs/common/src/dtos/direction.dto']: await import('../../../libs/common/src/dtos/direction.enum'),
-    ['../../../libs/common/src/dtos/connection.type.dto']: await import('../../../libs/common/src/dtos/connection-type.enum'),
-    ['../../../libs/common/src/dtos/connections.dto']: await import('../../../libs/common/src/dtos/connection.dto'),
-    ['../../../libs/common/src/dtos/user.graph.dto']: await import('../../../libs/common/src/dtos/user-graph.dto'),
-    ['../../../libs/common/src/dtos/graph.change.request.reference']: await import('../../../libs/common/src/dtos/graph-change-response.dto'),
+    ['../../../libs/common/src/dtos/dsnp-graph-edge.dto']: await import('../../../libs/common/src/dtos/dsnp-graph-edge.dto'),
+    ['../../../libs/common/src/dtos/key-type.enum']: await import('../../../libs/common/src/dtos/key-type.enum'),
+    ['../../../libs/common/src/dtos/privacy-type.enum']: await import('../../../libs/common/src/dtos/privacy-type.enum'),
+    ['../../../libs/common/src/dtos/graph-key-pair.dto']: await import('../../../libs/common/src/dtos/graph-key-pair.dto'),
+    ['../../../libs/common/src/dtos/direction.enum']: await import('../../../libs/common/src/dtos/direction.enum'),
+    ['../../../libs/common/src/dtos/connection-type.enum']: await import('../../../libs/common/src/dtos/connection-type.enum'),
+    ['../../../libs/common/src/dtos/connection.dto']: await import('../../../libs/common/src/dtos/connection.dto'),
+    ['../../../libs/common/src/dtos/user-graph.dto']: await import('../../../libs/common/src/dtos/user-graph.dto'),
+    ['../../../libs/common/src/dtos/graph-change-response.dto']: await import('../../../libs/common/src/dtos/graph-change-response.dto'),
   };
   return {
     '@nestjs/swagger': {
@@ -23,7 +23,7 @@ export default async () => {
           {
             UserGraphDto: {
               dsnpId: { required: true, type: () => String },
-              dsnpGraphEdges: { required: false, type: () => [t['../../../libs/common/src/dtos/dsnp.graph.edge.dto'].DsnpGraphEdge] },
+              dsnpGraphEdges: { required: false, type: () => [t['../../../libs/common/src/dtos/dsnp-graph-edge.dto'].DsnpGraphEdge] },
             },
           },
         ],
@@ -33,7 +33,7 @@ export default async () => {
             GraphKeyPairDto: {
               publicKey: { required: true, type: () => String },
               privateKey: { required: true, type: () => String },
-              keyType: { required: true, type: () => String, enum: t['../../../libs/common/src/dtos/key.type.dto'].KeyType },
+              keyType: { required: true, type: () => String, enum: t['../../../libs/common/src/dtos/key-type.enum'].KeyType },
             },
           },
         ],
@@ -42,8 +42,8 @@ export default async () => {
           {
             GraphsQueryParamsDto: {
               dsnpIds: { required: true, type: () => [String] },
-              privacyType: { required: true, enum: t['../../../libs/common/src/dtos/privacy.type.dto'].PrivacyType },
-              graphKeyPairs: { required: true, type: () => [t['../../../libs/common/src/dtos/graph.key.pair.dto'].GraphKeyPairDto] },
+              privacyType: { required: true, enum: t['../../../libs/common/src/dtos/privacy-type.enum'].PrivacyType },
+              graphKeyPairs: { required: false, type: () => [t['../../../libs/common/src/dtos/graph-key-pair.dto'].GraphKeyPairDto] },
             },
           },
         ],
@@ -52,10 +52,11 @@ export default async () => {
           {
             ConnectionDto: {
               dsnpId: { required: true, type: () => String },
-              privacyType: { required: true, enum: t['../../../libs/common/src/dtos/privacy.type.dto'].PrivacyType },
-              direction: { required: true, enum: t['../../../libs/common/src/dtos/direction.dto'].Direction },
-              connectionType: { required: true, enum: t['../../../libs/common/src/dtos/connection.type.dto'].ConnectionType },
+              privacyType: { required: true, enum: t['../../../libs/common/src/dtos/privacy-type.enum'].PrivacyType },
+              direction: { required: true, enum: t['../../../libs/common/src/dtos/direction.enum'].Direction },
+              connectionType: { required: true, enum: t['../../../libs/common/src/dtos/connection-type.enum'].ConnectionType },
             },
+            ConnectionDtoWrapper: { data: { required: true, type: () => [t['../../../libs/common/src/dtos/connection.dto'].ConnectionDto] } },
           },
         ],
         [
@@ -63,8 +64,8 @@ export default async () => {
           {
             ProviderGraphDto: {
               dsnpId: { required: true, type: () => String },
-              connections: { required: true, type: () => ({ data: { required: true, type: () => [t['../../../libs/common/src/dtos/connections.dto'].ConnectionDto] } }) },
-              graphKeyPairs: { required: false, type: () => [t['../../../libs/common/src/dtos/graph.key.pair.dto'].GraphKeyPairDto] },
+              connections: { required: true, type: () => ({ data: { required: true, type: () => [t['../../../libs/common/src/dtos/connection.dto'].ConnectionDto] } }) },
+              graphKeyPairs: { required: false, type: () => [t['../../../libs/common/src/dtos/graph-key-pair.dto'].GraphKeyPairDto] },
             },
           },
         ],
@@ -74,21 +75,43 @@ export default async () => {
         ],
         [
           import('../../../libs/common/src/dtos/graph-change-notification.dto'),
-          { GraphChangeNotificationDto: { dsnpId: { required: true, type: () => String }, update: { required: true, type: () => Object } } },
+          {
+            PersistPageUpdateDto: {
+              type: { required: true, type: () => String },
+              ownerDsnpUserId: { required: true, type: () => String },
+              schemaId: { required: true, type: () => Number },
+              pageId: { required: true, type: () => Number },
+              prevHash: { required: true, type: () => Number },
+            },
+            DeletePageUpdateDto: {
+              type: { required: true, type: () => String },
+              ownerDsnpUserId: { required: true, type: () => String },
+              schemaId: { required: true, type: () => Number },
+              pageId: { required: true, type: () => Number },
+              prevHash: { required: true, type: () => Number },
+            },
+            AddKeyUpdateDto: {
+              type: { required: true, type: () => String },
+              ownerDsnpUserId: { required: true, type: () => String },
+              prevHash: { required: true, type: () => Number },
+            },
+            GraphChangeNotificationDto: { dsnpId: { required: true, type: () => String }, update: { required: true, type: () => Object } },
+          },
         ],
+        [import('../../../libs/common/src/dtos/graph-change-response.dto'), { GraphChangeRepsonseDto: { referenceId: { required: true, type: () => String } } }],
       ],
       controllers: [
         [
-          import('./api.controller'),
+          import('./graph.controller'),
           {
-            ApiController: {
-              health: {},
-              getGraphs: { type: [t['../../../libs/common/src/dtos/user.graph.dto'].UserGraphDto] },
-              updateGraph: { type: t['../../../libs/common/src/dtos/graph.change.request.reference'].GraphChangeRepsonseDto },
+            GraphController: {
+              getGraphs: { type: [t['../../../libs/common/src/dtos/user-graph.dto'].UserGraphDto] },
+              updateGraph: { type: t['../../../libs/common/src/dtos/graph-change-response.dto'].GraphChangeRepsonseDto },
               watchGraphs: {},
             },
           },
         ],
+        [import('./health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
       ],
     },
   };

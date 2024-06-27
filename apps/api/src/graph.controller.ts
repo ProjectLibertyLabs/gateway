@@ -4,26 +4,13 @@ import { ApiService } from './api.service';
 import { GraphChangeRepsonseDto, GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
 import { WatchGraphsDto } from '../../../libs/common/src/dtos/watch-graphs.dto';
 
-@Controller('api')
-@ApiTags('graph-service')
-export class ApiController {
+@Controller('v1')
+@ApiTags('v1/graph')
+export class GraphController {
   private readonly logger: Logger;
 
   constructor(private apiService: ApiService) {
     this.logger = new Logger(this.constructor.name);
-  }
-
-  // Health endpoint
-  // eslint-disable-next-line class-methods-use-this
-  @Get('health')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Check the health status of the service' })
-  @ApiOkResponse({ description: 'Service is healthy' })
-  health() {
-    return {
-      status: HttpStatus.OK,
-      message: 'Service is healthy',
-    };
   }
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`

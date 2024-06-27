@@ -1,0 +1,339 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/graphs": {
+      "put": {
+        "operationId": "GraphController_getGraphs",
+        "summary": "Post a request to fetch graphs for specified dsnpIds and blockNumber",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GraphsQueryParamsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Graphs retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserGraphDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/graph"
+        ]
+      }
+    },
+    "/v1/update-graph": {
+      "post": {
+        "operationId": "GraphController_updateGraph",
+        "summary": "Request an update to given users graph",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderGraphDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Graph update request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphChangeRepsonseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/graph"
+        ]
+      }
+    },
+    "/v1/watch-graphs": {
+      "put": {
+        "operationId": "GraphController_watchGraphs",
+        "summary": "Watch graphs for specified dsnpIds and receive updates",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatchGraphsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully started watching graphs"
+          }
+        },
+        "tags": [
+          "v1/graph"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_healthz",
+        "summary": "Check the health status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/livez": {
+      "get": {
+        "operationId": "HealthController_livez",
+        "summary": "Check the live status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_readyz",
+        "summary": "Check the ready status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Graph Service",
+    "description": "Graph Service API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Enter JWT token"
+      },
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "SESSION"
+      }
+    },
+    "schemas": {
+      "GraphKeyPairDto": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "privateKey": {
+            "type": "string"
+          },
+          "keyType": {
+            "type": "string",
+            "enum": [
+              "X25519"
+            ]
+          }
+        },
+        "required": [
+          "publicKey",
+          "privateKey",
+          "keyType"
+        ]
+      },
+      "GraphsQueryParamsDto": {
+        "type": "object",
+        "properties": {
+          "dsnpIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "privacyType": {
+            "type": "string",
+            "enum": [
+              "private",
+              "public"
+            ]
+          },
+          "graphKeyPairs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphKeyPairDto"
+            }
+          }
+        },
+        "required": [
+          "dsnpIds",
+          "privacyType",
+          "graphKeyPairs"
+        ]
+      },
+      "DsnpGraphEdge": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "since": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "userId",
+          "since"
+        ]
+      },
+      "UserGraphDto": {
+        "type": "object",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "dsnpGraphEdges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DsnpGraphEdge"
+            }
+          }
+        },
+        "required": [
+          "dsnpId"
+        ]
+      },
+      "ConnectionDto": {
+        "type": "object",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "privacyType": {
+            "type": "string",
+            "enum": [
+              "private",
+              "public"
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "connectionTo",
+              "connectionFrom",
+              "bidirectional",
+              "disconnect"
+            ]
+          },
+          "connectionType": {
+            "type": "string",
+            "enum": [
+              "follow",
+              "friendship"
+            ]
+          }
+        },
+        "required": [
+          "dsnpId",
+          "privacyType",
+          "direction",
+          "connectionType"
+        ]
+      },
+      "ProviderGraphDto": {
+        "type": "object",
+        "properties": {
+          "dsnpId": {
+            "type": "string"
+          },
+          "connections": {
+            "type": "object",
+            "properties": {
+              "data": {
+                "required": true,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ConnectionDto"
+                }
+              }
+            }
+          },
+          "graphKeyPairs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GraphKeyPairDto"
+            }
+          }
+        },
+        "required": [
+          "dsnpId",
+          "connections"
+        ]
+      },
+      "GraphChangeRepsonseDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "WatchGraphsDto": {
+        "type": "object",
+        "properties": {
+          "dsnpIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "webhookEndpoint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dsnpIds",
+          "webhookEndpoint"
+        ]
+      }
+    }
+  }
+}

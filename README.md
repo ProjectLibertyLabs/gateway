@@ -188,7 +188,6 @@ Environment files are documented [here](./ENVIRONMENT.md), and a sample environm
 1. Copy the template values into the .env files.
    ```sh
    cp env.template .env
-   cp env.template .env.dev
    cp env.template .env.docker.dev
    ```
 2. Replace template values with values appropriate to your environment.
@@ -230,7 +229,7 @@ This will run the tests in `apps/api/test` folder.
 #### Check e2e test file for more details on the test.
 
 ### Swagger UI
-Check out the Swagger UI hosted on the app instance at [\<base url>/api/docs/swagger](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
+Check out the Swagger UI hosted on the app instance at [\<base url>/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
 
 ### Queue Management
 You may also view and manage the application's queue at [\<base url>/queues](http://localhost:3000/queues).

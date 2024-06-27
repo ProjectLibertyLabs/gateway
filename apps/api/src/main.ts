@@ -27,7 +27,8 @@ async function bootstrap() {
   try {
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe());
-    await initSwagger(app, '/api/docs/swagger');
+
+    await initSwagger(app, '/docs/swagger');
     const port = process.env.API_PORT || 3000;
     logger.log(`Listening on port ${port}`);
     await app.listen(port);

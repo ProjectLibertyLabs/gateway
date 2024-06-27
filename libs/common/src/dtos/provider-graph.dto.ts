@@ -6,7 +6,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export type ConnectionsDtoWrapper = {
   data: ConnectionDto[];
-}
+};
 
 export class ProviderGraphDto {
   @IsNotEmpty()

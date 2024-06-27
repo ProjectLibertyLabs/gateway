@@ -4,7 +4,7 @@ import { IsArray, IsNotEmpty, IsString, IsUrl } from 'class-validator';
 export class WatchGraphsDto {
   @IsArray()
   @IsNotEmpty()
-  @ApiProperty({ description: 'MSA IDs for which to watch for graph updates', type: [String], example: ['2', '3', '4', '5']})
+  @ApiProperty({ description: 'MSA IDs for which to watch for graph updates', type: [String], example: ['2', '3', '4', '5'] })
   dsnpIds: string[];
 
   @IsNotEmpty()

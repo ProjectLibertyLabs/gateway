@@ -30,7 +30,7 @@ export class HealthController {
     };
   }
 
-  // Live endpoint
+  // Ready endpoint
   // eslint-disable-next-line class-methods-use-this
   @Get('readyz')
   @HttpCode(HttpStatus.OK)

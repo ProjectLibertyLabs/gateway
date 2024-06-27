@@ -11,7 +11,7 @@ import * as QueueConstants from '../../../libs/common/src';
 import { IpfsService } from '../../../libs/common/src/utils/ipfs.client';
 import { AnnouncementType, createBroadcast, createProfile, createReaction, createReply, createTombstone, createUpdate } from '../../../libs/common/src/interfaces/dsnp';
 import { calculateDsnpHash } from '../../../libs/common/src/utils/ipfs';
-import {ApiOperation} from "@nestjs/swagger";
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('dev')
 export class DevelopmentController {

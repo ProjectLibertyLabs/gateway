@@ -5,13 +5,7 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
-import {
-  validBroadCastNoUploadedAssets,
-  validContentNoUploadedAssets,
-  validProfileNoUploadedAssets,
-  validReaction,
-  validReplyNoUploadedAssets,
-} from './mockRequestData';
+import { validBroadCastNoUploadedAssets, validContentNoUploadedAssets, validProfileNoUploadedAssets, validReaction, validReplyNoUploadedAssets } from './mockRequestData';
 
 describe('AppController E2E request verification!', () => {
   let app: INestApplication;

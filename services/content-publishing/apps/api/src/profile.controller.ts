@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 import { AnnouncementResponseDto, AnnouncementTypeDto, AssetIncludedRequestDto, DsnpUserIdParam, ProfileDto } from '../../../libs/common/src';
 
 @Controller('v1/profile')
-@ApiTags('profile')
+@ApiTags('v1/profile')
 export class ProfileController {
   private readonly logger: Logger;
 

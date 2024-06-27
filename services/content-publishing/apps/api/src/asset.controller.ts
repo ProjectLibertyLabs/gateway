@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 import { DSNP_VALID_MIME_TYPES, FilesUploadDto, UploadResponseDto } from '../../../libs/common/src';
 
 @Controller('v1/asset')
-@ApiTags('asset')
+@ApiTags('v1/asset')
 export class AssetController {
   private readonly logger: Logger;
 

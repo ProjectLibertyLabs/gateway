@@ -14,7 +14,7 @@ import {
 } from '../../../libs/common/src';
 
 @Controller('v1/content')
-@ApiTags('content')
+@ApiTags('v1/content')
 export class ContentController {
   private readonly logger: Logger;
 

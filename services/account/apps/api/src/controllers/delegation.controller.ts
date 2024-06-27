@@ -3,8 +3,8 @@ import { DelegationResponse } from '#lib/types/dtos/delegation.response.dto';
 import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('delegation')
-@ApiTags('delegation')
+@Controller('v1/delegation')
+@ApiTags('v1/delegation')
 export class DelegationController {
   private readonly logger: Logger;
 

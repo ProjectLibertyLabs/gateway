@@ -91,7 +91,7 @@ describe('Handles Controller', () => {
       const accountId = user.keypair.address;
 
       await request(HTTP_SERVER)
-        .post('/handles')
+        .post('/v1/handles')
         .send({ accountId, payload, proof })
         .expect(200)
         .expect((req) => req.text === 'Handle created successfully');
@@ -102,9 +102,8 @@ describe('Handles Controller', () => {
       const user = users[1];
       const { payload, proof } = getClaimHandlePayload(user, handles[1], currentBlockNumber);
       const accountId = user.keypair.address;
-
       await request(HTTP_SERVER)
-        .post('/handles/change')
+        .post('/v1/handles/change')
         .send({ accountId, payload, proof })
         .expect(200)
         .expect((res) => res.text === 'Handle created successfully');
@@ -117,7 +116,7 @@ describe('Handles Controller', () => {
       const user = users[0];
       const validMsaId = user.msaId?.toString();
       await request(HTTP_SERVER)
-        .get(`/handles/${validMsaId}`)
+        .get(`/v1/handles/${validMsaId}`)
         .expect(200)
         .expect((res) => res.body.base_handle === handles[0])
         .expect((res) => res.body.canonical_base.length === res.body.base_handle.length);
@@ -127,7 +126,7 @@ describe('Handles Controller', () => {
       const user = users[3];
       const msaIdWithNoHandle = user.msaId?.toString();
       await request(HTTP_SERVER)
-        .get(`/handles/${msaIdWithNoHandle}`)
+        .get(`/v1/handles/${msaIdWithNoHandle}`)
         .expect(404)
         .expect({ statusCode: 404, message: 'No handle found for MSA' });
     });
@@ -135,7 +134,7 @@ describe('Handles Controller', () => {
     it('(GET) /handles/:msaId with invalid msaId', async () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
       await request(HTTP_SERVER)
-        .get(`/handles/${invalidMsaId.toString()}`)
+        .get(`/v1/handles/${invalidMsaId.toString()}`)
         .expect(400)
         .expect({ statusCode: 400, message: 'Invalid msaId.' });
     });

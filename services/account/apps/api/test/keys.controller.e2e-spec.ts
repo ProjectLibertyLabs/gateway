@@ -92,7 +92,7 @@ describe('Keys Controller', () => {
       };
 
       await request(app.getHttpServer())
-        .post('/keys/add')
+        .post('/v1/keys/add')
         .send(keysRequest)
         .expect(200)
         .expect((req) => req.text === 'Successfully added key.');
@@ -105,7 +105,7 @@ describe('Keys Controller', () => {
       const user = users[0];
       const validMsaId = user.msaId!.toString();
       await request(app.getHttpServer())
-        .get(`/keys/${validMsaId}`)
+        .get(`/v1/keys/${validMsaId}`)
         .expect(200)
         .expect({
           msaKeys: [user.keypair.address, newKey0.address],
@@ -117,7 +117,7 @@ describe('Keys Controller', () => {
       const user = users[3];
       const validMsaId = user.msaId?.toString();
       await request(app.getHttpServer())
-        .get(`/keys/${validMsaId}`)
+        .get(`/v1/keys/${validMsaId}`)
         .expect(200)
         .expect({ msaKeys: [user.keypair.address] });
     });
@@ -125,7 +125,7 @@ describe('Keys Controller', () => {
     it('(GET) /keys/:msaId with invalid msaId', async () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
       await request(app.getHttpServer())
-        .get(`/keys/${invalidMsaId.toString()}`)
+        .get(`/v1/keys/${invalidMsaId.toString()}`)
         .expect(400)
         .expect({ statusCode: 400, message: 'Failed to find public keys for the given msaId' });
     });

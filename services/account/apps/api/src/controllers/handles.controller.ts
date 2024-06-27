@@ -7,8 +7,8 @@ import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { ChangeHandleRequest, CreateHandleRequest, HandleRequest } from '#lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 
-@Controller('handles')
-@ApiTags('handles')
+@Controller('v1/handles')
+@ApiTags('v1/handles')
 export class HandlesController {
   private readonly logger: Logger;
 

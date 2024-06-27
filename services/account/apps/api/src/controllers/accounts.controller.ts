@@ -6,8 +6,8 @@ import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('accounts')
-@ApiTags('accounts')
+@Controller('v1/accounts')
+@ApiTags('v1/accounts')
 export class AccountsController {
   private readonly logger: Logger;
 

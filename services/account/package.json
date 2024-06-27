@@ -47,7 +47,7 @@
     "@bull-board/express": "^5.17.0",
     "@bull-board/nestjs": "^5.17.0",
     "@bull-board/ui": "^5.17.0",
-    "@frequency-chain/api-augment": "~1.11.1",
+    "@frequency-chain/api-augment": "^1.11.1",
     "@jest/globals": "^29.7.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs/bullmq": "^10.1.1",
@@ -110,7 +110,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   },
-  "prettier": "./.prettierrc.json",
   "jest": {
     "moduleFileExtensions": [
       "js",

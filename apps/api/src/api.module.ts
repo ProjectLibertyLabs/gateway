@@ -116,7 +116,9 @@ import { HealthController } from './controllers/health.controller';
     ConfigService,
     EnqueueService,
   ],
-  controllers: [HealthController, AccountsController, DelegationController, KeysController, HandlesController],
+  // Controller order determines the order of display for docs
+  // v[Desc first][ABC Second], Health, and then Dev only last
+  controllers: [AccountsController, DelegationController, HandlesController, KeysController, HealthController],
   exports: [],
 })
 export class ApiModule {}

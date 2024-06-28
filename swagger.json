@@ -1,51 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/healthz": {
-      "get": {
-        "operationId": "HealthController_healthz",
-        "summary": "Check the health status of the service",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Service is healthy"
-          }
-        },
-        "tags": [
-          "health"
-        ]
-      }
-    },
-    "/livez": {
-      "get": {
-        "operationId": "HealthController_livez",
-        "summary": "Check the live status of the service",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Service is live"
-          }
-        },
-        "tags": [
-          "health"
-        ]
-      }
-    },
-    "/readyz": {
-      "get": {
-        "operationId": "HealthController_readyz",
-        "summary": "Check the ready status of the service",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Service is ready"
-          }
-        },
-        "tags": [
-          "health"
-        ]
-      }
-    },
     "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsController_getSIWFConfig",
@@ -153,55 +108,6 @@
         ]
       }
     },
-    "/v1/keys/add": {
-      "post": {
-        "operationId": "KeysController_addKey",
-        "summary": "add new control keys for an MSA ID",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/KeysRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Found public keys."
-          }
-        },
-        "tags": [
-          "v1/keys"
-        ]
-      }
-    },
-    "/v1/keys/{msaId}": {
-      "get": {
-        "operationId": "KeysController_getKeys",
-        "summary": "Fetch public keys given an msaId.",
-        "parameters": [
-          {
-            "name": "msaId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Found public keys."
-          }
-        },
-        "tags": [
-          "v1/keys"
-        ]
-      }
-    },
     "/v1/handles": {
       "post": {
         "operationId": "HandlesController_createHandle",
@@ -273,6 +179,100 @@
         },
         "tags": [
           "v1/handles"
+        ]
+      }
+    },
+    "/v1/keys/add": {
+      "post": {
+        "operationId": "KeysController_addKey",
+        "summary": "add new control keys for an MSA ID",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeysRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Found public keys."
+          }
+        },
+        "tags": [
+          "v1/keys"
+        ]
+      }
+    },
+    "/v1/keys/{msaId}": {
+      "get": {
+        "operationId": "KeysController_getKeys",
+        "summary": "Fetch public keys given an msaId.",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found public keys."
+          }
+        },
+        "tags": [
+          "v1/keys"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_healthz",
+        "summary": "Check the health status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/livez": {
+      "get": {
+        "operationId": "HealthController_livez",
+        "summary": "Check the live status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_readyz",
+        "summary": "Check the ready status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        },
+        "tags": [
+          "health"
         ]
       }
     }
@@ -445,6 +445,40 @@
           "referenceId"
         ]
       },
+      "HandlePayload": {
+        "type": "object",
+        "properties": {
+          "baseHandle": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "baseHandle",
+          "expiration"
+        ]
+      },
+      "HandleRequest": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/HandlePayload"
+          },
+          "proof": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "payload",
+          "proof"
+        ]
+      },
       "KeysRequestPayload": {
         "type": "object",
         "properties": {
@@ -485,40 +519,6 @@
           "msaOwnerSignature",
           "newKeyOwnerSignature",
           "payload"
-        ]
-      },
-      "HandlePayload": {
-        "type": "object",
-        "properties": {
-          "baseHandle": {
-            "type": "string"
-          },
-          "expiration": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "baseHandle",
-          "expiration"
-        ]
-      },
-      "HandleRequest": {
-        "type": "object",
-        "properties": {
-          "accountId": {
-            "type": "string"
-          },
-          "payload": {
-            "$ref": "#/components/schemas/HandlePayload"
-          },
-          "proof": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "accountId",
-          "payload",
-          "proof"
         ]
       }
     }

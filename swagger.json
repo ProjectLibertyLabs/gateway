@@ -3,7 +3,7 @@
   "paths": {
     "/v1/graphs": {
       "put": {
-        "operationId": "GraphController_getGraphs",
+        "operationId": "GraphControllerV1_getGraphs",
         "summary": "Post a request to fetch graphs for specified dsnpIds and blockNumber",
         "parameters": [],
         "requestBody": {
@@ -38,7 +38,7 @@
     },
     "/v1/update-graph": {
       "post": {
-        "operationId": "GraphController_updateGraph",
+        "operationId": "GraphControllerV1_updateGraph",
         "summary": "Request an update to given users graph",
         "parameters": [],
         "requestBody": {
@@ -70,7 +70,7 @@
     },
     "/v1/watch-graphs": {
       "put": {
-        "operationId": "GraphController_watchGraphs",
+        "operationId": "GraphControllerV1_watchGraphs",
         "summary": "Watch graphs for specified dsnpIds and receive updates",
         "parameters": [],
         "requestBody": {
@@ -166,16 +166,20 @@
         "type": "object",
         "properties": {
           "publicKey": {
-            "type": "string"
+            "type": "string",
+            "description": "Public graph encryption key as a hex string (prefixed with \"0x\")"
           },
           "privateKey": {
-            "type": "string"
+            "type": "string",
+            "description": "Private graph encryption key as a hex string (prefixed with \"0x\")"
           },
           "keyType": {
             "type": "string",
             "enum": [
               "X25519"
-            ]
+            ],
+            "description": "Key type of graph encryption keypair (currently only X25519 supported)",
+            "example": "X25519"
           }
         },
         "required": [
@@ -188,19 +192,29 @@
         "type": "object",
         "properties": {
           "dsnpIds": {
+            "description": "Array of MSA IDs for which to query graphs",
+            "example": [
+              2,
+              3,
+              4,
+              5
+            ],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "privacyType": {
-            "type": "string",
             "enum": [
               "private",
               "public"
-            ]
+            ],
+            "type": "string",
+            "description": "Graph type to query (public or private)",
+            "example": "public"
           },
           "graphKeyPairs": {
+            "description": "Graph encryption keypairs for the users requested in `dsnpIds`. (Only for `privacyType` === \"private\"",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GraphKeyPairDto"
@@ -209,18 +223,21 @@
         },
         "required": [
           "dsnpIds",
-          "privacyType",
-          "graphKeyPairs"
+          "privacyType"
         ]
       },
       "DsnpGraphEdge": {
         "type": "object",
         "properties": {
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "MSA ID of the user represented by this graph edge",
+            "example": "3"
           },
           "since": {
-            "type": "number"
+            "type": "number",
+            "description": "Block number when connection represented by this graph edge was created",
+            "example": 12
           }
         },
         "required": [
@@ -232,9 +249,12 @@
         "type": "object",
         "properties": {
           "dsnpId": {
-            "type": "string"
+            "type": "string",
+            "description": "MSA ID that is the owner of the graph represented by the graph edges in this object",
+            "example": "2"
           },
           "dsnpGraphEdges": {
+            "description": "Optional array of graph edges in the specific user graph represented by this object",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DsnpGraphEdge"
@@ -249,30 +269,38 @@
         "type": "object",
         "properties": {
           "dsnpId": {
-            "type": "string"
+            "type": "string",
+            "description": "MSA ID representing the target of this connection",
+            "example": "3"
           },
           "privacyType": {
-            "type": "string",
             "enum": [
               "private",
               "public"
-            ]
+            ],
+            "type": "string",
+            "description": "Indicator connection type (public or private)",
+            "example": "public"
           },
           "direction": {
-            "type": "string",
             "enum": [
               "connectionTo",
               "connectionFrom",
               "bidirectional",
               "disconnect"
-            ]
+            ],
+            "type": "string",
+            "description": "Indicator of the direction of this connection",
+            "example": "connectionTo"
           },
           "connectionType": {
-            "type": "string",
             "enum": [
               "follow",
               "friendship"
-            ]
+            ],
+            "type": "string",
+            "description": "Indicator of the type of connection (follow or friendship)",
+            "example": "follow"
           }
         },
         "required": [
@@ -282,25 +310,39 @@
           "connectionType"
         ]
       },
+      "ConnectionDtoWrapper": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Wrapper object for array of connections",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectionDto"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
       "ProviderGraphDto": {
         "type": "object",
         "properties": {
           "dsnpId": {
-            "type": "string"
+            "type": "string",
+            "description": "MSA ID that owns the connections represented in this object",
+            "example": 2
           },
           "connections": {
-            "type": "object",
-            "properties": {
-              "data": {
-                "required": true,
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ConnectionDto"
-                }
+            "description": "Array of connections known to the Provider for ths MSA referenced in this object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionDtoWrapper"
               }
-            }
+            ]
           },
           "graphKeyPairs": {
+            "description": "Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GraphKeyPairDto"
@@ -314,19 +356,36 @@
       },
       "GraphChangeRepsonseDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "referenceId": {
+            "type": "string",
+            "description": "Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved"
+          }
+        },
+        "required": [
+          "referenceId"
+        ]
       },
       "WatchGraphsDto": {
         "type": "object",
         "properties": {
           "dsnpIds": {
+            "description": "MSA IDs for which to watch for graph updates",
+            "example": [
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "webhookEndpoint": {
-            "type": "string"
+            "type": "string",
+            "description": "Webhook URL to call when graph changes for the referenced MSAs are detected",
+            "example": "http://localhost/webhook"
           }
         },
         "required": [

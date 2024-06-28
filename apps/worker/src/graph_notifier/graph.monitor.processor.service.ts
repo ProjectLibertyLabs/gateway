@@ -7,13 +7,9 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { AsyncDebouncerService, GraphChangeNotificationDto, GraphStateManager, ProviderGraphUpdateJob, SECONDS_PER_BLOCK } from '../../../../libs/common/src';
-import { BaseConsumer } from '../BaseConsumer';
-import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
-import * as BlockchainConstants from '../../../../libs/common/src/blockchain/blockchain-constants';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import * as QueueConstants from '../../../../libs/common/src/utils/queues';
+import { BaseConsumer, AsyncDebouncerService, BlockchainService, GraphStateManager, ITxMonitorJob, ProviderGraphUpdateJob, GraphChangeNotificationDto, SECONDS_PER_BLOCK, ConfigService } from '#lib';
+import * as QueueConstants from '#lib/utils/queues';
+import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)
@@ -32,7 +28,7 @@ export class GraphNotifierService extends BaseConsumer {
     this.asyncDebouncerService = new AsyncDebouncerService(this.cacheManager, this.configService, this.graphStateManager);
   }
 
-  async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
+  async process(job: Job<ITxMonitorJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;

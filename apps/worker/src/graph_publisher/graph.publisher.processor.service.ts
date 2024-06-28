@@ -9,14 +9,8 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { NonceService } from '../../../../libs/common/src';
-import { BaseConsumer } from '../BaseConsumer';
-import { GraphUpdateJob } from '../../../../libs/common/src/dtos/graph.update.job';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { ITxMonitorJob } from '../../../../libs/common/src/dtos/graph.notifier.job';
-import * as QueueConstants from '../../../../libs/common/src/utils/queues';
+import * as QueueConstants from '#lib/utils/queues';
+import { BaseConsumer, BlockchainService, ConfigService, GraphUpdateJob, ITxMonitorJob, NonceService, createKeys } from '#lib';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -31,7 +25,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     await this.checkCapacity();
   }
 
-  public async onApplicationShutdown(signal?: string | undefined): Promise<void> {
+  public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {
@@ -56,7 +50,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @param job - The job to process.
    * @returns A promise that resolves when the job is processed.
    */
-  async process(job: Job<GraphUpdateJob, any, string>): Promise<any> {
+  async process(job: Job<GraphUpdateJob, any, string>): Promise<void> {
     let statefulStorageTxHash: Hash = {} as Hash;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
@@ -112,7 +106,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
         delay: blockDelay,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error(error);
       throw error;
     } finally {
@@ -145,7 +139,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       }
       this.logger.debug(`Tx hash: ${txHash}`);
       return txHash;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error(`Error processing batch: ${error}`);
       throw error;
     }

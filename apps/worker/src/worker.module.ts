@@ -3,18 +3,14 @@ import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@songkeys/nestjs-redis';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { RequestProcessorService } from './request_processor/request.processor.service';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
-import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
+import * as QueueConstants from '#lib/utils/queues';
+import { BlockchainModule, BlockchainScannerService, ConfigModule, ConfigService, GraphStateManager, NonceService, ProviderWebhookService } from '#lib';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
-import { ProviderWebhookService, NonceService, GraphStateManager } from '../../../libs/common/src';
-import { BlockchainScannerService } from '../../../libs/common/src/services/blockchain-scanner.service';
-import * as QueueConstants from '../../../libs/common/src/utils/queues';
+import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
+import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
+import { RequestProcessorModule } from './request_processor/request.processor.module';
+import { RequestProcessorService } from './request_processor/request.processor.service';
 
 @Module({
   imports: [

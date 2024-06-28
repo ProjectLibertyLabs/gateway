@@ -1,21 +1,16 @@
-import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
-import Redis from 'ioredis';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService } from '../../../../libs/common/src';
-import { BaseConsumer } from '../BaseConsumer';
-import * as QueueConstants from '../../../../libs/common/src/utils/queues';
+import * as QueueConstants from '#lib/utils/queues';
+import { BaseConsumer, ConfigService, ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService } from '#lib';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
 export class GraphReconnectionService extends BaseConsumer {
   constructor(
-    @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectRequestQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueuue: Queue,
     private configService: ConfigService,
@@ -25,7 +20,7 @@ export class GraphReconnectionService extends BaseConsumer {
     super();
   }
 
-  async process(job: Job<IGraphUpdateJob, any, string>): Promise<any> {
+  async process(job: Job<IGraphUpdateJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       let graphConnections: ConnectionDto[] = [];
@@ -56,7 +51,7 @@ export class GraphReconnectionService extends BaseConsumer {
     }
   }
 
-  async getUserGraphFromProvider(dsnpUserId: MessageSourceId | string, providerId: ProviderId | string): Promise<any> {
+  async getUserGraphFromProvider(dsnpUserId: MessageSourceId | string, providerId: ProviderId | string): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
     const providerAPI = this.providerWebhookService.providerApi;
     const pageSize = this.configService.getPageSize();
     const params = {
@@ -105,7 +100,7 @@ export class GraphReconnectionService extends BaseConsumer {
           // No more pages available, exit the loop
           hasNextPage = false;
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         let newError = error;
         if (error instanceof AxiosError) {
           webhookFailures += 1;

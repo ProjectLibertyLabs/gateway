@@ -1,7 +1,7 @@
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
-import * as ProcessingUtils from '../../../libs/common/src/utils/processing';
+import * as ProcessingUtils from '#lib/utils/processing';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
   protected logger: Logger;
@@ -22,7 +22,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
     this.actives.delete(jobId);
   }
 
-  async onModuleDestroy(): Promise<any> {
+  async onModuleDestroy(): Promise<void> {
     await this.worker?.close(false);
     let maxWaitMs = ProcessingUtils.MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS;
     while (this.actives.size > 0 && maxWaitMs > 0) {
@@ -37,6 +37,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
    */
   @OnWorkerEvent('active')
   onActive(job: Job<any, any, string>) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.trackJob(job.id!);
   }
 
@@ -45,6 +46,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
    */
   @OnWorkerEvent('completed')
   onCompleted(job: Job<any, any, string>) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.unTrackJob(job.id!);
   }
 
@@ -53,6 +55,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
    */
   @OnWorkerEvent('failed')
   onFailed(job: Job<any, any, string>) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.unTrackJob(job.id!);
   }
 }

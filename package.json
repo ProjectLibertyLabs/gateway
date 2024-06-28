@@ -26,7 +26,8 @@
     "docker-stop:dev": "docker-compose -f docker-compose.dev.yaml stop",
     "chain-setup": "tsx ./test-setup/main.ts",
     "clean": "rm -Rf dist",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{apps,libs}/**/*.ts\"",
+    "format": "eslint \"{apps,libs}/**/*.ts\" --fix",
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --config ./apps/api/test/jest-e2e.json --detectOpenHandles"
   },
@@ -132,7 +133,15 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@graph-service-common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^#api(|/.*)$": "<rootDir>/apps/api/src/$1",
+      "^#worker(|/.*)$": "<rootDir>/apps/worker/src/$1",
+      "^#lib(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^#lib/blockchain(|/.*)$": "<rootDir>/libs/common/src/blockchain/$1",
+      "^#lib/config(|/.*)$": "<rootDir>/libs/common/src/config/$1",
+      "^#lib/dtos(|/.*)$": "<rootDir>/libs/common/src/dtos/$1",
+      "^#lib/interfaces(|/.*)$": "<rootDir>/libs/common/src/interfaces/$1",
+      "^#lib/services(|/.*)$": "<rootDir>/libs/common/src/services/$1",
+      "^#lib/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"
     }
   }
 }

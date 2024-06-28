@@ -1,12 +1,11 @@
-import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Query, Body, Put } from '@nestjs/common';
+import { ApiService } from '#api/api.service';
+import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto, WatchGraphsDto } from '#lib';
+import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from './api.service';
-import { GraphChangeRepsonseDto, GraphsQueryParamsDto, ProviderGraphDto, UserGraphDto } from '../../../libs/common/src';
-import { WatchGraphsDto } from '../../../libs/common/src/dtos/watch-graphs.dto';
 
 @Controller('v1')
 @ApiTags('v1/graph')
-export class GraphController {
+export class GraphControllerV1 {
   private readonly logger: Logger;
 
   constructor(private apiService: ApiService) {

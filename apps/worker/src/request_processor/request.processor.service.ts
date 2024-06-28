@@ -3,18 +3,16 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys, DisconnectAction, Action } from '@dsnp/graph-sdk';
+import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys, DisconnectAction, Action, PrivacyType } from '@dsnp/graph-sdk';
 import { MessageSourceId, SchemaGrantResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
-import { ConnectionDto, GraphStateManager, GraphUpdateJob, PrivacyType, ProviderGraphUpdateJob, SkipTransitiveGraphs, createReconnectionJob } from '../../../../libs/common/src';
-import * as QueueConstants from '../../../../libs/common/src/utils/queues';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { Direction } from '../../../../libs/common/src/dtos/direction.enum';
-import { SECONDS_PER_BLOCK } from '../graph_publisher/graph.publisher.processor.service';
+import * as QueueConstants from '#lib/utils/queues';
 import fs from 'fs';
+import { GraphStateManager, BlockchainService, ProviderGraphUpdateJob, SECONDS_PER_BLOCK, GraphUpdateJob, ConnectionDto, Direction, createReconnectionJob, SkipTransitiveGraphs } from '#lib';
+
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
 export class RequestProcessorService extends BaseConsumer {
@@ -56,7 +54,7 @@ export class RequestProcessorService extends BaseConsumer {
           this.logger.debug(`No actions to apply for user ${dsnpUserId.toString()}`);
         }
         this.graphStateManager.applyActions(actions, true);
-      } catch (e: any) {
+      } catch (e: unknown) {
         const errMessage = e instanceof Error ? e.message : '';
         if (errMessage.includes('already exists')) {
           this.logger.warn(`Error applying actions: ${e}`);

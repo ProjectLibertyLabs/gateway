@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -11,14 +11,59 @@
     "noImplicitThis": false,
     "outDir": "dist",
     "paths": {
-      "#app/*": [
-        "*"
+      "#api": [
+        "apps/api/src"
       ],
-      "@app/common": [
+      "#api/*": [
+        "apps/api/src/*"
+      ],
+      "#worker": [
+        "apps/worker/src"
+      ],
+      "#worker/*": [
+        "apps/worker/src/*"
+      ],
+      "#lib": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "#lib/*": [
         "libs/common/src/*"
+      ],
+      "#lib/blockchain": [
+        "libs/common/src/blockchain"
+      ],
+      "#lib/blockchain/*": [
+        "libs/common/src/blockchain/*"
+      ],
+      "#lib/config": [
+        "libs/common/src/config"
+      ],
+      "#lib/config/*": [
+        "libs/common/src/config/*"
+      ],
+      "#lib/dots": [
+        "libs/common/src/dtos"
+      ],
+      "#lib/dtos/*": [
+        "libs/common/src/dtos/*"
+      ],
+      "#lib/interfaces": [
+        "libs/common/src/interfaces"
+      ],
+      "#lib/interfaces/*": [
+        "libs/common/src/interfaces/*"
+      ],
+      "#lib/services": [
+        "libs/common/src/services"
+      ],
+      "#lib/services/*": [
+        "libs/common/src/services/*"
+      ],
+      "#lib/utils": [
+        "libs/common/src/utils"
+      ],
+      "#lib/utils/*": [
+        "libs/common/src/utils/*"
       ]
     },
     "resolveJsonModule": true,

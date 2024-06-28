@@ -3,13 +3,12 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiModule } from '../src/api.module';
-import { ConnectionDto, GraphKeyPairDto, GraphsQueryParamsDto, KeyType, PrivacyType, ProviderGraphDto } from '../../../libs/common/src';
-import { Direction } from '../../../libs/common/src/dtos/direction.enum';
-import { ConnectionType } from '../../../libs/common/src/dtos/connection-type.enum';
 import { ChainUser, ExtrinsicHelper } from '@amplica-labs/frequency-scenario-template';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
+import { ApiModule } from '#api/api.module';
+import { ProviderGraphDto, ConnectionDto, KeyType, GraphKeyPairDto, GraphsQueryParamsDto, Direction } from '#lib/dtos';
+import { PrivacyType, ConnectionType } from '@dsnp/graph-sdk';
 
 let app: INestApplication;
 let testModule: TestingModule;

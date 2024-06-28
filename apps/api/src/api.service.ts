@@ -5,19 +5,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
-import {
-  AsyncDebouncerService,
-  GraphChangeRepsonseDto,
-  GraphStateManager,
-  GraphsQueryParamsDto,
-  ProviderGraphDto,
-  ProviderGraphUpdateJob,
-  UserGraphDto,
-  WatchGraphsDto,
-} from '../../../libs/common/src';
-import * as QueueConstants from '../../../libs/common/src/utils/queues';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { BlockchainService } from '../../../libs/common/src/blockchain/blockchain.service';
+import * as QueueConstants from '#lib/utils/queues';
+import { AsyncDebouncerService, BlockchainService, ConfigService, GraphChangeRepsonseDto, GraphStateManager, GraphsQueryParamsDto, ProviderGraphDto, ProviderGraphUpdateJob, UserGraphDto, WatchGraphsDto } from '#lib';
 
 @Injectable()
 export class ApiService implements BeforeApplicationShutdown {
@@ -36,7 +25,7 @@ export class ApiService implements BeforeApplicationShutdown {
     this.asyncDebouncerService = new AsyncDebouncerService(this.redis, this.configService, this.graphStateManager);
   }
 
-  beforeApplicationShutdown(signal?: string | undefined) {
+  beforeApplicationShutdown(_signal?: string | undefined) {
     try {
       this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
       this.redis.del(QueueConstants.DEBOUNCER_CACHE_KEY);

@@ -6,14 +6,11 @@ import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { GraphController } from './graph.controller';
-import { HealthController } from './health.controller';
+import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
+import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { GraphStateManager } from '../../../libs/common/src';
-import * as QueueConstants from '../../../libs/common/src/utils/queues';
+import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
+import * as QueueConstants from '#lib/utils/queues'
 
 @Module({
   imports: [
@@ -128,7 +125,7 @@ import * as QueueConstants from '../../../libs/common/src/utils/queues';
     ScheduleModule.forRoot(),
   ],
   providers: [ApiService, GraphStateManager, ConfigService],
-  controllers: [GraphController, HealthController],
+  controllers: [GraphControllerV1, HealthController],
   exports: [],
 })
 export class ApiModule {}

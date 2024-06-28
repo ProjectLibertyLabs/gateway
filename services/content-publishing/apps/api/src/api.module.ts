@@ -176,10 +176,12 @@ import { ProfileController } from './profile.controller';
     }),
   ],
   providers: [ConfigService, ApiService, IpfsService],
+  // Controller order determines the order of display for docs
+  // v[Desc first][ABC Second], Health, and then Dev only last
   controllers:
     process.env?.ENVIRONMENT === 'dev'
-      ? [DevelopmentController, AssetController, ContentController, HealthController, ProfileController]
-      : [AssetController, ContentController, HealthController, ProfileController],
+      ? [AssetController, ContentController, ProfileController, HealthController, DevelopmentController]
+      : [AssetController, ContentController, ProfileController, HealthController],
   exports: [],
 })
 export class ApiModule {}

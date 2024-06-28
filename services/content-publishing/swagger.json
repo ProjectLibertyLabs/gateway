@@ -237,6 +237,47 @@
         ]
       }
     },
+    "/v1/profile/{userDsnpId}": {
+      "put": {
+        "operationId": "ProfileController_profile",
+        "summary": "Update a user's Profile",
+        "parameters": [
+          {
+            "name": "userDsnpId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/profile"
+        ]
+      }
+    },
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
@@ -282,13 +323,14 @@
         ]
       }
     },
-    "/v1/profile/{userDsnpId}": {
-      "put": {
-        "operationId": "ProfileController_profile",
-        "summary": "Update a user's Profile",
+    "/dev/request/{jobId}": {
+      "get": {
+        "operationId": "DevelopmentController_requestJob",
+        "summary": "Get a Job given a jobId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
         "parameters": [
           {
-            "name": "userDsnpId",
+            "name": "jobId",
             "required": true,
             "in": "path",
             "schema": {
@@ -296,30 +338,78 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ProfileDto"
-              }
-            }
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/asset/{assetId}": {
+      "get": {
+        "operationId": "DevelopmentController_getAsset",
+        "summary": "Get an Asset given an assetId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
-          "202": {
+          "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                  "type": "object"
                 }
               }
             }
           }
         },
         "tags": [
-          "v1/profile"
+          "dev"
+        ]
+      }
+    },
+    "/dev/dummy/announcement/{queueType}/{count}": {
+      "post": {
+        "operationId": "DevelopmentController_populate",
+        "summary": "Create dummy announcement data",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "queueType",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
         ]
       }
     }

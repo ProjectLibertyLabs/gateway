@@ -7,6 +7,9 @@ import '@frequency-chain/api-augment';
 import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 
+// Ensure that the dev controller is included
+process.env.ENVIRONMENT = 'dev';
+
 // Mock out required env vars before the module loads
 process.env.REDIS_URL = 'http://127.0.0.1';
 process.env.FREQUENCY_URL = 'http://127.0.0.1';

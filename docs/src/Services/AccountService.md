@@ -1,2 +1,15 @@
 # Account Service
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In eu elit volutpat, maximus augue sed, laoreet urna. Ut ac leo mi. Vestibulum euismod nisl condimentum risus ultrices pulvinar. In dictum, sapien a auctor rutrum, velit odio dignissim elit, a faucibus quam leo sit amet eros. Etiam sagittis, tortor non egestas dictum, purus nunc accumsan dui, a fermentum mauris massa a justo. Donec lacus elit, facilisis pretium felis ut, maximus hendrerit tortor. Integer vel lectus et neque porttitor bibendum sed vel nibh. Sed lacinia, nisi ut sodales consequat, leo diam condimentum lectus, in volutpat mauris nisi non ex. Quisque scelerisque elementum vehicula.
+
+### **Overview**
+
+The Account Service provides functionalities related to user accounts on the Frequency network. It includes endpoints for managing user authentication, account details, delegation, keys, and handles.
+
+### **API Reference:**
+
+⚠️{embed swagger here}
+
+### **Best Practices**
+
+- **Secure Authentication**: Always use secure methods (e.g., JWT tokens) for authentication to protect user data.
+- **Validate Inputs**: Ensure all input data is validated to prevent injection attacks and other vulnerabilities.
+- **Rate Limiting**: Implement rate limiting to protect the service from abuse and ensure fair usage.

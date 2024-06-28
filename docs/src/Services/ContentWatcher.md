@@ -1,2 +1,15 @@
 # Content Watcher Service
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In eu elit volutpat, maximus augue sed, laoreet urna. Ut ac leo mi. Vestibulum euismod nisl condimentum risus ultrices pulvinar. In dictum, sapien a auctor rutrum, velit odio dignissim elit, a faucibus quam leo sit amet eros. Etiam sagittis, tortor non egestas dictum, purus nunc accumsan dui, a fermentum mauris massa a justo. Donec lacus elit, facilisis pretium felis ut, maximus hendrerit tortor. Integer vel lectus et neque porttitor bibendum sed vel nibh. Sed lacinia, nisi ut sodales consequat, leo diam condimentum lectus, in volutpat mauris nisi non ex. Quisque scelerisque elementum vehicula.
+
+### **Overview**
+
+The Content Watcher Service monitors and retrieves the latest feed state, including content updates, reactions, and other user interactions on the Frequency network. It ensures that applications can stay up-to-date with the latest content and user activity.
+
+### **API Reference:**
+
+⚠️{embed swagger here}
+
+### Best Practices
+
+- **Efficient Polling**: Implement efficient polling mechanisms to minimize load on the service.
+- **Webhook Security**: Secure webhooks by verifying the source of incoming requests.
+- **Rate Limiting**: Apply rate limiting to prevent abuse and ensure fair usage of the service.

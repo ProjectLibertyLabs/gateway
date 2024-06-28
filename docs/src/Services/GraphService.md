@@ -1,3 +1,15 @@
 # Graph Service
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In eu elit volutpat, maximus augue sed, laoreet urna. Ut ac leo mi. Vestibulum euismod nisl condimentum risus ultrices pulvinar. In dictum, sapien a auctor rutrum, velit odio dignissim elit, a faucibus quam leo sit amet eros. Etiam sagittis, tortor non egestas dictum, purus nunc accumsan dui, a fermentum mauris massa a justo. Donec lacus elit, facilisis pretium felis ut, maximus hendrerit tortor. Integer vel lectus et neque porttitor bibendum sed vel nibh. Sed lacinia, nisi ut sodales consequat, leo diam condimentum lectus, in volutpat mauris nisi non ex. Quisque scelerisque elementum vehicula.
+### **Overview**
+
+The Graph Service manages the social graphs, including follow/unfollow actions, blocking users, and other social interactions. It allows applications to maintain and query the social connections between users on the Frequency network.
+
+### **API Reference:**
+
+⚠️{embed swagger here}
+
+### Best Practices
+
+- **Data Integrity**: Ensure the integrity of social graph data by implementing robust validation checks.
+- **Efficient Queries**: Optimize queries to handle large social graphs efficiently.
+- **User Privacy**: Protect user privacy by ensuring that graph data is only accessible to authorized entities.

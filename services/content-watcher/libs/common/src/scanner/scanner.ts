@@ -47,7 +47,10 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     setImmediate(() => this.scan());
 
     const scanInterval = this.configService.blockchainScanIntervalMinutes * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
-    this.schedulerRegistry.addInterval(INTERVAL_SCAN_NAME, setInterval(() => this.scan(), scanInterval));
+    this.schedulerRegistry.addInterval(
+      INTERVAL_SCAN_NAME,
+      setInterval(() => this.scan(), scanInterval),
+    );
   }
 
   onApplicationShutdown(_signal?: string | undefined) {
@@ -70,7 +73,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   public async resetScan({ blockNumber, rewindOffset, immediate }: IScanReset) {
     this.pauseScanner();
-    let targetBlock = blockNumber ?? await this.blockchainService.getLatestFinalizedBlockNumber();
+    let targetBlock = blockNumber ?? (await this.blockchainService.getLatestFinalizedBlockNumber());
     targetBlock -= rewindOffset ? Math.abs(rewindOffset) : 0;
     targetBlock = Math.max(targetBlock, 1);
     this.scanResetBlockNumber = targetBlock;

@@ -16,7 +16,7 @@ export class ChainEventProcessorService {
   public async getMessagesInBlock(blockNumber: number, filter?: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
     const blockHash = await this.blockchainService.getBlockHash(blockNumber);
     if (blockHash.isEmpty) {
-        return [];
+      return [];
     }
     const apiAt = await this.blockchainService.apiPromise.at(blockHash);
     const events = await apiAt.query.system.events();
@@ -92,7 +92,7 @@ export class ChainEventProcessorService {
             messageResponse.schemaId,
             message.cid.unwrap().toString(),
             message.index.toNumber(),
-            requestId
+            requestId,
           );
 
           return {
@@ -107,5 +107,4 @@ export class ChainEventProcessorService {
       await queue.addBulk(jobs);
     }
   }
-
 }

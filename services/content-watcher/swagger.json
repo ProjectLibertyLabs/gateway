@@ -1,6 +1,213 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/v1/scanner/reset": {
+      "post": {
+        "operationId": "ScanControllerV1_resetScanner",
+        "summary": "Reset blockchain scan to a specific block number or offset from the current position",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "blockNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetScannerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/scanner"
+        ]
+      }
+    },
+    "/v1/scanner/options": {
+      "get": {
+        "operationId": "ScanControllerV1_getWatchOptions",
+        "summary": "Get the current watch options for the blockchain content event scanner",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainWatchOptionsDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/scanner"
+        ]
+      },
+      "post": {
+        "operationId": "ScanControllerV1_setWatchOptions",
+        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA IDs",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "watchOptions: Filter contents by schemaIds and/or dsnpIds",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChainWatchOptionsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/scanner"
+        ]
+      }
+    },
+    "/v1/scanner/pause": {
+      "post": {
+        "operationId": "ScanControllerV1_pauseScanner",
+        "summary": "Pause the blockchain scanner",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/scanner"
+        ]
+      }
+    },
+    "/v1/scanner/start": {
+      "post": {
+        "operationId": "ScanControllerV1_startScanner",
+        "summary": "Resume the blockchain content event scanner",
+        "parameters": [
+          {
+            "name": "immediate",
+            "required": false,
+            "in": "query",
+            "description": "immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/scanner"
+        ]
+      }
+    },
+    "/v1/search": {
+      "post": {
+        "operationId": "SearchControllerV1_search",
+        "summary": "Search for DSNP content by id, start/end block, and filters",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Search for DSNP content by id, startBlock, endBlock, and filters",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentSearchRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a jobId to be used to retrieve the results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/search"
+        ]
+      }
+    },
+    "/v1/webhooks": {
+      "put": {
+        "operationId": "WebhookControllerV1_registerWebhook",
+        "summary": "Register a webhook to be called when new content is encountered on the chain",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Register a webhook to be called when a new content is encountered",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      },
+      "delete": {
+        "operationId": "WebhookControllerV1_clearAllWebHooks",
+        "summary": "Clear all previously registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      },
+      "get": {
+        "operationId": "WebhookControllerV1_getRegisteredWebhooks",
+        "summary": "Get the list of currently registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns a list of registered webhooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WebhookRegistrationDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      }
+    },
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
@@ -43,213 +250,6 @@
         },
         "tags": [
           "health"
-        ]
-      }
-    },
-    "/v1/scanner/reset": {
-      "post": {
-        "operationId": "ScanControllerV1_resetScanner",
-        "summary": "Reset blockchain scan to a specific block number or offset from the current position",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "description": "blockNumber",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ResetScannerDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "scanner"
-        ]
-      }
-    },
-    "/v1/scanner/options": {
-      "get": {
-        "operationId": "ScanControllerV1_getWatchOptions",
-        "summary": "Get the current watch options for the blockchain content event scanner",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChainWatchOptionsDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "scanner"
-        ]
-      },
-      "post": {
-        "operationId": "ScanControllerV1_setWatchOptions",
-        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA IDs",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "description": "watchOptions: Filter contents by schemaIds and/or dsnpIds",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChainWatchOptionsDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "scanner"
-        ]
-      }
-    },
-    "/v1/scanner/pause": {
-      "post": {
-        "operationId": "ScanControllerV1_pauseScanner",
-        "summary": "Pause the blockchain scanner",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "scanner"
-        ]
-      }
-    },
-    "/v1/scanner/start": {
-      "post": {
-        "operationId": "ScanControllerV1_startScanner",
-        "summary": "Resume the blockchain content event scanner",
-        "parameters": [
-          {
-            "name": "immediate",
-            "required": false,
-            "in": "query",
-            "description": "immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "scanner"
-        ]
-      }
-    },
-    "/v1/search": {
-      "post": {
-        "operationId": "SearchControllerV1_search",
-        "summary": "Search for DSNP content by id, start/end block, and filters",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "description": "Search for DSNP content by id, startBlock, endBlock, and filters",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ContentSearchRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns a jobId to be used to retrieve the results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "search"
-        ]
-      }
-    },
-    "/v1/webhooks": {
-      "put": {
-        "operationId": "WebhookControllerV1_registerWebhook",
-        "summary": "Register a webhook to be called when new content is encountered on the chain",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "description": "Register a webhook to be called when a new content is encountered",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WebhookRegistrationDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "webhooks"
-        ]
-      },
-      "delete": {
-        "operationId": "WebhookControllerV1_clearAllWebHooks",
-        "summary": "Clear all previously registered webhooks",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "webhooks"
-        ]
-      },
-      "get": {
-        "operationId": "WebhookControllerV1_getRegisteredWebhooks",
-        "summary": "Get the list of currently registered webhooks",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Returns a list of registered webhooks",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WebhookRegistrationDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "webhooks"
         ]
       }
     }

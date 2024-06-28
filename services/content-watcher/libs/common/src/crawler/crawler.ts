@@ -41,13 +41,15 @@ export class CrawlerService extends BaseConsumer {
   }
 
   private async processBlockList(id: string, blockList: number[], filters: ChainWatchOptionsDto) {
-    await Promise.all(blockList.map(async (blockNumber) => {
-      const messages = await this.chainEventService.getMessagesInBlock(blockNumber, filters);
-      if (messages.length > 0) {
-        this.logger.debug(`Found ${messages.length} messages for block ${blockNumber}`);
-      }
-      // eslint-disable-next-line no-await-in-loop
-      await this.chainEventService.queueIPFSJobs(messages, this.ipfsQueue, id);
-    }));
+    await Promise.all(
+      blockList.map(async (blockNumber) => {
+        const messages = await this.chainEventService.getMessagesInBlock(blockNumber, filters);
+        if (messages.length > 0) {
+          this.logger.debug(`Found ${messages.length} messages for block ${blockNumber}`);
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await this.chainEventService.queueIPFSJobs(messages, this.ipfsQueue, id);
+      }),
+    );
   }
 }

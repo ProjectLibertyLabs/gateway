@@ -1,4 +1,15 @@
-# Configuration
+# Content Publishing Service
+
+### **Overview**
+
+The Content Publishing Service allows users to create, post, and manage content on the Frequency network. It supports various content types such as text, images, and videos.
+
+### **API Reference:**
+
+⚠️{embed swagger here}
+
+
+### Configuration
 
 ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
@@ -15,3 +26,8 @@ This application recognizes the following environment variables:
 | `IPFS_UA_GATEWAY_URL`          | IPFS gateway domain URL (user-agent resolvable). If set, will override IPFS_GATEWAY_URL in the auth response sent to the user-agent. |         URL template          |           |         |
 | `SIWF_DOMAIN`                  | Domain to be used in SIWF login payloads                                                                                             |            string             |     Y     |         |
 | `SIWF_URL`                     | URL for the SIgn-in with Frequency UI                                                                                                |              URL              |     Y     |         |
+
+### **Best Practices**
+
+- **Metadata Management**: Always ensure metadata is correctly associated with content to maintain data integrity.
+- **Content Validation**: Validate content to prevent the submission of inappropriate or harmful material.

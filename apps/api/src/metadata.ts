@@ -141,9 +141,9 @@ export default async () => {
       ],
       controllers: [
         [
-          import('./controllers/accounts.controller'),
+          import('./controllers/v1/accounts-v1.controller'),
           {
-            AccountsController: {
+            AccountsControllerV1: {
               getSIWFConfig: {
                 type: t['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']
                   .WalletLoginConfigResponse,
@@ -156,9 +156,9 @@ export default async () => {
           },
         ],
         [
-          import('./controllers/delegation.controller'),
+          import('./controllers/v1/delegation-v1.controller'),
           {
-            DelegationController: {
+            DelegationControllerV1: {
               getDelegation: {
                 type: t['../../../libs/common/src/types/dtos/delegation.response.dto'].DelegationResponse,
               },
@@ -166,9 +166,9 @@ export default async () => {
           },
         ],
         [
-          import('./controllers/handles.controller'),
+          import('./controllers/v1/handles-v1.controller'),
           {
-            HandlesController: {
+            HandlesControllerV1: {
               createHandle: {
                 type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse,
               },
@@ -180,9 +180,9 @@ export default async () => {
           },
         ],
         [
-          import('./controllers/keys.controller'),
+          import('./controllers/v1/keys-v1.controller'),
           {
-            KeysController: {
+            KeysControllerV1: {
               addKey: { type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse },
               getKeys: { type: t['../../../libs/common/src/types/dtos/keys.response.dto'].KeysResponse },
             },

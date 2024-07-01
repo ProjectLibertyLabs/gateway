@@ -24,3 +24,7 @@ make setup
 # Start all services in detached mode
 echo "Starting all services..."
 docker compose up -d
+
+# Start the mock web server
+echo "Please run 'make mock-webhook' in a separate terminal..."
+

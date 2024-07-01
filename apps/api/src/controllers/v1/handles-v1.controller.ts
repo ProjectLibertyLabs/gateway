@@ -9,7 +9,7 @@ import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
-export class HandlesController {
+export class HandlesControllerV1 {
   private readonly logger: Logger;
 
   constructor(

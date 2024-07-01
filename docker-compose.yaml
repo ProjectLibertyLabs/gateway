@@ -1,3 +1,22 @@
+x-account-service-env: &account-service-env
+  API_PORT: 3000
+  FREQUENCY_URL: 'ws://frequency:9944'
+  FREQUENCY_HTTP_URL: 'http://frequency:9944'
+  PROVIDER_ID: 1
+  PROVIDER_BASE_URL: 'http://host.docker.internal:3001/webhooks/account-service'
+  REDIS_URL: 'redis://redis:6379'
+  PROVIDER_ACCESS_TOKEN: 'some-token'
+  PROVIDER_ACCOUNT_SEED_PHRASE: '//Alice'
+  WEBHOOK_FAILURE_THRESHOLD: 3
+  WEBHOOK_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRIES: 4
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_SUCCESS_THRESHOLD: 10
+  CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
+  SIWF_URL: 'https://amplicalabs.github.io/siwf/ui'
+  SIWF_DOMAIN: localhost
+  DEBUG: false
+
 services:
   redis:
     image: redis:latest
@@ -32,6 +51,8 @@ services:
   account-service-base:
     pull_policy: never
     image: account-service:latest
+    environment:
+      <<: *account-service-env
     build:
       context: .
       dockerfile: dev.Dockerfile
@@ -43,12 +64,11 @@ services:
   api:
     pull_policy: never
     image: account-service:latest
+    environment:
+      <<: *account-service-env
     command: ['api']
     ports:
       - 3000:3000
-    env_file:
-      - path: .env.docker.dev
-        required: true
     volumes:
       - ./:/app
     depends_on:
@@ -62,10 +82,9 @@ services:
   worker:
     pull_policy: never
     image: account-service:latest
+    environment:
+      <<: *account-service-env
     command: ['worker']
-    env_file:
-      - path: .env.docker.dev
-        required: true
     volumes:
       - ./:/app
     depends_on:

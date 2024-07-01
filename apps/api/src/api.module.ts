@@ -14,10 +14,10 @@ import { QueueConstants } from '#lib/utils/queues';
 import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { Redis } from 'ioredis';
-import { AccountsController } from './controllers/accounts.controller';
-import { DelegationController } from './controllers/delegation.controller';
-import { HandlesController } from './controllers/handles.controller';
-import { KeysController } from './controllers/keys.controller';
+import { AccountsControllerV1 } from './controllers/v1/accounts-v1.controller';
+import { DelegationControllerV1 } from './controllers/v1/delegation-v1.controller';
+import { HandlesControllerV1 } from './controllers/v1/handles-v1.controller';
+import { KeysControllerV1 } from './controllers/v1/keys-v1.controller';
 import { AccountsService } from './services/accounts.service';
 import { ApiService } from './services/api.service';
 import { DelegationService } from './services/delegation.service';
@@ -118,7 +118,7 @@ import { HealthController } from './controllers/health.controller';
   ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
-  controllers: [AccountsController, DelegationController, HandlesController, KeysController, HealthController],
+  controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],
   exports: [],
 })
 export class ApiModule {}

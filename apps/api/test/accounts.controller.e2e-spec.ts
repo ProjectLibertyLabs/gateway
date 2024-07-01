@@ -73,27 +73,27 @@ describe('Account Controller', () => {
     }
   });
 
-  it('(GET) /accounts/:msaId with valid msaId and no handle', async () => {
+  it('(GET) /v1/accounts/:msaId with valid msaId and no handle', async () => {
     const user = users[1];
     const validMsaId = user.msaId?.toString();
-    await request(app.getHttpServer()).get(`/accounts/${validMsaId}`).expect(200).expect({
+    await request(app.getHttpServer()).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
       msaId: user.msaId?.toString(),
     });
   });
 
-  it('(GET) /accounts/:msaId with invalid msaId', async () => {
+  it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {
     const invalidMsaId = BigInt(maxMsaId) + 1000n;
     await request(app.getHttpServer())
-      .get(`/accounts/${invalidMsaId.toString()}`)
+      .get(`/v1/accounts/${invalidMsaId.toString()}`)
       .expect(400)
       .expect({ statusCode: 400, message: 'Failed to find the account' });
   });
 
-  it('(GET) /accounts/:msaId with valid msaId and handle', async () => {
+  it('(GET) /v1/accounts/:msaId with valid msaId and handle', async () => {
     const user = users[0];
     const validMsaId = user.msaId?.toString();
     await request(app.getHttpServer())
-      .get(`/accounts/${validMsaId}`)
+      .get(`/v1/accounts/${validMsaId}`)
       .expect(200)
       .expect((res) => res.body.msaId === validMsaId)
       .expect((res) => res.body.displayHandle === actualHandle);

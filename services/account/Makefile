@@ -49,6 +49,10 @@ dev-graphs:
 	madge --dot --extensions ts apps/worker/src > docs/worker-graph.gv
 	madge --dot --extensions ts apps/api/src > docs/api-graph.gv
 
+######
+###### Devlopment targets
+######
+
 .PHONY: mock-webhook
 mock-webhook:
 	@cd rust-webhook-server && cargo run
@@ -57,6 +61,14 @@ mock-webhook:
 dev-webhook:
 	@cd rust-webhook-server && cargo watch -x run
 
-.PHONY: dev-restart-chain
-dev-restart-chain:
-	./scripts/restart.sh
+.PHONY: restart-chain-docker
+restart-chain-docker:
+	@./scripts/restart-chain-docker.sh
+
+.PHONY: restart-local-dev
+restart-local-dev:
+	@./scripts/restart-local-dev.sh
+
+.PHONY: docker-clean-up
+docker-clean-up:
+	@./scripts/docker-clean-up.sh

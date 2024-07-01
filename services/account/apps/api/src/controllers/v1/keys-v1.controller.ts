@@ -9,7 +9,7 @@ import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')
-export class KeysController {
+export class KeysControllerV1 {
   private readonly logger: Logger;
 
   constructor(

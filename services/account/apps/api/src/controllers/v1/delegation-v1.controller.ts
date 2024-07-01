@@ -5,7 +5,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
-export class DelegationController {
+export class DelegationControllerV1 {
   private readonly logger: Logger;
 
   constructor(private delegationService: DelegationService) {

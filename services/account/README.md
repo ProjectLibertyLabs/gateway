@@ -193,13 +193,14 @@ Example commands:
 
 ### Environment Variables
 
-Modify any environment variables in the `.env` file as needed. For docker compose env `.env.docker.dev` file is used. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
+Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
 
 1. Copy the template values into the .env files.
+
    ```sh
    cp env.template .env
-   cp env.template .env.docker.dev
    ```
+
 2. Replace template values with values appropriate to your environment.
 
 ### Install
@@ -214,28 +215,30 @@ Install NPM Dependencies:
 
 Note: using [docker compose file](docker-compose.yaml) to start the services. This will start the services in development mode.
 
+The following command will start all of the necessary containers for the account service to run in development mode.
+
+   ```bash
+   make restart-chain-docker
+   ```
+
 In order to run the `account-service` in development mode without containers, you can use the following commands:
 
-#### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup.
+#### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
 
    ```bash
-   docker-compose up -d redis frequency
+   make restart-local-dev
    ```
 
-#### 2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run an account setup with Alice as provider 1 and 2,3,4,5,6 as users.
+   Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
 
-   ```bash
-   make setup
-   ```
-
-#### 3. Start the mock webhook server by running the following command in another terminal or in the background.
+#### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
 
    ```sh
    make mock-webhook
    ```
 
-#### 4. Start the Api and Worker.<br /><br />
-   
+#### 3. Start the Api and Worker.<br /><br />
+
    **Option 1:** In a new terminal window, start the `account-service` api app. Logs will be displayed in the terminal for easy reference.
 
    ```sh
@@ -257,11 +260,11 @@ In order to run the `account-service` in development mode without containers, yo
    docker-compose up -d api worker
    ```
 
-#### 5. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
+#### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
 
 ## 📋 Testing
 
-### Run the tests.
+### Run the tests
 
    ```bash
    make test-e2e
@@ -269,7 +272,7 @@ In order to run the `account-service` in development mode without containers, yo
 
    This will run the tests in `apps/api/test` folder.
 
-#### Check e2e test file for more details on the test.
+#### Check e2e test file for more details on the test
 
 ### Swagger UI
 
@@ -294,9 +297,11 @@ You may also view and manage the application's queue at [http://localhost:3000/q
 ### Debugging
 
 - Docker to stop containers, networks, volumes, and images created by `docker-compose up` run...
+
   ```sh
     docker-compose down
   ```
+
 - You may have to go to your Docker Desktop app and manually remove containers.
 
 ### Using the Debugger with VSCode

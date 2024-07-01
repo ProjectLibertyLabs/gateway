@@ -3,7 +3,7 @@
   "paths": {
     "/v1/accounts/siwf": {
       "get": {
-        "operationId": "AccountsController_getSIWFConfig",
+        "operationId": "AccountsControllerV1_getSIWFConfig",
         "summary": "Get the Sign-In With Frequency Configuration",
         "parameters": [],
         "responses": {
@@ -23,7 +23,7 @@
         ]
       },
       "post": {
-        "operationId": "AccountsController_postSignInWithFrequency",
+        "operationId": "AccountsControllerV1_postSignInWithFrequency",
         "summary": "Request to sign in with Frequency",
         "parameters": [],
         "requestBody": {
@@ -55,7 +55,7 @@
     },
     "/v1/accounts/{msaId}": {
       "get": {
-        "operationId": "AccountsController_getAccount",
+        "operationId": "AccountsControllerV1_getAccount",
         "summary": "Fetch an account given an msaId.",
         "parameters": [
           {
@@ -86,7 +86,7 @@
     },
     "/v1/delegation/{msaId}": {
       "get": {
-        "operationId": "DelegationController_getDelegation",
+        "operationId": "DelegationControllerV1_getDelegation",
         "summary": "Get the delegation information associated with an msaId.",
         "parameters": [
           {
@@ -110,7 +110,7 @@
     },
     "/v1/handles": {
       "post": {
-        "operationId": "HandlesController_createHandle",
+        "operationId": "HandlesControllerV1_createHandle",
         "summary": "Request to create a new handle for an account",
         "parameters": [],
         "requestBody": {
@@ -135,7 +135,7 @@
     },
     "/v1/handles/change": {
       "post": {
-        "operationId": "HandlesController_changeHandle",
+        "operationId": "HandlesControllerV1_changeHandle",
         "summary": "Request to change a handle",
         "parameters": [],
         "requestBody": {
@@ -160,7 +160,7 @@
     },
     "/v1/handles/{msaId}": {
       "get": {
-        "operationId": "HandlesController_getHandle",
+        "operationId": "HandlesControllerV1_getHandle",
         "summary": "Fetch a handle given an msaId.",
         "parameters": [
           {
@@ -184,7 +184,7 @@
     },
     "/v1/keys/add": {
       "post": {
-        "operationId": "KeysController_addKey",
+        "operationId": "KeysControllerV1_addKey",
         "summary": "add new control keys for an MSA ID",
         "parameters": [],
         "requestBody": {
@@ -209,7 +209,7 @@
     },
     "/v1/keys/{msaId}": {
       "get": {
-        "operationId": "KeysController_getKeys",
+        "operationId": "KeysControllerV1_getKeys",
         "summary": "Fetch public keys given an msaId.",
         "parameters": [
           {

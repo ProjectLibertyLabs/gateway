@@ -8,7 +8,7 @@ import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } fro
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
-export class AccountsController {
+export class AccountsControllerV1 {
   private readonly logger: Logger;
 
   constructor(private accountsService: AccountsService) {

@@ -1,4 +1,53 @@
-# Frequency Architecture
+# Gateway Architecture
+
+## Authentication
+
+What does it mean for DSNP/Frequency?
+
+- **Web2 APIs:** Typically use OAuth, API keys, or session tokens for authentication.
+- **Frequency APIs:** Utilize JWT tokens and cryptographic signatures for secure authentication, ensuring user identity and data integrity.
+
+- SIWF/SIWA
+- Session Management
+- Account Service
+
+
+## Data Storage
+
+- **Web2 APIs:** Data is stored in centralized databases managed by the service provider.
+- **Frequency APIs:** Data is stored on the decentralized blockchain (metadata) and off-chain storage (payload), ensuring transparency and user control.
+
+- IPFS
+- Blockchain
+- Local/Application Data
+
+- Details on storage for each service
+
+## Application / Middleware
+
+- Hooking up all the microservices
+- Here is where your custom code goes!
+
+
+### Standard Services
+
+## Redis
+
+// TODO
+- Why Redis
+-
+
+### BullMQ
+
+- What does this add to Redis?
+
+## Kubo IPFS
+
+// TODO
+
+## Frequency
+
+// TODO / Smaller and direct to docs.frequency.xyz
 
 ### Detailed Explanation of the Frequency Infrastructure
 

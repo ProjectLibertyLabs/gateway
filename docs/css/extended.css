@@ -1,0 +1,60 @@
+/* Button Links */
+.button-links {
+  display: flex;
+  justify-content: space-around;
+  align-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.button-links a,
+.button-links a:link {
+  box-sizing: content-box;
+  font-weight: 300;
+  color: var(--sidebar-fg);
+  background-color: var(--sidebar-bg);
+  border: 2px solid transparent;
+  border-radius: 15px;
+  user-select: none;
+  padding: 20px 10%;
+  margin: 10px;
+  display: flex;
+  font-size: 2rem;
+  font-weight: 400;
+  flex: 0.5;
+  transition-property: border, color;
+  transition-duration: 0.5s;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 1080px) {
+  .button-links a,
+  .button-links a:link {
+    box-sizing: border-box;
+    margin: 10px 6px;
+    flex: 0 0 90%;
+    width: 100%;
+    white-space: normal;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .button-links a,
+  .button-links a:link {
+    box-sizing: border-box;
+    margin: 10px 6px;
+    flex: 0 0 100%;
+    width: 100%;
+    white-space: normal;
+  }
+}
+
+.button-links a:hover,
+.button-links a:visited:hover {
+  text-decoration: none;
+  border: 2px solid var(--sidebar-active);
+  color: var(--sidebar-fg);
+}

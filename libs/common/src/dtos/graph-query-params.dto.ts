@@ -8,7 +8,7 @@ export class GraphsQueryParamsDto {
   @ArrayNotEmpty()
   @ArrayUnique()
   @IsString({ each: true })
-  @ApiProperty({ description: 'Array of MSA IDs for which to query graphs', example: [2, 3, 4, 5], type: [String] })
+  @ApiProperty({ description: 'Array of MSA IDs for which to query graphs', example: ['2', '3', '4', '5'], type: [String] })
   dsnpIds: string[];
 
   @IsEnum(PrivacyType)

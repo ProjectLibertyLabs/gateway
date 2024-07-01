@@ -1,10 +1,10 @@
 import { ApiService } from '#api/api.service';
-import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto, WatchGraphsDto } from '#lib';
+import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#lib';
 import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('v1')
-@ApiTags('v1/graph')
+@Controller('v1/graphs')
+@ApiTags('v1/graphs')
 export class GraphControllerV1 {
   private readonly logger: Logger;
 
@@ -13,9 +13,10 @@ export class GraphControllerV1 {
   }
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
-  @Put('graphs')
+  // TODO: Use HTTP QUERY method or GET with a body instead of POST (can then eliminate endpoint name, will just be GET /graph)
+  @Post('getGraphs')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Post a request to fetch graphs for specified dsnpIds and blockNumber' })
+  @ApiOperation({ summary: 'Fetch graphs for specified dsnpIds and blockNumber' })
   @ApiOkResponse({ description: 'Graphs retrieved successfully', type: [UserGraphDto] })
   async getGraphs(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
     try {
@@ -27,8 +28,8 @@ export class GraphControllerV1 {
     }
   }
 
-  // Create a provider graph
-  @Post('update-graph')
+  // Enqueue a request to update a user graph
+  @Put()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request an update to given users graph' })
   @ApiCreatedResponse({ description: 'Graph update request created successfully', type: GraphChangeRepsonseDto })
@@ -39,25 +40,6 @@ export class GraphControllerV1 {
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to update graph');
-    }
-  }
-
-  @Put('watch-graphs')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Watch graphs for specified dsnpIds and receive updates' })
-  @ApiOkResponse({ description: 'Successfully started watching graphs' })
-  @ApiBody({ type: WatchGraphsDto })
-  async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto) {
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      await this.apiService.watchGraphs(watchGraphsDto);
-      return {
-        status: HttpStatus.OK,
-        data: 'Successfully started watching graphs',
-      };
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to watch graphs');
     }
   }
 }

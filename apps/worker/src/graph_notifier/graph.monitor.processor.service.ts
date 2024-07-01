@@ -7,7 +7,17 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
-import { BaseConsumer, AsyncDebouncerService, BlockchainService, GraphStateManager, ITxMonitorJob, ProviderGraphUpdateJob, GraphChangeNotificationDto, SECONDS_PER_BLOCK, ConfigService } from '#lib';
+import {
+  BaseConsumer,
+  AsyncDebouncerService,
+  BlockchainService,
+  GraphStateManager,
+  ITxMonitorJob,
+  ProviderGraphUpdateJob,
+  GraphChangeNotificationDto,
+  SECONDS_PER_BLOCK,
+  ConfigService,
+} from '#lib';
 import * as QueueConstants from '#lib/utils/queues';
 import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
 
@@ -180,7 +190,7 @@ export class GraphNotifierService extends BaseConsumer {
 
   async getWebhookList(dsnpId: string): Promise<string[]> {
     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${dsnpId}`;
-    const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
+    const redisList = await this.cacheManager.smembers(redisKey);
 
     return redisList || [];
   }

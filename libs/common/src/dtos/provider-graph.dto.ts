@@ -11,7 +11,7 @@ export type ConnectionsDtoWrapper = {
 export class ProviderGraphDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ description: 'MSA ID that owns the connections represented in this object', example: 2, type: String })
+  @ApiProperty({ description: 'MSA ID that owns the connections represented in this object', example: '2', type: String })
   dsnpId: string;
 
   @IsNotEmpty()

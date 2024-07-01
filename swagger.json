@@ -1,10 +1,10 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/v1/graphs": {
-      "put": {
+    "/v1/graphs/getGraphs": {
+      "post": {
         "operationId": "GraphControllerV1_getGraphs",
-        "summary": "Post a request to fetch graphs for specified dsnpIds and blockNumber",
+        "summary": "Fetch graphs for specified dsnpIds and blockNumber",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -32,12 +32,12 @@
           }
         },
         "tags": [
-          "v1/graph"
+          "v1/graphs"
         ]
       }
     },
-    "/v1/update-graph": {
-      "post": {
+    "/v1/graphs": {
+      "put": {
         "operationId": "GraphControllerV1_updateGraph",
         "summary": "Request an update to given users graph",
         "parameters": [],
@@ -64,13 +64,26 @@
           }
         },
         "tags": [
-          "v1/graph"
+          "v1/graphs"
         ]
       }
     },
-    "/v1/watch-graphs": {
+    "/v1/webhooks": {
+      "get": {
+        "operationId": "WebhooksControllerV1_getAllWebhooks",
+        "summary": "Get all registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Retrieved all registered webhooks"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      },
       "put": {
-        "operationId": "GraphControllerV1_watchGraphs",
+        "operationId": "WebhooksControllerV1_watchGraphs",
         "summary": "Watch graphs for specified dsnpIds and receive updates",
         "parameters": [],
         "requestBody": {
@@ -89,7 +102,120 @@
           }
         },
         "tags": [
-          "v1/graph"
+          "v1/webhooks"
+        ]
+      },
+      "delete": {
+        "operationId": "WebhooksControllerV1_deleteAllWebhooks",
+        "summary": "Delete all registered webhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Removed all registered webhooks"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      }
+    },
+    "/v1/webhooks/users/{msaId}": {
+      "get": {
+        "operationId": "WebhooksControllerV1_getWebhooksForMsa",
+        "summary": "Get all registered webhooks for a specific MSA ID",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "example": "2",
+            "description": "MSA ID for which to request registered webhooks ",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved all registered webhooks for the given MSA ID"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      },
+      "delete": {
+        "operationId": "WebhooksControllerV1_deleteWebhooksForMsa",
+        "summary": "Delete all webhooks registered for a specific MSA",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "example": "2",
+            "description": "MSA for which to remove all webhook registrations",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed all registered webhooks for the specified MSA"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      }
+    },
+    "/v1/webhooks/urls": {
+      "get": {
+        "operationId": "WebhooksControllerV1_getWebhooksForUrl",
+        "summary": "Get all webhooks registered to the specified URL",
+        "parameters": [
+          {
+            "name": "url",
+            "required": true,
+            "in": "query",
+            "example": "http://localhost/webhook",
+            "description": "URL for which to fetch all watched MSAs",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved all webhooks registered to the specified URL"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
+        ]
+      },
+      "delete": {
+        "operationId": "WebhooksControllerV1_deleteAllWebhooksForUrl",
+        "summary": "Delete all MSA webhooks registered with the given URL",
+        "parameters": [
+          {
+            "name": "url",
+            "required": true,
+            "in": "query",
+            "example": "http://localhost/webhook",
+            "description": "URL for which to un-watch all MSAs",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed all webhooks registered to the specified URL"
+          }
+        },
+        "tags": [
+          "v1/webhooks"
         ]
       }
     },
@@ -194,10 +320,10 @@
           "dsnpIds": {
             "description": "Array of MSA IDs for which to query graphs",
             "example": [
-              2,
-              3,
-              4,
-              5
+              "2",
+              "3",
+              "4",
+              "5"
             ],
             "type": "array",
             "items": {
@@ -331,7 +457,7 @@
           "dsnpId": {
             "type": "string",
             "description": "MSA ID that owns the connections represented in this object",
-            "example": 2
+            "example": "2"
           },
           "connections": {
             "description": "Array of connections known to the Provider for ths MSA referenced in this object",

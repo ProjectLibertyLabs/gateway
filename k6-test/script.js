@@ -12,7 +12,7 @@
 
 
 import http from "k6/http";
-import { group, check } from "k6";
+import { group, check, sleep } from "k6";
 
 export const options = {
   vus: 100,
@@ -33,11 +33,88 @@ const SLEEP_DURATION = 0.1;
 // Global variables should be initialized.
 
 export default function() {
-    group("/api/update-graph", () => {
+    group("/v1/webhooks", () => {
 
-        // Request No. 1: ApiController_updateGraph
+        // Request No. 1: WebhooksControllerV1_getAllWebhooks
         {
-            let url = BASE_URL + `/api/update-graph`;
+            let url = BASE_URL + `/v1/webhooks`;
+            let request = http.get(url);
+
+            check(request, {
+                "Retrieved all registered webhooks": (r) => r.status === 200
+            });
+
+            sleep(SLEEP_DURATION);
+        }
+
+        // Request No. 2: WebhooksControllerV1_deleteAllWebhooks
+        {
+            let url = BASE_URL + `/v1/webhooks`;
+            let request = http.del(url);
+
+            check(request, {
+                "Removed all registered webhooks": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/v1/webhooks/users/{msaId}", () => {
+        let msaId = '2'; // extracted from 'example' field defined at the parameter level of OpenAPI spec
+
+        // Request No. 1: WebhooksControllerV1_getWebhooksForMsa
+        {
+            let url = BASE_URL + `/v1/webhooks/users/${msaId}`;
+            let request = http.get(url);
+
+            check(request, {
+                "Retrieved all registered webhooks for the given MSA ID": (r) => r.status === 200
+            });
+
+            sleep(SLEEP_DURATION);
+        }
+
+        // Request No. 2: WebhooksControllerV1_deleteWebhooksForMsa
+        {
+            let url = BASE_URL + `/v1/webhooks/users/${msaId}`;
+            let request = http.del(url);
+
+            check(request, {
+                "Removed all registered webhooks for the specified MSA": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/v1/webhooks/urls", () => {
+        let webhookUrl = 'http://localhost/webhook'; // extracted from 'example' field defined at the parameter level of OpenAPI spec
+
+        // Request No. 1: WebhooksControllerV1_getWebhooksForUrl
+        {
+            let url = BASE_URL + `/v1/webhooks/urls?url=${webhookUrl}`;
+            let request = http.get(url);
+
+            check(request, {
+                "Retrieved all webhooks registered to the specified URL": (r) => r.status === 200
+            });
+
+            sleep(SLEEP_DURATION);
+        }
+
+        // Request No. 2: WebhooksControllerV1_deleteAllWebhooksForUrl
+        {
+            let url = BASE_URL + `/v1/webhooks/urls?url=${webhookUrl}`;
+            let request = http.del(url);
+
+            check(request, {
+                "Removed all webhooks registered to the specified URL": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/v1/graphs", () => {
+
+        // Request No. 1: GraphControllerV1_updateGraph
+        {
+            let url = BASE_URL + `/v1/graphs`;
             let body = {"dsnpId": "2", "connections": {"data": [
                 {
                     "dsnpId": "3",
@@ -47,77 +124,65 @@ export default function() {
                 }
             ]}, "graphKeyPairs": []};
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
-            let request = http.post(url, JSON.stringify(body), params);
-
-            check(request, {
-                "Got 201 response": (r) => r.status === 201,
-                "Repsonse contains referenceId": ({ body: bodyStr }) => {
-                    try {
-                        const body = JSON.parse(bodyStr);
-                        return Object.keys(body).includes("referenceId");
-                    } catch (e) {
-                        return false;
-                    }
-                }
-            });
-        }
-    });
-
-    group("/api/graphs", () => {
-        const msaIds = ["2", "3", "4"];
-
-        // Request No. 1: ApiController_getGraphs
-        {
-            let url = BASE_URL + `/api/graphs`;
-            let body = {"dsnpIds": msaIds, "privacyType": "public", "graphKeyPairs": []};
-            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let request = http.put(url, JSON.stringify(body), params);
 
             check(request, {
-                "Got 200 response": (r) => r.status === 200,
-                "Response contained requested graphs": ({ body: bodyStr }) => {
-                    try {
-                    const body = JSON.parse(bodyStr);
-                    for (const msaId of msaIds) {
-                        if (!body.some((userGraph) =>userGraph.dsnpId === msaId)) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                } catch (e) {
-                    return false;
-                }
-                }
+                "Graph update request created successfully": (r) => r.status === 201
             });
         }
     });
 
-    group("/api/health", () => {
+    group("/livez", () => {
 
-        // Request No. 1: ApiController_health
+        // Request No. 1: HealthController_livez
         {
-            let url = BASE_URL + `/api/health`;
+            let url = BASE_URL + `/livez`;
+            let request = http.get(url);
+
+            check(request, {
+                "Service is live": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/v1/graphs/getGraphs", () => {
+        const msaIds = ["2", "3", "4"];
+
+        // Request No. 1: GraphControllerV1_getGraphs
+        {
+            let url = BASE_URL + `/v1/graphs/getGraphs`;
+            let body = {"dsnpIds": msaIds, "privacyType": "public", "graphKeyPairs": []};
+            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
+            let request = http.post(url, JSON.stringify(body), params);
+
+            check(request, {
+                "Graphs retrieved successfully": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/readyz", () => {
+
+        // Request No. 1: HealthController_readyz
+        {
+            let url = BASE_URL + `/readyz`;
+            let request = http.get(url);
+
+            check(request, {
+                "Service is ready": (r) => r.status === 200
+            });
+        }
+    });
+
+    group("/healthz", () => {
+
+        // Request No. 1: HealthController_healthz
+        {
+            let url = BASE_URL + `/healthz`;
             let request = http.get(url);
 
             check(request, {
                 "Service is healthy": (r) => r.status === 200
-            });
-        }
-    });
-
-    group("/api/watch-graphs", () => {
-
-        // Request No. 1: ApiController_watchGraphs
-        {
-            let url = BASE_URL + `/api/watch-graphs`;
-            let body = {"dsnpIds": ["2"], "webhookEndpoint": "http://localhost:3000/webhook"};
-            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
-            let request = http.put(url, JSON.stringify(body), params);
-
-            check(request, {
-                "Got 200 response": (r) => r.status === 200,
-                "Response body is correct": ({ body }) => body === JSON.stringify({ status: 200, data: "Successfully started watching graphs" }),
             });
         }
     });

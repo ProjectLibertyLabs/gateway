@@ -10,7 +10,8 @@ import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
 import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
-import * as QueueConstants from '#lib/utils/queues'
+import * as QueueConstants from '#lib/utils/queues';
+import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 
 @Module({
   imports: [
@@ -125,7 +126,7 @@ import * as QueueConstants from '#lib/utils/queues'
     ScheduleModule.forRoot(),
   ],
   providers: [ApiService, GraphStateManager, ConfigService],
-  controllers: [GraphControllerV1, HealthController],
+  controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
   exports: [],
 })
 export class ApiModule {}

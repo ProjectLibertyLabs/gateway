@@ -11,7 +11,17 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
 import * as QueueConstants from '#lib/utils/queues';
 import fs from 'fs';
-import { GraphStateManager, BlockchainService, ProviderGraphUpdateJob, SECONDS_PER_BLOCK, GraphUpdateJob, ConnectionDto, Direction, createReconnectionJob, SkipTransitiveGraphs } from '#lib';
+import {
+  GraphStateManager,
+  BlockchainService,
+  ProviderGraphUpdateJob,
+  SECONDS_PER_BLOCK,
+  GraphUpdateJob,
+  ConnectionDto,
+  Direction,
+  createReconnectionJob,
+  SkipTransitiveGraphs,
+} from '#lib';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)

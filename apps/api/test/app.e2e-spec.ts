@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-undef */
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -37,13 +38,52 @@ describe('Graph Service E2E request verification!', () => {
     await ExtrinsicHelper.disconnect();
   });
 
-  it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+  describe('Health endpoints', () => {
+    it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
-  it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+    it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-  it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+    it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+  });
 
-  describe('(POST) /v1/update-graph', () => {
+  describe('/graph endpoints', () => {
+    // TODO: Re-enable this test once the setup is update to create user graphs on-chain
+    describe.skip('(POST) /v1/graphs retrieves user graphs', () => {
+      it('Get graph request should work', async () => {
+        const userGraphGet: GraphsQueryParamsDto = {
+          dsnpIds: [users[0].msaId!.toString()],
+          privacyType: PrivacyType.Public,
+        } as GraphsQueryParamsDto;
+
+        await request(app.getHttpServer())
+          .post(`/v1/graphs`)
+          .send(userGraphGet)
+          .expect(200)
+          .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
+      });
+
+      it('Get graph request should work with private graph', async () => {
+        const userGraphGet: GraphsQueryParamsDto = {
+          dsnpIds: [users[0].msaId!.toString()],
+          privacyType: PrivacyType.Private,
+          graphKeyPairs: [
+            {
+              keyType: KeyType.X25519,
+              publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
+              privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
+            } as GraphKeyPairDto,
+          ],
+        } as GraphsQueryParamsDto;
+
+        await request(app.getHttpServer())
+          .post(`/v1/graphs`)
+          .send(userGraphGet)
+          .expect(200)
+          .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
+      });
+    });
+  });
+  describe('(PUT) /v1/graphs', () => {
     it('Valid public graph update request should work', async () => {
       const validGraphChangeRequest: ProviderGraphDto = {
         dsnpId: users[0].msaId!.toString(),
@@ -60,7 +100,7 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
+        .put(`/v1/graphs`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
@@ -99,7 +139,7 @@ describe('Graph Service E2E request verification!', () => {
       const requests = validGraphChangeRequests.map((requestPayload) => {
         console.log(`requestPayload.dsnpId: ${requestPayload.dsnpId}`);
         return request(app.getHttpServer())
-          .post(`/v1/update-graph`)
+          .put(`/v1/graphs`)
           .send(requestPayload)
           .expect(201)
           .expect((res) => expect(res.text).toContain('referenceId'));
@@ -131,183 +171,160 @@ describe('Graph Service E2E request verification!', () => {
       };
 
       return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
-        .send(validGraphChangeRequest)
-        .expect(201)
-        .expect((res) => expect(res.text).toContain('referenceId'));
-    });
-
-    it('Get graph request should work', async () => {
-      const userGraphGet: GraphsQueryParamsDto = {
-        dsnpIds: [users[0].msaId!.toString()],
-        privacyType: PrivacyType.Public,
-      } as GraphsQueryParamsDto;
-
-      await request(app.getHttpServer())
         .put(`/v1/graphs`)
-        .send(userGraphGet)
-        .expect(200)
-        .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
-    });
-
-    it('Get graph request should work with private graph', async () => {
-      const userGraphGet: GraphsQueryParamsDto = {
-        dsnpIds: [users[0].msaId!.toString()],
-        privacyType: PrivacyType.Private,
-        graphKeyPairs: [
-          {
-            keyType: KeyType.X25519,
-            publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
-            privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
-          } as GraphKeyPairDto,
-        ],
-      } as GraphsQueryParamsDto;
-
-      await request(app.getHttpServer())
-        .put(`/v1/graphs`)
-        .send(userGraphGet)
-        .expect(200)
-        .expect((res) => expect(res.body[0].dsnpId).toBe(users[0].msaId!.toString()));
-    });
-  });
-
-  describe('(POST) /v1/update-graph with public disconnect', () => {
-    it('Valid public graph update request should work', async () => {
-      const validGraphChangeRequest: ProviderGraphDto = {
-        dsnpId: users[0].msaId!.toString(),
-        connections: {
-          data: [
-            {
-              dsnpId: users[1].msaId!.toString(),
-              privacyType: PrivacyType.Public,
-              direction: Direction.Disconnect,
-              connectionType: ConnectionType.Follow,
-            } as ConnectionDto,
-          ],
-        },
-      };
-
-      return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
         .send(validGraphChangeRequest)
         .expect(201)
         .expect((res) => expect(res.text).toContain('referenceId'));
     });
-  });
 
-  describe('(POST) /v1/update-graph with private disconnect', () => {
-    it('Valid private graph update request should work', async () => {
-      const validGraphChangeRequest: ProviderGraphDto = {
-        dsnpId: users[0].msaId!.toString(),
-        connections: {
-          data: [
+    describe('(PUT) /v1/graphs with public disconnect', () => {
+      it('Valid public graph update request should work', async () => {
+        const validGraphChangeRequest: ProviderGraphDto = {
+          dsnpId: users[0].msaId!.toString(),
+          connections: {
+            data: [
+              {
+                dsnpId: users[1].msaId!.toString(),
+                privacyType: PrivacyType.Public,
+                direction: Direction.Disconnect,
+                connectionType: ConnectionType.Follow,
+              } as ConnectionDto,
+            ],
+          },
+        };
+
+        return request(app.getHttpServer())
+          .put(`/v1/graphs`)
+          .send(validGraphChangeRequest)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
+    });
+
+    describe('(PUT) /v1/graphs with private disconnect', () => {
+      it('Valid private graph update request should work', async () => {
+        const validGraphChangeRequest: ProviderGraphDto = {
+          dsnpId: users[0].msaId!.toString(),
+          connections: {
+            data: [
+              {
+                dsnpId: users[1].msaId!.toString(),
+                privacyType: PrivacyType.Private,
+                direction: Direction.Disconnect,
+                connectionType: ConnectionType.Follow,
+              } as ConnectionDto,
+            ],
+          },
+          graphKeyPairs: [
             {
-              dsnpId: users[1].msaId!.toString(),
-              privacyType: PrivacyType.Private,
-              direction: Direction.Disconnect,
-              connectionType: ConnectionType.Follow,
-            } as ConnectionDto,
+              keyType: KeyType.X25519,
+              publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
+              privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
+            } as GraphKeyPairDto,
           ],
-        },
-        graphKeyPairs: [
-          {
-            keyType: KeyType.X25519,
-            publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
-            privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
-          } as GraphKeyPairDto,
-        ],
-      };
+        };
 
-      return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
-        .send(validGraphChangeRequest)
-        .expect(201)
-        .expect((res) => expect(res.text).toContain('referenceId'));
+        return request(app.getHttpServer())
+          .put(`/v1/graphs`)
+          .send(validGraphChangeRequest)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
+    });
+
+    describe('(PUT) /v1/graphs with private friend request user A -> B', () => {
+      it('Valid private graph update request should work', async () => {
+        const validGraphChangeRequest: ProviderGraphDto = {
+          dsnpId: users[0].msaId!.toString(),
+          connections: {
+            data: [
+              {
+                dsnpId: users[1].msaId!.toString(),
+                privacyType: PrivacyType.Private,
+                direction: Direction.ConnectionTo,
+                connectionType: ConnectionType.Friendship,
+              } as ConnectionDto,
+            ],
+          },
+          graphKeyPairs: [
+            {
+              keyType: KeyType.X25519,
+              publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
+              privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
+            } as GraphKeyPairDto,
+          ],
+        };
+
+        return request(app.getHttpServer())
+          .put(`/v1/graphs`)
+          .send(validGraphChangeRequest)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
+    });
+
+    describe('(PUT) /v1/graphs with private friend request from user B -> A', () => {
+      it('Valid private graph update request should work', async () => {
+        const validGraphChangeRequest: ProviderGraphDto = {
+          dsnpId: users[1].msaId!.toString(),
+          connections: {
+            data: [
+              {
+                dsnpId: users[0].msaId!.toString(),
+                privacyType: PrivacyType.Private,
+                direction: Direction.ConnectionTo,
+                connectionType: ConnectionType.Friendship,
+              } as ConnectionDto,
+            ],
+          },
+          graphKeyPairs: [
+            {
+              keyType: KeyType.X25519,
+              publicKey: u8aToHex(users[1].graphKeyPair?.publicKey),
+              privateKey: u8aToHex(users[1].graphKeyPair?.secretKey),
+            } as GraphKeyPairDto,
+          ],
+        };
+
+        return request(app.getHttpServer())
+          .put(`/v1/graphs`)
+          .send(validGraphChangeRequest)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
+    });
+    describe('(PUT) /v1/graphs with bi-directional connection', () => {
+      it('Valid public graph update request should work', async () => {
+        const validGraphChangeRequest: ProviderGraphDto = {
+          dsnpId: users[0].msaId!.toString(),
+          connections: {
+            data: [
+              {
+                dsnpId: users[1].msaId!.toString(),
+                privacyType: PrivacyType.Public,
+                direction: Direction.Bidirectional,
+                connectionType: ConnectionType.Follow,
+              } as ConnectionDto,
+            ],
+          },
+        };
+
+        return request(app.getHttpServer())
+          .put(`/v1/graphs`)
+          .send(validGraphChangeRequest)
+          .expect(201)
+          .expect((res) => expect(res.text).toContain('referenceId'));
+      });
     });
   });
 
-  describe('(POST) /v1/update-graph with private friend request user A -> B', () => {
-    it('Valid private graph update request should work', async () => {
-      const validGraphChangeRequest: ProviderGraphDto = {
-        dsnpId: users[0].msaId!.toString(),
-        connections: {
-          data: [
-            {
-              dsnpId: users[1].msaId!.toString(),
-              privacyType: PrivacyType.Private,
-              direction: Direction.ConnectionTo,
-              connectionType: ConnectionType.Friendship,
-            } as ConnectionDto,
-          ],
-        },
-        graphKeyPairs: [
-          {
-            keyType: KeyType.X25519,
-            publicKey: u8aToHex(users[0].graphKeyPair?.publicKey),
-            privateKey: u8aToHex(users[0].graphKeyPair?.secretKey),
-          } as GraphKeyPairDto,
-        ],
-      };
-
-      return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
-        .send(validGraphChangeRequest)
-        .expect(201)
-        .expect((res) => expect(res.text).toContain('referenceId'));
-    });
-  });
-
-  describe('(POST) /v1/update-graph with private friend request from user B -> A', () => {
-    it('Valid private graph update request should work', async () => {
-      const validGraphChangeRequest: ProviderGraphDto = {
-        dsnpId: users[1].msaId!.toString(),
-        connections: {
-          data: [
-            {
-              dsnpId: users[0].msaId!.toString(),
-              privacyType: PrivacyType.Private,
-              direction: Direction.ConnectionTo,
-              connectionType: ConnectionType.Friendship,
-            } as ConnectionDto,
-          ],
-        },
-        graphKeyPairs: [
-          {
-            keyType: KeyType.X25519,
-            publicKey: u8aToHex(users[1].graphKeyPair?.publicKey),
-            privateKey: u8aToHex(users[1].graphKeyPair?.secretKey),
-          } as GraphKeyPairDto,
-        ],
-      };
-
-      return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
-        .send(validGraphChangeRequest)
-        .expect(201)
-        .expect((res) => expect(res.text).toContain('referenceId'));
-    });
-  });
-  describe('(POST) /v1/update-graph with bi-directional connection', () => {
-    it('Valid public graph update request should work', async () => {
-      const validGraphChangeRequest: ProviderGraphDto = {
-        dsnpId: users[0].msaId!.toString(),
-        connections: {
-          data: [
-            {
-              dsnpId: users[1].msaId!.toString(),
-              privacyType: PrivacyType.Public,
-              direction: Direction.Bidirectional,
-              connectionType: ConnectionType.Follow,
-            } as ConnectionDto,
-          ],
-        },
-      };
-
-      return request(app.getHttpServer())
-        .post(`/v1/update-graph`)
-        .send(validGraphChangeRequest)
-        .expect(201)
-        .expect((res) => expect(res.text).toContain('referenceId'));
-    });
+  describe('/v1/webhooks endpoints', () => {
+    it.todo('(POST) /v1/webhooks creates a webhook registration');
+    it.todo('(GET) /v1/webhooks gets all webhooks');
+    it.todo('(GET) /v1/webhooks/users/:msaId gets all webhooks for a particular user');
+    it.todo('(GET) /v1/webhooks/urls/:url gets all watched user graphs for a given URL registration');
+    it.todo('(DELETE) /v1/webhooks/users/:msaId deletes all webhooks for a given user');
+    it.todo('(DELETE) /v1/webhooks/urls?url=<webhook url> deletes watched user graphs for a given webhook URL');
+    it.todo('(DELETE) /v1/webhooks clears all registered webhooks');
   });
 });

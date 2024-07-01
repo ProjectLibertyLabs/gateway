@@ -8,7 +8,6 @@
     "build:swagger": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
     "build:metadata": "npx ts-node apps/api/src/generate-metadata.ts",
     "generate-swagger-ui": "npx --yes @redocly/cli build-docs swagger.json --output=./docs/index.html",
-    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start:api": "nest start api",
     "start:api:watch": "nest start api --watch",
     "start:api:prod": "node dist/apps/api/main.js",
@@ -27,9 +26,10 @@
     "chain-setup": "tsx ./test-setup/main.ts",
     "clean": "rm -Rf dist",
     "lint": "eslint \"{apps,libs}/**/*.ts\"",
-    "format": "eslint \"{apps,libs}/**/*.ts\" --fix",
+    "lint:fix": "eslint \"{apps,libs}/**/*.ts\" --fix",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "test": "jest  --coverage --verbose",
-    "test:e2e": "set -a ; . .env ; jest --config ./apps/api/test/jest-e2e.json --detectOpenHandles"
+    "test:e2e": "set -a ; . .env ; jest --testRegex \".e2e-spec.ts$\" --detectOpenHandles"
   },
   "repository": {
     "type": "git",

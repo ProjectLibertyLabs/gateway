@@ -6,7 +6,29 @@ import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import * as QueueConstants from '#lib/utils/queues';
-import { AsyncDebouncerService, BlockchainService, ConfigService, GraphChangeRepsonseDto, GraphStateManager, GraphsQueryParamsDto, ProviderGraphDto, ProviderGraphUpdateJob, UserGraphDto, WatchGraphsDto } from '#lib';
+import {
+  AsyncDebouncerService,
+  BlockchainService,
+  ConfigService,
+  GraphChangeRepsonseDto,
+  GraphStateManager,
+  GraphsQueryParamsDto,
+  ProviderGraphDto,
+  ProviderGraphUpdateJob,
+  UserGraphDto,
+  WatchGraphsDto,
+} from '#lib';
+
+async function hscanToObject(keyValues: string[]) {
+  const result = {};
+
+  for (let i = 0; i < keyValues.length; i += 2) {
+    const field = keyValues[i];
+    const value = JSON.parse(keyValues[i + 1]);
+    result[field] = value;
+  }
+  return result;
+}
 
 @Injectable()
 export class ApiService implements BeforeApplicationShutdown {
@@ -27,7 +49,6 @@ export class ApiService implements BeforeApplicationShutdown {
 
   beforeApplicationShutdown(_signal?: string | undefined) {
     try {
-      this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
       this.redis.del(QueueConstants.DEBOUNCER_CACHE_KEY);
       this.redis.del(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY);
       this.logger.log('Cleanup on shutdown completed.');
@@ -57,13 +78,102 @@ export class ApiService implements BeforeApplicationShutdown {
     };
   }
 
-  async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<void> {
-    watchGraphsDto.dsnpIds.forEach(async (dsnpId) => {
-      const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${dsnpId}`;
-      const redisValue = watchGraphsDto.webhookEndpoint;
+  /**
+   * Adds webhook registrations for a list of MSA IDs to the set
+   * of webhooks in the Redis cache. Returns whether any new
+   * webhooks were added.
+   * @param {any} watchGraphsDto:WatchGraphsDto
+   * @returns {boolean} Whether any new webhooks were registered
+   */
+  async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<boolean> {
+    let itemsAdded = false;
+    for (const dsnpId of watchGraphsDto.dsnpIds) {
       // eslint-disable-next-line no-await-in-loop
-      await this.redis.rpush(redisKey, redisValue);
+      const result = await this.watchGraphForMsa(dsnpId, watchGraphsDto.webhookEndpoint);
+      itemsAdded = itemsAdded || result;
+    }
+
+    return itemsAdded;
+  }
+
+  async watchGraphForMsa(msaId: string, webhook: string): Promise<boolean> {
+    try {
+      let webhookAdded = false;
+      const url = new URL(webhook).toString();
+      const existingWebhooks = new Set(
+        await this.redis.hget(QueueConstants.REDIS_WATCHER_PREFIX, msaId).then((webhooksStr) => {
+          return webhooksStr ? (JSON.parse(webhooksStr) as string[]) : [];
+        }),
+      );
+      if (existingWebhooks.size === 0 || !existingWebhooks.has(url)) {
+        webhookAdded = true;
+        this.logger.verbose(`Registering webhook for MSA ${msaId}: ${url}`);
+      }
+      existingWebhooks.add(url);
+      await this.redis.hset(QueueConstants.REDIS_WATCHER_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
+      return webhookAdded;
+    } catch (err: any) {
+      this.logger.error('Error adding webhook', err);
+      throw err;
+    }
+  }
+
+  async getAllWebhooks(): Promise<Record<string, string[]>> {
+    let cursor = '0';
+    let value: string[];
+    const result = {};
+    do {
+      [cursor, value] = await this.redis.hscan(QueueConstants.REDIS_WATCHER_PREFIX, cursor);
+      Object.assign(result, await hscanToObject(value));
+    } while (cursor !== '0');
+    return result;
+  }
+
+  /**
+   * Return all URLs registered as webhooks for the given MSA
+   *
+   * @param {string} msaId:string
+   * @returns {string[]} Array of URLs
+   */
+  async getWebhooksForMsa(msaId: string): Promise<string[]> {
+    const value = await this.redis.hget(QueueConstants.REDIS_WATCHER_PREFIX, msaId);
+    return value ? (JSON.parse(value) as string[]) : [];
+  }
+
+  async getWatchedGraphsForUrl(url: string): Promise<string[]> {
+    const msasForUrl: string[] = [];
+    const registeredWebhooks = await this.getAllWebhooks();
+    Object.entries(registeredWebhooks).forEach(([msaId, urls]) => {
+      if (urls.some((hookUrl) => hookUrl === url)) {
+        msasForUrl.push(msaId);
+      }
     });
+
+    return msasForUrl;
+  }
+
+  async deleteAllWebhooks(): Promise<void> {
+    await this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
+  }
+
+  async deleteWebhooksForUser(msaId: string): Promise<void> {
+    await this.redis.hdel(QueueConstants.REDIS_WATCHER_PREFIX, msaId);
+  }
+
+  async removeWebhookFromUser(msaId: string, url: string): Promise<void> {
+    const webhooksForUser = new Set(await this.getWebhooksForMsa(msaId));
+    if (webhooksForUser.delete(url)) {
+      if (webhooksForUser.size === 0) {
+        await this.deleteWebhooksForUser(msaId);
+      } else {
+        await this.redis.hset(QueueConstants.REDIS_WATCHER_PREFIX, msaId, JSON.stringify([...webhooksForUser]));
+      }
+    }
+  }
+
+  async deleteWebhooksForUrl(url: string): Promise<void> {
+    const msaIds = await this.getWatchedGraphsForUrl(url);
+    await Promise.all(msaIds.map((msaId) => this.removeWebhookFromUser(msaId, url)));
   }
 
   async getGraphs(queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {

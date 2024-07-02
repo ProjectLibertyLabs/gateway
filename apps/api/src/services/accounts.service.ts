@@ -33,7 +33,7 @@ export class AccountsService {
         const handleResponse = await this.blockchainService.getHandleForMsa(msaId);
         if (handleResponse) {
           this.logger.debug(`Found handle: ${handleResponse.base_handle.toString()} for msaId: ${msaId}`);
-          return { msaId, displayHandle: handleResponse.base_handle.toString() };
+          return { msaId, handle: handleResponse };
         }
         this.logger.log(`Failed to get handle for msaId: ${msaId}`);
         return { msaId };

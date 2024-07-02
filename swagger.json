@@ -325,8 +325,8 @@
           "msaId": {
             "type": "string"
           },
-          "displayHandle": {
-            "type": "string"
+          "handle": {
+            "type": "object"
           }
         },
         "required": [
@@ -340,7 +340,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -380,7 +380,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -470,7 +470,7 @@
             "$ref": "#/components/schemas/HandlePayload"
           },
           "proof": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -505,10 +505,10 @@
             "type": "string"
           },
           "msaOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "newKeyOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayload"

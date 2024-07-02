@@ -17,7 +17,6 @@ describe('Account Controller', () => {
   let provider: ChainUser;
   let maxMsaId: string;
   const handle = uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' });
-  let actualHandle: string;
 
   beforeEach(async () => {
     ({ currentBlockNumber, maxMsaId, provider, users } = await setupProviderAndUsers());
@@ -45,8 +44,6 @@ describe('Account Controller', () => {
     const claimedHandle = await ExtrinsicHelper.apiPromise.rpc.handles.getHandleForMsa(users[0].msaId);
     if (claimedHandle.isNone) {
       console.error('No handle found when handle should have been claimed');
-    } else {
-      actualHandle = claimedHandle.unwrap().displayHandle;
     }
 
     module = await Test.createTestingModule({
@@ -74,7 +71,7 @@ describe('Account Controller', () => {
   });
 
   it('(GET) /v1/accounts/:msaId with valid msaId and no handle', async () => {
-    const user = users[1];
+    const user = users[2];
     const validMsaId = user.msaId?.toString();
     await request(app.getHttpServer()).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
       msaId: user.msaId?.toString(),
@@ -96,6 +93,6 @@ describe('Account Controller', () => {
       .get(`/v1/accounts/${validMsaId}`)
       .expect(200)
       .expect((res) => res.body.msaId === validMsaId)
-      .expect((res) => res.body.displayHandle === actualHandle);
+      .expect((res) => res.body.handle.base_handle === handle);
   });
 });

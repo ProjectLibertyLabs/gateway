@@ -110,7 +110,7 @@ export default async () => {
           {
             AccountResponse: {
               msaId: { required: true, type: () => String },
-              displayHandle: { required: false, type: () => String },
+              handle: { required: false, type: () => Object },
             },
           },
         ],

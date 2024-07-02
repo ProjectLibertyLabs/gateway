@@ -6,16 +6,33 @@ Blockchain technology is a decentralized ledger system where data is stored acro
 
 ## Reading the Blockchain
 
-RPCs, universal state, finalized vs non-finalized
+### RPCs, Universal State, Finalized vs Non-Finalized
 
-// TODO
+- **RPCs (Remote Procedure Calls):** RPCs are used to interact with the blockchain network. They allow users to query the blockchain state, submit transactions, and perform other operations by sending requests to nodes in the network.
 
-## Writing changes to the Blockchain
+- **Universal State:** The blockchain maintains a universal state that is agreed upon by all participating nodes. This state includes all the data and transactions that have been validated and confirmed.
 
-- Transactions
-- Nonces
-- Finalization
-- Block time
+- **Finalized vs Non-Finalized:**
+  - **Finalized Transactions:** Once a transaction is confirmed and included in a block, it is considered finalized. Finalized transactions are immutable and cannot be changed or reverted.
+  - **Non-Finalized Transactions:** Transactions that have been submitted to the network but not yet included in a block are considered non-finalized. They are pending confirmation and can still be altered or rejected.
+
+## Writing Changes to the Blockchain
+
+### Transactions
+
+- Transactions are the primary means of updating the blockchain state. They can involve transferring tokens, or executing other predefined operations.
+
+### Nonces
+
+- Each transaction includes a nonce, a unique number that prevents replay attacks. The nonce ensures that each transaction is processed only once and in the correct order.
+
+### Finalization
+
+- Finalization is the process of confirming and adding a transaction to a block. Once a transaction is included in a block and the block is finalized, the transaction becomes immutable.
+
+### Block Time
+
+- Block time refers to the interval at which new blocks are added to the blockchain. It determines the speed at which transactions are confirmed and finalized. Shorter block times lead to faster transaction confirmations but can increase the risk of network instability.
 
 ## Why Blockchain
 
@@ -25,7 +42,7 @@ RPCs, universal state, finalized vs non-finalized
 - **Immutability:** Once data is recorded on the blockchain, it cannot be altered, ensuring the integrity of user posts, messages, and other social interactions.
 - **User Empowerment:** Users can own their data and have the ability to move freely between different platforms without losing their social connections or content.
 
-## Interruptibility Between Frequency Social Apps
+## Interoperability Between Frequency Social Apps
 
 Frequency enables seamless interaction and data sharing between different social dapps built on its platform. This interoperability is facilitated by:
 

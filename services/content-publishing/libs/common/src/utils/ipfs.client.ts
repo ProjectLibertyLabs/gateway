@@ -28,7 +28,7 @@ export class IpfsService {
   }
 
   private async ipfsPinBuffer(filename: string, contentType: string, fileBuffer: Buffer): Promise<FilePin> {
-    const ipfsAdd = `${this.configService.ipfsEndpoint}/v1/add`;
+    const ipfsAdd = `${this.configService.ipfsEndpoint}/api/v0/add`;
     const form = new FormData();
     form.append('file', fileBuffer, {
       filename,
@@ -87,7 +87,7 @@ export class IpfsService {
     if (checkExistence && !(await this.isPinned(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
-    const ipfsGet = `${this.configService.ipfsEndpoint}/v1/cat?arg=${cid}`;
+    const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
     const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
@@ -107,7 +107,7 @@ export class IpfsService {
   public async isPinned(cid: string): Promise<boolean> {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
-    const ipfsGet = `${this.configService.ipfsEndpoint}/v1/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
+    const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
     const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';

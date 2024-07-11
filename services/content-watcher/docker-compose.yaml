@@ -3,14 +3,14 @@ x-content-watcher-environment: &content-watcher-environment
   FREQUENCY_URL: 'ws://frequency:9944'
   STARTING_BLOCK: 1
   REDIS_URL: 'redis://redis:6379'
-  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: 1
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 12
   QUEUE_HIGH_WATER: 1000
   WEBHOOK_FAILURE_THRESHOLD: 4
   WEBHOOK_RETRY_INTERVAL_SECONDS: 10
   API_PORT: 3000
   CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
   IPFS_ENDPOINT: 'http://ipfs:5001'
-  
+
 services:
   redis:
     image: redis:latest
@@ -28,9 +28,9 @@ services:
     platform: linux/amd64
     # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
     # Other options you may want to add depending on your test scenario.
-    # environment:
-    #   - SEALING_MODE=interval
-    #   - SEALING_INTERVAL=3
+    environment:
+      - SEALING_MODE=interval
+      - SEALING_INTERVAL=1
     #   - CREATE_EMPTY_BLOCKS=true
     # Uncomment below if you want to let the chain run and keep all of the historical blocks
     # command: --state-pruning=archive

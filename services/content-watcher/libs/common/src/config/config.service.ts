@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /*
 https://docs.nestjs.com/providers#services
 */
@@ -13,7 +14,7 @@ export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
   STARTING_BLOCK: string;
-  BLOCKCHAIN_SCAN_INTERVAL_MINUTES: number;
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: number;
   QUEUE_HIGH_WATER: number;
   WEBHOOK_FAILURE_THRESHOLD: number;
   WEBHOOK_RETRY_INTERVAL_SECONDS: number;
@@ -41,8 +42,8 @@ export class ConfigService {
     return this.nestConfigService.get<number>('STARTING_BLOCK')!;
   }
 
-  public get blockchainScanIntervalMinutes(): number {
-    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_MINUTES') ?? 1;
+  public get blockchainScanIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_SECONDS') ?? 12;
   }
 
   public get queueHighWater(): number {

@@ -40,7 +40,7 @@ describe('ContentWatcherConfigService', () => {
     IPFS_GATEWAY_URL: undefined,
     IPFS_BASIC_AUTH_USER: undefined,
     IPFS_BASIC_AUTH_SECRET: undefined,
-    BLOCKCHAIN_SCAN_INTERVAL_MINUTES: undefined,
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
     QUEUE_HIGH_WATER: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
@@ -75,10 +75,10 @@ describe('ContentWatcherConfigService', () => {
     });
 
     it('invalid scan interval should fail', async () => {
-      const { BLOCKCHAIN_SCAN_INTERVAL_MINUTES: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_MINUTES: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_MINUTES: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_MINUTES: 'foo', ...env })).rejects.toBeDefined();
+      const { BLOCKCHAIN_SCAN_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 'foo', ...env })).rejects.toBeDefined();
     });
 
     it('invalid queue high water should fail', async () => {
@@ -113,7 +113,7 @@ describe('ContentWatcherConfigService', () => {
     });
 
     it('should get scan interval', () => {
-      expect(contentWatcherConfigService.blockchainScanIntervalMinutes).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_MINUTES as string, 10));
+      expect(contentWatcherConfigService.blockchainScanIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string));
     });
 
     it('should get queue high water mark', () => {

@@ -46,7 +46,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     }
     setImmediate(() => this.scan());
 
-    const scanInterval = this.configService.blockchainScanIntervalMinutes * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND;
+    const scanInterval = this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND;
     this.schedulerRegistry.addInterval(
       INTERVAL_SCAN_NAME,
       setInterval(() => this.scan(), scanInterval),

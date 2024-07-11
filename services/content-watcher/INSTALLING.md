@@ -61,5 +61,5 @@ The following is a list of environment variables that may be set to control the 
 |`FREQUENCY_URL`|**yes**|Blockchain URL|_none_|
 |`STARTING_BLOCK`|**maybe**|Starting block for scanner to scan from|_none_|
 |`REDIS_URL`|**yes**|URL used to connect to Redis instance|_none_<br/>\*preset to the internal Redis URL in the standalone container|
-|`BLOCKCHAIN_SCAN_INTERVAL_MINUTES`|no|# of minutes to wait in between scans of the blockchain|180|
+|`BLOCKCHAIN_SCAN_INTERVAL_SECONDS`|no|# of seconds to wait in between scans of the blockchain|12|
 |`QUEUE_HIGH_WATER`|no|# of pending queue entries to allow before pausing blockchain scanning until the next scan cycle|1000|

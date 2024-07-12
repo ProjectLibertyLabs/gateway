@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumberString, IsString, IsUrl } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class WatchGraphsDto {
+  @IsOptional()
   @IsArray()
   @IsNumberString({ no_symbols: true }, { each: true })
-  @IsNotEmpty()
   @ApiProperty({ description: 'MSA IDs for which to watch for graph updates', type: [String], example: ['2', '3', '4', '5'] })
-  dsnpIds: string[];
+  dsnpIds?: string[];
 
   @IsNotEmpty()
   @IsString()

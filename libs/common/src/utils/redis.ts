@@ -22,3 +22,13 @@ const CHAIN_NONCE_KEY = 'chain:nonce';
 export function getNonceKey(suffix: string) {
   return `${CHAIN_NONCE_KEY}:${suffix}`;
 }
+
+/**
+ * Prefix for Redis keys that store webhook endpoints
+ */
+export const REDIS_WEBHOOK_PREFIX = 'graph-service-webhooks';
+
+/**
+ * Const for registering/looking up webhooks designated for all MSAs
+ */
+export const REDIS_WEBHOOK_ALL = 'all';

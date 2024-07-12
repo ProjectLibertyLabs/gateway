@@ -4,8 +4,8 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import * as QueueConstants from '#lib/utils/queues';
+import * as RedisConstants from '#lib/utils/redis';
 import {
   AsyncDebouncerService,
   BlockchainService,
@@ -87,7 +87,8 @@ export class ApiService implements BeforeApplicationShutdown {
    */
   async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<boolean> {
     let itemsAdded = false;
-    for (const dsnpId of watchGraphsDto.dsnpIds) {
+    const ids = watchGraphsDto?.dsnpIds || [RedisConstants.REDIS_WEBHOOK_ALL];
+    for (const dsnpId of ids) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.watchGraphForMsa(dsnpId, watchGraphsDto.webhookEndpoint);
       itemsAdded = itemsAdded || result;
@@ -101,7 +102,7 @@ export class ApiService implements BeforeApplicationShutdown {
       let webhookAdded = false;
       const url = new URL(webhook).toString();
       const existingWebhooks = new Set(
-        await this.redis.hget(QueueConstants.REDIS_WATCHER_PREFIX, msaId).then((webhooksStr) => {
+        await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId).then((webhooksStr) => {
           return webhooksStr ? (JSON.parse(webhooksStr) as string[]) : [];
         }),
       );
@@ -110,7 +111,7 @@ export class ApiService implements BeforeApplicationShutdown {
         this.logger.verbose(`Registering webhook for MSA ${msaId}: ${url}`);
       }
       existingWebhooks.add(url);
-      await this.redis.hset(QueueConstants.REDIS_WATCHER_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
+      await this.redis.hset(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
       return webhookAdded;
     } catch (err: any) {
       this.logger.error('Error adding webhook', err);
@@ -123,7 +124,7 @@ export class ApiService implements BeforeApplicationShutdown {
     let value: string[];
     const result = {};
     do {
-      [cursor, value] = await this.redis.hscan(QueueConstants.REDIS_WATCHER_PREFIX, cursor);
+      [cursor, value] = await this.redis.hscan(RedisConstants.REDIS_WEBHOOK_PREFIX, cursor);
       Object.assign(result, await hscanToObject(value));
     } while (cursor !== '0');
     return result;
@@ -135,9 +136,18 @@ export class ApiService implements BeforeApplicationShutdown {
    * @param {string} msaId:string
    * @returns {string[]} Array of URLs
    */
-  async getWebhooksForMsa(msaId: string): Promise<string[]> {
-    const value = await this.redis.hget(QueueConstants.REDIS_WATCHER_PREFIX, msaId);
-    return value ? (JSON.parse(value) as string[]) : [];
+  async getWebhooksForMsa(msaId: string, includeAll = true): Promise<string[]> {
+    const value = await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
+    let webhooks = value ? (JSON.parse(value) as string[]) : [];
+
+    if (includeAll) {
+      const all = await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, RedisConstants.REDIS_WEBHOOK_ALL);
+      const allHooks = all ? (JSON.parse(all) as string[]) : [];
+      webhooks.push(...allHooks);
+      webhooks = [...new Set(webhooks)];
+    }
+
+    return webhooks;
   }
 
   async getWatchedGraphsForUrl(url: string): Promise<string[]> {
@@ -153,11 +163,11 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   async deleteAllWebhooks(): Promise<void> {
-    await this.redis.del(QueueConstants.REDIS_WATCHER_PREFIX);
+    await this.redis.del(RedisConstants.REDIS_WEBHOOK_PREFIX);
   }
 
   async deleteWebhooksForUser(msaId: string): Promise<void> {
-    await this.redis.hdel(QueueConstants.REDIS_WATCHER_PREFIX, msaId);
+    await this.redis.hdel(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
   }
 
   async removeWebhookFromUser(msaId: string, url: string): Promise<void> {
@@ -166,7 +176,7 @@ export class ApiService implements BeforeApplicationShutdown {
       if (webhooksForUser.size === 0) {
         await this.deleteWebhooksForUser(msaId);
       } else {
-        await this.redis.hset(QueueConstants.REDIS_WATCHER_PREFIX, msaId, JSON.stringify([...webhooksForUser]));
+        await this.redis.hset(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...webhooksForUser]));
       }
     }
   }

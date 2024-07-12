@@ -18,6 +18,7 @@ import {
   ConfigService,
 } from '#lib';
 import * as QueueConstants from '#lib/utils/queues';
+import * as RedisConstants from '#lib/utils/redis';
 import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
 
 @Injectable()
@@ -185,10 +186,24 @@ export class GraphNotifierService extends BaseConsumer {
     return { pause: false, retry: false };
   }
 
-  async getWebhookList(dsnpId: string): Promise<string[]> {
-    const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${dsnpId}`;
-    const redisList = await this.cacheManager.smembers(redisKey);
+  /**
+   * Return all URLs registered as webhooks for the given MSA
+   *
+   * @param {string} msaId - MSA to retrieve webhooks for
+   * @param {boolean} includeAll - Whether to include webhooks registered for 'all'
+   * @returns {string[]} Array of URLs
+   */
+  async getWebhookList(msaId: string, includeAll = true): Promise<string[]> {
+    const value = await this.cacheManager.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
+    let webhooks = value ? (JSON.parse(value) as string[]) : [];
 
-    return redisList || [];
+    if (includeAll) {
+      const all = await this.cacheManager.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, RedisConstants.REDIS_WEBHOOK_ALL);
+      const allHooks = all ? (JSON.parse(all) as string[]) : [];
+      webhooks.push(...allHooks);
+      webhooks = [...new Set(webhooks)];
+    }
+
+    return webhooks;
   }
 }

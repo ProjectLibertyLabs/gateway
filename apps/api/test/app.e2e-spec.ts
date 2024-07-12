@@ -10,6 +10,7 @@ import { u8aToHex } from '@polkadot/util';
 import { ApiModule } from '#api/api.module';
 import { ProviderGraphDto, ConnectionDto, KeyType, GraphKeyPairDto, GraphsQueryParamsDto, Direction } from '#lib/dtos';
 import { PrivacyType, ConnectionType } from '@dsnp/graph-sdk';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 
 let app: INestApplication;
 let testModule: TestingModule;
@@ -31,7 +32,7 @@ describe('Graph Service E2E request verification!', () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableShutdownHooks();
     await app.init();
-  });
+  }, 60 * MILLISECONDS_PER_SECOND);
 
   afterAll(async () => {
     await app.close();

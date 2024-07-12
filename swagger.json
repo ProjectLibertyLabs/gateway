@@ -133,6 +133,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "includeAll",
+            "required": false,
+            "in": "query",
+            "example": true,
+            "description": "Boolean whether to include webhooks registered for 'all' MSAs (default: true)",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {

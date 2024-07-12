@@ -19,11 +19,6 @@ export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
 export const GRAPH_CHANGE_NOTIFY_QUEUE = 'graphChangeNotify';
 
 /**
- * Prefix for Redis keys that store webhook endpoints
- */
-export const REDIS_WATCHER_PREFIX = 'graph-service-watcher';
-
-/**
  * Debouncer cache key
  */
 export const DEBOUNCER_CACHE_KEY = 'graph-service-debouncer';

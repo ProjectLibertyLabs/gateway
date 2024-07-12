@@ -106,7 +106,7 @@ export abstract class BlockchainScannerService {
     let okToScan = true;
     if (this.scanParameters?.onlyFinalized) {
       const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      okToScan = blockNumber > lastFinalizedBlockNumber;
+      okToScan = blockNumber <= lastFinalizedBlockNumber;
     }
 
     return okToScan;

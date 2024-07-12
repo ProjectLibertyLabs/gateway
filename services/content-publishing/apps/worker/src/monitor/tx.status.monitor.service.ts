@@ -20,7 +20,6 @@ import { IPublisherJob } from '../interfaces/publisher-job.interface';
 export class TxStatusMonitoringService extends BaseConsumer {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
     @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
   ) {
@@ -31,7 +30,6 @@ export class TxStatusMonitoringService extends BaseConsumer {
     this.logger.log(`Monitoring job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = NUMBER_BLOCKS_TO_CRAWL;
-      const txCapacityEpoch = job.data.epoch;
       const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: bigint[] = [];
@@ -52,7 +50,7 @@ export class TxStatusMonitoringService extends BaseConsumer {
         }
       } else {
         // found the tx
-        await this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+        await this.setEpochCapacity(txResult.capacityEpoch ?? 0, txResult.capacityWithdrawn ?? 0n);
         if (txResult.error) {
           this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
           const errorReport = await this.handleMessagesFailure(job.data.id, txResult.error);
@@ -107,13 +105,13 @@ export class TxStatusMonitoringService extends BaseConsumer {
     return { pause: false, retry: false };
   }
 
-  private async setEpochCapacity(epoch: string, capacityWithdrew: bigint): Promise<void> {
+  private async setEpochCapacity(epoch: number, capacityWithdrawn: bigint): Promise<void> {
     const epochCapacityKey = `epochCapacity:${epoch}`;
 
     try {
       const savedCapacity = await this.cacheManager.get(epochCapacityKey);
       const epochCapacity = BigInt(savedCapacity ?? 0);
-      const newEpochCapacity = epochCapacity + capacityWithdrew;
+      const newEpochCapacity = epochCapacity + capacityWithdrawn;
 
       const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
       const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;

@@ -74,24 +74,14 @@ import { HealthController } from './controllers/health.controller';
       }),
       inject: [ConfigService],
     }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: 20,
-          removeOnFail: false,
-          attempts: 1,
-        },
+    BullModule.registerQueue({
+      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
+      defaultJobOptions: {
+        removeOnComplete: 20,
+        removeOnFail: false,
+        attempts: 1,
       },
-      {
-        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: 20,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-    ),
+    }),
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',
@@ -101,21 +91,9 @@ import { HealthController } from './controllers/health.controller';
       name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
       adapter: BullMQAdapter,
     }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
-      adapter: BullMQAdapter,
-    }),
     ScheduleModule.forRoot(),
   ],
-  providers: [
-    ApiService,
-    AccountsService,
-    HandlesService,
-    DelegationService,
-    KeysService,
-    ConfigService,
-    EnqueueService,
-  ],
+  providers: [ApiService, AccountsService, HandlesService, DelegationService, KeysService, EnqueueService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],

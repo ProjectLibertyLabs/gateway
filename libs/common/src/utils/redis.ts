@@ -31,6 +31,11 @@ export namespace RedisUtils {
   export function getNonceKey(suffix: string) {
     return `${CHAIN_NONCE_KEY}:${suffix}`;
   }
+
+  /**
+   * Hash set key containing ITxStatus values for submitted chain transactions we are watching for completion
+   */
+  export const TXN_WATCH_LIST_KEY = 'txnWatchList';
 }
 
 export function redisEventsToEventEmitter(client: RedisClient, eventEmitter: EventEmitter2) {

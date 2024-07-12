@@ -87,5 +87,5 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err) => {
-  logger.error('Unhandled exception in boostrap', err);
+  logger.error('Unhandled exception in bootstrap', err, err?.stack);
 });

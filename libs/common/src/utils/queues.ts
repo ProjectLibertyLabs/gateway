@@ -5,11 +5,6 @@ export namespace QueueConstants {
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
 
   /**
-   * Name of the queue that processes account transaction notifications
-   */
-  export const TRANSACTION_NOTIFY_QUEUE = 'transactionNotify';
-
-  /**
    * Prefix for Redis keys that store webhook endpoints
    */
   export const REDIS_WATCHER_PREFIX = 'account-service-watcher';

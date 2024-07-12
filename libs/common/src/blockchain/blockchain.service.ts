@@ -1,13 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
-import { firstValueFrom } from 'rxjs';
+import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, DispatchError, EventRecord, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, Bytes, Vec } from '@polkadot/types';
+import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
+import { u32, Option, Bytes } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
@@ -48,9 +47,7 @@ interface PublicKeyValues {
 
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
-  public api: ApiRx;
-
-  public apiPromise: ApiPromise;
+  public api: ApiPromise;
 
   private configService: ConfigService;
 
@@ -67,30 +64,24 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
       throw new Error('Unrecognized chain URL type');
     }
-    this.api = await firstValueFrom(ApiRx.create({ provider, ...options }));
-    this.apiPromise = await ApiPromise.create({ provider, ...options });
-    await Promise.all([firstValueFrom(this.api.isReady), this.apiPromise.isReady]);
+    this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
     this.logger.log('Blockchain API ready.');
   }
 
   public async isReady(): Promise<boolean> {
-    await this.apiPromise.isReady;
+    await this.api?.isReady;
     return true;
   }
 
   public async getApi(): Promise<ApiPromise> {
-    await this.apiPromise.isReady;
-    return this.apiPromise;
+    await this.api.isReady;
+    return this.api;
   }
 
-  public async onApplicationShutdown(signal?: string | undefined) {
+  public async onApplicationShutdown(_signal?: string | undefined) {
     const promises: Promise<any>[] = [];
     if (this.api) {
       promises.push(this.api.disconnect());
-    }
-
-    if (this.apiPromise) {
-      promises.push(this.apiPromise.disconnect());
     }
     await Promise.all(promises);
   }
@@ -101,23 +92,29 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
-    return firstValueFrom(this.api.rpc.chain.getBlockHash(block));
+    return this.api.rpc.chain.getBlockHash(block);
   }
 
   public getBlock(block: BlockHash): Promise<SignedBlock> {
-    return firstValueFrom(this.api.rpc.chain.getBlock(block));
+    return this.api.rpc.chain.getBlock(block);
   }
 
-  public async getLatestFinalizedBlockHash(): Promise<BlockHash> {
-    return (await this.apiPromise.rpc.chain.getFinalizedHead()) as BlockHash;
+  public async getBlockByNumber(blockNumber: number): Promise<SignedBlock> {
+    const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
+    return this.api.rpc.chain.getBlock(blockHash);
   }
 
-  public async getLatestFinalizedBlockNumber(): Promise<bigint> {
-    return (await this.apiPromise.rpc.chain.getBlock()).block.header.number.toBigInt();
+  public getLatestFinalizedBlockHash(): Promise<BlockHash> {
+    return this.api.rpc.chain.getFinalizedHead();
+  }
+
+  public async getLatestFinalizedBlockNumber(): Promise<number> {
+    const blockHash = await this.getLatestFinalizedBlockHash();
+    return (await this.api.rpc.chain.getBlock(blockHash)).block.header.number.toNumber();
   }
 
   public async getBlockNumberForHash(hash: string): Promise<number | undefined> {
-    const block = await this.apiPromise.rpc.chain.getBlock(hash);
+    const block = await this.api.rpc.chain.getBlock(hash);
     if (block) {
       return block.block.header.number.toNumber();
     }
@@ -133,26 +130,24 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public createExtrinsicCall(
     { pallet, extrinsic }: { pallet: string; extrinsic: string },
     ...args: (any | undefined)[]
-  ): SubmittableExtrinsic<'rxjs', ISubmittableResult> {
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx[pallet][extrinsic](...args);
   }
 
   public createExtrinsic(
     { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    { eventPallet, event }: { eventPallet?: string; event?: string },
     keys: KeyringPair,
     ...args: (any | undefined)[]
   ): Extrinsic {
-    const targetEvent = eventPallet && event ? this.api.events[eventPallet][event] : undefined;
-    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys, targetEvent);
+    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
   }
 
   public rpc(pallet: string, rpc: string, ...args: (any | undefined)[]): Promise<any> {
-    return this.apiPromise.rpc[pallet][rpc](...args);
+    return this.api.rpc[pallet][rpc](...args);
   }
 
   public query(pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    return args ? this.apiPromise.query[pallet][extrinsic](...args) : this.apiPromise.query[pallet][extrinsic]();
+    return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
   }
 
   public async queryAt(
@@ -161,7 +156,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     extrinsic: string,
     ...args: (any | undefined)[]
   ): Promise<any> {
-    const newApi = await this.apiPromise.at(blockHash);
+    const newApi = await this.api.at(blockHash);
     return newApi.query[pallet][extrinsic](...args);
   }
 
@@ -196,10 +191,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse> {
-    const keyInfoResponse = this.api.rpc.msa.getKeysByMsaId(msaId);
-    const value = await firstValueFrom(keyInfoResponse);
-    if (value.isSome) {
-      return value.unwrap();
+    const keyInfoResponse = await this.api.rpc.msa.getKeysByMsaId(msaId);
+    if (keyInfoResponse.isSome) {
+      return keyInfoResponse.unwrap();
     }
     throw new Error(`No keys found for msaId: ${msaId}`);
   }
@@ -262,7 +256,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     msaId: AnyNumber,
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
-    const delegationResponse = await this.apiPromise.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
+    const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
     if (delegationResponse.isSome) return delegationResponse.unwrap();
     return null;
   }
@@ -328,121 +322,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return typeof epochLength === 'number' ? epochLength : epochLength.toNumber();
   }
 
-  public async crawlBlockListForTx(
-    txHash: Hash,
-    blockList: bigint[],
-    successEvents: [{ pallet: string; event: string }],
-  ): Promise<{
-    found: boolean;
-    success: boolean;
-    blockHash?: BlockHash;
-    capacityWithDrawn?: string;
-    error?: RegistryError;
-    events?: Vec<FrameSystemEventRecord>;
-  }> {
-    const txReceiptPromises: Promise<{
-      found: boolean;
-      success: boolean;
-      blockHash?: BlockHash;
-      capacityWithDrawn?: string;
-      error?: RegistryError;
-      events?: Vec<FrameSystemEventRecord>;
-    }>[] = blockList.map(async (blockNumber) => {
-      const blockHash = await this.getBlockHash(blockNumber);
-      const block = await this.getBlock(blockHash);
-      const txInfo = block.block.extrinsics.find((extrinsic) => extrinsic.hash.toString() === txHash.toString());
-
-      if (!txInfo) {
-        return { found: false, success: false };
-      }
-
-      this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
-      const at = await this.api.at(blockHash.toHex());
-      const eventsPromise = firstValueFrom(at.query.system.events());
-
-      let isTxSuccess = false;
-      let totalBlockCapacity: bigint = 0n;
-      let txError: RegistryError | undefined;
-      const events = await eventsPromise;
-
-      try {
-        events.forEach((record) => {
-          const { event } = record;
-          const eventName = event.section;
-          const { method, data } = event;
-          this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
-
-          if (record.event && this.api.events.capacity.CapacityWithdrawn.is(record.event)) {
-            const currentCapacity: u128 = record.event.data.amount;
-            totalBlockCapacity += currentCapacity.toBigInt();
-          }
-
-          // SIWF Events:
-          //   MsaCreated
-          //   MsaDelegated
-          //   HandleClaimed
-          if (
-            eventName.search('msa') !== -1 &&
-            (method.search('MsaCreated') !== -1 || method.search('MsaDelegated') !== -1)
-          ) {
-            events.push(record);
-          }
-
-          // Handle Events:
-          //   HandleClaimed
-          if (eventName.search('handles') !== -1 && method.search('HandleClaimed') !== -1) {
-            events.push(record);
-          }
-
-          // Key Events:
-          //   KeyAdded
-          if (eventName.search('msa') !== -1 && method.search('PublicKeyAdded') !== -1) {
-            events.push(record);
-          }
-
-          // check custom success events
-          if (
-            successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)
-          ) {
-            this.logger.debug(`Found success event ${eventName} ${method}`);
-            isTxSuccess = true;
-          }
-
-          // check for system extrinsic failure
-          // TODO: ???refactor to use the api.events.system.ExtrinsicFailed.is(record.event)
-          if (eventName.search('system') !== -1 && method.search('ExtrinsicFailed') !== -1) {
-            const dispatchError = data[0] as DispatchError;
-            const moduleThatErrored = dispatchError.asModule;
-            const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-            txError = moduleError;
-            this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
-          }
-        });
-      } catch (error) {
-        this.logger.error(error);
-      }
-      this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
-      return {
-        found: true,
-        success: isTxSuccess,
-        blockHash,
-        capacityWithDrawn: totalBlockCapacity.toString(),
-        error: txError,
-        events,
-      };
-    });
-    const results = await Promise.all(txReceiptPromises);
-    const result = results.find((receipt) => receipt.found);
-    this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);
-    return result ?? { found: false, success: false };
-  }
-
   /**
    * Handles the result of a SIWF transaction by extracting relevant values from the transaction events.
    * @param txResultEvents - The transaction result events to process.
    * @returns An object containing the extracted SIWF transaction values.
    */
-  public handleSIWFTxnResult = (txResultEvents: Vec<EventRecord>): SIWFTxnValues => {
+  public handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): SIWFTxnValues {
     const siwfTxnValues: Partial<SIWFTxnValues> = {};
 
     txResultEvents.forEach((record) => {
@@ -464,43 +349,43 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
     });
     return siwfTxnValues as SIWFTxnValues;
-  };
+  }
 
   /**
    * Handles the publish handle transaction result events and extracts the handle and msaId from the event data.
-   * @param txResultEvents - The transaction result events to handle.
+   * @param event - The HandleClaimed event
    * @returns An object containing the extracted handle, msaId, and debug message.
    */
-  public handlePublishHandleTxResult = (txResultEvents: Vec<EventRecord>): HandleTxnValues => {
+  public handlePublishHandleTxResult(event: Event): HandleTxnValues {
     const handleTxnValues: Partial<HandleTxnValues> = {};
 
-    txResultEvents.forEach((record) => {
-      // Grab the handle and msa id from the event data
-      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
-        const handleHex = record.event.data.handle.toString();
-        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
-        const handleData = handleHex.slice(2);
-        handleTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-        handleTxnValues.msaId = record.event.data.msaId.toString();
-        handleTxnValues.debugMsg = `Handle created: ${handleTxnValues.handle} for msaId: ${handleTxnValues.msaId}`;
-      }
-    });
+    if (this.api.events.handles.HandleClaimed.is(event)) {
+      const handleHex = event.data.handle.toString();
+      // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
+      const handleData = handleHex.slice(2);
+      handleTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
+      handleTxnValues.msaId = event.data.msaId.toString();
+      handleTxnValues.debugMsg = `Handle created: ${handleTxnValues.handle} for msaId: ${handleTxnValues.msaId}`;
+    }
 
     return handleTxnValues as HandleTxnValues;
-  };
+  }
 
-  public handlePublishKeyTxResult = (txResultEvents: Vec<EventRecord>): PublicKeyValues => {
+  /**
+   * Handles the PublicKeyAdded transaction result events and extracts the public key from the event data.
+   * @param {Event} event - The PublicKeyAdded event
+   * @returns {PublicKeyValues} An object containing the MSA ID & new public key
+   */
+  public handlePublishKeyTxResult(event: Event): PublicKeyValues {
     const publicKeyValues: Partial<PublicKeyValues> = {};
 
-    txResultEvents.forEach((record) => {
-      // Grab the event data
-      if (record.event && this.api.events.msa.PublicKeyAdded.is(record.event)) {
-        publicKeyValues.msaId = record.event.data.msaId.toString();
-        publicKeyValues.newPublicKey = record.event.data.key.toString();
-        publicKeyValues.debugMsg = `Public Key: ${publicKeyValues.newPublicKey} Added for msaId: ${publicKeyValues.msaId}`;
-      }
-    });
+    // Grab the event data
+    if (event && this.api.events.msa.PublicKeyAdded.is(event)) {
+      publicKeyValues.msaId = event.data.msaId.toString();
+      publicKeyValues.newPublicKey = event.data.key.toString();
+      publicKeyValues.debugMsg = `Public Key: ${publicKeyValues.newPublicKey} Added for msaId: ${publicKeyValues.msaId}`;
+    }
 
     return publicKeyValues as PublicKeyValues;
-  };
+  }
 }

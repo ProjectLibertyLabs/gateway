@@ -1,93 +1,170 @@
+/* eslint-disable no-await-in-loop */
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
-import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
-import { Job } from 'bullmq';
+import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { IEventData, RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { BlockchainConstants } from '#lib/blockchain/blockchain-constants';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { QueueConstants } from '#lib/utils/queues';
-import { BaseConsumer } from '#worker/BaseConsumer';
-import { TxMonitorJob, SECONDS_PER_BLOCK, TxWebhookRsp } from 'libs/common/src';
-import { ConfigService } from '#lib/config/config.service';
+import { SECONDS_PER_BLOCK, TxWebhookRsp, RedisUtils } from 'libs/common/src';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
+import { BlockchainScannerService } from '#lib/utils/blockchain-scanner.service';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { BlockHash } from '@polkadot/types/interfaces';
+import { HexString } from '@polkadot/util/types';
+import { ITxStatus } from '#lib/interfaces/tx-status.interface';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { ConfigService } from '#lib/config/config.service';
 
 @Injectable()
-@Processor(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
-export class TxnNotifierService extends BaseConsumer {
-  constructor(
-    @InjectRedis() private cacheManager: Redis,
-    private blockchainService: BlockchainService,
-    private configService: ConfigService,
-  ) {
-    super();
+export class TxnNotifierService
+  extends BlockchainScannerService
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
+  async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
+    const pendingTxns = await this.cacheManager.hkeys(RedisUtils.TXN_WATCH_LIST_KEY);
+    // If no transactions pending, skip to end of chain at startup
+    if (pendingTxns.length === 0) {
+      const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      await this.setLastSeenBlockNumber(blockNumber);
+    }
+    this.schedulerRegistry.addInterval(
+      this.intervalName,
+      setInterval(() => this.scan(), BlockchainConstants.SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND),
+    );
   }
 
-  /**
-   * Processes a job for transaction notification.
-   *
-   * @param job - Search the finalized blocks for the transaction hash in TxMonitorJob.
-   * @returns A promise that resolves to the result of the processing.
-   * @throws If there is an error during the processing.
-   */
-  async process(job: Job<TxMonitorJob, any, string>): Promise<any> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+  async onApplicationShutdown(_signal?: string | undefined) {
+    if (this.schedulerRegistry.doesExist('interval', this.intervalName)) {
+      this.schedulerRegistry.deleteInterval(this.intervalName);
+    }
+  }
+
+  constructor(
+    blockchainService: BlockchainService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    @InjectRedis() cacheManager: Redis,
+    private readonly configService: ConfigService,
+  ) {
+    super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
+    this.scanParameters = { onlyFinalized: true };
+  }
+
+  public get intervalName() {
+    return `${this.constructor.name}:blockchainScan`;
+  }
+
+  private async setEpochCapacity(epoch: string | number, capacityWithdrawn: bigint): Promise<void> {
+    const epochCapacityKey = `epochCapacity:${epoch}`;
+
     try {
-      const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
-      const txCapacityEpoch = job.data.epoch;
-      const previousKnownBlockNumber = (
-        await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
-      ).block.header.number.toBigInt();
-      const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const blockList: bigint[] = [];
+      const savedCapacity = await this.cacheManager.get(epochCapacityKey);
+      const epochCapacity = BigInt(savedCapacity ?? 0);
+      const newEpochCapacity = epochCapacity + capacityWithdrawn;
 
-      for (
-        let i = previousKnownBlockNumber;
-        i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse;
-        i += 1n
-      ) {
-        blockList.push(i);
+      const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
+      const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+      await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
+    } catch (error) {
+      this.logger.error(`Error setting epoch capacity: ${error}`);
+    }
+  }
+
+  protected async checkInitialScanParameters(): Promise<boolean> {
+    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
+    if (pendingTxns === 0) {
+      return false;
+    }
+    return super.checkInitialScanParameters();
+  }
+
+  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<boolean> {
+    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
+
+    if (pendingTxns === 0) {
+      return false;
+    }
+
+    return super.checkScanParameters(blockNumber, blockHash);
+  }
+
+  public async getLastSeenBlockNumber(): Promise<number> {
+    let blockNumber = await super.getLastSeenBlockNumber();
+    const pendingTxns = await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY);
+    if (pendingTxns.length > 0) {
+      const startingBlock = Math.min(
+        ...pendingTxns.map((valStr) => {
+          const val = JSON.parse(valStr) as ITxStatus;
+          return val.birth;
+        }),
+      );
+
+      blockNumber = Math.max(blockNumber, startingBlock);
+    }
+
+    return blockNumber;
+  }
+
+  async processCurrentBlock(currentBlockHash: BlockHash, currentBlockNumber: number): Promise<void> {
+    // Get set of tx hashes to monitor from cache
+    const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map(
+      (val) => JSON.parse(val) as ITxStatus,
+    );
+
+    const block = await this.blockchainService.getBlock(currentBlockHash);
+    const extrinsicIndices: [HexString, number][] = [];
+    block.block.extrinsics.forEach((extrinsic, index) => {
+      if (pendingTxns.some(({ txHash }) => txHash === extrinsic.hash.toHex())) {
+        extrinsicIndices.push([extrinsic.hash.toHex(), index]);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
-        { pallet: 'system', event: 'ExtrinsicSuccess' },
-      ]);
-      if (!txResult.found) {
-        const message = `Tx ${job.data.txHash} not found in block list`;
-        this.logger.error(message);
-        throw new Error(message);
-      } else {
-        // Set current epoch capacity
-        await this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
-        if (txResult.error) {
-          this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
-          const errorReport = await this.handleMessagesFailure(txResult.error);
-          if (errorReport.retry) {
-            // TODO: Determine if errors are recoverable and if we need to retry the job
-            // await this.retryRequestJob(job.data.referencePublishJob.referenceId);
-          } else {
-            throw new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
-          }
-        }
+    });
 
-        if (txResult.success) {
-          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
+    if (extrinsicIndices.length > 0) {
+      const at = await this.blockchainService.api.at(currentBlockHash);
+      const epoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const events: FrameSystemEventRecord[] = (await at.query.system.events()).filter(
+        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
+      );
+
+      const totalCapacityWithdrawn: bigint = events
+        .filter(({ event }) => at.events.capacity.CapacityWithdrawn.is(event))
+        .reduce((sum, { event }) => (event as unknown as any).data.amount.toBigInt() + sum, 0n);
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [txHash, txIndex] of extrinsicIndices) {
+        const extrinsicEvents = events.filter(
+          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
+        );
+        const txStatusStr = await this.cacheManager.hget(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
+        const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
+        const successEvent = extrinsicEvents.find(
+          ({ event }) =>
+            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
+        )?.event;
+        const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
+
+        // TODO: Should the webhook provide for reporting failure?
+        if (failureEvent && at.events.system.ExtrinsicFailed.is(failureEvent)) {
+          const { dispatchError } = failureEvent.data;
+          const moduleThatErrored = dispatchError.asModule;
+          const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
+          this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+        } else if (successEvent) {
+          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockHash}`);
           const webhook = await this.getWebhook();
           let webhookResponse: Partial<TxWebhookRsp> = {};
-          webhookResponse.referenceId = job.data.id;
+          webhookResponse.referenceId = txStatus.referenceId;
 
-          const jobType: TxMonitorJob['type'] = job.data.type;
-          switch (jobType) {
+          switch (txStatus.type) {
             case TransactionType.CHANGE_HANDLE:
             case TransactionType.CREATE_HANDLE:
-              if (!txResult.events) {
-                this.logger.error('No Handle events found in tx result');
-              } else {
-                const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(txResult.events);
+              {
+                const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(successEvent);
 
-                webhookResponse = createWebhookRsp(job, handleTxnValues.msaId, { handle: handleTxnValues.handle });
+                webhookResponse = createWebhookRsp(txStatus, handleTxnValues.msaId, { handle: handleTxnValues.handle });
 
                 this.logger.debug(handleTxnValues.debugMsg);
                 this.logger.log(
@@ -96,12 +173,10 @@ export class TxnNotifierService extends BaseConsumer {
               }
               break;
             case TransactionType.SIWF_SIGNUP:
-              if (!txResult.events) {
-                this.logger.error('No SIWF events found in tx result');
-              } else {
-                const siwfTxnValues = this.blockchainService.handleSIWFTxnResult(txResult.events);
+              {
+                const siwfTxnValues = this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
 
-                webhookResponse = createWebhookRsp(job, siwfTxnValues.msaId, {
+                webhookResponse = createWebhookRsp(txStatus, siwfTxnValues.msaId, {
                   accountId: siwfTxnValues.address,
                   handle: siwfTxnValues.handle,
                 });
@@ -112,12 +187,10 @@ export class TxnNotifierService extends BaseConsumer {
               }
               break;
             case TransactionType.ADD_KEY:
-              if (!txResult.events) {
-                this.logger.error('No ADD KEY events found in tx result');
-              } else {
-                const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(txResult.events);
+              {
+                const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
 
-                webhookResponse = createWebhookRsp(job, publicKeyValues.msaId, {
+                webhookResponse = createWebhookRsp(txStatus, publicKeyValues.msaId, {
                   newPublicKey: publicKeyValues.newPublicKey,
                 });
 
@@ -128,7 +201,7 @@ export class TxnNotifierService extends BaseConsumer {
               }
               break;
             default:
-              this.logger.error(`Unknown transaction type on job.data: ${jobType}`);
+              this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
               break;
           }
 
@@ -137,7 +210,6 @@ export class TxnNotifierService extends BaseConsumer {
             try {
               this.logger.debug(`Sending transaction notification to webhook: ${webhook}`);
               this.logger.debug(`Transaction: ${JSON.stringify(webhookResponse)}`);
-              // eslint-disable-next-line no-await-in-loop
               await axios.post(webhook, webhookResponse);
               this.logger.debug(`Transaction Notification sent to webhook: ${webhook}`);
               break;
@@ -147,80 +219,28 @@ export class TxnNotifierService extends BaseConsumer {
               retries += 1;
             }
           }
+        } else {
+          this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }
+
+        await this.cacheManager.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
+        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
+        pendingTxns.slice(idx, 1);
       }
-    } catch (e) {
-      this.logger.error(e);
-      throw e;
+
+      await this.setEpochCapacity(epoch, totalCapacityWithdrawn);
     }
-  }
 
-  // TODO: Determine if any errors are recoverable and if we need to retry the job
-  //       The queue will automatically retry the job if it fails already.
-
-  // private async retryRequestJob(requestReferenceId: string): Promise<void> {
-  //   this.logger.debug(`Retrying graph change request job ${requestReferenceId}`);
-  //   const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
-  //     await this.changeRequestQueue.getJob(requestReferenceId);
-  //   if (!requestJob) {
-  //     this.logger.debug(`Job ${requestReferenceId} not found in queue`);
-  //     return;
-  //   }
-  //   await this.changeRequestQueue.remove(requestReferenceId);
-  //   await this.changeRequestQueue.add(
-  //     `Retrying publish job - ${requestReferenceId}`,
-  //     requestJob.data,
-  //     {
-  //       jobId: requestReferenceId,
-  //     },
-  //   );
-  // }
-
-  private async setEpochCapacity(epoch: string, capacityWithdrew: bigint): Promise<void> {
-    const epochCapacityKey = `epochCapacity:${epoch}`;
-
-    try {
-      const savedCapacity = await this.cacheManager.get(epochCapacityKey);
-      const epochCapacity = BigInt(savedCapacity ?? 0);
-      const newEpochCapacity = epochCapacity + capacityWithdrew;
-
-      const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
-      const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-      await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
-    } catch (error) {
-      this.logger.error(`Error setting epoch capacity: ${error}`);
-    }
-  }
-
-  private async handleMessagesFailure(moduleError: RegistryError): Promise<{ pause: boolean; retry: boolean }> {
-    try {
-      // Handle the possible errors for create_sponsored_account_with_delegation and grant_delegation from the msa pallet
-      this.logger.debug(`Handling module error: ${moduleError?.method}`);
-      switch (moduleError.method) {
-        case 'AddProviderSignatureVerificationFailed':
-        case 'DuplicateProvider':
-        case 'UnauthorizedProvider':
-        case 'InvalidSelfProvider':
-        case 'InvalidSignature':
-        case 'NoKeyExists':
-        case 'KeyAlreadyRegistered':
-        case 'ProviderNotRegistered':
-        case 'ProofNotYetValid':
-        case 'ProofHasExpired':
-        case 'SignatureAlreadySubmitted':
-        case 'UnauthorizedDelegator':
-          // TODO: Are any of these errors recoverable?
-          return { pause: false, retry: false };
-        default:
-          this.logger.error(`Unknown module error ${moduleError}`);
-          break;
+    // Now check all pending transactions for expiration as of this block
+    // eslint-disable-next-line no-restricted-syntax
+    for (const txStatus of pendingTxns) {
+      if (txStatus.death <= currentBlockNumber) {
+        this.logger.verbose(
+          `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
+        );
+        await this.cacheManager.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txStatus.txHash);
       }
-    } catch (error) {
-      this.logger.error(`Error handling module error: ${error}`);
     }
-
-    // unknown error, pause the queue
-    return { pause: false, retry: false };
   }
 
   async getWebhookList(msaId: number): Promise<string[]> {

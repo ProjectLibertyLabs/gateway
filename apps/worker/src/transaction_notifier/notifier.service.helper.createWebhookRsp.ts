@@ -1,5 +1,4 @@
 /* eslint-disable no-redeclare */
-import { Job } from 'bullmq';
 import {
   PublishHandleOpts,
   PublishHandleWebhookRsp,
@@ -7,26 +6,26 @@ import {
   PublishKeysWebhookRsp,
   SIWFOpts,
   SIWFWebhookRsp,
-  TxMonitorJob,
   TxWebhookOpts,
 } from '#lib/types/dtos/transaction.request.dto';
+import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 
 export function createWebhookRsp(
-  job: Job<TxMonitorJob, any, string>,
+  txStatus: ITxStatus,
   msaId: string,
   options: PublishHandleOpts,
 ): PublishHandleWebhookRsp;
-export function createWebhookRsp(job: Job<TxMonitorJob, any, string>, msaId: string, options: SIWFOpts): SIWFWebhookRsp;
+export function createWebhookRsp(txStatus: ITxStatus, msaId: string, options: SIWFOpts): SIWFWebhookRsp;
+export function createWebhookRsp(txStatus: ITxStatus, msaId: string, options: PublishKeysOpts): PublishKeysWebhookRsp;
 export function createWebhookRsp(
-  job: Job<TxMonitorJob, any, string>,
+  { type: transactionType, providerId, referenceId }: ITxStatus,
   msaId: string,
-  options: PublishKeysOpts,
-): PublishKeysWebhookRsp;
-export function createWebhookRsp(job: Job<TxMonitorJob, any, string>, msaId: string, options: TxWebhookOpts): unknown {
+  options: TxWebhookOpts,
+): unknown {
   return {
-    transactionType: job.data.type,
-    providerId: job.data.providerId,
-    referenceId: job.data.referenceId,
+    transactionType,
+    providerId,
+    referenceId,
     msaId,
     ...options,
   };

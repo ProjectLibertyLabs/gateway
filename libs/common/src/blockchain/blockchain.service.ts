@@ -1,22 +1,28 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, BeforeApplicationShutdown } from '@nestjs/common';
-import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
-import { firstValueFrom, from } from 'rxjs';
+import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, DispatchError, DispatchInfo, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
-import { u32, Option, u128, u16 } from '@polkadot/types';
+import { u32, Option } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
 import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
+interface ITxMonitorResult {
+  found: boolean;
+  success: boolean;
+  blockHash?: BlockHash;
+  capacityEpoch?: number;
+  capacityWithDrawn?: bigint;
+  error?: RegistryError;
+}
+
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, BeforeApplicationShutdown {
-  public api: ApiRx;
-
-  public apiPromise: ApiPromise;
+  public api: ApiPromise;
 
   private configService: ConfigService;
 
@@ -33,27 +39,18 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
       this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
       throw new Error('Unrecognized chain URL type');
     }
-    this.api = await firstValueFrom(ApiRx.create({ provider, ...options }));
-    this.apiPromise = await ApiPromise.create({ provider, ...options });
-    await Promise.all([firstValueFrom(this.api.isReady), this.apiPromise.isReady]);
+    this.api = await ApiPromise.create({ provider, ...options });
+    await this.api.isReady;
     this.logger.log('Blockchain API ready.');
   }
 
   public async isReady(): Promise<boolean> {
-    await this.apiPromise.isReady;
+    await this.api.isReady;
     return true;
   }
 
-  public async beforeApplicationShutdown(signal?: string | undefined) {
-    const promises: Promise<any>[] = [];
-    if (this.api) {
-      promises.push(this.api.disconnect());
-    }
-
-    if (this.apiPromise) {
-      promises.push(this.apiPromise.disconnect());
-    }
-    await Promise.all(promises);
+  public async beforeApplicationShutdown(_signal?: string | undefined) {
+    await this.api?.disconnect();
   }
 
   constructor(configService: ConfigService) {
@@ -62,23 +59,24 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
   }
 
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
-    return firstValueFrom(this.api.rpc.chain.getBlockHash(block));
+    return this.api.rpc.chain.getBlockHash(block);
   }
 
   public getBlock(block: BlockHash): Promise<SignedBlock> {
-    return firstValueFrom(this.api.rpc.chain.getBlock(block));
+    return this.api.rpc.chain.getBlock(block);
   }
 
   public async getLatestFinalizedBlockHash(): Promise<BlockHash> {
-    return (await this.apiPromise.rpc.chain.getFinalizedHead()) as BlockHash;
+    return this.api.rpc.chain.getFinalizedHead();
   }
 
-  public async getLatestFinalizedBlockNumber(): Promise<bigint> {
-    return (await this.apiPromise.rpc.chain.getBlock()).block.header.number.toBigInt();
+  public async getLatestFinalizedBlockNumber(): Promise<number> {
+    const blockHash = await this.getLatestFinalizedBlockHash();
+    return (await this.api.rpc.chain.getBlock(blockHash)).block.header.number.toNumber();
   }
 
   public async getBlockNumberForHash(hash: string): Promise<number | undefined> {
-    const block = await this.apiPromise.rpc.chain.getBlock(hash);
+    const block = await this.api.rpc.chain.getBlock(hash);
     if (block) {
       return block.block.header.number.toNumber();
     }
@@ -91,7 +89,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     return this.api.registry.createType(type, ...args);
   }
 
-  public createExtrinsicCall({ pallet, extrinsic }: { pallet: string; extrinsic: string }, ...args: (any | undefined)[]): SubmittableExtrinsic<'rxjs', ISubmittableResult> {
+  public createExtrinsicCall({ pallet, extrinsic }: { pallet: string; extrinsic: string }, ...args: (any | undefined)[]): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx[pallet][extrinsic](...args);
   }
 
@@ -102,19 +100,19 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     ...args: (any | undefined)[]
   ): Extrinsic {
     const targetEvent = eventPallet && event ? this.api.events[eventPallet][event] : undefined;
-    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys, targetEvent);
+    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
   }
 
   public rpc(pallet: string, rpc: string, ...args: (any | undefined)[]): Promise<any> {
-    return this.apiPromise.rpc[pallet][rpc](...args);
+    return this.api.rpc[pallet][rpc](...args);
   }
 
   public query(pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    return args ? this.apiPromise.query[pallet][extrinsic](...args) : this.apiPromise.query[pallet][extrinsic]();
+    return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
   }
 
   public async queryAt(blockHash: BlockHash, pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    const newApi = await this.apiPromise.at(blockHash);
+    const newApi = await this.api.at(blockHash);
     return newApi.query[pallet][extrinsic](...args);
   }
 
@@ -128,7 +126,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     nextEpochStart: number;
     remainingCapacity: bigint;
     totalCapacityIssued: bigint;
-    currentEpoch: bigint;
+    currentEpoch: number;
   }> {
     const providerU64 = this.api.createType('u64', providerId);
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
@@ -147,84 +145,76 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     };
   }
 
-  public async getCurrentCapacityEpoch(): Promise<bigint> {
+  public async getCurrentCapacityEpoch(): Promise<number> {
     const currentEpoch: u32 = await this.query('capacity', 'currentEpoch');
-    return typeof currentEpoch === 'number' ? BigInt(currentEpoch) : currentEpoch.toBigInt();
+    return currentEpoch.toNumber();
   }
 
-  public async getCurrentCapacityEpochStart(): Promise<u32> {
+  public async getCurrentCapacityEpochStart(): Promise<number> {
     const currentEpochInfo: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
-    return currentEpochInfo.epochStart;
+    return currentEpochInfo.epochStart.toNumber();
   }
 
   public async getCurrentEpochLength(): Promise<number> {
     const epochLength: u32 = await this.query('capacity', 'epochLength');
-    return typeof epochLength === 'number' ? epochLength : epochLength.toNumber();
+    return epochLength.toNumber();
   }
 
-  public async crawlBlockListForTx(
-    txHash: Hash,
-    blockList: bigint[],
-    successEvents: [{ pallet: string; event: string }],
-  ): Promise<{ found: boolean; success: boolean; blockHash?: BlockHash; capacityWithDrawn?: string; error?: RegistryError }> {
-    const txReceiptPromises: Promise<{ found: boolean; success: boolean; blockHash?: BlockHash; capacityWithDrawn?: string; error?: RegistryError }>[] = blockList.map(
-      async (blockNumber) => {
-        const blockHash = await this.getBlockHash(blockNumber);
-        const block = await this.getBlock(blockHash);
-        const txInfo = block.block.extrinsics.find((extrinsic) => extrinsic.hash.toString() === txHash.toString());
+  public async crawlBlockListForTx(txHash: Hash, blockList: bigint[], successEvents: [{ pallet: string; event: string }]): Promise<ITxMonitorResult> {
+    const txReceiptPromises: Promise<ITxMonitorResult>[] = blockList.map(async (blockNumber) => {
+      const blockHash = await this.getBlockHash(blockNumber);
+      const block = await this.getBlock(blockHash);
+      const txIndex = block.block.extrinsics.findIndex((extrinsic) => extrinsic.hash.toString() === txHash.toString());
 
-        if (!txInfo) {
-          return { found: false, success: false };
-        }
+      if (txIndex === -1) {
+        return { found: false, success: false };
+      }
 
-        this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
-        const at = await this.api.at(blockHash.toHex());
-        const eventsPromise = firstValueFrom(at.query.system.events());
+      this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
+      const at = await this.api.at(blockHash.toHex());
+      const capacityEpoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const eventsPromise = at.query.system.events();
 
-        let isTxSuccess = false;
-        let totalBlockCapacity = 0n;
-        let txError: RegistryError | undefined;
+      let isTxSuccess = false;
+      let totalBlockCapacity = 0n;
+      let txError: RegistryError | undefined;
 
-        try {
-          const events = await eventsPromise;
+      try {
+        const events = (await eventsPromise).filter(({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex));
 
-          events.forEach((record) => {
-            const { event } = record;
-            const eventName = event.section;
-            const { method } = event;
-            const { data } = event;
-            this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
+        events.forEach((record) => {
+          const { event } = record;
+          const eventName = event.section;
+          const { method } = event;
+          const { data } = event;
+          this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
 
-            // find capacity withdrawn event
-            if (eventName.search('capacity') !== -1 && method.search('Withdrawn') !== -1) {
-              // allow lowercase constructor for eslint
-              // eslint-disable-next-line new-cap
-              const currentCapacity: u128 = new u128(this.api.registry, data[1]);
-              totalBlockCapacity += currentCapacity.toBigInt();
-            }
+          // find capacity withdrawn event
+          if (at.events.capacity.CapacityWithdrawn.is(event)) {
+            totalBlockCapacity += event.data.amount.toBigInt();
+          }
 
-            // check custom success events
-            if (successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)) {
-              this.logger.debug(`Found success event ${eventName} ${method}`);
-              isTxSuccess = true;
-            }
+          // check custom success events
+          if (successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)) {
+            this.logger.debug(`Found success event ${eventName} ${method}`);
+            isTxSuccess = true;
+          }
 
-            // check for system extrinsic failure
-            if (eventName.search('system') !== -1 && method.search('ExtrinsicFailed') !== -1) {
-              const dispatchError = data[0] as DispatchError;
-              const moduleThatErrored = dispatchError.asModule;
-              const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-              txError = moduleError;
-              this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
-            }
-          });
-        } catch (error) {
-          this.logger.error(error);
-        }
-        this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
-        return { found: true, success: isTxSuccess, blockHash, capacityWithDrawn: totalBlockCapacity.toString(), error: txError };
-      },
-    );
+          // check for system extrinsic failure
+          if (at.events.system.ExtrinsicFailed.is(event)) {
+            const { dispatchError } = event.data;
+            const moduleThatErrored = dispatchError.asModule;
+            const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
+            txError = moduleError;
+            this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+          }
+        });
+      } catch (error) {
+        this.logger.error(error);
+      }
+      this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
+      return { found: true, success: isTxSuccess, blockHash, capacityEpoch, capacityWithDrawn: totalBlockCapacity, error: txError };
+    });
     const results = await Promise.all(txReceiptPromises);
     const result = results.find((receipt) => receipt.found);
     this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);

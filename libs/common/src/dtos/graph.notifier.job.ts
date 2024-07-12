@@ -4,7 +4,6 @@ import { GraphUpdateJob } from './graph.update.job';
 export interface ITxMonitorJob {
   id: string;
   txHash: Hash;
-  epoch: string;
   lastFinalizedBlockHash: BlockHash;
   referencePublishJob: GraphUpdateJob;
 }

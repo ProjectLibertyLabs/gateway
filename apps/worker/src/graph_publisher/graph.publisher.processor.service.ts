@@ -96,7 +96,6 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       const txMonitorJob: ITxMonitorJob = {
         id: job.data.referenceId,
         txHash: statefulStorageTxHash,
-        epoch: currentCapacityEpoch.toString(),
         lastFinalizedBlockHash,
         referencePublishJob: job.data,
       };
@@ -122,7 +121,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>): Promise<Hash> {
+  async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<Hash> {
     this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
     try {
       const ext = this.blockchainService.createExtrinsic(
@@ -133,7 +132,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       );
       const nonce = await this.nonceService.getNextNonce();
       this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
-      const [txHash, _] = await ext.signAndSend(nonce);
+      const txHash = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');
       }

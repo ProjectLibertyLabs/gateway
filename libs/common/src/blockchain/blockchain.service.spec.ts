@@ -1,17 +1,10 @@
-import { describe, it, beforeEach, jest, expect } from '@jest/globals';
-import { u32 } from '@polkadot/types';
 import { BlockchainService } from './blockchain.service';
 import { ConfigService } from '../config/config.service';
 
 describe('BlockchainService', () => {
-  let mockApi: any;
   let blockchainService: BlockchainService;
 
-  beforeEach(async () => {
-    mockApi = {
-      createType: jest.fn(),
-      query: jest.fn(),
-    };
+  beforeAll(async () => {
     const configService = {
       logger: jest.fn(),
       nestConfigService: jest.fn(),
@@ -40,21 +33,13 @@ describe('BlockchainService', () => {
     blockchainService = new BlockchainService(configService as unknown as ConfigService);
   });
 
-  describe('createExtrinsicCall', () => {
-    it('should return an extrinsic call', async () => {
-      const pallet = 'messages';
-      const extrinsic = 'addIpfsMessage';
-      const schemaId = 1;
-      const cid = 'QmRgJZmR6Z6yB5k9aLXjzJ6jG8L6tq4v4J9zQfDz7p3J9v';
-      const payloadLength = 100;
-    });
-  });
-
   describe('getCurrentCapacityEpochStart', () => {
     it('should return the current capacity epoch start', async () => {
       // Arrange
-      const expectedEpochStart: u32 = mockApi.createType('u32', 123);
-      const currentEpochInfo = { epochStart: expectedEpochStart };
+      const expectedEpochStart = { toNumber: () => 32 };
+      const currentEpochInfo = {
+        epochStart: expectedEpochStart,
+      };
 
       jest.spyOn(blockchainService, 'query').mockResolvedValue(currentEpochInfo);
 
@@ -62,7 +47,7 @@ describe('BlockchainService', () => {
       const result = await blockchainService.getCurrentCapacityEpochStart();
 
       // Assert
-      expect(result).toBe(expectedEpochStart);
+      expect(result).toBe(expectedEpochStart.toNumber());
     });
   });
 });

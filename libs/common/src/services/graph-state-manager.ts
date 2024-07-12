@@ -155,7 +155,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
     return false;
   }
 
-  public async getConnectionsWithPrivacyType(dsnpUserId: MessageSourceId, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+  public async getConnectionsWithPrivacyType(dsnpUserId: string, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
     const privateFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Private];
     const privateFriendSchemaId = this.schemaIds[ConnectionType.Friendship][PrivacyType.Private];
     const publicFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Public];
@@ -188,12 +188,12 @@ export class GraphStateManager implements OnApplicationBootstrap {
     return [];
   }
 
-  async importBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<boolean> {
+  async importBundles(dsnpUserId: string, graphKeyPairs: GraphKeyPairDto[]): Promise<boolean> {
     const importBundles = await this.formImportBundles(dsnpUserId, graphKeyPairs);
     return this.importUserData(importBundles);
   }
 
-  async formImportBundles(dsnpUserId: MessageSourceId, graphKeyPairs: GraphKeyPairDto[]): Promise<ImportBundle[]> {
+  async formImportBundles(dsnpUserId: string, graphKeyPairs: GraphKeyPairDto[]): Promise<ImportBundle[]> {
     const publicFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Public);
     const privateFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Private);
     const privateFriendshipSchemaId = this.getSchemaIdFromConfig(ConnectionType.Friendship, PrivacyType.Private);

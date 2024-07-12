@@ -182,9 +182,8 @@ export class ApiService implements BeforeApplicationShutdown {
     const graphs: UserGraphDto[] = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const dsnpId of dsnpIds) {
-      const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', dsnpId);
       // eslint-disable-next-line no-await-in-loop
-      const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(dsnpUserId, privacyType, graphKeyPairs);
+      const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(dsnpId, privacyType, graphKeyPairs);
       graphs.push({
         dsnpId,
         dsnpGraphEdges: graphEdges,

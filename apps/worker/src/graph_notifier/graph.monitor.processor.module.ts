@@ -49,6 +49,9 @@ import * as QueueConstants from '#lib/utils/queues';
           removeOnComplete: true,
           removeOnFail: false,
           attempts: 3,
+          backoff: {
+            type: 'exponential',
+          },
         },
       },
       {

@@ -4,7 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { ConnectionType, ImportBundleBuilder, ConnectAction, DsnpKeys, DisconnectAction, Action, PrivacyType } from '@dsnp/graph-sdk';
-import { MessageSourceId, SchemaGrantResponse, ProviderId } from '@frequency-chain/api-augment/interfaces';
+import { MessageSourceId, SchemaGrantResponse } from '@frequency-chain/api-augment/interfaces';
 import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -53,15 +53,14 @@ export class RequestProcessorService extends BaseConsumer {
           setTimeout(r, blockDelay);
         });
       }
-      const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.dsnpId);
-      const providerId: ProviderId = this.blockchainService.api.registry.createType('ProviderId', job.data.providerId);
-      this.graphStateManager.removeUserGraph(dsnpUserId.toString());
-      await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
+      const { dsnpId, providerId } = job.data;
+      this.graphStateManager.removeUserGraph(dsnpId);
+      await this.graphStateManager.importBundles(dsnpId, job.data.graphKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
-      const actions: Action[] = await this.formConnections(dsnpUserId, providerId, job.data.updateConnection, job.data.connections);
+      const actions: Action[] = await this.formConnections(dsnpId, providerId, job.data.updateConnection, job.data.connections);
       try {
         if (actions.length === 0) {
-          this.logger.debug(`No actions to apply for user ${dsnpUserId.toString()}`);
+          this.logger.debug(`No actions to apply for user ${dsnpId}`);
         }
         this.graphStateManager.applyActions(actions, true);
       } catch (e: unknown) {
@@ -72,8 +71,8 @@ export class RequestProcessorService extends BaseConsumer {
           throw new Error(`Error applying actions: ${e}`);
         }
       }
-      const exportedUpdates = this.graphStateManager.exportUserGraphUpdates(dsnpUserId.toString());
-      this.logger.debug(`Exported ${exportedUpdates.length} updates for user ${dsnpUserId.toString()}`);
+      const exportedUpdates = this.graphStateManager.exportUserGraphUpdates(dsnpId);
+      this.logger.debug(`Exported ${exportedUpdates.length} updates for user ${dsnpId}`);
       // create a GraphUpdateJob for each exported update
       const graphPublisherJobs: GraphUpdateJob[] = exportedUpdates.map((update) => ({
         referenceId: job.data.referenceId,
@@ -84,19 +83,19 @@ export class RequestProcessorService extends BaseConsumer {
         this.graphChangePublisherQueue.add(`Graph Publisher Job - ${graphPublisherJob.referenceId}`, graphPublisherJob);
       });
 
-      const reImported = await this.graphStateManager.importBundles(dsnpUserId, job.data.graphKeyPairs ?? []);
+      const reImported = await this.graphStateManager.importBundles(dsnpId, job.data.graphKeyPairs ?? []);
       if (reImported) {
         // Use lua script to update last processed dsnpId
         // @ts-expect-error updateLastProcessed is defined in the constructor
-        await this.cacheManager.updateLastProcessed(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY, dsnpUserId.toString(), blockDelay);
-        this.logger.debug(`Re-imported bundles for ${dsnpUserId.toString()}`);
+        await this.cacheManager.updateLastProcessed(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY, dsnpId.toString(), blockDelay);
+        this.logger.debug(`Re-imported bundles for ${dsnpId.toString()}`);
         // eslint-disable-next-line no-await-in-loop
-        const userGraphExists = this.graphStateManager.graphContainsUser(dsnpUserId.toString());
+        const userGraphExists = this.graphStateManager.graphContainsUser(dsnpId.toString());
         if (!userGraphExists) {
-          throw new Error(`User graph does not exist for ${dsnpUserId.toString()}`);
+          throw new Error(`User graph does not exist for ${dsnpId.toString()}`);
         }
       } else {
-        throw new Error(`Error re-importing bundles for ${dsnpUserId.toString()}`);
+        throw new Error(`Error re-importing bundles for ${dsnpId.toString()}`);
       }
     } catch (e) {
       this.logger.error(e);

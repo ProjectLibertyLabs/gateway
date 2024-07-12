@@ -6,7 +6,6 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
-import { MessageSourceId, SchemaId } from '@frequency-chain/api-augment/interfaces';
 import {
   BaseConsumer,
   AsyncDebouncerService,
@@ -42,7 +41,6 @@ export class GraphNotifierService extends BaseConsumer {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
-      const txCapacityEpoch = job.data.epoch;
       const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: bigint[] = [];
@@ -56,7 +54,7 @@ export class GraphNotifierService extends BaseConsumer {
         throw new Error(`Tx ${job.data.txHash} not found in block list`);
       } else {
         // Set current epoch capacity
-        await this.setEpochCapacity(txCapacityEpoch, BigInt(txResult.capacityWithDrawn ?? 0n));
+        await this.setEpochCapacity(txResult.capacityEpoch ?? 0, txResult.capacityWithDrawn ?? 0n);
         if (txResult.error) {
           this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
           const errorReport = await this.handleMessagesFailure(txResult.error);
@@ -81,11 +79,10 @@ export class GraphNotifierService extends BaseConsumer {
           if (job.data.referencePublishJob.update.type !== 'AddKey') {
             this.logger.debug(`Setting graph for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
             const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
-            const dsnpUserId: MessageSourceId = this.blockchainService.api.registry.createType('MessageSourceId', job.data.referencePublishJob.update.ownerDsnpUserId);
-            const schemaId: SchemaId = this.blockchainService.api.registry.createType('SchemaId', job.data.referencePublishJob.update.schemaId);
-            const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(dsnpUserId, schemaId, graphKeyPairs);
+            const { ownerDsnpUserId, schemaId } = job.data.referencePublishJob.update;
+            const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(ownerDsnpUserId, schemaId, graphKeyPairs);
             if (graphEdges.length === 0) {
-              this.logger.debug(`No graph edges found for ${dsnpUserId.toString()}`);
+              this.logger.debug(`No graph edges found for ${ownerDsnpUserId}`);
             }
           }
           const notification: GraphChangeNotificationDto = {
@@ -138,7 +135,7 @@ export class GraphNotifierService extends BaseConsumer {
     });
   }
 
-  private async setEpochCapacity(epoch: string, capacityWithdrew: bigint): Promise<void> {
+  private async setEpochCapacity(epoch: number, capacityWithdrew: bigint): Promise<void> {
     const epochCapacityKey = `epochCapacity:${epoch}`;
 
     try {

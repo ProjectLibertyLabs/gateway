@@ -6,7 +6,7 @@ The Account Service provides functionalities related to user accounts on the Fre
 
 ### **API Reference:**
 
-⚠️{embed swagger here}
+<iframe src="https://amplicalabs.github.io/account-service" width="100%" height="600px"></iframe>
 
 ### Configuration
 

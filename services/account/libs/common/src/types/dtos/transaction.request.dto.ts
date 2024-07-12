@@ -1,4 +1,5 @@
-import { BlockHash, Hash } from '@polkadot/types/interfaces';
+import { BlockHash } from '@polkadot/types/interfaces';
+import { HexString } from '@polkadot/util/types';
 import { PublishHandleRequest } from './handles.request.dto';
 import { PublishSIWFSignupRequest } from './wallet.login.request.dto';
 import { PublishKeysRequest } from './keys.request.dto';
@@ -11,8 +12,8 @@ export type TransactionData<RequestType = PublishHandleRequest | PublishSIWFSign
 
 export type TxMonitorJob = TransactionData & {
   id: string;
-  txHash: Hash;
-  epoch: string;
+  txHash: HexString;
+  epoch: number;
   lastFinalizedBlockHash: BlockHash;
 };
 

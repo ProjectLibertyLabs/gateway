@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { DEFAULT_REDIS_NAMESPACE, RedisModule, getRedisToken } from '@liaoliaots/nestjs-redis';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Redis } from 'ioredis';
 import { BlockchainModule } from '#lib/blockchain/blockchain.module';
 import { NonceService } from '#lib/services/nonce.service';
@@ -13,9 +13,7 @@ import { ConfigModule } from '#lib/config/config.module';
 import { ConfigService } from '#lib/config/config.service';
 import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
-import { TxnNotifierService } from './transaction_notifier/notifier.service';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
-import { TransactionPublisherService } from './transaction_publisher/publisher.service';
 
 @Module({
   imports: [
@@ -65,30 +63,20 @@ import { TransactionPublisherService } from './transaction_publisher/publisher.s
       }),
       inject: [ConfigService],
     }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: 20,
-          removeOnFail: false,
-          attempts: 1,
-        },
+    BullModule.registerQueue({
+      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
+      defaultJobOptions: {
+        removeOnComplete: 20,
+        removeOnFail: false,
+        attempts: 1,
       },
-      {
-        name: QueueConstants.TRANSACTION_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: 20,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-    ),
+    }),
     ScheduleModule.forRoot(),
     BlockchainModule,
     TransactionPublisherModule,
     TxnNotifierModule,
   ],
-  providers: [ConfigService, TransactionPublisherService, TxnNotifierService, ProviderWebhookService, NonceService],
+  providers: [ProviderWebhookService, NonceService],
   exports: [],
 })
 export class WorkerModule {}

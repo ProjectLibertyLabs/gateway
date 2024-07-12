@@ -1,7 +1,7 @@
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { Hash } from '@polkadot/types/interfaces';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -15,8 +15,11 @@ import { NonceService } from '#lib/services/nonce.service';
 import { TransactionType } from '#lib/types/enums';
 import { QueueConstants } from '#lib/utils/queues';
 import { BaseConsumer } from '#worker/BaseConsumer';
-import { TransactionData, TxMonitorJob } from 'libs/common/src';
+import { RedisUtils, TransactionData } from 'libs/common/src';
 import { ConfigService } from '#lib/config/config.service';
+import { ITxStatus } from '#lib/interfaces/tx-status.interface';
+import { IsEvent } from '@polkadot/types/metadata/decorate/types';
+import { HexString } from '@polkadot/util/types';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -43,8 +46,6 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
-    @InjectQueue(QueueConstants.TRANSACTION_NOTIFY_QUEUE)
-    private transactionNotifyQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
@@ -59,18 +60,24 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<TransactionData, any, string>): Promise<any> {
-    let accountTxnHash: Hash = {} as Hash;
+    let txHash: HexString;
     try {
+      // Check capacity first; if out of capacity, send job back to queue
+      if (!(await this.checkCapacity())) {
+        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
+        throw new DelayedError();
+      }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
-      const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
-      const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
-      let tx: SubmittableExtrinsic<any>;
+      let tx: SubmittableExtrinsic<'promise'>;
+      let targetEvent: ITxStatus['successEvent'];
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
           tx = await this.blockchainService.publishHandle(job.data);
-          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
+          targetEvent = { section: 'handles', method: 'HandleClaimed' };
+          txHash = await this.processSingleTxn(providerKeys, tx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -78,13 +85,15 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           // eslint-disable-next-line prettier/prettier
           const txns = job.data.calls?.map((x) => this.blockchainService.api.tx(x.encodedExtrinsic));
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
-          accountTxnHash = await this.processBatchTxn(providerKeys, callVec);
+          [tx, txHash] = await this.processBatchTxn(providerKeys, callVec);
+          targetEvent = { section: 'utility', method: 'BatchCompleted' };
           this.logger.debug(`txns: ${txns}`);
           break;
         }
         case TransactionType.ADD_KEY: {
           tx = await this.blockchainService.addPublicKeyToMsa(job.data);
-          accountTxnHash = await this.processSingleTxn(providerKeys, tx);
+          targetEvent = { section: 'msa', method: 'PublicKeyAdded' };
+          txHash = await this.processSingleTxn(providerKeys, tx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -94,26 +103,25 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       }
       this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
-      // Add a job to the account change notify queue
-      const txMonitorJob: TxMonitorJob = {
-        ...job.data,
-        id: job.data.referenceId,
-        txHash: accountTxnHash,
-        epoch: currentCapacityEpoch.toString(),
-        lastFinalizedBlockHash,
+      const status: ITxStatus = {
+        type: job.data.type,
+        referenceId: job.data.referenceId,
+        providerId: job.data.providerId,
+        txHash,
+        successEvent: targetEvent,
+        birth: tx.era.asMortalEra.birth(lastFinalizedBlockNumber),
+        death: tx.era.asMortalEra.death(lastFinalizedBlockNumber),
       };
-      const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+      const obj: Record<string, string> = {};
+      obj[txHash] = JSON.stringify(status);
+      this.cacheManager.hset(RedisUtils.TXN_WATCH_LIST_KEY, obj);
+    } catch (error: any) {
+      if (error instanceof DelayedError) {
+        throw error;
+      }
 
-      this.logger.debug(`Adding job to transaction change notify queue: ${txMonitorJob.id}`);
-      this.transactionNotifyQueue.add(`Transaction Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
-        delay: blockDelay,
-      });
-    } catch (error) {
-      // @ts-ignore
       this.logger.error('Unknown error encountered: ', error, error?.stack);
       throw error;
-    } finally {
-      await this.checkCapacity();
     }
   }
 
@@ -127,21 +135,20 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    */
   async processSingleTxn(
     providerKeys: KeyringPair,
-    tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>,
-  ): Promise<Hash> {
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+  ): Promise<HexString> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
-        { eventPallet: 'frequencyTxPayment', event: 'CapacityPaid' },
         providerKeys,
         tx,
       );
       const nonce = await this.nonceService.getNextNonce();
       this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
-      const [txHash, _] = await ext.signAndSend(nonce);
+      const txHash = (await ext.signAndSend(nonce)).toHex();
       if (!txHash) {
         throw new Error('Tx hash is undefined');
       }
@@ -153,23 +160,25 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processBatchTxn(providerKeys: KeyringPair, callVec: Codec): Promise<Hash> {
+  async processBatchTxn(
+    providerKeys: KeyringPair,
+    callVec: Codec,
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     this.logger.debug(`processBatchTxn: callVec: ${callVec.toHuman()}`);
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacityBatchAll' },
-        { eventPallet: 'frequencyTxPayment', event: 'CapacityPaid' },
         providerKeys,
         callVec,
       );
       const nonce = await this.nonceService.getNextNonce();
       this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
-      const [txHash, _] = await ext.signAndSend(nonce);
+      const txHash = (await ext.signAndSend(nonce)).toHex();
       if (!txHash) {
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
+      return [ext.extrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
       throw error;
@@ -183,7 +192,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    * If any jobs failed due to low balance/no capacity, it retries them.
    * If any error occurs during the capacity check, it logs the error.
    */
-  private async checkCapacity(): Promise<void> {
+  private async checkCapacity(): Promise<boolean> {
+    let outOfCapacity = false;
     try {
       const { capacityLimit } = this.configService;
       const capacityInfo = await this.blockchainService.capacityInfo(this.configService.providerId);
@@ -191,7 +201,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
       const epochUsedCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0); // Fetch capacity used by the service
-      let outOfCapacity = remainingCapacity <= 0n;
+      outOfCapacity = remainingCapacity <= 0n;
 
       if (!outOfCapacity) {
         this.logger.debug(`      Capacity remaining: ${remainingCapacity}`);
@@ -257,5 +267,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     } catch (err) {
       this.logger.error('Caught error in checkCapacity', err);
     }
+
+    return !outOfCapacity;
   }
 }

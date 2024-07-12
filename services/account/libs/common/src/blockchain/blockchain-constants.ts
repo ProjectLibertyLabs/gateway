@@ -29,6 +29,8 @@ export namespace BlockchainConstants {
     extrinsic: EX_PAY_CAPACITY_BATCH,
   };
 
+  export const SECONDS_PER_BLOCK = 12;
+
   /**
    * The number of blocks to crawl for a given job
    * @type {number}

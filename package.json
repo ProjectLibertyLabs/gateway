@@ -103,7 +103,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.15.7",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.8.0"
+    "typescript-eslint": "^7.16.1"
   },
   "jest": {
     "moduleFileExtensions": [

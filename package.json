@@ -81,7 +81,7 @@
   "devDependencies": {
     "@amplica-labs/frequency-scenario-template": "^1.1.4",
     "@jest/globals": "^29.7.0",
-    "@nestjs/testing": "^10.3.8",
+    "@nestjs/testing": "^10.3.10",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.10",

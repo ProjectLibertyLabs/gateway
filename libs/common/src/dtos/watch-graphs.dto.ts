@@ -5,7 +5,7 @@ export class WatchGraphsDto {
   @IsOptional()
   @IsArray()
   @IsNumberString({ no_symbols: true }, { each: true })
-  @ApiProperty({ description: 'MSA IDs for which to watch for graph updates', type: [String], example: ['2', '3', '4', '5'] })
+  @ApiProperty({ required: false, description: 'MSA IDs for which to watch for graph updates', type: [String], example: ['2', '3', '4', '5'] })
   dsnpIds?: string[];
 
   @IsNotEmpty()

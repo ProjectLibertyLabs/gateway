@@ -4,4 +4,6 @@ export class GraphUpdateJob {
   referenceId: string;
 
   update: Update;
+
+  webhookUrl?: string;
 }

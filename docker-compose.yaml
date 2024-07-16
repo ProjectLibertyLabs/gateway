@@ -1,3 +1,19 @@
+x-graph-service-environment: &graph-service-environment
+  FREQUENCY_URL: ws://frequency:9944
+  REDIS_URL: redis://redis:6379
+  QUEUE_HIGH_WATER: 1000
+  API_PORT: 3000
+  DEBOUNCE_SECONDS: 10
+  CAPACITY_LIMIT: '{"type": "percentage", "value": 80 }'
+  GRAPH_ENVIRONMENT_TYPE: Mainnet
+  PROVIDER_ACCOUNT_SEED_PHRASE: '//Alice'
+  PROVIDER_ID: 1
+  RECONNECTION_SERVICE_REQUIRED: false
+  WEBHOOK_FAILURE_THRESHOLD: 3
+  WEBHOOK_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRIES: 4
+
 services:
   redis:
     image: redis:latest
@@ -30,37 +46,35 @@ services:
 
   graph-service-base:
     pull_policy: never
-    image: graph-service:latest
+    image: graph-service-dev:latest
     build:
       context: .
       dockerfile: dev.Dockerfile
       tags:
-        - graph-service:latest
+        - graph-service-dev:latest
 
   api:
     pull_policy: never
-    image: graph-service:latest
-    command: ["npm", "run", "start:api:watch"]
+    image: graph-service-dev:latest
     ports:
       - 3000:3000
-    env_file:
-      - .env.docker.dev
+    command: ['npm', 'run', 'start:api:watch']
+    environment:
+      <<: [*graph-service-environment]
     volumes:
       - ./:/app
     depends_on:
       - redis
       - frequency
-      - graph-service-base
     networks:
       - graph-service
     restart: on-failure
 
   worker:
-    image: graph-service:latest
+    image: graph-service-dev:latest
     pull_policy: never
-    command: ["npm", "run", "start:worker:watch"]
-    env_file:
-      - .env.docker.dev
+    environment:
+      <<: [*graph-service-environment]
     volumes:
       - ./:/app
     depends_on:

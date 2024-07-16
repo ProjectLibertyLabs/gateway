@@ -59,6 +59,12 @@
       "#lib/services/*": [
         "libs/common/src/services/*"
       ],
+      "#lib/types": [
+        "libs/common/src/types"
+      ],
+      "#lib/types/*": [
+        "libs/common/src/types/*"
+      ],
       "#lib/utils": [
         "libs/common/src/utils"
       ],

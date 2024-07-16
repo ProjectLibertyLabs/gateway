@@ -2,7 +2,6 @@ export * from './connection-type.enum';
 export * from './connection.dto';
 export * from './direction.enum';
 export * from './dsnp-graph-edge.dto';
-export * from './graph-change-notification.dto';
 export * from './graph-change-response.dto';
 export * from './graph-key-pair.dto';
 export * from './graph-query-params.dto';

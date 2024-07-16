@@ -1,25 +1,19 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
-import {
-  BaseConsumer,
-  AsyncDebouncerService,
-  BlockchainService,
-  GraphStateManager,
-  ITxMonitorJob,
-  ProviderGraphUpdateJob,
-  GraphChangeNotificationDto,
-  SECONDS_PER_BLOCK,
-  ConfigService,
-} from '#lib';
+import { BaseConsumer, AsyncDebouncerService, BlockchainService, GraphStateManager, ITxMonitorJob, ProviderGraphUpdateJob, SECONDS_PER_BLOCK, ConfigService } from '#lib';
 import * as QueueConstants from '#lib/utils/queues';
 import * as RedisConstants from '#lib/utils/redis';
 import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
+import * as GraphServiceWebhook from '#lib/types/webhook-types';
+
+type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotification;
+type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatus;
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE)
@@ -49,66 +43,103 @@ export class GraphNotifierService extends BaseConsumer {
       for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1n) {
         blockList.push(i);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
-      if (!txResult.found) {
-        this.logger.error(`Tx ${job.data.txHash} not found in block list`);
-        throw new Error(`Tx ${job.data.txHash} not found in block list`);
-      } else {
-        // Set current epoch capacity
-        await this.setEpochCapacity(txResult.capacityEpoch ?? 0, txResult.capacityWithDrawn ?? 0n);
-        if (txResult.error) {
-          this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
-          const errorReport = await this.handleMessagesFailure(txResult.error);
-          if (errorReport.pause) {
-            this.logger.debug(`Pausing queue ${job.data.referencePublishJob.referenceId}`);
-            await this.changeRequestQueue.pause();
-            await this.reconnectionQueue.pause();
+
+      const notification: GraphOperationStatus = {
+        referenceId: job.data.referencePublishJob.referenceId,
+        status: 'pending',
+      };
+
+      try {
+        const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
+        if (!txResult.found) {
+          this.logger.error(`Tx ${job.data.txHash} not found in block list`);
+          // TODO: implement a blockchain scanner with mortality checks for expiration.
+          // For now, if we fail more times than this job queue will allow, consider the operation expired.
+          if (job.attemptsMade >= (this.changeRequestQueue.jobsOpts.attempts || 1)) {
+            notification.status = 'expired';
           }
-          if (errorReport.retry) {
-            await this.retryRequestJob(job.data.referencePublishJob.referenceId);
-          } else {
-            throw new Error(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+          throw new Error(`Tx ${job.data.txHash} not found in block list`);
+        } else {
+          // Set current epoch capacity
+          await this.setEpochCapacity(txResult.capacityEpoch ?? 0, txResult.capacityWithDrawn ?? 0n);
+
+          if (txResult.error) {
+            this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
+            const errorReport = await this.handleMessagesFailure(txResult.error);
+            if (errorReport.pause) {
+              this.logger.debug(`Pausing queue ${job.data.referencePublishJob.referenceId}`);
+              await this.changeRequestQueue.pause();
+              await this.reconnectionQueue.pause();
+            }
+            if (errorReport.retry) {
+              await this.retryRequestJob(job.data.referencePublishJob.referenceId);
+            } else {
+              notification.status = 'failed';
+            }
+            throw new UnrecoverableError(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+          }
+
+          if (txResult.success) {
+            this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
+            notification.status = 'succeeded';
+            const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
+            this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
+            const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
+
+            if (job.data.referencePublishJob.update.type !== 'AddKey') {
+              this.logger.debug(`Setting graph for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
+              const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
+              const { ownerDsnpUserId, schemaId } = job.data.referencePublishJob.update;
+              const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(ownerDsnpUserId, schemaId, graphKeyPairs);
+              if (graphEdges.length === 0) {
+                this.logger.debug(`No graph edges found for ${ownerDsnpUserId}`);
+              }
+            }
+            const graphUpdateNotification: GraphChangeNotification = {
+              msaId: job.data.referencePublishJob.update.ownerDsnpUserId,
+              update: job.data.referencePublishJob.update,
+            };
+
+            // TODO: This should be moved elsewhere, likely need a blockchain scanner. This piece of code
+            // will only invoke the webhook for graph updates that we submitted. We likely want to monitor all
+            // graph updates, presuming the intent of "watch graph updates" is to watch for unsolicited graph updates on-chain.
+            // Here, we likely only want to notify the original submitter of this particular graph update.
+            webhookList.forEach(async (webhookUrl) => {
+              let retries = 0;
+              while (retries < this.configService.getHealthCheckMaxRetries()) {
+                try {
+                  this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
+                  this.logger.debug(`Graph Change: ${JSON.stringify(notification)}`);
+                  // eslint-disable-next-line no-await-in-loop
+                  await axios.post(webhookUrl, graphUpdateNotification);
+                  this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
+                  break;
+                } catch (error) {
+                  this.logger.error(`Failed to send notification to webhook: ${webhookUrl}`);
+                  this.logger.error(error);
+                  retries += 1;
+                }
+              }
+            });
+            await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
           }
         }
-
-        if (txResult.success) {
-          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-          const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
-          this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
-          const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
-
-          if (job.data.referencePublishJob.update.type !== 'AddKey') {
-            this.logger.debug(`Setting graph for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
-            const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
-            const { ownerDsnpUserId, schemaId } = job.data.referencePublishJob.update;
-            const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(ownerDsnpUserId, schemaId, graphKeyPairs);
-            if (graphEdges.length === 0) {
-              this.logger.debug(`No graph edges found for ${ownerDsnpUserId}`);
-            }
-          }
-          const notification: GraphChangeNotificationDto = {
-            dsnpId: job.data.referencePublishJob.update.ownerDsnpUserId,
-            update: job.data.referencePublishJob.update,
-          };
-
-          webhookList.forEach(async (webhookUrl) => {
+      } finally {
+        if (notification.status !== 'pending') {
+          const webhook = job.data.referencePublishJob.webhookUrl;
+          if (webhook) {
             let retries = 0;
             while (retries < this.configService.getHealthCheckMaxRetries()) {
               try {
-                this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
-                this.logger.debug(`Graph Change: ${JSON.stringify(notification)}`);
-                // eslint-disable-next-line no-await-in-loop
-                await axios.post(webhookUrl, notification);
-                this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
+                this.logger.debug(`Sending graph operation status (${notification.status}) notification for refId ${notification.referenceId} to webhook: ${webhook}`);
+                await axios.post(webhook, notification);
                 break;
-              } catch (error) {
-                this.logger.error(`Failed to send notification to webhook: ${webhookUrl}`);
-                this.logger.error(error);
+              } catch (error: any) {
+                this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);
                 retries += 1;
               }
             }
-          });
-          await this.removeSuccessJobs(job.data.referencePublishJob.referenceId);
+          }
         }
       }
     } catch (e) {

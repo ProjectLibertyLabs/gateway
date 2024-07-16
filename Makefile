@@ -26,7 +26,7 @@ setup:
 
 .PHONY: test-e2e
 test-e2e:
-	@(npm run test:e2e)
+	./scripts/run-e2e.sh
 
 ######
 ###### Running apps targets

@@ -76,6 +76,7 @@ export class RequestProcessorService extends BaseConsumer {
       // create a GraphUpdateJob for each exported update
       const graphPublisherJobs: GraphUpdateJob[] = exportedUpdates.map((update) => ({
         referenceId: job.data.referenceId,
+        webhookUrl: job.data.webhookUrl,
         update,
       }));
       // add each GraphUpdateJob to the graph publisher queue

@@ -13,4 +13,6 @@ export class ProviderGraphUpdateJob {
   graphKeyPairs?: GraphKeyPairDto[];
 
   updateConnection: boolean;
+
+  webhookUrl?: string;
 }

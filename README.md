@@ -181,14 +181,13 @@ Install NPM Dependencies:
 
 ### Environment Variables
 
-The application receives its configuration from the environment. Each method of launching the app has its own source for the environment. If you run a container image using Kubernetes, it is likely your environment injection will be configured in a Helm chart. For local Docker-based development, you may specifiy the environment or point to an environment file (the included [docker-compose.yaml](./docker-compose.yaml) relies on the included [.env.docker.dev](./.env.docker.dev) file). If running natively using the script included in `package.json`, the app will use a local `.env` file.
+The application receives its configuration from the environment. Each method of launching the app has its own source for the environment. If you run a container image using Kubernetes, it is likely your environment injection will be configured in a Helm chart. For local Docker-based development, you may specifiy the environment or point to an environment file (the included [docker-compose.yaml](./docker-compose.yaml) can has a self-contained environment which may be edited to suit your purposes). If running natively using the script included in `package.json`, the app will use a local `.env` file.
 
 Environment files are documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
 
-1. Copy the template values into the .env files.
+1. Copy the template values into the .env file.
    ```sh
    cp env.template .env
-   cp env.template .env.docker.dev
    ```
 2. Replace template values with values appropriate to your environment.
 

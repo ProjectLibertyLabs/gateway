@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import { Type } from 'class-transformer';
 import { GraphKeyPairDto } from './graph-key-pair.dto';
 import { ConnectionDto, ConnectionDtoWrapper } from './connection.dto';
@@ -23,4 +23,9 @@ export class ProviderGraphDto {
   @IsOptional()
   @ApiPropertyOptional({ description: 'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph', type: [GraphKeyPairDto] })
   graphKeyPairs?: GraphKeyPairDto[];
+
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  @ApiPropertyOptional({ description: 'Optional URL of a webhook to invoke when the request is complete', type: String })
+  webhookUrl?: string;
 }

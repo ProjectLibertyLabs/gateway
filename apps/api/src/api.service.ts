@@ -66,6 +66,7 @@ export class ApiService implements BeforeApplicationShutdown {
       graphKeyPairs: request.graphKeyPairs,
       referenceId: this.calculateJobId(request),
       updateConnection: this.configService.getReconnectionServiceRequired(),
+      webhookUrl: request.webhookUrl,
     };
     const jobOld = await this.graphChangeRequestQueue.getJob(data.referenceId);
     if (jobOld && (await jobOld.isCompleted())) {

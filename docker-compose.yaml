@@ -1,5 +1,7 @@
 x-account-service-env: &account-service-env
   API_PORT: 3000
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 3
+  TRUST_UNFINALIZED_BLOCKS: false
   FREQUENCY_URL: 'ws://frequency:9944'
   FREQUENCY_HTTP_URL: 'http://frequency:9944'
   PROVIDER_ID: 1

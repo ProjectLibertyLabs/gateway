@@ -1,15 +1,19 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
 import { BlockHash } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import Redis from 'ioredis';
-import { ok } from 'assert';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
 export interface IBlockchainScanParameters {
   onlyFinalized?: boolean;
 }
+
+export class EndOfChainError extends Error {}
+export class NullScanError extends Error {}
 
 export abstract class BlockchainScannerService {
   protected scanInProgress = false;
@@ -43,13 +47,10 @@ export abstract class BlockchainScannerService {
       return;
     }
 
-    // Only scan blocks if initial conditions met
-    if (!(await this.checkInitialScanParameters())) {
-      this.logger.verbose('Skipping blockchain scan--initial conditions not met');
-      return;
-    }
-
     try {
+      // Only scan blocks if initial conditions met
+      await this.checkInitialScanParameters();
+
       this.scanInProgress = true;
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
@@ -64,23 +65,27 @@ export abstract class BlockchainScannerService {
       }
       this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
 
-      // eslint-disable-next-line no-await-in-loop
-      while (!currentBlockHash.isEmpty && !!(await this.checkScanParameters(currentBlockNumber, currentBlockHash))) {
-        // eslint-disable-next-line no-await-in-loop
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
         await this.processCurrentBlock(currentBlockHash, currentBlockNumber);
-        // eslint-disable-next-line no-await-in-loop
         await this.setLastSeenBlockNumber(currentBlockNumber);
 
         // Move to the next block
         currentBlockNumber += 1;
-        // eslint-disable-next-line no-await-in-loop
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
-
-      if (currentBlockHash.isEmpty) {
-        this.logger.verbose(`Scan reached end-of-chain at block ${currentBlockNumber - 1}`);
-      }
     } catch (e) {
+      if (e instanceof EndOfChainError) {
+        this.logger.error(e.message);
+        return;
+      }
+
+      if (e instanceof NullScanError) {
+        this.logger.verbose(e.message);
+        return;
+      }
+
       this.logger.error(JSON.stringify(e));
       throw e;
     } finally {
@@ -97,19 +102,22 @@ export abstract class BlockchainScannerService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  protected checkInitialScanParameters(): Promise<boolean> {
-    return Promise.resolve(true);
+  protected checkInitialScanParameters(): Promise<void> {
+    return Promise.resolve();
   }
 
   // eslint-disable-next-line class-methods-use-this
-  protected async checkScanParameters(blockNumber: number, _blockHash: BlockHash): Promise<boolean> {
-    let okToScan = true;
-    if (this.scanParameters?.onlyFinalized) {
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      okToScan = blockNumber <= lastFinalizedBlockNumber;
+  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<void> {
+    if (blockHash.isEmpty) {
+      throw new EndOfChainError(`Empty block hash encountered; end of chain at block ${blockNumber}`);
     }
 
-    return okToScan;
+    if (this.scanParameters?.onlyFinalized) {
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      if (blockNumber > lastFinalizedBlockNumber) {
+        throw new EndOfChainError(`Latest finalized block (${lastFinalizedBlockNumber}) encountered`);
+      }
+    }
   }
 
   protected abstract processCurrentBlock(currentBlockHash: BlockHash, currentBlockNumber: number): Promise<void>;

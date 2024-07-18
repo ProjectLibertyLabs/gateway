@@ -40,6 +40,8 @@ describe('AccountSericeConfig', () => {
     FREQUENCY_URL: undefined,
     FREQUENCY_HTTP_URL: undefined,
     API_PORT: undefined,
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
+    TRUST_UNFINALIZED_BLOCKS: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
     SIWF_URL: undefined,
@@ -96,6 +98,19 @@ describe('AccountSericeConfig', () => {
       await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
     });
 
+    it('invalid scan interval should fail', async () => {
+      const { BLOCKCHAIN_SCAN_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 'foo', ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid trust unfinalized blocks should fail', async () => {
+      const { TRUST_UNFINALIZED_BLOCKS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ TRUST_UNFINALIZED_BLOCKS: 'some string', ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ TRUST_UNFINALIZED_BLOCKS: 27, ...env })).rejects.toBeDefined();
+    });
+
     it('missing capacity limits should fail', async () => {
       const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ CAPACITY_LIMIT: undefined, ...env })).rejects.toBeDefined();
@@ -142,6 +157,16 @@ describe('AccountSericeConfig', () => {
 
     it('should get api port', () => {
       expect(accountServiceConfig.apiPort).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
+    });
+
+    it('should get scan interval', () => {
+      expect(accountServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
+      );
+    });
+
+    it('should get finalized blocks trust parameter', () => {
+      expect(accountServiceConfig.trustUnfinalizedBlocks).toStrictEqual(JSON.parse(ALL_ENV.TRUST_UNFINALIZED_BLOCKS!));
     });
 
     it('should get provider account seed phrase', () => {

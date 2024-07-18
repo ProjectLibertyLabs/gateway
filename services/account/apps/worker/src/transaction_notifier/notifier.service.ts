@@ -10,7 +10,7 @@ import { TransactionType } from '#lib/types/enums';
 import { QueueConstants } from '#lib/utils/queues';
 import { SECONDS_PER_BLOCK, TxWebhookRsp, RedisUtils } from 'libs/common/src';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { BlockchainScannerService } from '#lib/utils/blockchain-scanner.service';
+import { BlockchainScannerService, NullScanError } from '#lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
@@ -33,7 +33,7 @@ export class TxnNotifierService
     }
     this.schedulerRegistry.addInterval(
       this.intervalName,
-      setInterval(() => this.scan(), BlockchainConstants.SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND),
+      setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
     );
   }
 
@@ -50,7 +50,7 @@ export class TxnNotifierService
     private readonly configService: ConfigService,
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
-    this.scanParameters = { onlyFinalized: true };
+    this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
   }
 
   public get intervalName() {
@@ -73,19 +73,20 @@ export class TxnNotifierService
     }
   }
 
-  protected async checkInitialScanParameters(): Promise<boolean> {
+  protected async checkInitialScanParameters(): Promise<void> {
     const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
     if (pendingTxns === 0) {
-      return false;
+      throw new NullScanError('No pending extrinsics; no scan will be performed');
     }
+
     return super.checkInitialScanParameters();
   }
 
-  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<boolean> {
+  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<void> {
     const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
 
     if (pendingTxns === 0) {
-      return false;
+      throw new NullScanError('No pending extrinsics; terminating current scan iteration');
     }
 
     return super.checkScanParameters(blockNumber, blockHash);
@@ -101,7 +102,6 @@ export class TxnNotifierService
           return val.birth;
         }),
       );
-
       blockNumber = Math.max(blockNumber, startingBlock);
     }
 
@@ -121,6 +121,8 @@ export class TxnNotifierService
         extrinsicIndices.push([extrinsic.hash.toHex(), index]);
       }
     });
+
+    let pipeline = this.cacheManager.multi({ pipeline: true });
 
     if (extrinsicIndices.length > 0) {
       const at = await this.blockchainService.api.at(currentBlockHash);
@@ -223,7 +225,7 @@ export class TxnNotifierService
           this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }
 
-        await this.cacheManager.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
+        pipeline = pipeline.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
         const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
         pendingTxns.slice(idx, 1);
       }
@@ -233,14 +235,19 @@ export class TxnNotifierService
 
     // Now check all pending transactions for expiration as of this block
     // eslint-disable-next-line no-restricted-syntax
-    for (const txStatus of pendingTxns) {
-      if (txStatus.death <= currentBlockNumber) {
+    for (const { birth, death, txHash } of pendingTxns) {
+      if (death <= currentBlockNumber) {
         this.logger.verbose(
-          `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
+          `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`,
         );
-        await this.cacheManager.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txStatus.txHash);
+        pipeline = pipeline.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
+        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
+        pendingTxns.slice(idx, 1);
       }
     }
+
+    // Execute marshalled Redis transactions
+    await pipeline.exec();
   }
 
   async getWebhookList(msaId: number): Promise<string[]> {

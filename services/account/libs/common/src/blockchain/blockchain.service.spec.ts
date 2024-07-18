@@ -41,16 +41,6 @@ describe('BlockchainService', () => {
     blockchainService = new BlockchainService(configService as unknown as ConfigService);
   });
 
-  describe('createExtrinsicCall', () => {
-    it('should return an extrinsic call', async () => {
-      const pallet = 'messages';
-      const extrinsic = 'addIpfsMessage';
-      const schemaId = 1;
-      const cid = 'QmRgJZmR6Z6yB5k9aLXjzJ6jG8L6tq4v4J9zQfDz7p3J9v';
-      const payloadLength = 100;
-    });
-  });
-
   describe('getCurrentCapacityEpochStart', () => {
     it('should return the current capacity epoch start', async () => {
       // Arrange

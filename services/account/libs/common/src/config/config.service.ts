@@ -7,6 +7,8 @@ export interface ConfigEnvironmentVariables {
   FREQUENCY_URL: URL;
   FREQUENCY_HTTP_URL: URL;
   API_PORT: number;
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: number;
+  TRUST_UNFINALIZED_BLOCKS: boolean;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
   PROVIDER_ID: string;
   SIWF_URL: string;
@@ -28,6 +30,14 @@ export class ConfigService {
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.capacityLimitObj = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
+  }
+
+  public get blockchainScanIntervalSeconds(): number {
+    return this.nestConfigService.get<number>('BLOCKCHAIN_SCAN_INTERVAL_SECONDS') ?? 12;
+  }
+
+  public get trustUnfinalizedBlocks(): boolean {
+    return this.nestConfigService.get<boolean>('TRUST_UNFINALIZED_BLOCKS') ?? false;
   }
 
   public get providerBaseUrl(): URL {

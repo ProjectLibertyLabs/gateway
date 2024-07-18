@@ -4,6 +4,8 @@ import { ConfigModuleOptions } from '@nestjs/config';
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: Joi.number().min(1).default(12),
+    TRUST_UNFINALIZED_BLOCKS: Joi.bool().default(false),
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
     FREQUENCY_HTTP_URL: Joi.string().uri().required(),

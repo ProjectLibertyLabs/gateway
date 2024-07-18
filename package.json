@@ -79,7 +79,7 @@
   "devDependencies": {
     "@amplica-labs/frequency-scenario-template": "^1.1.4",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.14.11",
     "@types/supertest": "^6.0.2",
     "@types/time-constants": "^1.0.2",
     "@typescript-eslint/parser": "^7.16.1",

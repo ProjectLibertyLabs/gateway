@@ -8,22 +8,7 @@ import { AnnouncementTypeDto } from './common.dto';
  * - Z or hour minute offset
  * - example: 1970-01-01T00:00:00+00:00
  */
-export const ISO8601_REGEX = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,})?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
-/**
- * DSNP content hash based on DSNP Spec
- * example: 0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef
- */
-export const DSNP_CONTENT_HASH_REGEX = /^0x[0-9a-f]+$/i;
-/**
- * DSNP user URI based on DSNP Spec
- * example: dsnp://78187493520
- */
-export const DSNP_USER_URI_REGEX = /^dsnp:\/\/[1-9][0-9]{0,19}$/i;
-/**
- * DSNP content URI based on DSNP Spec
- * example: dsnp://78187493520/0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef
- */
-export const DSNP_CONTENT_URI_REGEX = /^dsnp:\/\/[1-9][0-9]{0,19}\/0x[0-9a-f]+$/i;
+export const ISO8601_REGEX = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,3})?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
 /**
  * DSNP character ranges for valid emojis
  */

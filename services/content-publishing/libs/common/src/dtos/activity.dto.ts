@@ -7,6 +7,7 @@ import {
   ArrayUnique,
   IsArray,
   IsEnum,
+  IsISO8601,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -22,7 +23,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from './validation.dto';
+import { DURATION_REGEX } from './validation.dto';
+import { IsDsnpUserURI } from '../utils/dsnp-validation.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum UnitTypeDto {
@@ -114,9 +116,7 @@ export class TagDto {
   name?: string;
 
   @ValidateIf((o) => o.type === TagTypeDto.Mention)
-  @MinLength(1)
-  @IsString()
-  @Matches(DSNP_USER_URI_REGEX)
+  @IsDsnpUserURI({ message: 'Invalid DSNP User URI' })
   mentionedId?: string;
 }
 
@@ -165,8 +165,7 @@ export class NoteActivityDto extends BaseActivityDto {
   @IsString()
   content: string;
 
-  @IsString()
-  @Matches(ISO8601_REGEX)
+  @IsISO8601({ strict: true, strictSeparator: true })
   published: string;
 
   @IsOptional()
@@ -189,7 +188,6 @@ export class ProfileActivityDto extends BaseActivityDto {
   summary?: string;
 
   @IsOptional()
-  @IsString()
-  @Matches(ISO8601_REGEX)
+  @IsISO8601({ strict: true, strictSeparator: true })
   published?: string;
 }

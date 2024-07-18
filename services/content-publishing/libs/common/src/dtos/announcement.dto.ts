@@ -2,10 +2,11 @@
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
 // eslint-disable-next-line max-classes-per-file
-import { IsEnum, IsHexadecimal, IsInt, IsNotEmpty, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Matches, Max, Min, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
-import { DSNP_CONTENT_HASH_REGEX, DSNP_CONTENT_URI_REGEX, DSNP_EMOJI_REGEX } from './validation.dto';
+import { DSNP_EMOJI_REGEX } from './validation.dto';
+import { IsDsnpContentHash, IsDsnpContentURI } from '../utils/dsnp-validation.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementTypeDto {
@@ -21,8 +22,7 @@ export class BroadcastDto {
 }
 
 export class ReplyDto {
-  @IsString()
-  @Matches(DSNP_CONTENT_URI_REGEX)
+  @IsDsnpContentURI({ message: 'Invalid DSNP Content URI' })
   inReplyTo: string;
 
   @IsNotEmpty()
@@ -32,9 +32,8 @@ export class ReplyDto {
 }
 
 export class TombstoneDto {
-  @IsString()
+  @IsDsnpContentHash({ message: 'Invalid DSNP content hash' })
   @IsNotEmpty()
-  @Matches(DSNP_CONTENT_HASH_REGEX, { message: 'targetContentHash must be in hexadecimal format!' })
   targetContentHash: string;
 
   @IsEnum(ModifiableAnnouncementTypeDto)
@@ -42,9 +41,8 @@ export class TombstoneDto {
 }
 
 export class UpdateDto {
-  @IsString()
+  @IsDsnpContentHash({ message: 'Invalid DSNP content hash' })
   @IsNotEmpty()
-  @Matches(DSNP_CONTENT_HASH_REGEX, { message: 'targetContentHash must be in hexadecimal format!' })
   targetContentHash: string;
 
   @IsEnum(ModifiableAnnouncementTypeDto)
@@ -67,8 +65,7 @@ export class ReactionDto {
   @Max(255)
   apply: number;
 
-  @IsString()
-  @Matches(DSNP_CONTENT_URI_REGEX)
+  @IsDsnpContentURI({ message: 'Invalid DSNP Content URI' })
   inReplyTo: string;
 }
 

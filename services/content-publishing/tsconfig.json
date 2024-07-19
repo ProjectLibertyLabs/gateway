@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "outDir": "dist",
+    "paths": {
+      "#app/*": [
+        "*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "target": "es2021",
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+---
+#
+# Define webhook API for Graph Service. The nestjs/swagger package does not
+# support auto-generation of webhooks, or types that are not part of controller
+# endpoints.
+# These interface types at inception match the interfaces exported by @dsnp/graph-sdk
+openapi: 3.1.0
+info:
+  title: Graph Service Webhooks API
+  version: 1.0.0
+webhooks:
+  graph-update:
+    post:
+      summary: Announce a graph update
+      operationId: announceGraphUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/GraphChangeNotification'
+      responses:
+        '200':
+          description: Graph update announcement handled
+        '400':
+          description: Bad request
+components:
+  schemas:
+    Uint8Array:
+      type: object
+      properties: {}
+    PersistPageUpdate:
+      type: object
+      properties:
+        type:
+          title: type
+          enum:
+            - PersistPage
+          type: string
+        ownerDsnpUserId:
+          type: string
+          description: MSA of graph owner
+          example: '2'
+        schemaId:
+          type: number
+          description: Schema ID of graph schema
+          example: 8
+        pageId:
+          type: number
+          description: Page ID of graph page being updated
+          example: 1
+        prevHash:
+          type: number
+          description: Content hash of last known state of graph page
+          example: 1234567
+        payload:
+          description: Byte array of graph page data
+          allOf:
+            - '$ref': '#/components/schemas/Uint8Array'
+      required:
+        - type
+        - ownerDsnpUserId
+        - schemaId
+        - pageId
+        - prevHash
+        - payload
+    DeletePageUpdate:
+      type: object
+      properties:
+        type:
+          title: type
+          enum:
+            - DeletePage
+          type: string
+        ownerDsnpUserId:
+          type: string
+        schemaId:
+          type: number
+        pageId:
+          type: number
+        prevHash:
+          type: number
+      required:
+        - type
+        - ownerDsnpUserId
+        - schemaId
+        - pageId
+        - prevHash
+    AddKeyUpdate:
+      type: object
+      properties:
+        type:
+          title: type
+          enum:
+            - AddKey
+          type: string
+        ownerDsnpUserId:
+          type: string
+        prevHash:
+          type: number
+      required:
+        - type
+        - ownerDsnpUserId
+        - prevHash
+    GraphChangeNotification:
+      type: object
+      properties:
+        msaId:
+          type: string
+          description: MSA ID for which this notification is being sent
+          example: '2'
+        update:
+          description: The payload of the specific update. Content depends on the
+            type of update (Add, Delete, Persist)
+          oneOf:
+            - '$ref': '#/components/schemas/PersistPageUpdate'
+            - '$ref': '#/components/schemas/DeletePageUpdate'
+            - '$ref': '#/components/schemas/AddKeyUpdate'
+      required:
+        - msaId
+        - update
+    GraphOperationStatus:
+      type: object
+      properties:
+        referenceId:
+          type: string
+          description: Job reference ID of a previously submitted graph update request
+          example: 'Lve95gjOVATpfV8EL5X4nxwjKHE'
+        status:
+          title: status
+          enum:
+            - pending
+            - expired
+            - failed
+            - succeeded
+          type: string
+      required:
+        - referenceId
+        - status

@@ -1,0 +1,76 @@
+name: "[Graph] Release"
+run-name: "[Graph] Cut Service Release ${{github.event.inputs.release-version || github.ref_name}}"
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+on:
+  push:
+    tags:
+      - "graph-v[0-9]+.[0-9]+.[0-9]+" # ex. v1.0.0
+      - "graph-v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+" # ex. v1.1.0-rc1
+      - "graph-v0.0.1" # used for testing only
+      - "graph-v0.0.1-rc[0-9]+" # used for testing only
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: "Release version (graph-v#.#.#[-rc#])"
+        required: true
+
+env:
+  NEW_RELEASE_TAG_FROM_UI: ${{github.event.inputs.release-version}}
+  TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'graph-v0.0.1')}}
+  DOCKER_HUB_PROFILE: amplicalabs
+  IMAGE_NAME: graph-service
+
+jobs:
+  build-and-publish-container-image:
+    name: Build and publish container image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Version Tag
+        if: env.NEW_RELEASE_TAG_FROM_UI != ''
+        shell: bash
+        run: |
+          version=${{env.NEW_RELEASE_TAG_FROM_UI}}
+          echo "Release version entered in UI: $version"
+          regex='^graph-v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-rc[1-9]\d*)?$'
+          if [[ ! $version =~ $regex ]]; then
+            echo "ERROR: Entered version $version is not valid."
+            echo "Please use v#.#.#[-rc#] format."
+            exit 1
+          fi
+          echo "valid-version=true" >> $GITHUB_OUTPUT
+      - name: Check Out Repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{env.NEW_RELEASE_TAG_FROM_UI}}
+      - name: Set up tags for cp image
+        id: cp-tags
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            latest=auto
+          images: |
+            ${{env.DOCKER_HUB_PROFILE}}/${{env.IMAGE_NAME}}
+          tags: |
+            type=semver,pattern={{version}}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: |
+            linux/amd64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{secrets.DOCKERHUB_USERNAME_FC}}
+          password: ${{secrets.DOCKERHUB_TOKEN_FC}}
+      - name: Build and Push graph-service-service Image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/graph/.
+          platforms: linux/amd64
+          push: ${{env.TEST_RUN != 'true'}}
+          file: services/graph/Dockerfile
+          tags: ${{ steps.cp-tags.outputs.tags }}

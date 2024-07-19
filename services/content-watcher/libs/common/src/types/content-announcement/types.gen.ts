@@ -14,7 +14,11 @@ export type AnnouncementResponse = {
   /**
    * An optional identifier for the request, may be used for tracking or correlation
    */
-  requestId?: string | null;
+  requestId?: string;
+  /**
+   * An optional webhook URL registered as part of a specific search request
+   */
+  webhookUrl?: string;
   /**
    * Identifier for the schema being used or referenced
    */

@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, jest } from '@jest/globals';
 import { ConfigModule } from '@nestjs/config';
-import { ConfigService } from './config.service';
+import { AppConfigService } from './config.service';
 import { configModuleOptions } from './env.config';
 
-const setupConfigService = async (envObj: any): Promise<ConfigService> => {
+const setupConfigService = async (envObj: any): Promise<AppConfigService> => {
   jest.resetModules();
 
   Object.keys(process.env).forEach((key) => {
@@ -23,19 +23,18 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
       }),
     ],
     controllers: [],
-    providers: [ConfigService],
+    providers: [AppConfigService],
   }).compile();
 
   await ConfigModule.envVariablesLoaded;
 
-  return moduleRef.get<ConfigService>(ConfigService);
+  return moduleRef.get<AppConfigService>(AppConfigService);
 };
 
 describe('ContentWatcherConfigService', () => {
   const ALL_ENV: Record<string, string | undefined> = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
-    STARTING_BLOCK: undefined,
     IPFS_ENDPOINT: undefined,
     IPFS_GATEWAY_URL: undefined,
     IPFS_BASIC_AUTH_USER: undefined,
@@ -45,6 +44,7 @@ describe('ContentWatcherConfigService', () => {
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
     API_PORT: undefined,
+    CACHE_KEY_PREFIX: undefined,
   };
 
   beforeAll(() => {
@@ -95,7 +95,7 @@ describe('ContentWatcherConfigService', () => {
   });
 
   describe('valid environment', () => {
-    let contentWatcherConfigService: ConfigService;
+    let contentWatcherConfigService: AppConfigService;
     beforeAll(async () => {
       contentWatcherConfigService = await setupConfigService(ALL_ENV);
     });
@@ -122,6 +122,10 @@ describe('ContentWatcherConfigService', () => {
 
     it('should get api port', () => {
       expect(contentWatcherConfigService.apiPort).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
+    });
+
+    it('should get cache key prefix', () => {
+      expect(contentWatcherConfigService.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
     });
   });
 });

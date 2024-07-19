@@ -98,13 +98,14 @@ export default async () => {
           { ChainWatchOptionsDto: { schemaIds: { required: true, type: () => [Number] }, dsnpIds: { required: true, type: () => [String] } } },
         ],
         [
-          import('../../../libs/common/src/dtos/request-job.dto'),
+          import('../../../libs/common/src/dtos/content-search-request.dto'),
           {
             ContentSearchRequestDto: {
-              id: { required: true, type: () => String },
+              clientReferenceId: { required: true, type: () => String },
               startBlock: { required: true, type: () => Number, minimum: 1 },
-              endBlock: { required: true, type: () => Number, minimum: 1 },
+              blockCount: { required: true, type: () => Number, minimum: 1 },
               filters: { required: true, type: () => t['../../../libs/common/src/dtos/chain.watch.dto'].ChainWatchOptionsDto },
+              webhookUrl: { required: true, type: () => String },
             },
           },
         ],

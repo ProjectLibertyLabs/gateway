@@ -7,7 +7,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
-import { ConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public apiPromise: ApiPromise;
 
-  private configService: ConfigService;
+  private configService: AppConfigService;
 
   private logger: Logger;
 
@@ -54,7 +54,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await Promise.all(promises);
   }
 
-  constructor(configService: ConfigService) {
+  constructor(configService: AppConfigService) {
     this.configService = configService;
     this.logger = new Logger(this.constructor.name);
   }
@@ -63,7 +63,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return firstValueFrom(this.api.rpc.chain.getBlockHash(block));
   }
 
-  public getBlock(block: BlockHash): Promise<SignedBlock> {
+  public getBlock(block?: BlockHash): Promise<SignedBlock> {
     return firstValueFrom(this.api.rpc.chain.getBlock(block));
   }
 

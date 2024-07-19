@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/*
-https://docs.nestjs.com/providers#services
-*/
-
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService as NestConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 export interface ConfigEnvironmentVariables {
   IPFS_ENDPOINT: URL;
@@ -13,20 +9,20 @@ export interface ConfigEnvironmentVariables {
   IPFS_BASIC_AUTH_SECRET: string;
   REDIS_URL: URL;
   FREQUENCY_URL: URL;
-  STARTING_BLOCK: string;
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: number;
   QUEUE_HIGH_WATER: number;
   WEBHOOK_FAILURE_THRESHOLD: number;
   WEBHOOK_RETRY_INTERVAL_SECONDS: number;
   API_PORT: number;
+  CACHE_KEY_PREFIX: string;
 }
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
-export class ConfigService {
+export class AppConfigService {
   private logger: Logger;
 
-  constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
+  constructor(private nestConfigService: ConfigService<ConfigEnvironmentVariables>) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -34,12 +30,12 @@ export class ConfigService {
     return this.nestConfigService.get('REDIS_URL')!;
   }
 
-  public get frequencyUrl(): URL {
-    return this.nestConfigService.get('FREQUENCY_URL')!;
+  public get cacheKeyPrefix(): string {
+    return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
-  public get startingBlock(): number | undefined {
-    return this.nestConfigService.get<number>('STARTING_BLOCK')!;
+  public get frequencyUrl(): URL {
+    return this.nestConfigService.get('FREQUENCY_URL')!;
   }
 
   public get blockchainScanIntervalSeconds(): number {

@@ -19,6 +19,7 @@ export class ChainWatchOptionsDto {
       type: 'number',
     },
     description: 'Specific schema ids to watch for',
+    required: false,
     example: [1, 19],
   })
   schemaIds: number[];
@@ -29,6 +30,7 @@ export class ChainWatchOptionsDto {
   @Type(() => String)
   @ApiProperty({
     description: 'Specific dsnpIds (msa_id) to watch for',
+    required: false,
     example: ['10074', '100001'],
   })
   dsnpIds: string[];

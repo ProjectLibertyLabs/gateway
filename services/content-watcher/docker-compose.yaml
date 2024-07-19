@@ -96,7 +96,7 @@ services:
       tags:
         - content-watcher-service:latest
     environment:
-      << : *content-watcher-environment
+      <<: *content-watcher-environment
     ports:
       - 3000:3000
     volumes:

@@ -1,8 +1,12 @@
 import { IsArray, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-// WebhookRegistrationDto.ts
-export class WebhookRegistrationDto {
+export interface IWebhookRegistration {
+  url: string;
+  announcementTypes: string[];
+}
+
+export class WebhookRegistrationDto implements IWebhookRegistration {
   @IsString()
   @ApiProperty({
     description: 'Webhook URL',

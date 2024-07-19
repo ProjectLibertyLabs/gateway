@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
@@ -13,13 +12,15 @@ import { CrawlerModule } from '@libs/common/crawler/crawler.module';
 import { IPFSProcessorModule } from '@libs/common/ipfs/ipfs.module';
 import { PubSubModule } from '@libs/common/pubsub/pubsub.module';
 import { ScannerModule } from '@libs/common/scanner/scanner.module';
-import { ConfigModule } from '@libs/common/config/config.module';
-import { ConfigService } from '@libs/common/config/config.service';
+import { AppConfigModule } from '@libs/common/config/config.module';
+import { AppConfigService } from '@libs/common/config/config.service';
 import * as QueueConstants from '@libs/common';
+import { QueueModule } from '@libs/common/queues/queue.module';
 
 @Module({
   imports: [
-    ConfigModule,
+    AppConfigModule,
+    ScheduleModule.forRoot(),
     BlockchainModule,
     ScannerModule,
     CrawlerModule,
@@ -27,117 +28,55 @@ import * as QueueConstants from '@libs/common';
     PubSubModule,
     RedisModule.forRootAsync(
       {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+        // imports: [ConfigModule],
+        useFactory: (configService: AppConfigService) => ({
+          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
         }),
-        inject: [ConfigService],
+        inject: [AppConfigService],
       },
       true, // isGlobal
     ),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        // Note: BullMQ doesn't honor a URL for the Redis connection, and
-        // JS URL doesn't parse 'redis://' as a valid protocol, so we fool
-        // it by changing the URL to use 'http://' in order to parse out
-        // the host, port, username, password, etc.
-        // We could pass REDIS_HOST, REDIS_PORT, etc, in the environment, but
-        // trying to keep the # of environment variables from proliferating
-        const url = new URL(configService.redisUrl.toString().replace(/^redis[s]*/, 'http'));
-        const { hostname, port, username, password, pathname } = url;
-        return {
-          connection: {
-            host: hostname || undefined,
-            port: port ? Number(port) : undefined,
-            username: username || undefined,
-            password: password || undefined,
-            db: pathname?.length > 1 ? Number(pathname.slice(1)) : undefined,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.REQUEST_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.IPFS_QUEUE,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.BROADCAST_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.REPLY_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.REACTION_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.PROFILE_QUEUE_NAME,
-      },
-      {
-        name: QueueConstants.UPDATE_QUEUE_NAME,
-      },
-    ),
+    QueueModule,
 
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter,
     }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.IPFS_QUEUE,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.BROADCAST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REPLY_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REACTION_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.PROFILE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.UPDATE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
+    BullBoardModule.forFeature(
+      {
+        name: QueueConstants.REQUEST_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.IPFS_QUEUE,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.BROADCAST_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.REPLY_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.REACTION_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.TOMBSTONE_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.PROFILE_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+      {
+        name: QueueConstants.UPDATE_QUEUE_NAME,
+        adapter: BullMQAdapter,
+      },
+    ),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -156,12 +95,11 @@ import * as QueueConstants from '@libs/common';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    ScheduleModule.forRoot(),
   ],
   providers: [ApiService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [ScanControllerV1, SearchControllerV1, WebhookControllerV1, HealthController],
-  exports: [],
+  exports: [RedisModule, ScheduleModule],
 })
 export class ApiModule {}

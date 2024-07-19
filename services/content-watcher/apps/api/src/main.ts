@@ -3,7 +3,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import { initSwagger } from '../../../libs/common/src/config/swagger_config';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { AppConfigService } from '../../../libs/common/src/config/config.service';
 
 const logger = new Logger('main');
 
@@ -17,7 +17,7 @@ async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
-  const configService = app.get<ConfigService>(ConfigService);
+  const configService = app.get<AppConfigService>(AppConfigService);
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);

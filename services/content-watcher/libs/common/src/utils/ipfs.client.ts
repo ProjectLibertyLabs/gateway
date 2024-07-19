@@ -9,7 +9,7 @@ import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
 import { create } from 'multiformats/hashes/digest';
 import { randomUUID } from 'crypto';
 import { base58btc } from 'multiformats/bases/base58';
-import { ConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 
 export interface FilePin {
   cid: string;
@@ -23,7 +23,7 @@ export interface FilePin {
 export class IpfsService {
   logger: Logger;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: AppConfigService) {
     this.logger = new Logger(IpfsService.name);
   }
 

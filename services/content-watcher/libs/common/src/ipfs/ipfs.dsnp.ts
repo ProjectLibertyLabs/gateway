@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { Job, JobsOptions, Queue } from 'bullmq';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { bases } from 'multiformats/basics';
-import { ConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 import { calculateJobId } from '..';
-import * as QueueConstants from '../utils/queues';
+import * as QueueConstants from '../queues/queue-constants';
 import { IIPFSJob } from '../interfaces/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
@@ -20,6 +20,7 @@ import {
   TombstoneAnnouncement,
   UpdateAnnouncement,
 } from '../types/content-announcement';
+import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isTypedAnnouncement, isUpdate } from '../utils/type-guards';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -35,7 +36,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
-    private configService: ConfigService,
+    private configService: AppConfigService,
     private ipfsService: IpfsService,
   ) {
     super();
@@ -75,132 +76,87 @@ export class IPFSContentProcessor extends BaseConsumer {
     }
   }
 
+  private async enqueueAnnouncementResponse(announcementResponse: AnnouncementResponse, name: string, queue: Queue): Promise<void> {
+    if (!(await this.isQueueFull(queue))) {
+      const jobId = calculateJobId(announcementResponse);
+      await queue.add(name, announcementResponse, { jobId });
+    }
+  }
+
   private async buildAndQueueDSNPAnnouncements(records: any[], jobData: IIPFSJob): Promise<void> {
-    const jobRequestId = jobData.requestId;
-    const blockNumer = jobData.blockNumber;
+    const { blockNumber, requestId, schemaId, webhookUrl } = jobData;
     records.forEach(async (mapRecord) => {
-      switch (mapRecord.announcementType) {
-        case AnnouncementType.Broadcast: {
-          const recordAnnouncement = mapRecord as BroadcastAnnouncement;
-          const broadCastResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: recordAnnouncement.fromId,
-              contentHash: bases.base58btc.encode(recordAnnouncement.contentHash as any),
-              url: recordAnnouncement.url,
-              announcementType: recordAnnouncement.announcementType,
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.broadcastQueue))) {
-            const jobId = calculateJobId(broadCastResponse);
-            await this.broadcastQueue.add('Broadcast', broadCastResponse, { jobId });
-          }
-          break;
-        }
-        case AnnouncementType.Tombstone: {
-          const tombRecord = mapRecord as TombstoneAnnouncement;
-          const tombstoneResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: tombRecord.fromId,
-              targetAnnouncementType: tombRecord.targetAnnouncementType,
-              targetContentHash: bases.base58btc.encode(tombRecord.targetContentHash as any),
-              announcementType: tombRecord.announcementType,
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.tombstoneQueue))) {
-            const jobId = calculateJobId(tombstoneResponse);
-            await this.tombstoneQueue.add('Tombstone', tombstoneResponse, { jobId });
-          }
-          break;
-        }
-        case AnnouncementType.Reaction: {
-          const reactionRecord = mapRecord as ReactionAnnouncement;
-          const reactionResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: reactionRecord.fromId,
-              announcementType: reactionRecord.announcementType,
-              inReplyTo: reactionRecord.inReplyTo,
-              emoji: reactionRecord.emoji,
-              apply: reactionRecord.apply,
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.reactionQueue))) {
-            const jobId = calculateJobId(reactionResponse);
-            await this.reactionQueue.add('Reaction', reactionResponse, { jobId });
-          }
-          break;
-        }
-        case AnnouncementType.Reply: {
-          const replyRecord = mapRecord as ReplyAnnouncement;
-          const replyResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: replyRecord.fromId,
-              announcementType: replyRecord.announcementType,
-              url: replyRecord.url,
-              inReplyTo: replyRecord.inReplyTo,
-              contentHash: bases.base58btc.encode(replyRecord.contentHash as any),
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.replyQueue))) {
-            const jobId = calculateJobId(replyResponse);
-            await this.replyQueue.add('Reply', replyResponse, { jobId });
-          }
-          break;
-        }
-        case AnnouncementType.Profile: {
-          const profileRecord = mapRecord as ProfileAnnouncement;
-          const profileResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: profileRecord.fromId,
-              announcementType: profileRecord.announcementType,
-              url: profileRecord.url,
-              contentHash: bases.base58btc.encode(profileRecord.contentHash as any),
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.profileQueue))) {
-            const jobId = calculateJobId(profileResponse);
-            this.profileQueue.add('Profile', profileResponse, { jobId });
-          }
-          break;
-        }
-        case AnnouncementType.Update: {
-          const updateRecord = mapRecord as UpdateAnnouncement;
-          const updateResponse: AnnouncementResponse = {
-            schemaId: jobData.schemaId,
-            blockNumber: blockNumer,
-            announcement: {
-              fromId: updateRecord.fromId,
-              announcementType: updateRecord.announcementType,
-              url: updateRecord.url,
-              contentHash: bases.base58btc.encode(updateRecord.contentHash as any),
-              targetAnnouncementType: updateRecord.targetAnnouncementType,
-              targetContentHash: bases.base58btc.encode(updateRecord.targetContentHash as any),
-            },
-            requestId: jobRequestId,
-          };
-          if (!(await this.isQueueFull(this.profileQueue))) {
-            const jobId = calculateJobId(updateResponse);
-            this.updateQueue.add('Update', updateResponse, { jobId });
-          }
-          break;
-        }
-        default:
-          throw new Error(`Unknown announcement type ${JSON.stringify(mapRecord)}`);
+      let queue: Queue;
+      let typeName: string;
+      const announcementResponse = {
+        blockNumber,
+        requestId,
+        schemaId,
+        webhookUrl,
+      } as AnnouncementResponse;
+
+      if (isBroadcast(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          contentHash: bases.base16.encode(mapRecord.contentHash as never),
+          url: mapRecord.url,
+          announcementType: mapRecord.announcementType,
+        };
+        queue = this.broadcastQueue;
+        typeName = 'Broadcast';
+      } else if (isTombstone(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          targetAnnouncementType: mapRecord.targetAnnouncementType,
+          targetContentHash: bases.base58btc.encode(mapRecord.targetContentHash as any),
+          announcementType: mapRecord.announcementType,
+        };
+        queue = this.tombstoneQueue;
+        typeName = 'Tombstone';
+      } else if (isReaction(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          announcementType: mapRecord.announcementType,
+          inReplyTo: mapRecord.inReplyTo,
+          emoji: mapRecord.emoji,
+          apply: mapRecord.apply,
+        };
+        queue = this.reactionQueue;
+        typeName = 'Reaction';
+      } else if (isReply(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          announcementType: mapRecord.announcementType,
+          url: mapRecord.url,
+          inReplyTo: mapRecord.inReplyTo,
+          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+        };
+        queue = this.replyQueue;
+        typeName = 'Reply';
+      } else if (isProfile(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          announcementType: mapRecord.announcementType,
+          url: mapRecord.url,
+          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+        };
+        queue = this.profileQueue;
+        typeName = 'Profile';
+      } else if (isUpdate(mapRecord)) {
+        announcementResponse.announcement = {
+          fromId: mapRecord.fromId,
+          announcementType: mapRecord.announcementType,
+          url: mapRecord.url,
+          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+          targetAnnouncementType: mapRecord.targetAnnouncementType,
+          targetContentHash: bases.base58btc.encode(mapRecord.targetContentHash as any),
+        };
+        queue = this.updateQueue;
+        typeName = 'Update';
+      } else {
+        throw new Error(`Unknown announcement type ${JSON.stringify(mapRecord)}`);
       }
+      await this.enqueueAnnouncementResponse(announcementResponse, typeName, queue);
     });
   }
 
@@ -210,6 +166,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     const queueIsFull = queueStats.waiting + queueStats.active >= highWater;
     if (queueIsFull) {
       this.logger.log(`Queue ${queue.name} is full`);
+      // TODO: If queue is full, maybe throw a Delayed error?
       throw new Error(`Queue ${queue.name} is full`);
     }
     return queueIsFull;

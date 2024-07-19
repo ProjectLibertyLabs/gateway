@@ -323,25 +323,25 @@
               "type": "string"
             }
           }
-        },
-        "required": [
-          "schemaIds",
-          "dsnpIds"
-        ]
+        }
       },
       "ContentSearchRequestDto": {
         "type": "object",
         "properties": {
+          "clientReferenceId": {
+            "type": "string",
+            "description": "An optional client-supplied reference ID by which it can identify the result of this search"
+          },
           "startBlock": {
             "type": "number",
             "minimum": 1,
-            "description": "The starting block number to search from",
+            "description": "The block number to search (backward) from",
             "example": 100
           },
-          "endBlock": {
+          "blockCount": {
             "type": "number",
             "minimum": 1,
-            "description": "The ending block number to search to",
+            "description": "The number of blocks to scan (backwards)",
             "example": 101
           },
           "filters": {
@@ -352,15 +352,14 @@
               }
             ]
           },
-          "id": {
-            "type": "string"
+          "webhookUrl": {
+            "type": "string",
+            "description": "A webhook URL to be notified of the results of this search"
           }
         },
         "required": [
-          "startBlock",
-          "endBlock",
-          "filters",
-          "id"
+          "blockCount",
+          "webhookUrl"
         ]
       },
       "WebhookRegistrationDto": {

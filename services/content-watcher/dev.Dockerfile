@@ -19,4 +19,4 @@ USER node
 EXPOSE 3000
 
 # Run the application.
-ENTRYPOINT [ "npm", "run", "start:api:watch" ]
+ENTRYPOINT [ "npm", "run", "start:watch" ]

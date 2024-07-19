@@ -4,12 +4,13 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, calculateJobId } from '../../../libs/common/src';
-import { ScannerService } from '../../../libs/common/src/scanner/scanner';
+import { ScannerService } from '../../../libs/common/src/scanner/scanner.service';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../../../libs/common/src/constants';
 import { ChainWatchOptionsDto } from '../../../libs/common/src/dtos/chain.watch.dto';
-import { WebhookRegistrationDto } from '../../../libs/common/src/dtos/subscription.webhook.dto';
+import { IWebhookRegistration } from '../../../libs/common/src/dtos/subscription.webhook.dto';
 import * as RedisUtils from '../../../libs/common/src/utils/redis';
 import { IScanReset } from '../../../libs/common/src/interfaces/scan-reset.interface';
+import { IAnnouncementSubscription } from '@libs/common/interfaces/announcement-subscription.interface';
 
 @Injectable()
 export class ApiService {
@@ -50,7 +51,7 @@ export class ApiService {
   }
 
   public async searchContent(contentSearchRequestDto: ContentSearchRequestDto) {
-    const jobId = contentSearchRequestDto.id ?? calculateJobId(contentSearchRequestDto);
+    const jobId = contentSearchRequestDto.clientReferenceId ?? calculateJobId(contentSearchRequestDto);
     this.logger.debug(`Searching for content with request ${JSON.stringify(contentSearchRequestDto)}`);
 
     const job = await this.requestQueue.getJob(jobId);
@@ -60,18 +61,18 @@ export class ApiService {
     }
     this.requestQueue.remove(jobId);
     // eslint-disable-next-line no-param-reassign
-    contentSearchRequestDto.id = jobId;
+    contentSearchRequestDto.clientReferenceId = jobId;
     const jobPromise = await this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
     const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;
     await this.redis.setex(JOB_REQUEST_WATCH_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(contentSearchRequestDto.filters));
     return jobPromise;
   }
 
-  public async setWebhook(webhookRegistration: WebhookRegistrationDto) {
+  public async setWebhook(webhookRegistration: IWebhookRegistration) {
     this.logger.debug(`Registering webhook ${JSON.stringify(webhookRegistration)}`);
     const currentRegistedWebooks = await this.redis.get(REGISTERED_WEBHOOK_KEY);
 
-    let currentWebhookRegistrationDtos: { announcementType: string; urls: string[] }[] = [];
+    let currentWebhookRegistrationDtos: IAnnouncementSubscription[] = [];
     if (currentRegistedWebooks) {
       currentWebhookRegistrationDtos = JSON.parse(currentRegistedWebooks);
     }
@@ -97,7 +98,7 @@ export class ApiService {
     await this.redis.del(REGISTERED_WEBHOOK_KEY);
   }
 
-  public async getRegisteredWebhooks(): Promise<WebhookRegistrationDto[]> {
+  public async getRegisteredWebhooks(): Promise<IWebhookRegistration[]> {
     this.logger.debug('Getting registered webhooks');
     const registeredWebhooks = await this.redis.get(REGISTERED_WEBHOOK_KEY);
     return registeredWebhooks ? JSON.parse(registeredWebhooks) : [];

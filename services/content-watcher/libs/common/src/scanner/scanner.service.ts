@@ -6,11 +6,11 @@ import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
-import { ConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import * as QueueConstants from '../utils/queues';
+import * as QueueConstants from '../queues/queue-constants';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import * as RedisUtils from '../utils/redis';
@@ -28,7 +28,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   private scanResetBlockNumber: number | undefined;
 
   constructor(
-    private readonly configService: ConfigService,
+    private readonly configService: AppConfigService,
     private readonly blockchainService: BlockchainService,
     @InjectRedis() private readonly cache: Redis,
     @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
@@ -39,11 +39,6 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   }
 
   async onApplicationBootstrap() {
-    const startingBlock = this.configService.startingBlock;
-    if (startingBlock) {
-      this.logger.log(`Setting initial scan block to ${startingBlock}`);
-      this.setLastSeenBlockNumber(startingBlock - 1);
-    }
     setImmediate(() => this.scan());
 
     const scanInterval = this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND;
@@ -54,8 +49,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   }
 
   onApplicationShutdown(_signal?: string | undefined) {
-    const interval = this.schedulerRegistry.getInterval(INTERVAL_SCAN_NAME);
-    clearInterval(interval);
+    if (this.schedulerRegistry.doesExist('interval', INTERVAL_SCAN_NAME)) {
+      clearInterval(this.schedulerRegistry.getInterval(INTERVAL_SCAN_NAME));
+    }
   }
 
   public pauseScanner() {
@@ -83,24 +79,22 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   async scan() {
     try {
-      this.logger.debug('Starting scanner');
-
       if (this.scanInProgress) {
-        this.logger.debug('Scan already in progress');
         return;
       }
 
       const registeredWebhook = await this.cache.get(REGISTERED_WEBHOOK_KEY);
       if (!registeredWebhook) {
-        this.logger.log('No registered webhooks; no scan performed.');
         return;
       }
+      this.logger.debug('Starting scanner');
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
 
       this.scanInProgress = true;
 
       let first = true;
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (this.paused) {
           this.logger.log('Scan paused');
@@ -146,7 +140,12 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       nextBlock = this.scanResetBlockNumber;
       this.scanResetBlockNumber = undefined;
     } else {
-      nextBlock = (Number(await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? 0) + 1;
+      nextBlock = Number((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? '0');
+      if (!nextBlock) {
+        nextBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+      }
+
+      nextBlock += 1;
     }
 
     return nextBlock;

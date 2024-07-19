@@ -6,6 +6,7 @@ export interface IIPFSJob {
   blockNumber: number;
   index: number;
   requestId?: string;
+  webhookUrl?: string;
 }
 
 export function createIPFSQueueJob(
@@ -16,9 +17,10 @@ export function createIPFSQueueJob(
   cid: string,
   index: number,
   requestId?: string,
+  webhookUrl?: string,
 ): { key: string; data: IIPFSJob } {
   return {
-    key: `${msaId}:${providerId}:${index}:${requestId}`,
+    key: `${msaId}:${providerId}:${blockNumber}:${index}:${requestId}`,
     data: {
       msaId,
       providerId,
@@ -27,6 +29,7 @@ export function createIPFSQueueJob(
       blockNumber,
       index,
       requestId,
+      webhookUrl,
     },
   };
 }

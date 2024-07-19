@@ -4,9 +4,10 @@ import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
-import { ConfigService } from '../config/config.service';
+import { AppConfigService } from '../config/config.service';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
 import { AnnouncementResponse } from '../types/content-announcement';
+import { IAnnouncementSubscription } from '../interfaces/announcement-subscription.interface';
 
 @Injectable()
 export class PubSubService {
@@ -14,7 +15,7 @@ export class PubSubService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    private readonly configService: ConfigService,
+    private readonly configService: AppConfigService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -29,15 +30,20 @@ export class PubSubService {
       return;
     }
     // Get the registered webhooks for the specific messageType
-    const registeredWebhook = await this.redis.get(REGISTERED_WEBHOOK_KEY);
-    let currentWebhookRegistrationDtos: { announcementType: string; urls: string[] }[] = [];
+    let currentWebhookRegistrationDtos: IAnnouncementSubscription[] = [];
+    // A webhookUrl on a message means it was scanned by a targeted search and should not be broadcast to all registered webhooks
+    if (message?.webhookUrl) {
+      currentWebhookRegistrationDtos = [{ announcementType: messageType.toLowerCase(), urls: [message.webhookUrl] }];
+    } else {
+      const registeredWebhook = message.webhookUrl ?? (await this.redis.get(REGISTERED_WEBHOOK_KEY));
 
-    // Pause the queues since nobody is listening
-    if (!registeredWebhook) {
-      return;
+      // Pause the queues since nobody is listening
+      if (!registeredWebhook) {
+        return;
+      }
+
+      currentWebhookRegistrationDtos = JSON.parse(registeredWebhook) as IAnnouncementSubscription[];
     }
-
-    currentWebhookRegistrationDtos = JSON.parse(registeredWebhook);
     // Find the registrations for the specified messageType
     const registrationsForMessageType = currentWebhookRegistrationDtos.find((registration) => registration.announcementType === messageType.toLowerCase());
 

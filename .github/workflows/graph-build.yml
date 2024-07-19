@@ -22,10 +22,12 @@ jobs:
           node-version: 20
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: services/graph/package-lock.json
       - name: Install dependencies
+        working-directory: services/graph
         run: npm ci
       - name: Build NestJS
+        working-directory: services/graph
         run: npm run build
   test_jest:
     name: "Test"
@@ -38,10 +40,12 @@ jobs:
           node-version: 20
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: services/graph/package-lock.json
       - name: Install dependencies
+        working-directory: services/graph
         run: npm ci
       - name: Run Jest
+        working-directory: services/graph
         run: npm run test
   check_licenses:
     name: "Dependency License Check"
@@ -51,11 +55,10 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          working-directory: services/graph
           node-version: 20
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: services/graph/package-lock.json
       - name: Install dependencies
         working-directory: services/graph
         run: npm ci

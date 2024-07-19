@@ -69,9 +69,8 @@ jobs:
       - name: Build and Push graph-service-service Image
         uses: docker/build-push-action@v5
         with:
-          working-directory: services/graph
-          context: .
+          context: services/graph/.
           platforms: linux/amd64
           push: ${{env.TEST_RUN != 'true'}}
-          file: ./Dockerfile
+          file: services/graph/Dockerfile
           tags: ${{ steps.cp-tags.outputs.tags }}

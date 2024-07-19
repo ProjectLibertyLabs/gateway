@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Milestone Sync
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+on:
+  milestone:
+
+# Things to remember about milestone and issue syncing
+# 1. Everything is based on title matching. So if you change a milestone title, it will create new empty milestones, but the old ones will still be there.
+# 2. Everything is based on title matching. So if you change an issue title, it will remove the old one from the milestone and close it out. (cannot delete via the GH api)
+# 3. This is only semi-tested. I'm sure there are more edge cases than I handled!
+# 4. Create milestones in this repo and issues in the "remote" repos
+
+# How to Test
+# Use act https://nektosact.com
+# Edit the matrix to only use a test repo
+# `act  -s GITHUB_TOKEN="$(gh auth token)" --container-architecture linux/amd64 --detect-event -e ./event.json`
+# Where event.json is something like:
+# {
+#   "milestone": {
+#     "state": "open",
+#     "description": "desc",
+#     "title": "Green"
+#   }
+# }
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    strategy:
+      matrix:
+        # If you change this list, also change it on the other workflows
+        repository:
+          - AmplicaLabs/reconnection-service
+          - AmplicaLabs/graph-service
+          - AmplicaLabs/account-service
+          - AmplicaLabs/content-publishing-service
+          - AmplicaLabs/content-watcher-service
+          - AmplicaLabs/social-app-template
+    steps:
+      - name: Create/Open/Close Milestone
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+          script: |
+            const repository = "${{ matrix.repository }}";
+            const [owner, repo] = repository.split("/");
+
+            const milestoneTitle = "${{ github.event.milestone.title }}";
+            const milestoneParams = {
+              title: milestoneTitle,
+              state: "${{ github.event.milestone.state }}",
+              description: `${{ github.event.milestone.description }}`,
+              due_on: "${{ github.event.milestone.due_on }}" || undefined,
+            };
+
+            console.log("Syncing Milestone to", {repository, owner, repo, milestoneParams});
+
+            const { data: remoteMilestones } = await github.request('GET /repos/{owner}/{repo}/milestones', {
+              owner: owner,
+              repo: repo,
+              state: 'all',
+              per_page: 100, // TODO: Handle > 100 milestones
+            });
+
+            // Find any existing milestones with the matching name
+            const existing = remoteMilestones.find((item) => item.title === milestoneTitle);
+            if (existing) {
+              console.log(`Found milestone "${milestoneTitle}". Checking state...`);
+              // Make sure it is open/closed correctly
+              if(existing.state !== milestoneParams.state) {
+                // Update
+                const { data: { html_url } } = await github.request('PATCH /repos/{owner}/{repo}/milestones/{milestone_number}', {
+                  owner: owner,
+                  repo: repo,
+                  milestone_number: existing.number,
+                  ...milestoneParams,
+                });
+                console.log(`Updated milestone: ${html_url}`);
+              }
+            } else {
+              console.log(`Milestone "${milestoneTitle}" missing. Creating...`);
+              const { data: { html_url } } = await github.request('POST /repos/{owner}/{repo}/milestones', {
+                owner: owner,
+                repo: repo,
+                ...milestoneParams,
+              });
+              console.log(`Created new milestone: ${html_url}`);
+            }

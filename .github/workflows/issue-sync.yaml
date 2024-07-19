@@ -1,0 +1,199 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Issue Sync
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+on:
+  schedule:
+    - cron: "* * * * *" # Every 5 minutes
+  workflow_dispatch: # Anytime someone hits the button
+
+# How to Test
+# Use act https://nektosact.com
+# Edit the matrix to only use a test repo
+# `act  -s GITHUB_TOKEN="$(gh auth token)" --container-architecture linux/amd64 schedule`
+#
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    strategy:
+      matrix:
+        # If you change this list, also change it on the other workflows
+        repository:
+          - AmplicaLabs/reconnection-service
+          - AmplicaLabs/graph-service
+          - AmplicaLabs/account-service
+          - AmplicaLabs/content-publishing-service
+          - AmplicaLabs/content-watcher-service
+          - AmplicaLabs/social-app-template
+    steps:
+      - name: Sync Issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ADDED_CONTENT = "\n--- Added by trigger ---\n";
+            const repository = "${{ matrix.repository }}";
+            const [owner, repo] = repository.split("/");
+            const localOwner = context.repo.owner;
+            const localRepo = context.repo.repo;
+
+            console.log("Syncing Issues to", {repository, owner, repo});
+
+            // Get the list of milestones on local
+            const { data: localMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
+              owner: localOwner,
+              repo: localRepo,
+              state: 'all',
+              per_page: 100, // TODO: Handle > 100 milestones
+            });
+
+            const { data: remoteMilestones } = await await github.request('GET /repos/{owner}/{repo}/milestones', {
+              owner: owner,
+              repo: repo,
+              state: 'all',
+              per_page: 100, // TODO: Handle > 100 milestones
+            });
+
+            const thirtyMinutesInMs = 30 * 60 * 1000;
+
+            for (const localMilestone of localMilestones) {
+              const remoteMilestone = remoteMilestones.find((item) => item.title === localMilestone.title);
+
+              if (!remoteMilestone) {
+                console.log(`Milestone "${localMilestone.title}" doesn't exist on ${repository} currently`);
+                continue;
+              }
+
+              console.log(`Processing milestone "${localMilestone.title}" issues...`);
+              const issueTitlesManaged = [];
+
+              // Find Local issues with the "repo" label
+              const { data: localIssues } = await github.rest.issues.listForRepo({
+                owner: localOwner,
+                repo: localRepo,
+                milestone: localMilestone.number,
+                labels: repo,
+                state: 'all',
+                per_page: 100, // TODO: Handle > 100 issues
+              });
+
+              // Find remote issues
+              const { data: remoteIssues } = await github.rest.issues.listForRepo({
+                owner: owner,
+                repo: repo,
+                state: 'all',
+                milestone: remoteMilestone.number,
+                per_page: 100, // TODO: Handle > 100 issues
+              });
+
+              // Update local issues
+              for(const remoteIssue of remoteIssues) {
+                const issueLink = `Linked issue: ${owner}/${repo}#${remoteIssue.number}`;
+                const remoteBody = remoteIssue.body.trimEnd();
+
+                // We add in the repo as a label to make sure we are only dealing with issues for the specific repo
+                const remoteLabelsPlusRepo = [repo, ...remoteIssue.labels.map(x => x.name)].sort();
+
+                const issueParams = {
+                  title: remoteIssue.title,
+                  milestone: localMilestone.number,
+                  body: remoteIssue.body,
+                  labels: remoteLabelsPlusRepo,
+                  state: remoteIssue.state,
+                  state_reason: remoteIssue.state_reason,
+                };
+
+                issueTitlesManaged.push(remoteIssue.title);
+
+                // Check for a local issue
+                const localIssue = localIssues.find((item) => item.title === remoteIssue.title);
+
+                if (localIssue) {
+                  console.log(`Found local issue for "${localIssue.title}".`, remoteIssue.title);
+                  const localLabels = localIssue.labels.map(x => x.name).sort();
+
+                  const strippedLocalBody = localIssue.body?.replace(new RegExp(`${ADDED_CONTENT}.*`, "s"), '').trimEnd();
+                  const addedContentMatch = new RegExp(`${ADDED_CONTENT}(.*)`, "s").exec(localIssue.body);
+                  const addedContent = addedContentMatch?.length > 1 ? addedContentMatch[1] : undefined;
+
+                  // Verify matching
+                  const isMatch = localIssue.title === remoteIssue.title
+                    && strippedLocalBody === remoteBody
+                    && localIssue.state === remoteIssue.state
+                    && JSON.stringify(localLabels) === JSON.stringify(remoteLabelsPlusRepo)
+                    && addedContent === issueLink;
+
+                  if ( !isMatch ) {
+                    console.log(`Need to update issue "${remoteIssue.title}" locally due to:`, {
+                        title: {
+                          isMatch: localIssue.title === remoteIssue.title,
+                          local: localIssue.title,
+                          remote: remoteIssue.title,
+                        },
+                        body: {
+                          isMatch: strippedLocalBody === remoteBody,
+                          local: strippedLocalBody,
+                          remote: remoteBody,
+                        },
+                        state: {
+                          isMatch: localIssue.state === remoteIssue.state,
+                          local: localIssue.state,
+                          remote: remoteIssue.state,
+                        },
+                        labels: {
+                          isMatch: JSON.stringify(localLabels) === JSON.stringify(remoteLabelsPlusRepo),
+                          local: JSON.stringify(localLabels),
+                          remote: JSON.stringify(remoteLabelsPlusRepo),
+                        },
+                        linkedIssue: {
+                          isMatch: addedContent === issueLink,
+                          actual: addedContent,
+                          expected: issueLink,
+                        }
+                    });
+
+                    // Update issue
+                    const { data: { html_url } } = await github.rest.issues.update({
+                      ...issueParams,
+                      body: `${remoteBody}\n${ADDED_CONTENT}${issueLink}`,
+                      owner: localOwner,
+                      repo: localRepo,
+                      issue_number: localIssue.number,
+                    });
+                    console.log(`Updated issue "${remoteIssue.title}" locally: ${html_url}`);
+                  }
+
+                } else { // Create issue
+                  console.log(`Issue "${remoteIssue.title}" not found. Creating...`);
+                  const { data: { html_url } } = await github.rest.issues.create({
+                    ...issueParams,
+                    body: `${remoteBody}\n${ADDED_CONTENT}${issueLink}`,
+                    owner: localOwner,
+                    repo: localRepo,
+                  });
+                  console.log(`Created issue "${remoteIssue.title}" locally: ${html_url}`);
+                }
+              } // End update local issues
+
+              // Remove any local issues (with the specific repo label) that no longer exist on the remote
+              for(const localIssue of localIssues) {
+                // Check for a local issue
+                const remoteIssue = remoteIssues.find((item) => item.title === localIssue.title);
+
+                if (!remoteIssue && !issueTitlesManaged.includes(localIssue.title)) {
+                  console.log(`Issue "${localIssue.title}" no longer on remote. Removing...`);
+                  await github.rest.issues.update({
+                    owner: localOwner,
+                    repo: localRepo,
+                    issue_number: localIssue.number,
+                    milestone: null,
+                    state: 'closed',
+                    state_reason: 'not_planned',
+                  });
+                  console.log(`Removed issue "${localIssue.title}" from milestone and closed.`);
+                }
+              } // End remove dead local issues
+            } // End Milestone for loop

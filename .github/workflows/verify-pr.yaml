@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Verify PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up mdBook 📚
+        uses: ./.github/workflows/common/set-up-mdbook
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build mdBook 📚
+        working-directory: docs
+        run: mdbook build && ls book

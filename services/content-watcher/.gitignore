@@ -1,0 +1,10 @@
+node_modules
+dist
+.env*
+!.env.docker.dev
+!.env.content-publishing-service
+.vscode
+coverage
+.idea
+docs/*.html
+*.bkp

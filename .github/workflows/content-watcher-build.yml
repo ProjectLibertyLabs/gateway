@@ -1,4 +1,4 @@
-name: Build And Test Content Watcher Service
+name: "[Content Watcher] Build And Test"
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: 'Build'
+    name: "Build"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,15 +20,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-          cache-dependency-path: package-lock.json
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+          cache-dependency-path: services/content-watcher/package-lock.json
       - name: Install dependencies
+        working-directory: services/content-watcher
         run: npm ci
       - name: Build NestJS
+        working-directory: services/content-watcher
         run: npm run build
   test_jest:
-    name: 'Test'
+    name: "Test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,15 +38,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-          cache-dependency-path: package-lock.json
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+          cache-dependency-path: services/content-watcher/package-lock.json
       - name: Install dependencies
+        working-directory: services/content-watcher
         run: npm ci
       - name: Run Jest
+        working-directory: services/content-watcher
         run: npm run test
   check_licenses:
-    name: 'Dependency License Check'
+    name: "Dependency License Check"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,11 +56,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-          cache-dependency-path: package-lock.json
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+          cache-dependency-path: services/content-watcher/package-lock.json
       - name: Install dependencies
+        working-directory: services/content-watcher
         run: npm ci
       - name: License Check
+        working-directory: services/content-watcher
         # List all the licenses and error out if it is not one of the supported licenses
         run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)") | not)) | if length == 0 then halt else halt_error(1) end'

@@ -1,24 +1,24 @@
-name: Release
-run-name: Cut Release ${{github.event.inputs.release-version || github.ref_name}}
+name: "[Content Watcher] Release"
+run-name: "[Content Watcher] Cut Release ${{github.event.inputs.release-version || github.ref_name}}"
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+' # ex. v1.0.0
-      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+' # ex. v1.1.0-rc1
-      - 'v0.0.1' # used for testing only
-      - 'v0.0.1-rc[0-9]+' # used for testing only
+      - "content-watcher-v[0-9]+.[0-9]+.[0-9]+" # ex. v1.0.0
+      - "content-watcher-v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+" # ex. v1.1.0-rc1
+      - "content-watcher-v0.0.1" # used for testing only
+      - "content-watcher-v0.0.1-rc[0-9]+" # used for testing only
   workflow_dispatch:
     inputs:
       release-version:
-        description: 'Release version (v#.#.#[-rc#])'
+        description: "Release version (content-watcher-v#.#.#[-rc#])"
         required: true
 
 env:
   NEW_RELEASE_TAG_FROM_UI: ${{github.event.inputs.release-version}}
-  TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'v0.0.1')}}
+  TEST_RUN: ${{startsWith(github.event.inputs.release-version || github.ref_name, 'content-watcher-v0.0.1')}}
   DOCKER_HUB_PROFILE: amplicalabs
   IMAGE_NAME: content-watcher-service
 
@@ -33,10 +33,10 @@ jobs:
         run: |
           version=${{env.NEW_RELEASE_TAG_FROM_UI}}
           echo "Release version entered in UI: $version"
-          regex='^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-rc[1-9]\d*)?$'
+          regex='^content-watcher-v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-rc[1-9]\d*)?$'
           if [[ ! $version =~ $regex ]]; then
             echo "ERROR: Entered version $version is not valid."
-            echo "Please use v#.#.#[-rc#] format."
+            echo "Please use content-watcher-v#.#.#[-rc#] format."
             exit 1
           fi
           echo "valid-version=true" >> $GITHUB_OUTPUT
@@ -69,8 +69,8 @@ jobs:
       - name: Build and Push content-watcher-service Image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: services/content-watcher
           platforms: linux/amd64
           push: ${{env.TEST_RUN != 'true'}}
-          file: ./Dockerfile
+          file: services/content-watcher/Dockerfile
           tags: ${{ steps.cp-tags.outputs.tags }}

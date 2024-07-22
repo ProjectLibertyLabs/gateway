@@ -1,0 +1,25 @@
+{
+  "name": "@amplicalabs/gateway",
+  "version": "0.0.0",
+  "description": "Gateway services for DSNP over Frequency",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmplicaLabs/gateway.git"
+  },
+  "author": "Project Liberty, LLC",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/AmplicaLabs/gateway/issues"
+  },
+  "homepage": "https://github.com/AmplicaLabs/gateway#readme",
+  "workspaces": [
+    "services/*"
+  ]
+}

@@ -4,8 +4,8 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: false
 on:
-  schedule:
-    - cron: "* * * * *" # Every 5 minutes
+  # schedule:
+  #   - cron: "* * * * *" # Every 5 minutes
   workflow_dispatch: # Anytime someone hits the button
 
 # How to Test

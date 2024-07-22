@@ -4,7 +4,8 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: false
 on:
-  milestone:
+  # milestone:
+  workflow_dispatch:
 
 # Things to remember about milestone and issue syncing
 # 1. Everything is based on title matching. So if you change a milestone title, it will create new empty milestones, but the old ones will still be there.

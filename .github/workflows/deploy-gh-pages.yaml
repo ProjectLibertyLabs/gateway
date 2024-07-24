@@ -58,8 +58,8 @@ jobs:
         with:
           service: ${{ matrix.service }}
       
-      - name: Upload OpenAPI UI to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload OpenAPI UI artifact for ${{ matrix.service }}
+        uses: actions/upload-artifact@v4
         with:
           name: openapi-${{ matrix.service }}
           path: ./docs/${{ matrix.service }}
@@ -87,6 +87,11 @@ jobs:
         with:
           name: openapi-account
           path: ./docs/account
+
+      - name: Upload final result to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
 
       # - name: Download content-watcher OpenAPI artifacts
       #   uses: actions/download-artifact@v4

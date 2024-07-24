@@ -48,7 +48,7 @@ jobs:
 
       # Publish OpenAPI specs for each microservice
       - name: Build and Publish OpenAPI spec for ${{ matrix.service }}
-        uses: ./.github/workflows/common/openapi-build.yml
+        uses: ./.github/workflows/common/openapi-build
         with:
           service: ${{ matrix.service }}
       

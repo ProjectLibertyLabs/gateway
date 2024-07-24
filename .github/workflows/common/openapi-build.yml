@@ -1,0 +1,46 @@
+name: Build and Publish OpenAPI UI
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        types: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./services/${{ inputs.service }}
+
+      - name: Generate Swagger Metadata
+        run: npm run build:metadata
+        working-directory: ./services/${{ inputs.service }}
+
+      - name: Generate Swagger JSON
+        run: npm run build:swagger
+        working-directory: ./services/${{ inputs.service }}
+
+      - name: Generate Swagger UI
+        run: npm run generate-swagger-ui
+        working-directory: ./services/${{ inputs.service }}
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Publish generated OpenAPI (index.html) to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/${{ inputs.service }}

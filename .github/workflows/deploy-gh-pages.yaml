@@ -17,6 +17,14 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - account
+          # - content-watcher
+          # - content-publishing
+          # - graph
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +45,17 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/book
+
+      # Publish OpenAPI specs for each microservice
+      - name: Build and Publish OpenAPI spec for ${{ matrix.service }}
+        uses: ./.github/workflows/common/openapi-build.yml
+        with:
+          service: ${{ matrix.service }}
+      
+      - name: Publish OpenAPI UI to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/${{ matrix.service }}
 
   # Deployment job
   deploy:

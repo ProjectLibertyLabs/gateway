@@ -21,7 +21,7 @@ jobs:
       matrix:
         service:
           - account
-          # - content-watcher
+          - content-watcher
           # - content-publishing
           # - graph
 
@@ -93,11 +93,11 @@ jobs:
         with:
           path: ./docs
 
-      # - name: Download content-watcher OpenAPI artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: openapi-content-watcher
-      #     path: ./docs/content-watcher
+      - name: Download content-watcher OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-content-watcher
+          path: ./docs/content-watcher
 
       # - name: Download content-publishing OpenAPI artifacts
       #   uses: actions/download-artifact@v4

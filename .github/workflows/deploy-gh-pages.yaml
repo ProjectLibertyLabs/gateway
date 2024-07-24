@@ -23,7 +23,7 @@ jobs:
           - account
           - content-watcher
           - content-publishing
-          # - graph
+          - graph
 
     steps:
       - name: Checkout
@@ -100,11 +100,11 @@ jobs:
           name: openapi-content-publishing
           path: ./docs/content-publishing
 
-      # - name: Download graph OpenAPI artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: openapi-graph
-      #     path: ./docs/graph
+      - name: Download graph OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-graph
+          path: ./docs/graph
 
       - name: Upload final result to GitHub Pages
         uses: actions/upload-pages-artifact@v3

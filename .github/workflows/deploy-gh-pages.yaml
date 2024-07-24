@@ -29,22 +29,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Set up mdBook 📚
-      #   uses: ./.github/workflows/common/set-up-mdbook
-      #   with:
-      #     token: ${{secrets.GITHUB_TOKEN}}
+      - name: Set up mdBook 📚
+        uses: ./.github/workflows/common/set-up-mdbook
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
 
-      # - name: Build with mdBook
-      #   working-directory: docs
-      #   run: mdbook build && ls book
+      - name: Build with mdBook
+        working-directory: docs
+        run: mdbook build && ls book
 
-      # - name: Upload artifact
-      #   uses: actions/upload-pages-artifact@v3
-      #   with:
-      #     path: ./docs/book
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/book
 
       # Publish OpenAPI specs for each microservice
       - name: Build and Publish OpenAPI spec for ${{ matrix.service }}

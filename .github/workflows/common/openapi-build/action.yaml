@@ -28,17 +28,16 @@ runs:
       shell: bash
       working-directory: ./services/${{ inputs.service }}
 
-    - name: Generate Swagger JSON
+    - name: Generate OpenAPI/Swagger JSON
       run: npm run build:swagger
       shell: bash
       working-directory: ./services/${{ inputs.service }}
 
-    - name: Generate Swagger UI
+    - name: Generate OpenAPI/Swagger UI
       run: npm run generate-swagger-ui
       shell: bash
       working-directory: ./services/${{ inputs.service }}
 
-    - name: Publish generated OpenAPI (index.html) to GitHub Pages
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./docs/${{ inputs.service }}
+    - name: Copy OpenAPI Spec (index.html) to root docs directory
+      run: cp ./services/${{ inputs.service }}/docs/index.html ./docs/${{ inputs.service }}/
+      shell: bash

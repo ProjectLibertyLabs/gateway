@@ -22,7 +22,7 @@ jobs:
         service:
           - account
           - content-watcher
-          # - content-publishing
+          - content-publishing
           # - graph
 
     steps:
@@ -88,22 +88,17 @@ jobs:
           name: openapi-account
           path: ./docs/account
 
-      - name: Upload final result to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./docs
-
       - name: Download content-watcher OpenAPI artifacts
         uses: actions/download-artifact@v4
         with:
           name: openapi-content-watcher
           path: ./docs/content-watcher
 
-      # - name: Download content-publishing OpenAPI artifacts
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: openapi-content-publishing
-      #     path: ./docs/content-publishing
+      - name: Download content-publishing OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-content-publishing
+          path: ./docs/content-publishing
 
       # - name: Download graph OpenAPI artifacts
       #   uses: actions/download-artifact@v4
@@ -111,6 +106,10 @@ jobs:
       #     name: openapi-graph
       #     path: ./docs/graph
 
+      - name: Upload final result to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

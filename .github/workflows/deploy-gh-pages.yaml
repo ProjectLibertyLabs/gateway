@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mdbook
-          path: ./docs/book
+          path: ./docs
 
       # Publish OpenAPI specs for each microservice
       - name: Build and Publish OpenAPI spec for ${{ matrix.service }}
@@ -80,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: mdbook
-          path: ./docs/book
+          path: ./docs
 
       - name: Download account OpenAPI artifacts
         uses: actions/download-artifact@v4

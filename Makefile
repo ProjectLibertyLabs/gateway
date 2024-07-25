@@ -1,6 +1,7 @@
 SERVICES := $(shell (cd services ; ls))
 
-NPM_TARGETS=$(SERVICES:%=npm-%)
+NPM_TARGETS:=$(SERVICES:%=npm-%)
+NPM_UPDATE_TARGETS:=$(SERVICES:%=npm-update-%)
 BUILD_TARGETS=$(SERVICES:%=build-%)
 METADATA_TARGETS=$(SERVICES:%=metadata-%)
 OPENAPI_TARGETS=$(SERVICES:%=openapi-%)
@@ -16,6 +17,7 @@ DOCKER_BUILD_TARGETS=$(SERVICES:%=docker-build-%)
 .PHONY: build test test-e2e lint format docker-build $(BUILD_TARGETS) $(TEST_TARGETS) $(E2E_TARGETS) $(LINT_TARGETS) $(FORMAT_TARGETS) $(DOCKER_BUILD_TARGETS)
 
 deps: $(NPM_TARGETS)
+update-packages: $(NPM_UPDATE_TARGETS)
 build: $(BUILD_TARGETS)
 generate-metadata: $(METADATA_TARGETS)
 generate-openapi: $(OPENAPI_TARGETS)
@@ -28,7 +30,11 @@ format: $(FORMAT_TARGETS)
 docker-build: $(DOCKER_BUILD_TARGETS)
 
 $(NPM_TARGETS):
-	( cd services/$(@:npm-%=%) ; npm i )
+	@( cd services/$(@:npm-%=%) ; npm ci )
+
+# $(NPM_TARGETS:npm-%=npm-update-%):
+$(NPM_UPDATE_TARGETS):
+	@( cd services/$(@:npm-update-%=%) ; npm i )
 
 $(BUILD_TARGETS): build-%: npm-%
 	@( cd services/$(@:build-%=%) ; npm run build )

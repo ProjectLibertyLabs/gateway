@@ -15,7 +15,8 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  # Build mdbook
+  build-mdbook: 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,19 +34,89 @@ jobs:
         working-directory: docs
         run: mdbook build && ls book
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # Upload the mdBook output to GitHub Pages
+      - name: Upload mdbook to GitHub Pages
+        uses: actions/upload-artifact@v4
         with:
-          path: ./docs/book
+          name: mdbook
+          path: ./docs
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - account
+          - content-watcher
+          - content-publishing
+          - graph
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Publish OpenAPI specs for each microservice
+      - name: Build and Publish OpenAPI spec for ${{ matrix.service }}
+        uses: ./.github/workflows/common/openapi-build
+        with:
+          service: ${{ matrix.service }}
+      
+      - name: Upload OpenAPI UI artifact for ${{ matrix.service }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-${{ matrix.service }}
+          path: ./docs/${{ matrix.service }}
 
   # Deployment job
   deploy:
+    name: Deploy mdbook and OpenAPI microservices to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build, build-mdbook]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download mdbook artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mdbook
+          path: ./docs
+
+      - name: Move mdbook to root
+        run: mv ./docs/book/* ./docs
+        shell: bash
+
+      - name: Download account OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-account
+          path: ./docs/account
+
+      - name: Download content-watcher OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-content-watcher
+          path: ./docs/content-watcher
+
+      - name: Download content-publishing OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-content-publishing
+          path: ./docs/content-publishing
+
+      - name: Download graph OpenAPI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-graph
+          path: ./docs/graph
+
+      - name: Upload final result to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

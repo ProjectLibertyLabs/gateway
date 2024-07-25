@@ -44,7 +44,7 @@ export class GraphNotifierService extends BaseConsumer {
         blockList.push(i);
       }
 
-      const notification: GraphOperationStatus = {
+      const clientRequest: GraphOperationStatus = {
         referenceId: job.data.referencePublishJob.referenceId,
         status: 'pending',
       };
@@ -52,11 +52,11 @@ export class GraphNotifierService extends BaseConsumer {
       try {
         const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
         if (!txResult.found) {
-          this.logger.error(`Tx ${job.data.txHash} not found in block list`);
+          this.logger.error(`Tx ${job.data.txHash} not found in block list (attempts: ${job.attemptsMade}, maxAttempts: ${this.changeRequestQueue.jobsOpts.attempts})`);
           // TODO: implement a blockchain scanner with mortality checks for expiration.
           // For now, if we fail more times than this job queue will allow, consider the operation expired.
-          if (job.attemptsMade >= (this.changeRequestQueue.jobsOpts.attempts || 1)) {
-            notification.status = 'expired';
+          if (job.attemptsMade + 1 >= (this.changeRequestQueue.jobsOpts.attempts || 1)) {
+            clientRequest.status = 'expired';
           }
           throw new Error(`Tx ${job.data.txHash} not found in block list`);
         } else {
@@ -74,14 +74,14 @@ export class GraphNotifierService extends BaseConsumer {
             if (errorReport.retry) {
               await this.retryRequestJob(job.data.referencePublishJob.referenceId);
             } else {
-              notification.status = 'failed';
+              clientRequest.status = 'failed';
             }
             throw new UnrecoverableError(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
           }
 
           if (txResult.success) {
             this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-            notification.status = 'succeeded';
+            clientRequest.status = 'succeeded';
             const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
             this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
             const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
@@ -109,7 +109,7 @@ export class GraphNotifierService extends BaseConsumer {
               while (retries < this.configService.getHealthCheckMaxRetries()) {
                 try {
                   this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
-                  this.logger.debug(`Graph Change: ${JSON.stringify(notification)}`);
+                  this.logger.debug(`Graph Change: ${JSON.stringify(clientRequest)}`);
                   // eslint-disable-next-line no-await-in-loop
                   await axios.post(webhookUrl, graphUpdateNotification);
                   this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
@@ -125,14 +125,14 @@ export class GraphNotifierService extends BaseConsumer {
           }
         }
       } finally {
-        if (notification.status !== 'pending') {
+        if (clientRequest.status !== 'pending') {
           const webhook = job.data.referencePublishJob.webhookUrl;
           if (webhook) {
             let retries = 0;
             while (retries < this.configService.getHealthCheckMaxRetries()) {
               try {
-                this.logger.debug(`Sending graph operation status (${notification.status}) notification for refId ${notification.referenceId} to webhook: ${webhook}`);
-                await axios.post(webhook, notification);
+                this.logger.debug(`Sending graph operation status (${clientRequest.status}) notification for refId ${clientRequest.referenceId} to webhook: ${webhook}`);
+                await axios.post(webhook, clientRequest);
                 break;
               } catch (error: any) {
                 this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);

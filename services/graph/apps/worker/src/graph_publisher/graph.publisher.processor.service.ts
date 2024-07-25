@@ -55,7 +55,6 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
       const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
-      const currentCapacityEpoch = await this.blockchainService.getCurrentCapacityEpoch();
       switch (job.data.update.type) {
         case 'PersistPage': {
           let payloadData: number[] = [];
@@ -99,12 +98,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         lastFinalizedBlockHash,
         referencePublishJob: job.data,
       };
-      const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
 
       this.logger.debug(`Adding job to graph change notify queue: ${txMonitorJob.id}`);
-      this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob, {
-        delay: blockDelay,
-      });
+      this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob);
     } catch (error: unknown) {
       this.logger.error(error);
       throw error;

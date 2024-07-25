@@ -24,6 +24,21 @@ webhooks:
           description: Graph update announcement handled
         '400':
           description: Bad request
+  graph-request-status:
+    post:
+      summary: Send the status of a requested graph update
+      operationId: updateOperationStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/GraphOperationStatus'
+      responses:
+        '200':
+          description: Graph operation status received
+        '400':
+          description: Bad request
 components:
   schemas:
     Uint8Array:

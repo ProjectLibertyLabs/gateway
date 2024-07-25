@@ -6,7 +6,7 @@
 
 - [📖 About the Project](#about-project)
 - [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#-built-with)
+- [🛠 Built With](#built-with)
   - [Tech Stack](#tech-stack)
   - [Key Features](#key-features)
 - [🚀 Live OpenAPI Docs](#-live-docs)
@@ -22,7 +22,7 @@
   - [Linting](#linting)
   - [Formatting](#auto-format)
 - [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#-support)
+- [⭐️ Show your support](#support)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [❓FAQ](#faq)
 - [📝 License](#-license)
@@ -116,6 +116,7 @@ The Content Publishing Service consists of two applications: an API controller, 
 ### Key Features
 
 #### API
+
 - **Upload asset files**
 - **Create a broadcast(post)**
 - **Create a reply**
@@ -125,6 +126,7 @@ The Content Publishing Service consists of two applications: an API controller, 
 - **Update a user profile**
 
 #### Development API
+
 - **Get the details of a job**
 - **Get asset**
 - **Populate a queue with dummy announcement data**
@@ -203,31 +205,35 @@ To run the project, execute the following command:
 
 #### 2. Start the application services
 
-  Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow. 
+  Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
   
   The instructions are the same for running both the API service and the worker service:
-    
-  - **Substitute "api" or "worker" for the "< service >" tag in the commands below.**
 
-  #### Running bare metal
+- **Substitute "api" or "worker" for the "< service >" tag in the commands below.**
+
+#### Running bare metal
+
   ```sh
   npm run start:<service>::dev
   ```
 
   -- or --
   
-  #### Running under Docker
+#### Running under Docker
+
   ```sh
   docker compose up [-d] content-publishing-service-<service>
   ```
 
-#### 3. Check the job in BullUI, to monitor job progress based on defined tests.
+#### 3. Check the job in BullUI, to monitor job progress based on defined tests
 
 ### Swagger UI
-Check out the Swagger UI hosted on the app instance at http://localhost:3000/docs/swagger to view the API documentation and submit requests to the service.
+
+Check out the Swagger UI hosted on the app instance at <http://localhost:3000/docs/swagger> to view the API documentation and submit requests to the service.
 
 ### Queue Management
-You may also view and manage the application's queue at http://localhost:3000/queues.
+
+You may also view and manage the application's queue at <http://localhost:3000/queues>.
 
 ### Run tests
 
@@ -237,13 +243,13 @@ To run tests, run the following command:
   npm test
 ```
 
-### Linting:
+### Linting
 
 ```sh
   npm run lint
 ```
 
-### Auto-format:
+### Auto-format
 
 ```sh
   npm run format
@@ -264,7 +270,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- SUPPORT -->
 
-## ⭐️ Show your support
+## ⭐️ Show your support <a name="support"></a>
 
 If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
 

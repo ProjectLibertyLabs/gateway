@@ -68,32 +68,32 @@ Each Gateway services is an independent microservice.
 <details>
 <summary>Account Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/account-service/)
-- [GitHub](https://github.com/AmplicaLabs/account-service)
+- [API Documentation](https://amplicalabs.github.io/gateway/account)
+- [README](./services/account/README.md)
 
 </details>
 
 <details>
 <summary>Graph Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/graph-service/)
-- [GitHub](https://github.com/AmplicaLabs/graph-service)
+- [API Documentation](https://amplicalabs.github.io/gateway/graph/)
+- [README](./services/graph/README.md)
 
 </details>
 
 <details>
 <summary>Content Publishing Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/content-publishing-service/)
-- [GitHub](https://github.com/AmplicaLabs/content-publishing-service)
+- [API Documentation](https://amplicalabs.github.io/gateway/content-publishing/)
+- [README](./services/content-publishing/README.md)
 
 </details>
 
 <details>
 <summary>Content Watcher Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/content-watcher-service/)
-- [GitHub](https://github.com/AmplicaLabs/content-watcher-service)
+- [API Documentation](https://amplicalabs.github.io/gateway/content-watcher/)
+- [README](./services/content-watcher/README.md)
 
 </details>
 
@@ -177,7 +177,6 @@ Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Open Issues](https://github.com/AmplicaLabs/gateway/issues)
-- See also the repositories of the individual services.
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -196,4 +195,3 @@ Thank you to [Frequency](https://www.frequency.xyz) for assistance and documenta
 This project is [Apache 2.0](./LICENSE) licensed.
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-````

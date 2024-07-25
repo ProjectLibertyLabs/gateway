@@ -82,6 +82,10 @@ jobs:
           name: mdbook
           path: ./docs
 
+      - name: Move mdbook to root
+        run: mv ./docs/book/* ./docs
+        shell: bash
+
       - name: Download account OpenAPI artifacts
         uses: actions/download-artifact@v4
         with:

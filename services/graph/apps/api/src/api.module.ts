@@ -9,9 +9,10 @@ import { ExpressAdapter } from '@bull-board/express';
 import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
-import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
+import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager, SECONDS_PER_BLOCK } from '#lib';
 import * as QueueConstants from '#lib/utils/queues';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 
 @Module({
   imports: [
@@ -90,7 +91,12 @@ import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
         defaultJobOptions: {
           removeOnComplete: true,
           removeOnFail: false,
-          attempts: 3,
+          attempts: 10,
+          delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
+          backoff: {
+            type: 'fixed',
+            delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
+          },
         },
       },
       {

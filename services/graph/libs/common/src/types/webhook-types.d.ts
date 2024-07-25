@@ -76,9 +76,7 @@ declare namespace Components {
       /**
        * Byte array of graph page data
        */
-      payload: {
-        [key: string]: any;
-      };
+      payload: Record<string, any>;
     }
     export interface Uint8Array {}
   }

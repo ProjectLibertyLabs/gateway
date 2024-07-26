@@ -9,7 +9,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import * as QueueConstants from '#lib/utils/queues';
+import * as QueueConstants from '#lib/queues/queue-constants';
 import { BaseConsumer, BlockchainService, ConfigService, GraphUpdateJob, ITxMonitorJob, NonceService, createKeys } from '#lib';
 
 export const SECONDS_PER_BLOCK = 12;

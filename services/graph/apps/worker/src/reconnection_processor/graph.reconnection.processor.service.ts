@@ -4,7 +4,7 @@ import { Job, Queue } from 'bullmq';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
-import * as QueueConstants from '#lib/utils/queues';
+import * as QueueConstants from '#lib/queues/queue-constants';
 import { BaseConsumer, ConfigService, ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService } from '#lib';
 
 @Injectable()

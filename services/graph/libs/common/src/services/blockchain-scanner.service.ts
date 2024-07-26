@@ -8,7 +8,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import * as QueueConstants from '../utils/queues';
+import * as QueueConstants from '../queues/queue-constants';
 import { UpdateTransitiveGraphs, createReconnectionJob } from '../interfaces/graph-update-job.interface';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';

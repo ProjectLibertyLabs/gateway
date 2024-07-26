@@ -54,6 +54,7 @@ describe('GraphSericeConfig', () => {
     HEALTH_CHECK_MAX_RETRIES: undefined,
     CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: undefined,
     CAPACITY_LIMIT: undefined,
+    CACHE_KEY_PREFIX: undefined,
   };
 
   beforeAll(() => {
@@ -186,6 +187,10 @@ describe('GraphSericeConfig', () => {
 
     it('should get capacity limit', () => {
       expect(graphServiceConfig.getCapacityLimit()).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+    });
+
+    it('should get cache key prefix', () => {
+      expect(graphServiceConfig.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
     });
   });
 });

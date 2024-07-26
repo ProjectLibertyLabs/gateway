@@ -4,12 +4,12 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 on:
-  push:
-    tags:
-      - "content-publishing-v[0-9]+.[0-9]+.[0-9]+" # ex. v1.0.0
-      - "content-publishing-v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+" # ex. v1.1.0-rc1
-      - "content-publishing-v0.0.1" # used for testing only
-      - "content-publishing-v0.0.1-rc[0-9]+" # used for testing only
+  # push:
+  #   tags:
+  #     - "content-publishing-v[0-9]+.[0-9]+.[0-9]+" # ex. v1.0.0
+  #     - "content-publishing-v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+" # ex. v1.1.0-rc1
+  #     - "content-publishing-v0.0.1" # used for testing only
+  #     - "content-publishing-v0.0.1-rc[0-9]+" # used for testing only
   workflow_dispatch:
     inputs:
       release-version:

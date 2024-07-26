@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
@@ -9,10 +8,10 @@ import { ExpressAdapter } from '@bull-board/express';
 import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
-import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager, SECONDS_PER_BLOCK } from '#lib';
-import * as QueueConstants from '#lib/utils/queues';
+import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
+import * as QueueConstants from '#lib/queues/queue-constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
-import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { QueueModule } from '#lib/queues/queue.module';
 
 @Module({
   imports: [
@@ -22,35 +21,13 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
         }),
         inject: [ConfigService],
       },
       true, // isGlobal
     ),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        // Note: BullMQ doesn't honor a URL for the Redis connection, and
-        // JS URL doesn't parse 'redis://' as a valid protocol, so we fool
-        // it by changing the URL to use 'http://' in order to parse out
-        // the host, port, username, password, etc.
-        // We could pass REDIS_HOST, REDIS_PORT, etc, in the environment, but
-        // trying to keep the # of environment variables from proliferating
-        const url = new URL(configService.redisUrl.toString().replace(/^redis[s]*/, 'http'));
-        const { hostname, port, username, password, pathname } = url;
-        return {
-          connection: {
-            host: hostname || undefined,
-            port: port ? Number(port) : undefined,
-            username: username || undefined,
-            password: password || undefined,
-            db: pathname?.length > 1 ? Number(pathname.slice(1)) : undefined,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
+    QueueModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -69,45 +46,6 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-      {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 1,
-        },
-      },
-      {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 10,
-          delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
-          backoff: {
-            type: 'fixed',
-            delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
-          },
-        },
-      },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-    ),
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /*
 https://docs.nestjs.com/providers#services
 */
@@ -27,6 +28,7 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRIES: number;
   CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: number;
   CAPACITY_LIMIT: number;
+  CACHE_KEY_PREFIX: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -39,6 +41,10 @@ export class ConfigService {
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.logger = new Logger(this.constructor.name);
     this.capacityLimit = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
+  }
+
+  public get cacheKeyPrefix(): string {
+    return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
   public get providerBaseUrl(): URL {

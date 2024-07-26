@@ -53,6 +53,12 @@
       "#lib/interfaces/*": [
         "libs/common/src/interfaces/*"
       ],
+      "#lib/queues": [
+        "libs/common/src/queues"
+      ],
+      "#lib/queues/*": [
+        "libs/common/src/queues/*"
+      ],
       "#lib/services": [
         "libs/common/src/services"
       ],

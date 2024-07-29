@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
 import { validateSignin, validateSignup } from '@amplica-labs/siwf';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
-import { QueueConstants } from '#lib/utils/queues';
 import { ConfigService } from '#lib/config/config.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { WalletLoginRequestDto, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
@@ -17,8 +14,6 @@ export class AccountsService {
   private readonly logger: Logger;
 
   constructor(
-    @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-    private transactionPublishQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private enqueueService: EnqueueService,

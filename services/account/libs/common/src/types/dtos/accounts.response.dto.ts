@@ -1,17 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
-import { Text, u16 } from '@polkadot/types';
 
-export class HandleResponseDTO implements HandleResponse {
+export class HandleResponseDTO {
   @ApiProperty()
-  base_handle: Text;
+  base_handle: string;
 
   @ApiProperty()
-  canonical_base: Text;
+  canonical_base: string;
 
   @ApiProperty()
-  suffix: u16;
+  suffix: number;
 }
 
 export class AccountResponse {
@@ -21,5 +19,5 @@ export class AccountResponse {
 
   @ApiPropertyOptional()
   @IsOptional()
-  handle?: HandleResponse;
+  handle?: HandleResponseDTO;
 }

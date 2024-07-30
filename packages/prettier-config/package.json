@@ -1,0 +1,11 @@
+{
+  "name": "@amplica-labs/prettier-config",
+  "version": "1.0.0",
+  "description": "Shared prettier config",
+  "main": "./prettier-config.json",
+  "author": "",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "prettier": "^3.3.3"
+  }
+}

@@ -7,12 +7,9 @@
   "workspaces": [
     "packages/*"
   ],
-<<<<<<< Updated upstream
-=======
   "scripts": {
     "format": "prettier --write ."
   },
->>>>>>> Stashed changes
   "devDependencies": {
     "@amplica-labs/prettier-config": "^1.0.0"
   }

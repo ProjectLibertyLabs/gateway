@@ -12,13 +12,15 @@ jobs:
   determine-service-matrix:
     runs-on: ubuntu-latest
     outputs:
-        services: ${{ steps.determine-matrix.outputs.changes }}
+      services: ${{ steps.determine-matrix.outputs.changes }}
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: determine-matrix
         with:
+          # Note, 'common' is for future use--when code is factored out into common libraries,
+          # but it's set up here so that the workflow logic could be tested with it present
           filters: |
             common:
               - '*'
@@ -41,39 +43,36 @@ jobs:
               - 'services/content-watcher/**'
 
   build:
-    name: "[${{ matrix.service }}] Build and Test"
+    name: '[${{ matrix.service }}] Build and Test'
     runs-on: ubuntu-latest
     needs: determine-service-matrix
     strategy:
       matrix:
         service: ${{ fromJson(needs.determine-service-matrix.outputs.services) }}
+        exclude:
+          - service: common
     steps:
       - uses: actions/checkout@v4
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-          registry-url: "https://registry.npmjs.org"
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: services/${{ matrix.service }}/package-lock.json
       - name: Install dependencies
         working-directory: services/${{ matrix.service }}
         run: npm ci
-        if: matrix.service != 'common'
       - name: Build NestJS
         working-directory: services/${{ matrix.service }}
         run: npm run build
-        if: matrix.service != 'common'
       - name: Lint
         working-directory: services/${{ matrix.service }}
         run: npm run lint
-        if: matrix.service != 'common'
       - name: Unit Test
         working-directory: services/${{ matrix.service }}
         run: npm run test
-        if: matrix.service != 'common'
       - name: License Check
         working-directory: services/${{ matrix.service }}
         # List all the licenses and error out if it is not one of the supported licenses
         run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
-        if: matrix.service != 'common'

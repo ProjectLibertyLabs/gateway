@@ -1,6 +1,7 @@
 {
   "extends": "@amplica-labs/ts-config",
   "compilerOptions": {
+    "baseUrl": ".",
     "outDir": "dist",
     "paths": {
       "#api": [

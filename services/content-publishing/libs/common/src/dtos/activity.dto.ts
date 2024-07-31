@@ -24,7 +24,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DURATION_REGEX } from './validation.dto';
-import { DSNP_USER_URI_REGEX, IsDsnpUserURI } from '#libs/utils/dsnp-validation.decorator';
+import { IsDsnpUserURI } from '#libs/utils/dsnp-validation.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow

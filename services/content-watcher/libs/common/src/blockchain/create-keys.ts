@@ -1,14 +1,8 @@
 import { Keyring } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 
-export let keyring: Keyring;
+const keyring: Keyring = new Keyring({ type: 'sr25519' });
 
 export function createKeys(uri: string): KeyringPair {
-  if (!keyring) {
-    keyring = new Keyring({ type: 'sr25519' });
-  }
-
-  const keys = keyring.createFromUri(uri);
-
-  return keys;
+  return keyring.createFromUri(uri);
 }

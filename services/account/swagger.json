@@ -319,6 +319,25 @@
           "frequencyRpcUrl"
         ]
       },
+      "HandleResponseDTO": {
+        "type": "object",
+        "properties": {
+          "base_handle": {
+            "type": "string"
+          },
+          "canonical_base": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "base_handle",
+          "canonical_base",
+          "suffix"
+        ]
+      },
       "AccountResponse": {
         "type": "object",
         "properties": {
@@ -326,7 +345,7 @@
             "type": "string"
           },
           "handle": {
-            "type": "object"
+            "$ref": "#/components/schemas/HandleResponseDTO"
           }
         },
         "required": [

@@ -7,19 +7,17 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import {
-  AnnouncementResponseDto,
   AnnouncementTypeDto,
-  ASSET_QUEUE_NAME,
-  AssetIncludedRequestDto,
-  IRequestJob,
-  isImage,
-  REQUEST_QUEUE_NAME,
   RequestTypeDto,
+  AnnouncementResponseDto,
+  AssetIncludedRequestDto,
+  isImage,
   UploadResponseDto,
-} from '../../../libs/common/src';
-import { calculateIpfsCID } from '../../../libs/common/src/utils/ipfs';
-import { IAssetJob, IAssetMetadata } from '../../../libs/common/src/interfaces/asset-job.interface';
-import { getAssetDataKey, getAssetMetadataKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../libs/common/src/utils/redis';
+} from '#libs/dtos';
+import { IRequestJob, IAssetMetadata, IAssetJob } from '#libs/interfaces';
+import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { calculateIpfsCID } from '#libs/utils/ipfs';
+import { getAssetMetadataKey, getAssetDataKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#libs/utils/redis';
 
 @Injectable()
 export class ApiService {
@@ -51,7 +49,11 @@ export class ApiService {
       // not used in id calculation since the order in map might not be deterministic
       data.assetToMimeType = assetToMimeType;
     }
-    const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, { jobId: data.id, removeOnFail: false, removeOnComplete: 2000 }); // TODO: should come from queue configs
+    const job = await this.requestQueue.add(`Request Job - ${data.id}`, data, {
+      jobId: data.id,
+      removeOnFail: false,
+      removeOnComplete: 2000,
+    }); // TODO: should come from queue configs
     this.logger.debug('Enqueue Request Job: ', job);
     return {
       referenceId: data.id,
@@ -61,7 +63,9 @@ export class ApiService {
   async validateAssetsAndFetchMetadata(content: AssetIncludedRequestDto): Promise<Map<string, string> | undefined> {
     const checkingList: { onlyImage: boolean; referenceId: string }[] = [];
     if (content.profile) {
-      content.profile.icon?.forEach((reference) => checkingList.push({ onlyImage: true, referenceId: reference.referenceId }));
+      content.profile.icon?.forEach((reference) =>
+        checkingList.push({ onlyImage: true, referenceId: reference.referenceId }),
+      );
     } else if (content.content) {
       content.content.assets?.forEach((asset) =>
         asset.references?.forEach((reference) =>
@@ -73,12 +77,16 @@ export class ApiService {
       );
     }
 
-    const redisResults = await Promise.all(checkingList.map((obj) => this.redis.get(getAssetMetadataKey(obj.referenceId))));
+    const redisResults = await Promise.all(
+      checkingList.map((obj) => this.redis.get(getAssetMetadataKey(obj.referenceId))),
+    );
     const errors: string[] = [];
     const map = new Map();
     redisResults.forEach((res, index) => {
       if (res === null) {
-        errors.push(`${content.profile ? 'profile.icon' : 'content.assets'}.referenceId ${checkingList[index].referenceId} does not exist!`);
+        errors.push(
+          `${content.profile ? 'profile.icon' : 'content.assets'}.referenceId ${checkingList[index].referenceId} does not exist!`,
+        );
       } else {
         const metadata: IAssetMetadata = JSON.parse(res);
         map[checkingList[index].referenceId] = metadata.mimeType;
@@ -106,7 +114,11 @@ export class ApiService {
     const jobs: any[] = [];
     files.forEach((f, index) => {
       // adding data and metadata to the transaction
-      dataTransaction = dataTransaction.setex(getAssetDataKey(references[index]), STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, f.buffer);
+      dataTransaction = dataTransaction.setex(
+        getAssetDataKey(references[index]),
+        STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+        f.buffer,
+      );
       metadataTransaction = metadataTransaction.setex(
         getAssetMetadataKey(references[index]),
         STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,

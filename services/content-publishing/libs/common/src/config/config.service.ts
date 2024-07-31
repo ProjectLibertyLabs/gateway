@@ -1,11 +1,7 @@
-/*
-https://docs.nestjs.com/providers#services
-*/
-
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { ChainEnvironment } from '..';
 import { ICapacityLimit } from '../interfaces/capacity-limit.interface';
+import { ChainEnvironment } from '#libs/dtos';
 
 export interface ConfigEnvironmentVariables {
   CHAIN_ENVIRONMENT: ChainEnvironment;

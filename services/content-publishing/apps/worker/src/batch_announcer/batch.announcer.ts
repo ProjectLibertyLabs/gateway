@@ -5,12 +5,11 @@ import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '../../../../libs/common/src/utils/redis';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
-import { IPublisherJob } from '../interfaces/publisher-job.interface';
-import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { ConfigService } from '#libs/config';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
+import { IpfsService } from '#libs/utils/ipfs.client';
+import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#libs/utils/redis';
+import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
 
 @Injectable()
 export class BatchAnnouncer {

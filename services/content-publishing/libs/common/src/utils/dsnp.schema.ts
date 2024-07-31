@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto, ChainEnvironment } from '../dtos/common.dto';
+import { AnnouncementTypeDto, ChainEnvironment } from '#libs/dtos';
 
 /**
  * Map between announcement type and it's DSNP schema id for DEV environment

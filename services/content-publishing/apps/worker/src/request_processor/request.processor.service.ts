@@ -1,20 +1,18 @@
-import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { DelayedError, Job } from 'bullmq';
-import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IRequestJob, REQUEST_QUEUE_NAME } from '../../../../libs/common/src';
-import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
-import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
+import { ConfigService } from '#libs/config';
+import { IRequestJob } from '#libs/interfaces';
+import { REQUEST_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { IpfsService } from '#libs/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
+import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 
 @Injectable()
 @Processor(REQUEST_QUEUE_NAME)
 export class RequestProcessorService extends BaseConsumer {
   constructor(
-    @InjectRedis() private cacheManager: Redis,
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
     private configService: ConfigService,
     private ipfsService: IpfsService,
@@ -47,7 +45,8 @@ export class RequestProcessorService extends BaseConsumer {
     data.dependencyAttempt += 1;
     if (data.dependencyAttempt <= 3) {
       // exponential backoff
-      const delayedTime = 2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
+      const delayedTime =
+        2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
       await job.moveToDelayed(Date.now() + delayedTime, job.token);
       await job.updateData(data);
       throw new DelayedError();

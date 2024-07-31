@@ -4,15 +4,48 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "#app/*": [
-        "*"
-      ],
-      "@app/common": [
+      "#libs": [
         "libs/common/src"
       ],
-      "@app/common/*": [
+      "#libs/*": [
         "libs/common/src/*"
-      ]
+      ],
+      "#libs/blockchain": [
+        "libs/common/src/blockchain"
+      ],
+      "#libs/blockchain/*": [
+        "libs/common/src/blockchain/*"
+      ],
+      "#libs/config": [
+        "libs/common/src/config"
+      ],
+      "#libs/config/*": [
+        "libs/common/src/config/*"
+      ],
+      "#libs/dtos": [
+        "libs/common/src/dtos"
+      ],
+      "#libs/dtos/*": [
+        "libs/common/src/dtos/*"
+      ],
+      "#libs/interfaces": [
+        "libs/common/src/interfaces"
+      ],
+      "#libs/interfaces/*": [
+        "libs/common/src/interfaces/*"
+      ],
+      "#libs/queues": [
+        "libs/common/src/queues"
+      ],
+      "#libs/queues/*": [
+        "libs/common/src/queues/*"
+      ],
+      "#libs/utils": [
+        "libs/common/src/utils"
+      ],
+      "#libs/utils/*": [
+        "libs/common/src/utils/*"
+      ],
     },
     "typeRoots": [
       "node_modules/@types"

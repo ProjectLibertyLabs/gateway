@@ -5,13 +5,12 @@ import { Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
-import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
-import { SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
-import { NUMBER_BLOCKS_TO_CRAWL } from '../../../../libs/common/src/blockchain/blockchain-constants';
+import { NUMBER_BLOCKS_TO_CRAWL } from '#libs/blockchain/blockchain-constants';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
+import { TRANSACTION_RECEIPT_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { BaseConsumer } from '../BaseConsumer';
-import { IPublisherJob } from '../interfaces/publisher-job.interface';
+import { ITxMonitorJob, IPublisherJob } from '../interfaces';
+import { SECONDS_PER_BLOCK } from '#libs/constants';
 
 @Injectable()
 @Processor(TRANSACTION_RECEIPT_QUEUE_NAME, {
@@ -30,14 +29,22 @@ export class TxStatusMonitoringService extends BaseConsumer {
     this.logger.log(`Monitoring job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = NUMBER_BLOCKS_TO_CRAWL;
-      const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
+      const previousKnownBlockNumber = (
+        await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
+      ).block.header.number.toNumber();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const blockList: bigint[] = [];
+      const blockList: number[] = [];
 
-      for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1n) {
+      for (
+        let i = previousKnownBlockNumber;
+        i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse;
+        i += 1
+      ) {
         blockList.push(i);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
+      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
+        { pallet: 'system', event: 'ExtrinsicSuccess' },
+      ]);
 
       if (!txResult.found) {
         if (job.attemptsMade < (job.opts.attempts ?? 3)) {
@@ -79,7 +86,10 @@ export class TxStatusMonitoringService extends BaseConsumer {
     }
   }
 
-  private async handleMessagesFailure(jobId: string, moduleError: RegistryError): Promise<{ pause: boolean; retry: boolean }> {
+  private async handleMessagesFailure(
+    jobId: string,
+    moduleError: RegistryError,
+  ): Promise<{ pause: boolean; retry: boolean }> {
     try {
       switch (moduleError.method) {
         case 'TooManyMessagesInBlock':

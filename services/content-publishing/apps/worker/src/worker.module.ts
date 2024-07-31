@@ -1,26 +1,19 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@songkeys/nestjs-redis';
-import { PublishingService } from './publisher/publishing.service';
 import { PublisherModule } from './publisher/publisher.module';
-import { BlockchainModule } from '../../../libs/common/src/blockchain/blockchain.module';
-import { BatchAnnouncementService } from './batch_announcer/batch.announcer.service';
-import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
-import { StatusMonitorModule } from './monitor/status.monitor.module';
-import { TxStatusMonitoringService } from './monitor/tx.status.monitor.service';
+import { QueuesModule } from '#libs/queues';
+import { ConfigModule, ConfigService } from '#libs/config';
+import { BlockchainModule } from '#libs/blockchain/blockchain.module';
 import { AssetProcessorModule } from './asset_processor/asset.processor.module';
-import { AssetProcessorService } from './asset_processor/asset.processor.service';
-import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { RequestProcessorService } from './request_processor/request.processor.service';
+import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { BatchingProcessorModule } from './batching_processor/batching.processor.module';
-import { ConfigModule } from '../../../libs/common/src/config/config.module';
-import { ConfigService } from '../../../libs/common/src/config/config.service';
+import { StatusMonitorModule } from './monitor/status.monitor.module';
+import { RequestProcessorModule } from './request_processor/request.processor.module';
 
 @Module({
   imports: [
-    BullModule,
     ConfigModule,
     RedisModule.forRootAsync(
       {
@@ -32,6 +25,7 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
       },
       true, // isGlobal
     ),
+    QueuesModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -59,6 +53,6 @@ import { ConfigService } from '../../../libs/common/src/config/config.service';
     RequestProcessorModule,
     BatchingProcessorModule,
   ],
-  providers: [BatchAnnouncementService, ConfigService, PublishingService, TxStatusMonitoringService, AssetProcessorService, RequestProcessorService],
+  providers: [],
 })
 export class WorkerModule {}

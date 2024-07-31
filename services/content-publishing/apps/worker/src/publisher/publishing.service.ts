@@ -1,20 +1,19 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Processor, WorkerHost, OnWorkerEvent, InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Processor, InjectQueue } from '@nestjs/bullmq';
+import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IPublisherJob } from '../interfaces/publisher-job.interface';
-import { IPFSPublisher } from './ipfs.publisher';
-import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '../../../../libs/common/src/constants';
-import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '../../../../libs/common/src';
-import { ITxMonitorJob } from '../interfaces/status-monitor.interface';
+import { ConfigService } from '#libs/config';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
+import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '#libs/constants';
+import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { BaseConsumer } from '../BaseConsumer';
+import { IPublisherJob, ITxMonitorJob } from '../interfaces';
+import { IPFSPublisher } from './ipfs.publisher';
 
 @Injectable()
 @Processor(PUBLISH_QUEUE_NAME, {
@@ -40,7 +39,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     await this.checkCapacity();
   }
 
-  async onModuleDestroy(): Promise<any> {
+  async onModuleDestroy(): Promise<void> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (e) {
@@ -69,7 +68,11 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     }
   }
 
-  async sendJobToTxReceiptQueue(jobData: IPublisherJob, txHash: Hash, lastFinalizedBlockHash: BlockHash): Promise<void> {
+  async sendJobToTxReceiptQueue(
+    jobData: IPublisherJob,
+    txHash: Hash,
+    lastFinalizedBlockHash: BlockHash,
+  ): Promise<void> {
     const job: ITxMonitorJob = {
       id: txHash.toString(),
       lastFinalizedBlockHash,
@@ -79,7 +82,12 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     // add a delay of 1 block to allow the tx receipt to go through before checking
     const initialDelay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     const retryDelay = 3 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    await this.txReceiptQueue.add(`Receipt Job - ${job.id}`, job, { jobId: job.id, delay: initialDelay, attempts: 4, backoff: { type: 'exponential', delay: retryDelay } });
+    await this.txReceiptQueue.add(`Receipt Job - ${job.id}`, job, {
+      jobId: job.id,
+      delay: initialDelay,
+      attempts: 4,
+      backoff: { type: 'exponential', delay: retryDelay },
+    });
   }
 
   private async checkCapacity(): Promise<void> {

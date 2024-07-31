@@ -1,21 +1,21 @@
-import { Body, Controller, Delete, HttpCode, Logger, Param, Post, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, Logger, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from './api.service';
+import { ApiService } from '../../api.service';
 import {
-  AnnouncementResponseDto,
-  AnnouncementTypeDto,
-  AssetIncludedRequestDto,
-  BroadcastDto,
   DsnpUserIdParam,
-  ReactionDto,
+  BroadcastDto,
+  AnnouncementResponseDto,
+  AssetIncludedRequestDto,
+  AnnouncementTypeDto,
   ReplyDto,
-  TombstoneDto,
+  ReactionDto,
   UpdateDto,
-} from '../../../libs/common/src';
+  TombstoneDto,
+} from '#libs/dtos';
 
 @Controller('v1/content')
 @ApiTags('v1/content')
-export class ContentController {
+export class ContentControllerV1 {
   private readonly logger: Logger;
 
   constructor(private apiService: ApiService) {
@@ -25,7 +25,10 @@ export class ContentController {
   @Post(':userDsnpId/broadcast')
   @ApiOperation({ summary: 'Create DSNP Broadcast for User' })
   @HttpCode(202)
-  async broadcast(@Param() userDsnpId: DsnpUserIdParam, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
+  async broadcast(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() broadcastDto: BroadcastDto,
+  ): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(broadcastDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto, metadata);
   }
@@ -41,7 +44,10 @@ export class ContentController {
   @Post(':userDsnpId/reaction')
   @ApiOperation({ summary: 'Create DSNP Reaction for User' })
   @HttpCode(202)
-  async reaction(@Param() userDsnpId: DsnpUserIdParam, @Body() reactionDto: ReactionDto): Promise<AnnouncementResponseDto> {
+  async reaction(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() reactionDto: ReactionDto,
+  ): Promise<AnnouncementResponseDto> {
     return this.apiService.enqueueRequest(AnnouncementTypeDto.REACTION, userDsnpId.userDsnpId, reactionDto);
   }
 
@@ -56,7 +62,10 @@ export class ContentController {
   @Delete(':userDsnpId')
   @ApiOperation({ summary: 'Delete DSNP Content for User' })
   @HttpCode(202)
-  async delete(@Param() userDsnpId: DsnpUserIdParam, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {
+  async delete(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() tombstoneDto: TombstoneDto,
+  ): Promise<AnnouncementResponseDto> {
     return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
   }
 }

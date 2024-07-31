@@ -1,17 +1,16 @@
 {
-  "name": "@amplicalabs/gateway",
+  "name": "@amplica-labs/gateway",
   "version": "1.0.0",
-  "description": "<!-- TABLE OF CONTENTS -->",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
+  "description": "Monorepo for Gateway shared packages",
+  "author": "Project Liberty, LLC",
   "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "devDependencies": {
-    "prettier": "^3.3.3"
+    "@amplica-labs/prettier-config": "^1.0.0"
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 

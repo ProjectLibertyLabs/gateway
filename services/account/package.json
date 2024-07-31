@@ -84,6 +84,8 @@
   },
   "devDependencies": {
     "@amplica-labs/frequency-scenario-template": "^1.1.4",
+    "@amplica-labs/prettier-config": "file:../../packages/prettier-config",
+    "@amplica-labs/ts-config": "file:../../packages/ts-config",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.11",
     "@types/supertest": "^6.0.2",

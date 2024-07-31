@@ -79,6 +79,7 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
+    "@amplica-labs/ts-config": "file:../../packages/ts-config",
     "@hey-api/openapi-ts": "^0.45.1",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.10",

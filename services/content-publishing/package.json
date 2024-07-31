@@ -140,7 +140,14 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@content-publishing-common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@content-publishing-common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^#libs(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^#libs/blockchain(|/.*)$": "<rootDir>/libs/common/src/blockchain/$1",
+      "^#libs/config(|/.*)$": "<rootDir>/libs/common/src/config/$1",
+      "^#libs/dtos(|/.*)$": "<rootDir>/libs/common/src/dtos/$1",
+      "^#libs/interfaces(|/.*)$": "<rootDir>/libs/common/src/interfaces/$1",
+      "^#libs/queues(|/.*)$": "<rootDir>/libs/common/src/queues/$1",
+      "^#libs/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"
     }
   }
 }

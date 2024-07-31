@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, HttpCode, Logger, Param, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import {
   DsnpUserIdParam,
@@ -25,6 +25,7 @@ export class ContentControllerV1 {
   @Post(':userDsnpId/broadcast')
   @ApiOperation({ summary: 'Create DSNP Broadcast for User' })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async broadcast(
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() broadcastDto: BroadcastDto,
@@ -36,6 +37,7 @@ export class ContentControllerV1 {
   @Post(':userDsnpId/reply')
   @ApiOperation({ summary: 'Create DSNP Reply for User' })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(replyDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto, metadata);
@@ -44,6 +46,7 @@ export class ContentControllerV1 {
   @Post(':userDsnpId/reaction')
   @ApiOperation({ summary: 'Create DSNP Reaction for User' })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async reaction(
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() reactionDto: ReactionDto,
@@ -54,6 +57,7 @@ export class ContentControllerV1 {
   @Put(':userDsnpId')
   @ApiOperation({ summary: 'Update DSNP Content for User' })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(updateDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, metadata);
@@ -62,6 +66,7 @@ export class ContentControllerV1 {
   @Delete(':userDsnpId')
   @ApiOperation({ summary: 'Delete DSNP Content for User' })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async delete(
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() tombstoneDto: TombstoneDto,

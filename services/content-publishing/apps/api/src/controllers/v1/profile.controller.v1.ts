@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, Logger, Param, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import {
   DsnpUserIdParam,
@@ -21,6 +21,7 @@ export class ProfileControllerV1 {
   @Put(':userDsnpId')
   @ApiOperation({ summary: "Update a user's Profile" })
   @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async profile(
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() profileDto: ProfileDto,

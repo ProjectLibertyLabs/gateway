@@ -7,7 +7,7 @@ import { Controller, Get, Logger, NotFoundException, Param, Post } from '@nestjs
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   createBroadcast,
   createProfile,
@@ -67,6 +67,7 @@ export class DevelopmentControllerV1 {
 
   @Get('/asset/:assetId')
   @ApiOperation({ summary: 'Get an Asset given an assetId', description: 'ONLY enabled when ENVIRONMENT="dev".' })
+  @ApiResponse({ status: '2XX', type: Buffer })
   // eslint-disable-next-line consistent-return
   async getAsset(@Param('assetId') assetId: string) {
     if (await this.ipfsService.isPinned(assetId)) {

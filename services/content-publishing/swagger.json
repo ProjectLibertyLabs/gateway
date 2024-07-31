@@ -3,7 +3,7 @@
   "paths": {
     "/v1/asset/upload": {
       "put": {
-        "operationId": "AssetController_assetUpload",
+        "operationId": "AssetControllerV1_assetUpload",
         "summary": "Upload Asset Files",
         "parameters": [],
         "requestBody": {
@@ -18,7 +18,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -36,7 +36,7 @@
     },
     "/v1/content/{userDsnpId}/broadcast": {
       "post": {
-        "operationId": "ContentController_broadcast",
+        "operationId": "ContentControllerV1_broadcast",
         "summary": "Create DSNP Broadcast for User",
         "parameters": [
           {
@@ -59,7 +59,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -77,7 +77,7 @@
     },
     "/v1/content/{userDsnpId}/reply": {
       "post": {
-        "operationId": "ContentController_reply",
+        "operationId": "ContentControllerV1_reply",
         "summary": "Create DSNP Reply for User",
         "parameters": [
           {
@@ -100,7 +100,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -118,7 +118,7 @@
     },
     "/v1/content/{userDsnpId}/reaction": {
       "post": {
-        "operationId": "ContentController_reaction",
+        "operationId": "ContentControllerV1_reaction",
         "summary": "Create DSNP Reaction for User",
         "parameters": [
           {
@@ -141,7 +141,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -159,7 +159,7 @@
     },
     "/v1/content/{userDsnpId}": {
       "put": {
-        "operationId": "ContentController_update",
+        "operationId": "ContentControllerV1_update",
         "summary": "Update DSNP Content for User",
         "parameters": [
           {
@@ -182,7 +182,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -198,7 +198,7 @@
         ]
       },
       "delete": {
-        "operationId": "ContentController_delete",
+        "operationId": "ContentControllerV1_delete",
         "summary": "Delete DSNP Content for User",
         "parameters": [
           {
@@ -221,7 +221,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -239,7 +239,7 @@
     },
     "/v1/profile/{userDsnpId}": {
       "put": {
-        "operationId": "ProfileController_profile",
+        "operationId": "ProfileControllerV1_profile",
         "summary": "Update a user's Profile",
         "parameters": [
           {
@@ -262,7 +262,7 @@
           }
         },
         "responses": {
-          "202": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
@@ -325,7 +325,7 @@
     },
     "/dev/request/{jobId}": {
       "get": {
-        "operationId": "DevelopmentController_requestJob",
+        "operationId": "DevelopmentControllerV1_requestJob",
         "summary": "Get a Job given a jobId",
         "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
         "parameters": [
@@ -350,7 +350,7 @@
     },
     "/dev/asset/{assetId}": {
       "get": {
-        "operationId": "DevelopmentController_getAsset",
+        "operationId": "DevelopmentControllerV1_getAsset",
         "summary": "Get an Asset given an assetId",
         "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
         "parameters": [
@@ -364,12 +364,12 @@
           }
         ],
         "responses": {
-          "200": {
+          "2XX": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/Buffer"
                 }
               }
             }
@@ -382,7 +382,7 @@
     },
     "/dev/dummy/announcement/{queueType}/{count}": {
       "post": {
-        "operationId": "DevelopmentController_populate",
+        "operationId": "DevelopmentControllerV1_populate",
         "summary": "Create dummy announcement data",
         "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
         "parameters": [
@@ -536,9 +536,7 @@
             "minLength": 1
           },
           "mentionedId": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "DSNP_USER_URI_REGEX"
+            "type": "string"
           }
         },
         "required": [
@@ -594,8 +592,7 @@
             "minLength": 1
           },
           "published": {
-            "type": "string",
-            "pattern": "ISO8601_REGEX"
+            "type": "string"
           },
           "assets": {
             "type": "array",
@@ -647,8 +644,7 @@
         "type": "object",
         "properties": {
           "inReplyTo": {
-            "type": "string",
-            "pattern": "DSNP_CONTENT_URI_REGEX"
+            "type": "string"
           },
           "content": {
             "$ref": "#/components/schemas/NoteActivityDto"
@@ -673,8 +669,7 @@
             "maximum": 255
           },
           "inReplyTo": {
-            "type": "string",
-            "pattern": "DSNP_CONTENT_URI_REGEX"
+            "type": "string"
           }
         },
         "required": [
@@ -687,8 +682,7 @@
         "type": "object",
         "properties": {
           "targetContentHash": {
-            "type": "string",
-            "pattern": "DSNP_CONTENT_HASH_REGEX"
+            "type": "string"
           },
           "targetAnnouncementType": {
             "type": "string",
@@ -711,8 +705,7 @@
         "type": "object",
         "properties": {
           "targetContentHash": {
-            "type": "string",
-            "pattern": "DSNP_CONTENT_HASH_REGEX"
+            "type": "string"
           },
           "targetAnnouncementType": {
             "type": "string",
@@ -740,8 +733,7 @@
             "type": "string"
           },
           "published": {
-            "type": "string",
-            "pattern": "ISO8601_REGEX"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -767,6 +759,10 @@
         "required": [
           "profile"
         ]
+      },
+      "Buffer": {
+        "type": "object",
+        "properties": {}
       }
     }
   }

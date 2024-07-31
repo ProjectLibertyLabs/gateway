@@ -23,8 +23,8 @@ import { decodeAddress } from '@polkadot/util-crypto';
 import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
 import { PublishHandleRequest } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
-import { Extrinsic } from './extrinsic';
 import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
+import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -252,8 +252,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         base_handle: handle.base_handle.toString(),
         canonical_base: handle.canonical_base.toString(),
         suffix: handle.suffix.toNumber(),
+      };
     }
-  }
 
     this.logger.error(`getHandleForMsa: No handle found for msaId: ${msaId}`);
     return null;

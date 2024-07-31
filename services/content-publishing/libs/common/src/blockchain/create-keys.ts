@@ -8,7 +8,7 @@ export function createKeys(uri: string): KeyringPair {
     keyring = new Keyring({ type: 'sr25519' });
   }
 
-  const keys = keyring.addFromUri(uri);
+  const keys = keyring.createFromUri(uri);
 
   return keys;
 }

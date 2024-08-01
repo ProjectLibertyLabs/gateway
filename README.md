@@ -40,7 +40,6 @@ flowchart LR;
         GS[Graph Service]
         CPS[Content Publishing Service]
         CWS[Content Watcher Service]
-        RS[Graph Reconnection Service]
     end
     S --> AS
     S --> GS
@@ -94,14 +93,6 @@ Each Gateway services is an independent microservice.
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/content-watcher/)
 - [README](./services/content-watcher/README.md)
-
-</details>
-
-<details>
-<summary>Reconnection Service</summary>
-
-- [API Documentation](https://projectlibertylabs.github.io/reconnection-service/)
-- [GitHub](https://github.com/ProjectLibertyLabs/reconnection-service)
 
 </details>
 

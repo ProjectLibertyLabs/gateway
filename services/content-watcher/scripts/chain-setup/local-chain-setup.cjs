@@ -15,7 +15,7 @@ const main = async () => {
   const providerUri = 'ws://127.0.0.1:9944';
   const provider = new WsProvider(providerUri);
   const api = await ApiPromise.create({ provider, throwOnConnect: true, ...options });
-  const keys = new Keyring().addFromUri('//Alice', {}, 'sr25519');
+  const keys = new Keyring().createFromUri('//Alice', {}, 'sr25519');
 
   // Create alice msa
   await new Promise((resolve, reject) => {

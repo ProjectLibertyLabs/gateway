@@ -11,6 +11,13 @@ Gateway is s set of microservices designed to make using DSNP over Frequency eas
   <a href="./Run/">Run</a>
 </div>
 
+## Basic Architecture
+
+Gateway provides the basic structure
+
+![Gatway Application Layer Diagram](./gateway_arch-Layer.drawio.png)
+
+
 ## Key Microservices
 
 ### Account Service

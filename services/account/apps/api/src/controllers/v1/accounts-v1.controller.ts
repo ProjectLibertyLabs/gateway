@@ -40,10 +40,31 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(@Param('msaId') msaId: string): Promise<AccountResponse> {
+  async getAccountForMsa(@Param('msaId') msaId: string): Promise<AccountResponse> {
     try {
       this.logger.debug(`Received request to get account with msaId: ${msaId}`);
-      return await this.accountsService.getAccount(msaId);
+      return await this.accountsService.getAccountForMsaId(msaId);
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('account/:publicKey')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Fetch an account given a public key.' })
+  @ApiOkResponse({ description: 'Found account', type: AccountResponse })
+  /**
+   * Gets an account.
+   * @param queryParams - The query parameters for creating the account.
+   * @returns A promise that resolves to an Account object => {msaId, handle}.
+   * @throws An error if the msaId or account cannot be found.
+   */
+  async getAccountForPublicKey(@Param('publicKey') publicKey: string): Promise<AccountResponse> {
+    try {
+      this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
+      const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
+      return await this.accountsService.getAccountForMsaId(response.msaId);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);

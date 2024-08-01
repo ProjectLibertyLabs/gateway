@@ -6,7 +6,7 @@ import { ConfigService } from '#lib/config/config.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { WalletLoginRequestDto, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
-import { AccountResponse } from '#lib/types/dtos/accounts.response.dto';
+import { AccountResponse, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
 import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getAccount(msaId: string): Promise<AccountResponse> {
+  async getAccountForMsaId(msaId: string): Promise<AccountResponse> {
     try {
       const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
       if (isValidMsaId) {
@@ -37,6 +37,20 @@ export class AccountsService {
     } catch (e) {
       this.logger.error(`Error during get account request: ${e}`);
       throw new Error('Failed to get account');
+    }
+  }
+
+  async getMsaIdForPublicKey(publicKey: string): Promise<MsaIdResponse> {
+    try {
+      const msaId = await this.blockchainService.publicKeyToMsaId(publicKey);
+      if (msaId) {
+        this.logger.debug(`Found msaId: ${msaId} for public key: ${publicKey}`);
+        return { msaId };
+      }
+      throw new Error(`Failed to find msaId for public key: ${publicKey}`);
+    } catch (e) {
+      this.logger.error(`Error during get msaId request: ${e}`);
+      throw new Error('Failed to get msaId');
     }
   }
 

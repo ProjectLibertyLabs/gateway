@@ -252,8 +252,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         base_handle: handle.base_handle.toString(),
         canonical_base: handle.canonical_base.toString(),
         suffix: handle.suffix.toNumber(),
+      };
     }
-  }
 
     this.logger.error(`getHandleForMsa: No handle found for msaId: ${msaId}`);
     return null;

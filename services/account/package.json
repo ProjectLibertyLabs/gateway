@@ -154,6 +154,7 @@
       "^#lib/blockchain(|/.*)$": "<rootDir>/libs/common/src/blockchain/$1",
       "^#lib/config(|/.*)$": "<rootDir>/libs/common/src/config/$1",
       "^#lib/interfaces(|/.*)$": "<rootDir>/libs/common/src/interfaces/$1",
+      "^#lib/queues(|/.*)$": "<rootDir>/libs/common/src/queues/$1",
       "^#lib/services(|/.*)$": "<rootDir>/libs/common/src/services/$1",
       "^#lib/types(|/.*)$": "<rootDir>/libs/common/src/types/$1",
       "^#lib/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"

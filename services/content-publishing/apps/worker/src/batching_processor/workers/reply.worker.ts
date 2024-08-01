@@ -1,10 +1,10 @@
+import { Announcement } from '#libs/interfaces';
+import { REPLY_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { REPLY_QUEUE_NAME } from '../../../../../libs/common/src';
-import { BatchingProcessorService } from '../batching.processor.service';
-import { Announcement } from '../../../../../libs/common/src/interfaces/dsnp';
 import { BaseConsumer } from '../../BaseConsumer';
+import { BatchingProcessorService } from '../batching.processor.service';
 
 @Injectable()
 @Processor(REPLY_QUEUE_NAME, { concurrency: 2 })

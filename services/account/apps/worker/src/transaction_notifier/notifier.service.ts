@@ -4,10 +4,8 @@ import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } fro
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
-import { BlockchainConstants } from '#lib/blockchain/blockchain-constants';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
-import { QueueConstants } from '#lib/utils/queues';
 import { SECONDS_PER_BLOCK, TxWebhookRsp, RedisUtils } from 'libs/common/src';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService, NullScanError } from '#lib/utils/blockchain-scanner.service';
@@ -17,6 +15,7 @@ import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#lib/config/config.service';
+import { QueueConstants } from '#lib/queues';
 
 @Injectable()
 export class TxnNotifierService

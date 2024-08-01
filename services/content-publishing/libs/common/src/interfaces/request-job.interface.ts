@@ -1,5 +1,4 @@
-import { RequestTypeDto } from '../dtos/announcement.dto';
-import { AnnouncementTypeDto } from '../dtos/common.dto';
+import { AnnouncementTypeDto, RequestTypeDto } from '#libs/dtos';
 
 export interface IRequestJob {
   id: string;

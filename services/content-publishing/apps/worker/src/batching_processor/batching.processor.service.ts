@@ -7,13 +7,17 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { Announcement } from '../../../../libs/common/src/interfaces/dsnp';
-import { getBatchMetadataKey, getBatchDataKey, getLockKey as getBatchLockKey, BATCH_LOCK_EXPIRE_SECONDS } from '../../../../libs/common/src/utils/redis';
-import { IBatchMetadata } from '../../../../libs/common/src/interfaces/batch.interface';
-import { IBatchAnnouncerJobData } from '../interfaces/batch-announcer.job.interface';
-import { getSchemaId } from '../../../../libs/common/src/utils/dsnp.schema';
-import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '../../../../libs/common/src';
+import {
+  getBatchMetadataKey,
+  getBatchDataKey,
+  getLockKey as getBatchLockKey,
+  BATCH_LOCK_EXPIRE_SECONDS,
+} from '#libs/utils/redis';
+import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#libs/queues/queue.constants';
+import { ConfigService } from '#libs/config';
+import { Announcement, IBatchMetadata } from '#libs/interfaces';
+import { IBatchAnnouncerJobData } from '../interfaces';
+import { getSchemaId } from '#libs/utils/dsnp.schema';
 
 @Injectable()
 export class BatchingProcessorService {
@@ -62,7 +66,13 @@ export class BatchingProcessorService {
     const newData = JSON.stringify(job.data);
 
     // @ts-expect-error addToBatch is a custom command
-    const rowCount = await this.redis.addToBatch(getBatchMetadataKey(queueName), getBatchDataKey(queueName), newMetadata, job.id!, newData);
+    const rowCount = await this.redis.addToBatch(
+      getBatchMetadataKey(queueName),
+      getBatchDataKey(queueName),
+      newMetadata,
+      job.id!,
+      newData,
+    );
     this.logger.log(rowCount);
     if (rowCount === 1) {
       this.logger.log(`Processing job ${job.id} with a new batch`);
@@ -71,7 +81,9 @@ export class BatchingProcessorService {
     } else if (rowCount >= this.configService.batchMaxCount) {
       await this.closeBatch(queueName, batchId, false);
     } else if (rowCount === -1) {
-      throw new Error(`invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`);
+      throw new Error(
+        `invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`,
+      );
     }
   }
 
@@ -87,7 +99,14 @@ export class BatchingProcessorService {
     const lockedBatchMetaDataKey = getBatchLockKey(batchMetaDataKey);
     const lockedBatchDataKey = getBatchLockKey(batchDataKey);
     // @ts-expect-error lockBatch is a custom command
-    const response = await this.redis.lockBatch(batchMetaDataKey, batchDataKey, lockedBatchMetaDataKey, lockedBatchDataKey, Date.now(), BATCH_LOCK_EXPIRE_SECONDS * 1000);
+    const response = await this.redis.lockBatch(
+      batchMetaDataKey,
+      batchDataKey,
+      lockedBatchMetaDataKey,
+      lockedBatchDataKey,
+      Date.now(),
+      BATCH_LOCK_EXPIRE_SECONDS * 1000,
+    );
     this.logger.debug(JSON.stringify(response));
     const status = response[0];
 
@@ -115,7 +134,11 @@ export class BatchingProcessorService {
         schemaId: getSchemaId(this.configService.environment, QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
         announcements,
       } as IBatchAnnouncerJobData;
-      await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, { jobId: metaData.batchId, removeOnFail: false, removeOnComplete: 1000 });
+      await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, {
+        jobId: metaData.batchId,
+        removeOnFail: false,
+        removeOnComplete: 1000,
+      });
     }
     try {
       const result = await this.redis.multi().del(lockedBatchMetaDataKey).del(lockedBatchDataKey).exec();

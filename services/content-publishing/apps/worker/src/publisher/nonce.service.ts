@@ -2,10 +2,10 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
-import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
-import { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } from '../../../../libs/common/src/utils/redis';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
+import { ConfigService } from '#libs/config';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
+import { createKeys } from '#libs/blockchain/create-keys';
+import { NUMBER_OF_NONCE_KEYS_TO_CHECK, getNonceKey } from '#libs/utils/redis';
 
 @Injectable()
 export class NonceService implements OnApplicationBootstrap {

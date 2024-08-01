@@ -3,7 +3,6 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import { Hash } from '@polkadot/types/interfaces';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { Codec, ISubmittableResult } from '@polkadot/types/types';
@@ -13,12 +12,11 @@ import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { createKeys } from '#lib/blockchain/create-keys';
 import { NonceService } from '#lib/services/nonce.service';
 import { TransactionType } from '#lib/types/enums';
-import { QueueConstants } from '#lib/utils/queues';
+import { QueueConstants } from '#lib/queues';
 import { BaseConsumer } from '#worker/BaseConsumer';
 import { RedisUtils, TransactionData } from 'libs/common/src';
 import { ConfigService } from '#lib/config/config.service';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
-import { IsEvent } from '@polkadot/types/metadata/decorate/types';
 import { HexString } from '@polkadot/util/types';
 
 export const SECONDS_PER_BLOCK = 12;
@@ -34,7 +32,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     await this.checkCapacity();
   }
 
-  public async onApplicationShutdown(signal?: string | undefined): Promise<void> {
+  public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {

@@ -3,10 +3,9 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import { ConfigService } from '../config/config.service';
-import { QueueConstants } from '../utils/queues';
-import { TransactionData } from '../types/dtos/transaction.request.dto';
-import { TransactionResponse } from '../types/dtos/transaction.response.dto';
+import { QueueConstants } from '#lib/queues';
+import { ConfigService } from '#lib/config/config.service';
+import { TransactionResponse, TransactionData } from '#lib/types/dtos';
 
 @Injectable()
 export class EnqueueService {

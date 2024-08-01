@@ -1,12 +1,12 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { ASSET_QUEUE_NAME } from '../../../../libs/common/src';
-import { IAssetJob } from '../../../../libs/common/src/interfaces/asset-job.interface';
-import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { ConfigService } from '#libs/config';
+import { IAssetJob } from '#libs/interfaces';
+import { ASSET_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { IpfsService } from '#libs/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class AssetProcessorService extends BaseConsumer {
     super();
   }
 
-  async process(job: Job<IAssetJob, any, string>): Promise<any> {
+  async process(job: Job<IAssetJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     this.logger.debug(job.asJSON());
     const redisResults = await this.redis.getBuffer(job.data.contentLocation);
@@ -41,7 +41,11 @@ export class AssetProcessorService extends BaseConsumer {
     const secondsPassed = Math.round((Date.now() - job.timestamp) / 1000);
     const expectedSecondsToExpire = this.configService.assetExpirationIntervalSeconds;
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);
-    const result = await this.redis.pipeline().expire(job.data.contentLocation, secondsToExpire, 'LT').expire(job.data.metadataLocation, secondsToExpire, 'LT').exec();
+    const result = await this.redis
+      .pipeline()
+      .expire(job.data.contentLocation, secondsToExpire, 'LT')
+      .expire(job.data.metadataLocation, secondsToExpire, 'LT')
+      .exec();
     this.logger.debug(result);
     // calling in the end for graceful shutdowns
     super.onCompleted(job);

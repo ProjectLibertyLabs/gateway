@@ -3,11 +3,11 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { Hash } from '@polkadot/types/interfaces';
-import { BlockchainService } from '../../../../libs/common/src/blockchain/blockchain.service';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IPublisherJob } from '../interfaces/publisher-job.interface';
-import { createKeys } from '../../../../libs/common/src/blockchain/create-keys';
 import { NonceService } from './nonce.service';
+import { ConfigService } from '#libs/config';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
+import { createKeys } from '#libs/blockchain/create-keys';
+import { IPublisherJob } from '../interfaces';
 
 @Injectable()
 export class IPFSPublisher {
@@ -24,11 +24,19 @@ export class IPFSPublisher {
   public async publish(message: IPublisherJob): Promise<Hash> {
     this.logger.debug(JSON.stringify(message));
     const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
-    const tx = this.blockchainService.createExtrinsicCall({ pallet: 'messages', extrinsic: 'addIpfsMessage' }, message.schemaId, message.data.cid, message.data.payloadLength);
+    const tx = this.blockchainService.createExtrinsicCall(
+      { pallet: 'messages', extrinsic: 'addIpfsMessage' },
+      message.schemaId,
+      message.data.cid,
+      message.data.payloadLength,
+    );
     return this.processSingleBatch(providerKeys, tx);
   }
 
-  async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>): Promise<Hash> {
+  async processSingleBatch(
+    providerKeys: KeyringPair,
+    tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>,
+  ): Promise<Hash> {
     this.logger.debug(`Submitting tx of size ${tx.length}`);
     try {
       const ext = await this.blockchainService.createExtrinsic(

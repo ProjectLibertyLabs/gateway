@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto } from '../dtos/common.dto';
+import { AnnouncementTypeDto } from '#libs/dtos';
 
 /**
  * Name of the queue that has all incoming asset uploads

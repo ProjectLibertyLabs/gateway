@@ -1,12 +1,22 @@
-import { Controller, HttpCode, HttpStatus, Logger, ParseFilePipeBuilder, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesUploadDto, UploadResponseDto } from '../../../../../libs/common/src/dtos/common.dto';
+import { DSNP_VALID_MIME_TYPES } from '#libs/dtos/validation.dto';
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  ParseFilePipeBuilder,
+  Put,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from './api.service';
-import { DSNP_VALID_MIME_TYPES, FilesUploadDto, UploadResponseDto } from '../../../libs/common/src';
+import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiService } from '../../api.service';
 
 @Controller('v1/asset')
 @ApiTags('v1/asset')
-export class AssetController {
+export class AssetControllerV1 {
   private readonly logger: Logger;
 
   constructor(private apiService: ApiService) {
@@ -22,6 +32,7 @@ export class AssetController {
     description: 'Asset files',
     type: FilesUploadDto,
   })
+  @ApiResponse({ status: '2XX', type: UploadResponseDto })
   async assetUpload(
     @UploadedFiles(
       new ParseFilePipeBuilder()

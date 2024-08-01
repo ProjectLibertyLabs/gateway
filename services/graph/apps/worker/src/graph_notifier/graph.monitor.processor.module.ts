@@ -1,4 +1,4 @@
-import { BlockchainModule, BlockchainService, ConfigModule, ConfigService, GraphStateManager } from '#lib';
+import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@songkeys/nestjs-redis';
 import { GraphNotifierService } from './graph.monitor.processor.service';

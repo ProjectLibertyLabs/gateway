@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
-import { ChainEnvironment } from '..';
+import { ChainEnvironment } from '#libs/dtos';
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
@@ -41,7 +41,11 @@ export const configModuleOptions: ConfigModuleOptions = {
               .required()
               .pattern(/^(percentage|amount)$/),
             value: Joi.alternatives()
-              .conditional('type', { is: 'percentage', then: Joi.number().min(0).max(100), otherwise: Joi.number().min(0) })
+              .conditional('type', {
+                is: 'percentage',
+                then: Joi.number().min(0).max(100),
+                otherwise: Joi.number().min(0),
+              })
               .required(),
           });
           const result = schema.validate(obj);

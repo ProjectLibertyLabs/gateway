@@ -1,7 +1,7 @@
+import { MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS, DELAY_TO_CHECK_FOR_SHUTDOWN_MS } from '#libs/utils/processing';
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker, delay } from 'bullmq';
-import { DELAY_TO_CHECK_FOR_SHUTDOWN_MS, MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS } from '../../../libs/common/src/utils/processing';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
   protected logger: Logger;

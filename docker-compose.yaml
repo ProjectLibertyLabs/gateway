@@ -42,7 +42,7 @@ services:
       - ipfs_data:/data/ipfs
 
   content-publishing-service-api:
-    image: amplicalabs/content-publishing-service:latest
+    image: projectlibertylabs/content-publishing-service:latest
     platform: linux/amd64
     ports:
       - 3001:3000
@@ -61,7 +61,7 @@ services:
       - amplica-gateway
 
   content-publishing-service-worker:
-    image: amplicalabs/content-publishing-service:latest
+    image: projectlibertylabs/content-publishing-service:latest
     platform: linux/amd64
     env_file:
       - path: .env.common
@@ -78,7 +78,7 @@ services:
       - amplica-gateway
 
   graph-service:
-    image: amplicalabs/graph-service:latest
+    image: projectlibertylabs/graph-service:latest
     platform: linux/amd64
     ports:
       - 3002:3000
@@ -94,7 +94,7 @@ services:
       - amplica-gateway
 
   account-service-api:
-    image: amplicalabs/account-service:latest
+    image: projectlibertylabs/account-service:latest
     platform: linux/amd64
     ports:
       - 3003:3000
@@ -111,7 +111,7 @@ services:
       - amplica-gateway
 
   account-service-worker:
-    image: amplicalabs/account-service:latest
+    image: projectlibertylabs/account-service:latest
     platform: linux/amd64
     command: worker
     env_file:

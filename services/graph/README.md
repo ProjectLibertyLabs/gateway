@@ -270,7 +270,7 @@ If you would like to explore contributing bug fixes or enhancements, issues with
 
 - **What is the difference between [Reconnection Service]() and `Graph Service`?**
 
-    - The `Reconnection Service` is designed for providers who have users who are migrating to [DSNP](), whereas `Graph Service` is for users who are already on DSNP.
+    - The `Reconnection Service` is designed for providers who have users who are migrating to [DSNP](https://www.dsnp.org), whereas `Graph Service` is for users who are already on DSNP or don't need to migrate pre-DSNP users.
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

@@ -1,7 +1,6 @@
 import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
@@ -10,20 +9,17 @@ import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule } from '#lib/config/config.module';
 import { ConfigService } from '#lib/config/config.service';
 import { BlockchainModule } from '#lib/blockchain/blockchain.module';
-import { QueueConstants } from '#lib/utils/queues';
 import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
-import { Redis } from 'ioredis';
-import { AccountsControllerV1 } from './controllers/v1/accounts-v1.controller';
-import { DelegationControllerV1 } from './controllers/v1/delegation-v1.controller';
-import { HandlesControllerV1 } from './controllers/v1/handles-v1.controller';
-import { KeysControllerV1 } from './controllers/v1/keys-v1.controller';
-import { AccountsService } from './services/accounts.service';
-import { ApiService } from './services/api.service';
-import { DelegationService } from './services/delegation.service';
-import { HandlesService } from './services/handles.service';
-import { KeysService } from './services/keys.service';
-import { HealthController } from './controllers/health.controller';
+import { QueueModule, QueueConstants } from '#lib/queues';
+import {
+  AccountsControllerV1,
+  DelegationControllerV1,
+  HandlesControllerV1,
+  KeysControllerV1,
+  HealthController,
+} from './controllers';
+import { ApiService, AccountsService, HandlesService, DelegationService, KeysService } from './services';
 
 @Module({
   imports: [
@@ -67,21 +63,7 @@ import { HealthController } from './controllers/health.controller';
       },
       true, // isGlobal
     ),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        connection: new Redis(configService.redisUrl.toString()),
-      }),
-      inject: [ConfigService],
-    }),
-    BullModule.registerQueue({
-      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
-      defaultJobOptions: {
-        removeOnComplete: 20,
-        removeOnFail: false,
-        attempts: 1,
-      },
-    }),
+    QueueModule.forRoot(),
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',

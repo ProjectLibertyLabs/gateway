@@ -1,21 +1,20 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@songkeys/nestjs-redis';
-import * as QueueConstants from '#lib/utils/queues';
-import { BlockchainModule, BlockchainScannerService, ConfigModule, ConfigService, GraphStateManager, NonceService, ProviderWebhookService } from '#lib';
+import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { RequestProcessorService } from './request_processor/request.processor.service';
+import { QueueModule } from '#lib/queues/queue.module';
 
 @Module({
   imports: [
-    BullModule,
     ConfigModule,
+    QueueModule,
     RedisModule.forRootAsync(
       {
         imports: [ConfigModule],
@@ -44,40 +43,6 @@ import { RequestProcessorService } from './request_processor/request.processor.s
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    BullModule.registerQueue(
-      {
-        name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-      {
-        name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 1,
-        },
-      },
-      {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-      {
-        name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
-          attempts: 3,
-        },
-      },
-    ),
     ScheduleModule.forRoot(),
     BlockchainModule,
     RequestProcessorModule,
@@ -85,13 +50,9 @@ import { RequestProcessorService } from './request_processor/request.processor.s
     GraphNotifierModule,
   ],
   providers: [
-    ConfigService,
     RequestProcessorService,
     GraphUpdatePublisherService,
     GraphNotifierService,
-    ProviderWebhookService,
-    NonceService,
-    BlockchainScannerService,
     GraphStateManager,
   ],
 })

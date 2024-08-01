@@ -82,6 +82,7 @@
   },
   "devDependencies": {
     "@amplica-labs/frequency-scenario-template": "^1.1.4",
+    "@amplica-labs/ts-config": "file:../../packages/ts-config",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.10",
     "@types/express": "^4.17.21",
@@ -141,6 +142,7 @@
       "^#lib/config(|/.*)$": "<rootDir>/libs/common/src/config/$1",
       "^#lib/dtos(|/.*)$": "<rootDir>/libs/common/src/dtos/$1",
       "^#lib/interfaces(|/.*)$": "<rootDir>/libs/common/src/interfaces/$1",
+      "^#lib/queues(|/.*)$": "<rootDir>/libs/common/src/queues/$1",
       "^#lib/services(|/.*)$": "<rootDir>/libs/common/src/services/$1",
       "^#lib/types(|/.*)$": "<rootDir>/libs/common/src/types/$1",
       "^#lib/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"

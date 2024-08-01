@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import * as QueueConstants from '#lib/utils/queues';
+import * as QueueConstants from '#lib/queues/queue-constants';
 import * as RedisConstants from '#lib/utils/redis';
 import {
   AsyncDebouncerService,

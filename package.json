@@ -1,0 +1,16 @@
+{
+  "name": "@amplica-labs/gateway",
+  "version": "1.0.0",
+  "description": "Monorepo for Gateway shared packages",
+  "author": "Project Liberty, LLC",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@amplica-labs/prettier-config": "^1.0.0"
+  }
+}

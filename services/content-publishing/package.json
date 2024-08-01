@@ -68,7 +68,7 @@
     "@nestjs/event-emitter": "^2.0.4",
     "@nestjs/platform-express": "^10.3.10",
     "@nestjs/schedule": "^4.0.2",
-    "@nestjs/swagger": "^7.3.1",
+    "@nestjs/swagger": "^7.4.0",
     "@polkadot/api": "^10.12.4",
     "@polkadot/api-base": "^10.12.4",
     "@polkadot/types": "^10.12.4",
@@ -89,6 +89,7 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
+    "@amplica-labs/ts-config": "file:../../packages/ts-config",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.8",
     "@types/express": "^4.17.21",
@@ -139,7 +140,14 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@content-publishing-common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@content-publishing-common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^#libs(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^#libs/blockchain(|/.*)$": "<rootDir>/libs/common/src/blockchain/$1",
+      "^#libs/config(|/.*)$": "<rootDir>/libs/common/src/config/$1",
+      "^#libs/dtos(|/.*)$": "<rootDir>/libs/common/src/dtos/$1",
+      "^#libs/interfaces(|/.*)$": "<rootDir>/libs/common/src/interfaces/$1",
+      "^#libs/queues(|/.*)$": "<rootDir>/libs/common/src/queues/$1",
+      "^#libs/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"
     }
   }
 }

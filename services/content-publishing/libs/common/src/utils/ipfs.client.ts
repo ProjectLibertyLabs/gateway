@@ -9,7 +9,7 @@ import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
 import { create } from 'multiformats/hashes/digest';
 import { randomUUID } from 'crypto';
 import { base58btc } from 'multiformats/bases/base58';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '#libs/config';
 
 export interface FilePin {
   cid: string;
@@ -37,7 +37,10 @@ export class IpfsService {
 
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
+    const ipfsAuth =
+      ipfsAuthUser && ipfsAuthSecret
+        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
+        : '';
 
     const headers = {
       'Content-Type': `multipart/form-data; boundary=${form.getBoundary()}`,
@@ -90,7 +93,10 @@ export class IpfsService {
     const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
+    const ipfsAuth =
+      ipfsAuthUser && ipfsAuthSecret
+        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
+        : '';
 
     const headers = {
       Accept: '*/*',
@@ -110,7 +116,10 @@ export class IpfsService {
     const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
+    const ipfsAuth =
+      ipfsAuthUser && ipfsAuthSecret
+        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
+        : '';
 
     const headers = {
       Accept: '*/*',

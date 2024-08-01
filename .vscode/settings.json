@@ -1,0 +1,9 @@
+{
+    "prettier.configPath": ".prettierrc.json",
+    "eslint.workingDirectories": [
+        "./services/account",
+        "./services/graph",
+        "./services/content-publishing",
+        "./services/content-watcher"
+    ]
+}

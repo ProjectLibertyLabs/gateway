@@ -1,11 +1,17 @@
 import { Body, Controller, HttpCode, Logger, Param, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from './api.service';
-import { AnnouncementResponseDto, AnnouncementTypeDto, AssetIncludedRequestDto, DsnpUserIdParam, ProfileDto } from '../../../libs/common/src';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiService } from '../../api.service';
+import {
+  DsnpUserIdParam,
+  ProfileDto,
+  AnnouncementResponseDto,
+  AssetIncludedRequestDto,
+  AnnouncementTypeDto,
+} from '#libs/dtos';
 
 @Controller('v1/profile')
 @ApiTags('v1/profile')
-export class ProfileController {
+export class ProfileControllerV1 {
   private readonly logger: Logger;
 
   constructor(private apiService: ApiService) {
@@ -15,7 +21,11 @@ export class ProfileController {
   @Put(':userDsnpId')
   @ApiOperation({ summary: "Update a user's Profile" })
   @HttpCode(202)
-  async profile(@Param() userDsnpId: DsnpUserIdParam, @Body() profileDto: ProfileDto): Promise<AnnouncementResponseDto> {
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
+  async profile(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() profileDto: ProfileDto,
+  ): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(profileDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto, metadata);
   }

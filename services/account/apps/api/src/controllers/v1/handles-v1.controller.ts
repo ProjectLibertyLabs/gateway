@@ -6,6 +6,7 @@ import { HandlesService } from '#api/services/handles.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { ChangeHandleRequest, CreateHandleRequest, HandleRequest } from '#lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
+import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
@@ -79,7 +80,7 @@ export class HandlesControllerV1 {
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.
    */
-  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponse> {
+  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponseDTO> {
     try {
       const handle = await this.handlesService.getHandle(msaId);
       if (!handle) {

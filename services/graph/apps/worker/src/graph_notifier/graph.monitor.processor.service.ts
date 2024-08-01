@@ -7,7 +7,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
 import { BaseConsumer, AsyncDebouncerService, BlockchainService, GraphStateManager, ITxMonitorJob, ProviderGraphUpdateJob, SECONDS_PER_BLOCK, ConfigService } from '#lib';
-import * as QueueConstants from '#lib/utils/queues';
+import * as QueueConstants from '#lib/queues/queue-constants';
 import * as RedisConstants from '#lib/utils/redis';
 import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
 import * as GraphServiceWebhook from '#lib/types/webhook-types';

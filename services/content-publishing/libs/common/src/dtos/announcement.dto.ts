@@ -6,7 +6,7 @@ import { IsEnum, IsInt, IsNotEmpty, IsString, Matches, Max, Min, MinLength, Vali
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
 import { DSNP_EMOJI_REGEX } from './validation.dto';
-import { IsDsnpContentHash, IsDsnpContentURI } from '../utils/dsnp-validation.decorator';
+import { IsDsnpContentURI, IsDsnpContentHash } from '#libs/utils/dsnp-validation.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementTypeDto {

@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
-import { AnnouncementTypeDto, IRequestJob, ModifiableAnnouncementTypeDto, TagTypeDto } from '../../../../libs/common/src';
-import { ConfigService } from '../../../../libs/common/src/config/config.service';
-import { IpfsService } from '../../../../libs/common/src/utils/ipfs.client';
+import { ConfigService } from '#libs/config';
+import { AnnouncementTypeDto, ModifiableAnnouncementTypeDto, TagTypeDto } from '#libs/dtos';
+import { IRequestJob } from '#libs/interfaces';
+import { IpfsService } from '#libs/utils/ipfs.client';
 
 const mockQueue = {
   add: jest.fn(),

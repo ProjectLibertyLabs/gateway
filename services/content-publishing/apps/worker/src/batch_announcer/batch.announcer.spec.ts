@@ -3,7 +3,6 @@ import assert from 'assert';
 import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency';
 import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
-import { Bytes } from '@polkadot/types';
 import { BatchAnnouncer } from './batch.announcer';
 
 // Create a mock for the dependencies
@@ -62,7 +61,12 @@ describe('BatchAnnouncer', () => {
   const mockClient = new Redis();
 
   beforeEach(async () => {
-    ipfsAnnouncer = new BatchAnnouncer(mockClient, mockConfigService as any, mockBlockchainService as any, mockIpfsService as any);
+    ipfsAnnouncer = new BatchAnnouncer(
+      mockClient,
+      mockConfigService as any,
+      mockBlockchainService as any,
+      mockIpfsService as any,
+    );
   });
   it('should be defined', () => {
     expect(ipfsAnnouncer).toBeDefined();

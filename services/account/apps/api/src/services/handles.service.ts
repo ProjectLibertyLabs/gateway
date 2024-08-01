@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
 
 @Injectable()
 export class HandlesService {
@@ -10,7 +10,7 @@ export class HandlesService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getHandle(msaId: string): Promise<HandleResponse | null> {
+  async getHandle(msaId: string): Promise<HandleResponseDTO | null> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       return this.blockchainService.getHandleForMsa(msaId);

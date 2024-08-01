@@ -22,6 +22,7 @@ export default tseslint.config(
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-extraneous-class': 'off',
       '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/no-empty-interface': 1,
     },
   },
 );

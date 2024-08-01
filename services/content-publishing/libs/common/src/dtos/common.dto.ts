@@ -16,6 +16,7 @@ export class AnnouncementResponseDto {
 }
 
 export class UploadResponseDto {
+  @ApiProperty()
   assetIds: string[];
 }
 

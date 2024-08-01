@@ -54,7 +54,7 @@ services:
       - ipfs_data:/data/ipfs
 
   content-publishing-service-api:
-    image: amplicalabs/content-publishing-service:latest
+    image: projectlibertylabs/content-publishing-service:latest
     # For now, this is the only platform image published.
     platform: linux/amd64
     ports:
@@ -72,7 +72,7 @@ services:
       - content-watcher-service
 
   content-publishing-service-worker:
-    image: amplicalabs/content-publishing-service:latest
+    image: projectlibertylabs/content-publishing-service:latest
     # For now, this is the only platform image published.
     platform: linux/amd64
     env_file:

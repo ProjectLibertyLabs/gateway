@@ -1,0 +1,24 @@
+{
+  "extends": "@amplica-labs/ts-config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "#api": [
+        "apps/api/src"
+      ],
+      "#api/*": [
+        "apps/api/src/*"
+      ],
+      "@libs/common": [
+        "libs/common/src"
+      ],
+      "@libs/common/*": [
+        "libs/common/src/*"
+      ]
+    },
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+name: Build and Publish OpenAPI UI
+description: "Build and publish OpenAPI UI for a service"
+
+inputs:
+  service:
+    description: "The name of the service to build OpenAPI UI for"
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: make npm-${{ inputs.service }}
+      shell: bash
+
+    - name: Generate Swagger Metadata
+      run: make metadata-${{ inputs.service }}
+      shell: bash
+
+    - name: Generate OpenAPI/Swagger JSON
+      run: make openapi-${{ inputs.service }}
+      shell: bash
+
+    - name: Generate OpenAPI/Swagger UI
+      run: make swagger-${{ inputs.service }}
+      shell: bash
+
+    - name: Copy OpenAPI Spec (index.html) to root docs directory
+      run: cp ./services/${{ inputs.service }}/docs/index.html ./docs/${{ inputs.service }}/
+      shell: bash

@@ -236,17 +236,18 @@ export class DsnpAnnouncementProcessor {
     const attachments: ActivityContentAttachment[] = [];
     if (assetData) {
       const promises = assetData.map(async (asset) => {
-        switch (asset.type) {
-          case AttachmentTypeDto.LINK:
+        const mediaType = asset.url[0].mediaType;
+        switch (asset.url[0].mediaType) {
+          case mediaType.startsWith(AttachmentTypeDto.LINK):
             attachments.push(this.prepareLinkAttachment(asset));
             break;
-          case AttachmentTypeDto.IMAGE:
+          case mediaType.startsWith(AttachmentTypeDto.IMAGE):
             attachments.push(await this.prepareImageAttachment(asset, assetToMimeType));
             break;
-          case AttachmentTypeDto.VIDEO:
+          case mediaType.startsWith(AttachmentTypeDto.VIDEO):
             attachments.push(await this.prepareVideoAttachment(asset, assetToMimeType));
             break;
-          case AttachmentTypeDto.AUDIO:
+          case mediaType.startsWith(AttachmentTypeDto.AUDIO):
             attachments.push(await this.prepareAudioAttachment(asset, assetToMimeType));
             break;
           default:

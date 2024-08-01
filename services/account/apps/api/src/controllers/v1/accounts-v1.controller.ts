@@ -43,7 +43,7 @@ export class AccountsControllerV1 {
   async getAccountForMsa(@Param('msaId') msaId: string): Promise<AccountResponse> {
     try {
       this.logger.debug(`Received request to get account with msaId: ${msaId}`);
-      return await this.accountsService.getAccountForMsaId(msaId);
+      return await this.accountsService.getAccount(msaId);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
@@ -64,7 +64,7 @@ export class AccountsControllerV1 {
     try {
       this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
       const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
-      return await this.accountsService.getAccountForMsaId(response.msaId);
+      return await this.accountsService.getAccount(response.msaId);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);

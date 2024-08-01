@@ -21,7 +21,7 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getAccountForMsaId(msaId: string): Promise<AccountResponse> {
+  async getAccount(msaId: string): Promise<AccountResponse> {
     try {
       const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
       if (isValidMsaId) {

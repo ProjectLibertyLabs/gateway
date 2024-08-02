@@ -13,6 +13,8 @@ const EPOCH_CAPACITY_PREFIX = 'epochCapacity:';
 
 @Injectable()
 export class CapacityCheckerService {
+  private readonly logger: Logger;
+
   private lastCapacityEpoch: number;
 
   private lastCapacityUsedCheck: bigint;
@@ -23,9 +25,10 @@ export class CapacityCheckerService {
     private readonly configService: ConfigService,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
-    private readonly logger: Logger,
     // eslint-disable-next-line no-empty-function
-  ) {}
+  ) {
+    this.logger = new Logger();
+  }
 
   private checkTotalCapacityLimit(capacityInfo: ICapacityInfo, totalLimit: ICapacityLimit): boolean {
     const { remainingCapacity, totalCapacityIssued } = capacityInfo;
@@ -39,7 +42,9 @@ export class CapacityCheckerService {
     outOfCapacity = totalCapacityUsed >= limit;
 
     if (outOfCapacity) {
-      this.logger.warn(`Total capacity usage limit reached: used ${totalCapacityUsed} of ${totalCapacityIssued}`);
+      this.logger.warn(
+        `Total capacity usage limit reached: used ${totalCapacityUsed} of ${limit} allowed (${totalCapacityIssued} total issued)`,
+      );
     }
 
     return outOfCapacity;
@@ -58,12 +63,14 @@ export class CapacityCheckerService {
     const outOfCapacity = epochUsedCapacity >= limit;
 
     if (outOfCapacity) {
-      this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${serviceLimit}`);
+      this.logger.warn(`Capacity service threshold reached: used ${epochUsedCapacity} of ${limit}`);
     } else if (this.lastCapacityEpoch !== currentEpoch || this.lastCapacityUsedCheck !== epochUsedCapacity) {
       // Minimum with bigints
       const serviceRemaining =
         remainingCapacity > limit - epochUsedCapacity ? limit - epochUsedCapacity : remainingCapacity;
-      this.logger.verbose(`Capacity usage: ${epochUsedCapacity} of ${serviceLimit} (${serviceRemaining} remaining)`);
+      this.logger.verbose(
+        `Service Capacity usage: ${epochUsedCapacity} of ${limit} allowed (${serviceRemaining} remaining)`,
+      );
       this.lastCapacityEpoch = currentEpoch;
       this.lastCapacityUsedCheck = epochUsedCapacity;
     }

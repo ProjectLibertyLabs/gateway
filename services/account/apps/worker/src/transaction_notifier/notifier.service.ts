@@ -8,9 +8,9 @@ import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { SECONDS_PER_BLOCK, TxWebhookRsp, RedisUtils } from 'libs/common/src';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { BlockchainScannerService, NullScanError } from '#lib/utils/blockchain-scanner.service';
+import { BlockchainScannerService } from '#lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
+import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
@@ -52,7 +52,9 @@ export class TxnNotifierService
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
-    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], this.capacityService.checkCapacity);
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
+      this.capacityService.checkCapacity(),
+    );
   }
 
   public get intervalName() {
@@ -75,25 +77,6 @@ export class TxnNotifierService
     }
   }
 
-  protected async checkInitialScanParameters(): Promise<void> {
-    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
-    if (pendingTxns === 0) {
-      throw new NullScanError('No pending extrinsics; no scan will be performed');
-    }
-
-    return super.checkInitialScanParameters();
-  }
-
-  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<void> {
-    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
-
-    if (pendingTxns === 0) {
-      throw new NullScanError('No pending extrinsics; terminating current scan iteration');
-    }
-
-    return super.checkScanParameters(blockNumber, blockHash);
-  }
-
   public async getLastSeenBlockNumber(): Promise<number> {
     let blockNumber = await super.getLastSeenBlockNumber();
     const pendingTxns = await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY);
@@ -111,7 +94,6 @@ export class TxnNotifierService
   }
 
   async processCurrentBlock(currentBlock: SignedBlock, blockEvents: FrameSystemEventRecord[]): Promise<void> {
-    const currentBlockHash = currentBlock.hash;
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache

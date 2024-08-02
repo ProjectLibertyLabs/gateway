@@ -46,6 +46,15 @@ interface PublicKeyValues {
   debugMsg: string;
 }
 
+export interface ICapacityInfo {
+  providerId: string;
+  currentBlockNumber: number;
+  nextEpochStart: number;
+  remainingCapacity: bigint;
+  totalCapacityIssued: bigint;
+  currentEpoch: number;
+}
+
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
@@ -280,21 +289,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async capacityInfo(providerId: AnyNumber): Promise<{
-    providerId: string;
-    currentBlockNumber: number;
-    nextEpochStart: number;
-    remainingCapacity: bigint;
-    totalCapacityIssued: bigint;
-    currentEpoch: bigint;
-  }> {
-    const providerU64 = this.api.createType('u64', providerId);
+  public async capacityInfo(providerId: AnyNumber): Promise<ICapacityInfo> {
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
       'capacity',
       'capacityLedger',
-      providerU64,
+      providerId,
     );
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
       remainingCapacity: 0,
@@ -314,19 +315,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     };
   }
 
-  public async getCurrentCapacityEpoch(): Promise<bigint> {
-    const currentEpoch: u32 = await this.query('capacity', 'currentEpoch');
-    return typeof currentEpoch === 'number' ? BigInt(currentEpoch) : currentEpoch.toBigInt();
+  public async getCurrentCapacityEpoch(): Promise<number> {
+    const currentEpoch = await this.api.query.capacity.currentEpoch();
+    return currentEpoch.toNumber();
   }
 
-  public async getCurrentCapacityEpochStart(): Promise<u32> {
-    const currentEpochInfo: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
-    return currentEpochInfo.epochStart;
+  public async getCurrentCapacityEpochStart(): Promise<number> {
+    const currentEpochInfo: PalletCapacityEpochInfo = await this.api.query.capacity.currentEpochInfo();
+    return currentEpochInfo.epochStart.toNumber();
   }
 
   public async getCurrentEpochLength(): Promise<number> {
-    const epochLength: u32 = await this.query('capacity', 'epochLength');
-    return typeof epochLength === 'number' ? epochLength : epochLength.toNumber();
+    const epochLength: u32 = await this.api.query.capacity.epochLength();
+    return epochLength.toNumber();
   }
 
   /**

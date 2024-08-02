@@ -2,9 +2,10 @@
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
-import { BlockHash } from '@polkadot/types/interfaces';
+import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import Redis from 'ioredis';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -15,8 +16,17 @@ export interface IBlockchainScanParameters {
 export class EndOfChainError extends Error {}
 export class NullScanError extends Error {}
 
+function eventName({ event: { section, method } }: FrameSystemEventRecord) {
+  return `${section}.${method}`;
+}
+
 export abstract class BlockchainScannerService {
   protected scanInProgress = false;
+
+  protected chainEventHandlers = new Map<
+    string,
+    ((block: SignedBlock, event: FrameSystemEventRecord) => any | Promise<any>)[]
+  >();
 
   private readonly lastSeenBlockNumberKey: string;
 
@@ -68,7 +78,11 @@ export abstract class BlockchainScannerService {
       // eslint-disable-next-line no-constant-condition
       while (true) {
         await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
-        await this.processCurrentBlock(currentBlockHash, currentBlockNumber);
+        const block = await this.blockchainService.getBlock(currentBlockHash);
+        const at = await this.blockchainService.api.at(currentBlockHash);
+        const blockEvents = (await at.query.system.events()).toArray();
+        await this.handleChainEvents(block, blockEvents);
+        await this.processCurrentBlock(block, blockEvents);
         await this.setLastSeenBlockNumber(currentBlockNumber);
 
         // Move to the next block
@@ -120,5 +134,32 @@ export abstract class BlockchainScannerService {
     }
   }
 
-  protected abstract processCurrentBlock(currentBlockHash: BlockHash, currentBlockNumber: number): Promise<void>;
+  public registerChainEventHandler(
+    events: string[],
+    callback: (block: SignedBlock, blockEvents: FrameSystemEventRecord) => any | Promise<any>,
+  ) {
+    events.forEach((event) => {
+      const handlers = new Set(this.chainEventHandlers.get(event) || []);
+      handlers.add(callback);
+      this.chainEventHandlers.set(event, [...handlers]);
+    });
+  }
+
+  private async handleChainEvents(block: SignedBlock, blockEvents: FrameSystemEventRecord[]) {
+    const promises = blockEvents
+      .filter((blockEvent) => this.chainEventHandlers.has(eventName(blockEvent)))
+      .flatMap((blockEvent) =>
+        this.chainEventHandlers.get(eventName(blockEvent))?.map((handler) => handler(block, blockEvent)),
+      );
+    try {
+      await Promise.all(promises);
+    } catch (err) {
+      this.logger.error(`Error processing registered chain event handler: ${err}`);
+    }
+  }
+
+  protected abstract processCurrentBlock(
+    currentBlock: SignedBlock,
+    blockEvents: FrameSystemEventRecord[],
+  ): Promise<void>;
 }

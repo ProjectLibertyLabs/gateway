@@ -44,7 +44,7 @@ describe('BlockchainService', () => {
   describe('getCurrentCapacityEpochStart', () => {
     it('should return the current capacity epoch start', async () => {
       // Arrange
-      const expectedEpochStart: u32 = mockApi.createType('u32', 123);
+      const expectedEpochStart = mockApi.createType('u32', 123);
       const currentEpochInfo = { epochStart: expectedEpochStart };
 
       jest.spyOn(blockchainService, 'query').mockResolvedValue(currentEpochInfo);
@@ -53,7 +53,7 @@ describe('BlockchainService', () => {
       const result = await blockchainService.getCurrentCapacityEpochStart();
 
       // Assert
-      expect(result).toBe(expectedEpochStart);
+      expect(result).toBe(expectedEpochStart.toNumber());
     });
   });
 });

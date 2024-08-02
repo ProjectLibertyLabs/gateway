@@ -8,7 +8,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { Codec, ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { BlockchainService, ICapacityInfo } from '#lib/blockchain/blockchain.service';
 import { createKeys } from '#lib/blockchain/create-keys';
 import { NonceService } from '#lib/services/nonce.service';
 import { TransactionType } from '#lib/types/enums';
@@ -18,6 +18,12 @@ import { RedisUtils, TransactionData } from 'libs/common/src';
 import { ConfigService } from '#lib/config/config.service';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
+import {
+  CAPACITY_AVAILABLE_EVENT,
+  CAPACITY_EXHAUSTED_EVENT,
+  CapacityCheckerService,
+} from '#lib/blockchain/capacity-checker.service';
+import { OnEvent } from '@nestjs/event-emitter';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -29,7 +35,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
 export class TransactionPublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
-    await this.checkCapacity();
+    await this.capacityCheckerService.checkCapacity();
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -48,6 +54,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
     private schedulerRegistry: SchedulerRegistry,
+    private capacityCheckerService: CapacityCheckerService,
   ) {
     super();
   }
@@ -61,7 +68,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     let txHash: HexString;
     try {
       // Check capacity first; if out of capacity, send job back to queue
-      if (!(await this.checkCapacity())) {
+      if (!(await this.capacityCheckerService.checkCapacity())) {
         job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
         throw new DelayedError();
       }
@@ -114,11 +121,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       obj[txHash] = JSON.stringify(status);
       this.cacheManager.hset(RedisUtils.TXN_WATCH_LIST_KEY, obj);
     } catch (error: any) {
-      if (error instanceof DelayedError) {
-        throw error;
+      if (!(error instanceof DelayedError)) {
+        this.logger.error('Unknown error encountered: ', error, error?.stack);
       }
 
-      this.logger.error('Unknown error encountered: ', error, error?.stack);
       throw error;
     }
   }
@@ -183,89 +189,53 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  /**
-   * Checks the capacity of the account publisher and takes appropriate actions based on the capacity status.
-   * If the capacity is exhausted, it pauses the account change publish queue and sets a timeout to check the capacity again.
-   * If the capacity is refilled, it resumes the account change publish queue and clears the timeout.
-   * If any jobs failed due to low balance/no capacity, it retries them.
-   * If any error occurs during the capacity check, it logs the error.
-   */
-  private async checkCapacity(): Promise<boolean> {
-    let outOfCapacity = false;
+  @OnEvent(CAPACITY_EXHAUSTED_EVENT)
+  public async handleCapacityExhausted(capacityInfo: ICapacityInfo) {
+    await this.transactionPublishQueue.pause();
+    const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
+    const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    this.logger.warn(
+      `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
+    );
     try {
-      const { capacityLimit } = this.configService;
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.providerId);
-      const { remainingCapacity } = capacityInfo;
-      const { currentEpoch } = capacityInfo;
-      const epochCapacityKey = `epochCapacity:${currentEpoch}`;
-      const epochUsedCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0); // Fetch capacity used by the service
-      outOfCapacity = remainingCapacity <= 0n;
-
-      if (!outOfCapacity) {
-        this.logger.debug(`      Capacity remaining: ${remainingCapacity}`);
-        if (capacityLimit.type === 'percentage') {
-          const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
-          this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
-          if (epochUsedCapacity >= capacityLimitThreshold) {
-            outOfCapacity = true;
-            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
-          }
-        } else if (epochUsedCapacity >= capacityLimit.value) {
-          outOfCapacity = true;
-          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
-        }
+      // Check if a timeout with the same name already exists
+      if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
+        // If it does, delete it
+        this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
       }
 
-      if (outOfCapacity) {
-        await this.transactionPublishQueue.pause();
-        const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
-        const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-        this.logger.warn(
-          `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
-        );
-        try {
-          // Check if a timeout with the same name already exists
-          if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
-            // If it does, delete it
-            this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-          }
-
-          // Add the new timeout
-          this.schedulerRegistry.addTimeout(
-            CAPACITY_EPOCH_TIMEOUT_NAME,
-            setTimeout(() => this.checkCapacity(), epochTimeout),
-          );
-        } catch (err) {
-          // Handle any errors
-          console.error(err);
-        }
-      } else {
-        this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
-        // Get the failed jobs and check if they failed due to capacity
-        const failedJobs = await this.transactionPublishQueue.getFailed();
-        const capacityFailedJobs = failedJobs.filter((job) =>
-          job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
-        );
-        // Retry the failed jobs
-        await Promise.all(
-          capacityFailedJobs.map(async (job) => {
-            this.logger.debug(`Retrying job ${job.id}`);
-            job.retry();
-          }),
-        );
-        try {
-          this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-        } catch (err) {
-          // ignore
-        }
-
-        await this.transactionPublishQueue.resume();
-      }
+      // Add the new timeout
+      this.schedulerRegistry.addTimeout(
+        CAPACITY_EPOCH_TIMEOUT_NAME,
+        setTimeout(() => this.capacityCheckerService.checkCapacity(), epochTimeout),
+      );
     } catch (err) {
-      this.logger.error('Caught error in checkCapacity', err);
+      // Handle any errors
+      console.error(err);
+    }
+  }
+
+  @OnEvent(CAPACITY_AVAILABLE_EVENT)
+  public async handleCapacityAvailable() {
+    this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+    // Get the failed jobs and check if they failed due to capacity
+    const failedJobs = await this.transactionPublishQueue.getFailed();
+    const capacityFailedJobs = failedJobs.filter((job) =>
+      job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
+    );
+    // Retry the failed jobs
+    await Promise.all(
+      capacityFailedJobs.map(async (job) => {
+        this.logger.debug(`Retrying job ${job.id}`);
+        job.retry();
+      }),
+    );
+    try {
+      this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
+    } catch (err) {
+      // ignore
     }
 
-    return !outOfCapacity;
+    await this.transactionPublishQueue.resume();
   }
 }

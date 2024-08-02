@@ -144,7 +144,13 @@ Clone:
 To run all Gateway services, execute the following command:
 
 ```sh
-  docker compose docker-compose.all.yaml
+  ./start-gateway.sh
+```
+
+To stop the Gateway services, execute the following command:
+
+```sh
+  ./stop-gateway.sh
 ```
 
 To build the Gateway Documentation:

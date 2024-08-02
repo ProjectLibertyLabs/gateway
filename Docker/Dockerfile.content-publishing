@@ -1,0 +1,45 @@
+# Use a multi-stage build for efficiency
+FROM node:20 AS builder
+
+WORKDIR /build/packages
+
+COPY packages ./
+
+WORKDIR /build/services/content-publishing
+
+COPY services/content-publishing/package* ./
+
+RUN npm ci
+
+COPY services/content-publishing ./
+
+# Build the application
+RUN npm run build && \
+    rm -rf node_modules && \
+	npm ci --omit=dev
+
+# Production stage
+FROM node:20
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+COPY --from=builder /build/services/content-publishing/dist ./dist/
+COPY services/content-publishing/package*.json ./
+COPY services/content-publishing/lua ./lua/
+COPY services/content-publishing/scripts/docker-entrypoint.sh ./
+COPY --from=builder /build/services/content-publishing/node_modules ./node_modules/
+RUN chmod +x ./docker-entrypoint.sh
+
+# We want jq and curl in the final image, but we don't need the support files
+RUN apt-get update && \
+	apt-get install -y jq curl tini && \
+	apt-get clean && \
+	rm -rf /usr/share/doc /usr/share/man /usr/share/zsh
+
+EXPOSE 3000
+
+ENV START_PROCESS="api"
+
+ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]

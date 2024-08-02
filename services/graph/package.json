@@ -21,8 +21,6 @@
     "start:worker:prod": "node dist/apps/worker/main.js",
     "start:worker:dev": "set -a ; . .env ; nest start worker",
     "start:worker:debug": "set -a ; . .env ;nest start worker --debug=9230 --watch",
-    "docker:build": "docker build -t graph-service .",
-    "docker:run": "docker build -t graph-service-deploy . ; docker run --env-file .env graph-service-deploy",
     "chain-setup": "tsx ./test-setup/main.ts",
     "clean": "rm -Rf dist",
     "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",

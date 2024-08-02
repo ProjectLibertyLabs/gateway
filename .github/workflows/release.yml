@@ -1,5 +1,5 @@
-name: "Release"
-run-name: "Cut Release ${{ github.event.release.tag_name || github.event.inputs.release-tag}}"
+name: 'Release'
+run-name: 'Cut Release ${{ github.event.release.tag_name || github.event.inputs.release-tag}}'
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       release-tag:
-        description: "Release tag ([servicename-]v#.#.#[-rc#])"
+        description: 'Release tag ([servicename-]v#.#.#[-rc#])'
         required: true
 
 env:
@@ -112,8 +112,8 @@ jobs:
       - name: Build and Push account-service-service Image
         uses: docker/build-push-action@v5
         with:
-          context: services/${{ matrix.service }}
+          context: .
           platforms: linux/amd64
           push: ${{ needs.set_variables.outputs.test_run != 'true'}}
-          file: services/account/Dockerfile
+          file: Docker/Dockerfile.${{ matrix.service }}
           tags: ${{ steps.cp-tags.outputs.tags }}

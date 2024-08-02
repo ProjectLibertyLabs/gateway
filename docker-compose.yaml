@@ -1,3 +1,60 @@
+x-common-environment: &common-environment
+  FREQUENCY_URL: ${FREQUENCY_URL}
+  FREQUENCY_HTTP_URL: ${FREQUENCY_HTTP_URL}
+  REDIS_URL: 'redis://redis:6379'
+  PROVIDER_ID: ${PROVIDER_ID}
+  PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE}
+  WEBHOOK_BASE_URL: 'http://social-app-template-backend:3001/webhooks'
+  WEBHOOK_FAILURE_THRESHOLD: 3
+  WEBHOOK_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRIES: 4
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_SUCCESS_THRESHOLD: 10
+  CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
+  SIWF_URL: 'https://amplicalabs.github.io/siwf/ui'
+  SIWF_DOMAIN: 'localhost'
+  IPFS_ENDPOINT: ${IPFS_ENDPOINT}
+  IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL}
+  IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER}
+  IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET}
+  QUEUE_HIGH_WATER: 1000
+  CHAIN_ENVIRONMENT: dev
+  DEBUG: true
+
+x-content-publishing-env: &content-publishing-env
+  START_PROCESS: api
+  FILE_UPLOAD_MAX_SIZE_IN_BYTES: 2000000000
+  ASSET_EXPIRATION_INTERVAL_SECONDS: 300
+  BATCH_INTERVAL_SECONDS: 12
+  BATCH_MAX_COUNT: 1000
+  ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 5
+
+x-content-watcher-env: &content-watcher-env
+  STARTING_BLOCK: 759882
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 6
+  WEBHOOK_FAILURE_THRESHOLD: 4
+
+x-graph-service-env: &graph-service-env
+  DEBOUNCE_SECONDS: 10
+  GRAPH_ENVIRONMENT_TYPE: Mainnet
+  RECONNECTION_SERVICE_REQUIRED: false
+
+x-account-service-env: &account-service-env
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
+  TRUST_UNFINALIZED_BLOCKS: true
+  PROVIDER_BASE_URL: 'http://social-app-template-backend:3001/webhooks/account-service'
+
+x-social-app-template-backend: &social-app-template-backend
+  ACCOUNT_SERVICE_URL: 'http://account-service-api:3000'
+  CONTENT_PUBLISHER_URL: 'http://content-publishing-service-api:3000'
+  CONTENT_WATCHER_URL: 'http://content-watcher-service:3000'
+  GRAPH_SERVICE_URL: 'http://graph-service-api:3000'
+  IPFS_UA_GATEWAY_URL: ${IPFS_UA_GATEWAY_URL}
+  NODE_ENV: development
+
+x-social-app-template-frontend: &social-app-template-frontend
+  REACT_APP_BACKEND_URL: 'http://localhost:3001'
+
 services:
   redis:
     image: redis:latest
@@ -15,9 +72,9 @@ services:
     platform: linux/amd64
     # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
     # Other options you may want to add depending on your test scenario.
-    # environment:
-    #   - SEALING_MODE=interval
-    #   - SEALING_INTERVAL=3
+    environment:
+      - SEALING_MODE=interval
+      - SEALING_INTERVAL=12
     #   - CREATE_EMPTY_BLOCKS=true
     # The 'command' may contain additional CLI options to the Frequency node,
     # such as:
@@ -29,99 +86,137 @@ services:
       - amplica-gateway
     volumes:
       - chainstorage:/data
+    profiles:
+      - local-node
 
-  kubo_ipfs:
+  ipfs:
     image: ipfs/kubo:latest
     ports:
       - 4001:4001
-      - 5001:5001
-      - 8080:8080
+      - 127.0.0.1:5001:5001
+      - 127.0.0.1:8080:8080
     networks:
       - amplica-gateway
     volumes:
-      - ipfs_data:/data/ipfs
+      - ipfs_data:${IPFS_VOLUME}
+
+  gateway-base:
+    pull_policy: never
+    image: gateway-dev:latest
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.dev
+      tags:
+        - gateway-dev:latest
 
   content-publishing-service-api:
-    image: projectlibertylabs/content-publishing-service:latest
-    platform: linux/amd64
+    image: gateway-dev:latest
     ports:
-      - 3001:3000
-    env_file:
-      - path: .env.common
-        required: true
-      - path: .env.content-publishing-service
-        required: false
+      - ${SERVICE_PORT_0}:3000
+    command: make start-content-publishing-api
     environment:
-      - START_PROCESS=api
+      <<: [*common-environment, *content-publishing-env]
+    volumes:
+      - ./:/app
+      - content_publishing_node_cache:/app/services/content-publishing/node_modules
     depends_on:
       - redis
-      - frequency
-      - kubo_ipfs
+      - ipfs
+      - gateway-base
     networks:
       - amplica-gateway
 
   content-publishing-service-worker:
-    image: projectlibertylabs/content-publishing-service:latest
-    platform: linux/amd64
-    env_file:
-      - path: .env.common
-        required: true
-      - path: .env.content-publishing-service
-        required: false
+    image: gateway-dev:latest
+    command: make start-content-publishing-worker
     environment:
-      - START_PROCESS=worker
+      <<: [*common-environment, *content-publishing-env]
+    volumes:
+      - ./:/app
+      - content_publishing_node_cache:/app/services/content-publishing/node_modules
     depends_on:
       - redis
-      - frequency
-      - kubo_ipfs
+      - ipfs
+      - gateway-base
     networks:
       - amplica-gateway
 
-  graph-service:
-    image: projectlibertylabs/graph-service:latest
-    platform: linux/amd64
-    ports:
-      - 3002:3000
-    env_file:
-      - path: .env.common
-        required: true
-      - path: .env.graph-service
-        required: false
+  content-watcher-service:
+    image: gateway-dev:latest
+    command: make start-content-watcher
+    environment:
+      <<: [*common-environment, *content-watcher-env]
+    volumes:
+      - ./:/app
+      - content_watcher_node_cache:/app/services/content-watcher/node_modules
     depends_on:
       - redis
-      - frequency
+      - ipfs
+      - gateway-base
+    networks:
+      - amplica-gateway
+
+  graph-service-api:
+    image: gateway-dev:latest
+    ports:
+      - ${SERVICE_PORT_2}:3000
+    command: make start-graph-api
+    environment:
+      <<: [*common-environment, *graph-service-env]
+    volumes:
+      - ./:/app
+      - graph_node_cache:/app/services/graph/node_modules
+    depends_on:
+      - redis
+      - ipfs
+      - gateway-base
+    networks:
+      - amplica-gateway
+
+  graph-service-worker:
+    image: gateway-dev:latest
+    command: make start-graph-worker
+    environment:
+      <<: [*common-environment, *graph-service-env]
+    volumes:
+      - ./:/app
+      - graph_node_cache:/app/services/graph/node_modules
+    depends_on:
+      - redis
+      - ipfs
+      - gateway-base
     networks:
       - amplica-gateway
 
   account-service-api:
-    image: projectlibertylabs/account-service:latest
-    platform: linux/amd64
+    image: gateway-dev:latest
     ports:
-      - 3003:3000
-    command: api
-    env_file:
-      - path: .env.common
-        required: true
-      - path: .env.account-service
-        required: false
+      - ${SERVICE_PORT_3}:3000
+    environment:
+      <<: [*common-environment, *account-service-env]
+    command: make start-account-api
+    volumes:
+      - ./:/app
+      - account_node_cache:/app/services/account/node_modules
     depends_on:
       - redis
-      - frequency
+      - ipfs
+      - gateway-base
     networks:
       - amplica-gateway
 
   account-service-worker:
-    image: projectlibertylabs/account-service:latest
-    platform: linux/amd64
-    command: worker
-    env_file:
-      - path: .env.common
-        required: true
-      - path: .env.account-service
-        required: false
+    image: gateway-dev:latest
+    command: make start-account-worker
+    environment:
+      <<: [*common-environment, *account-service-env]
+    volumes:
+      - ./:/app
+      - account_node_cache:/app/services/account/node_modules
     depends_on:
       - redis
-      - frequency
+      - ipfs
+      - gateway-base
 
     networks:
       - amplica-gateway
@@ -131,6 +226,10 @@ volumes:
   chainstorage:
     external: false
   redis_data:
+  account_node_cache:
+  graph_node_cache:
+  content_publishing_node_cache:
+  content_watcher_node_cache:
 
 networks:
   amplica-gateway:

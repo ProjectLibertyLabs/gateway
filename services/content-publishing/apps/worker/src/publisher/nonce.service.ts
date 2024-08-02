@@ -5,7 +5,7 @@ import fs from 'fs';
 import { ConfigService } from '#libs/config';
 import { BlockchainService } from '#libs/blockchain/blockchain.service';
 import { createKeys } from '#libs/blockchain/create-keys';
-import { NUMBER_OF_NONCE_KEYS_TO_CHECK, getNonceKey } from '#libs/utils/redis';
+import { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } from '#libs/utils/redis';
 
 @Injectable()
 export class NonceService implements OnApplicationBootstrap {

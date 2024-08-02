@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to start all SAT services on the Frequency Paseo Testnet
+# Script to start all Gateway services on the Frequency Paseo Testnet
 
 # Function to ask for input with a default value and write to .env-saved
 ask_and_save() {

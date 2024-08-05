@@ -21,7 +21,7 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getAccount(msaId: string): Promise<AccountResponse> {
+  async getAccount(msaId: string): Promise<AccountResponse | null> {
     try {
       const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
       if (isValidMsaId) {
@@ -33,21 +33,23 @@ export class AccountsService {
         this.logger.log(`Failed to get handle for msaId: ${msaId}`);
         return { msaId };
       }
-      throw new Error(`Invalid msaId: ${msaId}`);
+      this.logger.log(`Invalid msaId: ${msaId}`);
+      return null;
     } catch (e) {
       this.logger.error(`Error during get account request: ${e}`);
       throw new Error('Failed to get account');
     }
   }
 
-  async getMsaIdForPublicKey(publicKey: string): Promise<MsaIdResponse> {
+  async getMsaIdForPublicKey(publicKey: string): Promise<MsaIdResponse | null> {
     try {
       const msaId = await this.blockchainService.publicKeyToMsaId(publicKey);
       if (msaId) {
         this.logger.debug(`Found msaId: ${msaId} for public key: ${publicKey}`);
         return { msaId };
       }
-      throw new Error(`Failed to find msaId for public key: ${publicKey}`);
+      this.logger.debug(`Did not find msaId for public key: ${publicKey}`);
+      return null;
     } catch (e) {
       this.logger.error(`Error during get msaId request: ${e}`);
       throw new Error('Failed to get msaId');

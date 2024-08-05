@@ -43,7 +43,7 @@ export enum TagTypeDto {
 }
 
 // eslint-disable-next-line no-shadow
-export enum AttachmentTypeDto {
+export enum AttachmentType {
   LINK = 'link',
   IMAGE = 'image',
   AUDIO = 'audio',
@@ -121,10 +121,7 @@ export class TagDto {
 }
 
 export class AssetDto {
-  @IsEnum(AttachmentTypeDto)
-  type: AttachmentTypeDto;
-
-  @ValidateIf((o) => o.type !== AttachmentTypeDto.LINK)
+  @ValidateIf((o) => o.type !== AttachmentType.LINK)
   @ValidateNested({ each: true })
   @IsArray()
   @ArrayNotEmpty()
@@ -137,7 +134,7 @@ export class AssetDto {
   @MinLength(1)
   name?: string;
 
-  @ValidateIf((o) => o.type === AttachmentTypeDto.LINK)
+  @ValidateIf((o) => o.type === AttachmentType.LINK)
   @IsString()
   @MinLength(1)
   @IsUrl({ protocols: ['http', 'https'] })

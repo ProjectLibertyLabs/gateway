@@ -40,12 +40,41 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccount(@Param('msaId') msaId: string): Promise<AccountResponse> {
+  async getAccountForMsa(@Param('msaId') msaId: string): Promise<AccountResponse> {
     try {
       this.logger.debug(`Received request to get account with msaId: ${msaId}`);
-      return await this.accountsService.getAccount(msaId);
+      const account = await this.accountsService.getAccount(msaId);
+      if (account) return account;
+      throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
     } catch (error) {
       this.logger.error(error);
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('account/:publicKey')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Fetch an account given a public key.' })
+  @ApiOkResponse({ description: 'Found account', type: AccountResponse })
+  /**
+   * Gets an account.
+   * @param queryParams - The query parameters for creating the account.
+   * @returns A promise that resolves to an Account object => {msaId, handle}.
+   * @throws An error if the msaId or account cannot be found.
+   */
+  async getAccountForPublicKey(@Param('publicKey') publicKey: string): Promise<AccountResponse> {
+    try {
+      this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
+      const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
+      if (response?.msaId) {
+        const account = await this.accountsService.getAccount(response.msaId);
+        if (account) return account;
+      }
+      throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
+    } catch (error) {
+      this.logger.error(error);
+      if (error instanceof HttpException) throw error;
       throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
     }
   }
@@ -58,7 +87,7 @@ export class AccountsControllerV1 {
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
     try {
       this.logger.debug(`Received Sign-In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
-      return await this.accountsService.signInWithFrequency(walletLoginRequest);
+      return this.accountsService.signInWithFrequency(walletLoginRequest);
     } catch (error) {
       const errorMessage = 'Failed to Sign In With Frequency';
       this.logger.error(`${errorMessage}: ${error}`);

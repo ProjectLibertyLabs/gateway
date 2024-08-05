@@ -22,3 +22,9 @@ export class AccountResponse {
   @IsOptional()
   handle?: HandleResponseDTO;
 }
+
+export class MsaIdResponse {
+  @ApiProperty()
+  @IsNotEmpty()
+  msaId: string;
+}

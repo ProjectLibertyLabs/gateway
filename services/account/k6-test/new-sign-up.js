@@ -61,7 +61,7 @@ function checkCallback() {
 export function setup() {
   // Let's make sure the service is healthy before starting the test.
   console.log('Checking service health...');
-  const res = http.get(`${BASE_URL}/api/health`);
+  const res = http.get(`${BASE_URL}/healthz`);
   console.log('Service health check status:', res.status);
   if (res.status !== 200) {
     console.error('Service is not healthy! Terminating test...');

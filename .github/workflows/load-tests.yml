@@ -86,12 +86,22 @@ jobs:
       - name: Start All Services
         run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d
 
+      - name: Wait for API to be ready
+        uses: cygnetdigital/wait_for_response@v2.0.0
+        with:
+          url: 'http://localhost:3000/readyz'
+          responseCode: '200'
+          timeout: 120000
+          interval: 2000
+
       - name: Setup K6
         uses: grafana/setup-k6-action@v1
       - name: Run k6 Tests
         run: |
+          echo "Waiting 20 seconds for everything to be loaded up..."
+          sleep 20;
           for test_file in services/${{ matrix.service }}/k6-test/*.js; do
-            k6 run "$test_file" || exit 1
+            k6 run --no-usage-report "$test_file" || exit 1
           done
       - name: Stop Docker Compose
         if: always()

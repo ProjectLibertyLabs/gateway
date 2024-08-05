@@ -160,7 +160,6 @@ services:
       - graph_node_cache:/app/services/graph/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
     networks:
       - amplica-gateway
@@ -175,7 +174,6 @@ services:
       - graph_node_cache:/app/services/graph/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
     networks:
       - amplica-gateway

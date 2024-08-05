@@ -66,8 +66,8 @@ export class AccountsControllerV1 {
   async getAccountForPublicKey(@Param('publicKey') publicKey: string): Promise<AccountResponse> {
     try {
       this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
-      const { msaId } = await this.accountsService.getMsaIdForPublicKey(publicKey);
-      if (msaId) return this.accountsService.getAccount(msaId);
+      const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
+      if (response?.msaId) return this.accountsService.getAccount(response.msaId);
       throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
     } catch (error) {
       this.logger.error(error);

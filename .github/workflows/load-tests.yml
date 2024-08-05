@@ -98,9 +98,7 @@ jobs:
         uses: grafana/setup-k6-action@v1
       - name: Run k6 Tests
         run: |
-          echo "Waiting 20 seconds for everything to be loaded up..."
-          sleep 20;
-          for test_file in services/${{ matrix.service }}/k6-test/*.js; do
+          for test_file in services/${{ matrix.service }}/k6-test/*.k6.js; do
             k6 run --no-usage-report "$test_file" || exit 1
           done
       - name: Stop Docker Compose

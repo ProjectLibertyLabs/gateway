@@ -27,7 +27,7 @@
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --testRegex \".e2e-spec.ts$\" --detectOpenHandles",
-    "test:k6": "k6 run k6-test/script.js"
+    "test:k6": "k6 run k6-test/script.k6.js"
   },
   "repository": {
     "type": "git",

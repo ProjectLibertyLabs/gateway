@@ -1,6 +1,6 @@
 # Generated k6 script
 
-The `health-check.js` file contains a simple health check script that can be used to check the health of the service.
+The `health-check.k6.js` file contains a simple health check script that can be used to check the health of the service.
 
 Global header variables are defined at the top of the file, like `api_key`. Each path in the specification is converted into a [group](https://docs.k6.io/docs/tags-and-groups) in k6 and each group contains all the request methods related to that path. Path and query parameters are extracted from the specification and put at the start of the group. The URL is constructed from the base URL plus path and query.
 
@@ -21,5 +21,5 @@ To run the script, you need to have k6 installed. You can download it from [here
 To run the script, execute the following command:
 
 ```bash
-k6 run health-check.js
+k6 run health-check.k6.js
 ```

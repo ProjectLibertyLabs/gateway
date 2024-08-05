@@ -99,7 +99,7 @@ jobs:
       - name: Run k6 Tests
         run: |
           for test_file in services/${{ matrix.service }}/k6-test/*.k6.js; do
-            k6 run --no-usage-report "$test_file" || exit 1
+            k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
           done
       - name: Stop Docker Compose
         if: always()

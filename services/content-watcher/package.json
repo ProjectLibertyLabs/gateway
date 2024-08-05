@@ -38,7 +38,7 @@
   "dependencies": {
     "@bull-board/api": "^5.17.1",
     "@bull-board/express": "^5.17.1",
-    "@bull-board/nestjs": "^5.17.1",
+    "@bull-board/nestjs": "^5.21.3",
     "@bull-board/ui": "^5.17.1",
     "@dsnp/activity-content": "^1.1.0",
     "@dsnp/frequency-schemas": "^1.1.0",

@@ -36,6 +36,7 @@ const SLEEP_DURATION = 0.1;
 // Global variables should be initialized.
 
 export default function () {
+  // Needs 255 generated accounts
   group('/v1/accounts/{msaId}', () => {
     const msaId = randomIntBetween(2, 256);
 
@@ -50,6 +51,7 @@ export default function () {
     }
   });
 
+  // Needs 255 generated accounts
   group('/v1/delegation/{msaId}', () => {
     const msaId = randomIntBetween(2, 256);
 
@@ -64,6 +66,7 @@ export default function () {
     }
   });
 
+  // Needs generation
   group('/v1/keys/add', () => {
     // Request No. 1: KeysController_addKey
     // eslint-disable-next-line no-lone-blocks
@@ -95,6 +98,7 @@ export default function () {
     });
   });
 
+  // Needs 255 generated accounts with KEYS
   group('/v1/keys/{msaId}', () => {
     const msaId = randomIntBetween(2, 256);
 
@@ -109,6 +113,7 @@ export default function () {
     }
   });
 
+  // Needs generation
   group('/v1/handles', () => {
     // Request No. 1: HandlesController_createHandle
     // eslint-disable-next-line no-lone-blocks
@@ -139,6 +144,7 @@ export default function () {
     }
   });
 
+  // Needs generation
   group('/v1/handles/change', () => {
     // Request No. 1: HandlesController_changeHandle
     // eslint-disable-next-line no-lone-blocks
@@ -169,6 +175,7 @@ export default function () {
     }
   });
 
+  // Needs 1 generated accounts
   group('/v1/handles/{msaId}', () => {
     const msaId = '2';
 

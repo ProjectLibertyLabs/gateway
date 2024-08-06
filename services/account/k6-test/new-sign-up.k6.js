@@ -71,10 +71,10 @@ export function setup() {
 }
 
 export default function () {
-  group('/accounts/siwf', () => {
+  group('/v1/accounts/siwf', () => {
     // Request No. 1: AccountsController_getSIWFConfig
     {
-      const url = `${BASE_URL}/accounts/siwf`;
+      const url = `${BASE_URL}/v1/accounts/siwf`;
       const request = http.get(url);
 
       check(request, {
@@ -86,7 +86,7 @@ export default function () {
 
     // Request No. 2: AccountsController_postSignInWithFrequency
     {
-      const url = `${BASE_URL}/accounts/siwf`;
+      const url = `${BASE_URL}/v1/accounts/siwf`;
       // Use the SIWF sample Sign Up request body for a new user.
       const body = {
         signUp: {

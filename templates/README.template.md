@@ -89,7 +89,7 @@ flowchart LR;
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/{gateway-service-repo})
+- [Live Docs](https://projectlibertylabs.github.io/{gateway-service-repo})
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -114,7 +114,7 @@ Clone this repository to your desired folder:
 Example commands:
 
 ```sh
-  git clone git@github.com:AmplicaLabs/{gateway-service-repo}.git
+  git clone git@github.com:ProjectLibertyLabs/{gateway-service-repo}.git
   cd {gateway-service-repo}
 ```
 
@@ -197,7 +197,7 @@ Example:
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/{gateway-service-repo}/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/{gateway-service-repo}/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

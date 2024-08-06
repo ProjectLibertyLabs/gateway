@@ -130,9 +130,9 @@ Even with a crawl request, the results are not retreived, but pushed to the webh
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/content-watcher-service/)
-- [API Documentation](https://amplicalabs.github.io/content-watcher-service/)
-- [GitHub](https://github.com/AmplicaLabs/content-watcher-service)
+- [Live Docs](https://projectlibertylabs.github.io/content-watcher-service/)
+- [API Documentation](https://projectlibertylabs.github.io/content-watcher-service/)
+- [GitHub](https://github.com/ProjectLibertyLabs/content-watcher-service)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -140,7 +140,7 @@ Even with a crawl request, the results are not retreived, but pushed to the webh
 
 ## 💻 Getting Started
 
-This guide is tailored for developers working in the code base for the Content Watcher Service itself. For a more tutorial tailored more for developers wanting to deploy the Content Watcher Service as part of the broader Social Gateway in order to develop their own Social Gateway app, visit [Live Docs](https://amplicalabs.github.io/gateway/).
+This guide is tailored for developers working in the code base for the Content Watcher Service itself. For a more tutorial tailored more for developers wanting to deploy the Content Watcher Service as part of the broader Social Gateway in order to develop their own Social Gateway app, visit [Live Docs](https://projectlibertylabs.github.io/gateway/).
 
 To prepare and run a local instance of the Content Watcher Service for local development, follow the guide below.
 
@@ -173,7 +173,7 @@ Clone this repository to your desired folder:
 Example commands:
 
 ```sh
-  git clone git@github.com:AmplicaLabs/content-watcher-service.git
+  git clone git@github.com:ProjectLibertyLabs/content-watcher-service.git
   cd content-watcher-service
 ```
 
@@ -301,8 +301,8 @@ To run unit tests, run the following command:
 
 Contributions, issues, and feature requests are welcome!
 
-- [Contributing Guidelines](https://github.com/AmplicaLabs/gateway/blob/main/CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/content-watcher-service/issues)
+- [Contributing Guidelines](https://github.com/ProjectLibertyLabs/gateway/blob/main/CONTRIBUTING.md)
+- [Open Issues](https://github.com/ProjectLibertyLabs/content-watcher-service/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

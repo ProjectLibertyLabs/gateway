@@ -143,7 +143,7 @@ The API is responsible for handling incoming HTTP requests and the Worker is res
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/graph-service)
+- [Live Docs](https://projectlibertylabs.github.io/graph-service)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -167,7 +167,7 @@ Clone this repository to your desired folder:
 Example commands:
 
 ```sh
-  git clone git@github.com:AmplicaLabs/graph-service.git
+  git clone git@github.com:ProjectLibertyLabs/graph-service.git
   cd graph-service
 ```
 
@@ -252,7 +252,7 @@ npm run format
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/graph-service/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/graph-service/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

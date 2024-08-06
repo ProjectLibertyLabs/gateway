@@ -77,7 +77,7 @@ jobs:
       - name: Start Frequency
         run: |
           docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d frequency
-          sleep 20
+          sleep 5
       - name: Generate Provider and Capacity
         working-directory: tools/ci-k6
         run: npm run main

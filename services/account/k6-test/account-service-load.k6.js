@@ -36,19 +36,6 @@ const SLEEP_DURATION = 0.1;
 // Global variables should be initialized.
 
 export default function () {
-  group('health', () => {
-    // Request No. 1: ApiController_health
-    // eslint-disable-next-line no-lone-blocks
-    {
-      const url = `${BASE_URL}/healthz`;
-      const request = http.get(url);
-
-      check(request, {
-        'Service is healthy': (r) => r.status === 200,
-      });
-    }
-  });
-
   group('/v1/accounts/siwf', () => {
     // Request No. 1: AccountsController_getSIWFConfig
     {

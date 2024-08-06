@@ -1,0 +1,40 @@
+# Use a multi-stage build for efficiency
+FROM node:20 AS builder
+
+WORKDIR /build/packages
+
+COPY packages ./
+
+WORKDIR /build/services/content-watcher
+
+COPY services/content-watcher/package* ./
+
+RUN npm ci
+
+COPY services/content-watcher ./
+
+# Build the application
+RUN npm run build && \
+    rm -rf node_modules && \
+	npm ci --omit=dev
+
+# Production stage
+FROM node:20
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+COPY --from=builder /build/services/content-watcher/dist ./dist/
+COPY services/content-watcher/package*.json ./
+COPY --from=builder /build/services/content-watcher/node_modules ./node_modules/
+
+# We want jq and curl in the final image, but we don't need the support files
+RUN apt-get update && \
+	apt-get install -y jq curl tini && \
+	apt-get clean && \
+	rm -rf /usr/share/doc /usr/share/man /usr/share/zsh
+
+EXPOSE 3000
+
+ENTRYPOINT [ "/usr/bin/tini", "--", "node", "dist/apps/api/main.js" ]

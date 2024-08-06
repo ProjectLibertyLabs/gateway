@@ -4,12 +4,12 @@ export default async () => {
     ['../../../libs/common/src/types/dtos/wallet.login.request.dto']: await import(
       '../../../libs/common/src/types/dtos/wallet.login.request.dto'
     ),
+    ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/accounts.response.dto'
+    ),
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
     ['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']: await import(
       '../../../libs/common/src/types/dtos/wallet.login.config.response.dto'
-    ),
-    ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import(
-      '../../../libs/common/src/types/dtos/accounts.response.dto'
     ),
     ['../../../libs/common/src/types/dtos/wallet.login.response.dto']: await import(
       '../../../libs/common/src/types/dtos/wallet.login.response.dto'
@@ -92,6 +92,24 @@ export default async () => {
           },
         ],
         [
+          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
+          {
+            HandleResponseDTO: {
+              base_handle: { required: true, type: () => String },
+              canonical_base: { required: true, type: () => String },
+              suffix: { required: true, type: () => Number },
+            },
+            AccountResponse: {
+              msaId: { required: true, type: () => String },
+              handle: {
+                required: false,
+                type: () => t['../../../libs/common/src/types/dtos/accounts.response.dto'].HandleResponseDTO,
+              },
+            },
+            MsaIdResponse: { msaId: { required: true, type: () => String } },
+          },
+        ],
+        [
           import('../../../libs/common/src/types/dtos/transaction.response.dto'),
           { TransactionResponse: { referenceId: { required: true, type: () => String } } },
         ],
@@ -102,15 +120,6 @@ export default async () => {
               referenceId: { required: true, type: () => String },
               msaId: { required: false, type: () => String },
               publicKey: { required: false, type: () => String },
-            },
-          },
-        ],
-        [
-          import('../../../libs/common/src/types/dtos/accounts.response.dto'),
-          {
-            AccountResponse: {
-              msaId: { required: true, type: () => String },
-              handle: { required: false, type: () => Object },
             },
           },
         ],
@@ -148,7 +157,12 @@ export default async () => {
                 type: t['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']
                   .WalletLoginConfigResponse,
               },
-              getAccount: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse },
+              getAccountForMsa: {
+                type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse,
+              },
+              getAccountForPublicKey: {
+                type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse,
+              },
               postSignInWithFrequency: {
                 type: t['../../../libs/common/src/types/dtos/wallet.login.response.dto'].WalletLoginResponse,
               },
@@ -175,7 +189,7 @@ export default async () => {
               changeHandle: {
                 type: t['../../../libs/common/src/types/dtos/transaction.response.dto'].TransactionResponse,
               },
-              getHandle: { type: Object },
+              getHandle: { type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].HandleResponseDTO },
             },
           },
         ],

@@ -167,27 +167,16 @@ Use the provided [env.template](./env.template) file to create an initial enviro
 
   ```sh
   cp env.template .env 
-  cp env.template .env.docker.dev
   ```
 
   2. Configure the environment variable values according to your environment.
-
-### Setup
-
-Clone this repository to your desired folder:
-
-Example commands:
-
-```sh
-  git clone git@github.com:AmplicaLabs/content-publishing-service.git
-  cd content-publishing-service
-```
 
 ### Install
 
 Install NPM Dependencies:
 
 ```sh
+  cd services/content-publishing
   npm install
 ```
 

@@ -64,4 +64,27 @@ $(FORMAT_TARGETS):
 	@( cd services/$(@:format-%=%) ; npm run format )
 
 $(DOCKER_BUILD_TARGETS):
-	@( cd services/$(@:docker-build-%=%) ; npm run docker:build )
+	@docker build -t $(@:docker-build-%=%)-service -f Docker/Dockerfile.$(@:docker-build-%=%) .
+
+docker-build: $(DOCKER_BUILD_TARGETS)
+
+start-account-api:
+	@( cd services/account ; npm i ; npm run start:api:watch )
+
+start-account-worker:
+	@( cd services/account ; npm i ; npm run start:worker:watch )
+
+start-content-publishing-api:
+	@( cd services/content-publishing ; npm i ; npm run start:api:watch )
+
+start-content-publishing-worker:
+	@( cd services/content-publishing ; npm i ; npm run start:worker:watch )
+
+start-content-watcher:
+	@( cd services/content-watcher ; npm i ; npm run start:watch )
+
+start-graph-api:
+	@( cd services/graph ; npm i ; npm run start:api:watch )
+
+start-graph-worker:
+	@( cd services/graph ; npm i ; npm run start:worker:watch )

@@ -55,11 +55,42 @@
     },
     "/v1/accounts/{msaId}": {
       "get": {
-        "operationId": "AccountsControllerV1_getAccount",
+        "operationId": "AccountsControllerV1_getAccountForMsa",
         "summary": "Fetch an account given an msaId.",
         "parameters": [
           {
             "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/accounts"
+        ]
+      }
+    },
+    "/v1/accounts/account/{publicKey}": {
+      "get": {
+        "operationId": "AccountsControllerV1_getAccountForPublicKey",
+        "summary": "Fetch an account given a public key.",
+        "parameters": [
+          {
+            "name": "publicKey",
             "required": true,
             "in": "path",
             "schema": {
@@ -359,7 +390,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [
@@ -399,7 +430,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [
@@ -489,7 +520,7 @@
             "$ref": "#/components/schemas/HandlePayload"
           },
           "proof": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": [
@@ -524,10 +555,10 @@
             "type": "string"
           },
           "msaOwnerSignature": {
-            "type": "object"
+            "type": "string"
           },
           "newKeyOwnerSignature": {
-            "type": "object"
+            "type": "string"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayload"

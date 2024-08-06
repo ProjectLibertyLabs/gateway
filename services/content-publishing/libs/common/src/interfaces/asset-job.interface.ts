@@ -1,3 +1,5 @@
+import { AttachmentType } from '#libs/dtos';
+
 export interface IAssetJob {
   ipfsCid: string;
   mimeType: string;
@@ -9,4 +11,5 @@ export interface IAssetMetadata {
   ipfsCid: string;
   mimeType: string;
   createdOn: number;
+  type: AttachmentType;
 }

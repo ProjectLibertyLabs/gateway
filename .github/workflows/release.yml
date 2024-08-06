@@ -1,5 +1,5 @@
-name: "Release"
-run-name: "Cut Release ${{ github.event.release.tag_name || github.event.inputs.release-tag}}"
+name: 'Release'
+run-name: 'Cut Release ${{ github.event.release.tag_name || github.event.inputs.release-tag}}'
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       release-tag:
-        description: "Release tag ([servicename-]v#.#.#[-rc#])"
+        description: 'Release tag ([servicename-]v#.#.#[-rc#])'
         required: true
 
 env:
   FULL_TAG: ${{ github.event.release.tag_name || github.event.inputs.release-tag}}
-  DOCKER_HUB_PROFILE: amplicalabs
+  DOCKER_HUB_PROFILE: projectlibertylabs
   ALL_SERVICES: '["account", "content-publishing", "content-watcher", "graph"]'
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
         run: |
           valid=false
           test_run=false
-          ENTIRE_TAG_RE="^(([[:alpha:]]+)-)?(.*)$"
+          ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
           TAG="${{ github.event.release.tag_name }}"
           echo "Running with tag: ${TAG}"
@@ -107,13 +107,13 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{secrets.DOCKERHUB_USERNAME_FC}}
-          password: ${{secrets.DOCKERHUB_TOKEN_FC}}
+          username: ${{secrets.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_TOKEN}}
       - name: Build and Push account-service-service Image
         uses: docker/build-push-action@v5
         with:
-          context: services/${{ matrix.service }}
+          context: .
           platforms: linux/amd64
           push: ${{ needs.set_variables.outputs.test_run != 'true'}}
-          file: services/account/Dockerfile
+          file: Docker/Dockerfile.${{ matrix.service }}
           tags: ${{ steps.cp-tags.outputs.tags }}

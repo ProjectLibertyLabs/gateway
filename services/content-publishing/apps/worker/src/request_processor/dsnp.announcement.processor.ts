@@ -179,7 +179,10 @@ export class DsnpAnnouncementProcessor {
       attachment: attachments,
     });
     const noteString = JSON.stringify(note);
-    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(noteString));
+    const toUint8Array = new TextEncoder();
+    const encoded = toUint8Array.encode(noteString);
+
+    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(encoded));
     const ipfsUrl = this.formIpfsUrl(cid);
     return [cid, ipfsUrl, hash];
   }

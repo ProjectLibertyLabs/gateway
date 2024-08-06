@@ -27,6 +27,7 @@ export const options = {
   //   },
   // },
   vus: 1,
+  iterations: 1, // TODO: Make the extrinsics dynamic to run this more than once on the same chain!
   duration: '20s',
   thresholds: {
     http_req_duration: ['avg<100', 'p(95)<200'],

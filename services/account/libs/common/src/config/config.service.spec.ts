@@ -1,8 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-/*
-https://docs.nestjs.com/fundamentals/testing#unit-testing
-*/
-
 import { Test } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, jest } from '@jest/globals';
 import { ConfigModule } from '@nestjs/config';
@@ -224,7 +220,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('should get capacity limit', () => {
-      expect(accountServiceConfig.capacityLimit).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+      expect(JSON.stringify(accountServiceConfig.capacityLimit)).toStrictEqual(ALL_ENV.CAPACITY_LIMIT!);
     });
   });
 });

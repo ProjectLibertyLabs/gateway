@@ -1,4 +1,4 @@
-import { ICapacityLimit, ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
+import { ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 

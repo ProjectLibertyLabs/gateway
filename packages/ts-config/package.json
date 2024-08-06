@@ -1,5 +1,5 @@
 {
-  "name": "@amplica-labs/ts-config",
+  "name": "@projectlibertylabs/ts-config",
   "version": "1.0.0",
   "description": "Shared TS compiler options",
   "main": "tsconfig.json",

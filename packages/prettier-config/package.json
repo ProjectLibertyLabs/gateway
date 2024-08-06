@@ -1,5 +1,5 @@
 {
-  "name": "@amplica-labs/prettier-config",
+  "name": "@projectlibertylabs/prettier-config",
   "version": "1.0.0",
   "description": "Shared prettier config",
   "main": "./prettier-config.json",

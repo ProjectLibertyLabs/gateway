@@ -7,7 +7,7 @@ import {
   SiwsPayload,
   ValidSignUpPayloads,
   type WalletProxyResponse,
-} from '@amplica-labs/siwf';
+} from '@projectlibertylabs/siwf';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { HexString } from '@polkadot/util/types';

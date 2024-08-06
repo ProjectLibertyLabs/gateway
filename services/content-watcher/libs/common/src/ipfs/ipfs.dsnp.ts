@@ -129,7 +129,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           announcementType: mapRecord.announcementType,
           url: mapRecord.url,
           inReplyTo: mapRecord.inReplyTo,
-          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+          contentHash: mapRecord.contentHash,
         };
         queue = this.replyQueue;
         typeName = 'Reply';
@@ -138,7 +138,7 @@ export class IPFSContentProcessor extends BaseConsumer {
           fromId: mapRecord.fromId,
           announcementType: mapRecord.announcementType,
           url: mapRecord.url,
-          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+          contentHash: mapRecord.contentHash,
         };
         queue = this.profileQueue;
         typeName = 'Profile';
@@ -147,9 +147,9 @@ export class IPFSContentProcessor extends BaseConsumer {
           fromId: mapRecord.fromId,
           announcementType: mapRecord.announcementType,
           url: mapRecord.url,
-          contentHash: bases.base58btc.encode(mapRecord.contentHash as any),
+          contentHash: mapRecord.contentHash,
           targetAnnouncementType: mapRecord.targetAnnouncementType,
-          targetContentHash: bases.base58btc.encode(mapRecord.targetContentHash as any),
+          targetContentHash: mapRecord.targetContentHash,
         };
         queue = this.updateQueue;
         typeName = 'Update';

@@ -33,7 +33,7 @@ jobs:
         run: |
           valid=false
           test_run=false
-          ENTIRE_TAG_RE="^(([[:alpha:]]+)-)?(.*)$"
+          ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
           TAG="${{ github.event.release.tag_name }}"
           echo "Running with tag: ${TAG}"

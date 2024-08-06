@@ -11,8 +11,15 @@ services:
       - 3000:3000
     volumes: !reset []
     depends_on: !override
-      - redis
-      - ipfs
+      redis:
+        condition: service_started
+      ipfs:
+        condition: service_healthy
+      account-service-webhook:
+        condition: service_healthy
+    environment:
+      PROVIDER_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks'
 
   account-service-worker:
     pull_policy: never
@@ -24,6 +31,25 @@ services:
     depends_on: !override
       - redis
       - ipfs
+    environment:
+      PROVIDER_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks'
+
+  account-service-webhook:
+    image: rust:1.80.0
+    volumes:
+      - ./services/account/rust-webhook-server:/app
+    ports:
+      - '3001:3001'
+    command: sh -c "cd /app && cargo run"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3001/webhooks/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - amplica-gateway
 
   gateway-base:
     profiles:

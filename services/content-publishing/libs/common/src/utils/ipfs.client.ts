@@ -6,7 +6,6 @@ import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
-import { create } from 'multiformats/hashes/digest';
 import { randomUUID } from 'crypto';
 import { base58btc } from 'multiformats/bases/base58';
 import { ConfigService } from '#libs/config';
@@ -127,7 +126,7 @@ export class IpfsService {
     return response && response.data && JSON.stringify(response.data).indexOf(v0Cid) >= 0;
   }
 
-  private async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
+  public async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
     const hash = hasher.digest(fileBuffer);
     return base58btc.encode((await hash).bytes);

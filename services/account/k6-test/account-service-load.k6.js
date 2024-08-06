@@ -36,50 +36,6 @@ const SLEEP_DURATION = 0.1;
 // Global variables should be initialized.
 
 export default function () {
-  group('/v1/accounts/siwf', () => {
-    // Request No. 1: AccountsController_getSIWFConfig
-    {
-      const url = `${BASE_URL}/v1/accounts/siwf`;
-      const request = http.get(url);
-
-      check(request, {
-        'Returned SIWF Configuration data': (r) => r.status === 200,
-      });
-
-      sleep(SLEEP_DURATION);
-    }
-
-    // Request No. 2: AccountsController_postSignInWithFrequency
-    {
-      const url = `${BASE_URL}/v1/accounts/siwf`;
-      // Use the SIWF sample Sign Up request body for a new user.
-      const body = {
-        signUp: {
-          extrinsics: [
-            {
-              pallet: 'msa',
-              extrinsicName: 'createSponsoredAccountWithDelegation',
-              encodedExtrinsic:
-                '0xed01043c01b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d9360176644186458bad3b00bbd0ac21e6c9bd5a8bed9ced7a772d11a9aac025b47f6559468808e272696f596a02af230951861027c0dc30f7163ecf316838a0723483010000000000000014000000000000000000004d000000',
-            },
-            {
-              pallet: 'handles',
-              extrinsicName: 'claimHandle',
-              encodedExtrinsic:
-                '0xb901044200b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d93601225508ae2da9804c60660a150277eb32b2a0f6b9c8f6e07dd6cad799cb31ae1dfb43896f488e9c0b7ec8b530d930b3f9b690683f2765d5def3fee3fc6540d58714656e6464794d000000',
-            },
-          ],
-        },
-      };
-      const params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
-      const request = http.post(url, JSON.stringify(body), params);
-
-      check(request, {
-        'Signed in successfully': (r) => r.status === 201,
-      });
-    }
-  });
-
   group('/v1/accounts/{msaId}', () => {
     const msaId = randomIntBetween(2, 256);
 

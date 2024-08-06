@@ -24,3 +24,9 @@ To run the script, execute the following command:
 ```bash
 k6 run health-check.k6.js
 ```
+
+## Generating Test Data
+
+So that k6 doesn't have to interact with the chain, we can generate data sepatately and then use it for the tests.
+
+`npm run generate:signup` for example will re-generate the `signups.gen.js` file with 100 generated valid signup payloads.

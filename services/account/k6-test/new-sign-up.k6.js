@@ -2,7 +2,8 @@
 /* eslint-disable func-names */
 /*
  * Account Service
- * Account Service API
+ * Account Service API: New Sign Ups
+ * NOTE: This test MUST run on a clean chain and cannot be re-run without running: npm run generate:signups
  *
  * OpenAPI spec version: 1.0
  *
@@ -14,6 +15,8 @@
 
 import http from 'k6/http';
 import { group, check, sleep } from 'k6';
+import exec from 'k6/execution';
+import { signups } from './signups.gen.js';
 
 export const options = {
   // scenarios: {
@@ -27,7 +30,6 @@ export const options = {
   //   },
   // },
   vus: 1,
-  iterations: 1, // TODO: Make the extrinsics dynamic to run this more than once on the same chain!
   duration: '20s',
   thresholds: {
     http_req_duration: ['avg<100', 'p(95)<200'],
@@ -44,22 +46,22 @@ const CALLBACK_URL = 'http://localhost:3001/webhooks/account-service';
 const BASE_URL = 'http://localhost:3000';
 // Sleep duration between successive requests.
 const SLEEP_DURATION = 0.1;
-const BLOCKTIME_SECONDS = 12;
+const BLOCKTIME_SECONDS = 13; // Add 1 second for additional loop buffer
 // Global variables should be initialized.
 
-function checkCallback() {
+function checkCallback(referenceId) {
   const res = http.get(CALLBACK_URL);
   console.log('Callback response:', res.status, res.body);
   check(res, {
     'callback received': (r) => r.status === 201,
     'callback contains expected data': (r) => {
       const json = JSON.parse(r.body);
-      return json.referenceId === 'DekKx1F_WYOWCQFXE3vgwqXP4U4';
+      return json.referenceId === referenceId;
     },
   });
 }
 
-export function setup() {
+export async function setup() {
   // Let's make sure the service is healthy before starting the test.
   console.log('Checking service health...');
   const res = http.get(`${BASE_URL}/healthz`);
@@ -68,10 +70,11 @@ export function setup() {
     console.error('Service is not healthy! Terminating test...');
     return false;
   }
-  return true;
+
+  return { signUpBody: signups[exec.vu.iterationInInstance] };
 }
 
-export default function () {
+export default function (setupData) {
   group('/v1/accounts/siwf', () => {
     // Request No. 1: AccountsController_getSIWFConfig
     {
@@ -86,39 +89,25 @@ export default function () {
     }
 
     // Request No. 2: AccountsController_postSignInWithFrequency
+    let referenceId;
     {
       const url = `${BASE_URL}/v1/accounts/siwf`;
       // Use the SIWF sample Sign Up request body for a new user.
-      const body = {
-        signUp: {
-          extrinsics: [
-            {
-              pallet: 'msa',
-              extrinsicName: 'createSponsoredAccountWithDelegation',
-              encodedExtrinsic:
-                '0xed01043c01b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d9360176644186458bad3b00bbd0ac21e6c9bd5a8bed9ced7a772d11a9aac025b47f6559468808e272696f596a02af230951861027c0dc30f7163ecf316838a0723483010000000000000014000000000000000000004d000000',
-            },
-            {
-              pallet: 'handles',
-              extrinsicName: 'claimHandle',
-              encodedExtrinsic:
-                '0xb901044200b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d93601225508ae2da9804c60660a150277eb32b2a0f6b9c8f6e07dd6cad799cb31ae1dfb43896f488e9c0b7ec8b530d930b3f9b690683f2765d5def3fee3fc6540d58714656e6464794d000000',
-            },
-          ],
-        },
-      };
+      const body = setupData.signUpBody;
       const params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       const request = http.post(url, JSON.stringify(body), params);
 
       check(request, {
         'Signed in successfully': (r) => r.status === 201,
+        'Has referenceId': (r) => !!JSON.parse(r.body).referenceId,
       });
+      referenceId = JSON.parse(request.body).referenceId;
     }
 
     // The front end will poll the server for the account status.
     // We'll wait here for a block to be finalized.
     sleep(BLOCKTIME_SECONDS);
-    console.log('Block finalized. Checking callback...');
-    checkCallback();
+    console.log('Block finalized. Checking callback...', { referenceId });
+    checkCallback(referenceId);
   });
 }

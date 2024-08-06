@@ -129,10 +129,10 @@ export class IpfsService {
 
   private async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
-    const hashed = await hasher.digest(fileBuffer);
-    const hash = create(hasher.code, hashed.bytes);
-    return base58btc.encode(hash.bytes);
+    const hash = hasher.digest(fileBuffer);
+    return base58btc.encode((await hash).bytes);
   }
+
 
   public ipfsUrl(cid: string): string {
     if (this.configService.ipfsGatewayUrl.includes('[CID]')) {

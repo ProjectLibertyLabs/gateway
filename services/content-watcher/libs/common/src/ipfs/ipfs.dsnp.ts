@@ -98,7 +98,7 @@ export class IPFSContentProcessor extends BaseConsumer {
       if (isBroadcast(mapRecord)) {
         announcementResponse.announcement = {
           fromId: mapRecord.fromId,
-          contentHash: bases.base16.encode(mapRecord.contentHash as never),
+          contentHash: mapRecord.contentHash,
           url: mapRecord.url,
           announcementType: mapRecord.announcementType,
         };
@@ -108,7 +108,7 @@ export class IPFSContentProcessor extends BaseConsumer {
         announcementResponse.announcement = {
           fromId: mapRecord.fromId,
           targetAnnouncementType: mapRecord.targetAnnouncementType,
-          targetContentHash: bases.base58btc.encode(mapRecord.targetContentHash as any),
+          targetContentHash: mapRecord.targetContentHash,
           announcementType: mapRecord.announcementType,
         };
         queue = this.tombstoneQueue;

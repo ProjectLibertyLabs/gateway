@@ -27,8 +27,8 @@
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --verbose --silent --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit",
     "test:e2e:verbose": "set -a ; . .env ; jest --verbose --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit",
-    "test:k6:account-service": "k6 run k6-test/account-service-load.js",
-    "test:k6:new-sign-up": "k6 run k6-test/new-sign-up.js",
+    "test:k6:account-service": "k6 run k6-test/account-service-load.k6.js",
+    "test:k6:new-sign-up": "k6 run k6-test/new-sign-up.k6.js",
     "test:k6:health-check": "k6 run k6-test/health-check.js",
     "test:k6": "npm run test:k6:account-service ; npm run test:k6:new-sign-up ; npm run test:k6:health-check"
   },

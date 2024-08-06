@@ -2,9 +2,8 @@
   "name": "k6-scripts",
   "version": "1.0.0",
   "description": "The `script.js` file contains most of the Swagger/OpenAPI specification and you can customize it to your needs.",
-  "main": "account-service-load.js",
+  "main": "health-check.js",
   "scripts": {
-    "generate:signups": "node generate/signups.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,11 +11,5 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/k6": "^0.51.0"
-  },
-  "dependencies": {
-    "@polkadot/api": "^12.3.1",
-    "@polkadot/types": "^12.3.1",
-    "@polkadot/util": "^13.0.2",
-    "@polkadot/util-crypto": "^13.0.2"
   }
 }

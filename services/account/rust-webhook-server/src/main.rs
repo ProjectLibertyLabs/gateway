@@ -22,7 +22,7 @@ const WEBHOOK_ENDPOINT: &str = "/account-service";
 
 #[actix_web::main]
 async fn main() -> Result<(), impl Error> {
-    const HOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
+    const HOST: Ipv4Addr = Ipv4Addr::new(0, 0, 0, 0);
     const PORT: u16 = 3001;
     env_logger::init();
     println!(

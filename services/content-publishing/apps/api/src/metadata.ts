@@ -40,8 +40,10 @@ export default async () => {
               mentionedId: { required: false, type: () => String },
             },
             AssetDto: {
-              type: { required: true, enum: t['../../../libs/common/src/dtos/activity.dto'].AttachmentTypeDto },
-              references: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto] },
+              references: {
+                required: false,
+                type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto],
+              },
               name: { required: false, type: () => String, minLength: 1 },
               href: { required: false, type: () => String, minLength: 1 },
             },
@@ -56,7 +58,10 @@ export default async () => {
               assets: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetDto] },
             },
             ProfileActivityDto: {
-              icon: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto] },
+              icon: {
+                required: false,
+                type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto],
+              },
               summary: { required: false, type: () => String },
               published: { required: false, type: () => String },
             },
@@ -65,18 +70,26 @@ export default async () => {
         [
           import('../../../libs/common/src/dtos/announcement.dto'),
           {
-            BroadcastDto: { content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto } },
+            BroadcastDto: {
+              content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
+            },
             ReplyDto: {
               inReplyTo: { required: true, type: () => String },
               content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
             },
             TombstoneDto: {
               targetContentHash: { required: true, type: () => String },
-              targetAnnouncementType: { required: true, enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto },
+              targetAnnouncementType: {
+                required: true,
+                enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto,
+              },
             },
             UpdateDto: {
               targetContentHash: { required: true, type: () => String },
-              targetAnnouncementType: { required: true, enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto },
+              targetAnnouncementType: {
+                required: true,
+                enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto,
+              },
               content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
             },
             ReactionDto: {
@@ -84,11 +97,18 @@ export default async () => {
               apply: { required: true, type: () => Number, minimum: 0, maximum: 255 },
               inReplyTo: { required: true, type: () => String },
             },
-            ProfileDto: { profile: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].ProfileActivityDto } },
+            ProfileDto: {
+              profile: {
+                required: true,
+                type: () => t['../../../libs/common/src/dtos/activity.dto'].ProfileActivityDto,
+              },
+            },
           },
         ],
       ],
-      controllers: [[import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }]],
+      controllers: [
+        [import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
+      ],
     },
   };
 };

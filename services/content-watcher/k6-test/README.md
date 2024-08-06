@@ -1,6 +1,5 @@
 # Generated k6 script
 
-The `account-service-load.k6.js` file contains most of the Swagger/OpenAPI specification and you can customize it to your needs.
 The `health-check.k6.js` file contains a simple health check script that can be used to check the health of the service.
 
 Global header variables are defined at the top of the file, like `api_key`. Each path in the specification is converted into a [group](https://docs.k6.io/docs/tags-and-groups) in k6 and each group contains all the request methods related to that path. Path and query parameters are extracted from the specification and put at the start of the group. The URL is constructed from the base URL plus path and query.
@@ -24,9 +23,3 @@ To run the script, execute the following command:
 ```bash
 k6 run health-check.k6.js
 ```
-
-## Generating Test Data
-
-So that k6 doesn't have to interact with the chain, we can generate data sepatately and then use it for the tests.
-
-`npm run generate:signup` for example will re-generate the `signups.gen.js` file with 100 generated valid signup payloads.

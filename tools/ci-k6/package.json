@@ -1,0 +1,16 @@
+{
+  "name": "ci-k6",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.mjs",
+  "scripts": {
+    "main": "node main.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@polkadot/api": "^12.2.3",
+    "@polkadot/keyring": "^13.0.2"
+  }
+}

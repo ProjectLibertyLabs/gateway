@@ -53,7 +53,7 @@ export class TxnNotifierService
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
-      this.capacityService.checkCapacity(),
+      this.capacityService.checkForSufficientCapacity(),
     );
   }
 
@@ -111,7 +111,7 @@ export class TxnNotifierService
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
     if (extrinsicIndices.length > 0) {
-      const at = await this.blockchainService.api.at(currentBlock.hash);
+      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
       const epoch = (await at.query.capacity.currentEpoch()).toNumber();
       const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),

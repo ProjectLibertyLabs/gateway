@@ -63,24 +63,36 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   private logger: Logger;
 
+  private readyResolve: (boolean) => void;
+  private readyReject: (reason: any) => void;
+  private isReadyPromise = new Promise<boolean>((resolve, reject) => {
+    this.readyResolve = resolve;
+    this.readyReject = reject;
+  });
+
   public async onApplicationBootstrap() {
     const providerUrl = this.configService.frequencyUrl!;
     let provider: WsProvider | HttpProvider;
-    if (/^ws/.test(providerUrl.toString())) {
-      provider = new WsProvider(providerUrl.toString());
-    } else if (/^http/.test(providerUrl.toString())) {
-      provider = new HttpProvider(providerUrl.toString());
-    } else {
-      this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
-      throw new Error('Unrecognized chain URL type');
+    try {
+      if (/^ws/.test(providerUrl.toString())) {
+        provider = new WsProvider(providerUrl.toString());
+      } else if (/^http/.test(providerUrl.toString())) {
+        provider = new HttpProvider(providerUrl.toString());
+      } else {
+        this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
+        throw new Error('Unrecognized chain URL type');
+      }
+      this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
+      this.readyResolve(await this.api.isReady);
+      this.logger.log('Blockchain API ready.');
+    } catch (err) {
+      this.readyReject(err);
+      throw err;
     }
-    this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
-    this.logger.log('Blockchain API ready.');
   }
 
   public async isReady(): Promise<boolean> {
-    await this.api?.isReady;
-    return true;
+    return (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
   public async getApi(): Promise<ApiPromise> {
@@ -290,6 +302,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async capacityInfo(providerId: AnyNumber): Promise<ICapacityInfo> {
+    await this.isReady();
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(

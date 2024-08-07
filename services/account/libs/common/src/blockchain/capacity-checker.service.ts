@@ -78,7 +78,12 @@ export class CapacityCheckerService {
     return outOfCapacity;
   }
 
-  public async checkCapacity(): Promise<boolean> {
+  /**
+   * Checks remaining Capacity against configured per-service and total Capacity limits.
+   *
+   * @returns {boolean} Returns true if remaining Capacity is within allowed limits; false otherwise
+   */
+  public async checkForSufficientCapacity(): Promise<boolean> {
     let outOfCapacity = false;
 
     try {
@@ -108,6 +113,6 @@ export class CapacityCheckerService {
       this.logger.error('Caught error in checkCapacity', err?.stack);
     }
 
-    return outOfCapacity;
+    return !outOfCapacity;
   }
 }

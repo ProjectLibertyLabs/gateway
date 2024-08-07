@@ -58,6 +58,7 @@ export abstract class BlockchainScannerService {
     }
 
     try {
+      await this.blockchainService.isReady();
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
 
@@ -89,7 +90,7 @@ export abstract class BlockchainScannerService {
         currentBlockNumber += 1;
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof EndOfChainError) {
         this.logger.error(e.message);
         return;
@@ -100,7 +101,7 @@ export abstract class BlockchainScannerService {
         return;
       }
 
-      this.logger.error(JSON.stringify(e));
+      this.logger.error('Unexpected error scanning chain', JSON.stringify(e), e?.stack);
       throw e;
     } finally {
       this.scanInProgress = false;

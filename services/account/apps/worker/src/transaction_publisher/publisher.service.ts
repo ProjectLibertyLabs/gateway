@@ -35,7 +35,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
 export class TransactionPublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
-    await this.capacityCheckerService.checkCapacity();
+    await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -68,7 +68,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     let txHash: HexString;
     try {
       // Check capacity first; if out of capacity, send job back to queue
-      if (!(await this.capacityCheckerService.checkCapacity())) {
+      if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
         throw new DelayedError();
       }
@@ -194,9 +194,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     await this.transactionPublishQueue.pause();
     const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
     const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    this.logger.warn(
-      `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
-    );
+    // Avoid spamming the log
+    if (!(await this.transactionPublishQueue.isPaused())) {
+      this.logger.warn(
+        `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
+      );
+    }
     try {
       // Check if a timeout with the same name already exists
       if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
@@ -207,7 +210,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       // Add the new timeout
       this.schedulerRegistry.addTimeout(
         CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.capacityCheckerService.checkCapacity(), epochTimeout),
+        setTimeout(() => this.capacityCheckerService.checkForSufficientCapacity(), epochTimeout),
       );
     } catch (err) {
       // Handle any errors
@@ -217,7 +220,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
 
   @OnEvent(CAPACITY_AVAILABLE_EVENT)
   public async handleCapacityAvailable() {
-    this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+    // Avoid spamming the log
+    if (await this.transactionPublishQueue.isPaused()) {
+      this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+    }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.transactionPublishQueue.getFailed();
     const capacityFailedJobs = failedJobs.filter((job) =>

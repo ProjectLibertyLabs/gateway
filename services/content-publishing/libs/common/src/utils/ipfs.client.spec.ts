@@ -38,6 +38,6 @@ describe('IpfsService Tests', () => {
 
     it("hashes blake2b correctly ABC", async () => {
         const mb = await service.ipfsHashBuffer(Buffer.from("abc"));
-        expect(mb).toMatch("z2DrjgbH33g3bTa7dPaMq1XbVmKH11m2SwxAF6aNzSd5F3j63p4");
+        expect(mb).toMatch("bciqlu6awx6hqdt7kifaubxs5vyrchmadmgrzmf32ts2bb73b6iablli");
     });
 });

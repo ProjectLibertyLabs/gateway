@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { validateSignin, validateSignup } from '@amplica-labs/siwf';
+import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { ConfigService } from '#lib/config/config.service';

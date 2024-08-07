@@ -68,11 +68,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     }
   }
 
-  async sendJobToTxReceiptQueue(
-    jobData: IPublisherJob,
-    txHash: Hash,
-    lastFinalizedBlockHash: BlockHash,
-  ): Promise<void> {
+  async sendJobToTxReceiptQueue(jobData: IPublisherJob, txHash: Hash, lastFinalizedBlockHash: BlockHash): Promise<void> {
     const job: ITxMonitorJob = {
       id: txHash.toString(),
       lastFinalizedBlockHash,

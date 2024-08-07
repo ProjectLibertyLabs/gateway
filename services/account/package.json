@@ -27,24 +27,24 @@
     "test": "jest  --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --verbose --silent --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit",
     "test:e2e:verbose": "set -a ; . .env ; jest --verbose --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit",
-    "test:k6:account-service": "k6 run k6-test/account-service-load.js",
-    "test:k6:new-sign-up": "k6 run k6-test/new-sign-up.js",
+    "test:k6:account-service": "k6 run k6-test/account-service-load.k6.js",
+    "test:k6:new-sign-up": "k6 run k6-test/new-sign-up.k6.js",
     "test:k6:health-check": "k6 run k6-test/health-check.js",
     "test:k6": "npm run test:k6:account-service ; npm run test:k6:new-sign-up ; npm run test:k6:health-check"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmplicaLabs/account-service.git"
+    "url": "git+https://github.com/ProjectLibertyLabs/account-service.git"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/AmplicaLabs/account-service/issues"
+    "url": "https://github.com/ProjectLibertyLabs/account-service/issues"
   },
-  "homepage": "https://github.com/AmplicaLabs/account-service#readme",
+  "homepage": "https://github.com/ProjectLibertyLabs/account-service#readme",
   "dependencies": {
-    "@amplica-labs/siwf": "1.1.1",
+    "@projectlibertylabs/siwf": "1.1.2",
     "@bull-board/api": "^5.17.0",
     "@bull-board/express": "^5.17.0",
     "@bull-board/nestjs": "^5.17.0",
@@ -78,9 +78,9 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
-    "@amplica-labs/frequency-scenario-template": "^1.1.4",
-    "@amplica-labs/prettier-config": "file:../../packages/prettier-config",
-    "@amplica-labs/ts-config": "file:../../packages/ts-config",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.5",
+    "@projectlibertylabs/prettier-config": "file:../../packages/prettier-config",
+    "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.11",
     "@types/supertest": "^6.0.2",

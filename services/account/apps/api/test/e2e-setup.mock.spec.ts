@@ -10,7 +10,7 @@ import {
   generateAddKeyPayload,
   ChainUser,
   signPayloadSr25519,
-} from '@amplica-labs/frequency-scenario-template';
+} from '@projectlibertylabs/frequency-scenario-template';
 import { KeyInfoResponse, MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { AccountId } from '@polkadot/types/interfaces';

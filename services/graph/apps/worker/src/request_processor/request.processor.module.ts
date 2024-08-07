@@ -3,9 +3,7 @@ import { BlockchainModule, GraphStateManager } from '#lib';
 import { RequestProcessorService } from './request.processor.service';
 
 @Module({
-  imports: [
-    BlockchainModule,
-  ],
+  imports: [BlockchainModule],
   providers: [RequestProcessorService, GraphStateManager],
   exports: [RequestProcessorService],
 })

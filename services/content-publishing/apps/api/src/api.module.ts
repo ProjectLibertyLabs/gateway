@@ -21,7 +21,10 @@ import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './c
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+          config: [{
+            url: configService.redisUrl.toString(),
+            keyPrefix: configService.cacheKeyPrefix,
+          }],
         }),
         inject: [ConfigService],
       },

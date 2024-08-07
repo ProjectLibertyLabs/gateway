@@ -35,7 +35,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   }
 
   public async onApplicationBootstrap() {
-    await this.capacityCheckerService.checkCapacity();
+    await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -51,7 +51,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   async process(job: Job<IPublisherJob, any, string>): Promise<void> {
     try {
       // Check capacity first; if out of capacity, send job back to queue
-      if (!(await this.capacityCheckerService.checkCapacity())) {
+      if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
         throw new DelayedError();
       }
@@ -62,8 +62,12 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const status: ITxStatus = {
         txHash: txHash.toString(),
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
-        birth: tx.era.asMortalEra.birth(currentBlockNumber),
-        death: tx.era.asMortalEra.death(currentBlockNumber),
+        // TODO: For some reason, the constructed transaction here keeps coming back as ImmortalEra.
+        // Until that's fixed, just assume a fixed mortality of 50 blocks from the current block.
+        // birth: tx.era.asMortalEra.birth(currentBlockNumber),
+        // death: tx.era.asMortalEra.death(currentBlockNumber),
+        birth: currentBlockNumber,
+        death: currentBlockNumber + 50,
         referencePublishJob: job.data,
       };
       const obj = {};
@@ -96,7 +100,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     try {
       this.schedulerRegistry.addTimeout(
         CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.capacityCheckerService.checkCapacity(), blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND),
+        setTimeout(
+          () => this.capacityCheckerService.checkForSufficientCapacity(),
+          blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
+        ),
       );
     } catch (err) {
       // ignore duplicate timeout
@@ -105,7 +112,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
   @OnEvent('capacity.available', { async: true, promisify: true })
   private async handleCapacityRefilled() {
-    this.logger.debug('Received capacity.refilled event');
+    // Avoid spamming the log
+    if (await this.publishQueue.isPaused()) {
+      this.logger.debug('Received capacity.available event');
+    }
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {

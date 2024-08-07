@@ -24,7 +24,12 @@ export class IPFSPublisher {
   public async publish(message: IPublisherJob): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(JSON.stringify(message));
     const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
-    const tx = this.blockchainService.createExtrinsicCall({ pallet: 'messages', extrinsic: 'addIpfsMessage' }, message.schemaId, message.data.cid, message.data.payloadLength);
+    const tx = this.blockchainService.createExtrinsicCall(
+      { pallet: 'messages', extrinsic: 'addIpfsMessage' },
+      message.schemaId,
+      message.data.cid,
+      message.data.payloadLength,
+    );
     return this.processSingleBatch(providerKeys, tx);
   }
 
@@ -34,7 +39,12 @@ export class IPFSPublisher {
   ): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(`Submitting tx of size ${tx.length}`);
     try {
-      const ext = this.blockchainService.createExtrinsic({ pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' }, providerKeys, tx);
+      const ext = this.blockchainService.createExtrinsic(
+        { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
+        providerKeys,
+        tx,
+      );
+      this.logger.debug('Submitted transaction: ', ext.getCall().toHex());
       const nonce = await this.nonceService.getNextNonce();
       const txHash = await ext.signAndSend(nonce);
       if (!txHash) {

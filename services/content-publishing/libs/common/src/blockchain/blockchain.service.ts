@@ -3,9 +3,9 @@ import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } fro
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option, Bytes, Vec, u16 } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
 import { Extrinsic } from './extrinsic';
@@ -28,6 +28,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   private logger: Logger;
 
+  private readyResolve: (boolean) => void;
+  private readyReject: (reason: any) => void;
+  private isReadyPromise = new Promise<boolean>((resolve, reject) => {
+    this.readyResolve = resolve;
+    this.readyReject = reject;
+  });
+
   public async onApplicationBootstrap() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const providerUrl = this.configService.frequencyUrl!;
@@ -42,17 +49,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
     // this.api = await firstValueFrom(ApiRx.create({ provider, ...options }));
     this.api = await ApiPromise.create({ provider, ...options });
-    await this.api.isReady;
+    this.readyResolve(await this.api.isReady);
     this.logger.log('Blockchain API ready.');
   }
 
   public async onApplicationShutdown(_signal?: string | undefined) {
-    const promises: Promise<void>[] = [];
-    if (this.api) {
-      promises.push(this.api.disconnect());
-    }
-
-    await Promise.all(promises);
+    await this.api?.disconnect();
   }
 
   constructor(configService: ConfigService) {
@@ -61,8 +63,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async isReady(): Promise<boolean> {
-    await this.api?.isReady;
-    return true;
+    return (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
@@ -176,95 +177,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getNonce(account: Uint8Array): Promise<number> {
     return this.rpc('system', 'accountNextIndex', account);
-  }
-
-  public async crawlBlockListForTx(
-    txHash: Hash,
-    blockList: number[],
-    successEvents: [{ pallet: string; event: string }],
-  ): Promise<{
-    found: boolean;
-    success: boolean;
-    blockHash?: BlockHash;
-    capacityEpoch?: number;
-    capacityWithdrawn?: bigint;
-    error?: RegistryError;
-  }> {
-    const txReceiptPromises: Promise<{
-      found: boolean;
-      success: boolean;
-      blockHash?: BlockHash;
-      capacityWithdrawn?: bigint;
-      error?: RegistryError;
-    }>[] = blockList.map(async (blockNumber) => {
-      const blockHash = await this.getBlockHash(blockNumber);
-      const block = await this.getBlock(blockHash);
-      const txIndex = block.block.extrinsics.findIndex((extrinsic) => extrinsic.hash.toString() === txHash.toString());
-
-      if (txIndex === -1) {
-        return { found: false, success: false };
-      }
-
-      this.logger.verbose(`Found tx ${txHash} in block ${blockNumber}`);
-      const at = await this.api.at(blockHash.toHex());
-      const capacityEpoch = (await at.query.capacity.currentEpoch()).toNumber();
-      const eventsPromise = at.query.system.events();
-
-      let isTxSuccess = false;
-      let totalBlockCapacity = 0n;
-      let txError: RegistryError | undefined;
-
-      try {
-        const events = (await eventsPromise).filter(
-          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
-        );
-
-        events.forEach((record) => {
-          const { event } = record;
-          const eventName = event.section;
-          const { method } = event;
-          const { data } = event;
-          this.logger.debug(`Received event: ${eventName} ${method} ${data}`);
-
-          // find capacity withdrawn event
-          if (at.events.capacity.CapacityWithdrawn.is(event)) {
-            totalBlockCapacity += event.data.amount.toBigInt();
-          }
-
-          // check custom success events
-          if (
-            successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)
-          ) {
-            this.logger.debug(`Found success event ${eventName} ${method}`);
-            isTxSuccess = true;
-          }
-
-          // check for system extrinsic failure
-          if (at.events.system.ExtrinsicFailed.is(event)) {
-            const { dispatchError } = event.data;
-            const moduleThatErrored = dispatchError.asModule;
-            const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-            txError = moduleError;
-            this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
-          }
-        });
-      } catch (error) {
-        this.logger.error(error);
-      }
-      this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
-      return {
-        found: true,
-        success: isTxSuccess,
-        blockHash,
-        capacityEpoch,
-        capacityWithDrawn: totalBlockCapacity,
-        error: txError,
-      };
-    });
-    const results = await Promise.all(txReceiptPromises);
-    const result = results.find((receipt) => receipt.found);
-    this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);
-    return result ?? { found: false, success: false };
   }
 
   public async getSchemaIdByName(schemaNamespace: string, schemaDescriptor: string): Promise<number> {

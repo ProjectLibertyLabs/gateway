@@ -43,8 +43,8 @@ export class BatchAnnouncementService extends BaseConsumer implements OnModuleDe
       });
       this.logger.log(`Completed job ${job.id} of type ${job.name}`);
       return job.data;
-    } catch (e) {
-      this.logger.error(`Error processing job ${job.id} of type ${job.name}: ${e}`);
+    } catch (e: any) {
+      this.logger.error(`Error processing job ${job.id} of type ${job.name}: ${e}`, e?.stack);
       throw e;
     }
   }

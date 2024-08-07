@@ -77,17 +77,6 @@ import * as QueueConstants from './queue.constants';
         },
       },
       {
-        name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: false,
-          removeOnFail: false,
-        },
-      },
-      {
         name: QueueConstants.STATUS_QUEUE_NAME,
       },
     ),

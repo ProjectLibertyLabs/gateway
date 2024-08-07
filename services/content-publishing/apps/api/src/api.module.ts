@@ -74,10 +74,6 @@ import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './c
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
       name: QueueConstants.STATUS_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),

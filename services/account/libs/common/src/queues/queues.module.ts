@@ -28,6 +28,7 @@ export class QueueModule {
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => ({
             connection: new Redis(configService.redisUrl.toString(), redisOptions || {}),
+            prefix: `${configService.cacheKeyPrefix}:bull`,
           }),
           inject: [ConfigService],
         }),

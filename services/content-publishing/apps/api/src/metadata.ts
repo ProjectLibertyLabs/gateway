@@ -106,9 +106,7 @@ export default async () => {
           },
         ],
       ],
-      controllers: [
-        [import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
-      ],
+      controllers: [[import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }]],
     },
   };
 };

@@ -6,13 +6,12 @@ import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { ConfigService } from '#libs/config';
 import { BlockchainService } from '#libs/blockchain/blockchain.service';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#libs/constants';
-import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { PUBLISH_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { BaseConsumer } from '../BaseConsumer';
-import { IPublisherJob, ITxMonitorJob } from '../interfaces';
+import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
 import { ITxStatus } from '#libs/interfaces/tx-status.interface';
 import { CapacityCheckerService } from '#libs/blockchain/capacity-checker.service';
@@ -24,7 +23,6 @@ import { CapacityCheckerService } from '#libs/blockchain/capacity-checker.servic
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
     @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,

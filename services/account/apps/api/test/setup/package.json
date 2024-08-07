@@ -11,7 +11,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@amplica-labs/frequency-scenario-template": "^1.1.4",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.5",
     "@dsnp/frequency-schemas": "^1.1.0",
     "@frequency-chain/api-augment": "~1.11.1",
     "@polkadot/api": "^10.13.1",

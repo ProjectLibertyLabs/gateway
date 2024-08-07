@@ -13,7 +13,7 @@ import {
   ChainEventHandler,
   ExtrinsicHelper,
   provisionUsersOnChain,
-} from '@amplica-labs/frequency-scenario-template';
+} from '@projectlibertylabs/frequency-scenario-template';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { EnvironmentType, Graph, ImportBundleBuilder } from '@dsnp/graph-sdk';
 

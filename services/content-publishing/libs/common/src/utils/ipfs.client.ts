@@ -5,9 +5,9 @@ import axios from 'axios';
 import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
-import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
+import { sha256 } from "multiformats/hashes/sha2";
 import { randomUUID } from 'crypto';
-import { base58btc } from 'multiformats/bases/base58';
+import { base32 } from 'multiformats/bases/base32';
 import { ConfigService } from '#libs/config';
 
 export interface FilePin {
@@ -127,9 +127,11 @@ export class IpfsService {
   }
 
   public async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
+    // Hash with sha256
+    // Encode with base32
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
-    const hash = await hasher.digest(fileBuffer);
-    return base58btc.encode(hash.bytes);
+    const hash = await sha256.digest(fileBuffer);
+    return base32.encode(hash.bytes);
   }
 
   public ipfsUrl(cid: string): string {

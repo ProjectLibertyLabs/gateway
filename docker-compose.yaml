@@ -12,7 +12,7 @@ x-common-environment: &common-environment
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
   HEALTH_CHECK_SUCCESS_THRESHOLD: 10
   CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
-  SIWF_URL: 'https://amplicalabs.github.io/siwf/ui'
+  SIWF_URL: 'https://projectlibertylabs.github.io/siwf/ui'
   SIWF_DOMAIN: 'localhost'
   IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001}
   IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
@@ -51,7 +51,7 @@ services:
     ports:
       - 6379:6379
     networks:
-      - amplica-gateway
+      - gateway-net
     volumes:
       - redis_data:/data/redis
 
@@ -73,7 +73,7 @@ services:
     ports:
       - 9944:9944
     networks:
-      - amplica-gateway
+      - gateway-net
     volumes:
       - chainstorage:/data
     profiles:
@@ -86,7 +86,7 @@ services:
       - 127.0.0.1:5001:5001
       - 127.0.0.1:8080:8080
     networks:
-      - amplica-gateway
+      - gateway-net
     volumes:
       - ipfs_data:${IPFS_VOLUME:-/data/ipfs}
 
@@ -114,7 +114,7 @@ services:
       - ipfs
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   content-publishing-service-worker:
     image: gateway-dev:latest
@@ -129,7 +129,7 @@ services:
       - ipfs
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   content-watcher-service:
     image: gateway-dev:latest
@@ -146,7 +146,7 @@ services:
       - ipfs
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   graph-service-api:
     image: gateway-dev:latest
@@ -162,7 +162,7 @@ services:
       - redis
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   graph-service-worker:
     image: gateway-dev:latest
@@ -176,7 +176,7 @@ services:
       - redis
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   account-service-api:
     image: gateway-dev:latest
@@ -193,7 +193,7 @@ services:
       - ipfs
       - gateway-base
     networks:
-      - amplica-gateway
+      - gateway-net
 
   account-service-worker:
     image: gateway-dev:latest
@@ -209,7 +209,7 @@ services:
       - gateway-base
 
     networks:
-      - amplica-gateway
+      - gateway-net
 
 volumes:
   ipfs_data:
@@ -222,4 +222,4 @@ volumes:
   content_watcher_node_cache:
 
 networks:
-  amplica-gateway:
+  gateway-net:

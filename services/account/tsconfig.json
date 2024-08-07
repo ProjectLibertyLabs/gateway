@@ -1,5 +1,5 @@
 {
-  "extends": "@amplica-labs/ts-config",
+  "extends": "@projectlibertylabs/ts-config",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

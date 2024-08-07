@@ -49,7 +49,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - amplica-gateway
+      - gateway-net
 
   gateway-base:
     profiles:

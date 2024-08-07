@@ -11,7 +11,7 @@ import {
   provisionUserGraphEncryptionKeys,
   provisionUserGraphResets,
   provisionUsersOnChain,
-} from '@amplica-labs/frequency-scenario-template';
+} from '@projectlibertylabs/frequency-scenario-template';
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 

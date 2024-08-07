@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ChainUser, ExtrinsicHelper } from '@amplica-labs/frequency-scenario-template';
+import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 import { ApiModule } from '#api/api.module';

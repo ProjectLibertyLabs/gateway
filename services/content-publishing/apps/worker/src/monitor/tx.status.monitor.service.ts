@@ -29,22 +29,14 @@ export class TxStatusMonitoringService extends BaseConsumer {
     this.logger.log(`Monitoring job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = NUMBER_BLOCKS_TO_CRAWL;
-      const previousKnownBlockNumber = (
-        await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
-      ).block.header.number.toNumber();
+      const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toNumber();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: number[] = [];
 
-      for (
-        let i = previousKnownBlockNumber;
-        i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse;
-        i += 1
-      ) {
+      for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1) {
         blockList.push(i);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
-        { pallet: 'system', event: 'ExtrinsicSuccess' },
-      ]);
+      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
 
       if (!txResult.found) {
         if (job.attemptsMade < (job.opts.attempts ?? 3)) {
@@ -86,10 +78,7 @@ export class TxStatusMonitoringService extends BaseConsumer {
     }
   }
 
-  private async handleMessagesFailure(
-    jobId: string,
-    moduleError: RegistryError,
-  ): Promise<{ pause: boolean; retry: boolean }> {
+  private async handleMessagesFailure(jobId: string, moduleError: RegistryError): Promise<{ pause: boolean; retry: boolean }> {
     try {
       switch (moduleError.method) {
         case 'TooManyMessagesInBlock':

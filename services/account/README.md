@@ -145,7 +145,7 @@ The API is responsible for handling incoming HTTP requests and the Worker is res
 
 ### Key Features
 
-- **Account creation using [SIWF](https://github.com/AmplicaLabs/siwf)**
+- **Account creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)**
   - Includes behind the scenes delegation to the provider
 - **Get User and Provider Account(s)**
 - **Handle (aka username) claiming**
@@ -163,7 +163,7 @@ The API is responsible for handling incoming HTTP requests and the Worker is res
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/account-service)
+- [Live Docs](https://projectlibertylabs.github.io/account-service)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -187,7 +187,7 @@ Clone this repository to your desired folder:
 Example commands:
 
 ```sh
-  git clone git@github.com:AmplicaLabs/account-service.git
+  git clone git@github.com:ProjectLibertyLabs/account-service.git
   cd account-service
 ```
 
@@ -333,7 +333,7 @@ You may also view and manage the application's queue at [http://localhost:3000/q
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/acccount-service/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/acccount-service/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

@@ -49,11 +49,6 @@ import { QueueModule } from '#lib/queues/queue.module';
     GraphUpdatePublisherModule,
     GraphNotifierModule,
   ],
-  providers: [
-    RequestProcessorService,
-    GraphUpdatePublisherService,
-    GraphNotifierService,
-    GraphStateManager,
-  ],
+  providers: [RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService, GraphStateManager],
 })
 export class WorkerModule {}

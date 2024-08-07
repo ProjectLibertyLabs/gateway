@@ -69,7 +69,8 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
           attempts: 3,
         },
       },
-    )],
+    ),
+  ],
   exports: [BullModule],
 })
 export class QueueModule {}

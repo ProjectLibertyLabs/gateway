@@ -37,10 +37,7 @@ export class IpfsService {
 
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
+    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
 
     const headers = {
       'Content-Type': `multipart/form-data; boundary=${form.getBoundary()}`,
@@ -93,10 +90,7 @@ export class IpfsService {
     const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
+    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
 
     const headers = {
       Accept: '*/*',
@@ -116,10 +110,7 @@ export class IpfsService {
     const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
     const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
     const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
+    const ipfsAuth = ipfsAuthUser && ipfsAuthSecret ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}` : '';
 
     const headers = {
       Accept: '*/*',

@@ -3,9 +3,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GraphReconnectionService } from './graph.reconnection.processor.service';
 
 @Module({
-  imports: [
-    EventEmitterModule,
-  ],
+  imports: [EventEmitterModule],
   providers: [GraphReconnectionService],
   exports: [GraphReconnectionService],
 })

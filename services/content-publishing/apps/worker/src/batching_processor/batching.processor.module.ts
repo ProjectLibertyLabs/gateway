@@ -5,15 +5,7 @@ import { BroadcastWorker, ReplyWorker, ReactionWorker, TombstoneWorker, UpdateWo
 
 @Module({
   imports: [ScheduleModule.forRoot()],
-  providers: [
-    BatchingProcessorService,
-    BroadcastWorker,
-    ReplyWorker,
-    ReactionWorker,
-    TombstoneWorker,
-    UpdateWorker,
-    ProfileWorker,
-  ],
+  providers: [BatchingProcessorService, BroadcastWorker, ReplyWorker, ReactionWorker, TombstoneWorker, UpdateWorker, ProfileWorker],
   exports: [BatchingProcessorService],
 })
 export class BatchingProcessorModule {}

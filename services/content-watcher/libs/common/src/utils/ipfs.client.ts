@@ -5,11 +5,10 @@ import axios from 'axios';
 import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
-import { blake2b256 as hasher } from '@multiformats/blake2/blake2b';
-import { create } from 'multiformats/hashes/digest';
+import { sha256 } from 'multiformats/hashes/sha2';
 import { randomUUID } from 'crypto';
-import { base58btc } from 'multiformats/bases/base58';
 import { AppConfigService } from '../config/config.service';
+import { base32 } from 'multiformats/bases/base32';
 
 export interface FilePin {
   cid: string;
@@ -127,12 +126,13 @@ export class IpfsService {
     return response && response.data && JSON.stringify(response.data).indexOf(v0Cid) >= 0;
   }
 
-  private async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
+  public async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
+    // Hash with sha256
+    // Encode with base32
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
-    const hash = hasher.digest(fileBuffer);
-    return base58btc.encode((await hash).bytes);
+    const hash = await sha256.digest(fileBuffer);
+    return base32.encode(hash.bytes);
   }
-
 
   public ipfsUrl(cid: string): string {
     if (this.configService.ipfsGatewayUrl.includes('[CID]')) {

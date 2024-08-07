@@ -128,8 +128,8 @@ export class IpfsService {
 
   public async ipfsHashBuffer(fileBuffer: Buffer): Promise<string> {
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
-    const hash = hasher.digest(fileBuffer);
-    return base58btc.encode((await hash).bytes);
+    const hash = await hasher.digest(fileBuffer);
+    return base58btc.encode(hash.bytes);
   }
 
   public ipfsUrl(cid: string): string {

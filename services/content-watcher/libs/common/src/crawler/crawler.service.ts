@@ -37,6 +37,10 @@ export class CrawlerService extends BaseConsumer {
         job.data.startBlock = startBlock;
         this.logger.debug(`No starting block specified; starting from end of chain at block ${startBlock}`);
       }
+      // Make sure blockCount is not longer than the current chain length
+      if (job.data.blockCount >= startBlock) {
+        job.data.blockCount = startBlock;
+      }
       let blockList = new Array(job.data.blockCount).fill(0).map((_v, index) => startBlock - index);
       blockList.reverse();
 

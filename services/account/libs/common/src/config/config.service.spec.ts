@@ -54,6 +54,7 @@ describe('AccountSericeConfig', () => {
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     CAPACITY_LIMIT: undefined,
+    CACHE_KEY_PREFIX: undefined,
   };
 
   beforeAll(() => {

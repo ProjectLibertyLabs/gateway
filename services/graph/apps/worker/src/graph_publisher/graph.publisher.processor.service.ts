@@ -16,11 +16,12 @@ import {
   ConfigService,
   GraphUpdateJob,
   ICapacityInfo,
-  ITxMonitorJob,
   NonceService,
+  TXN_WATCH_LIST_KEY,
   createKeys,
 } from '#lib';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -46,7 +47,6 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
-    @InjectQueue(QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE) private graphChangeNotifyQueue: Queue,
     private configService: ConfigService,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
@@ -62,12 +62,16 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<GraphUpdateJob, any, string>): Promise<void> {
-    let statefulStorageTxHash: Hash = {} as Hash;
+    let payWithCapacityTxHash: Hash = {} as Hash;
+    let payWithCapacityTx: SubmittableExtrinsic<'promise', ISubmittableResult>;
+    const successSection = 'statefulStorage';
+    let successMethod: string;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const lastFinalizedBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       switch (job.data.update.type) {
         case 'PersistPage': {
+          successMethod = 'PaginatedPageUpdated';
           let payloadData: number[] = [];
           if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
             payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
@@ -81,10 +85,11 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
             job.data.update.prevHash,
             payloadData,
           );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
+          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(providerKeys, tx);
           break;
         }
         case 'DeletePage': {
+          successMethod = 'PaginatedPageDeleted';
           const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
           const tx = this.blockchainService.createExtrinsicCall(
             { pallet: 'statefulStorage', extrinsic: 'deletePage' },
@@ -93,25 +98,35 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
             job.data.update.pageId,
             job.data.update.prevHash,
           );
-          statefulStorageTxHash = await this.processSingleBatch(providerKeys, tx);
+          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(providerKeys, tx);
           break;
         }
         default:
-          break;
+          this.logger.warn('Nothing to do; unrecognized job type', job.data.update.type.toString());
+          return;
       }
 
-      this.logger.debug(`successful job: ${JSON.stringify(job, null, 2)}`);
+      this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
-      // Add a job to the graph change notify queue
-      const txMonitorJob: ITxMonitorJob = {
-        id: job.data.referenceId,
-        txHash: statefulStorageTxHash,
-        lastFinalizedBlockHash,
-        referencePublishJob: job.data,
+      const status: ITxStatus = {
+        providerId: this.configService.providerId,
+        referenceId: job.data.originalRequestJob.referenceId,
+        txHash: payWithCapacityTxHash.toHex(),
+        successEvent: {
+          section: successSection,
+          method: successMethod,
+        },
+        referenceJob: job.data.originalRequestJob,
+        birth: payWithCapacityTx.era.asMortalEra.birth(lastFinalizedBlockNumber),
+        death: payWithCapacityTx.era.asMortalEra.death(lastFinalizedBlockNumber),
       };
 
-      this.logger.debug(`Adding job to graph change notify queue: ${txMonitorJob.id}`);
-      this.graphChangeNotifyQueue.add(`Graph Change Notify Job - ${txMonitorJob.id}`, txMonitorJob);
+      const obj = {};
+      obj[payWithCapacityTxHash.toHex()] = JSON.stringify(status);
+
+      await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
+
+      this.logger.debug('Cached extrinsic to monitor: ', payWithCapacityTxHash.toHex());
     } catch (error: unknown) {
       this.logger.error(error);
       throw error;
@@ -131,7 +146,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   async processSingleBatch(
     providerKeys: KeyringPair,
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<Hash> {
+  ): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
@@ -149,7 +164,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
+      return [txHash, ext.extrinsic];
     } catch (error: unknown) {
       this.logger.error(`Error processing batch: ${error}`);
       throw error;

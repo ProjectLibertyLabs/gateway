@@ -49,19 +49,6 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
         },
       },
       {
-        name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: true,
-          removeOnFail: false,
-          attempts: 10,
-          delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
-          backoff: {
-            type: 'fixed',
-            delay: SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
-          },
-        },
-      },
-      {
         name: QueueConstants.RECONNECT_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: false,

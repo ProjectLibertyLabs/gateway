@@ -1,7 +1,8 @@
 import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@songkeys/nestjs-redis';
-import { GraphNotifierService } from './graph.monitor.processor.service';
+import { GraphMonitorService } from './graph.monitor.service';
+import { CapacityCheckerService } from '#lib/blockchain/capacity-checker.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { GraphNotifierService } from './graph.monitor.processor.service';
       true, // isGlobal
     ),
   ],
-  providers: [GraphNotifierService, GraphStateManager],
-  exports: [GraphNotifierService],
+  providers: [GraphMonitorService, GraphStateManager, CapacityCheckerService],
+  exports: [],
 })
 export class GraphNotifierModule {}

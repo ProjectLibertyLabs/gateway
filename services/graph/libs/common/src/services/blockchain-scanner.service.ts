@@ -14,7 +14,7 @@ import { UpdateTransitiveGraphs, createReconnectionJob } from '../interfaces/gra
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
 @Injectable()
-export class BlockchainScannerService implements OnApplicationBootstrap {
+export class ReconnectionScannerService implements OnApplicationBootstrap {
   protected readonly logger: Logger;
 
   private scanInProgress = false;
@@ -41,7 +41,7 @@ export class BlockchainScannerService implements OnApplicationBootstrap {
     private schedulerRegistry: SchedulerRegistry,
     private blockchainService: BlockchainService,
   ) {
-    this.logger = new Logger(BlockchainScannerService.name);
+    this.logger = new Logger(ReconnectionScannerService.name);
   }
 
   public async scan(): Promise<void> {

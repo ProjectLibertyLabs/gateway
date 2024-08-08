@@ -10,7 +10,15 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as QueueConstants from '#lib/queues/queue-constants';
-import { BaseConsumer, BlockchainService, ConfigService, GraphUpdateJob, ITxMonitorJob, NonceService, createKeys } from '#lib';
+import {
+  BaseConsumer,
+  BlockchainService,
+  ConfigService,
+  GraphUpdateJob,
+  ITxMonitorJob,
+  NonceService,
+  createKeys,
+} from '#lib';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -61,7 +69,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
             payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
           }
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+          const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
           const tx = this.blockchainService.createExtrinsicCall(
             { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
             job.data.update.ownerDsnpUserId,
@@ -74,7 +82,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case 'DeletePage': {
-          const providerKeys = createKeys(this.configService.getProviderAccountSeedPhrase());
+          const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
           const tx = this.blockchainService.createExtrinsicCall(
             { pallet: 'statefulStorage', extrinsic: 'deletePage' },
             job.data.update.ownerDsnpUserId,
@@ -117,8 +125,13 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleBatch(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<Hash> {
-    this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
+  async processSingleBatch(
+    providerKeys: KeyringPair,
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+  ): Promise<Hash> {
+    this.logger.debug(
+      `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
+    );
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
@@ -149,8 +162,8 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    */
   private async checkCapacity(): Promise<void> {
     try {
-      const capacityLimit = this.configService.getCapacityLimit();
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.getProviderId());
+      const capacityLimit = this.configService.capacityLimit.serviceLimit;
+      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.providerId);
       const { remainingCapacity } = capacityInfo;
       const { currentEpoch } = capacityInfo;
       const epochCapacityKey = `epochCapacity:${currentEpoch}`;
@@ -177,7 +190,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         await this.graphChangePublishQueue.pause();
         const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
         const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-        this.logger.warn(`Capacity Exhausted: Pausing graph change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
+        this.logger.warn(
+          `Capacity Exhausted: Pausing graph change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
+        );
         try {
           // Check if a timeout with the same name already exists
           if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
@@ -198,7 +213,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         this.logger.verbose('Capacity Available: Resuming graph change publish queue and clearing timeout');
         // Get the failed jobs and check if they failed due to capacity
         const failedJobs = await this.graphChangePublishQueue.getFailed();
-        const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
+        const capacityFailedJobs = failedJobs.filter((job) =>
+          job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
+        );
         // Retry the failed jobs
         await Promise.all(
           capacityFailedJobs.map(async (job) => {

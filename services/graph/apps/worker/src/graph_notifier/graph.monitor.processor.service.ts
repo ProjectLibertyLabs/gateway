@@ -1,12 +1,22 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import axios from 'axios';
-import { BaseConsumer, AsyncDebouncerService, BlockchainService, GraphStateManager, ITxMonitorJob, ProviderGraphUpdateJob, SECONDS_PER_BLOCK, ConfigService } from '#lib';
+import {
+  AsyncDebouncerService,
+  BlockchainService,
+  GraphStateManager,
+  ITxMonitorJob,
+  ProviderGraphUpdateJob,
+  SECONDS_PER_BLOCK,
+  ConfigService,
+  BlockchainScannerService,
+  BaseConsumer,
+} from '#lib';
 import * as QueueConstants from '#lib/queues/queue-constants';
 import * as RedisConstants from '#lib/utils/redis';
 import * as BlockchainConstants from '#lib/blockchain/blockchain-constants';
@@ -106,7 +116,7 @@ export class GraphNotifierService extends BaseConsumer {
             // Here, we likely only want to notify the original submitter of this particular graph update.
             webhookList.forEach(async (webhookUrl) => {
               let retries = 0;
-              while (retries < this.configService.getHealthCheckMaxRetries()) {
+              while (retries < this.configService.healthCheckMaxRetries) {
                 try {
                   this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
                   this.logger.debug(`Graph Change: ${JSON.stringify(clientRequest)}`);
@@ -129,7 +139,7 @@ export class GraphNotifierService extends BaseConsumer {
           const webhook = job.data.referencePublishJob.webhookUrl;
           if (webhook) {
             let retries = 0;
-            while (retries < this.configService.getHealthCheckMaxRetries()) {
+            while (retries < this.configService.healthCheckMaxRetries) {
               try {
                 this.logger.debug(`Sending graph operation status (${clientRequest.status}) notification for refId ${clientRequest.referenceId} to webhook: ${webhook}`);
                 await axios.post(webhook, clientRequest);

@@ -3,7 +3,7 @@ import { BlockHash } from '@polkadot/types/interfaces';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from 'time-constants';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { ConfigService } from '../config/config.service';
@@ -15,14 +15,17 @@ export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
 @Injectable()
 export class BlockchainScannerService implements OnApplicationBootstrap {
-  private logger: Logger;
+  protected readonly logger: Logger;
 
   private scanInProgress = false;
 
   async onApplicationBootstrap() {
-    if (this.configService.getReconnectionServiceRequired()) {
+    if (this.configService.reconnectionServiceRequired) {
       // Set up recurring interval
-      const interval = setInterval(() => this.scan(), this.configService.getBlockchainScanIntervalMinutes() * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND);
+      const interval = setInterval(
+        () => this.scan(),
+        this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND,
+      );
       this.schedulerRegistry.addInterval('blockchainScan', interval);
 
       // Kick off initial scan
@@ -70,19 +73,25 @@ export class BlockchainScannerService implements OnApplicationBootstrap {
       }
       this.logger.log(`Starting scan from block #${currentBlockNumber} (${currentBlockHash})`);
 
-      while (!currentBlockHash.isEmpty && queueSize < this.configService.getQueueHighWater()) {
+      while (!currentBlockHash.isEmpty && queueSize < this.configService.queueHighWater) {
         // eslint-disable-next-line no-await-in-loop
         const events = (await this.blockchainService.queryAt(currentBlockHash, 'system', 'events')).toArray();
 
         const filteredEvents = events.filter(
-          ({ event }) => this.blockchainService.api.events.msa.DelegationGranted.is(event) && event.data.providerId.eq(this.configService.getProviderId()),
+          ({ event }) =>
+            this.blockchainService.api.events.msa.DelegationGranted.is(event) &&
+            event.data.providerId.eq(this.configService.providerId),
         );
 
         if (filteredEvents.length > 0) {
           this.logger.debug(`Found ${filteredEvents.length} delegations at block #${currentBlockNumber}`);
         }
         const jobs = filteredEvents.map(async ({ event }) => {
-          const { key: jobId, data } = createReconnectionJob(event.data.delegatorId, event.data.providerId, UpdateTransitiveGraphs);
+          const { key: jobId, data } = createReconnectionJob(
+            event.data.delegatorId,
+            event.data.providerId,
+            UpdateTransitiveGraphs,
+          );
           const job = await this.reconnectionQueue.getJob(jobId);
           if (job && ((await job.isCompleted()) || (await job.isFailed()))) {
             await job.retry();
@@ -108,7 +117,7 @@ export class BlockchainScannerService implements OnApplicationBootstrap {
 
       if (currentBlockHash.isEmpty) {
         this.logger.log(`Scan reached end-of-chain at block ${currentBlockNumber - 1n}`);
-      } else if (queueSize > this.configService.getQueueHighWater()) {
+      } else if (queueSize > this.configService.queueHighWater) {
         this.logger.log('Queue soft limit reached; pausing scan until next iteration');
       }
     } catch (e) {

@@ -20,6 +20,15 @@ interface ITxMonitorResult {
   error?: RegistryError;
 }
 
+export interface ICapacityInfo {
+  providerId: string;
+  currentBlockNumber: number;
+  nextEpochStart: number;
+  remainingCapacity: bigint;
+  totalCapacityIssued: bigint;
+  currentEpoch: number;
+}
+
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, BeforeApplicationShutdown {
   public api: ApiPromise;
@@ -132,7 +141,10 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query('capacity', 'capacityLedger', providerU64);
-    const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({ remainingCapacity: 0, totalCapacityIssued: 0 });
+    const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
+      remainingCapacity: 0,
+      totalCapacityIssued: 0,
+    });
     const currentBlock: u32 = await this.query('system', 'number');
     const currentEpoch = await this.getCurrentCapacityEpoch();
     return {
@@ -213,7 +225,14 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
         this.logger.error(error);
       }
       this.logger.debug(`Total capacity withdrawn in block: ${totalBlockCapacity.toString()}`);
-      return { found: true, success: isTxSuccess, blockHash, capacityEpoch, capacityWithDrawn: totalBlockCapacity, error: txError };
+      return {
+        found: true,
+        success: isTxSuccess,
+        blockHash,
+        capacityEpoch,
+        capacityWithDrawn: totalBlockCapacity,
+        error: txError,
+      };
     });
     const results = await Promise.all(txReceiptPromises);
     const result = results.find((receipt) => receipt.found);

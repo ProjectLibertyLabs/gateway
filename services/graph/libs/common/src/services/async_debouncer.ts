@@ -55,7 +55,7 @@ export class AsyncDebouncerService {
       this.logger.error(`Error getting graph edges for ${dsnpId} with privacy type ${privacyType}`, err);
       return graphEdges;
     }
-    const debounceTime = this.configService.getDebounceSeconds();
+    const debounceTime = this.configService.debounceSeconds;
     await this.redis.setex(cacheKey, debounceTime, JSON.stringify(graphEdges));
     // Remove the graph from the graph state after the debounce time
     setTimeout(() => this.graphStateManager.removeUserGraph(dsnpId.toString()), debounceTime * 1000);

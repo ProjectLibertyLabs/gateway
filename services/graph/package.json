@@ -114,7 +114,8 @@
     ],
     "rootDir": ".",
     "setupFiles": [
-      "dotenv/config"
+      "dotenv/config",
+      "<rootDir>/jest.init.ts"
     ],
     "testRegex": ".*\\.spec\\.ts$",
     "testPathIgnorePatterns": [

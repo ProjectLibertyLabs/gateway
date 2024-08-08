@@ -1,9 +1,35 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
+import { ValidationError } from 'class-validator';
+
+const bigintSchema = Joi.custom((value) => {
+  const strResult = Joi.string().validate(value);
+  if (strResult.error) {
+    throw strResult.error;
+  }
+
+  const numResult = Joi.number().unsafe().positive().validate(value);
+  if (numResult.error) {
+    throw numResult.error;
+  }
+
+  return BigInt(value);
+});
+
+const capacityLimitSchema = Joi.object({
+  type: Joi.any().valid('percentage', 'amount').required(),
+  value: Joi.any().when('type', { is: 'percentage', then: Joi.number().positive().max(100), otherwise: bigintSchema }),
+});
+
+const capacityLimitsSchema = Joi.object({
+  serviceLimit: capacityLimitSchema.required(),
+  totalLimit: capacityLimitSchema,
+});
 
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
+    TRUST_UNFINALIZED_BLOCKS: Joi.bool().default(false),
     CACHE_KEY_PREFIX: Joi.string().default('graph-service:'),
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
@@ -11,9 +37,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     API_PORT: Joi.number().min(0).default(3000),
     DEBOUNCE_SECONDS: Joi.number().min(0).default(10),
     RECONNECTION_SERVICE_REQUIRED: Joi.boolean().default(false),
-    BLOCKCHAIN_SCAN_INTERVAL_MINUTES: Joi.number()
-      .min(1)
-      .default(3 * 60),
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: Joi.number().min(1).default(6),
     GRAPH_ENVIRONMENT_TYPE: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
     PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {
@@ -42,24 +66,29 @@ export const configModuleOptions: ConfigModuleOptions = {
       .custom((value: string, helpers) => {
         try {
           const obj = JSON.parse(value);
-          const schema = Joi.object({
-            type: Joi.string()
-              .required()
-              .pattern(/^(percentage|amount)$/),
-            value: Joi.alternatives()
-              .conditional('type', {
-                is: 'percentage',
-                then: Joi.number().min(0).max(100),
-                otherwise: Joi.number().min(0),
-              })
-              .required(),
-          });
-          const result = schema.validate(obj);
-          if (result.error) {
-            return helpers.error('any.invalid');
+
+          const result1 = capacityLimitSchema.validate(obj);
+          const result2 = capacityLimitsSchema.validate(obj);
+
+          if (obj?.type && result1.error) {
+            return helpers.error('any.custom', { error: result1.error });
+          }
+
+          if (obj?.serviceLimit && result2.error) {
+            throw result2.error;
+          }
+
+          if (result1.error && result2.error) {
+            return helpers.error('any.custom', {
+              error: new Error('JSON object does not conform to the required structure'),
+            });
           }
         } catch (e) {
-          return helpers.error('any.invalid');
+          if (e instanceof ValidationError) {
+            throw e;
+          }
+
+          return helpers.error('any.custom', { error: e });
         }
 
         return value;

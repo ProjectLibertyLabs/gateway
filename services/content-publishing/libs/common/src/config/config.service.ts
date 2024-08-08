@@ -2,10 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimits } from '../interfaces/capacity-limit.interface';
-import { ChainEnvironment } from '#libs/dtos';
 
 export interface ConfigEnvironmentVariables {
-  CHAIN_ENVIRONMENT: ChainEnvironment;
   IPFS_ENDPOINT: URL;
   IPFS_GATEWAY_URL: URL;
   IPFS_BASIC_AUTH_USER: string;
@@ -59,10 +57,6 @@ export class ConfigService {
 
   public get trustUnfinalizedBlocks(): boolean {
     return this.nestConfigService.get<boolean>('TRUST_UNFINALIZED_BLOCKS') ?? false;
-  }
-
-  public get environment(): ChainEnvironment {
-    return this.nestConfigService.get<ChainEnvironment>('CHAIN_ENVIRONMENT')!;
   }
 
   public get redisUrl(): URL {

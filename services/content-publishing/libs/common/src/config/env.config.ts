@@ -1,6 +1,5 @@
 import Joi from 'joi';
 import { ConfigModuleOptions } from '@nestjs/config';
-import { ChainEnvironment } from '#libs/dtos';
 import { ValidationError } from 'class-validator';
 
 const bigintSchema = Joi.custom((value) => {
@@ -32,9 +31,6 @@ export const configModuleOptions: ConfigModuleOptions = {
   validationSchema: Joi.object({
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: Joi.number().min(1).default(6),
     TRUST_UNFINALIZED_BLOCKS: Joi.bool().default(false),
-    CHAIN_ENVIRONMENT: Joi.string()
-      .valid(...Object.values(ChainEnvironment))
-      .required(),
     IPFS_ENDPOINT: Joi.string().uri().required(),
     IPFS_GATEWAY_URL: Joi.string().required(), // This is parse as string as the required format of this not a valid uri, check .env.template
     IPFS_BASIC_AUTH_USER: Joi.string().allow('').default(''),

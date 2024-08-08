@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -14,7 +14,6 @@ import {
   ProviderGraphUpdateJob,
   SECONDS_PER_BLOCK,
   ConfigService,
-  BlockchainScannerService,
   BaseConsumer,
 } from '#lib';
 import * as QueueConstants from '#lib/queues/queue-constants';
@@ -39,18 +38,28 @@ export class GraphNotifierService extends BaseConsumer {
     private graphStateManager: GraphStateManager,
   ) {
     super();
-    this.asyncDebouncerService = new AsyncDebouncerService(this.cacheManager, this.configService, this.graphStateManager);
+    this.asyncDebouncerService = new AsyncDebouncerService(
+      this.cacheManager,
+      this.configService,
+      this.graphStateManager,
+    );
   }
 
   async process(job: Job<ITxMonitorJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const numberBlocksToParse = BlockchainConstants.NUMBER_BLOCKS_TO_CRAWL;
-      const previousKnownBlockNumber = (await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)).block.header.number.toBigInt();
+      const previousKnownBlockNumber = (
+        await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
+      ).block.header.number.toBigInt();
       const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const blockList: bigint[] = [];
 
-      for (let i = previousKnownBlockNumber; i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse; i += 1n) {
+      for (
+        let i = previousKnownBlockNumber;
+        i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse;
+        i += 1n
+      ) {
         blockList.push(i);
       }
 
@@ -60,9 +69,13 @@ export class GraphNotifierService extends BaseConsumer {
       };
 
       try {
-        const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [{ pallet: 'system', event: 'ExtrinsicSuccess' }]);
+        const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
+          { pallet: 'system', event: 'ExtrinsicSuccess' },
+        ]);
         if (!txResult.found) {
-          this.logger.error(`Tx ${job.data.txHash} not found in block list (attempts: ${job.attemptsMade}, maxAttempts: ${this.changeRequestQueue.jobsOpts.attempts})`);
+          this.logger.error(
+            `Tx ${job.data.txHash} not found in block list (attempts: ${job.attemptsMade}, maxAttempts: ${this.changeRequestQueue.jobsOpts.attempts})`,
+          );
           // TODO: implement a blockchain scanner with mortality checks for expiration.
           // For now, if we fail more times than this job queue will allow, consider the operation expired.
           if (job.attemptsMade + 1 >= (this.changeRequestQueue.jobsOpts.attempts || 1)) {
@@ -93,14 +106,21 @@ export class GraphNotifierService extends BaseConsumer {
             this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
             clientRequest.status = 'succeeded';
             const webhookList = await this.getWebhookList(job.data.referencePublishJob.update.ownerDsnpUserId);
-            this.logger.debug(`Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
-            const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
+            this.logger.debug(
+              `Found ${webhookList.length} webhooks for ${job.data.referencePublishJob.update.ownerDsnpUserId}`,
+            );
+            const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
+              await this.changeRequestQueue.getJob(job.data.referencePublishJob.referenceId);
 
             if (job.data.referencePublishJob.update.type !== 'AddKey') {
               this.logger.debug(`Setting graph for ${job.data.referencePublishJob.update.ownerDsnpUserId}`);
               const graphKeyPairs = requestJob?.data.graphKeyPairs ?? [];
               const { ownerDsnpUserId, schemaId } = job.data.referencePublishJob.update;
-              const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(ownerDsnpUserId, schemaId, graphKeyPairs);
+              const graphEdges = await this.asyncDebouncerService.setGraphForSchemaId(
+                ownerDsnpUserId,
+                schemaId,
+                graphKeyPairs,
+              );
               if (graphEdges.length === 0) {
                 this.logger.debug(`No graph edges found for ${ownerDsnpUserId}`);
               }
@@ -141,7 +161,9 @@ export class GraphNotifierService extends BaseConsumer {
             let retries = 0;
             while (retries < this.configService.healthCheckMaxRetries) {
               try {
-                this.logger.debug(`Sending graph operation status (${clientRequest.status}) notification for refId ${clientRequest.referenceId} to webhook: ${webhook}`);
+                this.logger.debug(
+                  `Sending graph operation status (${clientRequest.status}) notification for refId ${clientRequest.referenceId} to webhook: ${webhook}`,
+                );
                 await axios.post(webhook, clientRequest);
                 break;
               } catch (error: any) {
@@ -166,7 +188,8 @@ export class GraphNotifierService extends BaseConsumer {
 
   private async retryRequestJob(requestReferenceId: string): Promise<void> {
     this.logger.debug(`Retrying graph change request job ${requestReferenceId}`);
-    const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined = await this.changeRequestQueue.getJob(requestReferenceId);
+    const requestJob: Job<ProviderGraphUpdateJob, any, string> | undefined =
+      await this.changeRequestQueue.getJob(requestReferenceId);
     if (!requestJob) {
       this.logger.debug(`Job ${requestReferenceId} not found in queue`);
       return;

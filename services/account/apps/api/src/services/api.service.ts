@@ -15,13 +15,4 @@ export class ApiService implements OnApplicationShutdown {
       this.logger.error(`Error during cleanup on shutdown: ${e}`);
     }
   }
-
-  // async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<void> {
-  //   watchGraphsDto.msaIds.forEach(async (msaId) => {
-  //     const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
-  //     const redisValue = watchGraphsDto.webhookEndpoint;
-  //     // eslint-disable-next-line no-await-in-loop
-  //     await this.redis.rpush(redisKey, redisValue);
-  //   });
-  // }
 }

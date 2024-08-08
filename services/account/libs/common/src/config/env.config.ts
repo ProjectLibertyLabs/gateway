@@ -22,7 +22,7 @@ export const configModuleOptions: ConfigModuleOptions = {
       }
       return value;
     }),
-    PROVIDER_BASE_URL: Joi.string().uri().required(),
+    WEBHOOK_BASE_URL: Joi.string().uri().required(),
     PROVIDER_ACCESS_TOKEN: Joi.string().default(''),
     WEBHOOK_FAILURE_THRESHOLD: Joi.number().min(1).default(3),
     WEBHOOK_RETRY_INTERVAL_SECONDS: Joi.number().min(1).default(10),

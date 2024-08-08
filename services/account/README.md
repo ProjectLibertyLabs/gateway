@@ -180,17 +180,6 @@ In order to run this project you need:
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
-### Setup
-
-Clone this repository to your desired folder:
-
-Example commands:
-
-```sh
-  git clone git@github.com:ProjectLibertyLabs/account-service.git
-  cd account-service
-```
-
 ### Environment Variables
 
 Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
@@ -209,6 +198,7 @@ Install NPM Dependencies:
 
 ```sh
   npm install
+  npm install -g @nestjs/cli
 ```
 
 ### Usage
@@ -257,7 +247,7 @@ In order to run the `account-service` in development mode without containers, yo
    Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
 
    ```sh
-   docker-compose up -d api worker
+   docker-compose up -d account-service-api account-service-worker
    ```
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
@@ -276,7 +266,7 @@ In order to run the `account-service` in development mode without containers, yo
 
 ### Swagger UI
 
-Check out the Swagger UI hosted on the app instance at [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
+Check out the Swagger UI hosted on the app instance at [http://localhost:3000/api/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
 
 ### Queue Management
 

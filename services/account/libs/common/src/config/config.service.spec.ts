@@ -46,7 +46,7 @@ describe('AccountSericeConfig', () => {
     PROVIDER_ID: undefined,
     SIWF_URL: undefined,
     SIWF_DOMAIN: undefined,
-    PROVIDER_BASE_URL: undefined,
+    WEBHOOK_BASE_URL: undefined,
     PROVIDER_ACCESS_TOKEN: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
@@ -186,7 +186,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('should get provider base url', () => {
-      expect(accountServiceConfig.providerBaseUrl?.toString()).toStrictEqual(ALL_ENV.PROVIDER_BASE_URL?.toString());
+      expect(accountServiceConfig.webhookBaseUrl?.toString()).toStrictEqual(ALL_ENV.WEBHOOK_BASE_URL?.toString());
     });
 
     it('should get provider api token', () => {

@@ -19,7 +19,7 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
         }),
         inject: [ConfigService],
       },

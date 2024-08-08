@@ -4,7 +4,7 @@ import { ConfigModuleOptions } from '@nestjs/config';
 export const configModuleOptions: ConfigModuleOptions = {
   isGlobal: true,
   validationSchema: Joi.object({
-    CACHE_KEY_PREFIX: Joi.string().default('graph-service:'),
+    CACHE_KEY_PREFIX: Joi.string().default('graph:'),
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
     QUEUE_HIGH_WATER: Joi.number().min(100).default(1000),

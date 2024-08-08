@@ -51,6 +51,7 @@ describe('ContentPublishingConfigService', () => {
     BATCH_INTERVAL_SECONDS: undefined,
     BATCH_MAX_COUNT: undefined,
     ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: undefined,
+    CACHE_KEY_PREFIX: undefined,
   };
 
   beforeAll(() => {
@@ -197,6 +198,10 @@ describe('ContentPublishingConfigService', () => {
 
     it('should get batch max count', () => {
       expect(contentPublishingConfigService.batchMaxCount).toStrictEqual(parseInt(ALL_ENV.BATCH_MAX_COUNT as string, 10));
+    });
+
+    it('should get cache key prefix', () => {
+      expect(contentPublishingConfigService.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
     });
   });
 });

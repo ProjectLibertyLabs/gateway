@@ -24,6 +24,7 @@ import * as QueueConstants from './queue.constants';
             password: password || undefined,
             db: pathname?.length > 1 ? Number(pathname.slice(1)) : undefined,
           },
+          prefix: `${configService.cacheKeyPrefix}:bull`,
         };
       },
       inject: [ConfigService],

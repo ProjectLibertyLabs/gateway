@@ -54,6 +54,7 @@ describe('AccountSericeConfig', () => {
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     CAPACITY_LIMIT: undefined,
+    CACHE_KEY_PREFIX: undefined,
   };
 
   beforeAll(() => {
@@ -225,6 +226,10 @@ describe('AccountSericeConfig', () => {
 
     it('should get capacity limit', () => {
       expect(accountServiceConfig.capacityLimit).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+    });
+
+    it('should get cache key prefix', () => {
+      expect(accountServiceConfig.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
     });
   });
 });

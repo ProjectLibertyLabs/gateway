@@ -20,6 +20,7 @@ export interface ConfigEnvironmentVariables {
   BATCH_INTERVAL_SECONDS: number;
   BATCH_MAX_COUNT: number;
   ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: number;
+  CACHE_KEY_PREFIX: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -29,6 +30,10 @@ export class ConfigService {
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     this.capacityLimit = JSON.parse(nestConfigService.get('CAPACITY_LIMIT')!);
+  }
+
+  public get cacheKeyPrefix(): string {
+    return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
   public get environment(): ChainEnvironment {

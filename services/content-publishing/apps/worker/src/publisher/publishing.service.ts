@@ -60,14 +60,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const [txHash, tx] = await this.ipfsPublisher.publish(job.data);
 
       const status: ITxStatus = {
-        txHash: txHash.toString(),
+        txHash: txHash.toHex(),
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
-        // TODO: For some reason, the constructed transaction here keeps coming back as ImmortalEra.
-        // Until that's fixed, just assume a fixed mortality of 50 blocks from the current block.
-        // birth: tx.era.asMortalEra.birth(currentBlockNumber),
-        // death: tx.era.asMortalEra.death(currentBlockNumber),
-        birth: currentBlockNumber,
-        death: currentBlockNumber + 50,
+        birth: tx.era.asMortalEra.birth(currentBlockNumber),
+        death: tx.era.asMortalEra.death(currentBlockNumber),
         referencePublishJob: job.data,
       };
       const obj = {};

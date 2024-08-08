@@ -51,7 +51,7 @@ export class IPFSPublisher {
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
-      return [txHash, tx];
+      return [txHash, ext.extrinsic];
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
       throw e;

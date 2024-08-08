@@ -5,7 +5,7 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { KeyringPair } from '@polkadot/keyring/types';
 
 export class Extrinsic<T extends ISubmittableResult = ISubmittableResult> {
-  private extrinsic: SubmittableExtrinsic<'promise', T>;
+  public readonly extrinsic: SubmittableExtrinsic<'promise', T>;
 
   // private call: Call;
   private keys: KeyringPair;

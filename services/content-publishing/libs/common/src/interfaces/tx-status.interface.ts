@@ -1,4 +1,4 @@
-import { HexString } from '@dsnp/activity-content/types';
+import { HexString } from '@polkadot/util/types';
 import { IPublisherJob } from 'apps/worker/src/interfaces';
 
 export interface ITxStatus {

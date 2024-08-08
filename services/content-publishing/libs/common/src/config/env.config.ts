@@ -59,5 +59,6 @@ export const configModuleOptions: ConfigModuleOptions = {
         return value;
       })
       .required(),
+      CACHE_KEY_PREFIX: Joi.string().default('content-publishing:'),
   }),
 };

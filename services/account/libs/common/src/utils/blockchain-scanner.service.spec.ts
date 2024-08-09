@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { BlockHash, Hash, SignedBlock } from '@polkadot/types/interfaces';
+import { Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Redis } from 'ioredis';
-import { BlockchainScannerService } from './blockchain-scanner.service';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { BlockchainScannerService } from './blockchain-scanner.service';
 
 const mockRedis = {
   provide: getRedisToken(DEFAULT_REDIS_NAMESPACE),
@@ -38,6 +38,7 @@ Object.defineProperty(mockEmptyBlockHash, 'isEmpty', {
   get: jest.fn(() => true),
 });
 const mockBlockchainService = {
+  isReady: jest.fn(() => Promise.resolve()),
   getBlock: jest.fn((blockHash?: string | Hash) => mockSignedBlock as unknown as SignedBlock),
   getBlockHash: jest.fn((blockNumber: number) => (blockNumber > 1 ? mockEmptyBlockHash : mockBlockHash)),
   getLatestFinalizedBlockNumber: jest.fn(),

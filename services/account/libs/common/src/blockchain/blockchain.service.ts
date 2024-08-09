@@ -64,7 +64,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   private logger: Logger;
 
   private readyResolve: (boolean) => void;
+
   private readyReject: (reason: any) => void;
+
   private isReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.readyResolve = resolve;
     this.readyReject = reject;

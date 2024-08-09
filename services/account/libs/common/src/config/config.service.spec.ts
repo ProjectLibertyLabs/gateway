@@ -30,7 +30,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   return moduleRef.get<ConfigService>(ConfigService);
 };
 
-describe('AccountSericeConfig', () => {
+describe('AccountServiceConfig', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,

@@ -45,11 +45,7 @@ export class CrawlerService extends BaseConsumer {
       blockList.reverse();
 
       // Process block list in chunks so as not to overload the async queue
-      await this.processBlockList(
-        job.data.clientReferenceId,
-        blockList.slice(0, CRAWLER_BLOCK_CHUNK_SIZE),
-        job.data.filters,
-      );
+      await this.processBlockList(job.data.clientReferenceId, blockList.slice(0, CRAWLER_BLOCK_CHUNK_SIZE), job.data.filters);
       blockList = blockList.slice(CRAWLER_BLOCK_CHUNK_SIZE);
 
       if (blockList.length > 0) {

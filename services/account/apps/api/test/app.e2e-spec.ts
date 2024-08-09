@@ -27,14 +27,11 @@ describe('Account Service E2E request verification!', () => {
     await app.init();
   });
 
-  it('(GET) /healthz', () =>
-    request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+  it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
-  it('(GET) /livez', () =>
-    request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+  it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-  it('(GET) /readyz', () =>
-    request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+  it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   describe('(POST) /accounts/siwf', () => {
     it('Sign Up With Frequency request should work', async () => {
@@ -66,8 +63,7 @@ describe('Account Service E2E request verification!', () => {
           siwsPayload: {
             message:
               'localhost wants you to sign in with your Frequency account:\n5Fghb4Wt3sg9cF6Q2Qucp5jXV5pL2U9uaYXwR9R8W8SYe9np\n\nThe domain localhost wants you to sign in with your Frequency account via localhost\n\nURI: http://localhost:5173/signin/confirm\nNonce: N6rLwqyz34oUxJEXJ\nIssued At: 2024-03-05T23:18:03.041Z\nExpiration Time: 2024-03-05T23:23:03.041Z',
-            signature:
-              '0x38faa2fc6f59bef8ffccfc929fb966e1d53ba45e3af7a029ea1d636eaddcbe78a4be0f89eaf7ff7bbaef20a070ad65f9d0f876889686687ef623214fddddb18b',
+            signature: '0x38faa2fc6f59bef8ffccfc929fb966e1d53ba45e3af7a029ea1d636eaddcbe78a4be0f89eaf7ff7bbaef20a070ad65f9d0f876889686687ef623214fddddb18b',
           },
         },
         signUp: {

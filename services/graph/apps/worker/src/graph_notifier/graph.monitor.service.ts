@@ -31,12 +31,11 @@ export class GraphMonitorService extends BlockchainScannerService {
 
   async onApplicationBootstrap() {
     await this.blockchainService.isReady();
-    const schemaResponse: PalletSchemasSchemaVersionId[] =
-      await this.blockchainService.api.query.schemas.schemaNameToIds.multi([
-        ['dsnp', 'public-follows'],
-        ['dsnp', 'private-follows'],
-        ['dsnp', 'private-connections'],
-      ]);
+    const schemaResponse: PalletSchemasSchemaVersionId[] = await this.blockchainService.api.query.schemas.schemaNameToIds.multi([
+      ['dsnp', 'public-follows'],
+      ['dsnp', 'private-follows'],
+      ['dsnp', 'private-connections'],
+    ]);
     this.graphSchemaIds = schemaResponse.flatMap(({ ids }) => ids.map((id) => id.toNumber()));
     this.logger.log('Monitoring schemas for graph updates: ', this.graphSchemaIds);
     const pendingTxns = await this.cacheManager.hgetall(TXN_WATCH_LIST_KEY);
@@ -85,18 +84,11 @@ export class GraphMonitorService extends BlockchainScannerService {
   ) {
     super(cacheManager, blockchainService, new Logger(GraphMonitorService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
-    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
-      this.capacityService.checkForSufficientCapacity(),
-    );
-    this.registerChainEventHandler(
-      ['statefulStorage.PaginatedPageUpdated', 'statefulStorage.PaginatedPageDeleted'],
-      (block, event) => this.monitorAllGraphUpdates(block, event),
-    );
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () => this.capacityService.checkForSufficientCapacity());
+    this.registerChainEventHandler(['statefulStorage.PaginatedPageUpdated', 'statefulStorage.PaginatedPageDeleted'], (block, event) => this.monitorAllGraphUpdates(block, event));
 
     if (this.configService.reconnectionServiceRequired) {
-      this.registerChainEventHandler(['msa.DelegationGranted'], (block, event) =>
-        this.monitorEventsForReconnection(block, event),
-      );
+      this.registerChainEventHandler(['msa.DelegationGranted'], (block, event) => this.monitorEventsForReconnection(block, event));
     }
   }
 
@@ -124,9 +116,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     if (extrinsicIndices.length > 0) {
       const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
       const epoch = (await at.query.capacity.currentEpoch()).toNumber();
-      const events: FrameSystemEventRecord[] = blockEvents.filter(
-        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
-      );
+      const events: FrameSystemEventRecord[] = blockEvents.filter(({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)));
 
       const totalCapacityWithdrawn: bigint = events.reduce((sum, { event }) => {
         if (at.events.capacity.CapacityWithdrawn.is(event)) {
@@ -137,16 +127,11 @@ export class GraphMonitorService extends BlockchainScannerService {
 
       // eslint-disable-next-line no-restricted-syntax
       for (const [txHash, txIndex] of extrinsicIndices) {
-        const extrinsicEvents = events.filter(
-          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
-        );
+        const extrinsicEvents = events.filter(({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex));
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
         const txStatus = JSON.parse(txStatusStr) as ITxStatus;
-        const successEvent = extrinsicEvents.find(
-          ({ event }) =>
-            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
-        )?.event;
+        const successEvent = extrinsicEvents.find(({ event }) => event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method)?.event;
         const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
 
         // TODO: Should the webhook provide for reporting failure?
@@ -205,9 +190,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       let retries = 0;
       while (retries < this.configService.healthCheckMaxRetries) {
         try {
-          this.logger.debug(
-            `Sending graph operation status (${statusToReport.status}) notification for refId ${statusToReport.referenceId} to webhook: ${webhook}`,
-          );
+          this.logger.debug(`Sending graph operation status (${statusToReport.status}) notification for refId ${statusToReport.referenceId} to webhook: ${webhook}`);
           await axios.post(webhook, { referenceId: statusToReport.referenceId, status: statusToReport.status });
           break;
         } catch (error: any) {
@@ -272,11 +255,7 @@ export class GraphMonitorService extends BlockchainScannerService {
         return;
       }
 
-      const { key: jobId, data } = createReconnectionJob(
-        event.data.delegatorId,
-        event.data.providerId,
-        UpdateTransitiveGraphs,
-      );
+      const { key: jobId, data } = createReconnectionJob(event.data.delegatorId, event.data.providerId, UpdateTransitiveGraphs);
       const job = await this.reconnectionQueue.getJob(jobId);
       if (job && ((await job.isCompleted()) || (await job.isFailed()))) {
         await job.retry();
@@ -288,10 +267,7 @@ export class GraphMonitorService extends BlockchainScannerService {
 
   public async monitorAllGraphUpdates(block: SignedBlock, { event }: FrameSystemEventRecord) {
     // Don't need this check logically, but it's a type guard to be able to access the specific event type data
-    if (
-      this.blockchainService.api.events.statefulStorage.PaginatedPageUpdated.is(event) ||
-      this.blockchainService.api.events.statefulStorage.PaginatedPageDeleted.is(event)
-    ) {
+    if (this.blockchainService.api.events.statefulStorage.PaginatedPageUpdated.is(event) || this.blockchainService.api.events.statefulStorage.PaginatedPageDeleted.is(event)) {
       const schemaId = event.data.schemaId.toNumber();
       if (!this.graphSchemaIds.some((id) => id === schemaId)) {
         return;
@@ -311,10 +287,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       }
 
       // TODO: send out notifications of all graph updates to registered webhooks
-      this.logger.verbose(
-        `Found graph update in block #${block.block.header.number.toNumber()}`,
-        JSON.stringify(graphUpdateNotification),
-      );
+      this.logger.verbose(`Found graph update in block #${block.block.header.number.toNumber()}`, JSON.stringify(graphUpdateNotification));
       const webhookList = await this.getWebhookList(graphUpdateNotification.msaId);
       this.logger.debug(`Found ${webhookList.length} webhooks for ${graphUpdateNotification.msaId}`);
       await Promise.allSettled(

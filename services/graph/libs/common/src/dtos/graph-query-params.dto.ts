@@ -22,8 +22,7 @@ export class GraphsQueryParamsDto {
   @IsOptional()
   @IsArray()
   @ApiPropertyOptional({
-    description:
-      'Graph encryption keypairs for the users requested in `dsnpIds`. (Only for `privacyType` === "private"',
+    description: 'Graph encryption keypairs for the users requested in `dsnpIds`. (Only for `privacyType` === "private"',
     type: [GraphKeyPairDto],
   })
   graphKeyPairs?: GraphKeyPairDto[];

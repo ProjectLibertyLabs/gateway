@@ -98,10 +98,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     return this.api.registry.createType(type, ...args);
   }
 
-  public createExtrinsicCall(
-    { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    ...args: (any | undefined)[]
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  public createExtrinsicCall({ pallet, extrinsic }: { pallet: string; extrinsic: string }, ...args: (any | undefined)[]): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx[pallet][extrinsic](...args);
   }
 
@@ -123,12 +120,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
   }
 
-  public async queryAt(
-    blockHash: BlockHash,
-    pallet: string,
-    extrinsic: string,
-    ...args: (any | undefined)[]
-  ): Promise<any> {
+  public async queryAt(blockHash: BlockHash, pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
     const newApi = await this.api.at(blockHash);
     return newApi.query[pallet][extrinsic](...args);
   }
@@ -141,11 +133,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     const providerU64 = this.api.createType('u64', providerId);
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
-    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
-      'capacity',
-      'capacityLedger',
-      providerU64,
-    );
+    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query('capacity', 'capacityLedger', providerU64);
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
       remainingCapacity: 0,
       totalCapacityIssued: 0,
@@ -157,10 +145,8 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
       providerId,
       currentBlockNumber: currentBlock.toNumber(),
       nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
-      remainingCapacity:
-        typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
-      totalCapacityIssued:
-        typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
+      remainingCapacity: typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
+      totalCapacityIssued: typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
     };
   }
 
@@ -179,11 +165,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     return epochLength.toNumber();
   }
 
-  public async crawlBlockListForTx(
-    txHash: Hash,
-    blockList: bigint[],
-    successEvents: [{ pallet: string; event: string }],
-  ): Promise<ITxMonitorResult> {
+  public async crawlBlockListForTx(txHash: Hash, blockList: bigint[], successEvents: [{ pallet: string; event: string }]): Promise<ITxMonitorResult> {
     const txReceiptPromises: Promise<ITxMonitorResult>[] = blockList.map(async (blockNumber) => {
       const blockHash = await this.getBlockHash(blockNumber);
       const block = await this.getBlock(blockHash);
@@ -203,9 +185,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
       let txError: RegistryError | undefined;
 
       try {
-        const events = (await eventsPromise).filter(
-          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
-        );
+        const events = (await eventsPromise).filter(({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex));
 
         events.forEach((record) => {
           const { event } = record;
@@ -220,9 +200,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
           }
 
           // check custom success events
-          if (
-            successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)
-          ) {
+          if (successEvents.find((successEvent) => successEvent.pallet === eventName && successEvent.event === method)) {
             this.logger.debug(`Found success event ${eventName} ${method}`);
             isTxSuccess = true;
           }

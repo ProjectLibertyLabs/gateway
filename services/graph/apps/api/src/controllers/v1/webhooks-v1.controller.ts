@@ -1,19 +1,6 @@
 import { ApiService } from '#api/api.service';
 import { WatchGraphsDto } from '#lib';
-import {
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Body,
-  Put,
-  Res,
-  HttpException,
-  Get,
-  Query,
-  Delete,
-  Param,
-} from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, HttpException, Get, Query, Delete, Param } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 

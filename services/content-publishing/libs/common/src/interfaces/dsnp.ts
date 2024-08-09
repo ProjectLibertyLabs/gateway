@@ -108,11 +108,7 @@ export type UpdateAnnouncement = TypedAnnouncement<AnnouncementType.Update>;
  * @param targetSignature - The signature of the target announcement
  * @returns A TombstoneAnnouncement
  */
-export const createTombstone = (
-  fromId: string,
-  targetType: AnnouncementType,
-  targetContentHash: string,
-): TombstoneAnnouncement => ({
+export const createTombstone = (fromId: string, targetType: AnnouncementType, targetContentHash: string): TombstoneAnnouncement => ({
   announcementType: AnnouncementType.Tombstone,
   targetAnnouncementType: targetType,
   targetContentHash,
@@ -163,12 +159,7 @@ export const createReply = (fromId: string, url: string, hash: string, inReplyTo
  * @param apply -
  * @returns A ReactionAnnouncement
  */
-export const createReaction = (
-  fromId: string,
-  emoji: string,
-  inReplyTo: string,
-  apply: number,
-): ReactionAnnouncement => ({
+export const createReaction = (fromId: string, emoji: string, inReplyTo: string, apply: number): ReactionAnnouncement => ({
   announcementType: AnnouncementType.Reaction,
   emoji,
   apply,
@@ -199,11 +190,7 @@ export const createProfile = (fromId: string, url: string, hash: string): Profil
  * @param options - Overrides default fields for the ActivityContentNote
  * @returns An ActivityContentNote object
  */
-export const createNote = (
-  content: string,
-  published: Date,
-  options?: Partial<ActivityContentNote>,
-): ActivityContentNote => ({
+export const createNote = (content: string, published: Date, options?: Partial<ActivityContentNote>): ActivityContentNote => ({
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Note',
   mediaType: 'text/plain',
@@ -226,13 +213,7 @@ export const createNote = (
  * ensure that the target announcement has not been modified since the update
  * announcement was created.
  */
-export const createUpdate = (
-  fromId: string,
-  url: string,
-  hash: string,
-  targetType: AnnouncementType,
-  targetHash: string,
-): UpdateAnnouncement => ({
+export const createUpdate = (fromId: string, url: string, hash: string, targetType: AnnouncementType, targetHash: string): UpdateAnnouncement => ({
   announcementType: AnnouncementType.Update,
   fromId,
   contentHash: hash,

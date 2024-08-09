@@ -10,12 +10,7 @@ import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
 import { AddKeyData, ChainUser, ExtrinsicHelper, createKeys } from '@projectlibertylabs/frequency-scenario-template';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { ApiModule } from '../src/api.module';
-import {
-  generateAddPublicKeyExtrinsic,
-  removeExtraKeysFromMsa,
-  generateSignedAddKeyPayload,
-  setupProviderAndUsers,
-} from './e2e-setup.mock.spec';
+import { generateAddPublicKeyExtrinsic, removeExtraKeysFromMsa, generateSignedAddKeyPayload, setupProviderAndUsers } from './e2e-setup.mock.spec';
 
 let HTTP_SERVER: any = process.env.HTTP_SERVER || 'http://0.0.0.0:3000';
 
@@ -76,11 +71,7 @@ describe('Keys Controller', () => {
       // users[2] should have a single key, this will (eventually) add another
       const user = users[2];
       const newKeypair = createKeys();
-      const { payload, ownerProof, newKeyProof } = await generateSignedAddKeyPayload(
-        user,
-        newKeypair,
-        currentBlockNumber,
-      );
+      const { payload, ownerProof, newKeyProof } = await generateSignedAddKeyPayload(user, newKeypair, currentBlockNumber);
       const keysRequest: KeysRequest = {
         msaOwnerAddress: user.keypair.address,
         msaOwnerSignature: ownerProof.Sr25519,

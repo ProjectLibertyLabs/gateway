@@ -18,11 +18,7 @@ import { RedisUtils, TransactionData } from 'libs/common/src';
 import { ConfigService } from '#lib/config/config.service';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
-import {
-  CAPACITY_AVAILABLE_EVENT,
-  CAPACITY_EXHAUSTED_EVENT,
-  CapacityCheckerService,
-} from '#lib/blockchain/capacity-checker.service';
+import { CAPACITY_AVAILABLE_EVENT, CAPACITY_EXHAUSTED_EVENT, CapacityCheckerService } from '#lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
 
 export const SECONDS_PER_BLOCK = 12;
@@ -137,19 +133,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleTxn(
-    providerKeys: KeyringPair,
-    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<HexString> {
-    this.logger.debug(
-      `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
-    );
+  async processSingleTxn(providerKeys: KeyringPair, tx: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<HexString> {
+    this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
     try {
-      const ext = this.blockchainService.createExtrinsic(
-        { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
-        providerKeys,
-        tx,
-      );
+      const ext = this.blockchainService.createExtrinsic({ pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' }, providerKeys, tx);
       const nonce = await this.nonceService.getNextNonce();
       this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
       const txHash = (await ext.signAndSend(nonce)).toHex();
@@ -164,17 +151,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processBatchTxn(
-    providerKeys: KeyringPair,
-    callVec: Codec,
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  async processBatchTxn(providerKeys: KeyringPair, callVec: Codec): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     this.logger.debug(`processBatchTxn: callVec: ${callVec.toHuman()}`);
     try {
-      const ext = this.blockchainService.createExtrinsic(
-        { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacityBatchAll' },
-        providerKeys,
-        callVec,
-      );
+      const ext = this.blockchainService.createExtrinsic({ pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacityBatchAll' }, providerKeys, callVec);
       const nonce = await this.nonceService.getNextNonce();
       this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
       const txHash = (await ext.signAndSend(nonce)).toHex();
@@ -196,9 +176,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     // Avoid spamming the log
     if (!(await this.transactionPublishQueue.isPaused())) {
-      this.logger.warn(
-        `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
-      );
+      this.logger.warn(`Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`);
     }
     try {
       // Check if a timeout with the same name already exists
@@ -226,9 +204,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.transactionPublishQueue.getFailed();
-    const capacityFailedJobs = failedJobs.filter((job) =>
-      job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
-    );
+    const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
     // Retry the failed jobs
     await Promise.all(
       capacityFailedJobs.map(async (job) => {

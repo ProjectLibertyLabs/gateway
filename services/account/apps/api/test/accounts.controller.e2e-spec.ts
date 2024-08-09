@@ -29,12 +29,7 @@ describe('Account Controller', () => {
     try {
       await Promise.allSettled([
         ...users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()),
-        ExtrinsicHelper.claimHandleWithProvider(
-          users[0].keypair,
-          provider.keypair,
-          handlePayload.proof,
-          handlePayload.payload,
-        ).payWithCapacity(),
+        ExtrinsicHelper.claimHandleWithProvider(users[0].keypair, provider.keypair, handlePayload.proof, handlePayload.payload).payWithCapacity(),
       ]);
     } catch (e) {
       // do nothing
@@ -80,10 +75,7 @@ describe('Account Controller', () => {
 
   it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {
     const invalidMsaId = BigInt(maxMsaId) + 1000n;
-    await request(app.getHttpServer())
-      .get(`/v1/accounts/${invalidMsaId.toString()}`)
-      .expect(400)
-      .expect({ statusCode: 400, message: 'Failed to find the account' });
+    await request(app.getHttpServer()).get(`/v1/accounts/${invalidMsaId.toString()}`).expect(400).expect({ statusCode: 400, message: 'Failed to find the account' });
   });
 
   it('(GET) /v1/accounts/:msaId with valid msaId and handle', async () => {

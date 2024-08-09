@@ -1,25 +1,15 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ['../../../libs/common/src/dtos/privacy-type.enum']: await import(
-      '../../../libs/common/src/dtos/privacy-type.enum'
-    ),
+    ['../../../libs/common/src/dtos/privacy-type.enum']: await import('../../../libs/common/src/dtos/privacy-type.enum'),
     ['../../../libs/common/src/dtos/direction.enum']: await import('../../../libs/common/src/dtos/direction.enum'),
-    ['../../../libs/common/src/dtos/connection-type.enum']: await import(
-      '../../../libs/common/src/dtos/connection-type.enum'
-    ),
+    ['../../../libs/common/src/dtos/connection-type.enum']: await import('../../../libs/common/src/dtos/connection-type.enum'),
     ['../../../libs/common/src/dtos/connection.dto']: await import('../../../libs/common/src/dtos/connection.dto'),
     ['../../../libs/common/src/dtos/key-type.enum']: await import('../../../libs/common/src/dtos/key-type.enum'),
-    ['../../../libs/common/src/dtos/dsnp-graph-edge.dto']: await import(
-      '../../../libs/common/src/dtos/dsnp-graph-edge.dto'
-    ),
-    ['../../../libs/common/src/dtos/graph-key-pair.dto']: await import(
-      '../../../libs/common/src/dtos/graph-key-pair.dto'
-    ),
+    ['../../../libs/common/src/dtos/dsnp-graph-edge.dto']: await import('../../../libs/common/src/dtos/dsnp-graph-edge.dto'),
+    ['../../../libs/common/src/dtos/graph-key-pair.dto']: await import('../../../libs/common/src/dtos/graph-key-pair.dto'),
     ['../../../libs/common/src/dtos/user-graph.dto']: await import('../../../libs/common/src/dtos/user-graph.dto'),
-    ['../../../libs/common/src/dtos/graph-change-response.dto']: await import(
-      '../../../libs/common/src/dtos/graph-change-response.dto'
-    ),
+    ['../../../libs/common/src/dtos/graph-change-response.dto']: await import('../../../libs/common/src/dtos/graph-change-response.dto'),
   };
   return {
     '@nestjs/swagger': {
@@ -76,10 +66,7 @@ export default async () => {
             },
           },
         ],
-        [
-          import('../../../libs/common/src/dtos/graph-change-response.dto'),
-          { GraphChangeRepsonseDto: { referenceId: { required: true, type: () => String } } },
-        ],
+        [import('../../../libs/common/src/dtos/graph-change-response.dto'), { GraphChangeRepsonseDto: { referenceId: { required: true, type: () => String } } }],
         [
           import('../../../libs/common/src/dtos/graph-query-params.dto'),
           {

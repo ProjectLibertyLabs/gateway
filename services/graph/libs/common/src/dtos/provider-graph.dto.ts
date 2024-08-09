@@ -29,8 +29,7 @@ export class ProviderGraphDto {
   @IsArray()
   @IsOptional()
   @ApiPropertyOptional({
-    description:
-      'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph',
+    description: 'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph',
     type: [GraphKeyPairDto],
   })
   graphKeyPairs?: GraphKeyPairDto[];

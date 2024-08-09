@@ -45,8 +45,7 @@ export class RequestProcessorService extends BaseConsumer {
     data.dependencyAttempt += 1;
     if (data.dependencyAttempt <= 3) {
       // exponential backoff
-      const delayedTime =
-        2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
+      const delayedTime = 2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
       await job.moveToDelayed(Date.now() + delayedTime, job.token);
       await job.updateData(data);
       throw new DelayedError();

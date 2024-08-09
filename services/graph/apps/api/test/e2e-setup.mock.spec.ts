@@ -1,12 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import {
-  initialize,
-  getCurrentBlockNumber,
-  provisionProvider,
-  initializeLocalUsers,
-  ExtrinsicHelper,
-} from '@projectlibertylabs/frequency-scenario-template';
+import { initialize, getCurrentBlockNumber, provisionProvider, initializeLocalUsers, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import log from 'loglevel';
 

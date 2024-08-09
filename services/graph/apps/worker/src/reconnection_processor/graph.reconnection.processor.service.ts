@@ -5,15 +5,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
 import * as QueueConstants from '#lib/queues/queue-constants';
-import {
-  BaseConsumer,
-  ConfigService,
-  ConnectionDto,
-  GraphKeyPairDto,
-  IGraphUpdateJob,
-  ProviderGraphUpdateJob,
-  ProviderWebhookService,
-} from '#lib';
+import { BaseConsumer, ConfigService, ConnectionDto, GraphKeyPairDto, IGraphUpdateJob, ProviderGraphUpdateJob, ProviderWebhookService } from '#lib';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
@@ -36,9 +28,7 @@ export class GraphReconnectionService extends BaseConsumer {
       try {
         [graphConnections, graphKeyPairs] = await this.getUserGraphFromProvider(job.data.dsnpId, job.data.providerId);
         if (graphConnections.length === 0) {
-          this.logger.debug(
-            `No connections found for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`,
-          );
+          this.logger.debug(`No connections found for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`);
           return;
         }
         const providerGraphJob: ProviderGraphUpdateJob = {
@@ -50,9 +40,7 @@ export class GraphReconnectionService extends BaseConsumer {
           updateConnection: false,
         };
         this.graphChangeRequestQueuue.add(`Provider Graph Job - ${providerGraphJob.referenceId}`, providerGraphJob);
-        this.logger.debug(
-          `Found ${graphConnections.length} connections for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`,
-        );
+        this.logger.debug(`Found ${graphConnections.length} connections for user ${job.data.dsnpId.toString()} from provider ${job.data.providerId.toString()}`);
       } catch (e) {
         this.logger.error(`Error getting user graph from provider: ${e}`);
         throw e;
@@ -63,10 +51,7 @@ export class GraphReconnectionService extends BaseConsumer {
     }
   }
 
-  async getUserGraphFromProvider(
-    dsnpUserId: MessageSourceId | string,
-    providerId: ProviderId | string,
-  ): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
+  async getUserGraphFromProvider(dsnpUserId: MessageSourceId | string, providerId: ProviderId | string): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
     const providerAPI = this.providerWebhookService.providerApi;
     const pageSize = this.configService.pageSize;
     const params = {
@@ -81,9 +66,7 @@ export class GraphReconnectionService extends BaseConsumer {
     let webhookFailures = 0;
 
     while (hasNextPage) {
-      this.logger.debug(
-        `Fetching connections page ${params.pageNumber} for user ${dsnpUserId.toString()} from provider ${providerId.toString()}`,
-      );
+      this.logger.debug(`Fetching connections page ${params.pageNumber} for user ${dsnpUserId.toString()} from provider ${providerId.toString()}`);
 
       let response: AxiosResponse<any, any>;
       try {
@@ -122,9 +105,7 @@ export class GraphReconnectionService extends BaseConsumer {
         if (error instanceof AxiosError) {
           webhookFailures += 1;
           if (error.response) {
-            newError = new Error(
-              `Provider webhook returned error: ${error.response.status} ${error.response.statusText}`,
-            );
+            newError = new Error(`Provider webhook returned error: ${error.response.status} ${error.response.statusText}`);
           } else if (error.request) {
             newError = new Error(`Provider webhook request failed: ${error.request}`);
           } else {

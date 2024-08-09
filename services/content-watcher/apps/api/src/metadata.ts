@@ -161,10 +161,7 @@ export default async () => {
           },
         ],
         [import('./controllers/v1/search.controller'), { SearchControllerV1: { search: {} } }],
-        [
-          import('./controllers/v1/webhook.controller'),
-          { WebhookControllerV1: { registerWebhook: {}, clearAllWebHooks: {}, getRegisteredWebhooks: {} } },
-        ],
+        [import('./controllers/v1/webhook.controller'), { WebhookControllerV1: { registerWebhook: {}, clearAllWebHooks: {}, getRegisteredWebhooks: {} } }],
       ],
     },
   };

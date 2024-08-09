@@ -27,13 +27,7 @@ export type AnnouncementResponse = {
    * The block number on the blockchain where this announcement was recorded
    */
   blockNumber: number;
-  announcement:
-    | TombstoneAnnouncement
-    | BroadcastAnnouncement
-    | ReplyAnnouncement
-    | ReactionAnnouncement
-    | ProfileAnnouncement
-    | UpdateAnnouncement;
+  announcement: TombstoneAnnouncement | BroadcastAnnouncement | ReplyAnnouncement | ReactionAnnouncement | ProfileAnnouncement | UpdateAnnouncement;
 };
 
 export type TypedAnnouncement = {

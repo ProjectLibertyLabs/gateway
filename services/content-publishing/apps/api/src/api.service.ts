@@ -6,15 +6,7 @@ import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
-import {
-  AnnouncementTypeDto,
-  RequestTypeDto,
-  AnnouncementResponseDto,
-  AssetIncludedRequestDto,
-  isImage,
-  UploadResponseDto,
-  AttachmentType,
-} from '#libs/dtos';
+import { AnnouncementTypeDto, RequestTypeDto, AnnouncementResponseDto, AssetIncludedRequestDto, isImage, UploadResponseDto, AttachmentType } from '#libs/dtos';
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#libs/interfaces';
 import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { calculateIpfsCID } from '#libs/utils/ipfs';
@@ -61,14 +53,10 @@ export class ApiService {
     };
   }
 
-  async validateAssetsAndFetchMetadata(
-    content: AssetIncludedRequestDto,
-  ): Promise<IRequestJob['assetToMimeType'] | undefined> {
+  async validateAssetsAndFetchMetadata(content: AssetIncludedRequestDto): Promise<IRequestJob['assetToMimeType'] | undefined> {
     const checkingList: { onlyImage: boolean; referenceId: string }[] = [];
     if (content.profile) {
-      content.profile.icon?.forEach((reference) =>
-        checkingList.push({ onlyImage: true, referenceId: reference.referenceId }),
-      );
+      content.profile.icon?.forEach((reference) => checkingList.push({ onlyImage: true, referenceId: reference.referenceId }));
     } else if (content.content) {
       content.content.assets?.forEach((asset) =>
         asset.references?.forEach((reference) =>
@@ -80,16 +68,12 @@ export class ApiService {
       );
     }
 
-    const redisResults = await Promise.all(
-      checkingList.map((obj) => this.redis.get(getAssetMetadataKey(obj.referenceId))),
-    );
+    const redisResults = await Promise.all(checkingList.map((obj) => this.redis.get(getAssetMetadataKey(obj.referenceId))));
     const errors: string[] = [];
     const map = new Map();
     redisResults.forEach((res, index) => {
       if (res === null) {
-        errors.push(
-          `${content.profile ? 'profile.icon' : 'content.assets'}.referenceId ${checkingList[index].referenceId} does not exist!`,
-        );
+        errors.push(`${content.profile ? 'profile.icon' : 'content.assets'}.referenceId ${checkingList[index].referenceId} does not exist!`);
       } else {
         const metadata: IAssetMetadata = JSON.parse(res);
         map[checkingList[index].referenceId] = { mimeType: metadata.mimeType, attachmentType: metadata.type };
@@ -117,11 +101,7 @@ export class ApiService {
     const jobs: any[] = [];
     files.forEach((f, index) => {
       // adding data and metadata to the transaction
-      dataTransaction = dataTransaction.setex(
-        getAssetDataKey(references[index]),
-        STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
-        f.buffer,
-      );
+      dataTransaction = dataTransaction.setex(getAssetDataKey(references[index]), STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, f.buffer);
       const type = ((m) => {
         switch (m) {
           case 'image':
@@ -142,11 +122,7 @@ export class ApiService {
         type: type,
       };
 
-      metadataTransaction = metadataTransaction.setex(
-        getAssetMetadataKey(references[index]),
-        STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
-        JSON.stringify(assetCache),
-      );
+      metadataTransaction = metadataTransaction.setex(getAssetMetadataKey(references[index]), STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(assetCache));
 
       // adding asset job to the jobs
       jobs.push({

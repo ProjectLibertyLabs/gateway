@@ -1,6 +1,5 @@
-import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException, Body, Put } from '@nestjs/common';
+import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException, Body } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import type { HandleResponse } from '@frequency-chain/api-augment/interfaces';
 import { TransactionType } from '#lib/types/enums';
 import { HandlesService } from '#api/services/handles.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';

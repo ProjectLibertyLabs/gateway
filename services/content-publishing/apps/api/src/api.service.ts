@@ -7,7 +7,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { AnnouncementTypeDto, RequestTypeDto, AnnouncementResponseDto, AssetIncludedRequestDto, isImage, UploadResponseDto, AttachmentType } from '#libs/dtos';
-import { IRequestJob, IAssetMetadata, IAssetJob, IAssetTypeInfo } from '#libs/interfaces';
+import { IRequestJob, IAssetMetadata, IAssetJob } from '#libs/interfaces';
 import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { calculateIpfsCID } from '#libs/utils/ipfs';
 import { getAssetMetadataKey, getAssetDataKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#libs/utils/redis';

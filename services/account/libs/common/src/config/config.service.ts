@@ -1,4 +1,4 @@
-import { ICapacityLimit } from '#lib/interfaces/capacity-limit.interface';
+import { ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 
@@ -21,15 +21,34 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
   CAPACITY_LIMIT: string;
+  CACHE_KEY_PREFIX: string;
 }
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
 export class ConfigService {
-  private capacityLimitObj: ICapacityLimit;
+  private capacityLimitObj: ICapacityLimits;
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
-    this.capacityLimitObj = JSON.parse(this.nestConfigService.get<string>('CAPACITY_LIMIT')!);
+    const obj = JSON.parse(nestConfigService.get('CAPACITY_LIMIT') ?? '{}', (key, value) => {
+      if (key === 'value') {
+        return BigInt(value);
+      }
+
+      return value;
+    });
+
+    if (obj?.type) {
+      this.capacityLimitObj = {
+        serviceLimit: obj,
+      };
+    } else {
+      this.capacityLimitObj = obj;
+    }
+  }
+
+  public get cacheKeyPrefix(): string {
+    return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
   public get blockchainScanIntervalSeconds(): number {
@@ -100,7 +119,7 @@ export class ConfigService {
     return this.nestConfigService.get('WEBHOOK_RETRY_INTERVAL_SECONDS')!;
   }
 
-  public get capacityLimit(): ICapacityLimit {
+  public get capacityLimit(): ICapacityLimits {
     return this.capacityLimitObj;
   }
 }

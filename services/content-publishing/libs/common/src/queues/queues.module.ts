@@ -24,6 +24,7 @@ import * as QueueConstants from './queue.constants';
             password: password || undefined,
             db: pathname?.length > 1 ? Number(pathname.slice(1)) : undefined,
           },
+          prefix: `${configService.cacheKeyPrefix}:bull`,
         };
       },
       inject: [ConfigService],
@@ -72,17 +73,6 @@ import * as QueueConstants from './queue.constants';
             type: 'exponential',
           },
           removeOnComplete: true,
-          removeOnFail: false,
-        },
-      },
-      {
-        name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
-        defaultJobOptions: {
-          attempts: 3,
-          backoff: {
-            type: 'exponential',
-          },
-          removeOnComplete: false,
           removeOnFail: false,
         },
       },

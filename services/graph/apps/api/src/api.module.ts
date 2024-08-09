@@ -60,10 +60,6 @@ import { QueueModule } from '#lib/queues/queue.module';
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_NOTIFY_QUEUE,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
       name: QueueConstants.RECONNECT_REQUEST_QUEUE,
       adapter: BullMQAdapter,
     }),

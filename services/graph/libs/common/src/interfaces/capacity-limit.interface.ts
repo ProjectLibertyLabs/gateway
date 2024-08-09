@@ -1,4 +1,9 @@
 export interface ICapacityLimit {
   type: 'percentage' | 'amount';
-  value: number;
+  value: bigint;
+}
+
+export interface ICapacityLimits {
+  serviceLimit: ICapacityLimit;
+  totalLimit?: ICapacityLimit;
 }

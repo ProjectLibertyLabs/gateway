@@ -46,6 +46,15 @@ interface PublicKeyValues {
   debugMsg: string;
 }
 
+export interface ICapacityInfo {
+  providerId: string;
+  currentBlockNumber: number;
+  nextEpochStart: number;
+  remainingCapacity: bigint;
+  totalCapacityIssued: bigint;
+  currentEpoch: number;
+}
+
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
@@ -54,24 +63,38 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   private logger: Logger;
 
+  private readyResolve: (boolean) => void;
+
+  private readyReject: (reason: any) => void;
+
+  private isReadyPromise = new Promise<boolean>((resolve, reject) => {
+    this.readyResolve = resolve;
+    this.readyReject = reject;
+  });
+
   public async onApplicationBootstrap() {
     const providerUrl = this.configService.frequencyUrl!;
     let provider: WsProvider | HttpProvider;
-    if (/^ws/.test(providerUrl.toString())) {
-      provider = new WsProvider(providerUrl.toString());
-    } else if (/^http/.test(providerUrl.toString())) {
-      provider = new HttpProvider(providerUrl.toString());
-    } else {
-      this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
-      throw new Error('Unrecognized chain URL type');
+    try {
+      if (/^ws/.test(providerUrl.toString())) {
+        provider = new WsProvider(providerUrl.toString());
+      } else if (/^http/.test(providerUrl.toString())) {
+        provider = new HttpProvider(providerUrl.toString());
+      } else {
+        this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
+        throw new Error('Unrecognized chain URL type');
+      }
+      this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
+      this.readyResolve(await this.api.isReady);
+      this.logger.log('Blockchain API ready.');
+    } catch (err) {
+      this.readyReject(err);
+      throw err;
     }
-    this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
-    this.logger.log('Blockchain API ready.');
   }
 
   public async isReady(): Promise<boolean> {
-    await this.api?.isReady;
-    return true;
+    return (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
   public async getApi(): Promise<ApiPromise> {
@@ -280,21 +303,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async capacityInfo(providerId: AnyNumber): Promise<{
-    providerId: string;
-    currentBlockNumber: number;
-    nextEpochStart: number;
-    remainingCapacity: bigint;
-    totalCapacityIssued: bigint;
-    currentEpoch: bigint;
-  }> {
-    const providerU64 = this.api.createType('u64', providerId);
+  public async capacityInfo(providerId: AnyNumber): Promise<ICapacityInfo> {
+    await this.isReady();
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
     const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
       'capacity',
       'capacityLedger',
-      providerU64,
+      providerId,
     );
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
       remainingCapacity: 0,
@@ -314,19 +330,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     };
   }
 
-  public async getCurrentCapacityEpoch(): Promise<bigint> {
-    const currentEpoch: u32 = await this.query('capacity', 'currentEpoch');
-    return typeof currentEpoch === 'number' ? BigInt(currentEpoch) : currentEpoch.toBigInt();
+  public async getCurrentCapacityEpoch(): Promise<number> {
+    const currentEpoch = await this.api.query.capacity.currentEpoch();
+    return currentEpoch.toNumber();
   }
 
-  public async getCurrentCapacityEpochStart(): Promise<u32> {
-    const currentEpochInfo: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
-    return currentEpochInfo.epochStart;
+  public async getCurrentCapacityEpochStart(): Promise<number> {
+    const currentEpochInfo: PalletCapacityEpochInfo = await this.api.query.capacity.currentEpochInfo();
+    return currentEpochInfo.epochStart.toNumber();
   }
 
   public async getCurrentEpochLength(): Promise<number> {
-    const epochLength: u32 = await this.query('capacity', 'epochLength');
-    return typeof epochLength === 'number' ? epochLength : epochLength.toNumber();
+    const epochLength: u32 = await this.api.query.capacity.epochLength();
+    return epochLength.toNumber();
   }
 
   /**

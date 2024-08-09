@@ -41,6 +41,7 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
           config: [
             {
               url: configService.redisUrl.toString(),
+              keyPrefix: configService.cacheKeyPrefix,
               maxRetriesPerRequest: null,
               onClientCreated(client) {
                 redisEventsToEventEmitter(client, eventEmitter);
@@ -61,6 +62,6 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
     TxnNotifierModule,
   ],
   providers: [ProviderWebhookService, NonceService],
-  exports: [],
+  exports: [EventEmitterModule],
 })
 export class WorkerModule {}

@@ -7,12 +7,17 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { getBatchMetadataKey, getBatchDataKey, getLockKey as getBatchLockKey, BATCH_LOCK_EXPIRE_SECONDS } from '#libs/utils/redis';
+import {
+  getBatchMetadataKey,
+  getBatchDataKey,
+  getLockKey as getBatchLockKey,
+  BATCH_LOCK_EXPIRE_SECONDS,
+} from '#libs/utils/redis';
 import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#libs/queues/queue.constants';
 import { ConfigService } from '#libs/config';
 import { Announcement, IBatchMetadata } from '#libs/interfaces';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import { getSchemaId } from '#libs/utils/dsnp.schema';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
 
 @Injectable()
 export class BatchingProcessorService {
@@ -23,6 +28,7 @@ export class BatchingProcessorService {
     @InjectQueue(BATCH_QUEUE_NAME) private outputQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private configService: ConfigService,
+    private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
     redis.defineCommand('addToBatch', {
@@ -61,7 +67,13 @@ export class BatchingProcessorService {
     const newData = JSON.stringify(job.data);
 
     // @ts-expect-error addToBatch is a custom command
-    const rowCount = await this.redis.addToBatch(getBatchMetadataKey(queueName), getBatchDataKey(queueName), newMetadata, job.id!, newData);
+    const rowCount = await this.redis.addToBatch(
+      getBatchMetadataKey(queueName),
+      getBatchDataKey(queueName),
+      newMetadata,
+      job.id!,
+      newData,
+    );
     this.logger.log(rowCount);
     if (rowCount === 1) {
       this.logger.log(`Processing job ${job.id} with a new batch`);
@@ -70,7 +82,9 @@ export class BatchingProcessorService {
     } else if (rowCount >= this.configService.batchMaxCount) {
       await this.closeBatch(queueName, batchId, false);
     } else if (rowCount === -1) {
-      throw new Error(`invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`);
+      throw new Error(
+        `invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`,
+      );
     }
   }
 
@@ -86,7 +100,14 @@ export class BatchingProcessorService {
     const lockedBatchMetaDataKey = getBatchLockKey(batchMetaDataKey);
     const lockedBatchDataKey = getBatchLockKey(batchDataKey);
     // @ts-expect-error lockBatch is a custom command
-    const response = await this.redis.lockBatch(batchMetaDataKey, batchDataKey, lockedBatchMetaDataKey, lockedBatchDataKey, Date.now(), BATCH_LOCK_EXPIRE_SECONDS * 1000);
+    const response = await this.redis.lockBatch(
+      batchMetaDataKey,
+      batchDataKey,
+      lockedBatchMetaDataKey,
+      lockedBatchDataKey,
+      Date.now(),
+      BATCH_LOCK_EXPIRE_SECONDS * 1000,
+    );
     this.logger.debug(JSON.stringify(response));
     const status = response[0];
 
@@ -111,7 +132,10 @@ export class BatchingProcessorService {
     if (announcements.length > 0) {
       const job = {
         batchId: metaData.batchId,
-        schemaId: getSchemaId(this.configService.environment, QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
+        schemaId: await this.blockchainService.getSchemaIdByName(
+          'dsnp',
+          QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!.toString(),
+        ),
         announcements,
       } as IBatchAnnouncerJobData;
       await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, {

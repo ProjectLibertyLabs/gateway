@@ -4,11 +4,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RedisModule } from '@songkeys/nestjs-redis';
 import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
-import { GraphNotifierService } from './graph_notifier/graph.monitor.processor.service';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
-import { GraphUpdatePublisherService } from './graph_publisher/graph.publisher.processor.service';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { RequestProcessorService } from './request_processor/request.processor.service';
 import { QueueModule } from '#lib/queues/queue.module';
 
 @Module({
@@ -19,7 +16,7 @@ import { QueueModule } from '#lib/queues/queue.module';
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
         }),
         inject: [ConfigService],
       },
@@ -49,6 +46,6 @@ import { QueueModule } from '#lib/queues/queue.module';
     GraphUpdatePublisherModule,
     GraphNotifierModule,
   ],
-  providers: [RequestProcessorService, GraphUpdatePublisherService, GraphNotifierService, GraphStateManager],
+  providers: [GraphStateManager],
 })
 export class WorkerModule {}

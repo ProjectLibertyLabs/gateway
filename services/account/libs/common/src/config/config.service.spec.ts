@@ -115,18 +115,10 @@ describe('AccountServiceConfig', () => {
 
     it('invalid capacity limit should fail', async () => {
       const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(async () =>
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
-      ).rejects.toBeDefined();
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env })).rejects.toBeDefined();
+      await expect(async () => setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env })).rejects.toBeDefined();
     });
   });
 
@@ -157,9 +149,7 @@ describe('AccountServiceConfig', () => {
     });
 
     it('should get scan interval', () => {
-      expect(accountServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(
-        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
-      );
+      expect(accountServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10));
     });
 
     it('should get finalized blocks trust parameter', () => {
@@ -191,33 +181,23 @@ describe('AccountServiceConfig', () => {
     });
 
     it('should get webhook failure threshold', () => {
-      expect(accountServiceConfig.webhookFailureThreshold).toStrictEqual(
-        parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10),
-      );
+      expect(accountServiceConfig.webhookFailureThreshold).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10));
     });
 
     it('should get health check success threshold', () => {
-      expect(accountServiceConfig.healthCheckSuccessThreshold).toStrictEqual(
-        parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10),
-      );
+      expect(accountServiceConfig.healthCheckSuccessThreshold).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
     });
 
     it('should get webhook retry interval seconds', () => {
-      expect(accountServiceConfig.webhookRetryIntervalSeconds).toStrictEqual(
-        parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10),
-      );
+      expect(accountServiceConfig.webhookRetryIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10));
     });
 
     it('should get health check max retry interval seconds', () => {
-      expect(accountServiceConfig.healthCheckMaxRetryIntervalSeconds).toStrictEqual(
-        parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10),
-      );
+      expect(accountServiceConfig.healthCheckMaxRetryIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
     });
 
     it('should get health check max retries', () => {
-      expect(accountServiceConfig.healthCheckMaxRetries).toStrictEqual(
-        parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10),
-      );
+      expect(accountServiceConfig.healthCheckMaxRetries).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
     });
 
     it('should get capacity limit', () => {

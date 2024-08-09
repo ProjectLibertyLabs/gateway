@@ -6,15 +6,7 @@ import { BlockchainModule } from '#libs/blockchain/blockchain.module';
 
 @Module({
   imports: [ScheduleModule.forRoot(), BlockchainModule],
-  providers: [
-    BatchingProcessorService,
-    BroadcastWorker,
-    ReplyWorker,
-    ReactionWorker,
-    TombstoneWorker,
-    UpdateWorker,
-    ProfileWorker,
-  ],
+  providers: [BatchingProcessorService, BroadcastWorker, ReplyWorker, ReactionWorker, TombstoneWorker, UpdateWorker, ProfileWorker],
   exports: [BatchingProcessorService],
 })
 export class BatchingProcessorModule {}

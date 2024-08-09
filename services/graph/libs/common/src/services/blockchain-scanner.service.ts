@@ -22,10 +22,7 @@ export class ReconnectionScannerService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     if (this.configService.reconnectionServiceRequired) {
       // Set up recurring interval
-      const interval = setInterval(
-        () => this.scan(),
-        this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND,
-      );
+      const interval = setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND);
       this.schedulerRegistry.addInterval('blockchainScan', interval);
 
       // Kick off initial scan
@@ -78,20 +75,14 @@ export class ReconnectionScannerService implements OnApplicationBootstrap {
         const events = (await this.blockchainService.queryAt(currentBlockHash, 'system', 'events')).toArray();
 
         const filteredEvents = events.filter(
-          ({ event }) =>
-            this.blockchainService.api.events.msa.DelegationGranted.is(event) &&
-            event.data.providerId.eq(this.configService.providerId),
+          ({ event }) => this.blockchainService.api.events.msa.DelegationGranted.is(event) && event.data.providerId.eq(this.configService.providerId),
         );
 
         if (filteredEvents.length > 0) {
           this.logger.debug(`Found ${filteredEvents.length} delegations at block #${currentBlockNumber}`);
         }
         const jobs = filteredEvents.map(async ({ event }) => {
-          const { key: jobId, data } = createReconnectionJob(
-            event.data.delegatorId,
-            event.data.providerId,
-            UpdateTransitiveGraphs,
-          );
+          const { key: jobId, data } = createReconnectionJob(event.data.delegatorId, event.data.providerId, UpdateTransitiveGraphs);
           const job = await this.reconnectionQueue.getJob(jobId);
           if (job && ((await job.isCompleted()) || (await job.isFailed()))) {
             await job.retry();

@@ -42,7 +42,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  PROVIDER_BASE_URL: 'http://social-app-template-backend:3001/webhooks/account-service'
+  WEBHOOK_BASE_URL: 'http://social-app-template-backend:3001/webhooks/account-service'
 
 services:
   redis:

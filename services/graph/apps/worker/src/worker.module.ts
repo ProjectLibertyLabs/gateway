@@ -16,7 +16,7 @@ import { QueueModule } from '#lib/queues/queue.module';
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString() }],
+          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
         }),
         inject: [ConfigService],
       },

@@ -39,16 +39,22 @@ export class GraphMonitorService extends BlockchainScannerService {
       ]);
     this.graphSchemaIds = schemaResponse.flatMap(({ ids }) => ids.map((id) => id.toNumber()));
     this.logger.log('Monitoring schemas for graph updates: ', this.graphSchemaIds);
-    const pendingTxns = await this.cacheManager.hkeys(TXN_WATCH_LIST_KEY);
+    const pendingTxns = await this.cacheManager.hgetall(TXN_WATCH_LIST_KEY);
     // If no transactions pending, skip to end of chain at startup, else, skip to earliest
     /// birth block of a monitored extrinsic if we haven't crawled that far yet
-    if (pendingTxns.length === 0) {
+    if (Object.keys(pendingTxns).length === 0) {
       const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       this.logger.log(`Skipping to end of the chain to resume scanning (block #${blockNumber})`);
       await this.setLastSeenBlockNumber(blockNumber);
     } else {
-      const pendingTxnArray = pendingTxns.map((jsonStr) => JSON.parse(jsonStr) as ITxStatus);
-      const minBirthBlock = Math.min(...pendingTxnArray.map(({ birth }) => birth).sort((a, b) => a - b));
+      const minBirthBlock = Math.min(
+        ...Object.values(pendingTxns)
+          .map((jsonStr) => {
+            const txStatus = JSON.parse(jsonStr) as ITxStatus;
+            return txStatus.birth;
+          })
+          .sort((a, b) => a - b),
+      );
       const lastSeenBlock = await this.getLastSeenBlockNumber();
       this.logger.log('Skipping ahead to monitor submitted extrinsics', { skipTo: minBirthBlock - 1, lastSeenBlock });
       if (lastSeenBlock < minBirthBlock - 1) {
@@ -281,8 +287,6 @@ export class GraphMonitorService extends BlockchainScannerService {
   }
 
   public async monitorAllGraphUpdates(block: SignedBlock, { event }: FrameSystemEventRecord) {
-    const graphUpdateNotification = {};
-
     // Don't need this check logically, but it's a type guard to be able to access the specific event type data
     if (
       this.blockchainService.api.events.statefulStorage.PaginatedPageUpdated.is(event) ||
@@ -342,7 +346,7 @@ export class GraphMonitorService extends BlockchainScannerService {
    * @param {boolean} includeAll - Whether to include webhooks registered for 'all'
    * @returns {string[]} Array of URLs
    */
-  async getWebhookList(msaId: string, includeAll = true): Promise<string[]> {
+  public async getWebhookList(msaId: string, includeAll = true): Promise<string[]> {
     const value = await this.cacheManager.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
     let webhooks = value ? (JSON.parse(value) as string[]) : [];
 

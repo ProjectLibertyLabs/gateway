@@ -21,6 +21,7 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: number;
   HEALTH_CHECK_MAX_RETRIES: number;
   CAPACITY_LIMIT: string;
+  CACHE_KEY_PREFIX: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -44,6 +45,10 @@ export class ConfigService {
     } else {
       this.capacityLimitObj = obj;
     }
+  }
+
+  public get cacheKeyPrefix(): string {
+    return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
   public get blockchainScanIntervalSeconds(): number {

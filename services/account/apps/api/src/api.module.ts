@@ -50,6 +50,7 @@ import { ApiService, AccountsService, HandlesService, DelegationService, KeysSer
           config: [
             {
               url: configService.redisUrl.toString(),
+              keyPrefix: configService.cacheKeyPrefix,
               maxRetriesPerRequest: null,
               onClientCreated(client) {
                 redisEventsToEventEmitter(client, eventEmitter);

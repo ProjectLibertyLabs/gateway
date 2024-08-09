@@ -33,7 +33,11 @@ export class ApiService {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
     this.logger.warn(`Current watch options are ${currentWatchOptions}`);
-    await this.redis.setex(EVENTS_TO_WATCH_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(watchOptions));
+    await this.redis.setex(
+      EVENTS_TO_WATCH_KEY,
+      RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+      JSON.stringify(watchOptions),
+    );
   }
 
   public pauseScanner() {
@@ -64,7 +68,11 @@ export class ApiService {
     contentSearchRequestDto.clientReferenceId = jobId;
     const jobPromise = await this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
     const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;
-    await this.redis.setex(JOB_REQUEST_WATCH_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(contentSearchRequestDto.filters));
+    await this.redis.setex(
+      JOB_REQUEST_WATCH_KEY,
+      RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+      JSON.stringify(contentSearchRequestDto.filters),
+    );
     return jobPromise;
   }
 
@@ -80,9 +88,14 @@ export class ApiService {
     webhookRegistration.announcementTypes
       .map((a) => a.toLowerCase())
       .forEach((announcementType) => {
-        const existingRegistration = currentWebhookRegistrationDtos.find((currentWebhookRegistration) => currentWebhookRegistration.announcementType === announcementType);
+        const existingRegistration = currentWebhookRegistrationDtos.find(
+          (currentWebhookRegistration) => currentWebhookRegistration.announcementType === announcementType,
+        );
         if (!existingRegistration) {
-          currentWebhookRegistrationDtos.push({ announcementType: announcementType.toLowerCase(), urls: [webhookRegistration.url] });
+          currentWebhookRegistrationDtos.push({
+            announcementType: announcementType.toLowerCase(),
+            urls: [webhookRegistration.url],
+          });
         } else {
           const urls = new Set(existingRegistration.urls);
           urls.add(webhookRegistration.url);

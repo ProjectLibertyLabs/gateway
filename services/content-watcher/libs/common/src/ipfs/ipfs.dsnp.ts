@@ -20,7 +20,15 @@ import {
   TombstoneAnnouncement,
   UpdateAnnouncement,
 } from '../types/content-announcement';
-import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isTypedAnnouncement, isUpdate } from '../utils/type-guards';
+import {
+  isBroadcast,
+  isProfile,
+  isReaction,
+  isReply,
+  isTombstone,
+  isTypedAnnouncement,
+  isUpdate,
+} from '../utils/type-guards';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -76,7 +84,11 @@ export class IPFSContentProcessor extends BaseConsumer {
     }
   }
 
-  private async enqueueAnnouncementResponse(announcementResponse: AnnouncementResponse, name: string, queue: Queue): Promise<void> {
+  private async enqueueAnnouncementResponse(
+    announcementResponse: AnnouncementResponse,
+    name: string,
+    queue: Queue,
+  ): Promise<void> {
     if (!(await this.isQueueFull(queue))) {
       const jobId = calculateJobId(announcementResponse);
       await queue.add(name, announcementResponse, { jobId });

@@ -89,7 +89,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       }
       this.logger.debug('Starting scanner');
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
-      const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters ? JSON.parse(chainWatchFilters) : { msa_ids: [], schemaIds: [] };
+      const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters
+        ? JSON.parse(chainWatchFilters)
+        : { msa_ids: [], schemaIds: [] };
 
       this.scanInProgress = true;
 
@@ -110,7 +112,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         const currentBlockNumber = await this.getNextBlockNumber();
         const currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
         if (currentBlockHash.isEmpty) {
-          this.logger.log(`No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`);
+          this.logger.log(
+            `No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`,
+          );
           break;
         }
 

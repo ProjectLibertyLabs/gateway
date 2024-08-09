@@ -8,7 +8,8 @@ import { AnnouncementTypeDto } from './common.dto';
  * - Z or hour minute offset
  * - example: 1970-01-01T00:00:00+00:00
  */
-export const ISO8601_REGEX = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,})?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
+export const ISO8601_REGEX =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d{1,})?(Z|[+-][01][0-9]:[0-5][0-9])?$/;
 /**
  * DSNP content hash based on DSNP Spec
  * example: 0x1234567890abcdef0123456789abcdef0123456789abcdef0123456789abcdef

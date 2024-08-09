@@ -47,7 +47,10 @@ export default async () => {
             },
             AssetDto: {
               type: { required: true, enum: t['../../../libs/common/src/dtos/activity.dto'].AttachmentTypeDto },
-              references: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto] },
+              references: {
+                required: false,
+                type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto],
+              },
               name: { required: false, type: () => String, minLength: 1 },
               href: { required: false, type: () => String, minLength: 1 },
             },
@@ -62,7 +65,10 @@ export default async () => {
               assets: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetDto] },
             },
             ProfileActivityDto: {
-              icon: { required: false, type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto] },
+              icon: {
+                required: false,
+                type: () => [t['../../../libs/common/src/dtos/activity.dto'].AssetReferenceDto],
+              },
               summary: { required: false, type: () => String },
               published: { required: false, type: () => String, pattern: 'ISO8601_REGEX' },
             },
@@ -71,18 +77,26 @@ export default async () => {
         [
           import('../../../libs/common/src/dtos/announcement.dto'),
           {
-            BroadcastDto: { content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto } },
+            BroadcastDto: {
+              content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
+            },
             ReplyDto: {
               inReplyTo: { required: true, type: () => String, pattern: 'DSNP_CONTENT_URI_REGEX' },
               content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
             },
             TombstoneDto: {
               targetContentHash: { required: true, type: () => String, pattern: 'DSNP_CONTENT_HASH_REGEX' },
-              targetAnnouncementType: { required: true, enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto },
+              targetAnnouncementType: {
+                required: true,
+                enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto,
+              },
             },
             UpdateDto: {
               targetContentHash: { required: true, type: () => String, pattern: 'DSNP_CONTENT_HASH_REGEX' },
-              targetAnnouncementType: { required: true, enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto },
+              targetAnnouncementType: {
+                required: true,
+                enum: t['../../../libs/common/src/dtos/announcement.dto'].ModifiableAnnouncementTypeDto,
+              },
               content: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].NoteActivityDto },
             },
             ReactionDto: {
@@ -90,12 +104,22 @@ export default async () => {
               apply: { required: true, type: () => Number, minimum: 0, maximum: 255 },
               inReplyTo: { required: true, type: () => String, pattern: 'DSNP_CONTENT_URI_REGEX' },
             },
-            ProfileDto: { profile: { required: true, type: () => t['../../../libs/common/src/dtos/activity.dto'].ProfileActivityDto } },
+            ProfileDto: {
+              profile: {
+                required: true,
+                type: () => t['../../../libs/common/src/dtos/activity.dto'].ProfileActivityDto,
+              },
+            },
           },
         ],
         [
           import('../../../libs/common/src/dtos/chain.watch.dto'),
-          { ChainWatchOptionsDto: { schemaIds: { required: true, type: () => [Number] }, dsnpIds: { required: true, type: () => [String] } } },
+          {
+            ChainWatchOptionsDto: {
+              schemaIds: { required: true, type: () => [Number] },
+              dsnpIds: { required: true, type: () => [String] },
+            },
+          },
         ],
         [
           import('../../../libs/common/src/dtos/content-search-request.dto'),
@@ -104,14 +128,22 @@ export default async () => {
               clientReferenceId: { required: true, type: () => String },
               startBlock: { required: true, type: () => Number, minimum: 1 },
               blockCount: { required: true, type: () => Number, minimum: 1 },
-              filters: { required: true, type: () => t['../../../libs/common/src/dtos/chain.watch.dto'].ChainWatchOptionsDto },
+              filters: {
+                required: true,
+                type: () => t['../../../libs/common/src/dtos/chain.watch.dto'].ChainWatchOptionsDto,
+              },
               webhookUrl: { required: true, type: () => String },
             },
           },
         ],
         [
           import('../../../libs/common/src/dtos/subscription.webhook.dto'),
-          { WebhookRegistrationDto: { url: { required: true, type: () => String }, announcementTypes: { required: true, type: () => [String] } } },
+          {
+            WebhookRegistrationDto: {
+              url: { required: true, type: () => String },
+              announcementTypes: { required: true, type: () => [String] },
+            },
+          },
         ],
       ],
       controllers: [
@@ -129,7 +161,10 @@ export default async () => {
           },
         ],
         [import('./controllers/v1/search.controller'), { SearchControllerV1: { search: {} } }],
-        [import('./controllers/v1/webhook.controller'), { WebhookControllerV1: { registerWebhook: {}, clearAllWebHooks: {}, getRegisteredWebhooks: {} } }],
+        [
+          import('./controllers/v1/webhook.controller'),
+          { WebhookControllerV1: { registerWebhook: {}, clearAllWebHooks: {}, getRegisteredWebhooks: {} } },
+        ],
       ],
     },
   };

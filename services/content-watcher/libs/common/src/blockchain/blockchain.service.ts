@@ -89,7 +89,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.registry.createType(type, ...args);
   }
 
-  public createExtrinsicCall({ pallet, extrinsic }: { pallet: string; extrinsic: string }, ...args: (any | undefined)[]): SubmittableExtrinsic<'rxjs', ISubmittableResult> {
+  public createExtrinsicCall(
+    { pallet, extrinsic }: { pallet: string; extrinsic: string },
+    ...args: (any | undefined)[]
+  ): SubmittableExtrinsic<'rxjs', ISubmittableResult> {
     return this.api.tx[pallet][extrinsic](...args);
   }
 
@@ -111,7 +114,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return args ? this.apiPromise.query[pallet][extrinsic](...args) : this.apiPromise.query[pallet][extrinsic]();
   }
 
-  public async queryAt(blockHash: BlockHash, pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
+  public async queryAt(
+    blockHash: BlockHash,
+    pallet: string,
+    extrinsic: string,
+    ...args: (any | undefined)[]
+  ): Promise<any> {
     const newApi = await this.apiPromise.at(blockHash);
     return newApi.query[pallet][extrinsic](...args);
   }

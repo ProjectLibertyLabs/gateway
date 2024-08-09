@@ -11,21 +11,35 @@ export type ConnectionsDtoWrapper = {
 export class ProviderGraphDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ description: 'MSA ID that owns the connections represented in this object', example: '2', type: String })
+  @ApiProperty({
+    description: 'MSA ID that owns the connections represented in this object',
+    example: '2',
+    type: String,
+  })
   dsnpId: string;
 
   @IsNotEmpty()
   @Type(() => ConnectionDto)
-  @ApiProperty({ description: 'Array of connections known to the Provider for ths MSA referenced in this object', type: ConnectionDtoWrapper })
+  @ApiProperty({
+    description: 'Array of connections known to the Provider for ths MSA referenced in this object',
+    type: ConnectionDtoWrapper,
+  })
   connections: { data: ConnectionDto[] };
 
   @IsArray()
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph', type: [GraphKeyPairDto] })
+  @ApiPropertyOptional({
+    description:
+      'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph',
+    type: [GraphKeyPairDto],
+  })
   graphKeyPairs?: GraphKeyPairDto[];
 
   @IsUrl({ require_tld: false })
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Optional URL of a webhook to invoke when the request is complete', type: String })
+  @ApiPropertyOptional({
+    description: 'Optional URL of a webhook to invoke when the request is complete',
+    type: String,
+  })
   webhookUrl?: string;
 }

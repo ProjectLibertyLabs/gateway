@@ -9,6 +9,10 @@ export class DsnpGraphEdge {
 
   @IsNotEmpty()
   @IsNumber()
-  @ApiProperty({ description: 'Block number when connection represented by this graph edge was created', type: Number, example: 12 })
+  @ApiProperty({
+    description: 'Block number when connection represented by this graph edge was created',
+    type: Number,
+    example: 12,
+  })
   since: number;
 }

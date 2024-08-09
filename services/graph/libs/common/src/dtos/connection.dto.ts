@@ -17,12 +17,20 @@ export class ConnectionDto {
 
   @IsNotEmpty()
   @IsEnum(Direction)
-  @ApiProperty({ description: 'Indicator of the direction of this connection', enum: Direction, example: 'connectionTo' })
+  @ApiProperty({
+    description: 'Indicator of the direction of this connection',
+    enum: Direction,
+    example: 'connectionTo',
+  })
   direction: Direction;
 
   @IsNotEmpty()
   @IsEnum(ConnectionType)
-  @ApiProperty({ description: 'Indicator of the type of connection (follow or friendship)', enum: ConnectionType, example: 'follow' })
+  @ApiProperty({
+    description: 'Indicator of the type of connection (follow or friendship)',
+    enum: ConnectionType,
+    example: 'follow',
+  })
   connectionType: ConnectionType;
 }
 

@@ -17,6 +17,10 @@ export class GraphKeyPairDto {
 
   @IsNotEmpty()
   @IsEnum(KeyType)
-  @ApiProperty({ description: 'Key type of graph encryption keypair (currently only X25519 supported)', enum: KeyType, example: 'X25519' })
+  @ApiProperty({
+    description: 'Key type of graph encryption keypair (currently only X25519 supported)',
+    enum: KeyType,
+    example: 'X25519',
+  })
   keyType: KeyType;
 }

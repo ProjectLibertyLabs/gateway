@@ -84,9 +84,10 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
-    "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.8",
+    "@projectlibertylabs/prettier-config": "file:../../packages/prettier-config",
+    "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.10",

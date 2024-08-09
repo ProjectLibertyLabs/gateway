@@ -40,11 +40,14 @@ describe('Graph Service E2E request verification!', () => {
   });
 
   describe('Health endpoints', () => {
-    it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+    it('(GET) /healthz', () =>
+      request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
-    it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+    it('(GET) /livez', () =>
+      request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-    it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+    it('(GET) /readyz', () =>
+      request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
   });
 
   describe('/graph endpoints', () => {

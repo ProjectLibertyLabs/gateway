@@ -244,6 +244,6 @@ export class TxnNotifierService
   }
 
   async getWebhook(): Promise<string> {
-    return this.configService.providerBaseUrl.toString();
+    return this.configService.webhookBaseUrl.toString();
   }
 }

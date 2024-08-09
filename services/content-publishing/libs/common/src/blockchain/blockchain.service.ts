@@ -47,7 +47,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
       throw new Error('Unrecognized chain URL type');
     }
-    // this.api = await firstValueFrom(ApiRx.create({ provider, ...options }));
     this.api = await ApiPromise.create({ provider, ...options });
     this.readyResolve(await this.api.isReady);
     this.logger.log('Blockchain API ready.');

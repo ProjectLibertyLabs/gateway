@@ -22,8 +22,8 @@ echo "Running make setup to provision Provider with capacity, etc..."
 make setup
 
 # Start all services in detached mode
-echo "Starting all services..."
-docker compose up -d
+echo "Starting account-service, api and worker apps..."
+docker compose up -d account-service-api account-service-worker
 
 # Start the mock web server
 echo "Please run 'make mock-webhook' in a separate terminal..."

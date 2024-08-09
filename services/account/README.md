@@ -4,15 +4,14 @@
 
 # 📗 Table of Contents
 
-- [📖 About the Project](#-account-service-a-nameabout-projecta)
+- [📖 About the Project](#account-service)
 - [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#-built-with-a-namebuilt-witha)
-  - [Tech Stack](#tech-stack-a-nametech-stacka)
+- [🛠 Built With](#built-with)
+  - [Tech Stack](#tech-stack)
   - [Key Features](#key-features)
 - [🚀 Live OpenAPI Docs](#-live-docs)
 - [💻 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
   - [Environment Variables](#environment-variables)
   - [Install](#install)
   - [Usage](#usage)
@@ -24,7 +23,7 @@
   - [Debugging](#debugging)
   - [Debugging with VSCode](#using-the-debugger-with-vscode)
 - [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#-show-your-support)
+- [⭐️ Show your support](#show-your-support)
 - [❓FAQ](#faq)
 - [📝 License](#-license)
 
@@ -180,26 +179,15 @@ In order to run this project you need:
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
-### Setup
-
-Clone this repository to your desired folder:
-
-Example commands:
-
-```sh
-  git clone git@github.com:ProjectLibertyLabs/account-service.git
-  cd account-service
-```
-
 ### Environment Variables
 
 Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
 
 1. Copy the template values into the .env files.
 
-   ```sh
+```sh
    cp env.template .env
-   ```
+```
 
 2. Replace template values with values appropriate to your environment.
 
@@ -257,12 +245,12 @@ In order to run the `account-service` in development mode without containers, yo
    Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
 
    ```sh
-   docker-compose up -d api worker
+   docker-compose up -d account-service-api account-service-worker
    ```
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
 
-## 📋 Testing
+## 📋 Testing <a name="testing"></a>
 
 ### Run the tests
 
@@ -276,7 +264,7 @@ In order to run the `account-service` in development mode without containers, yo
 
 ### Swagger UI
 
-Check out the Swagger UI hosted on the app instance at [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger) to view the API documentation and submit requests to the service.
+Check out the Swagger UI hosted on the app instance at [http://localhost:3000/api/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
 
 ### Queue Management
 
@@ -339,7 +327,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- SUPPORT -->
 
-## ⭐️ Show your support
+## ⭐️ Show your support <a name="show-your-support"></a>
 
 If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
 

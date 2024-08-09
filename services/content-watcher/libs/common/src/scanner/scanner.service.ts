@@ -13,7 +13,7 @@ import { BlockchainService } from '../blockchain/blockchain.service';
 import * as QueueConstants from '../queues/queue-constants';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
 import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
-import * as RedisUtils from '../utils/redis';
+import * as RedisUtils from '#libs/utils/redis';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
 import { IScanReset } from '../interfaces/scan-reset.interface';
 
@@ -143,6 +143,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       nextBlock = Number((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? '0');
       if (!nextBlock) {
         nextBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+        this.setLastSeenBlockNumber(nextBlock);
       }
 
       nextBlock += 1;

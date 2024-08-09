@@ -224,6 +224,6 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
   }
 
   async getWebhook(): Promise<string> {
-    return this.configService.providerBaseUrl.toString();
+    return this.configService.webhookBaseUrl.toString();
   }
 }

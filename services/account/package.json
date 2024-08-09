@@ -78,7 +78,7 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
-    "@projectlibertylabs/frequency-scenario-template": "^1.1.5",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.6",
     "@projectlibertylabs/prettier-config": "file:../../packages/prettier-config",
     "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@types/jest": "^29.5.12",

@@ -67,7 +67,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
     private configService: ConfigService,
     private blockchainService: BlockchainService,
   ) {
-    const environmentType = this.configService.getGraphEnvironmentType();
+    const environmentType = this.configService.graphEnvironmentType;
     this.environment = { environmentType: EnvironmentType[environmentType] };
     this.graphState = new Graph(this.environment);
 

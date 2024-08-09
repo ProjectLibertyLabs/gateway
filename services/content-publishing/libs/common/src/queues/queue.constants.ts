@@ -22,10 +22,6 @@ export const PUBLISH_QUEUE_NAME = 'publishQueue';
 export const STATUS_QUEUE_NAME = 'statusQueue';
 
 /**
- * Name of the queue that has all the transaction receipts
- */
-export const TRANSACTION_RECEIPT_QUEUE_NAME = 'transactionReceiptQueue';
-/**
  * All of the announcement type queues
  */
 export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
@@ -34,17 +30,6 @@ export const REACTION_QUEUE_NAME = 'reactionQueue';
 export const UPDATE_QUEUE_NAME = 'updateQueue';
 export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
 export const PROFILE_QUEUE_NAME = 'profileQueue';
-/**
- * Map between announcement type and it's queueName
- */
-export const ANNOUNCEMENT_TO_QUEUE_NAME_MAP = new Map<AnnouncementTypeDto, string>([
-  [AnnouncementTypeDto.BROADCAST, BROADCAST_QUEUE_NAME],
-  [AnnouncementTypeDto.REPLY, REPLY_QUEUE_NAME],
-  [AnnouncementTypeDto.REACTION, REACTION_QUEUE_NAME],
-  [AnnouncementTypeDto.UPDATE, UPDATE_QUEUE_NAME],
-  [AnnouncementTypeDto.TOMBSTONE, TOMBSTONE_QUEUE_NAME],
-  [AnnouncementTypeDto.PROFILE, PROFILE_QUEUE_NAME],
-]);
 /**
  * Map between queue name and it's announcement type
  */

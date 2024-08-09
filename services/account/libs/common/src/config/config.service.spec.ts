@@ -1,8 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-/*
-https://docs.nestjs.com/fundamentals/testing#unit-testing
-*/
-
 import { Test } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, jest } from '@jest/globals';
 import { ConfigModule } from '@nestjs/config';
@@ -34,7 +30,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   return moduleRef.get<ConfigService>(ConfigService);
 };
 
-describe('AccountSericeConfig', () => {
+describe('AccountServiceConfig', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
@@ -225,7 +221,7 @@ describe('AccountSericeConfig', () => {
     });
 
     it('should get capacity limit', () => {
-      expect(accountServiceConfig.capacityLimit).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+      expect(JSON.stringify(accountServiceConfig.capacityLimit)).toStrictEqual(ALL_ENV.CAPACITY_LIMIT!);
     });
 
     it('should get cache key prefix', () => {

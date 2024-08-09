@@ -32,7 +32,6 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 
 describe('ContentPublishingConfigService', () => {
   const ALL_ENV: Record<string, string | undefined> = {
-    CHAIN_ENVIRONMENT: undefined,
     REDIS_URL: undefined,
     FREQUENCY_URL: undefined,
     IPFS_ENDPOINT: undefined,
@@ -51,6 +50,8 @@ describe('ContentPublishingConfigService', () => {
     BATCH_INTERVAL_SECONDS: undefined,
     BATCH_MAX_COUNT: undefined,
     ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: undefined,
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
+    TRUST_UNFINALIZED_BLOCKS: undefined,
     CACHE_KEY_PREFIX: undefined,
   };
 
@@ -61,9 +62,11 @@ describe('ContentPublishingConfigService', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing environment should fail', async () => {
-      const { CHAIN_ENVIRONMENT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
+    it('invalid scan interval should fail', async () => {
+      const { BLOCKCHAIN_SCAN_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
+      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 'foo', ...env })).rejects.toBeDefined();
     });
 
     it('missing redis url should fail', async () => {
@@ -109,10 +112,18 @@ describe('ContentPublishingConfigService', () => {
 
     it('invalid capacity limit should fail', async () => {
       const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env })).rejects.toBeDefined();
-      await expect(async () => setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env })).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(async () =>
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
+      ).rejects.toBeDefined();
     });
 
     it('invalid max file size should fail', async () => {
@@ -156,6 +167,18 @@ describe('ContentPublishingConfigService', () => {
       expect(contentPublishingConfigService).toBeDefined();
     });
 
+    it('should get scan interval', () => {
+      expect(contentPublishingConfigService.blockchainScanIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
+      );
+    });
+
+    it('should get finalized blocks trust parameter', () => {
+      expect(contentPublishingConfigService.trustUnfinalizedBlocks).toStrictEqual(
+        JSON.parse(ALL_ENV.TRUST_UNFINALIZED_BLOCKS!),
+      );
+    });
+
     it('should get redis url', () => {
       expect(contentPublishingConfigService.redisUrl?.toString()).toStrictEqual(ALL_ENV.REDIS_URL?.toString());
     });
@@ -169,15 +192,19 @@ describe('ContentPublishingConfigService', () => {
     });
 
     it('should get provider seed phrase', () => {
-      expect(contentPublishingConfigService.providerAccountSeedPhrase).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
+      expect(contentPublishingConfigService.providerAccountSeedPhrase).toStrictEqual(
+        ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE,
+      );
     });
 
     it('should get capacity limit', () => {
-      expect(contentPublishingConfigService.capacityLimit).toStrictEqual(JSON.parse(ALL_ENV.CAPACITY_LIMIT!));
+      expect(JSON.stringify(contentPublishingConfigService.capacityLimitObj)).toStrictEqual(ALL_ENV.CAPACITY_LIMIT!);
     });
 
     it('should get file upload max size in bytes', () => {
-      expect(contentPublishingConfigService.fileUploadMaxSizeInBytes).toStrictEqual(parseInt(ALL_ENV.FILE_UPLOAD_MAX_SIZE_IN_BYTES as string, 10));
+      expect(contentPublishingConfigService.fileUploadMaxSizeInBytes).toStrictEqual(
+        parseInt(ALL_ENV.FILE_UPLOAD_MAX_SIZE_IN_BYTES as string, 10),
+      );
     });
 
     it('should get api port', () => {
@@ -185,23 +212,31 @@ describe('ContentPublishingConfigService', () => {
     });
 
     it('should get asset expiration interval in seconds', () => {
-      expect(contentPublishingConfigService.assetExpirationIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.ASSET_EXPIRATION_INTERVAL_SECONDS as string, 10));
+      expect(contentPublishingConfigService.assetExpirationIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.ASSET_EXPIRATION_INTERVAL_SECONDS as string, 10),
+      );
     });
 
     it('should get asset upload verification delay in seconds', () => {
-      expect(contentPublishingConfigService.assetUploadVerificationDelaySeconds).toStrictEqual(parseInt(ALL_ENV.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS as string, 10));
+      expect(contentPublishingConfigService.assetUploadVerificationDelaySeconds).toStrictEqual(
+        parseInt(ALL_ENV.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS as string, 10),
+      );
     });
 
     it('should get batch interval in seconds', () => {
-      expect(contentPublishingConfigService.batchIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.BATCH_INTERVAL_SECONDS as string, 10));
+      expect(contentPublishingConfigService.batchIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.BATCH_INTERVAL_SECONDS as string, 10),
+      );
     });
 
     it('should get batch max count', () => {
-      expect(contentPublishingConfigService.batchMaxCount).toStrictEqual(parseInt(ALL_ENV.BATCH_MAX_COUNT as string, 10));
+      expect(contentPublishingConfigService.batchMaxCount).toStrictEqual(
+        parseInt(ALL_ENV.BATCH_MAX_COUNT as string, 10),
+      );
     });
 
     it('should get cache key prefix', () => {
-      expect(contentPublishingConfigService.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
+      expect(contentPublishingConfigService.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX);
     });
   });
 });

@@ -53,7 +53,7 @@ export class GraphReconnectionService extends BaseConsumer {
 
   async getUserGraphFromProvider(dsnpUserId: MessageSourceId | string, providerId: ProviderId | string): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
     const providerAPI = this.providerWebhookService.providerApi;
-    const pageSize = this.configService.getPageSize();
+    const pageSize = this.configService.pageSize;
     const params = {
       pageNumber: 1,
       pageSize,
@@ -112,13 +112,13 @@ export class GraphReconnectionService extends BaseConsumer {
             newError = new Error(`Provider webhook error: ${error.message}`);
           }
 
-          if (webhookFailures >= this.configService.getWebhookFailureThreshold()) {
+          if (webhookFailures >= this.configService.webhookFailureThreshold) {
             // eslint-disable-next-line no-await-in-loop
             await this.emitter.emitAsync('webhook.unhealthy');
           } else {
             // eslint-disable-next-line no-await-in-loop
             await new Promise((r) => {
-              setTimeout(r, this.configService.getWebhookRetryIntervalSeconds());
+              setTimeout(r, this.configService.webhookRetryIntervalSeconds);
             });
           }
         }

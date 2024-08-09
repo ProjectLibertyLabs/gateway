@@ -5,7 +5,6 @@ export * from './dsnp-graph-edge.dto';
 export * from './graph-change-response.dto';
 export * from './graph-key-pair.dto';
 export * from './graph-query-params.dto';
-export * from './graph.notifier.job';
 export * from './graph.update.job';
 export * from './key-type.enum';
 export * from './privacy-type.enum';

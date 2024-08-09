@@ -21,10 +21,12 @@ import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './c
       {
         imports: [ConfigModule],
         useFactory: (configService: ConfigService) => ({
-          config: [{
-            url: configService.redisUrl.toString(),
-            keyPrefix: configService.cacheKeyPrefix,
-          }],
+          config: [
+            {
+              url: configService.redisUrl.toString(),
+              keyPrefix: configService.cacheKeyPrefix,
+            },
+          ],
         }),
         inject: [ConfigService],
       },
@@ -74,10 +76,6 @@ import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './c
     }),
     BullBoardModule.forFeature({
       name: QueueConstants.PUBLISH_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_RECEIPT_QUEUE_NAME,
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({

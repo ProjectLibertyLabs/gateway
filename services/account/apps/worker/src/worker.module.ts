@@ -62,6 +62,6 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
     TxnNotifierModule,
   ],
   providers: [ProviderWebhookService, NonceService],
-  exports: [],
+  exports: [EventEmitterModule],
 })
 export class WorkerModule {}

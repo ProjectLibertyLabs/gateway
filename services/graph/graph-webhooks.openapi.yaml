@@ -12,13 +12,13 @@ webhooks:
   graph-update:
     post:
       summary: Announce a graph update
-      operationId: announceGraphUpdate
+      operationId: announceGraphUpdateV1
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/GraphChangeNotification'
+              '$ref': '#/components/schemas/GraphChangeNotificationV1'
       responses:
         '200':
           description: Graph update announcement handled
@@ -27,13 +27,13 @@ webhooks:
   graph-request-status:
     post:
       summary: Send the status of a requested graph update
-      operationId: updateOperationStatus
+      operationId: updateOperationStatusV1
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/GraphOperationStatus'
+              '$ref': '#/components/schemas/GraphOperationStatusV1'
       responses:
         '200':
           description: Graph operation status received
@@ -41,100 +41,40 @@ webhooks:
           description: Bad request
 components:
   schemas:
-    Uint8Array:
-      type: object
-      properties: {}
-    PersistPageUpdate:
-      type: object
-      properties:
-        type:
-          title: type
-          enum:
-            - PersistPage
-          type: string
-        ownerDsnpUserId:
-          type: string
-          description: MSA of graph owner
-          example: '2'
-        schemaId:
-          type: number
-          description: Schema ID of graph schema
-          example: 8
-        pageId:
-          type: number
-          description: Page ID of graph page being updated
-          example: 1
-        prevHash:
-          type: number
-          description: Content hash of last known state of graph page
-          example: 1234567
-        payload:
-          description: Byte array of graph page data
-          allOf:
-            - '$ref': '#/components/schemas/Uint8Array'
-      required:
-        - type
-        - ownerDsnpUserId
-        - schemaId
-        - pageId
-        - prevHash
-        - payload
-    DeletePageUpdate:
-      type: object
-      properties:
-        type:
-          title: type
-          enum:
-            - DeletePage
-          type: string
-        ownerDsnpUserId:
-          type: string
-        schemaId:
-          type: number
-        pageId:
-          type: number
-        prevHash:
-          type: number
-      required:
-        - type
-        - ownerDsnpUserId
-        - schemaId
-        - pageId
-        - prevHash
-    AddKeyUpdate:
-      type: object
-      properties:
-        type:
-          title: type
-          enum:
-            - AddKey
-          type: string
-        ownerDsnpUserId:
-          type: string
-        prevHash:
-          type: number
-      required:
-        - type
-        - ownerDsnpUserId
-        - prevHash
-    GraphChangeNotification:
+    GraphChangeNotificationV1:
       type: object
       properties:
         msaId:
           type: string
           description: MSA ID for which this notification is being sent
           example: '2'
-        update:
-          description: The payload of the specific update. Content depends on the
-            type of update (Add, Delete, Persist)
-          oneOf:
-            - '$ref': '#/components/schemas/PersistPageUpdate'
-            - '$ref': '#/components/schemas/DeletePageUpdate'
-            - '$ref': '#/components/schemas/AddKeyUpdate'
+        schemaId:
+          type: number
+          description: Schema ID of graph that was updated
+          example: 8
+        pageId:
+          type: number
+          description: Page ID of graph page that was updated/deleted
+          example: 15
+        prevContentHash:
+          type: number
+          description: integer representation of the content hash of the updated page's previous state
+          example: 123456
+        currContentHash:
+          type: number
+          description: integer representation of the content hash of the updated pages new state
+        updateType:
+          title: updateType
+          enum:
+            - GraphPageUpdated
+            - GraphPageDeleted
       required:
         - msaId
-        - update
-    GraphOperationStatus:
+        - schemaId
+        - pageId
+        - prevContentHash
+        - updateType
+    GraphOperationStatusV1:
       type: object
       properties:
         referenceId:

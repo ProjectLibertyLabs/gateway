@@ -1,9 +1,10 @@
+import { ProviderGraphUpdateJob } from '#lib/interfaces';
 import { Update } from '@dsnp/graph-sdk';
 
 export class GraphUpdateJob {
-  referenceId: string;
-
   update: Update;
+
+  originalRequestJob: ProviderGraphUpdateJob;
 
   webhookUrl?: string;
 }

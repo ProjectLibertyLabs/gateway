@@ -4,15 +4,14 @@
 
 # 📗 Table of Contents
 
-- [📖 About the Project](#-account-service-a-nameabout-projecta)
+- [📖 About the Project](#account-service)
 - [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#-built-with-a-namebuilt-witha)
-  - [Tech Stack](#tech-stack-a-nametech-stacka)
+- [🛠 Built With](#built-with)
+  - [Tech Stack](#tech-stack)
   - [Key Features](#key-features)
 - [🚀 Live OpenAPI Docs](#-live-docs)
 - [💻 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
   - [Environment Variables](#environment-variables)
   - [Install](#install)
   - [Usage](#usage)
@@ -24,7 +23,7 @@
   - [Debugging](#debugging)
   - [Debugging with VSCode](#using-the-debugger-with-vscode)
 - [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#-show-your-support)
+- [⭐️ Show your support](#show-your-support)
 - [❓FAQ](#faq)
 - [📝 License](#-license)
 
@@ -186,9 +185,9 @@ Modify any environment variables in the `.env` file as needed. The complete set 
 
 1. Copy the template values into the .env files.
 
-   ```sh
+```sh
    cp env.template .env
-   ```
+```
 
 2. Replace template values with values appropriate to your environment.
 
@@ -252,7 +251,7 @@ In order to run the `account-service` in development mode without containers, yo
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
 
-## 📋 Testing
+## 📋 Testing <a name="testing"></a>
 
 ### Run the tests
 
@@ -329,7 +328,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- SUPPORT -->
 
-## ⭐️ Show your support
+## ⭐️ Show your support <a name="show-your-support"></a>
 
 If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
 

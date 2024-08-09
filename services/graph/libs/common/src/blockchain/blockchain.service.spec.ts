@@ -8,7 +8,7 @@ describe('BlockchainService', () => {
     const configService = {
       logger: jest.fn(),
       nestConfigService: jest.fn(),
-      providerBaseUrl: jest.fn(),
+      webhookBaseUrl: jest.fn(),
       providerApiToken: jest.fn(),
       getProviderId: jest.fn(),
       getQueueHighWater: jest.fn(),

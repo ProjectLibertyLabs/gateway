@@ -15,7 +15,7 @@ export interface ConfigEnvironmentVariables {
   PROVIDER_ID: string;
   RECONNECTION_SERVICE_REQUIRED: boolean;
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: number;
-  PROVIDER_BASE_URL: string;
+  WEBHOOK_BASE_URL: string;
   PROVIDER_ACCESS_TOKEN: string;
   WEBHOOK_FAILURE_THRESHOLD: number;
   HEALTH_CHECK_SUCCESS_THRESHOLD: number;
@@ -62,8 +62,8 @@ export class ConfigService {
     return this.nestConfigService.get('CACHE_KEY_PREFIX')!;
   }
 
-  public get providerBaseUrl(): URL {
-    return this.nestConfigService.get<URL>('PROVIDER_BASE_URL')!;
+  public get webhookBaseUrl(): URL {
+    return this.nestConfigService.get<URL>('WEBHOOK_BASE_URL')!;
   }
 
   public get providerApiToken(): string | undefined {

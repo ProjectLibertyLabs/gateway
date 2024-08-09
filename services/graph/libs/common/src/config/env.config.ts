@@ -51,7 +51,7 @@ export const configModuleOptions: ConfigModuleOptions = {
       }
       return value;
     }),
-    PROVIDER_BASE_URL: Joi.string().uri().when('RECONNECTION_SERVICE_REQUIRED', {
+    WEBHOOK_BASE_URL: Joi.string().uri().when('RECONNECTION_SERVICE_REQUIRED', {
       is: true,
       then: Joi.string().required(),
     }),

@@ -45,7 +45,7 @@ describe('GraphSericeConfig', () => {
     GRAPH_ENVIRONMENT_TYPE: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
-    PROVIDER_BASE_URL: undefined,
+    WEBHOOK_BASE_URL: undefined,
     PROVIDER_ACCESS_TOKEN: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
@@ -150,7 +150,7 @@ describe('GraphSericeConfig', () => {
     });
 
     it('should get provider base url', () => {
-      expect(graphServiceConfig.providerBaseUrl?.toString()).toStrictEqual(ALL_ENV.PROVIDER_BASE_URL?.toString());
+      expect(graphServiceConfig.webhookBaseUrl?.toString()).toStrictEqual(ALL_ENV.WEBHOOK_BASE_URL?.toString());
     });
 
     it('should get provider api token', () => {

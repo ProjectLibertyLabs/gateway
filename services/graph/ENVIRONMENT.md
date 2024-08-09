@@ -26,6 +26,6 @@ This application recognizes the following environment variables:
 | ---------------------------------------- | -------------------------------------------------------------------------------------- | :--------: | :-------: | :-----: |
 | `PROVIDER_ACCESS_TOKEN`                  | An optional bearer token authentication to the provider webhook                        |   string   |           |         |
 | `CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE` | Number of connection/page to request when requesting provider connections from webhook |
-| `PROVIDER_BASE_URL`                      | Base URL for provider webhook endpoints                                                |    URL     |     Y     |         |
+| `WEBHOOK_BASE_URL`                       | Base URL for provider webhook endpoints                                                |    URL     |     Y     |         |
 | `WEBHOOK_FAILURE_THRESHOLD`              | Number of failures allowing in the provider webhook before the service is marked down  |    > 0     |           |    3    |
 | `WEBHOOK_RETRY_INTERVAL_SECONDS`         | Number of seconds between provider webhook retry attempts when failing                 |    > 0     |           |   10    |

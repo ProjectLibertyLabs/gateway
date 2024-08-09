@@ -5,7 +5,6 @@ x-common-environment: &common-environment
   REDIS_URL: 'redis://redis:6379'
   PROVIDER_ID: ${PROVIDER_ID:-1}
   PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
-  WEBHOOK_BASE_URL: 'http://social-app-template-backend:3001/webhooks'
   WEBHOOK_FAILURE_THRESHOLD: 3
   WEBHOOK_RETRY_INTERVAL_SECONDS: 10
   HEALTH_CHECK_MAX_RETRIES: 4

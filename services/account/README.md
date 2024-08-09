@@ -197,7 +197,6 @@ Install NPM Dependencies:
 
 ```sh
   npm install
-  npm install -g @nestjs/cli
 ```
 
 ### Usage

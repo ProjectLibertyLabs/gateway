@@ -31,15 +31,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmplicaLabs/graph-service-service.git"
+    "url": "git+https://github.com/ProjectLibertyLabs/graph-service-service.git"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/AmplicaLabs/graph-service-service/issues"
+    "url": "https://github.com/ProjectLibertyLabs/graph-service-service/issues"
   },
-  "homepage": "https://github.com/AmplicaLabs/graph-service-service#readme",
+  "homepage": "https://github.com/ProjectLibertyLabs/graph-service-service#readme",
   "dependencies": {
     "@bull-board/api": "^5.17.1",
     "@bull-board/express": "^5.17.1",
@@ -79,10 +79,10 @@
     "time-constants": "^1.0.3"
   },
   "devDependencies": {
-    "@amplica-labs/frequency-scenario-template": "^1.1.4",
-    "@amplica-labs/ts-config": "file:../../packages/ts-config",
     "@jest/globals": "^29.7.0",
     "@nestjs/testing": "^10.3.10",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.5",
+    "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.10",
@@ -114,7 +114,8 @@
     ],
     "rootDir": ".",
     "setupFiles": [
-      "dotenv/config"
+      "dotenv/config",
+      "<rootDir>/jest.init.ts"
     ],
     "testRegex": ".*\\.spec\\.ts$",
     "testPathIgnorePatterns": [

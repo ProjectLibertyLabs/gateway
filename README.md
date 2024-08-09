@@ -67,7 +67,7 @@ Each Gateway services is an independent microservice.
 <details>
 <summary>Account Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/gateway/account)
+- [API Documentation](https://projectlibertylabs.github.io/gateway/account)
 - [README](./services/account/README.md)
 
 </details>
@@ -75,7 +75,7 @@ Each Gateway services is an independent microservice.
 <details>
 <summary>Graph Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/gateway/graph/)
+- [API Documentation](https://projectlibertylabs.github.io/gateway/graph/)
 - [README](./services/graph/README.md)
 
 </details>
@@ -83,7 +83,7 @@ Each Gateway services is an independent microservice.
 <details>
 <summary>Content Publishing Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/gateway/content-publishing/)
+- [API Documentation](https://projectlibertylabs.github.io/gateway/content-publishing/)
 - [README](./services/content-publishing/README.md)
 
 </details>
@@ -91,7 +91,7 @@ Each Gateway services is an independent microservice.
 <details>
 <summary>Content Watcher Service</summary>
 
-- [API Documentation](https://amplicalabs.github.io/gateway/content-watcher/)
+- [API Documentation](https://projectlibertylabs.github.io/gateway/content-watcher/)
 - [README](./services/content-watcher/README.md)
 
 </details>
@@ -100,7 +100,7 @@ Each Gateway services is an independent microservice.
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/gateway/)
+- [Live Docs](https://projectlibertylabs.github.io/gateway/)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -108,7 +108,7 @@ Each Gateway services is an independent microservice.
 
 ## 💻 Getting Started
 
-For a more detailed tutorial, visit [Live Docs](https://amplicalabs.github.io/gateway/).
+For a more detailed tutorial, visit [Live Docs](https://projectlibertylabs.github.io/gateway/).
 
 To get a local copy up and running, follow these steps.
 
@@ -126,7 +126,7 @@ Clone this repository to your desired folder:
 Clone:
 
 ```sh
-  git clone git@github.com:AmplicaLabs/gateway.git
+  git clone git@github.com:ProjectLibertyLabs/gateway.git
   cd gateway
 ```
 
@@ -160,7 +160,7 @@ To build and serve the Gateway Documentation:
 
 ### Deployment
 
-Deployment of the Gateway services have various options. See the [Live Docs](https://amplicalabs.github.io/gateway/) for more details.
+Deployment of the Gateway services have various options. See the [Live Docs](https://projectlibertylabs.github.io/gateway/) for more details.
 
 Deployment of the Gateway documentation occurs via merge to `main` branch via GitHub Actions.
 
@@ -173,7 +173,7 @@ Deployment of the Gateway documentation occurs via merge to `main` branch via Gi
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/gateway/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

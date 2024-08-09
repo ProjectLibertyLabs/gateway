@@ -1,95 +1,156 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Processor, InjectQueue } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
-import { Job, Queue, UnrecoverableError } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable, Logger } from '@nestjs/common';
+import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
-import { NUMBER_BLOCKS_TO_CRAWL } from '#libs/blockchain/blockchain-constants';
 import { BlockchainService } from '#libs/blockchain/blockchain.service';
-import { TRANSACTION_RECEIPT_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '#libs/queues/queue.constants';
-import { BaseConsumer } from '../BaseConsumer';
-import { ITxMonitorJob, IPublisherJob } from '../interfaces';
-import { SECONDS_PER_BLOCK } from '#libs/constants';
+import { PUBLISH_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { IPublisherJob } from '../interfaces';
+import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#libs/constants';
+import { BlockchainScannerService } from '#libs/utils/blockchain-scanner.service';
+import { ConfigService } from '#libs/config';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { SignedBlock } from '@polkadot/types/interfaces';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { HexString } from '@polkadot/util/types';
+import { ITxStatus } from '#libs/interfaces/tx-status.interface';
+import { CapacityCheckerService } from '#libs/blockchain/capacity-checker.service';
 
 @Injectable()
-@Processor(TRANSACTION_RECEIPT_QUEUE_NAME, {
-  concurrency: 2,
-})
-export class TxStatusMonitoringService extends BaseConsumer {
-  constructor(
-    @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
-    private blockchainService: BlockchainService,
-  ) {
-    super();
+export class TxStatusMonitoringService extends BlockchainScannerService {
+  async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
+    const pendingTxns = await this.cacheManager.hkeys(TXN_WATCH_LIST_KEY);
+    // If no transactions pending, skip to end of chain at startup
+    if (pendingTxns.length === 0) {
+      const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      await this.setLastSeenBlockNumber(blockNumber);
+    }
+    this.schedulerRegistry.addInterval(
+      this.intervalName,
+      setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
+    );
   }
 
-  async process(job: Job<ITxMonitorJob, any, string>): Promise<any> {
-    this.logger.log(`Monitoring job ${job.id} of type ${job.name}`);
-    try {
-      const numberBlocksToParse = NUMBER_BLOCKS_TO_CRAWL;
-      const previousKnownBlockNumber = (
-        await this.blockchainService.getBlock(job.data.lastFinalizedBlockHash)
-      ).block.header.number.toNumber();
-      const currentFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const blockList: number[] = [];
+  async onApplicationShutdown(_signal?: string | undefined) {
+    if (this.schedulerRegistry.doesExist('interval', this.intervalName)) {
+      this.schedulerRegistry.deleteInterval(this.intervalName);
+    }
+  }
 
-      for (
-        let i = previousKnownBlockNumber;
-        i <= currentFinalizedBlockNumber && i < previousKnownBlockNumber + numberBlocksToParse;
-        i += 1
-      ) {
-        blockList.push(i);
+  constructor(
+    blockchainService: BlockchainService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    @InjectRedis() cacheManager: Redis,
+    private readonly configService: ConfigService,
+    private readonly capacityService: CapacityCheckerService,
+    @InjectQueue(PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
+  ) {
+    super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
+    this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
+      this.capacityService.checkForSufficientCapacity(),
+    );
+  }
+
+  public get intervalName() {
+    return `${this.constructor.name}:blockchainScan`;
+  }
+
+  protected async processCurrentBlock(currentBlock: SignedBlock, blockEvents: FrameSystemEventRecord[]): Promise<void> {
+    const currentBlockNumber = currentBlock.block.header.number.toNumber();
+
+    // Get set of tx hashes to monitor from cache
+    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
+
+    const extrinsicIndices: [HexString, number][] = [];
+    currentBlock.block.extrinsics.forEach((extrinsic, index) => {
+      if (pendingTxns.some(({ txHash }) => txHash === extrinsic.hash.toHex())) {
+        extrinsicIndices.push([extrinsic.hash.toHex(), index]);
       }
-      const txResult = await this.blockchainService.crawlBlockListForTx(job.data.txHash, blockList, [
-        { pallet: 'system', event: 'ExtrinsicSuccess' },
-      ]);
+    });
 
-      if (!txResult.found) {
-        if (job.attemptsMade < (job.opts.attempts ?? 3)) {
-          // if tx has not yet included in a block, throw error to retry till max attempts
-          throw new Error(`Tx not found in block list, retrying (attempts=${job.attemptsMade})`);
-        } else {
-          this.logger.warn(`Could not fetch the transaction adding to publish again! ${job.id}`);
-          // could not find the transaction, this might happen if transaction never gets into a block
-          await this.retryPublishJob(job.data.referencePublishJob);
+    let pipeline = this.cacheManager.multi({ pipeline: true });
+
+    if (extrinsicIndices.length > 0) {
+      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
+      const epoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const events: FrameSystemEventRecord[] = blockEvents.filter(
+        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
+      );
+
+      const totalCapacityWithdrawn: bigint = events.reduce((sum, { event }) => {
+        if (at.events.capacity.CapacityWithdrawn.is(event)) {
+          return sum + event.data.amount.toBigInt();
         }
-      } else {
-        // found the tx
-        await this.setEpochCapacity(txResult.capacityEpoch ?? 0, txResult.capacityWithdrawn ?? 0n);
-        if (txResult.error) {
-          this.logger.debug(`Error found in tx result: ${JSON.stringify(txResult.error)}`);
-          const errorReport = await this.handleMessagesFailure(job.data.id, txResult.error);
+        return sum;
+      }, 0n);
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [txHash, txIndex] of extrinsicIndices) {
+        const extrinsicEvents = events.filter(
+          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
+        );
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
+        const txStatus = JSON.parse(txStatusStr) as ITxStatus;
+        const successEvent = extrinsicEvents.find(
+          ({ event }) =>
+            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
+        )?.event;
+        const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
+
+        // TODO: Should the webhook provide for reporting failure?
+        if (failureEvent && at.events.system.ExtrinsicFailed.is(failureEvent)) {
+          const { dispatchError } = failureEvent.data;
+          const moduleThatErrored = dispatchError.asModule;
+          const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
+          this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+          const errorReport = this.handleMessagesFailure(moduleError);
 
           if (errorReport.pause) {
             await this.publishQueue.pause();
           }
 
           if (errorReport.retry) {
-            await this.retryPublishJob(job.data.referencePublishJob);
-          } else {
-            throw new UnrecoverableError(`Job ${job.data.id} failed with error ${JSON.stringify(txResult.error)}`);
+            await this.retryPublishJob(txStatus.referencePublishJob);
           }
+        } else if (successEvent) {
+          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+        } else {
+          this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }
 
-        if (txResult.success) {
-          this.logger.verbose(`Successfully found ${job.data.txHash} found in block ${txResult.blockHash}`);
-        }
+        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
+        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
+        pendingTxns.slice(idx, 1);
       }
-      return txResult;
-    } catch (e) {
-      this.logger.error(e);
-      throw e;
-    } finally {
-      // do some stuff
+
+      await this.setEpochCapacity(epoch, totalCapacityWithdrawn);
     }
+
+    // Now check all pending transactions for expiration as of this block
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { birth, death, txHash, referencePublishJob } of pendingTxns) {
+      if (death <= currentBlockNumber) {
+        this.logger.warn(
+          `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber}), adding back to the publishing queue`,
+        );
+        // could not find the transaction, this might happen if transaction never gets into a block
+        await this.retryPublishJob(referencePublishJob);
+        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
+        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
+        pendingTxns.slice(idx, 1);
+      }
+    }
+
+    // Execute marshalled Redis transactions
+    await pipeline.exec();
   }
 
-  private async handleMessagesFailure(
-    jobId: string,
-    moduleError: RegistryError,
-  ): Promise<{ pause: boolean; retry: boolean }> {
+  private handleMessagesFailure(moduleError: RegistryError): { pause: boolean; retry: boolean } {
     try {
       switch (moduleError.method) {
         case 'TooManyMessagesInBlock':

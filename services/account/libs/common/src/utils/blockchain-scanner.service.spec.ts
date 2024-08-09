@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { BlockHash } from '@polkadot/types/interfaces';
+import { Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@liaoliaots/nestjs-redis';
 import { Redis } from 'ioredis';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainScannerService } from './blockchain-scanner.service';
 
 const mockRedis = {
@@ -15,6 +16,16 @@ const mockBlockHash = {
   toString: jest.fn(() => '0x1234'),
   some: () => true,
 };
+
+const mockSignedBlock = {
+  block: {
+    header: {
+      number: 1,
+    },
+    extrinsics: [],
+  },
+};
+
 Object.defineProperty(mockBlockHash, 'isEmpty', {
   get: jest.fn(() => false),
 });
@@ -27,11 +38,28 @@ Object.defineProperty(mockEmptyBlockHash, 'isEmpty', {
   get: jest.fn(() => true),
 });
 const mockBlockchainService = {
+  isReady: jest.fn(() => Promise.resolve()),
+  getBlock: jest.fn((blockHash?: string | Hash) => mockSignedBlock as unknown as SignedBlock),
+  getBlockHash: jest.fn((blockNumber: number) => (blockNumber > 1 ? mockEmptyBlockHash : mockBlockHash)),
+  getLatestFinalizedBlockNumber: jest.fn(),
+};
+Object.defineProperty(mockBlockchainService, 'api', {
+  get: jest.fn(() => ({
+    at: jest.fn(() => ({
+      query: {
+        system: {
+          events: jest.fn(() => ({
+            toArray: jest.fn(() => []),
+          })),
+        },
+      },
+    })),
+  })),
+});
+
+const mockBlockchainServiceProvider = {
   provide: BlockchainService,
-  useValue: {
-    getBlockHash: jest.fn((blockNumber: number) => (blockNumber > 1 ? mockEmptyBlockHash : mockBlockHash)),
-    getLatestFinalizedBlockNumber: jest.fn(),
-  },
+  useValue: mockBlockchainService,
 };
 
 @Injectable()
@@ -40,7 +68,7 @@ class ScannerService extends BlockchainScannerService {
     super(redis, blockchainService, new Logger('ScannerService'));
   }
   // eslint-disable-next-line
-  protected processCurrentBlock = jest.fn((_currentBlockHash: BlockHash, _currentBlockNumber: number) => {
+  protected processCurrentBlock = jest.fn((_currentBlock: SignedBlock, _blockEvents: FrameSystemEventRecord[]) => {
     return Promise.resolve();
   });
 }
@@ -51,7 +79,7 @@ describe('BlockchainScannerService', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [mockRedis, Logger, mockBlockchainService, ScannerService],
+      providers: [mockRedis, Logger, mockBlockchainServiceProvider, ScannerService],
     }).compile();
     service = moduleRef.get<ScannerService>(ScannerService);
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);

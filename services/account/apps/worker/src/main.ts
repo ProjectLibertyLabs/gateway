@@ -5,6 +5,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { redisReady } from '#lib/utils/redis';
 import { WorkerModule } from './worker.module';
 
+// Monkey-patch BigInt so that JSON.stringify will work
+// eslint-disable-next-line
+BigInt.prototype['toJSON'] = function () {
+  return this.toString();
+};
+
 const logger = new Logger('worker_main');
 
 // bootstrap() does not have a main loop to keep the process alive.

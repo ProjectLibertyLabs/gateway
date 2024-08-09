@@ -14,17 +14,11 @@ export const GRAPH_CHANGE_REQUEST_QUEUE = 'graphChangeRequest';
 export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
 
 /**
- * Name of the queue that processes graph change notifications
- */
-export const GRAPH_CHANGE_NOTIFY_QUEUE = 'graphChangeNotify';
-
-/**
  * Debouncer cache key
  */
 export const DEBOUNCER_CACHE_KEY = 'graph-service-debouncer';
 
 /**
  * Last processed dsnpId key for Redis
- * @type {string}
  */
 export const LAST_PROCESSED_DSNP_ID_KEY = 'lastProcessedDsnpId';

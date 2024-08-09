@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
-import { AddKeyData, ChainUser, ExtrinsicHelper, createKeys } from '@amplica-labs/frequency-scenario-template';
+import { AddKeyData, ChainUser, ExtrinsicHelper, createKeys } from '@projectlibertylabs/frequency-scenario-template';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { ApiModule } from '../src/api.module';
 import {

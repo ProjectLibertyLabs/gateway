@@ -17,7 +17,7 @@ import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#libs/queues/q
 import { ConfigService } from '#libs/config';
 import { Announcement, IBatchMetadata } from '#libs/interfaces';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import { getSchemaId } from '#libs/utils/dsnp.schema';
+import { BlockchainService } from '#libs/blockchain/blockchain.service';
 
 @Injectable()
 export class BatchingProcessorService {
@@ -28,6 +28,7 @@ export class BatchingProcessorService {
     @InjectQueue(BATCH_QUEUE_NAME) private outputQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private configService: ConfigService,
+    private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
     redis.defineCommand('addToBatch', {
@@ -131,7 +132,10 @@ export class BatchingProcessorService {
     if (announcements.length > 0) {
       const job = {
         batchId: metaData.batchId,
-        schemaId: getSchemaId(this.configService.environment, QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!),
+        schemaId: await this.blockchainService.getSchemaIdByName(
+          'dsnp',
+          QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!.toString(),
+        ),
         announcements,
       } as IBatchAnnouncerJobData;
       await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, {

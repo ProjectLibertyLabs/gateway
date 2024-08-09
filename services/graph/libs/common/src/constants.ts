@@ -24,3 +24,8 @@ export const EVENTS_TO_WATCH_KEY = 'eventsToWatch';
  * @type {string}
  */
 export const REGISTERED_WEBHOOK_KEY = 'registeredWebhook';
+
+/**
+ * Hash set key containing ITxStatus values for submitted chain transactions we are watching for completion
+ */
+export const TXN_WATCH_LIST_KEY = 'txnWatchList';

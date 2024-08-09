@@ -137,9 +137,9 @@ The Content Publishing Service consists of two applications: an API controller, 
 
 ## 🚀 Live Docs
 
-- [Live Docs](https://amplicalabs.github.io/content-publishing-service/)
-- [API Documentation](https://amplicalabs.github.io/content-publishing-service/)
-- [GitHub](https://github.com/AmplicaLabs/content-publishing-service)
+- [Live Docs](https://projectlibertylabs.github.io/content-publishing-service/)
+- [API Documentation](https://projectlibertylabs.github.io/content-publishing-service/)
+- [GitHub](https://github.com/ProjectLibertyLabs/content-publishing-service)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -147,7 +147,7 @@ The Content Publishing Service consists of two applications: an API controller, 
 
 ## 💻 Getting Started
 
-This guide is tailored for developers working in the code base for the Content Publishing Service itself. For a more tutorial tailored more for developers wanting to deploy the Content Publishing Service as part of the broader Social Gateway in order to develop their own Social Gateway app, visit [Live Docs](https://amplicalabs.github.io/gateway/).
+This guide is tailored for developers working in the code base for the Content Publishing Service itself. For a more tutorial tailored more for developers wanting to deploy the Content Publishing Service as part of the broader Social Gateway in order to develop their own Social Gateway app, visit [Live Docs](https://projectlibertylabs.github.io/gateway/).
 
 To prepare and run a local instance of the Content Publishing Service for local development, follow the guide below.
 
@@ -166,7 +166,7 @@ Use the provided [env.template](./env.template) file to create an initial enviro
  1. For running the application under Docker, copy the environment template to `.env.docker.dev`; for running bare-metal, copy to `.env`.
 
   ```sh
-  cp env.template .env 
+  cp env.template .env
   ```
 
   2. Configure the environment variable values according to your environment.
@@ -195,7 +195,7 @@ To run the project, execute the following command:
 #### 2. Start the application services
 
   Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
-  
+
   The instructions are the same for running both the API service and the worker service:
 
 - **Substitute "api" or "worker" for the "< service >" tag in the commands below.**
@@ -207,7 +207,7 @@ To run the project, execute the following command:
   ```
 
   -- or --
-  
+
 #### Running under Docker
 
   ```sh
@@ -253,7 +253,7 @@ To run tests, run the following command:
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/AmplicaLabs/content-publishing-service/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/content-publishing-service/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

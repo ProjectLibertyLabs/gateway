@@ -8,14 +8,15 @@ import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { SECONDS_PER_BLOCK, TxWebhookRsp, RedisUtils } from 'libs/common/src';
 import { createWebhookRsp } from '#worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { BlockchainScannerService, NullScanError } from '#lib/utils/blockchain-scanner.service';
+import { BlockchainScannerService } from '#lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { BlockHash } from '@polkadot/types/interfaces';
+import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#lib/config/config.service';
 import { QueueConstants } from '#lib/queues';
+import { CapacityCheckerService } from '#lib/blockchain/capacity-checker.service';
 
 @Injectable()
 export class TxnNotifierService
@@ -47,9 +48,13 @@ export class TxnNotifierService
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
     private readonly configService: ConfigService,
+    private readonly capacityService: CapacityCheckerService,
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
+      this.capacityService.checkForSufficientCapacity(),
+    );
   }
 
   public get intervalName() {
@@ -72,25 +77,6 @@ export class TxnNotifierService
     }
   }
 
-  protected async checkInitialScanParameters(): Promise<void> {
-    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
-    if (pendingTxns === 0) {
-      throw new NullScanError('No pending extrinsics; no scan will be performed');
-    }
-
-    return super.checkInitialScanParameters();
-  }
-
-  protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<void> {
-    const pendingTxns = await this.cacheManager.hlen(RedisUtils.TXN_WATCH_LIST_KEY);
-
-    if (pendingTxns === 0) {
-      throw new NullScanError('No pending extrinsics; terminating current scan iteration');
-    }
-
-    return super.checkScanParameters(blockNumber, blockHash);
-  }
-
   public async getLastSeenBlockNumber(): Promise<number> {
     let blockNumber = await super.getLastSeenBlockNumber();
     const pendingTxns = await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY);
@@ -107,15 +93,16 @@ export class TxnNotifierService
     return blockNumber;
   }
 
-  async processCurrentBlock(currentBlockHash: BlockHash, currentBlockNumber: number): Promise<void> {
+  async processCurrentBlock(currentBlock: SignedBlock, blockEvents: FrameSystemEventRecord[]): Promise<void> {
+    const currentBlockNumber = currentBlock.block.header.number.toNumber();
+
     // Get set of tx hashes to monitor from cache
     const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map(
       (val) => JSON.parse(val) as ITxStatus,
     );
 
-    const block = await this.blockchainService.getBlock(currentBlockHash);
     const extrinsicIndices: [HexString, number][] = [];
-    block.block.extrinsics.forEach((extrinsic, index) => {
+    currentBlock.block.extrinsics.forEach((extrinsic, index) => {
       if (pendingTxns.some(({ txHash }) => txHash === extrinsic.hash.toHex())) {
         extrinsicIndices.push([extrinsic.hash.toHex(), index]);
       }
@@ -124,9 +111,9 @@ export class TxnNotifierService
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
     if (extrinsicIndices.length > 0) {
-      const at = await this.blockchainService.api.at(currentBlockHash);
+      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
       const epoch = (await at.query.capacity.currentEpoch()).toNumber();
-      const events: FrameSystemEventRecord[] = (await at.query.system.events()).filter(
+      const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
       );
 
@@ -154,7 +141,7 @@ export class TxnNotifierService
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
           this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
         } else if (successEvent) {
-          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockHash}`);
+          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
           const webhook = await this.getWebhook();
           let webhookResponse: Partial<TxWebhookRsp> = {};
           webhookResponse.referenceId = txStatus.referenceId;

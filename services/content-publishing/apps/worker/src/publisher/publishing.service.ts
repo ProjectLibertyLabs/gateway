@@ -1,42 +1,41 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, InjectQueue } from '@nestjs/bullmq';
 import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { BlockHash, Hash } from '@polkadot/types/interfaces';
 import { ConfigService } from '#libs/config';
 import { BlockchainService } from '#libs/blockchain/blockchain.service';
-import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK } from '#libs/constants';
-import { PUBLISH_QUEUE_NAME, TRANSACTION_RECEIPT_QUEUE_NAME } from '#libs/queues/queue.constants';
+import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#libs/constants';
+import { PUBLISH_QUEUE_NAME } from '#libs/queues/queue.constants';
 import { BaseConsumer } from '../BaseConsumer';
-import { IPublisherJob, ITxMonitorJob } from '../interfaces';
+import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
+import { ITxStatus } from '#libs/interfaces/tx-status.interface';
+import { CapacityCheckerService } from '#libs/blockchain/capacity-checker.service';
 
 @Injectable()
 @Processor(PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
-  private capacityExhausted = false;
-
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(TRANSACTION_RECEIPT_QUEUE_NAME) private txReceiptQueue: Queue,
     @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
+    private capacityCheckerService: CapacityCheckerService,
   ) {
     super();
   }
 
   public async onApplicationBootstrap() {
-    await this.checkCapacity();
+    await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
   async onModuleDestroy(): Promise<void> {
@@ -49,106 +48,70 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     await super.onModuleDestroy();
   }
 
-  async process(job: Job<IPublisherJob, any, string>): Promise<any> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+  async process(job: Job<IPublisherJob, any, string>): Promise<void> {
     try {
-      const currentBlockHash = await this.blockchainService.getLatestFinalizedBlockHash();
-      const txHash = await this.ipfsPublisher.publish(job.data);
-      await this.sendJobToTxReceiptQueue(job.data, txHash, currentBlockHash);
+      // Check capacity first; if out of capacity, send job back to queue
+      if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
+        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
+        throw new DelayedError();
+      }
+      this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+      const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const [txHash, tx] = await this.ipfsPublisher.publish(job.data);
+
+      const status: ITxStatus = {
+        txHash: txHash.toHex(),
+        successEvent: { section: 'messages', method: 'MessagesInBlock' },
+        birth: tx.era.asMortalEra.birth(currentBlockNumber),
+        death: tx.era.asMortalEra.death(currentBlockNumber),
+        referencePublishJob: job.data,
+      };
+      const obj = {};
+      obj[txHash.toString()] = JSON.stringify(status);
+      await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
       this.logger.verbose(`Successfully completed job ${job.id}`);
-      return { success: true };
     } catch (e) {
-      this.logger.error(`Job ${job.id} failed (attempts=${job.attemptsMade})error: ${e}`);
+      if (!(e instanceof DelayedError)) {
+        this.logger.error(`Job ${job.id} failed (attempts=${job.attemptsMade})error: ${e}`);
+      }
       if (e instanceof Error && e.message.includes('Inability to pay some fees')) {
         this.eventEmitter.emit('capacity.exhausted');
       }
       throw e;
-    } finally {
-      await this.checkCapacity();
-    }
-  }
-
-  async sendJobToTxReceiptQueue(
-    jobData: IPublisherJob,
-    txHash: Hash,
-    lastFinalizedBlockHash: BlockHash,
-  ): Promise<void> {
-    const job: ITxMonitorJob = {
-      id: txHash.toString(),
-      lastFinalizedBlockHash,
-      txHash,
-      referencePublishJob: jobData,
-    };
-    // add a delay of 1 block to allow the tx receipt to go through before checking
-    const initialDelay = 1 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    const retryDelay = 3 * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-    await this.txReceiptQueue.add(`Receipt Job - ${job.id}`, job, {
-      jobId: job.id,
-      delay: initialDelay,
-      attempts: 4,
-      backoff: { type: 'exponential', delay: retryDelay },
-    });
-  }
-
-  private async checkCapacity(): Promise<void> {
-    const { capacityLimit } = this.configService;
-    const capacity = await this.blockchainService.capacityInfo(this.configService.providerId);
-    const { remainingCapacity } = capacity;
-    const { currentEpoch } = capacity;
-    const epochCapacityKey = `epochCapacity:${currentEpoch}`;
-    const epochUsedCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0); // Fetch capacity used by the service
-    let outOfCapacity = remainingCapacity <= 0n;
-
-    if (!outOfCapacity) {
-      this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
-      if (capacityLimit.type === 'percentage') {
-        const capacityLimitPercentage = BigInt(capacityLimit.value);
-        const capacityLimitThreshold = (capacity.totalCapacityIssued * capacityLimitPercentage) / 100n;
-        this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
-        if (epochUsedCapacity >= capacityLimitThreshold) {
-          outOfCapacity = true;
-          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
-        }
-      } else if (epochUsedCapacity >= capacityLimit.value) {
-        outOfCapacity = true;
-        this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
-      }
-    }
-
-    if (outOfCapacity) {
-      await this.eventEmitter.emitAsync('capacity.exhausted');
-    } else {
-      await this.eventEmitter.emitAsync('capacity.refilled');
     }
   }
 
   @OnEvent('capacity.exhausted', { async: true, promisify: true })
   private async handleCapacityExhausted() {
     this.logger.debug('Received capacity.exhausted event');
-    this.capacityExhausted = true;
     await this.publishQueue.pause();
-    const { capacityLimit } = this.configService;
+    const { capacityLimitObj } = this.configService;
     const capacity = await this.blockchainService.capacityInfo(this.configService.providerId);
 
     this.logger.debug(`
-    Capacity limit: ${JSON.stringify(capacityLimit)}
+    Capacity limit: ${JSON.stringify(capacityLimitObj)}
     Remaining Capacity: ${JSON.stringify(capacity.remainingCapacity.toString())})}`);
 
     const blocksRemaining = capacity.nextEpochStart - capacity.currentBlockNumber;
     try {
       this.schedulerRegistry.addTimeout(
         CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.checkCapacity(), blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND),
+        setTimeout(
+          () => this.capacityCheckerService.checkForSufficientCapacity(),
+          blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
+        ),
       );
     } catch (err) {
       // ignore duplicate timeout
     }
   }
 
-  @OnEvent('capacity.refilled', { async: true, promisify: true })
+  @OnEvent('capacity.available', { async: true, promisify: true })
   private async handleCapacityRefilled() {
-    this.logger.debug('Received capacity.refilled event');
-    this.capacityExhausted = false;
+    // Avoid spamming the log
+    if (await this.publishQueue.isPaused()) {
+      this.logger.debug('Received capacity.available event');
+    }
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {

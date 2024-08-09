@@ -179,7 +179,10 @@ export class DsnpAnnouncementProcessor {
       attachment: attachments,
     });
     const noteString = JSON.stringify(note);
-    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(noteString));
+    const toUint8Array = new TextEncoder();
+    const encoded = toUint8Array.encode(noteString);
+
+    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(encoded));
     const ipfsUrl = this.formIpfsUrl(cid);
     return [cid, ipfsUrl, hash];
   }
@@ -397,8 +400,11 @@ export class DsnpAnnouncementProcessor {
       icon: attachments,
       tag: this.prepareTags(content.profile.tag),
     };
+    const toUint8Array = new TextEncoder();
     const profileString = JSON.stringify(profileActivity);
-    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(profileString));
+    const profileEncoded = toUint8Array.encode(profileString);
+
+    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(profileEncoded));
     return createProfile(dsnpUserId, this.formIpfsUrl(cid), hash);
   }
 

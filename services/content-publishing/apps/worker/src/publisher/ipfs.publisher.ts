@@ -21,7 +21,7 @@ export class IPFSPublisher {
     this.logger = new Logger(IPFSPublisher.name);
   }
 
-  public async publish(message: IPublisherJob): Promise<Hash> {
+  public async publish(message: IPublisherJob): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(JSON.stringify(message));
     const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
     const tx = this.blockchainService.createExtrinsicCall(
@@ -35,23 +35,23 @@ export class IPFSPublisher {
 
   async processSingleBatch(
     providerKeys: KeyringPair,
-    tx: SubmittableExtrinsic<'rxjs', ISubmittableResult>,
-  ): Promise<Hash> {
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+  ): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(`Submitting tx of size ${tx.length}`);
     try {
-      const ext = await this.blockchainService.createExtrinsic(
+      const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
-        { eventPallet: 'messages', event: 'MessagesStored' },
         providerKeys,
         tx,
       );
+      this.logger.debug('Submitted transaction: ', ext.getCall().toHex());
       const nonce = await this.nonceService.getNextNonce();
-      const [txHash] = await ext.signAndSend(nonce);
+      const txHash = await ext.signAndSend(nonce);
       if (!txHash) {
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
+      return [txHash, ext.extrinsic];
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
       throw e;

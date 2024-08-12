@@ -82,7 +82,7 @@
     "@projectlibertylabs/prettier-config": "file:../../packages/prettier-config",
     "@projectlibertylabs/ts-config": "file:../../packages/ts-config",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.11",
+    "@types/node": "^22.2.0",
     "@types/supertest": "^6.0.2",
     "@types/time-constants": "^1.0.2",
     "@typescript-eslint/parser": "^7.16.1",

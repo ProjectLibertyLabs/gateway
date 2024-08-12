@@ -62,7 +62,7 @@
     "@nestjs/schedule": "^4.0.2",
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/testing": "^9.4.0",
-    "@polkadot/api": "^10.9.1",
+    "@polkadot/api": "^12.3.1",
     "@polkadot/api-base": "^10.9.1",
     "@polkadot/keyring": "^12.3.2",
     "@polkadot/types": "^10.9.1",

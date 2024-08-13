@@ -166,9 +166,8 @@ cp env.template .env
 
 2. Configure the environment variable values according to your environment.
 
-
-    - Docker: `.env.docker.dev`
-    - Local: `.env`
+   - Docker: `.env.docker.dev`
+   - Local: `.env`
 
 ### Setup
 

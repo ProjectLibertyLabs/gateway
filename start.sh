@@ -142,8 +142,6 @@ IPFS_BASIC_AUTH_SECRET="${DEFAULT_IPFS_BASIC_AUTH_SECRET}"
 IPFS_UA_GATEWAY_URL="${DEFAULT_IPFS_UA_GATEWAY_URL}"
 EOI
     fi
-    # Edit `CONTENT_DB_VOLUME` to change the location of the content database, the default is a docker volume
-    echo "CONTENT_DB_VOLUME=\"$DEFAULT_CONTENT_DB_VOLUME\"" >> .env-saved
 fi
 set -a; source .env-saved; set +a
 

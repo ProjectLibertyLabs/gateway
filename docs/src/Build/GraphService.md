@@ -1,33 +1,49 @@
 # Graph Service
 
-### **Overview**
-
 The Graph Service manages the social graphs, including follow/unfollow actions, blocking users, and other social interactions. It allows applications to maintain and query the social connections between users on the Frequency network.
 
-### **API Reference:**
+## API Reference
 
-⚠️{embed swagger here}
+<iframe src="https://projectlibertylabs.github.io/gateway/graph" width="100%" height="600px"></iframe>
+
+[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/graph)
 
 
-### Configuration
+## Configuration
 
 ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
 
-| Name                           | Description                                                                                                                          |          Range/Type           | Required? | Default |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------: | :-----: |
-| `API_PORT`                     | HTTP port that the application listens on                                                                                            |         1025 - 65535          |           |  3000   |
-| `FREQUENCY_HTTP_URL`           | Blockchain node address for the SiwF UI (must be resolvable from a browser)                                                          |         http(s): URL          |     Y     |         |
-| `FREQUENCY_URL`                | Blockchain node address                                                                                                              |    http(s): or ws(s): URL     |     Y     |         |
-| `PROVIDER_ACCOUNT_SEED_PHRASE` | Seed phrase for provider MSA control key                                                                                             |            string             |     Y     |         |
-| `PROVIDER_ID`                  | Provider MSA ID                                                                                                                      |            integer            |     Y     |         |
-| `CHAIN_ENVIRONMENT`            | What type of chain we're connected to                                                                                                | dev\|rococo\|testnet\|mainnet |     Y     |         |
-| `IPFS_GATEWAY_URL`             | IPFS gateway domain URL. If set, will replace the 'protocol://domain:port' portion of content URLs loaded from the chain             |         URL template          |           |         |
-| `IPFS_UA_GATEWAY_URL`          | IPFS gateway domain URL (user-agent resolvable). If set, will override IPFS_GATEWAY_URL in the auth response sent to the user-agent. |         URL template          |           |         |
-| `SIWF_DOMAIN`                  | Domain to be used in SIWF login payloads                                                                                             |            string             |     Y     |         |
-| `SIWF_URL`                     | URL for the SIgn-in with Frequency UI                                                                                                |              URL              |     Y     |         |
+| Name                                      | Description                                                                                                                                                                       |            Range/Type            | Required? |     Default      |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------: | :-------: | :--------------: |
+| `API_PORT`                                | HTTP port that the application listens on                                                                                                                                         |           1025 - 65535           |           |       3000       |
+| `BLOCKCHAIN_SCAN_INTERVAL_SECONDS`        | How many seconds to delay between successive scans of the chain (after end of chain is reached)                                                                                   |               > 0                |           |       180        |
+| `CACHE_KEY_PREFIX`                        | Prefix to use for Redis cache keys                                                                                                                                                |              string              |           | content-watcher: |
+| `CAPACITY_LIMIT`                          | Maximum amount of provider capacity this app is allowed to use (per epoch) type: 'percentage' 'amount' value: number (may be percentage, ie '80', or absolute amount of capacity) | JSON [(example)](./env.template) |     Y     |                  |
+| `DEBOUNCE_SECONDS`                        | Number of seconds to retain pending graph updates in the Redis cache to avoid redundant fetches from the chain                                                                    |               >= 0               |           |                  |
+| `FREQUENCY_URL`                           | Blockchain node address                                                                                                                                                           |      http(s): or ws(s): URL      |     Y     |                  |
+| `GRAPH_ENVIRONMENT_TYPE`                  | Graph environment type.                                                                                                                                                           |      Mainnet\|TestnetPaseo       |     Y     |                  |
+| `HEALTH_CHECK_MAX_RETRIES`                | Number of `/health` endpoint failures allowed before marking the provider webhook service down                                                                                    |               >= 0               |           |        20        |
+| `HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS` | Number of seconds to retry provider webhook `/health` endpoint when failing                                                                                                       |               > 0                |           |        64        |
+| `HEALTH_CHECK_SUCCESS_THRESHOLD`          | Minimum number of consecutive successful calls to the provider webhook `/health` endpoint before it is marked up again                                                            |               > 0                |           |        10        |
+| `PROVIDER_ACCOUNT_SEED_PHRASE`            | Seed phrase for provider MSA control key                                                                                                                                          |              string              |     Y     |                  |
+| `PROVIDER_ID`                             | Provider MSA ID                                                                                                                                                                   |             integer              |     Y     |                  |
+| `QUEUE_HIGH_WATER`                        | Max number of jobs allowed on the 'graphUpdateQueue' before blockchain scan will be paused to allow queue to drain                                                                |              >= 100              |           |       1000       |
+| `RECONNECTION_SERVICE_REQUIRED`           | Whether to instantiate/activate reconnection-service features                                                                                                                     |            true/false            |           |                  |
+| `REDIS_URL`                               | Connection URL for Redis                                                                                                                                                          |               URL                |     Y     |                  |
 
-### Best Practices
+### The following environment variables are only relevant if `RECONNECTION_SERVICE_REQUESTED` is 'true':
+
+| Name                                     | Description                                                                            | Range/Type | Required? | Default |
+| ---------------------------------------- | -------------------------------------------------------------------------------------- | :--------: | :-------: | :-----: |
+| `CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE` | Number of connection/page to request when requesting provider connections from webhook |    > 0     |           |   100   |
+| `PROVIDER_ACCESS_TOKEN`                  | An optional bearer token authentication to the provider webhook                        |   string   |           |         |
+| `PROVIDER_BASE_URL`                      | Base URL for provider webhook endpoints                                                |    URL     |     Y     |         |
+| `WEBHOOK_FAILURE_THRESHOLD`              | Number of failures allowing in the provider webhook before the service is marked down  |    > 0     |           |    3    |
+| `WEBHOOK_RETRY_INTERVAL_SECONDS`         | Number of seconds between provider webhook retry attempts when failing                 |    > 0     |           |   10    |
+
+
+## Best Practices
 
 - **Data Integrity**: Ensure the integrity of social graph data by implementing robust validation checks.
 - **Efficient Queries**: Optimize queries to handle large social graphs efficiently.

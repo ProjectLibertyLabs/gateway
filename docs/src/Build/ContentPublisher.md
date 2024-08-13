@@ -1,33 +1,39 @@
 # Content Publishing Service
 
-### **Overview**
-
 The Content Publishing Service allows users to create, post, and manage content on the Frequency network. It supports various content types such as text, images, and videos.
 
-### **API Reference:**
+## API Reference
 
-⚠️{embed swagger here}
+<iframe src="https://projectlibertylabs.github.io/gateway/content-publishing" width="100%" height="600px"></iframe>
 
+[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/content-publishing)
 
-### Configuration
+## Configuration
 
 ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
 
-| Name                           | Description                                                                                                                          |          Range/Type           | Required? | Default |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------: | :-----: |
-| `API_PORT`                     | HTTP port that the application listens on                                                                                            |         1025 - 65535          |           |  3000   |
-| `FREQUENCY_HTTP_URL`           | Blockchain node address for the SiwF UI (must be resolvable from a browser)                                                          |         http(s): URL          |     Y     |         |
-| `FREQUENCY_URL`                | Blockchain node address                                                                                                              |    http(s): or ws(s): URL     |     Y     |         |
-| `PROVIDER_ACCOUNT_SEED_PHRASE` | Seed phrase for provider MSA control key                                                                                             |            string             |     Y     |         |
-| `PROVIDER_ID`                  | Provider MSA ID                                                                                                                      |            integer            |     Y     |         |
-| `CHAIN_ENVIRONMENT`            | What type of chain we're connected to                                                                                                | dev\|rococo\|testnet\|mainnet |     Y     |         |
-| `IPFS_GATEWAY_URL`             | IPFS gateway domain URL. If set, will replace the 'protocol://domain:port' portion of content URLs loaded from the chain             |         URL template          |           |         |
-| `IPFS_UA_GATEWAY_URL`          | IPFS gateway domain URL (user-agent resolvable). If set, will override IPFS_GATEWAY_URL in the auth response sent to the user-agent. |         URL template          |           |         |
-| `SIWF_DOMAIN`                  | Domain to be used in SIWF login payloads                                                                                             |            string             |     Y     |         |
-| `SIWF_URL`                     | URL for the SIgn-in with Frequency UI                                                                                                |              URL              |     Y     |         |
+| Name                                      | Description                                                                                                                                                                                                                                                                              |            Range/Type            | Required? |           Default           |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------: | :-------: | :-------------------------: |
+| `API_PORT`                                | HTTP port that the application listens on                                                                                                                                                                                                                                                |           1025 - 65535           |           |            3000             |
+| `ASSET_EXPIRATION_INTERVAL_SECONDS`       | Number of seconds to keep completed asset entrie in the cache before expiring them                                                                                                                                                                                                       |               > 0                |     Y     |                             |
+| `ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS` | Base delay in seconds used for exponential backoff while waiting for uploaded assets to be verified available before publishing a content notice                                                                                                                                         |               >= 0               |     Y     |                             |
+| `BATCH_INTERVAL_SECONDS`                  | Number of seconds between content publishing batches. This is so that the service waits a reasonable amount of time for additional content to publishing before submitting a batch--it represents a trade-off between maximum batch fullness and minimal wait time for published content |               > 0                |     Y     |                             |
+| `BATCH_MAX_COUNT`                         | Maximum number of items that can be submitted in a single batch                                                                                                                                                                                                                          |               > 0                |     Y     |                             |
+| `CACHE_KEY_PREFIX`                        | Prefix to use for Redis cache keys                                                                                                                                                                                                                                                       |              string              |           | content-publishing-service: |
+| `CAPACITY_LIMIT`                          | Maximum amount of provider capacity this app is allowed to use (per epoch) type: 'percentage' 'amount' value: number (may be percentage, ie '80', or absolute amount of capacity)                                                                                                        | JSON [(example)](./env.template) |     Y     |                             |
+| `FILE_UPLOAD_MAX_SIZE_IN_BYTES`           | Max file size (in bytes) allowed for asset upload                                                                                                                                                                                                                                        |               > 0                |     Y     |                             |
+| `FREQUENCY_URL`                           | Blockchain node address                                                                                                                                                                                                                                                                  |      http(s): or ws(s): URL      |     Y     |                             |
+| `IPFS_BASIC_AUTH_SECRET`                  | If using Infura, put auth token here, or leave blank for Kubo RPC                                                                                                                                                                                                                        |              string              |     N     |            blank            |
+| `IPFS_BASIC_AUTH_USER`                    | If using Infura, put Project ID here, or leave blank for Kubo RPC                                                                                                                                                                                                                        |              string              |     N     |            blank            |
+| `IPFS_ENDPOINT`                           | URL to IPFS endpoint                                                                                                                                                                                                                                                                     |               URL                |     Y     |                             |
+| `IPFS_GATEWAY_URL`                        | IPFS gateway URL. '[CID]' is a token that will be replaced with an actual content ID                                                                                                                                                                                                     |           URL template           |     Y     |                             |
+| `PROVIDER_ACCOUNT_SEED_PHRASE`            | Seed phrase for provider MSA control key                                                                                                                                                                                                                                                 |              string              |     Y     |                             |
+| `PROVIDER_ID`                             | Provider MSA ID                                                                                                                                                                                                                                                                          |             integer              |     Y     |                             |
+| `REDIS_URL`                               | Connection URL for Redis                                                                                                                                                                                                                                                                 |               URL                |     Y     |
 
-### **Best Practices**
+
+## Best Practices
 
 - **Metadata Management**: Always ensure metadata is correctly associated with content to maintain data integrity.
 - **Content Validation**: Validate content to prevent the submission of inappropriate or harmful material.

@@ -25,7 +25,7 @@ Gateway provides easy way to interact with Frequency without requiring any direc
 
 ![Gateway Application Layer Diagram](./gateway_arch-Layer.drawio.png)
 
-Each microservice takes a different building block.
+Each microservice is a different building block.
 These microservices are 100% independent of each other, so use only what you want.
 
 ![Gateway Application Microservice Diagram](./gateway_arch-TopLevelServices.drawio.png)

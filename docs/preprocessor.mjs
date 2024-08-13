@@ -1,11 +1,13 @@
 // Debugging Help
 // Use console.error, not console.log
 //
-// This does two things:
+// This does a few things:
 // - Runs openapi-to-md when `{{#swagger-embed ../services/account/swagger.json}}` or other is found
 // - Replaces `{{#button-links}}` with the child links of that page in button form
+// - Replaces `{{#markdown-embed ../services/account/ENVIRONMENT.md [trim from top]}}` or other is found with the contents of that file
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
+import { readFileSync } from "node:fs"
 
 function runNpxCommand(script, args) {
   try {
@@ -59,6 +61,22 @@ function swaggerEmbed(chapter) {
   }
 }
 
+function markdownEmbed(chapter) {
+  const regex = /{{#markdown-embed\s(.+?)\s(.+?)}}/;
+  const match = chapter.content.match(regex);
+  if (match) {
+    const markdownFile = match[1];
+    const output = readFileSync(markdownFile, 'utf8');
+    const replaceWith = output.split("\n").slice(match[2]).join("\n");
+    chapter.content = chapter.content.replace(match[0], replaceWith);
+  }
+  if (chapter.sub_items) {
+    chapter.sub_items.forEach((section) => {
+      section.Chapter && markdownEmbed(section.Chapter);
+    });
+  }
+}
+
 // Function to perform the preprocessing
 function preprocessMdBook([_context, book]) {
   // Button Links
@@ -69,6 +87,11 @@ function preprocessMdBook([_context, book]) {
   // Swagger Embed
   book.sections.forEach((section) => {
     section.Chapter && swaggerEmbed(section.Chapter);
+  });
+
+  // Markdown Embed
+  book.sections.forEach((section) => {
+    section.Chapter && markdownEmbed(section.Chapter);
   });
 
   // Output the processed content in mdbook preprocessor format

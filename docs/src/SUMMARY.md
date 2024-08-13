@@ -15,18 +15,11 @@
   - [Graph Service](./Build/GraphService.md)
 - [Run](./Run/README.md)
   - [Deployment](./Run/Deployment.md)
-  - [DevOps]()
-  - [Monitoring]()
-  - [SIWF/SINA]()
   - [Security](./Run/Security.md)
   - [Performance](./Run/Performance.md)
   - [Scalability](./Run/Scalability.md)
 ---
 
 [FAQ](./FAQ.md)
-[Support](./Support/README.md)
 [Support Channels](./Support/Channels.md)
 [Community Resources](./Support/Community.md)
-[Contribution Guidelines](./CONTRIBUTING.md)
-[Glossary](./Glossary.md)
-[Change Log](./CHANGELOG.md)

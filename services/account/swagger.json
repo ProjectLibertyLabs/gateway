@@ -354,7 +354,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": ["message", "signature"]
@@ -389,7 +389,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
@@ -470,7 +470,7 @@
             "$ref": "#/components/schemas/HandlePayload"
           },
           "proof": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": ["accountId", "payload", "proof"]
@@ -497,10 +497,10 @@
             "type": "string"
           },
           "msaOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "newKeyOwnerSignature": {
-            "type": "string"
+            "type": "object"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayload"

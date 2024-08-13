@@ -69,6 +69,7 @@ export class AccountsControllerV1 {
       const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
       if (response?.msaId) {
         const account = await this.accountsService.getAccount(response.msaId);
+        this.logger.debug(account, 'Account');
         if (account) return account;
       }
       throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);

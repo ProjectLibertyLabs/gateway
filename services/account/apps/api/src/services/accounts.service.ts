@@ -31,7 +31,7 @@ export class AccountsService {
           return { msaId, handle: handleResponse };
         }
         this.logger.log(`Failed to get handle for msaId: ${msaId}`);
-        return { msaId };
+        return { msaId: Number(msaId).toString() };
       }
       this.logger.log(`Invalid msaId: ${msaId}`);
       return null;

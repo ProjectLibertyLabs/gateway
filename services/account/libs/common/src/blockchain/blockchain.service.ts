@@ -6,7 +6,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
-import { u32, Option, Bytes } from '@polkadot/types';
+import { Bytes, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
@@ -287,19 +287,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
+    this.logger.debug(delegationResponse, 'delegationResponse');
     if (delegationResponse.isSome) return delegationResponse.unwrap();
     return null;
   }
 
   public async publicKeyToMsaId(publicKey: string) {
-    this.logger.log(`Public Key To Msa`);
-
     const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
-    this.logger.log(`Public Key To Msa`, handleResponse.unwrap());
-
     if (handleResponse.isSome) return handleResponse.unwrap();
-    this.logger.log(`Public Key To Msa`);
-
     return null;
   }
 
@@ -350,8 +345,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @param txResultEvents - The transaction result events to process.
    * @returns An object containing the extracted SIWF transaction values.
    */
-  public handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): SIWFTxnValues {
-    const siwfTxnValues: Partial<SIWFTxnValues> = {};
+  public async handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): Promise<SIWFTxnValues> {
+    const siwfTxnValues: SIWFTxnValues = { msaId: '', handle: '', address: '', newProvider: '' };
 
     txResultEvents.forEach((record) => {
       // In the sign up flow, but when msa is already created, we do not have an MsaCreated event
@@ -365,13 +360,28 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
         const handleData = handleHex.slice(2);
         siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
+        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.msaId.toString();
       }
       if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
         siwfTxnValues.newProvider = record.event.data.providerId.toString();
-        const owner = record.event.data.delegatorId.toString();
+        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.delegatorId.toString();
       }
     });
-    return siwfTxnValues as SIWFTxnValues;
+
+    // If one of the above events has previously occurred, we still need to set those values.
+    if (siwfTxnValues.handle === '') {
+      const handle = await this.getHandleForMsa(siwfTxnValues.msaId);
+      siwfTxnValues.handle = `${handle?.base_handle}.${handle?.suffix}`;
+    }
+    if (siwfTxnValues.address === '') {
+      const keyInfo = await this.getKeysByMsa(siwfTxnValues.msaId);
+      siwfTxnValues.address = keyInfo?.msa_keys[0].toString();
+    }
+    if (siwfTxnValues.newProvider === '') {
+      siwfTxnValues.newProvider = this.configService.providerId;
+    }
+
+    return siwfTxnValues;
   }
 
   /**

@@ -245,7 +245,7 @@ npm run start:worker:debug
 Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
 
 ```sh
-docker-compose up -d account-service-api account-service-worker
+docker compose up -d account-service-api account-service-worker
 ```
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
@@ -284,10 +284,10 @@ You may also view and manage the application's queue at [http://localhost:3000/q
 
 ### Debugging
 
-- Docker to stop containers, networks, volumes, and images created by `docker-compose up` run...
+- Docker to stop containers, networks, volumes, and images created by `docker compose up` run...
 
   ```sh
-    docker-compose down
+    docker compose down
   ```
 
 - You may have to go to your Docker Desktop app and manually remove containers.

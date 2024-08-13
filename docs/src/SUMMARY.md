@@ -6,7 +6,6 @@
   - [Blockchain Basics](./Fundamentals/BlockchainBasics.md)
   - [Frequency Networks](./Fundamentals/Networks.md)
   - [Gateway Architecture](./Fundamentals/Architecture.md)
-  - [Building New Applications](./Fundamentals/BuildingApps.md)
   - [Migrating from Web2 to Web3](./Fundamentals/Migrating.md)
 - [Quick Start Tutorial](./GettingStarted/README.md)
   - [Installation](./GettingStarted/Installation.md)

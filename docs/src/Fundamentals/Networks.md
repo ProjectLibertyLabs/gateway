@@ -13,8 +13,10 @@ The Frequency Mainnet is the primary, production-level network where real transa
 
 ### URLs
 
-- **Mainnet RPC URL:** `https://rpc......`
-- **Block Explorer:** `https://......`
+- **Public Mainnet RPC URLs**
+  - `0.rpc.frequency.xyz`
+  - `1.rpc.frequency.xyz`
+- [Polkadot.js Block Explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F1.rpc.frequency.xyz#/explorer)
 
 ## Testnet
 
@@ -29,9 +31,10 @@ The Frequency Testnet is a testing environment that mirrors the Mainnet. It allo
 
 ### URLs
 
-- **Testnet RPC URL:** `https://rpc.......`
-- **Block Explorer:** `https://......`
-- **Faucet:** `https://faucet......./`
+- **Testnet RPC URL**
+  - `0.rpc.testnet.amplica.io`
+- [Polkadot.js Block Explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F0.rpc.testnet.amplica.io#/explorer)
+- [Testnet Token Faucet](https://faucet.testnet.frequency.xyz)
 
 ## Local
 

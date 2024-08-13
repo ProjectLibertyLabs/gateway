@@ -9,7 +9,6 @@
   - [Migrating from Web2 to Web3](./Fundamentals/Migrating.md)
 - [Quick Start Tutorial](./GettingStarted/README.md)
 - [Build](./Build/README.md)
-  - [Best Practices](./Build/BestPractices.md)
   - [Account Service](./Build/AccountService.md)
   - [Content Publishing Service](./Build/ContentPublisher.md)
   - [Content Watcher Service](./Build/ContentWatcher.md)

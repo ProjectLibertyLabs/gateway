@@ -11,8 +11,8 @@ command = "node preprocessor.mjs"
 
 [output.html]
 no-section-label = true
-git-repository-url = "https://github.com/AmplicaLabs/gateway"
-edit-url-template = "https://github.com/AmplicaLabs/gateway/blob/main/docs/src/{path}"
+git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"
+edit-url-template = "https://github.com/ProjectLibertyLabs/gateway/blob/main/docs/src/{path}"
 preferred-dark-theme = "coal"
 additional-css = ["css/extended.css"]
 

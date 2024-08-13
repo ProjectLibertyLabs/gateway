@@ -1,33 +1,41 @@
 # Account Service
 
-### **Overview**
+The Account Service provides functionalities related to user accounts on the Frequency network.
+It includes endpoints for managing user authentication, account details, delegation, keys, and handles.
 
-The Account Service provides functionalities related to user accounts on the Frequency network. It includes endpoints for managing user authentication, account details, delegation, keys, and handles.
+## API Reference
 
-### **API Reference:**
+<iframe src="https://projectlibertylabs.github.io/gateway/account" width="100%" height="600px"></iframe>
 
-<iframe src="https://amplicalabs.github.io/account-service" width="100%" height="600px"></iframe>
+[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/account)
 
-### Configuration
+## Configuration
 
 ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
 
-| Name                           | Description                                                                                                                          |          Range/Type           | Required? | Default |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------: | :-----: |
-| `API_PORT`                     | HTTP port that the application listens on                                                                                            |         1025 - 65535          |           |  3000   |
-| `FREQUENCY_HTTP_URL`           | Blockchain node address for the SiwF UI (must be resolvable from a browser)                                                          |         http(s): URL          |     Y     |         |
-| `FREQUENCY_URL`                | Blockchain node address                                                                                                              |    http(s): or ws(s): URL     |     Y     |         |
-| `PROVIDER_ACCOUNT_SEED_PHRASE` | Seed phrase for provider MSA control key                                                                                             |            string             |     Y     |         |
-| `PROVIDER_ID`                  | Provider MSA ID                                                                                                                      |            integer            |     Y     |         |
-| `CHAIN_ENVIRONMENT`            | What type of chain we're connected to                                                                                                | dev\|rococo\|testnet\|mainnet |     Y     |         |
-| `IPFS_GATEWAY_URL`             | IPFS gateway domain URL. If set, will replace the 'protocol://domain:port' portion of content URLs loaded from the chain             |         URL template          |           |         |
-| `IPFS_UA_GATEWAY_URL`          | IPFS gateway domain URL (user-agent resolvable). If set, will override IPFS_GATEWAY_URL in the auth response sent to the user-agent. |         URL template          |           |         |
-| `SIWF_DOMAIN`                  | Domain to be used in SIWF login payloads                                                                                             |            string             |     Y     |         |
-| `SIWF_URL`                     | URL for the SIgn-in with Frequency UI                                                                                                |              URL              |     Y     |         |
+| Name                                      | Description                                                                                                                                                                       |            Range/Type            | Required? | Default  |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------: | :-------: | :------: |
+| `API_PORT`                                | HTTP port that the application listens on                                                                                                                                         |           1025 - 65535           |           |   3000   |
+| `BLOCKCHAIN_SCAN_INTERVAL_SECONDS`        | How many seconds to delay between successive scans of the chain for new content (after end of chain is reached)                                                                   |               > 0                |           |    12    |
+| `CACHE_KEY_PREFIX`                        | Prefix to use for Redis cache keys                                                                                                                                                |              string              |           | account: |
+| `CAPACITY_LIMIT`                          | Maximum amount of provider capacity this app is allowed to use (per epoch) type: 'percentage' 'amount' value: number (may be percentage, ie '80', or absolute amount of capacity) | JSON [(example)](./env.template) |     Y     |          |
+| `FREQUENCY_HTTP_URL`                      | Blockchain node address resolvable from the client browser                                                                                                                        |           http(s): URL           |     Y     |          |
+| `FREQUENCY_URL`                           | Blockchain node address                                                                                                                                                           |      http(s): or ws(s): URL      |     Y     |          |
+| `HEALTH_CHECK_MAX_RETRIES`                | Number of `/health` endpoint failures allowed before marking the provider webhook service down                                                                                    |               >= 0               |           |    20    |
+| `HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS` | Number of seconds to retry provider webhook `/health` endpoint when failing                                                                                                       |               > 0                |           |    64    |
+| `HEALTH_CHECK_SUCCESS_THRESHOLD`          | Minimum number of consecutive successful calls to the provider webhook `/health` endpoint before it is marked up again                                                            |               > 0                |           |    10    |
+| `PROVIDER_ACCESS_TOKEN`                   | An optional bearer token authentication to the provider webhook                                                                                                                   |              string              |           |          |
+| `PROVIDER_ACCOUNT_SEED_PHRASE`            | Seed phrase for provider MSA control key                                                                                                                                          |              string              |     Y     |          |
+| `PROVIDER_ID`                             | Provider MSA ID                                                                                                                                                                   |             integer              |     Y     |          |
+| `REDIS_URL`                               | Connection URL for Redis                                                                                                                                                          |               URL                |     Y     |          |
+| `TRUST_UNFINALIZED_BLOCKS`                | Whether to examine blocks that have not been finalized when tracking extrinsic completion                                                                                         |             boolean              |           |  false   |
+| `WEBHOOK_BASE_URL`                        | Base URL for provider webhook endpoints                                                                                                                                           |               URL                |     Y     |          |
+| `WEBHOOK_FAILURE_THRESHOLD`               | Number of failures allowing in the provider webhook before the service is marked down                                                                                             |               > 0                |           |    3     |
+| `WEBHOOK_RETRY_INTERVAL_SECONDS`          | Number of seconds between provider webhook retry attempts when failing                                                                                                            |               > 0                |           |    10    |
 
 
-### **Best Practices**
+## Best Practices
 
 - **Secure Authentication**: Always use secure methods (e.g., JWT tokens) for authentication to protect user data.
 - **Validate Inputs**: Ensure all input data is validated to prevent injection attacks and other vulnerabilities.

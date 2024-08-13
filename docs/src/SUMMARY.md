@@ -13,7 +13,6 @@
   - [Content Publishing Service](./Build/ContentPublisher.md)
   - [Content Watcher Service](./Build/ContentWatcher.md)
   - [Graph Service](./Build/GraphService.md)
-  - [Additional Tools and Libraries](./Tools/README.md)
 - [Run](./Run/README.md)
   - [Deployment](./Run/Deployment.md)
   - [DevOps]()

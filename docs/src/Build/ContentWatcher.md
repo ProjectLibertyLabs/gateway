@@ -1,33 +1,35 @@
 # Content Watcher Service
 
-### **Overview**
-
 The Content Watcher Service monitors and retrieves the latest feed state, including content updates, reactions, and other user interactions on the Frequency network. It ensures that applications can stay up-to-date with the latest content and user activity.
 
-### **API Reference:**
+## API Reference
 
-⚠️{embed swagger here}
+<iframe src="https://projectlibertylabs.github.io/gateway/content-watcher" width="100%" height="600px"></iframe>
+[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/content-watcher)
 
 
-### Configuration
+## Configuration
 
 ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
 
-| Name                           | Description                                                                                                                          |          Range/Type           | Required? | Default |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------: | :-----: |
-| `API_PORT`                     | HTTP port that the application listens on                                                                                            |         1025 - 65535          |           |  3000   |
-| `FREQUENCY_HTTP_URL`           | Blockchain node address for the SiwF UI (must be resolvable from a browser)                                                          |         http(s): URL          |     Y     |         |
-| `FREQUENCY_URL`                | Blockchain node address                                                                                                              |    http(s): or ws(s): URL     |     Y     |         |
-| `PROVIDER_ACCOUNT_SEED_PHRASE` | Seed phrase for provider MSA control key                                                                                             |            string             |     Y     |         |
-| `PROVIDER_ID`                  | Provider MSA ID                                                                                                                      |            integer            |     Y     |         |
-| `CHAIN_ENVIRONMENT`            | What type of chain we're connected to                                                                                                | dev\|rococo\|testnet\|mainnet |     Y     |         |
-| `IPFS_GATEWAY_URL`             | IPFS gateway domain URL. If set, will replace the 'protocol://domain:port' portion of content URLs loaded from the chain             |         URL template          |           |         |
-| `IPFS_UA_GATEWAY_URL`          | IPFS gateway domain URL (user-agent resolvable). If set, will override IPFS_GATEWAY_URL in the auth response sent to the user-agent. |         URL template          |           |         |
-| `SIWF_DOMAIN`                  | Domain to be used in SIWF login payloads                                                                                             |            string             |     Y     |         |
-| `SIWF_URL`                     | URL for the SIgn-in with Frequency UI                                                                                                |              URL              |     Y     |         |
+| Name                               | Description                                                                                                     |       Range/Type       | Required? |     Default      |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------- | :--------------------: | :-------: | :--------------: |
+| `API_PORT`                         | HTTP port that the application listens on                                                                       |      1025 - 65535      |           |       3000       |
+| `BLOCKCHAIN_SCAN_INTERVAL_SECONDS` | How many seconds to delay between successive scans of the chain for new content (after end of chain is reached) |          > 0           |           |        12        |
+| `CACHE_KEY_PREFIX`                 | Prefix to use for Redis cache keys                                                                              |         string         |           | content-watcher: |
+| `FREQUENCY_URL`                    | Blockchain node address                                                                                         | http(s): or ws(s): URL |     Y     |                  |
+| `IPFS_BASIC_AUTH_SECRET`           | If required for read requests, put Infura auth token here, or leave blank for default Kubo RPC                  |         string         |     N     |      blank       |
+| `IPFS_BASIC_AUTH_USER`             | If required for read requests, put Infura Project ID here, or leave blank for default Kubo RPC                  |         string         |     N     |      blank       |
+| `IPFS_ENDPOINT`                    | URL to IPFS endpoint                                                                                            |          URL           |     Y     |                  |
+| `IPFS_GATEWAY_URL`                 | IPFS gateway URL. '[CID]' is a token that will be replaced with an actual content ID                            |      URL template      |     Y     |                  |
+| `QUEUE_HIGH_WATER`                 | Max number of jobs allowed on the '' before blockchain scan will be paused to allow queue to drain              |         >= 100         |           |       1000       |
+| `REDIS_URL`                        | Connection URL for Redis                                                                                        |          URL           |     Y     |
+| `STARTING_BLOCK`                   | Block number from which the service will start scanning the chain                                               |          > 0           |           |        1         |
+| `WEBHOOK_FAILURE_THRESHOLD`        | Number of failures allowing in the provider webhook before the service is marked down                           |          > 0           |           |        3         |
+| `WEBHOOK_RETRY_INTERVAL_SECONDS`   | Number of seconds between provider webhook retry attempts when failing                                          |          > 0           |           |        10        |
 
-### Best Practices
+## Best Practices
 
 - **Efficient Polling**: Implement efficient polling mechanisms to minimize load on the service.
 - **Webhook Security**: Secure webhooks by verifying the source of incoming requests.

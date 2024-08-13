@@ -8,8 +8,6 @@
   - [Gateway Architecture](./Fundamentals/Architecture.md)
   - [Migrating from Web2 to Web3](./Fundamentals/Migrating.md)
 - [Quick Start Tutorial](./GettingStarted/README.md)
-  - [Installation](./GettingStarted/Installation.md)
-  - [Running the demo](./GettingStarted/Running.md)
 - [Build](./Build/README.md)
   - [Best Practices](./Build/BestPractices.md)
   - [Account Service](./Build/AccountService.md)

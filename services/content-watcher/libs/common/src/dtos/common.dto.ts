@@ -34,12 +34,22 @@ export class ResetScannerDto implements IScanReset {
 
   @IsOptional()
   @IsNumber()
-  @ApiProperty({ required: false, type: 'number', description: 'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block', example: 100 })
+  @ApiProperty({
+    required: false,
+    type: 'number',
+    description: 'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block',
+    example: 100,
+  })
   rewindOffset?: number;
 
   @IsOptional()
   @IsBoolean()
-  @ApiProperty({ required: false, type: 'boolean', description: 'Whether to schedule the new scan immediately or wait for the next scheduled interval', example: true })
+  @ApiProperty({
+    required: false,
+    type: 'boolean',
+    description: 'Whether to schedule the new scan immediately or wait for the next scheduled interval',
+    example: true,
+  })
   immediate?: boolean;
 }
 

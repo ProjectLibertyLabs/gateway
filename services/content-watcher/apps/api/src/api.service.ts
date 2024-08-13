@@ -82,7 +82,10 @@ export class ApiService {
       .forEach((announcementType) => {
         const existingRegistration = currentWebhookRegistrationDtos.find((currentWebhookRegistration) => currentWebhookRegistration.announcementType === announcementType);
         if (!existingRegistration) {
-          currentWebhookRegistrationDtos.push({ announcementType: announcementType.toLowerCase(), urls: [webhookRegistration.url] });
+          currentWebhookRegistrationDtos.push({
+            announcementType: announcementType.toLowerCase(),
+            urls: [webhookRegistration.url],
+          });
         } else {
           const urls = new Set(existingRegistration.urls);
           urls.add(webhookRegistration.url);

@@ -18,8 +18,7 @@ services:
       account-service-webhook:
         condition: service_healthy
     environment:
-      PROVIDER_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
-      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks'
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
 
   account-service-worker:
     pull_policy: never
@@ -32,8 +31,7 @@ services:
       - redis
       - ipfs
     environment:
-      PROVIDER_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
-      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks'
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
 
   account-service-webhook:
     image: rust:1.80.0

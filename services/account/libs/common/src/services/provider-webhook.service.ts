@@ -34,7 +34,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
   ) {
     this.logger = new Logger(this.constructor.name);
     this.webhook = axios.create({
-      baseURL: this.configService.providerBaseUrl.toString(),
+      baseURL: this.configService.webhookBaseUrl.toString(),
     });
 
     this.webhook.defaults.headers.common.Authorization = this.configService.providerApiToken;
@@ -61,7 +61,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
     if (this.failedHealthChecks > 0) {
       if (this.failedHealthChecks >= this.configService.healthCheckMaxRetries) {
         this.logger.error(
-          `FATAL ERROR: Failed to connect to provider webhook at '${this.configService.providerBaseUrl}' after ${this.failedHealthChecks} attempts.`,
+          `FATAL ERROR: Failed to connect to provider webhook at '${this.configService.webhookBaseUrl}' after ${this.failedHealthChecks} attempts.`,
         );
         this.eventEmitter.emit('shutdown');
         return;

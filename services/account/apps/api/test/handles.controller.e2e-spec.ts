@@ -17,9 +17,7 @@ describe('Handles Controller', () => {
   let users: ChainUser[];
   let provider: ChainUser;
   let currentBlockNumber: number;
-  const handles = new Array(2)
-    .fill(0)
-    .map(() => uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' }));
+  const handles = new Array(2).fill(0).map(() => uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' }));
   let maxMsaId: string;
 
   beforeAll(async () => {
@@ -33,18 +31,8 @@ describe('Handles Controller', () => {
     try {
       await Promise.allSettled([
         ...users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()),
-        ExtrinsicHelper.claimHandleWithProvider(
-          users[0].keypair,
-          provider.keypair,
-          handlePayloads[0].proof,
-          handlePayloads[0].payload,
-        ).payWithCapacity(),
-        ExtrinsicHelper.claimHandleWithProvider(
-          users[1].keypair,
-          provider.keypair,
-          handlePayloads[1].proof,
-          handlePayloads[1].payload,
-        ).payWithCapacity(),
+        ExtrinsicHelper.claimHandleWithProvider(users[0].keypair, provider.keypair, handlePayloads[0].proof, handlePayloads[0].payload).payWithCapacity(),
+        ExtrinsicHelper.claimHandleWithProvider(users[1].keypair, provider.keypair, handlePayloads[1].proof, handlePayloads[1].payload).payWithCapacity(),
       ]);
     } catch (e) {
       // do nothing
@@ -125,18 +113,12 @@ describe('Handles Controller', () => {
       // User users[3], known to have no handle
       const user = users[3];
       const msaIdWithNoHandle = user.msaId?.toString();
-      await request(HTTP_SERVER)
-        .get(`/v1/handles/${msaIdWithNoHandle}`)
-        .expect(404)
-        .expect({ statusCode: 404, message: 'No handle found for MSA' });
+      await request(HTTP_SERVER).get(`/v1/handles/${msaIdWithNoHandle}`).expect(404).expect({ statusCode: 404, message: 'No handle found for MSA' });
     });
 
     it('(GET) /handles/:msaId with invalid msaId', async () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
-      await request(HTTP_SERVER)
-        .get(`/v1/handles/${invalidMsaId.toString()}`)
-        .expect(400)
-        .expect({ statusCode: 400, message: 'Invalid msaId.' });
+      await request(HTTP_SERVER).get(`/v1/handles/${invalidMsaId.toString()}`).expect(400).expect({ statusCode: 400, message: 'Invalid msaId.' });
     });
   });
 });

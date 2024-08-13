@@ -1,13 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import {
-  EncodedExtrinsic,
-  ErrorResponse,
-  SignInResponse,
-  SignUpResponse,
-  SiwsPayload,
-  ValidSignUpPayloads,
-  type WalletProxyResponse,
-} from '@projectlibertylabs/siwf';
+import { EncodedExtrinsic, ErrorResponse, SignInResponse, SignUpResponse, SiwsPayload, ValidSignUpPayloads, type WalletProxyResponse } from '@projectlibertylabs/siwf';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { HexString } from '@polkadot/util/types';

@@ -42,9 +42,7 @@ export class CapacityCheckerService {
     outOfCapacity = totalCapacityUsed >= limit;
 
     if (outOfCapacity) {
-      this.logger.warn(
-        `Total capacity usage limit reached: used ${totalCapacityUsed} of ${limit} allowed (${totalCapacityIssued} total issued)`,
-      );
+      this.logger.warn(`Total capacity usage limit reached: used ${totalCapacityUsed} of ${limit} allowed (${totalCapacityIssued} total issued)`);
     }
 
     return outOfCapacity;
@@ -66,11 +64,8 @@ export class CapacityCheckerService {
       this.logger.warn(`Capacity service threshold reached: used ${epochUsedCapacity} of ${limit}`);
     } else if (this.lastCapacityEpoch !== currentEpoch || this.lastCapacityUsedCheck !== epochUsedCapacity) {
       // Minimum with bigints
-      const serviceRemaining =
-        remainingCapacity > limit - epochUsedCapacity ? limit - epochUsedCapacity : remainingCapacity;
-      this.logger.verbose(
-        `Service Capacity usage: ${epochUsedCapacity} of ${limit} allowed (${serviceRemaining} remaining)`,
-      );
+      const serviceRemaining = remainingCapacity > limit - epochUsedCapacity ? limit - epochUsedCapacity : remainingCapacity;
+      this.logger.verbose(`Service Capacity usage: ${epochUsedCapacity} of ${limit} allowed (${serviceRemaining} remaining)`);
       this.lastCapacityEpoch = currentEpoch;
       this.lastCapacityUsedCheck = epochUsedCapacity;
     }
@@ -97,9 +92,7 @@ export class CapacityCheckerService {
         this.logger.warn(`No capacity!`);
       }
 
-      const totalLimitExceeded = capacityLimit.totalLimit
-        ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit)
-        : false;
+      const totalLimitExceeded = capacityLimit.totalLimit ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit) : false;
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
 
       outOfCapacity = capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded;

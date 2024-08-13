@@ -5,7 +5,7 @@ import axios from 'axios';
 import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
-import { sha256 } from "multiformats/hashes/sha2";
+import { sha256 } from 'multiformats/hashes/sha2';
 import { randomUUID } from 'crypto';
 import { base32 } from 'multiformats/bases/base32';
 import { ConfigService } from '#libs/config';

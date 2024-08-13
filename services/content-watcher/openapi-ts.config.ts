@@ -6,11 +6,11 @@ export default defineConfig({
   output: {
     format: 'prettier',
     lint: 'eslint',
-    path: 'types'
+    path: 'types',
   },
   schemas: false,
   services: false,
   types: {
-    enums: 'typescript'
-  }
+    enums: 'typescript',
+  },
 } as UserConfig);

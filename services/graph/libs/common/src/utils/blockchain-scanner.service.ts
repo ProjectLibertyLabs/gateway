@@ -24,7 +24,10 @@ function eventName({ event: { section, method } }: FrameSystemEventRecord) {
 export abstract class BlockchainScannerService {
   protected scanInProgress = false;
 
-  protected chainEventHandlers = new Map<string, ((block: SignedBlock, event: FrameSystemEventRecord) => unknown | Promise<unknown>)[]>();
+  protected chainEventHandlers = new Map<
+    string,
+    ((block: SignedBlock, event: FrameSystemEventRecord) => unknown | Promise<unknown>)[]
+  >();
 
   private readonly lastSeenBlockNumberKey: string;
 
@@ -139,7 +142,10 @@ export abstract class BlockchainScannerService {
     }
   }
 
-  public registerChainEventHandler(events: string[], callback: (block: SignedBlock, blockEvents: FrameSystemEventRecord) => unknown | Promise<unknown>) {
+  public registerChainEventHandler(
+    events: string[],
+    callback: (block: SignedBlock, blockEvents: FrameSystemEventRecord) => unknown | Promise<unknown>,
+  ) {
     events.forEach((event) => {
       const handlers = new Set(this.chainEventHandlers.get(event) || []);
       handlers.add(callback);
@@ -150,7 +156,9 @@ export abstract class BlockchainScannerService {
   private async handleChainEvents(block: SignedBlock, blockEvents: FrameSystemEventRecord[]) {
     const promises = blockEvents
       .filter((blockEvent) => this.chainEventHandlers.has(eventName(blockEvent)))
-      .flatMap((blockEvent) => this.chainEventHandlers.get(eventName(blockEvent))?.map((handler) => handler(block, blockEvent)));
+      .flatMap((blockEvent) =>
+        this.chainEventHandlers.get(eventName(blockEvent))?.map((handler) => handler(block, blockEvent)),
+      );
     try {
       await Promise.all(promises);
     } catch (err) {
@@ -158,5 +166,8 @@ export abstract class BlockchainScannerService {
     }
   }
 
-  protected abstract processCurrentBlock(currentBlock: SignedBlock, blockEvents: FrameSystemEventRecord[]): Promise<void>;
+  protected abstract processCurrentBlock(
+    currentBlock: SignedBlock,
+    blockEvents: FrameSystemEventRecord[],
+  ): Promise<void>;
 }

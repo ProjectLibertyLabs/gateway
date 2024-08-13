@@ -13,7 +13,10 @@ import { Queue } from 'bullmq';
 export class ChainEventProcessorService {
   constructor(private readonly blockchainService: BlockchainService) {}
 
-  public async getMessagesInBlock(blockNumber: number, filter?: ChainWatchOptionsDto): Promise<MessageResponseWithSchemaId[]> {
+  public async getMessagesInBlock(
+    blockNumber: number,
+    filter?: ChainWatchOptionsDto,
+  ): Promise<MessageResponseWithSchemaId[]> {
     const blockHash = await this.blockchainService.getBlockHash(blockNumber);
     if (blockHash.isEmpty) {
       return [];
@@ -49,7 +52,8 @@ export class ChainEventProcessorService {
           to_block: blockNumber + 1,
         };
 
-        let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+        let messageResponse: BlockPaginationResponseMessage =
+          await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
         const messages: Vec<MessageResponse> = messageResponse.content;
         while (messageResponse.has_next.toHuman()) {
           paginationRequest = {
@@ -59,7 +63,10 @@ export class ChainEventProcessorService {
             to_block: blockNumber + 1,
           };
           // eslint-disable-next-line no-await-in-loop
-          messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+          messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(
+            schemaId,
+            paginationRequest,
+          );
           if (messageResponse.content.length > 0) {
             messages.push(...messageResponse.content);
           }

@@ -5,7 +5,13 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
-import { validBroadCastNoUploadedAssets, validContentNoUploadedAssets, validProfileNoUploadedAssets, validReaction, validReplyNoUploadedAssets } from './mockRequestData';
+import {
+  validBroadCastNoUploadedAssets,
+  validContentNoUploadedAssets,
+  validProfileNoUploadedAssets,
+  validReaction,
+  validReplyNoUploadedAssets,
+} from './mockRequestData';
 
 describe('AppController E2E request verification!', () => {
   let app: INestApplication;
@@ -28,11 +34,14 @@ describe('AppController E2E request verification!', () => {
     await app.init();
   });
 
-  it('(GET) /healthz', () => request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+  it('(GET) /healthz', () =>
+    request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
-  it('(GET) /livez', () => request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+  it('(GET) /livez', () =>
+    request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-  it('(GET) /readyz', () => request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+  it('(GET) /readyz', () =>
+    request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   describe('Validate Route params', () => {
     it('invalid userDsnpId should fail', async () => {
@@ -55,7 +64,10 @@ describe('AppController E2E request verification!', () => {
 
     it('valid broadcast request with uploaded assets should work!', async () => {
       const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', file, 'file1.jpg')
+        .expect(202);
       await sleep(1000);
       const validBroadCastWithUploadedAssets = {
         content: {
@@ -363,7 +375,10 @@ describe('AppController E2E request verification!', () => {
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('h'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', file, 'file1.jpg')
+        .expect(202);
       await sleep(1000);
       const validReplyWithUploadedAssets = {
         ...validReplyNoUploadedAssets,
@@ -501,7 +516,10 @@ describe('AppController E2E request verification!', () => {
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('g'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', file, 'file1.jpg')
+        .expect(202);
       await sleep(1000);
       const validContentWithUploadedAssets = {
         ...validContentNoUploadedAssets,
@@ -624,7 +642,10 @@ describe('AppController E2E request verification!', () => {
 
     it('valid request with uploaded assets should work!', async () => {
       const file = Buffer.from('n'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file.jpg').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', file, 'file.jpg')
+        .expect(202);
       await sleep(1000);
       const validUploadWithUploadedAssets = {
         ...validProfileNoUploadedAssets,
@@ -668,7 +689,10 @@ describe('AppController E2E request verification!', () => {
 
     it('request with non-image uploaded assets should fail!', async () => {
       const file = Buffer.from('s'.repeat(30 * 1000 * 1000)); // 30MB
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', file, 'file.mp3').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', file, 'file.mp3')
+        .expect(202);
       await sleep(1000);
       const profileContent = {
         ...validProfileNoUploadedAssets,
@@ -759,7 +783,10 @@ describe('AppController E2E request verification!', () => {
       randomFill(buffer, (err, buf) => {
         if (err) throw err;
       });
-      const response = await request(app.getHttpServer()).put(`/v1/asset/upload`).attach('files', Buffer.from(buffer), 'file1.jpg').expect(202);
+      const response = await request(app.getHttpServer())
+        .put(`/v1/asset/upload`)
+        .attach('files', Buffer.from(buffer), 'file1.jpg')
+        .expect(202);
       const assetId = response.body.assetIds[0];
       await sleep(2000);
       return request(app.getHttpServer())

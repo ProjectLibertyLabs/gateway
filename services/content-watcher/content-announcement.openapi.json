@@ -33,24 +33,8 @@
   "components": {
     "schemas": {
       "AnnouncementType": {
-        "enum": [
-          0,
-          2,
-          3,
-          4,
-          5,
-          6,
-          113
-        ],
-        "x-enum-varnames": [
-          "Tombstone",
-          "Broadcast",
-          "Reply",
-          "Reaction",
-          "Profile",
-          "Update",
-          "PublicFollows"
-        ]
+        "enum": [0, 2, 3, 4, 5, 6, 113],
+        "x-enum-varnames": ["Tombstone", "Broadcast", "Reply", "Reaction", "Profile", "Update", "PublicFollows"]
       },
       "AnnouncementResponse": {
         "type": "object",
@@ -91,11 +75,7 @@
             ]
           }
         },
-        "required": [
-          "schemaId",
-          "blockNumber",
-          "announcement"
-        ]
+        "required": ["schemaId", "blockNumber", "announcement"]
       },
       "TypedAnnouncement": {
         "type": "object",
@@ -107,10 +87,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "announcementType",
-          "fromId"
-        ],
+        "required": ["announcementType", "fromId"],
         "discriminator": {
           "propertyName": "announcementType",
           "mapping": {
@@ -138,10 +115,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "targetAnnouncementType",
-              "targetContentHash"
-            ]
+            "required": ["targetAnnouncementType", "targetContentHash"]
           }
         ]
       },
@@ -160,10 +134,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "contentHash",
-              "url"
-            ]
+            "required": ["contentHash", "url"]
           }
         ]
       },
@@ -185,11 +156,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "contentHash",
-              "inReplyTo",
-              "url"
-            ]
+            "required": ["contentHash", "inReplyTo", "url"]
           }
         ]
       },
@@ -211,11 +178,7 @@
                 "type": "integer"
               }
             },
-            "required": [
-              "emoji",
-              "inReplyTo",
-              "apply"
-            ]
+            "required": ["emoji", "inReplyTo", "apply"]
           }
         ]
       },
@@ -234,10 +197,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "contentHash",
-              "url"
-            ]
+            "required": ["contentHash", "url"]
           }
         ]
       },
@@ -262,12 +222,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "contentHash",
-              "targetAnnouncementType",
-              "targetContentHash",
-              "url"
-            ]
+            "required": ["contentHash", "targetAnnouncementType", "targetContentHash", "url"]
           }
         ]
       }

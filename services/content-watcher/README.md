@@ -117,11 +117,13 @@ Even with a crawl request, the results are not retreived, but pushed to the webh
 ### Key Features
 
 #### API
+
 - **Parse DSNP Messages on Frequency**
 - **Send content to registered webhooks**
 - **Simple Schema and MSA Id based filtering**
 
 #### Scanner API
+
 - **Start, Stop, and restart scanning**
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
@@ -156,13 +158,15 @@ In order to run this project you need:
 
 Use the provided [env.template](./env.template) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
 
- 1. For running locally, copy to the template file to `.env` and update as needed.
+1.  For running locally, copy to the template file to `.env` and update as needed.
 
-  ```sh
-  cp env.template .env
-  ```
+```sh
+cp env.template .env
+```
 
-  2. Configure the environment variable values according to your environment.
+2. Configure the environment variable values according to your environment.
+
+
     - Docker: `.env.docker.dev`
     - Local: `.env`
 
@@ -191,67 +195,71 @@ To run the project, execute the following command:
 
 #### 1. Start the required auxiliary services
 
-  Frequency node, Redis, IPFS
+Frequency node, Redis, IPFS
 
-  ```sh
-  docker compose up -d frequency redis ipfs
-  ```
+```sh
+docker compose up -d frequency redis ipfs
+```
 
 #### 2. [Optional] Start the publishing services
 
-  Content Publishing Service
+Content Publishing Service
 
-  ```sh
-  docker compose up -d content-publishing-service-api content-publishing-service-worker
-  ```
+```sh
+docker compose up -d content-publishing-service-api content-publishing-service-worker
+```
 
 #### 3. Start the application services
 
-  Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
+Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
 
-  #### Running locally
-  ```sh
-  npm run start:api:dev
-  ```
+#### Running locally
 
-  -- or --
+```sh
+npm run start:api:dev
+```
 
-  #### Running under Docker
-  ```sh
-  docker compose up [-d] content-watcher-service
-  ```
+-- or --
+
+#### Running under Docker
+
+```sh
+docker compose up [-d] content-watcher-service
+```
 
 #### 4. [Optional] Setup a basic publisher
 
-  Setup provider and users for the publishing service.
+Setup provider and users for the publishing service.
 
-  ```sh
-  npm run local:init
-  ```
+```sh
+npm run local:init
+```
 
 #### 5. [Optional] Webhook registration
 
-  Start a simple webhook that will just echo out responses to the console.
+Start a simple webhook that will just echo out responses to the console.
 
-  ```sh
-  npm run local:webhook
-  ```
+```sh
+npm run local:webhook
+```
 
 #### 5. [Optional] Trigger Content
 
-  Publishes some random content through the Content Publishing Service in Docker.
-  Can be run more than once.
+Publishes some random content through the Content Publishing Service in Docker.
+Can be run more than once.
 
-  ```sh
-  npm run local:publish
-  ```
+```sh
+npm run local:publish
+```
 
 #### 5. Check the job in BullUI, to monitor job progress based on defined tests.
 
 ### Swagger UI
+
 Check out the Swagger UI hosted on the app instance at http://localhost:3000/api/docs/swagger to view the API documentation and submit requests to the service.
 
 ### Queue Management
+
 You may also view and manage the application's queue at http://localhost:3000/queues.
 
 For the Content Publishing Service Queue go to http://localhost:3001/queues.
@@ -267,11 +275,13 @@ To run unit tests, run the following command:
 ### Run e2e tests:
 
 1. Execute the following `make` command to deploy the entire stack:
-    ```bash
-    make test-services-start
-    ```
+
+   ```bash
+   make test-services-start
+   ```
 
 2. Run the following `make` command to execute the content watcher tests:
+
    ```bash
    make test-e2e
    ```

@@ -113,11 +113,15 @@ describe('ContentWatcherConfigService', () => {
     });
 
     it('should get scan interval', () => {
-      expect(contentWatcherConfigService.blockchainScanIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string));
+      expect(contentWatcherConfigService.blockchainScanIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string),
+      );
     });
 
     it('should get queue high water mark', () => {
-      expect(contentWatcherConfigService.queueHighWater).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10));
+      expect(contentWatcherConfigService.queueHighWater).toStrictEqual(
+        parseInt(ALL_ENV.QUEUE_HIGH_WATER as string, 10),
+      );
     });
 
     it('should get api port', () => {

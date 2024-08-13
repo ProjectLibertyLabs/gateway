@@ -7,16 +7,16 @@
 - [📖 About the Project](#about-project)
 - [🔍 Arch Map](#-arch-maps)
 - [🛠 Built With](#-built-with)
-    - [Tech Stack](#tech-stack)
-    - [Key Features](#key-features)
+  - [Tech Stack](#tech-stack)
+  - [Key Features](#key-features)
 - [🚀 Live OpenAPI Docs](#-live-docs)
 - [💻 Getting Started](#-getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Setup](#setup)
-    - [Install](#install)
-    - [Usage](#usage)
-    - [Run tests](#run-tests)
-    - [Deployment](#deployment)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Run tests](#run-tests)
+  - [Deployment](#deployment)
 - [🤝 Contributing](#-contributing)
 - [⭐️ Show your support](#-support)
 - [🙏 Acknowledgements](#-acknowledgements)
@@ -197,21 +197,21 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 
 #### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup.
 
-  ```sh
-  docker compose up -d redis frequency
-  ```
+```sh
+docker compose up -d redis frequency
+```
 
 #### 2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run a graph setup with Alice as provider 1 and 2,3,4,5,6 as users.
 
-  ```sh
-  make setup
-  ```
+```sh
+make setup
+```
 
 #### 3. Run the following command to start the graph service api and worker containers. This will start the account service api and worker in development mode.
 
-   ```sh
-   docker compose up -d api worker
-   ```
+```sh
+docker compose up -d api worker
+```
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
 
@@ -219,18 +219,20 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 
 ### Run the tests
 
-   ```sh
-   make test-e2e
-   ```
+```sh
+make test-e2e
+```
 
 This will run the tests in `apps/api/test` folder.
 
 #### Check e2e test file for more details on the test.
 
 ### Swagger UI
+
 Check out the Swagger UI hosted on the app instance at [\<base url>/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
 
 ### Queue Management
+
 You may also view and manage the application's queue at [\<base url>/queues](http://localhost:3000/queues).
 
 ### Linting
@@ -270,7 +272,7 @@ If you would like to explore contributing bug fixes or enhancements, issues with
 
 - **What is the difference between [Reconnection Service]() and `Graph Service`?**
 
-    - The `Reconnection Service` is designed for providers who have users who are migrating to [DSNP](), whereas `Graph Service` is for users who are already on DSNP.
+  - The `Reconnection Service` is designed for providers who have users who are migrating to [DSNP](), whereas `Graph Service` is for users who are already on DSNP.
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

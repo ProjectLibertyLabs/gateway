@@ -10,7 +10,16 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as QueueConstants from '#lib/queues/queue-constants';
-import { BaseConsumer, BlockchainService, ConfigService, GraphUpdateJob, ICapacityInfo, NonceService, TXN_WATCH_LIST_KEY, createKeys } from '#lib';
+import {
+  BaseConsumer,
+  BlockchainService,
+  ConfigService,
+  GraphUpdateJob,
+  ICapacityInfo,
+  NonceService,
+  TXN_WATCH_LIST_KEY,
+  createKeys,
+} from '#lib';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 
@@ -138,7 +147,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     providerKeys: KeyringPair,
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
   ): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
-    this.logger.debug(`Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`);
+    this.logger.debug(
+      `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
+    );
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
@@ -191,7 +202,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.graphChangePublishQueue.getFailed();
-    const capacityFailedJobs = failedJobs.filter((job) => job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'));
+    const capacityFailedJobs = failedJobs.filter((job) =>
+      job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
+    );
     // Retry the failed jobs
     await Promise.all(
       capacityFailedJobs.map(async (job) => {

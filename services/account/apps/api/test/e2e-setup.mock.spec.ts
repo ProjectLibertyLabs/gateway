@@ -40,7 +40,13 @@ export async function setupProviderAndUsers() {
  * Generate an array of extrinsics to remove all but the "primary" control key
  * from an MSA.
  */
-export async function removeExtraKeysFromMsa({ msaId, keypair }: { msaId?: MessageSourceId | undefined; keypair: KeyringPair }): Promise<void> {
+export async function removeExtraKeysFromMsa({
+  msaId,
+  keypair,
+}: {
+  msaId?: MessageSourceId | undefined;
+  keypair: KeyringPair;
+}): Promise<void> {
   if (!msaId) {
     return;
   }
@@ -58,7 +64,11 @@ export async function removeExtraKeysFromMsa({ msaId, keypair }: { msaId?: Messa
 }
 
 export async function generateSignedAddKeyPayload(user: ChainUser, newKeys: KeyringPair, currentBlockNumber?: number) {
-  const payload = await generateAddKeyPayload({ msaId: user.msaId!, newPublicKey: newKeys.publicKey }, undefined, currentBlockNumber);
+  const payload = await generateAddKeyPayload(
+    { msaId: user.msaId!, newPublicKey: newKeys.publicKey },
+    undefined,
+    currentBlockNumber,
+  );
   const addKeyData = ExtrinsicHelper.api.registry.createType('PalletMsaAddKeyData', payload);
   const ownerProof = signPayloadSr25519(user.keypair, addKeyData);
   const newKeyProof = signPayloadSr25519(newKeys, addKeyData);
@@ -66,7 +76,12 @@ export async function generateSignedAddKeyPayload(user: ChainUser, newKeys: Keyr
   return { payload, ownerProof, newKeyProof };
 }
 
-export async function generateAddPublicKeyExtrinsic(user: ChainUser, newKeys: KeyringPair, currentBlockNumber?: number) {
+export async function generateAddPublicKeyExtrinsic(
+  user: ChainUser,
+  newKeys: KeyringPair,
+  currentBlockNumber?: number,
+) {
   const { payload, ownerProof, newKeyProof } = await generateSignedAddKeyPayload(user, newKeys, currentBlockNumber);
-  return () => ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
+  return () =>
+    ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
 }

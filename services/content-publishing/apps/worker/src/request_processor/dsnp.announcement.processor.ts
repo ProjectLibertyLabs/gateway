@@ -44,7 +44,14 @@ import {
   ProfileAnnouncement,
   createProfile,
 } from '#libs/interfaces';
-import { BROADCAST_QUEUE_NAME, REPLY_QUEUE_NAME, REACTION_QUEUE_NAME, UPDATE_QUEUE_NAME, PROFILE_QUEUE_NAME, TOMBSTONE_QUEUE_NAME } from '#libs/queues/queue.constants';
+import {
+  BROADCAST_QUEUE_NAME,
+  REPLY_QUEUE_NAME,
+  REACTION_QUEUE_NAME,
+  UPDATE_QUEUE_NAME,
+  PROFILE_QUEUE_NAME,
+  TOMBSTONE_QUEUE_NAME,
+} from '#libs/queues/queue.constants';
 import { calculateDsnpHash } from '#libs/utils/ipfs';
 import { IpfsService } from '#libs/utils/ipfs.client';
 
@@ -126,8 +133,16 @@ export class DsnpAnnouncementProcessor {
 
   private async queueUpdate(data: IRequestJob) {
     const updateDto = data.content as UpdateDto;
-    const updateAnnouncementType: AnnouncementType = await this.getAnnouncementTypeFromModifiableAnnouncementType(updateDto.targetAnnouncementType);
-    const update = await this.processUpdate(updateDto, updateAnnouncementType, updateDto.targetContentHash ?? '', data.dsnpUserId, data.assetToMimeType);
+    const updateAnnouncementType: AnnouncementType = await this.getAnnouncementTypeFromModifiableAnnouncementType(
+      updateDto.targetAnnouncementType,
+    );
+    const update = await this.processUpdate(
+      updateDto,
+      updateAnnouncementType,
+      updateDto.targetContentHash ?? '',
+      data.dsnpUserId,
+      data.assetToMimeType,
+    );
     await this.updateQueue.add(`Update Job - ${data.id}`, update, {
       jobId: data.id,
       removeOnFail: false,
@@ -146,7 +161,9 @@ export class DsnpAnnouncementProcessor {
 
   private async queueTombstone(data: IRequestJob) {
     const tombStoneDto = data.content as TombstoneDto;
-    const announcementType: AnnouncementType = await this.getAnnouncementTypeFromModifiableAnnouncementType(tombStoneDto.targetAnnouncementType);
+    const announcementType: AnnouncementType = await this.getAnnouncementTypeFromModifiableAnnouncementType(
+      tombStoneDto.targetAnnouncementType,
+    );
     const tombstone = createTombstone(data.dsnpUserId, announcementType, tombStoneDto.targetContentHash ?? '');
     await this.tombstoneQueue.add(`Tombstone Job - ${data.id}`, tombstone, {
       jobId: data.id,
@@ -155,7 +172,9 @@ export class DsnpAnnouncementProcessor {
     });
   }
 
-  private async getAnnouncementTypeFromModifiableAnnouncementType(modifiableAnnouncementType: ModifiableAnnouncementTypeDto): Promise<AnnouncementType> {
+  private async getAnnouncementTypeFromModifiableAnnouncementType(
+    modifiableAnnouncementType: ModifiableAnnouncementTypeDto,
+  ): Promise<AnnouncementType> {
     this.logger.debug(`Getting announcement type from modifiable announcement type`);
     switch (modifiableAnnouncementType) {
       case ModifiableAnnouncementTypeDto.BROADCAST:
@@ -167,10 +186,16 @@ export class DsnpAnnouncementProcessor {
     }
   }
 
-  public async prepareNote(noteContent: BroadcastDto | ReplyDto | UpdateDto, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<[string, string, string]> {
+  public async prepareNote(
+    noteContent: BroadcastDto | ReplyDto | UpdateDto,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<[string, string, string]> {
     this.logger.debug(`Preparing note of type: ${typeof noteContent.content}`);
     const tags: ActivityContentTag[] = this.prepareTags(noteContent?.content.tag);
-    const attachments: ActivityContentAttachment[] = await this.prepareAttachments(noteContent.content.assets, assetToMimeType);
+    const attachments: ActivityContentAttachment[] = await this.prepareAttachments(
+      noteContent.content.assets,
+      assetToMimeType,
+    );
 
     const note = createNote(noteContent.content.content ?? '', new Date(noteContent.content.published ?? ''), {
       name: noteContent.content.name,
@@ -217,7 +242,10 @@ export class DsnpAnnouncementProcessor {
     return tags;
   }
 
-  private async prepareAttachments(assetData?: AssetDto[], assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ActivityContentAttachment[]> {
+  private async prepareAttachments(
+    assetData?: AssetDto[],
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ActivityContentAttachment[]> {
     const attachments: ActivityContentAttachment[] = [];
     if (assetData) {
       const promises = assetData.map(async (asset) => {
@@ -261,7 +289,10 @@ export class DsnpAnnouncementProcessor {
     };
   }
 
-  private async prepareImageAttachment(asset: AssetDto, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ActivityContentImage> {
+  private async prepareImageAttachment(
+    asset: AssetDto,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ActivityContentImage> {
     const imageLinks: ActivityContentImageLink[] = [];
     if (asset.references) {
       const promises = asset.references.map(async (reference) => {
@@ -291,7 +322,10 @@ export class DsnpAnnouncementProcessor {
     };
   }
 
-  private async prepareVideoAttachment(asset: AssetDto, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ActivityContentVideo> {
+  private async prepareVideoAttachment(
+    asset: AssetDto,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ActivityContentVideo> {
     const videoLinks: ActivityContentVideoLink[] = [];
     let duration: string | undefined = '';
 
@@ -325,7 +359,10 @@ export class DsnpAnnouncementProcessor {
     };
   }
 
-  private async prepareAudioAttachment(asset: AssetDto, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ActivityContentAudio> {
+  private async prepareAudioAttachment(
+    asset: AssetDto,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ActivityContentAudio> {
     const audioLinks: ActivityContentAudioLink[] = [];
     let duration = '';
     if (asset.references) {
@@ -357,13 +394,21 @@ export class DsnpAnnouncementProcessor {
     };
   }
 
-  private async processBroadcast(content: BroadcastDto, dsnpUserId: string, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<BroadcastAnnouncement> {
+  private async processBroadcast(
+    content: BroadcastDto,
+    dsnpUserId: string,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<BroadcastAnnouncement> {
     this.logger.debug(`Processing broadcast`);
     const [cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
     return createBroadcast(dsnpUserId, ipfsUrl, hash);
   }
 
-  private async processReply(content: ReplyDto, dsnpUserId: string, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ReplyAnnouncement> {
+  private async processReply(
+    content: ReplyDto,
+    dsnpUserId: string,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ReplyAnnouncement> {
     this.logger.debug(`Processing reply for ${content.inReplyTo}`);
     const [cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
     return createReply(dsnpUserId, ipfsUrl, hash, content.inReplyTo);
@@ -386,9 +431,16 @@ export class DsnpAnnouncementProcessor {
     return createUpdate(dsnpUserId, ipfsUrl, hash, targetAnnouncementType, targetContentHash);
   }
 
-  private async processProfile(content: ProfileDto, dsnpUserId: string, assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ProfileAnnouncement> {
+  private async processProfile(
+    content: ProfileDto,
+    dsnpUserId: string,
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ProfileAnnouncement> {
     this.logger.debug(`Processing profile`);
-    const attachments: ActivityContentImageLink[] = await this.prepareProfileIconAttachments(content.profile.icon ?? [], assetToMimeType);
+    const attachments: ActivityContentImageLink[] = await this.prepareProfileIconAttachments(
+      content.profile.icon ?? [],
+      assetToMimeType,
+    );
 
     const profileActivity: ActivityContentProfile = {
       '@context': 'https://www.w3.org/ns/activitystreams',
@@ -408,7 +460,10 @@ export class DsnpAnnouncementProcessor {
     return createProfile(dsnpUserId, this.formIpfsUrl(cid), hash);
   }
 
-  private async prepareProfileIconAttachments(icons: any[], assetToMimeType?: IRequestJob['assetToMimeType']): Promise<ActivityContentImageLink[]> {
+  private async prepareProfileIconAttachments(
+    icons: any[],
+    assetToMimeType?: IRequestJob['assetToMimeType'],
+  ): Promise<ActivityContentImageLink[]> {
     const attachments: ActivityContentImageLink[] = [];
 
     const promises = icons.map(async (icon) => {

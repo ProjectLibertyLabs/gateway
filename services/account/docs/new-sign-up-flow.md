@@ -1,4 +1,3 @@
-
 # New SIWF Sign Up Flow Chart
 
 ```mermaid

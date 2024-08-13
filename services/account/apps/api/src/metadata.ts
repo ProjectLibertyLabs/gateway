@@ -1,14 +1,28 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ['../../../libs/common/src/types/dtos/wallet.login.request.dto']: await import('../../../libs/common/src/types/dtos/wallet.login.request.dto'),
-    ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import('../../../libs/common/src/types/dtos/accounts.response.dto'),
+    ['../../../libs/common/src/types/dtos/wallet.login.request.dto']: await import(
+      '../../../libs/common/src/types/dtos/wallet.login.request.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/accounts.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/accounts.response.dto'
+    ),
     ['@polkadot/types-codec/primitive/U32']: await import('@polkadot/types-codec/primitive/U32'),
-    ['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']: await import('../../../libs/common/src/types/dtos/wallet.login.config.response.dto'),
-    ['../../../libs/common/src/types/dtos/wallet.login.response.dto']: await import('../../../libs/common/src/types/dtos/wallet.login.response.dto'),
-    ['../../../libs/common/src/types/dtos/delegation.response.dto']: await import('../../../libs/common/src/types/dtos/delegation.response.dto'),
-    ['../../../libs/common/src/types/dtos/transaction.response.dto']: await import('../../../libs/common/src/types/dtos/transaction.response.dto'),
-    ['../../../libs/common/src/types/dtos/keys.response.dto']: await import('../../../libs/common/src/types/dtos/keys.response.dto'),
+    ['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/wallet.login.config.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/wallet.login.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/wallet.login.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/delegation.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/delegation.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/transaction.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/transaction.response.dto'
+    ),
+    ['../../../libs/common/src/types/dtos/keys.response.dto']: await import(
+      '../../../libs/common/src/types/dtos/keys.response.dto'
+    ),
   };
   return {
     '@nestjs/swagger': {
@@ -95,7 +109,10 @@ export default async () => {
             MsaIdResponse: { msaId: { required: true, type: () => String } },
           },
         ],
-        [import('../../../libs/common/src/types/dtos/transaction.response.dto'), { TransactionResponse: { referenceId: { required: true, type: () => String } } }],
+        [
+          import('../../../libs/common/src/types/dtos/transaction.response.dto'),
+          { TransactionResponse: { referenceId: { required: true, type: () => String } } },
+        ],
         [
           import('../../../libs/common/src/types/dtos/wallet.login.response.dto'),
           {
@@ -126,7 +143,10 @@ export default async () => {
             },
           },
         ],
-        [import('../../../libs/common/src/types/dtos/keys.response.dto'), { KeysResponse: { msaKeys: { required: true } } }],
+        [
+          import('../../../libs/common/src/types/dtos/keys.response.dto'),
+          { KeysResponse: { msaKeys: { required: true } } },
+        ],
       ],
       controllers: [
         [
@@ -134,7 +154,8 @@ export default async () => {
           {
             AccountsControllerV1: {
               getSIWFConfig: {
-                type: t['../../../libs/common/src/types/dtos/wallet.login.config.response.dto'].WalletLoginConfigResponse,
+                type: t['../../../libs/common/src/types/dtos/wallet.login.config.response.dto']
+                  .WalletLoginConfigResponse,
               },
               getAccountForMsa: {
                 type: t['../../../libs/common/src/types/dtos/accounts.response.dto'].AccountResponse,

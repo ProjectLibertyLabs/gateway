@@ -35,7 +35,6 @@
       "sourceRoot": "apps/worker/src",
       "compilerOptions": {
         "tsConfigPath": "apps/worker/tsconfig.app.json"
-      
       }
     }
   }

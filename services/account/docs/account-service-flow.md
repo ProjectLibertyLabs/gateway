@@ -1,4 +1,3 @@
-
 # Account Service Flow Chart
 
 ```mermaid

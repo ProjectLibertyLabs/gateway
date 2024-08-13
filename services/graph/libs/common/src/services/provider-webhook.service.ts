@@ -60,7 +60,9 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
     if (this.failedHealthChecks > 0) {
       if (this.failedHealthChecks >= this.configService.healthCheckMaxRetries) {
-        this.logger.error(`FATAL ERROR: Failed to connect to provider webhook at '${this.configService.providerBaseUrl}' after ${this.failedHealthChecks} attempts.`);
+        this.logger.error(
+          `FATAL ERROR: Failed to connect to provider webhook at '${this.configService.providerBaseUrl}' after ${this.failedHealthChecks} attempts.`,
+        );
         this.eventEmitter.emit('shutdown');
         return;
       }
@@ -70,7 +72,10 @@ export class ProviderWebhookService implements OnModuleDestroy {
         HEALTH_CHECK_TIMEOUT_NAME,
         setTimeout(
           () => this.checkProviderWebhook(),
-          Math.min(2 ** (this.failedHealthChecks - 1) * MILLISECONDS_PER_SECOND, this.configService.healthCheckMaxRetryIntervalSeconds * MILLISECONDS_PER_SECOND),
+          Math.min(
+            2 ** (this.failedHealthChecks - 1) * MILLISECONDS_PER_SECOND,
+            this.configService.healthCheckMaxRetryIntervalSeconds * MILLISECONDS_PER_SECOND,
+          ),
         ),
       );
     } else if (this.successfulHealthChecks > 0) {

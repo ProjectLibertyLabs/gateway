@@ -5,9 +5,9 @@ It includes endpoints for managing user authentication, account details, delegat
 
 ## API Reference
 
-<iframe src="https://projectlibertylabs.github.io/gateway/account" width="100%" height="600px"></iframe>
+[Open Direct API Reference Page](https://projectlibertylabs.github.io/gateway/account)
+{{#swagger-embed ../services/account/swagger.json}}
 
-[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/account)
 
 ## Configuration
 

@@ -4,8 +4,8 @@ The Content Watcher Service monitors and retrieves the latest feed state, includ
 
 ## API Reference
 
-<iframe src="https://projectlibertylabs.github.io/gateway/content-watcher" width="100%" height="600px"></iframe>
 [Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/content-watcher)
+{{#swagger-embed ../services/content-watcher/swagger.json}}
 
 
 ## Configuration

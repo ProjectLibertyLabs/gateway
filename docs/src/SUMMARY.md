@@ -10,7 +10,7 @@
 - [Quick Start Tutorial](./GettingStarted/README.md)
 - [Build](./Build/README.md)
   - [Account Service](./Build/AccountService.md)
-  - [Content Publishing Service](./Build/ContentPublisher.md)
+  - [Content Publishing Service](./Build/ContentPublishing.md)
   - [Content Watcher Service](./Build/ContentWatcher.md)
   - [Graph Service](./Build/GraphService.md)
 - [Run](./Run/README.md)

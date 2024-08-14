@@ -5,7 +5,7 @@
   "main": "dist/apps/api/main.js",
   "scripts": {
     "build": "nest build api && nest build worker",
-    "generate:openapi": "set -a ; . ./env.template ; npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
+    "generate:openapi": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
     "generate:metadata": "set -a ; . ./env.template ; npx ts-node apps/api/src/generate-metadata.ts",
     "generate:swagger-ui": "set -a ; . ./env.template ; npx --yes @redocly/cli build-docs swagger.json --output=./docs/index.html",
     "build:api": "nest build api",

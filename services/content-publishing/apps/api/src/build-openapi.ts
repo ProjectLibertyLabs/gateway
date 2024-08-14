@@ -19,6 +19,13 @@ process.env.PROVIDER_ACCOUNT_SEED_PHRASE =
 process.env.PROVIDER_ID = '0';
 process.env.PROVIDER_BASE_URL = 'http://127.0.0.1';
 process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
+process.env.IPFS_ENDPOINT = 'http://127.0.0.1';
+process.env.IPFS_GATEWAY_URL = 'http://127.0.0.1';
+process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES = '100';
+process.env.ASSET_EXPIRATION_INTERVAL_SECONDS = '100';
+process.env.BATCH_INTERVAL_SECONDS = '100';
+process.env.BATCH_MAX_COUNT = '100';
+process.env.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS = '100';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';

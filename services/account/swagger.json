@@ -354,7 +354,7 @@
             "type": "string"
           },
           "signature": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": ["message", "signature"]
@@ -389,7 +389,7 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "object"
+            "type": "string"
           }
         },
         "required": ["pallet", "extrinsicName", "encodedExtrinsic"]

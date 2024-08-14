@@ -287,7 +287,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    this.logger.debug(delegationResponse, 'delegationResponse');
     if (delegationResponse.isSome) return delegationResponse.unwrap();
     return null;
   }

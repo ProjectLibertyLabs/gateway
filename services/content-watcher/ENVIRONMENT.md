@@ -1,5 +1,6 @@
 # Environment Variables
 
+ℹ️ Feel free to adjust your environment variables to taste.
 This application recognizes the following environment variables:
 
 | Name                               | Description                                                                                                     |       Range/Type       | Required? |     Default      |

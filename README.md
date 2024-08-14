@@ -22,7 +22,7 @@
 
 # 📖 Gateway Services <a name="about-project"></a>
 
-Gateway is a collection of services that helps make interacting with Frequency easy as working with any web2 API!
+Gateway is a collection of services that helps make interacting with Frequency as easy as working with any web2 API!
 
 <!-- Mermaid Arch maps -->
 
@@ -40,7 +40,6 @@ flowchart LR;
         GS[Graph Service]
         CPS[Content Publishing Service]
         CWS[Content Watcher Service]
-        RS[Graph Reconnection Service]
     end
     S --> AS
     S --> GS
@@ -61,7 +60,7 @@ flowchart LR;
 
 ## 🛠 Built With
 
-Each Gateway services is an independent microservice.
+Each Gateway service is an independent microservice.
 
 ### Tech Stack
 
@@ -94,14 +93,6 @@ Each Gateway services is an independent microservice.
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/content-watcher/)
 - [README](./services/content-watcher/README.md)
-
-</details>
-
-<details>
-<summary>Reconnection Service</summary>
-
-- [API Documentation](https://projectlibertylabs.github.io/reconnection-service/)
-- [GitHub](https://github.com/ProjectLibertyLabs/reconnection-service)
 
 </details>
 

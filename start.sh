@@ -117,7 +117,8 @@ EOI
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Do you want to change the IPFS settings [y/N]:                                              ┃
-┃ [When using Testnet, you must change the IPFS Provider information]                         ┃
+┃                                                                                             ┃
+┃ Suggestion: Change to an IPFS Pinning Service for better persistence and availability       ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 EOI

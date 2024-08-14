@@ -18,7 +18,7 @@ process.env.PROVIDER_ACCOUNT_SEED_PHRASE =
   'offer debate skin describe light badge fish turtle actual inject struggle border';
 process.env.PROVIDER_ID = '0';
 process.env.PROVIDER_BASE_URL = 'http://127.0.0.1';
-process.env.CAPACITY_LIMIT = '{"type":"amount","value":"1"}';
+process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';

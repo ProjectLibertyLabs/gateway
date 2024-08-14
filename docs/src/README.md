@@ -7,6 +7,7 @@ Get started using Decentralized Social as easy as deploying a web2 API.
 Gateway offers a suite of tools you can pick and choose to build the best for your users.
 
 <!-- Add more visual elements to the services -->
+
 - Identity
 - Graph
 - Content
@@ -29,7 +30,6 @@ Each microservice is a different building block.
 These microservices are 100% independent of each other, so use only what you want.
 
 ![Gateway Application Microservice Diagram](./gateway_arch-TopLevelServices.drawio.png)
-
 
 ## Key Microservices
 

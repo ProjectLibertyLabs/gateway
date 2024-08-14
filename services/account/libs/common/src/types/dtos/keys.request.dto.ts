@@ -23,11 +23,11 @@ export class KeysRequest {
   @IsNotEmpty()
   msaOwnerAddress: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   msaOwnerSignature: HexString;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   newKeyOwnerSignature: HexString;
 

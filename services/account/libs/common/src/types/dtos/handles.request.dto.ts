@@ -23,7 +23,7 @@ export class HandleRequest {
   @IsNotEmpty()
   payload: HandlePayload;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   proof: HexString;
 }

@@ -144,13 +144,13 @@ Clone:
 To run all Gateway services, execute the following command:
 
 ```sh
-  ./start-gateway.sh
+  ./start.sh
 ```
 
 To stop the Gateway services, execute the following command:
 
 ```sh
-  ./stop-gateway.sh
+  ./stop.sh
 ```
 
 To build the Gateway Documentation:

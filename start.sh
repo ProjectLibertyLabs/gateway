@@ -22,7 +22,8 @@ if [ -f .env-saved ]; then
     echo -e "Found saved environment from a previous run:\n"
     cat .env-saved
     echo
-    read -p  "Do you want to re-use the saved paramters? [y/N]: " REUSE_SAVED
+    read -p  "Do you want to re-use the saved paramters? [Y/n]: " REUSE_SAVED
+    REUSE_SAVED=${REUSE_SAVED:-y}
 
     if [[ ${REUSE_SAVED} =~ ^[Yy] ]]
     then
@@ -77,9 +78,8 @@ EOI
         DEFAULT_TESTNET_ENV="testnet"
         DEFAULT_FREQUENCY_URL="wss://0.rpc.testnet.amplica.io"
         DEFAULT_FREQUENCY_HTTP_URL="https://0.rpc.testnet.amplica.io"
-        DEFAULT_PROVIDER_ID="729"
-        DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE="DEFAULT seed phrase needed"
-        DEFAULT_IPFS_VOLUME="/data/ipfs"
+        DEFAULT_PROVIDER_ID="INPUT REQUIRED"
+        DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE="INPUT REQUIRED"
     else
         echo -e "\nStarting on local..."
         DEFAULT_TESTNET_ENV="local"
@@ -87,8 +87,8 @@ EOI
         DEFAULT_FREQUENCY_HTTP_URL="http://localhost:9944"
         DEFAULT_PROVIDER_ID="1"
         DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE="//Alice"
-        DEFAULT_IPFS_VOLUME="/data/ipfs"
     fi
+    DEFAULT_IPFS_VOLUME="/data/ipfs"
     DEFAULT_IPFS_ENDPOINT="http://ipfs:5001"
     DEFAULT_IPFS_GATEWAY_URL='https://ipfs.io/ipfs/[CID]'
     DEFAULT_IPFS_BASIC_AUTH_USER=""
@@ -116,11 +116,13 @@ EOI
     cat << EOI
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ IPFS settings                                                                               ┃
+┃ Do you want to change the IPFS settings [y/N]:                                              ┃
+┃                                                                                             ┃
+┃ Suggestion: Change to an IPFS Pinning Service for better persistence and availability       ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 EOI
-    read -p "Do you want to change the IPFS settings? [y/N]: " CHANGE_IPFS_SETTINGS
+    read CHANGE_IPFS_SETTINGS
 
     if [[ $CHANGE_IPFS_SETTINGS =~ ^[Yy]$ ]]
     then
@@ -131,6 +133,7 @@ EOI
         ask_and_save IPFS_BASIC_AUTH_SECRET "Enter the IPFS Basic Auth Secret" "$DEFAULT_IPFS_BASIC_AUTH_SECRET"
         ask_and_save IPFS_UA_GATEWAY_URL "Enter the browser-resolveable IPFS Gateway URL" "$DEFAULT_IPFS_UA_GATEWAY_URL"
     else
+    # Add the IPFS settings to the .env-saved file so defaults work with local testing
         cat >> .env-saved << EOI
 IPFS_VOLUME="${DEFAULT_IPFS_VOLUME}"
 IPFS_ENDPOINT="${DEFAULT_IPFS_ENDPOINT}"
@@ -148,14 +151,6 @@ then
     # Start specific services in detached mode
     echo -e "\nStarting local frequency services..."
     docker compose up -d frequency
-
-    # Wait for 15 seconds
-    echo "Waiting 15 seconds for Frequency to be ready..."
-    sleep 15
-
-    # Run npm run local:init
-    # echo "Running npm run local:init to provision Provider with capacity, etc..."
-    # cd backend && npm run local:init && cd ..
 fi
 
 # Start all services in detached mode

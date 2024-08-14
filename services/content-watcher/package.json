@@ -10,7 +10,7 @@
     "start:dev": "set -a ; . .env ; nest start api --watch",
     "start:debug": "set -a ; . .env ; nest start api --debug --watch",
     "build": "nest build",
-    "generate:openapi": "set -a ; . ./env.template ; npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
+    "generate:openapi": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
     "generate:metadata": "set -a ; . ./env.template ; npx ts-node apps/api/src/generate-metadata.ts",
     "generate:swagger-ui": "set -a ; . ./env.template ; npx --yes @redocly/cli build-docs swagger.json --output=./docs/index.html",
     "format": "prettier --write .",

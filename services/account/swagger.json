@@ -18,9 +18,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       },
       "post": {
         "operationId": "AccountsControllerV1_postSignInWithFrequency",
@@ -48,9 +46,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/accounts/{msaId}": {
@@ -79,9 +75,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/accounts/account/{publicKey}": {
@@ -110,9 +104,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/delegation/{msaId}": {
@@ -134,9 +126,7 @@
             "description": "Found delegation information."
           }
         },
-        "tags": [
-          "v1/delegation"
-        ]
+        "tags": ["v1/delegation"]
       }
     },
     "/v1/handles": {
@@ -159,9 +149,7 @@
             "description": "Handle creation request enqueued"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/handles/change": {
@@ -184,9 +172,7 @@
             "description": "Handle change request enqueued"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/handles/{msaId}": {
@@ -208,9 +194,7 @@
             "description": "Found a handle"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/keys/add": {
@@ -233,9 +217,7 @@
             "description": "Found public keys."
           }
         },
-        "tags": [
-          "v1/keys"
-        ]
+        "tags": ["v1/keys"]
       }
     },
     "/v1/keys/{msaId}": {
@@ -257,9 +239,7 @@
             "description": "Found public keys."
           }
         },
-        "tags": [
-          "v1/keys"
-        ]
+        "tags": ["v1/keys"]
       }
     },
     "/healthz": {
@@ -272,9 +252,7 @@
             "description": "Service is healthy"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/livez": {
@@ -287,9 +265,7 @@
             "description": "Service is live"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/readyz": {
@@ -302,9 +278,7 @@
             "description": "Service is ready"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     }
   },
@@ -344,11 +318,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "providerId",
-          "siwfUrl",
-          "frequencyRpcUrl"
-        ]
+        "required": ["providerId", "siwfUrl", "frequencyRpcUrl"]
       },
       "HandleResponseDTO": {
         "type": "object",
@@ -363,11 +333,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "base_handle",
-          "canonical_base",
-          "suffix"
-        ]
+        "required": ["base_handle", "canonical_base", "suffix"]
       },
       "AccountResponse": {
         "type": "object",
@@ -379,9 +345,7 @@
             "$ref": "#/components/schemas/HandleResponseDTO"
           }
         },
-        "required": [
-          "msaId"
-        ]
+        "required": ["msaId"]
       },
       "SiwsPayloadDto": {
         "type": "object",
@@ -390,13 +354,10 @@
             "type": "string"
           },
           "signature": {
-            "type": "string"
+            "type": "object"
           }
         },
-        "required": [
-          "message",
-          "signature"
-        ]
+        "required": ["message", "signature"]
       },
       "ErrorResponseDto": {
         "type": "object",
@@ -405,9 +366,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "SignInResponseDto": {
         "type": "object",
@@ -430,14 +389,10 @@
             "type": "string"
           },
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "object"
           }
         },
-        "required": [
-          "pallet",
-          "extrinsicName",
-          "encodedExtrinsic"
-        ]
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
       "SignUpResponseDto": {
         "type": "object",
@@ -491,9 +446,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "referenceId"
-        ]
+        "required": ["referenceId"]
       },
       "HandlePayload": {
         "type": "object",
@@ -505,10 +458,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "baseHandle",
-          "expiration"
-        ]
+        "required": ["baseHandle", "expiration"]
       },
       "HandleRequest": {
         "type": "object",
@@ -523,11 +473,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "accountId",
-          "payload",
-          "proof"
-        ]
+        "required": ["accountId", "payload", "proof"]
       },
       "KeysRequestPayload": {
         "type": "object",
@@ -542,11 +488,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "msaId",
-          "expiration",
-          "newPublicKey"
-        ]
+        "required": ["msaId", "expiration", "newPublicKey"]
       },
       "KeysRequest": {
         "type": "object",
@@ -564,12 +506,7 @@
             "$ref": "#/components/schemas/KeysRequestPayload"
           }
         },
-        "required": [
-          "msaOwnerAddress",
-          "msaOwnerSignature",
-          "newKeyOwnerSignature",
-          "payload"
-        ]
+        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
       }
     }
   }

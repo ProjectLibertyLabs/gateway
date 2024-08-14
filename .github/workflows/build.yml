@@ -27,8 +27,10 @@ jobs:
           # Adding a filter? Check for the need to add to the outputs as well
           filters: |
             common:
-              - '*'
+              - 'packages/**'
+              - 'Docker/**'
               - '.github/**'
+              - 'docker-compose.yaml'
             account:
               - 'services/account/**'
             graph:

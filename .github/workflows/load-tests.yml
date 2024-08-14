@@ -27,16 +27,23 @@ jobs:
           # Adding a filter? Check for the need to add to the outputs as well
           filters: |
             common:
-              - '*'
+              - 'packages/**'
+              - 'Docker/**'
+              - 'tools/ci-k6/**'
               - '.github/**'
+              - 'docker-compose.yaml'
             account:
               - 'services/account/**'
+              - 'docker-compose-k6.account.yaml'
             graph:
               - 'services/graph/**'
+              - 'docker-compose-k6.graph.yaml'
             content-publishing:
               - 'services/content-publishing/**'
+              - 'docker-compose-k6.content-publishing.yaml'
             content-watcher:
               - 'services/content-watcher/**'
+              - 'docker-compose-k6.content-watcher.yaml'
 
   build:
     name: '[${{ matrix.service }}] Load Test'

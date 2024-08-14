@@ -8,8 +8,11 @@ import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 
 // Mock out required env vars before the module loads
-process.env.REDIS_URL = 'http://127.0.0.1';
-process.env.FREQUENCY_URL = 'http://127.0.0.1';
+const dummyUrl = 'http://127.0.0.1';
+process.env.REDIS_URL = dummyUrl;
+process.env.FREQUENCY_URL = dummyUrl;
+process.env.IPFS_ENDPOINT = dummyUrl;
+process.env.IPFS_GATEWAY_URL = dummyUrl;
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';

@@ -162,7 +162,7 @@ export class TxnNotifierService
               break;
             case TransactionType.SIWF_SIGNUP:
               {
-                const siwfTxnValues = this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
+                const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
 
                 webhookResponse = createWebhookRsp(txStatus, siwfTxnValues.msaId, {
                   accountId: siwfTxnValues.address,
@@ -182,7 +182,6 @@ export class TxnNotifierService
                   newPublicKey: publicKeyValues.newPublicKey,
                 });
 
-                this.logger.debug(publicKeyValues.debugMsg);
                 this.logger.log(
                   `Keys: Added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`,
                 );

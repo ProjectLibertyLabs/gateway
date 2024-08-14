@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   # Build mdbook
-  build-mdbook: 
+  build-mdbook:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,7 +60,7 @@ jobs:
         uses: ./.github/workflows/common/openapi-build
         with:
           service: ${{ matrix.service }}
-      
+
       - name: Upload OpenAPI UI artifact for ${{ matrix.service }}
         uses: actions/upload-artifact@v4
         with:

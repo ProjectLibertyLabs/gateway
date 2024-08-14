@@ -62,7 +62,7 @@ cd social-web-template
 ### Run the Configuration Script
 
 ```sh
-./start-gateway.sh
+./start.sh
 ```
 
 #### Testnet Setup Help
@@ -82,7 +82,6 @@ You should now be able to access the Social App Template at [http://localhost:30
 
 ![SAT Screenshot](./sat-success.png)
 
-
 ### What happened in the background?
 
 All the different services needed were started in Docker (Docker Desktop Screenshot):
@@ -93,7 +92,7 @@ All the different services needed were started in Docker (Docker Desktop Screens
 Stop all the Docker services via the script (with the option to remove saved data), or just use Docker Desktop.
 
 ```sh
-./stop-gateway.sh
+./stop.sh
 ```
 
 ## What Next?

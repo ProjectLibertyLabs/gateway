@@ -7,11 +7,11 @@
 // - Replaces `{{#markdown-embed ../services/account/ENVIRONMENT.md [trim from top]}}` or other is found with the contents of that file
 
 import { execSync } from 'node:child_process';
-import { readFileSync } from "node:fs"
+import { readFileSync } from 'node:fs';
 
 function runNpxCommand(script, args) {
   try {
-    const command = `npx -y ${script} -- ${args.map(x => `"${x}"`).join(" ")}`;
+    const command = `npx -y ${script} -- ${args.map((x) => `"${x}"`).join(' ')}`;
     const output = execSync(command, { encoding: 'utf-8' });
     return output;
   } catch (error) {
@@ -22,20 +22,20 @@ function runNpxCommand(script, args) {
 function makeButtonLink({ Chapter }, parentPath) {
   // Remove any part of the path that the parent already has.
   // This assumes that there are no nested duplicate names
-  const path = Chapter.path.split("/").filter((x) => !parentPath.has(x));
-  return `<a href="${path.join("/").replace(".md", ".html")}">${Chapter.name}</a>`;
+  const path = Chapter.path.split('/').filter((x) => !parentPath.has(x));
+  return `<a href="${path.join('/').replace('.md', '.html')}">${Chapter.name}</a>`;
 }
 
 function generateButtonLinks(parent) {
   // Remove the last /page.md as there might be collisions with that part
-  const parentPath = new Set(parent.path.replace(/\/[^\/]*$/, "").split("/"));
+  const parentPath = new Set(parent.path.replace(/\/[^\/]*$/, '').split('/'));
   return (
-    '<div class="button-links">' + parent.sub_items.map((x) => makeButtonLink(x, parentPath)).join("\n") + "</div>"
+    '<div class="button-links">' + parent.sub_items.map((x) => makeButtonLink(x, parentPath)).join('\n') + '</div>'
   );
 }
 function replaceButtonLinks(chapter) {
-  if (chapter.sub_items && chapter.content.includes("{{#button-links}}")) {
-    chapter.content = chapter.content.replace("{{#button-links}}", generateButtonLinks(chapter));
+  if (chapter.sub_items && chapter.content.includes('{{#button-links}}')) {
+    chapter.content = chapter.content.replace('{{#button-links}}', generateButtonLinks(chapter));
   }
 
   if (chapter.sub_items) {
@@ -50,8 +50,8 @@ function swaggerEmbed(chapter) {
   const match = chapter.content.match(regex);
   if (match) {
     const swaggerFile = match[1];
-    const output = runNpxCommand("openapi-to-md", [swaggerFile]);
-    const replaceWith = output.split("\n").slice(5).join("\n");
+    const output = runNpxCommand('openapi-to-md', [swaggerFile]);
+    const replaceWith = output.split('\n').slice(5).join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
   }
   if (chapter.sub_items) {
@@ -67,7 +67,7 @@ function markdownEmbed(chapter) {
   if (match) {
     const markdownFile = match[1];
     const output = readFileSync(markdownFile, 'utf8');
-    const replaceWith = output.split("\n").slice(match[2]).join("\n");
+    const replaceWith = output.split('\n').slice(match[2]).join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
   }
   if (chapter.sub_items) {
@@ -99,23 +99,23 @@ function preprocessMdBook([_context, book]) {
 }
 
 if (process.argv < 3) {
-  throw new Error("Something strange is happening");
+  throw new Error('Something strange is happening');
 }
 
-if (process.argv[2] === "supports") {
+if (process.argv[2] === 'supports') {
   process.exit(0);
 }
 
-process.stdin.setEncoding("utf-8");
-process.stdout.setEncoding("utf-8");
+process.stdin.setEncoding('utf-8');
+process.stdout.setEncoding('utf-8');
 
 // Read data from stdin
-let inputData = "";
+let inputData = '';
 
-process.stdin.on("data", (chunk) => {
+process.stdin.on('data', (chunk) => {
   inputData += chunk;
 });
 
-process.stdin.on("end", () => {
+process.stdin.on('end', () => {
   preprocessMdBook(JSON.parse(inputData));
 });

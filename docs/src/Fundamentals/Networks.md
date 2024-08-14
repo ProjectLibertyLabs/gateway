@@ -65,9 +65,9 @@ To interact with the Frequency networks using the Polkadot.js Explorer, follow t
 2. **Select Frequency Network:**
 
    - Click on the network selection dropdown at the top left corner of the page.
-   - Choose "Frequency Mainnet" for the main network.
-   - Choose "Frequency Testnet" for the test network.
-   - For local development, connect to your local node by selecting "Custom Endpoint" and entering the URL of your local node (e.g., `http://localhost:9933`).
+   - Choose "POLKADOT & PARACHAINS -> Frequency Polkadot Parachain" for the main network.
+   - Choose "TEST PASEO & PARACHAINS -> Frequency Paseo Parachain" for the test network.
+   - For local development, connect to your local node by selecting "DEVELOPMENT -> Local Node or Custom Endpoint" and entering the URL of your local node (e.g., `http://localhost:9933`).
 
 3. **Connect Your Wallet:**
    - Ensure your Polkadot-supporting wallet is connected.

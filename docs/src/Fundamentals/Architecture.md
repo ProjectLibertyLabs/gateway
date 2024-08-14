@@ -5,7 +5,7 @@
 ## Authentication
 
 Gateway and Frequency provide authentication, but not session management.
-Using cryptographic signatures, you will get proof the user is without passwords or other complex identity systems to implement.
+Using cryptographic signatures, you will get proof the user is authenticated without passwords or other complex identity systems to implement.
 Your application still must manage sessions as is best for your custom needs.
 
 ### What does it mean for Applications?

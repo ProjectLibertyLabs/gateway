@@ -95,11 +95,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.registry.createType(type, ...args);
   }
 
-  public createExtrinsicCall({ pallet, extrinsic }: { pallet: string; extrinsic: string }, ...args: (any | undefined)[]): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  public createExtrinsicCall(
+    { pallet, extrinsic }: { pallet: string; extrinsic: string },
+    ...args: (any | undefined)[]
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx[pallet][extrinsic](...args);
   }
 
-  public createExtrinsic({ pallet, extrinsic }: { pallet: string; extrinsic: string }, keys: KeyringPair, ...args: (any | undefined)[]): Extrinsic {
+  public createExtrinsic(
+    { pallet, extrinsic }: { pallet: string; extrinsic: string },
+    keys: KeyringPair,
+    ...args: (any | undefined)[]
+  ): Extrinsic {
     return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
   }
 
@@ -111,7 +118,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
   }
 
-  public async queryAt(blockHash: BlockHash, pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
+  public async queryAt(
+    blockHash: BlockHash,
+    pallet: string,
+    extrinsic: string,
+    ...args: (any | undefined)[]
+  ): Promise<any> {
     const newApi = await this.api.at(blockHash);
     return newApi.query[pallet][extrinsic](...args);
   }
@@ -120,7 +132,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const providerU64 = this.api.createType('u64', providerId);
     const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
     const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
-    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query('capacity', 'capacityLedger', providerU64);
+    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
+      'capacity',
+      'capacityLedger',
+      providerU64,
+    );
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
       remainingCapacity: 0,
       totalCapacityIssued: 0,
@@ -132,8 +148,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       providerId,
       currentBlockNumber: currentBlock.toNumber(),
       nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
-      remainingCapacity: typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
-      totalCapacityIssued: typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
+      remainingCapacity:
+        typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
+      totalCapacityIssued:
+        typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
     };
   }
 

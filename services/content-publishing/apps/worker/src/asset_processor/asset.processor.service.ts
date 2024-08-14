@@ -41,7 +41,11 @@ export class AssetProcessorService extends BaseConsumer {
     const secondsPassed = Math.round((Date.now() - job.timestamp) / 1000);
     const expectedSecondsToExpire = this.configService.assetExpirationIntervalSeconds;
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);
-    const result = await this.redis.pipeline().expire(job.data.contentLocation, secondsToExpire, 'LT').expire(job.data.metadataLocation, secondsToExpire, 'LT').exec();
+    const result = await this.redis
+      .pipeline()
+      .expire(job.data.contentLocation, secondsToExpire, 'LT')
+      .expire(job.data.metadataLocation, secondsToExpire, 'LT')
+      .exec();
     this.logger.debug(result);
     // calling in the end for graceful shutdowns
     super.onCompleted(job);

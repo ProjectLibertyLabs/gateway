@@ -19,11 +19,19 @@ export class AsyncDebouncerService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  public getGraphForDsnpId(dsnpId: string, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+  public getGraphForDsnpId(
+    dsnpId: string,
+    privacyType: PrivacyType,
+    graphKeyPairs?: GraphKeyPairDto[],
+  ): Promise<DsnpGraphEdge[]> {
     return this.debounceAsyncOperation(dsnpId, privacyType, graphKeyPairs);
   }
 
-  public setGraphForSchemaId(dsnpId: string, schemaId: number, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+  public setGraphForSchemaId(
+    dsnpId: string,
+    schemaId: number,
+    graphKeyPairs?: GraphKeyPairDto[],
+  ): Promise<DsnpGraphEdge[]> {
     if (!schemaId) {
       throw new Error('Schema ID is required');
     }
@@ -31,7 +39,11 @@ export class AsyncDebouncerService {
     return this.debounceAsyncOperation(dsnpId, privacyType, graphKeyPairs);
   }
 
-  public async debounceAsyncOperation(dsnpId: string, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+  public async debounceAsyncOperation(
+    dsnpId: string,
+    privacyType: PrivacyType,
+    graphKeyPairs?: GraphKeyPairDto[],
+  ): Promise<DsnpGraphEdge[]> {
     const cacheKey = this.getCacheKey(dsnpId, privacyType);
 
     const cachedFuture = await this.redis.get(cacheKey);

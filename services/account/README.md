@@ -205,48 +205,48 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 
 The following command will start all of the necessary containers for the account service to run in development mode.
 
-   ```bash
-   make restart-chain-docker
-   ```
+```bash
+make restart-chain-docker
+```
 
 In order to run the `account-service` in development mode without containers, you can use the following commands:
 
 #### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
 
-   ```bash
-   make restart-local-dev
-   ```
+```bash
+make restart-local-dev
+```
 
-   Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
+Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
 
 #### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
 
-   ```sh
-   make mock-webhook
-   ```
+```sh
+make mock-webhook
+```
 
 #### 3. Start the Api and Worker.<br /><br />
 
-   **Option 1:** In a new terminal window, start the `account-service` api app. Logs will be displayed in the terminal for easy reference.
+**Option 1:** In a new terminal window, start the `account-service` api app. Logs will be displayed in the terminal for easy reference.
 
-   ```sh
-   npm run start:api:debug
-   ```
+```sh
+npm run start:api:debug
+```
 
-   In another terminal window, start the `account-service` worker app.
+In another terminal window, start the `account-service` worker app.
 
-   ```sh
-   npm run start:worker:debug
-   ```
+```sh
+npm run start:worker:debug
+```
 
-   -- or -- <br /><br />
+-- or -- <br /><br />
 
-   **Option 2:**
-   Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
+**Option 2:**
+Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
 
-   ```sh
-   docker-compose up -d account-service-api account-service-worker
-   ```
+```sh
+docker-compose up -d account-service-api account-service-worker
+```
 
 #### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
 
@@ -254,11 +254,11 @@ In order to run the `account-service` in development mode without containers, yo
 
 ### Run the tests
 
-   ```bash
-   make test-e2e
-   ```
+```bash
+make test-e2e
+```
 
-   This will run the tests in `apps/api/test` folder.
+This will run the tests in `apps/api/test` folder.
 
 #### Check e2e test file for more details on the test
 

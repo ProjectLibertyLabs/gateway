@@ -32,9 +32,7 @@
     },
     "/api/v3/webhook": {
       "post": {
-        "tags": [
-          "webhook"
-        ],
+        "tags": ["webhook"],
         "summary": "Echo payload",
         "description": "Echoes the payload back to the client",
         "operationId": "post_api-v3-webhook-4119506f2bf7e18fb0bd687e28806dba",
@@ -69,9 +67,7 @@
       "HealthResponse": {
         "title": "HealthResponse",
         "type": "object",
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "properties": {
           "message": {
             "type": "string"
@@ -84,14 +80,7 @@
           {
             "title": "SIWF_SIGNUP",
             "type": "object",
-            "required": [
-              "accountId",
-              "handle",
-              "msaId",
-              "providerId",
-              "referenceId",
-              "transactionType"
-            ],
+            "required": ["accountId", "handle", "msaId", "providerId", "referenceId", "transactionType"],
             "properties": {
               "accountId": {
                 "type": "string"
@@ -110,22 +99,14 @@
               },
               "transactionType": {
                 "type": "string",
-                "enum": [
-                  "SIWF_SIGNUP"
-                ]
+                "enum": ["SIWF_SIGNUP"]
               }
             }
           },
           {
             "title": "CHANGE_HANDLE",
             "type": "object",
-            "required": [
-              "handle",
-              "msaId",
-              "providerId",
-              "referenceId",
-              "transactionType"
-            ],
+            "required": ["handle", "msaId", "providerId", "referenceId", "transactionType"],
             "properties": {
               "handle": {
                 "type": "string"
@@ -141,22 +122,14 @@
               },
               "transactionType": {
                 "type": "string",
-                "enum": [
-                  "CHANGE_HANDLE"
-                ]
+                "enum": ["CHANGE_HANDLE"]
               }
             }
           },
           {
             "title": "CREATE_HANDLE",
             "type": "object",
-            "required": [
-              "handle",
-              "msaId",
-              "providerId",
-              "referenceId",
-              "transactionType"
-            ],
+            "required": ["handle", "msaId", "providerId", "referenceId", "transactionType"],
             "properties": {
               "handle": {
                 "type": "string"
@@ -172,21 +145,14 @@
               },
               "transactionType": {
                 "type": "string",
-                "enum": [
-                  "CREATE_HANDLE"
-                ]
+                "enum": ["CREATE_HANDLE"]
               }
             }
           },
           {
             "title": "ADD_KEY",
             "type": "object",
-            "required": [
-              "msaId",
-              "newPublicKey",
-              "referenceId",
-              "transactionType"
-            ],
+            "required": ["msaId", "newPublicKey", "referenceId", "transactionType"],
             "properties": {
               "msaId": {
                 "type": "string"
@@ -199,9 +165,7 @@
               },
               "transactionType": {
                 "type": "string",
-                "enum": [
-                  "ADD_KEY"
-                ]
+                "enum": ["ADD_KEY"]
               }
             }
           }

@@ -19,7 +19,10 @@ export class DelegationService {
     if (isValidMsaId) {
       const { providerId } = this.configService;
 
-      const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(msaId, providerId);
+      const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(
+        msaId,
+        providerId,
+      );
 
       if (commonPrimitivesMsaDelegation) {
         const delegationResponse: DelegationResponse = {

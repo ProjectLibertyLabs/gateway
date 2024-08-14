@@ -1,6 +1,15 @@
 import { FilesUploadDto, UploadResponseDto } from '../../../../../libs/common/src/dtos/common.dto';
 import { DSNP_VALID_MIME_TYPES } from '#libs/dtos/validation.dto';
-import { Controller, HttpCode, HttpStatus, Logger, ParseFilePipeBuilder, Put, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  ParseFilePipeBuilder,
+  Put,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';

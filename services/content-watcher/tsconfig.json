@@ -4,87 +4,33 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "#api": [
-        "apps/api/src"
-      ],
-      "#api/*": [
-        "apps/api/src/*"
-      ],
-      "@libs/common": [
-        "libs/common/src"
-      ],
-      "@libs/common/*": [
-        "libs/common/src/*"
-      ],
-      "#libs/blockchain": [
-        "libs/common/src/blockchain"
-      ],
-      "#libs/blockchain/*": [
-        "libs/common/src/blockchain/*"
-      ],
-      "#libs/config": [
-        "libs/common/src/config"
-      ],
-      "#libs/config/*": [
-        "libs/common/src/config/*"
-      ],
-      "#libs/crawler": [
-        "libs/common/src/crawler"
-      ],
-      "#libs/crawler/*": [
-        "libs/common/src/crawler/*"
-      ],
-      "#libs/dtos": [
-        "libs/common/src/dtos"
-      ],
-      "#libs/dtos/*": [
-        "libs/common/src/dtos/*"
-      ],
-      "#libs/interfaces": [
-        "libs/common/src/interfaces"
-      ],
-      "#libs/interfaces/*": [
-        "libs/common/src/interfaces/*"
-      ],
-      "#libs/ipfs": [
-        "libs/common/src/ipfs"
-      ],
-      "#libs/ipfs/*": [
-        "libs/common/src/ipfs/*"
-      ],
-      "#libs/pubsub": [
-        "libs/common/src/pubsub"
-      ],
-      "#libs/pubsub/*": [
-        "libs/common/src/pubsub/*"
-      ],
-      "#libs/queues": [
-        "libs/common/src/queues"
-      ],
-      "#libs/queues/*": [
-        "libs/common/src/queues/*"
-      ],
-      "#libs/scanner": [
-        "libs/common/src/scanner"
-      ],
-      "#libs/scanner/*": [
-        "libs/common/src/scanner/*"
-      ],
-      "#libs/types": [
-        "libs/common/src/types"
-      ],
-      "#libs/types/*": [
-        "libs/common/src/types/*"
-      ],
-      "#libs/utils": [
-        "libs/common/src/utils"
-      ],
-      "#libs/utils/*": [
-        "libs/common/src/utils/*"
-      ]
+      "#api": ["apps/api/src"],
+      "#api/*": ["apps/api/src/*"],
+      "@libs/common": ["libs/common/src"],
+      "@libs/common/*": ["libs/common/src/*"],
+      "#libs/blockchain": ["libs/common/src/blockchain"],
+      "#libs/blockchain/*": ["libs/common/src/blockchain/*"],
+      "#libs/config": ["libs/common/src/config"],
+      "#libs/config/*": ["libs/common/src/config/*"],
+      "#libs/crawler": ["libs/common/src/crawler"],
+      "#libs/crawler/*": ["libs/common/src/crawler/*"],
+      "#libs/dtos": ["libs/common/src/dtos"],
+      "#libs/dtos/*": ["libs/common/src/dtos/*"],
+      "#libs/interfaces": ["libs/common/src/interfaces"],
+      "#libs/interfaces/*": ["libs/common/src/interfaces/*"],
+      "#libs/ipfs": ["libs/common/src/ipfs"],
+      "#libs/ipfs/*": ["libs/common/src/ipfs/*"],
+      "#libs/pubsub": ["libs/common/src/pubsub"],
+      "#libs/pubsub/*": ["libs/common/src/pubsub/*"],
+      "#libs/queues": ["libs/common/src/queues"],
+      "#libs/queues/*": ["libs/common/src/queues/*"],
+      "#libs/scanner": ["libs/common/src/scanner"],
+      "#libs/scanner/*": ["libs/common/src/scanner/*"],
+      "#libs/types": ["libs/common/src/types"],
+      "#libs/types/*": ["libs/common/src/types/*"],
+      "#libs/utils": ["libs/common/src/utils"],
+      "#libs/utils/*": ["libs/common/src/utils/*"]
     },
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "typeRoots": ["node_modules/@types"]
   }
 }

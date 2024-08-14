@@ -163,13 +163,13 @@ In order to run this project you need:
 
 Use the provided [env.template](./env.template) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
 
- 1. For running the application under Docker, copy the environment template to `.env.docker.dev`; for running bare-metal, copy to `.env`.
+1.  For running the application under Docker, copy the environment template to `.env.docker.dev`; for running bare-metal, copy to `.env`.
 
-  ```sh
-  cp env.template .env
-  ```
+```sh
+cp env.template .env
+```
 
-  2. Configure the environment variable values according to your environment.
+2. Configure the environment variable values according to your environment.
 
 ### Install
 
@@ -186,33 +186,33 @@ To run the project, execute the following command:
 
 #### 1. Start the required auxiliary services
 
-  Frequency node, Redis, IPFS
+Frequency node, Redis, IPFS
 
-  ```sh
-  docker compose up -d frequency redis ipfs
-  ```
+```sh
+docker compose up -d frequency redis ipfs
+```
 
 #### 2. Start the application services
 
-  Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
+Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
 
-  The instructions are the same for running both the API service and the worker service:
+The instructions are the same for running both the API service and the worker service:
 
 - **Substitute "api" or "worker" for the "< service >" tag in the commands below.**
 
 #### Running bare metal
 
-  ```sh
-  npm run start:<service>::dev
-  ```
+```sh
+npm run start:<service>::dev
+```
 
-  -- or --
+-- or --
 
 #### Running under Docker
 
-  ```sh
-  docker compose up [-d] content-publishing-service-<service>
-  ```
+```sh
+docker compose up [-d] content-publishing-service-<service>
+```
 
 #### 3. Check the job in BullUI, to monitor job progress based on defined tests
 

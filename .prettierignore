@@ -1,3 +1,5 @@
 # Ignore artifacts
 **/dist
 **/build
+**/*.yaml
+**/*.yml

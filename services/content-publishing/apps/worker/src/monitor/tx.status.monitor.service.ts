@@ -50,7 +50,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
   ) {
     super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
-    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () => this.capacityService.checkForSufficientCapacity());
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
+      this.capacityService.checkForSufficientCapacity(),
+    );
   }
 
   public get intervalName() {
@@ -75,7 +77,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     if (extrinsicIndices.length > 0) {
       const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
       const epoch = (await at.query.capacity.currentEpoch()).toNumber();
-      const events: FrameSystemEventRecord[] = blockEvents.filter(({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)));
+      const events: FrameSystemEventRecord[] = blockEvents.filter(
+        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
+      );
 
       const totalCapacityWithdrawn: bigint = events.reduce((sum, { event }) => {
         if (at.events.capacity.CapacityWithdrawn.is(event)) {
@@ -86,11 +90,16 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
 
       // eslint-disable-next-line no-restricted-syntax
       for (const [txHash, txIndex] of extrinsicIndices) {
-        const extrinsicEvents = events.filter(({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex));
+        const extrinsicEvents = events.filter(
+          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
+        );
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
         const txStatus = JSON.parse(txStatusStr) as ITxStatus;
-        const successEvent = extrinsicEvents.find(({ event }) => event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method)?.event;
+        const successEvent = extrinsicEvents.find(
+          ({ event }) =>
+            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
+        )?.event;
         const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
 
         // TODO: Should the webhook provide for reporting failure?
@@ -126,7 +135,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     // eslint-disable-next-line no-restricted-syntax
     for (const { birth, death, txHash, referencePublishJob } of pendingTxns) {
       if (death <= currentBlockNumber) {
-        this.logger.warn(`Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber}), adding back to the publishing queue`);
+        this.logger.warn(
+          `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber}), adding back to the publishing queue`,
+        );
         // could not find the transaction, this might happen if transaction never gets into a block
         await this.retryPublishJob(referencePublishJob);
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);

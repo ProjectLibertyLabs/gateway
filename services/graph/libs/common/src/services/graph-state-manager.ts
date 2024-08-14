@@ -17,7 +17,11 @@ import {
   ImportBundleBuilder,
   KeyData,
 } from '@dsnp/graph-sdk';
-import { ItemizedStoragePageResponse, MessageSourceId, PaginatedStorageResponse } from '@frequency-chain/api-augment/interfaces';
+import {
+  ItemizedStoragePageResponse,
+  MessageSourceId,
+  PaginatedStorageResponse,
+} from '@frequency-chain/api-augment/interfaces';
 import { hexToU8a } from '@polkadot/util';
 import { AnyNumber } from '@polkadot/types/types';
 import { ConfigService } from '../config/config.service';
@@ -46,9 +50,21 @@ export class GraphStateManager implements OnApplicationBootstrap {
       throw new Error('Unable to initialize schema ids');
     }
 
-    const publicFollow = this.graphState.getSchemaIdFromConfig(this.environment, ConnectionType.Follow, PrivacyType.Public);
-    const privateFollow = this.graphState.getSchemaIdFromConfig(this.environment, ConnectionType.Follow, PrivacyType.Private);
-    const privateFriend = this.graphState.getSchemaIdFromConfig(this.environment, ConnectionType.Friendship, PrivacyType.Private);
+    const publicFollow = this.graphState.getSchemaIdFromConfig(
+      this.environment,
+      ConnectionType.Follow,
+      PrivacyType.Public,
+    );
+    const privateFollow = this.graphState.getSchemaIdFromConfig(
+      this.environment,
+      ConnectionType.Follow,
+      PrivacyType.Private,
+    );
+    const privateFriend = this.graphState.getSchemaIdFromConfig(
+      this.environment,
+      ConnectionType.Friendship,
+      PrivacyType.Private,
+    );
 
     this.graphKeySchemaId = this.graphState.getGraphConfig(this.environment).graphPublicKeySchemaId;
 
@@ -90,7 +106,10 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
   public getPrivacyForSchema(schemaId: number): PrivacyType {
     let privacyType = PrivacyType.Public;
-    if (this.schemaIds[ConnectionType.Follow][PrivacyType.Private] === schemaId || this.schemaIds[ConnectionType.Friendship][PrivacyType.Private] === schemaId) {
+    if (
+      this.schemaIds[ConnectionType.Follow][PrivacyType.Private] === schemaId ||
+      this.schemaIds[ConnectionType.Friendship][PrivacyType.Private] === schemaId
+    ) {
       privacyType = PrivacyType.Private;
     }
     return privacyType;
@@ -155,33 +174,61 @@ export class GraphStateManager implements OnApplicationBootstrap {
     return false;
   }
 
-  public async getConnectionsWithPrivacyType(dsnpUserId: string, privacyType: PrivacyType, graphKeyPairs?: GraphKeyPairDto[]): Promise<DsnpGraphEdge[]> {
+  public async getConnectionsWithPrivacyType(
+    dsnpUserId: string,
+    privacyType: PrivacyType,
+    graphKeyPairs?: GraphKeyPairDto[],
+  ): Promise<DsnpGraphEdge[]> {
     const privateFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Private];
     const privateFriendSchemaId = this.schemaIds[ConnectionType.Friendship][PrivacyType.Private];
     const publicFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Public];
 
     if (this.graphState && this.graphState.containsUserGraph(dsnpUserId.toString())) {
       if (privacyType === PrivacyType.Private) {
-        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFollowSchemaId, false);
-        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFriendSchemaId, false);
+        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          privateFollowSchemaId,
+          false,
+        );
+        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          privateFriendSchemaId,
+          false,
+        );
         if (privateFollowConnections.length > 0 || privateFriendConnections.length > 0) {
           return privateFollowConnections.concat(privateFriendConnections);
         }
       }
       if (privacyType === PrivacyType.Public) {
-        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), publicFollowSchemaId, false);
+        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          publicFollowSchemaId,
+          false,
+        );
         return publicFollowConnections;
       }
     }
     const bundlesImported = await this.importBundles(dsnpUserId, graphKeyPairs ?? []);
     if (bundlesImported) {
       if (privacyType === PrivacyType.Private) {
-        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFollowSchemaId, false);
-        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), privateFriendSchemaId, false);
+        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          privateFollowSchemaId,
+          false,
+        );
+        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          privateFriendSchemaId,
+          false,
+        );
         return privateFollowConnections.concat(privateFriendConnections);
       }
       if (privacyType === PrivacyType.Public) {
-        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), publicFollowSchemaId, false);
+        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(
+          dsnpUserId.toString(),
+          publicFollowSchemaId,
+          false,
+        );
         return publicFollowConnections;
       }
     }
@@ -198,9 +245,24 @@ export class GraphStateManager implements OnApplicationBootstrap {
     const privateFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Private);
     const privateFriendshipSchemaId = this.getSchemaIdFromConfig(ConnectionType.Friendship, PrivacyType.Private);
 
-    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, publicFollowSchemaId);
-    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFollowSchemaId);
-    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.rpc('statefulStorage', 'getPaginatedStorage', dsnpUserId, privateFriendshipSchemaId);
+    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc(
+      'statefulStorage',
+      'getPaginatedStorage',
+      dsnpUserId,
+      publicFollowSchemaId,
+    );
+    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc(
+      'statefulStorage',
+      'getPaginatedStorage',
+      dsnpUserId,
+      privateFollowSchemaId,
+    );
+    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.rpc(
+      'statefulStorage',
+      'getPaginatedStorage',
+      dsnpUserId,
+      privateFriendshipSchemaId,
+    );
     const dsnpKeys = await this.formDsnpKeys(dsnpUserId);
     const graphKeyPairsSdk = graphKeyPairs.map(
       (keyPair: GraphKeyPairDto): GraphKeyPair => ({
@@ -220,7 +282,10 @@ export class GraphStateManager implements OnApplicationBootstrap {
     let importBundles: ImportBundle[];
 
     // If no pages to import, import at least one empty page so that user graph will be created
-    if (publicFollows.length + privateFollows.length + privateFriendships.length === 0 && (graphKeyPairs.length > 0 || dsnpKeys?.keys.length > 0)) {
+    if (
+      publicFollows.length + privateFollows.length + privateFriendships.length === 0 &&
+      (graphKeyPairs.length > 0 || dsnpKeys?.keys.length > 0)
+    ) {
       let builder = importBundleBuilder.withDsnpUserId(dsnpUserId.toString()).withSchemaId(privateFollowSchemaId);
 
       if (dsnpKeys?.keys?.length > 0) {
@@ -232,22 +297,27 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
       importBundles = [builder.build()];
     } else {
-      importBundles = [publicFollows, privateFollows, privateFriendships].flatMap((pageResponses: PaginatedStorageResponse[]) =>
-        pageResponses.map((pageResponse) => {
-          let builder = importBundleBuilder
-            .withDsnpUserId(pageResponse.msa_id.toString())
-            .withSchemaId(pageResponse.schema_id.toNumber())
-            .withPageData(pageResponse.page_id.toNumber(), pageResponse.payload, pageResponse.content_hash.toNumber());
+      importBundles = [publicFollows, privateFollows, privateFriendships].flatMap(
+        (pageResponses: PaginatedStorageResponse[]) =>
+          pageResponses.map((pageResponse) => {
+            let builder = importBundleBuilder
+              .withDsnpUserId(pageResponse.msa_id.toString())
+              .withSchemaId(pageResponse.schema_id.toNumber())
+              .withPageData(
+                pageResponse.page_id.toNumber(),
+                pageResponse.payload,
+                pageResponse.content_hash.toNumber(),
+              );
 
-          if (dsnpKeys?.keys?.length > 0) {
-            builder = builder.withDsnpKeys(dsnpKeys);
-          }
-          if (graphKeyPairs?.length > 0) {
-            builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
-          }
+            if (dsnpKeys?.keys?.length > 0) {
+              builder = builder.withDsnpKeys(dsnpKeys);
+            }
+            if (graphKeyPairs?.length > 0) {
+              builder = builder.withGraphKeyPairs(graphKeyPairsSdk);
+            }
 
-          return builder.build();
-        }),
+            return builder.build();
+          }),
       );
     }
 
@@ -256,7 +326,12 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
   async formDsnpKeys(dsnpUserId: MessageSourceId | AnyNumber): Promise<DsnpKeys> {
     const publicKeySchemaId = this.getGraphKeySchemaId();
-    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.rpc('statefulStorage', 'getItemizedStorage', dsnpUserId, publicKeySchemaId);
+    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.rpc(
+      'statefulStorage',
+      'getItemizedStorage',
+      dsnpUserId,
+      publicKeySchemaId,
+    );
     const keyData: KeyData[] = publicKeys.items.toArray().map((publicKey) => ({
       index: publicKey.index.toNumber(),
       content: hexToU8a(publicKey.payload.toHex()),

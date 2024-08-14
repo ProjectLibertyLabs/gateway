@@ -10,7 +10,7 @@
     "generate:openapi": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",
     "generate:metadata": "npx ts-node -r tsconfig-paths/register apps/api/src/generate-metadata.ts",
     "generate:swagger-ui": "npx --yes @redocly/cli build-docs swagger.json --output=./docs/index.html",
-    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "format": "prettier --write .",
     "start:api": "nest start api",
     "start:api:watch": "nest start api --watch",
     "start:api:prod": "node dist/apps/api/main.js",

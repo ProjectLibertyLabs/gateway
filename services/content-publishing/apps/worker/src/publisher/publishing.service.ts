@@ -96,7 +96,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     try {
       this.schedulerRegistry.addTimeout(
         CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.capacityCheckerService.checkForSufficientCapacity(), blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND),
+        setTimeout(
+          () => this.capacityCheckerService.checkForSufficientCapacity(),
+          blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
+        ),
       );
     } catch (err) {
       // ignore duplicate timeout

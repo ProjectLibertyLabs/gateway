@@ -53,18 +53,18 @@ jobs:
                 SERVICE_MATRIX="[\"${SERVICE}\"]"
               fi
 
-              echo "::set-output name=TAG::${TAG}"
-              echo "::set-output name=VERSION::${VERSION_TAG}"
-              echo "::set-output name=SERVICE::${SERVICE}"
-              echo "::set-output name=SERVICE_MATRIX::${SERVICE_MATRIX}"
-              echo "::set-output name=valid::${valid}"
-              echo "::set-output name=test_run::${test_run}"
+              echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+              echo "VERSION=${VERSION_TAG}" >> $GITHUB_OUTPUT
+              echo "SERVICE=${SERVICE}" >> $GITHUB_OUTPUT
+              echo "SERVICE_MATRIX=${SERVICE_MATRIX}" >> $GITHUB_OUTPUT
+              echo "valid=${valid}" >> $GITHUB_OUTPUT
+              echo "test_run=${test_run}" >> $GITHUB_OUTPUT
             fi
           fi
           if [[ "${valid}" = false ]]
           then
-            echo "::set-output name=SERVICE_MATRIX::[]"
-            echo "::set-output name=valid::${valid}"
+            echo "SERVICE_MATRIX=[]" >> $GITHUB_OUTPUT
+            echo "valid=${valid}" >> $GITHUB_OUTPUT
             echo "Release tag '${TAG}' is not valid for deployment."
             echo "ERROR: Entered tag ${TAG} is not valid."
             echo "Please use [service-]v#.#.#[-rc#] format."

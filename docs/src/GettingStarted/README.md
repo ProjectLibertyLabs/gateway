@@ -95,7 +95,7 @@ Stop all the Docker services via the script (with the option to remove saved dat
 ./stop.sh
 ```
 
-## What Next?
+## What's Next?
 
 - Open the OpenAPI/Swagger Documentation for each service
   - Account Service: [Local](http://localhost:3013/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/account/)

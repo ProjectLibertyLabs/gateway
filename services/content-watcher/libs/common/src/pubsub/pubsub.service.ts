@@ -45,7 +45,9 @@ export class PubSubService {
       currentWebhookRegistrationDtos = JSON.parse(registeredWebhook) as IAnnouncementSubscription[];
     }
     // Find the registrations for the specified messageType
-    const registrationsForMessageType = currentWebhookRegistrationDtos.find((registration) => registration.announcementType === messageType.toLowerCase());
+    const registrationsForMessageType = currentWebhookRegistrationDtos.find(
+      (registration) => registration.announcementType === messageType.toLowerCase(),
+    );
 
     if (registrationsForMessageType) {
       registrationsForMessageType.urls.forEach(async (webhookUrl) => {

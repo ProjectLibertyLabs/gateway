@@ -1,7 +1,17 @@
 import { Body, Controller, Delete, HttpCode, Logger, Param, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-import { DsnpUserIdParam, BroadcastDto, AnnouncementResponseDto, AssetIncludedRequestDto, AnnouncementTypeDto, ReplyDto, ReactionDto, UpdateDto, TombstoneDto } from '#libs/dtos';
+import {
+  DsnpUserIdParam,
+  BroadcastDto,
+  AnnouncementResponseDto,
+  AssetIncludedRequestDto,
+  AnnouncementTypeDto,
+  ReplyDto,
+  ReactionDto,
+  UpdateDto,
+  TombstoneDto,
+} from '#libs/dtos';
 
 @Controller('v1/content')
 @ApiTags('v1/content')
@@ -16,7 +26,10 @@ export class ContentControllerV1 {
   @ApiOperation({ summary: 'Create DSNP Broadcast for User' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async broadcast(@Param() userDsnpId: DsnpUserIdParam, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
+  async broadcast(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() broadcastDto: BroadcastDto,
+  ): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(broadcastDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto, metadata);
   }
@@ -34,7 +47,10 @@ export class ContentControllerV1 {
   @ApiOperation({ summary: 'Create DSNP Reaction for User' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async reaction(@Param() userDsnpId: DsnpUserIdParam, @Body() reactionDto: ReactionDto): Promise<AnnouncementResponseDto> {
+  async reaction(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() reactionDto: ReactionDto,
+  ): Promise<AnnouncementResponseDto> {
     return this.apiService.enqueueRequest(AnnouncementTypeDto.REACTION, userDsnpId.userDsnpId, reactionDto);
   }
 
@@ -51,7 +67,10 @@ export class ContentControllerV1 {
   @ApiOperation({ summary: 'Delete DSNP Content for User' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async delete(@Param() userDsnpId: DsnpUserIdParam, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {
+  async delete(
+    @Param() userDsnpId: DsnpUserIdParam,
+    @Body() tombstoneDto: TombstoneDto,
+  ): Promise<AnnouncementResponseDto> {
     return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
   }
 }

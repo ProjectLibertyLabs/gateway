@@ -10,7 +10,15 @@ import { UpdateSubscriber } from './announcers/update';
 
 @Module({
   imports: [ScheduleModule],
-  providers: [PubSubService, BroadcastSubscriber, ProfileSubscriber, ReactionSubscriber, ReplySubscriber, TomstoneSubscriber, UpdateSubscriber],
+  providers: [
+    PubSubService,
+    BroadcastSubscriber,
+    ProfileSubscriber,
+    ReactionSubscriber,
+    ReplySubscriber,
+    TomstoneSubscriber,
+    UpdateSubscriber,
+  ],
   controllers: [],
   exports: [PubSubService],
 })

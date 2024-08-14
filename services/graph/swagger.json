@@ -31,9 +31,7 @@
             }
           }
         },
-        "tags": [
-          "v1/graphs"
-        ]
+        "tags": ["v1/graphs"]
       }
     },
     "/v1/graphs": {
@@ -63,9 +61,7 @@
             }
           }
         },
-        "tags": [
-          "v1/graphs"
-        ]
+        "tags": ["v1/graphs"]
       }
     },
     "/v1/webhooks": {
@@ -78,9 +74,7 @@
             "description": "Retrieved all registered webhooks"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       },
       "put": {
         "operationId": "WebhooksControllerV1_watchGraphs",
@@ -101,9 +95,7 @@
             "description": "Successfully started watching graphs"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       },
       "delete": {
         "operationId": "WebhooksControllerV1_deleteAllWebhooks",
@@ -114,9 +106,7 @@
             "description": "Removed all registered webhooks"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       }
     },
     "/v1/webhooks/users/{msaId}": {
@@ -150,9 +140,7 @@
             "description": "Retrieved all registered webhooks for the given MSA ID"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       },
       "delete": {
         "operationId": "WebhooksControllerV1_deleteWebhooksForMsa",
@@ -174,9 +162,7 @@
             "description": "Removed all registered webhooks for the specified MSA"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       }
     },
     "/v1/webhooks/urls": {
@@ -200,9 +186,7 @@
             "description": "Retrieved all webhooks registered to the specified URL"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       },
       "delete": {
         "operationId": "WebhooksControllerV1_deleteAllWebhooksForUrl",
@@ -224,9 +208,7 @@
             "description": "Removed all webhooks registered to the specified URL"
           }
         },
-        "tags": [
-          "v1/webhooks"
-        ]
+        "tags": ["v1/webhooks"]
       }
     },
     "/healthz": {
@@ -239,9 +221,7 @@
             "description": "Service is healthy"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/livez": {
@@ -254,9 +234,7 @@
             "description": "Service is live"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/readyz": {
@@ -269,9 +247,7 @@
             "description": "Service is ready"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     }
   },
@@ -311,40 +287,26 @@
           },
           "keyType": {
             "type": "string",
-            "enum": [
-              "X25519"
-            ],
+            "enum": ["X25519"],
             "description": "Key type of graph encryption keypair (currently only X25519 supported)",
             "example": "X25519"
           }
         },
-        "required": [
-          "publicKey",
-          "privateKey",
-          "keyType"
-        ]
+        "required": ["publicKey", "privateKey", "keyType"]
       },
       "GraphsQueryParamsDto": {
         "type": "object",
         "properties": {
           "dsnpIds": {
             "description": "Array of MSA IDs for which to query graphs",
-            "example": [
-              "2",
-              "3",
-              "4",
-              "5"
-            ],
+            "example": ["2", "3", "4", "5"],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "privacyType": {
-            "enum": [
-              "private",
-              "public"
-            ],
+            "enum": ["private", "public"],
             "type": "string",
             "description": "Graph type to query (public or private)",
             "example": "public"
@@ -357,10 +319,7 @@
             }
           }
         },
-        "required": [
-          "dsnpIds",
-          "privacyType"
-        ]
+        "required": ["dsnpIds", "privacyType"]
       },
       "DsnpGraphEdge": {
         "type": "object",
@@ -376,10 +335,7 @@
             "example": 12
           }
         },
-        "required": [
-          "userId",
-          "since"
-        ]
+        "required": ["userId", "since"]
       },
       "UserGraphDto": {
         "type": "object",
@@ -397,9 +353,7 @@
             }
           }
         },
-        "required": [
-          "dsnpId"
-        ]
+        "required": ["dsnpId"]
       },
       "ConnectionDto": {
         "type": "object",
@@ -410,41 +364,25 @@
             "example": "3"
           },
           "privacyType": {
-            "enum": [
-              "private",
-              "public"
-            ],
+            "enum": ["private", "public"],
             "type": "string",
             "description": "Indicator connection type (public or private)",
             "example": "public"
           },
           "direction": {
-            "enum": [
-              "connectionTo",
-              "connectionFrom",
-              "bidirectional",
-              "disconnect"
-            ],
+            "enum": ["connectionTo", "connectionFrom", "bidirectional", "disconnect"],
             "type": "string",
             "description": "Indicator of the direction of this connection",
             "example": "connectionTo"
           },
           "connectionType": {
-            "enum": [
-              "follow",
-              "friendship"
-            ],
+            "enum": ["follow", "friendship"],
             "type": "string",
             "description": "Indicator of the type of connection (follow or friendship)",
             "example": "follow"
           }
         },
-        "required": [
-          "dsnpId",
-          "privacyType",
-          "direction",
-          "connectionType"
-        ]
+        "required": ["dsnpId", "privacyType", "direction", "connectionType"]
       },
       "ConnectionDtoWrapper": {
         "type": "object",
@@ -457,9 +395,7 @@
             }
           }
         },
-        "required": [
-          "data"
-        ]
+        "required": ["data"]
       },
       "ProviderGraphDto": {
         "type": "object",
@@ -489,10 +425,7 @@
             "description": "Optional URL of a webhook to invoke when the request is complete"
           }
         },
-        "required": [
-          "dsnpId",
-          "connections"
-        ]
+        "required": ["dsnpId", "connections"]
       },
       "GraphChangeRepsonseDto": {
         "type": "object",
@@ -502,21 +435,14 @@
             "description": "Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved"
           }
         },
-        "required": [
-          "referenceId"
-        ]
+        "required": ["referenceId"]
       },
       "WatchGraphsDto": {
         "type": "object",
         "properties": {
           "dsnpIds": {
             "description": "MSA IDs for which to watch for graph updates",
-            "example": [
-              "2",
-              "3",
-              "4",
-              "5"
-            ],
+            "example": ["2", "3", "4", "5"],
             "type": "array",
             "items": {
               "type": "string"
@@ -528,9 +454,7 @@
             "example": "http://localhost/webhook"
           }
         },
-        "required": [
-          "webhookEndpoint"
-        ]
+        "required": ["webhookEndpoint"]
       }
     }
   }

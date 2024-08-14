@@ -3,11 +3,7 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [
-    "airbnb-base",
-    "plugin:import/typescript",
-    "prettier"
-  ],
+  "extends": ["airbnb-base", "plugin:import/typescript", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json",
@@ -25,23 +21,14 @@
       }
     ],
     "import/parsers": {
-      "@typescript-eslint/parser": [
-        ".ts",
-        ".tsx"
-      ]
+      "@typescript-eslint/parser": [".ts", ".tsx"]
     },
     "import/resolver": {
       "typescript": {
         "directory": "./tsconfig.json"
       },
       "node": {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".d.ts",
-          ".tsx"
-        ]
+        "extensions": [".js", ".jsx", ".ts", ".d.ts", ".tsx"]
       }
     },
     "react": {
@@ -77,8 +64,5 @@
     "prettier/prettier": 2,
     "no-undef": "off"
   },
-  "plugins": [
-    "import",
-    "prettier"
-  ]
+  "plugins": ["import", "prettier"]
 }

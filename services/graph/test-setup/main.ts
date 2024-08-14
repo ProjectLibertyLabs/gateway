@@ -84,7 +84,13 @@ async function main() {
   );
 
   const graph: Graph = new Graph({ environmentType: EnvironmentType.Mainnet });
-  graph.applyActions([{ type: 'Connect', ownerDsnpUserId: delegators[0].msaId!.toString(), connection: { dsnpUserId: delegators[1].msaId!.toString(), schemaId: publicFollowsSchema!.id.toNumber() }}]);
+  graph.applyActions([
+    {
+      type: 'Connect',
+      ownerDsnpUserId: delegators[0].msaId!.toString(),
+      connection: { dsnpUserId: delegators[1].msaId!.toString(), schemaId: publicFollowsSchema!.id.toNumber() },
+    },
+  ]);
   const exportBundles = graph.exportUpdates();
   console.log('Setup complete');
 }

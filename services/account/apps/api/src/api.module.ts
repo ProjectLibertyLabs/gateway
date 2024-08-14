@@ -12,7 +12,13 @@ import { BlockchainModule } from '#lib/blockchain/blockchain.module';
 import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { QueueModule, QueueConstants } from '#lib/queues';
-import { AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController } from './controllers';
+import {
+  AccountsControllerV1,
+  DelegationControllerV1,
+  HandlesControllerV1,
+  KeysControllerV1,
+  HealthController,
+} from './controllers';
 import { ApiService, AccountsService, HandlesService, DelegationService, KeysService } from './services';
 
 @Module({

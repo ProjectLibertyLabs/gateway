@@ -1,19 +1,16 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true
-    },
-  "extends": [
-    "airbnb-base",
-    "prettier"
-  ],
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["airbnb-base", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json",
     "sourceType": "module"
   },
   "settings": {
-   "import/extensions": [
+    "import/extensions": [
       "error",
       "ignorePackages",
       {
@@ -22,7 +19,7 @@
         "ts": "never",
         "tsx": "never"
       }
-   ],
+    ],
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"]
     },
@@ -35,12 +32,12 @@
       }
     },
     "react": {
-        "version": "999.99.99"
+      "version": "999.99.99"
     }
   },
   "rules": {
     "no-console": "off",
-   "import/extensions": [
+    "import/extensions": [
       "error",
       "ignorePackages",
       {
@@ -49,8 +46,8 @@
         "ts": "never",
         "tsx": "never"
       }
-   ],
-  "import/no-unresolved": [2, { "commonjs": true, "amd": true }],
+    ],
+    "import/no-unresolved": [2, { "commonjs": true, "amd": true }],
     "import/named": 2,
     "import/namespace": 2,
     "import/default": 2,

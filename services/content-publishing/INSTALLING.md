@@ -4,12 +4,12 @@
 
 The application requires a Redis server that is configured with `Append-only file` persistence. This is so that application state can be maintained across Redis restarts. Notes on how to configure this are included below for each type of deployment.
 
-
 ## Deploying using prebuilt Docker images
 
 ### Standalone (complete) image
 
 The standalone container image is meant to be a complete solution for a provider. It contains a single instance of the main application, plus a pre-configured Redis server. Simply download the latest [container image](https://hub.docker.com/r/projectlibertylabs/content-publishing-service/) and deploy using your favorite container management system.
+
 ```
     docker pull projectlibertylabs/content-publishing-service:standalone-latest
 ```
@@ -23,10 +23,13 @@ Follow the instructions below for [configuration](#configuration), with the exce
 ### App-only image
 
 The app-only image is meant to be used for providers who would rather utilize a Redis instance in their own (or their cloud infrastructure provider's) external Redis instance or service. To download the latest [container image](https://hub.docker.com/r/projectlibertylabs/content-publishing-service/), simply:
+
 ```
     docker pull projectlibertylabs/content-publishing-service:apponly-latest
 ```
+
 In this case, you need to ensure that the following settings are configured in your Redis instance:
+
 ```
 appendonly true
 dir <base directory for Redis storage>
@@ -38,14 +41,17 @@ You must also minimally map `appendonlydir` (or the entire `dir`) to a persisten
 ## Building and Deploying the Application
 
 If you choose to build & deploy the application yourself, simply install the prerequisites:
-* NodeJS 20
+
+- NodeJS 20
 
 To build the application:
+
 ```
     npm run build
 ```
 
 To run the application:
+
 ```
     npm start
 ```
@@ -56,11 +62,11 @@ For the application to start & run correctly, it is necessary to configure the e
 
 The following is a list of environment variables that may be set to control the application's behavior and environment. The complete list can always be referenced [here](./env.template)
 
-|Variable|required?|Description|Default|
-|-|-|-|-|
-|`FREQUENCY_URL`|**yes**|Blockchain URL|_none_|
-|`PROVIDER_ID`|**yes**|MSA ID of provider|_none_|
-|`PROVIDER_ACCOUNT_SEED_PHRASE`|**yes**|Seed phrase for provider control keypair|_none_|
-|`REDIS_URL`|**yes**|URL used to connect to Redis instance|_none_<br/>\*preset to the internal Redis URL in the standalone container|
-|`BLOCKCHAIN_SCAN_INTERVAL_MINUTES`|no|# of minutes to wait in between scans of the blockchain|180|
-|`QUEUE_HIGH_WATER`|no|# of pending graph scan queue entries to allow before pausing blockchain scanning until the next scan cycle|1000|
+| Variable                           | required? | Description                                                                                                 | Default                                                                   |
+| ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `FREQUENCY_URL`                    | **yes**   | Blockchain URL                                                                                              | _none_                                                                    |
+| `PROVIDER_ID`                      | **yes**   | MSA ID of provider                                                                                          | _none_                                                                    |
+| `PROVIDER_ACCOUNT_SEED_PHRASE`     | **yes**   | Seed phrase for provider control keypair                                                                    | _none_                                                                    |
+| `REDIS_URL`                        | **yes**   | URL used to connect to Redis instance                                                                       | _none_<br/>\*preset to the internal Redis URL in the standalone container |
+| `BLOCKCHAIN_SCAN_INTERVAL_MINUTES` | no        | # of minutes to wait in between scans of the blockchain                                                     | 180                                                                       |
+| `QUEUE_HIGH_WATER`                 | no        | # of pending graph scan queue entries to allow before pausing blockchain scanning until the next scan cycle | 1000                                                                      |

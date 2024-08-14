@@ -112,11 +112,15 @@ describe('BlockchainScannerService', () => {
       });
 
       it('encounter a non-finalized block should throw', async () => {
-        await expect((service as unknown as any).checkScanParameters(latestFinalizedBlockNumber + 1, mockBlockHash)).rejects.toThrow(/^Latest finalized block/);
+        await expect(
+          (service as unknown as any).checkScanParameters(latestFinalizedBlockNumber + 1, mockBlockHash),
+        ).rejects.toThrow(/^Latest finalized block/);
       });
 
       it('encounter a finalized block should not throw', async () => {
-        await expect((service as unknown as any).checkScanParameters(latestFinalizedBlockNumber, mockBlockHash)).resolves.toBeFalsy();
+        await expect(
+          (service as unknown as any).checkScanParameters(latestFinalizedBlockNumber, mockBlockHash),
+        ).resolves.toBeFalsy();
       });
     });
 
@@ -126,11 +130,15 @@ describe('BlockchainScannerService', () => {
       });
 
       it('encounter an empty block should throw', async () => {
-        await expect((service as unknown as any).checkScanParameters(latestFinalizedBlockNumber, mockEmptyBlockHash)).rejects.toThrow(/^Empty block/);
+        await expect(
+          (service as unknown as any).checkScanParameters(latestFinalizedBlockNumber, mockEmptyBlockHash),
+        ).rejects.toThrow(/^Empty block/);
       });
 
       it('encounter a non-finalized block should not throw', async () => {
-        await expect((service as unknown as any).checkScanParameters(latestFinalizedBlockNumber + 1, mockBlockHash)).resolves.toBeFalsy();
+        await expect(
+          (service as unknown as any).checkScanParameters(latestFinalizedBlockNumber + 1, mockBlockHash),
+        ).resolves.toBeFalsy();
       });
     });
   });

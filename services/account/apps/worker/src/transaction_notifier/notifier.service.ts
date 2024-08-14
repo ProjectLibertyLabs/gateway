@@ -19,7 +19,10 @@ import { QueueConstants } from '#lib/queues';
 import { CapacityCheckerService } from '#lib/blockchain/capacity-checker.service';
 
 @Injectable()
-export class TxnNotifierService extends BlockchainScannerService implements OnApplicationBootstrap, OnApplicationShutdown {
+export class TxnNotifierService
+  extends BlockchainScannerService
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   async onApplicationBootstrap() {
     await this.blockchainService.isReady();
     const pendingTxns = await this.cacheManager.hkeys(RedisUtils.TXN_WATCH_LIST_KEY);
@@ -49,7 +52,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
-    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () => this.capacityService.checkForSufficientCapacity());
+    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
+      this.capacityService.checkForSufficientCapacity(),
+    );
   }
 
   public get intervalName() {
@@ -92,7 +97,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
+    const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map(
+      (val) => JSON.parse(val) as ITxStatus,
+    );
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {
@@ -106,7 +113,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
     if (extrinsicIndices.length > 0) {
       const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
       const epoch = (await at.query.capacity.currentEpoch()).toNumber();
-      const events: FrameSystemEventRecord[] = blockEvents.filter(({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)));
+      const events: FrameSystemEventRecord[] = blockEvents.filter(
+        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
+      );
 
       const totalCapacityWithdrawn: bigint = events
         .filter(({ event }) => at.events.capacity.CapacityWithdrawn.is(event))
@@ -114,10 +123,15 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
 
       // eslint-disable-next-line no-restricted-syntax
       for (const [txHash, txIndex] of extrinsicIndices) {
-        const extrinsicEvents = events.filter(({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex));
+        const extrinsicEvents = events.filter(
+          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
+        );
         const txStatusStr = await this.cacheManager.hget(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
         const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
-        const successEvent = extrinsicEvents.find(({ event }) => event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method)?.event;
+        const successEvent = extrinsicEvents.find(
+          ({ event }) =>
+            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
+        )?.event;
         const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
 
         // TODO: Should the webhook provide for reporting failure?
@@ -141,7 +155,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
                 webhookResponse = createWebhookRsp(txStatus, handleTxnValues.msaId, { handle: handleTxnValues.handle });
 
                 this.logger.debug(handleTxnValues.debugMsg);
-                this.logger.log(`Handles: ${webhookResponse.transactionType} finalized handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`);
+                this.logger.log(
+                  `Handles: ${webhookResponse.transactionType} finalized handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`,
+                );
               }
               break;
             case TransactionType.SIWF_SIGNUP:
@@ -167,7 +183,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
                 });
 
                 this.logger.debug(publicKeyValues.debugMsg);
-                this.logger.log(`Keys: Added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`);
+                this.logger.log(
+                  `Keys: Added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`,
+                );
               }
               break;
             default:
@@ -205,7 +223,9 @@ export class TxnNotifierService extends BlockchainScannerService implements OnAp
     // eslint-disable-next-line no-restricted-syntax
     for (const { birth, death, txHash } of pendingTxns) {
       if (death <= currentBlockNumber) {
-        this.logger.verbose(`Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`);
+        this.logger.verbose(
+          `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`,
+        );
         pipeline = pipeline.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
         const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
         pendingTxns.slice(idx, 1);

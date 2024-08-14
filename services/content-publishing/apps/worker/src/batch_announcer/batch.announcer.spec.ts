@@ -61,7 +61,12 @@ describe('BatchAnnouncer', () => {
   const mockClient = new Redis();
 
   beforeEach(async () => {
-    ipfsAnnouncer = new BatchAnnouncer(mockClient, mockConfigService as any, mockBlockchainService as any, mockIpfsService as any);
+    ipfsAnnouncer = new BatchAnnouncer(
+      mockClient,
+      mockConfigService as any,
+      mockBlockchainService as any,
+      mockIpfsService as any,
+    );
   });
   it('should be defined', () => {
     expect(ipfsAnnouncer).toBeDefined();

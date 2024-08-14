@@ -82,7 +82,13 @@ export class DevelopmentControllerV1 {
     const promises: Promise<Job>[] = [];
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < count; i++) {
-      let data: BroadcastAnnouncement | ProfileAnnouncement | UpdateAnnouncement | ReplyAnnouncement | ReactionAnnouncement | TombstoneAnnouncement;
+      let data:
+        | BroadcastAnnouncement
+        | ProfileAnnouncement
+        | UpdateAnnouncement
+        | ReplyAnnouncement
+        | ReactionAnnouncement
+        | TombstoneAnnouncement;
       // eslint-disable-next-line default-case
       const fromId = `${Math.floor(Math.random() * 100000000)}`;
       const hash = `${Math.floor(Math.random() * 100000000)}`;
@@ -94,7 +100,13 @@ export class DevelopmentControllerV1 {
           data = createProfile(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash);
           break;
         case AnnouncementTypeDto.UPDATE:
-          data = createUpdate(fromId, `https://example.com/${Math.floor(Math.random() * 100000000)}`, hash, AnnouncementType.Broadcast, `${Math.floor(Math.random() * 100000000)}`);
+          data = createUpdate(
+            fromId,
+            `https://example.com/${Math.floor(Math.random() * 100000000)}`,
+            hash,
+            AnnouncementType.Broadcast,
+            `${Math.floor(Math.random() * 100000000)}`,
+          );
           break;
         case AnnouncementTypeDto.REPLY:
           data = createReply(
@@ -105,7 +117,12 @@ export class DevelopmentControllerV1 {
           );
           break;
         case AnnouncementTypeDto.REACTION:
-          data = createReaction(fromId, '🤌🏼', `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`, 1);
+          data = createReaction(
+            fromId,
+            '🤌🏼',
+            `dsnp://0x${Math.floor(Math.random() * 100000000)}/0x${Math.floor(Math.random() * 100000000)}`,
+            1,
+          );
           break;
         case AnnouncementTypeDto.TOMBSTONE:
           data = createTombstone(fromId, AnnouncementType.Reply, hash);
@@ -117,7 +134,9 @@ export class DevelopmentControllerV1 {
       const jobId = await calculateDsnpHash(Buffer.from(JSON.stringify(data)));
       const queue = this.queueMapper.get(queueType);
       if (queue) {
-        promises.push(queue.add(`Dummy Job - ${data.id}`, data, { jobId, removeOnFail: false, removeOnComplete: true }));
+        promises.push(
+          queue.add(`Dummy Job - ${data.id}`, data, { jobId, removeOnFail: false, removeOnComplete: true }),
+        );
       }
     }
     await Promise.all(promises);

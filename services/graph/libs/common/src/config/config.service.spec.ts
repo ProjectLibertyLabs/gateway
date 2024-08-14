@@ -96,10 +96,18 @@ describe('GraphSericeConfig', () => {
 
     it('invalid capacity limit should fail', async () => {
       const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env })).rejects.toBeDefined();
-      await expect(async () => setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env })).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(async () =>
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env }),
+      ).rejects.toBeDefined();
+      await expect(
+        setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
+      ).rejects.toBeDefined();
     });
   });
 
@@ -130,11 +138,15 @@ describe('GraphSericeConfig', () => {
     });
 
     it('should get reconnection service required', () => {
-      expect(graphServiceConfig.reconnectionServiceRequired).toStrictEqual(ALL_ENV.RECONNECTION_SERVICE_REQUIRED === 'true');
+      expect(graphServiceConfig.reconnectionServiceRequired).toStrictEqual(
+        ALL_ENV.RECONNECTION_SERVICE_REQUIRED === 'true',
+      );
     });
 
     it('should get blockchain scan interval minutes', () => {
-      expect(graphServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10));
+      expect(graphServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
+      );
     });
 
     it('should get graph environment type', () => {
@@ -158,27 +170,39 @@ describe('GraphSericeConfig', () => {
     });
 
     it('should get webhook failure threshold', () => {
-      expect(graphServiceConfig.webhookFailureThreshold).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10));
+      expect(graphServiceConfig.webhookFailureThreshold).toStrictEqual(
+        parseInt(ALL_ENV.WEBHOOK_FAILURE_THRESHOLD as string, 10),
+      );
     });
 
     it('should get health check success threshold', () => {
-      expect(graphServiceConfig.healthCheckSuccessThreshold).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10));
+      expect(graphServiceConfig.healthCheckSuccessThreshold).toStrictEqual(
+        parseInt(ALL_ENV.HEALTH_CHECK_SUCCESS_THRESHOLD as string, 10),
+      );
     });
 
     it('should get webhook retry interval seconds', () => {
-      expect(graphServiceConfig.webhookRetryIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10));
+      expect(graphServiceConfig.webhookRetryIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.WEBHOOK_RETRY_INTERVAL_SECONDS as string, 10),
+      );
     });
 
     it('should get health check max retry interval seconds', () => {
-      expect(graphServiceConfig.healthCheckMaxRetryIntervalSeconds).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10));
+      expect(graphServiceConfig.healthCheckMaxRetryIntervalSeconds).toStrictEqual(
+        parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS as string, 10),
+      );
     });
 
     it('should get health check max retries', () => {
-      expect(graphServiceConfig.healthCheckMaxRetries).toStrictEqual(parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10));
+      expect(graphServiceConfig.healthCheckMaxRetries).toStrictEqual(
+        parseInt(ALL_ENV.HEALTH_CHECK_MAX_RETRIES as string, 10),
+      );
     });
 
     it('should get page size', () => {
-      expect(graphServiceConfig.pageSize).toStrictEqual(parseInt(ALL_ENV.CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE as string, 10));
+      expect(graphServiceConfig.pageSize).toStrictEqual(
+        parseInt(ALL_ENV.CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE as string, 10),
+      );
     });
 
     it('should get debounce seconds', () => {

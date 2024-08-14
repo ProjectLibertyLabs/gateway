@@ -291,9 +291,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async publicKeyToMsaId(publicKey: string) {
+  public async publicKeyToMsaId(publicKey: string): Promise<string | null> {
     const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
-    if (handleResponse.isSome) return handleResponse.unwrap();
+    if (handleResponse.isSome) return handleResponse.unwrap().toString();
     return null;
   }
 

@@ -21,7 +21,7 @@ export class SiwsPayloadDto implements SiwsPayload {
   @ApiProperty()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   signature: string | HexString;
 }
 export class SignInResponseDto implements SignInResponse {
@@ -41,7 +41,7 @@ export class EncodedExtrinsicDto implements EncodedExtrinsic {
   @ApiProperty()
   extrinsicName: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   encodedExtrinsic: string | HexString;
 }
 

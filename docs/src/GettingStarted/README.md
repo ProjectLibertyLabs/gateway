@@ -56,7 +56,7 @@ git clone https://github.com/ProjectLibertyLabs/social-app-template.git
 ```
 
 ```sh
-cd social-web-template
+cd social-app-template
 ```
 
 ### Run the Configuration Script

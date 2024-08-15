@@ -22,7 +22,7 @@
 
 # 📖 Gateway Services <a name="about-project"></a>
 
-Gateway is a collection of services that helps make interacting with Frequency as easy as working with any web2 API!
+Gateway is a collection of services that helps make interacting with Frequency as easy as working with any Web2 API!
 
 <!-- Mermaid Arch maps -->
 

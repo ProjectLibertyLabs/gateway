@@ -1,6 +1,6 @@
 # Making Decentrialized Social Easy
 
-Get started using Decentralized Social as easy as deploying a web2 API.
+Get started building on Decentralized Social as easy as deploying a Web2 API.
 
 ## Build What You Want
 
@@ -8,9 +8,9 @@ Gateway offers a suite of tools you can pick and choose to build the best for yo
 
 <!-- Add more visual elements to the services -->
 
-- Identity
-- Graph
-- Content
+- Add decentralized authentication and onboarding workflows
+- Connect your users with their universal social graph
+- Read, write, and interact with social media content
 - More coming...
 
 ## Web2 API Simplicity with Decentralized Power
@@ -22,7 +22,7 @@ Gateway offers a suite of tools you can pick and choose to build the best for yo
 
 ## Basic Architecture
 
-Gateway provides easy way to interact with Frequency without requiring any direct chain interactions.
+Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
 
 ![Gateway Application Layer Diagram](./gateway_arch-Layer.drawio.png)
 
@@ -38,14 +38,14 @@ These microservices are 100% independent of each other, so use only what you wan
 Account Service is a service enabling easy interaction with accounts on Frequency.
 Accounts are be defined as an `msaId` (a 64 bit identifier) and can contain additional information such as a handle, keys, and more.
 
-- Account creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)
+- Account authentication and creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)
 - Delegation management
 - User Handle creation and retrieval
 - User key retrieval and management
 
 ### Graph Service
 
-The Graph Service is a service enabling easy interaction with graphs on Frequency.
+The Graph Service is a service enabling easy interaction with social graphs on Frequency.
 Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidiectional (double opt-in friend connection).
 
 - Fetch user graph
@@ -61,7 +61,7 @@ The Content Publishing Service is a service enabling the creation of new content
 - Create reactions to posts
 - Create updates to existing content
 - Request deletion of content
-- Asset creation with [IPFS](https://ipfs.tech)
+- Media attachement storage with [IPFS](https://ipfs.tech)
 
 ### Content Watcher Service
 

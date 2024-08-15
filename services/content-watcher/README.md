@@ -31,7 +31,7 @@
 
 # 📖 Content Watcher Service <a name="about-project"></a>
 
-The Content Watcher Service is part of the "Social Gateway" collection of services that provides a familiar callback API to retrieve content and publishing announcements from the Frequency chain. The service handles all of the necessary blockchain interaction and allows clients to interact using a familiar, web2-friendly interface.
+The Content Watcher Service is part of the "Social Gateway" collection of services that provides a familiar callback API to retrieve content and publishing announcements from the Frequency chain. The service handles all of the necessary blockchain interaction and allows clients to interact using a familiar, Web2-friendly interface.
 
 <!-- Arch maps -->
 

@@ -3,3 +3,5 @@
 **/build
 **/*.yaml
 **/*.yml
+# Ignore rust build files
+services/account/rust-webhook-server/target

@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mdbook
-          path: ./docs
+          path: ./docs/book
 
   build:
     runs-on: ubuntu-latest
@@ -76,18 +76,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download mdbook artifact
         uses: actions/download-artifact@v4
         with:
           name: mdbook
           path: ./docs
-
-      - name: Move mdbook to root
-        run: mv ./docs/book/* ./docs
-        shell: bash
 
       - name: Download account OpenAPI artifacts
         uses: actions/download-artifact@v4

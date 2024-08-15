@@ -31,7 +31,7 @@
 
 # 📖 Content Publishing Service <a name="about-project"></a>
 
-The Content Publishing Service is part of the "Social Gateway" collection of services that provides a familiar REST API to allow uploading content and publishing announcements to the Frequency chain. The service handles all of the necessary blockchain interaction and allows clients to interact using a familiar, web2-friendly interface.
+The Content Publishing Service is part of the "Social Gateway" collection of services that provides a familiar REST API to allow uploading content and publishing announcements to the Frequency chain. The service handles all of the necessary blockchain interaction and allows clients to interact using a familiar, Web2-friendly interface.
 
 <!-- Arch maps -->
 

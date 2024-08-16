@@ -59,11 +59,11 @@ jobs:
         run: echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/checkout@v4
 
       - name: Install Node.js
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -71,41 +71,41 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: tools/ci-k6/package-lock.json
       - name: Install dependencies
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         working-directory: tools/ci-k6
         run: npm ci
 
       - name: Set up Docker Buildx
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: docker/setup-buildx-action@v3
         # Use GitHub Container Registry instead due to rate limits
         with:
           config-inline: |
             [registry."ghcr.io"]
       - name: Login to DockerHub
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: docker/login-action@v3
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
 
       - name: Start Frequency
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         run: |
           docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d frequency
           sleep 5
       - name: Generate Provider and Capacity
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         working-directory: tools/ci-k6
         run: npm run main
 
       # Just start the services we need...
       - name: Start All Services
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d
 
       - name: Wait for API to be ready
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: cygnetdigital/wait_for_response@v2.0.0
         with:
           url: 'http://localhost:3000/readyz'
@@ -114,10 +114,10 @@ jobs:
           interval: 2000
 
       - name: Setup K6
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: grafana/setup-k6-action@v1
       - name: Run k6 Tests
-        if: ${{ steps.should.outputs.RUN }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         run: |
           for test_file in services/${{ matrix.service }}/k6-test/*.k6.js; do
             k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1

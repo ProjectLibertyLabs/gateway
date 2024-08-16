@@ -29,6 +29,7 @@ jobs:
             common:
               - 'packages/**'
               - 'Docker/**'
+              - '.github/**'
               - 'docker-compose.yaml'
             account:
               - 'services/account/**'

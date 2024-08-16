@@ -30,6 +30,7 @@ jobs:
               - 'packages/**'
               - 'Docker/**'
               - 'tools/ci-k6/**'
+              - '.github/**'
               - 'docker-compose.yaml'
             account:
               - 'services/account/**'

@@ -112,6 +112,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     if (await this.publishQueue.isPaused()) {
       this.logger.debug('Received capacity.available event');
     }
+    await this.publishQueue.resume();
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {

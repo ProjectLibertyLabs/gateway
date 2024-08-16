@@ -122,5 +122,5 @@ jobs:
             k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
           done
       - name: Stop Docker Compose
-        if: always()
+        if: ${{ steps.should.outputs.RUN == 'true' || failure() }}
         run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml down

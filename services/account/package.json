@@ -67,7 +67,7 @@
     "@polkadot/keyring": "^12.3.2",
     "@polkadot/types": "^10.9.1",
     "@polkadot/util": "^12.3.2",
-    "@polkadot/util-crypto": "^12.3.2",
+    "@polkadot/util-crypto": "^13.0.2",
     "axios": "^1.7.4",
     "bullmq": "^5.7.8",
     "class-transformer": "^0.5.1",

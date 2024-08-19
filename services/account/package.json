@@ -45,7 +45,7 @@
   "homepage": "https://github.com/ProjectLibertyLabs/account-service#readme",
   "dependencies": {
     "@projectlibertylabs/siwf": "1.1.2",
-    "@bull-board/api": "^5.17.0",
+    "@bull-board/api": "^5.21.4",
     "@bull-board/express": "^5.17.0",
     "@bull-board/nestjs": "^5.17.0",
     "@bull-board/ui": "^5.17.0",

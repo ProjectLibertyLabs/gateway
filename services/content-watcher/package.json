@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/ProjectLibertyLabs/content-watcher-service#readme",
   "dependencies": {
-    "@bull-board/api": "^5.17.1",
+    "@bull-board/api": "^5.21.4",
     "@bull-board/express": "^5.17.1",
     "@bull-board/nestjs": "^5.17.1",
     "@bull-board/ui": "^5.17.1",

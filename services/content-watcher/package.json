@@ -7,7 +7,7 @@
     "start": "nest start api",
     "start:watch": "nest start api --watch",
     "start:prod": "node dist/apps/api/main.js",
-    "start:dev": "set -a ; . .env ; nest start api --watch",
+    "start:dev": "set -a ; . .env ; nest start api",
     "start:debug": "set -a ; . .env ; nest start api --debug --watch",
     "build": "nest build",
     "generate:openapi": "npx ts-node -r tsconfig-paths/register apps/api/src/build-openapi.ts",

@@ -9,6 +9,8 @@
       "#worker/*": ["apps/worker/src/*"],
       "#lib/blockchain": ["libs/common/src/blockchain"],
       "#lib/blockchain/*": ["libs/common/src/blockchain/*"],
+      "#lib/cache": ["libs/common/src/cache"],
+      "#lib/cache/*": ["libs/common/src/cache/*"],
       "#lib/config": ["libs/common/src/config"],
       "#lib/config/*": ["libs/common/src/config/*"],
       "#lib/interfaces": ["libs/common/src/interfaces"],

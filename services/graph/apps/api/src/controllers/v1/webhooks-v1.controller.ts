@@ -1,5 +1,5 @@
 import { ApiService } from '#api/api.service';
-import { WatchGraphsDto } from '#lib';
+import { WatchGraphsDto } from '#lib/dtos';
 import {
   Controller,
   HttpCode,

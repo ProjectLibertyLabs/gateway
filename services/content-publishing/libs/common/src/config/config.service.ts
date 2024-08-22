@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ICapacityLimits } from '../interfaces/capacity-limit.interface';
+import { Keyring } from '@polkadot/api';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 
 export interface ConfigEnvironmentVariables {
   IPFS_ENDPOINT: URL;
@@ -26,8 +28,18 @@ export interface ConfigEnvironmentVariables {
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
-export class ConfigService {
+export class ConfigService implements OnModuleInit {
   public readonly capacityLimitObj: ICapacityLimits;
+
+  private providerAddress: string;
+
+  async onModuleInit() {
+    await cryptoWaitReady();
+
+    if (this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')) {
+      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(this.providerAccountSeedPhrase).address;
+    }
+  }
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     const obj = JSON.parse(nestConfigService.get('CAPACITY_LIMIT') ?? '{}', (key, value) => {
@@ -45,6 +57,10 @@ export class ConfigService {
     } else {
       this.capacityLimitObj = obj;
     }
+  }
+
+  public get providerPublicKeyAddress(): string | undefined {
+    return this.providerAddress;
   }
 
   public get cacheKeyPrefix(): string {

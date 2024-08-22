@@ -8,6 +8,13 @@ import * as QueueConstants from './queue.constants';
 @Global()
 @Module({
   imports: [
+    BullModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        connection: configService.redisConnectionOptions,
+        prefix: `${configService.cacheKeyPrefix}:bull`,
+      }),
+      inject: [ConfigService],
+    }),
     BullModule.registerQueue({
       name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
       defaultJobOptions: {
@@ -17,23 +24,27 @@ import * as QueueConstants from './queue.constants';
       },
     }),
   ],
+  exports: [BullModule],
 })
 export class QueueModule {
-  static forRoot(redisOptions?: RedisOptions): DynamicModule {
-    return {
-      module: QueueModule,
-      global: true,
-      imports: [
-        BullModule.forRootAsync({
-          imports: [ConfigModule],
-          useFactory: (configService: ConfigService) => ({
-            connection: new Redis(configService.redisUrl.toString(), redisOptions || {}),
-            prefix: `${configService.cacheKeyPrefix}:bull`,
-          }),
-          inject: [ConfigService],
-        }),
-      ],
-      exports: [BullModule],
-    };
-  }
+  // static forRoot(redisOptions?: RedisOptions): DynamicModule {
+  //   return {
+  //     module: QueueModule,
+  //     global: true,
+  //     imports: [
+  //       BullModule.forRootAsync({
+  //         imports: [ConfigModule],
+  //         useFactory: (configService: ConfigService) => ({
+  //           connection: {
+  //             ...configService.redisConnectionOptions,
+  //             ...redisOptions,
+  //           },
+  //           prefix: `${configService.cacheKeyPrefix}:bull`,
+  //         }),
+  //         inject: [ConfigService],
+  //       }),
+  //     ],
+  //     exports: [BullModule],
+  //   };
+  // }
 }

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@songkeys/nestjs-redis';
 import { PublisherModule } from './publisher/publisher.module';
 import { QueuesModule } from '#libs/queues';
 import { ConfigModule, ConfigService } from '#libs/config';
@@ -11,20 +10,26 @@ import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { BatchingProcessorModule } from './batching_processor/batching.processor.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from './publisher/nonce.service';
+import { CacheModule } from '#libs/cache/cache.module';
 
 @Module({
   imports: [
     ConfigModule,
-    RedisModule.forRootAsync(
-      {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
-        }),
-        inject: [ConfigService],
-      },
-      true, // isGlobal
-    ),
+    CacheModule.forRootAsync({
+      useFactory: (configService: ConfigService) => [
+        {
+          url: configService.redisUrl.toString(),
+          keyPrefix: configService.cacheKeyPrefix,
+        },
+        {
+          namespace: NONCE_SERVICE_REDIS_NAMESPACE,
+          url: configService.redisUrl.toString(),
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+        },
+      ],
+      inject: [ConfigService],
+    }),
     QueuesModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

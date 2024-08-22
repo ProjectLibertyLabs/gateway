@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { BlockchainModule, GraphStateManager } from '#lib';
 import { RequestProcessorService } from './request.processor.service';
+import { BlockchainModule } from '#lib/blockchain';
+import { GraphStateManager } from '#lib/services/graph-state-manager';
 
 @Module({
   imports: [BlockchainModule],

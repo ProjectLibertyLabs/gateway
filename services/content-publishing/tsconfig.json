@@ -8,6 +8,8 @@
       "#libs/*": ["libs/common/src/*"],
       "#libs/blockchain": ["libs/common/src/blockchain"],
       "#libs/blockchain/*": ["libs/common/src/blockchain/*"],
+      "#libs/cache": ["libs/common/src/cache"],
+      "#libs/cache/*": ["libs/common/src/cache/*"],
       "#libs/config": ["libs/common/src/config"],
       "#libs/config/*": ["libs/common/src/config/*"],
       "#libs/dtos": ["libs/common/src/dtos"],

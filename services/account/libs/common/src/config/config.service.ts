@@ -1,6 +1,8 @@
 import { ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import Keyring from '@polkadot/keyring';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 
 export interface ConfigEnvironmentVariables {
   REDIS_URL: URL;
@@ -26,8 +28,18 @@ export interface ConfigEnvironmentVariables {
 
 /// Config service to get global app and provider-specific config values.
 @Injectable()
-export class ConfigService {
+export class ConfigService implements OnModuleInit {
   private capacityLimitObj: ICapacityLimits;
+
+  private providerAddress: string;
+
+  async onModuleInit() {
+    await cryptoWaitReady();
+
+    if (this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')) {
+      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(this.providerAccountSeedPhrase).address;
+    }
+  }
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
     const obj = JSON.parse(nestConfigService.get('CAPACITY_LIMIT') ?? '{}', (key, value) => {
@@ -45,6 +57,10 @@ export class ConfigService {
     } else {
       this.capacityLimitObj = obj;
     }
+  }
+
+  public get providerPublicKeyAddress(): string | undefined {
+    return this.providerAddress;
   }
 
   public get cacheKeyPrefix(): string {
@@ -89,6 +105,24 @@ export class ConfigService {
 
   public get redisUrl(): URL {
     return this.nestConfigService.get('REDIS_URL')!;
+  }
+
+  public get redisConnectionOptions() {
+    // Note: BullMQ doesn't honor a URL for the Redis connection, and
+    // JS URL doesn't parse 'redis://' as a valid protocol, so we fool
+    // it by changing the URL to use 'http://' in order to parse out
+    // the host, port, username, password, etc.
+    // We could pass REDIS_HOST, REDIS_PORT, etc, in the environment, but
+    // trying to keep the # of environment variables from proliferating
+    const url = new URL(this.redisUrl.toString().replace(/^redis[s]*/, 'http'));
+    const { hostname, port, username, password, pathname } = url;
+    return {
+      host: hostname || undefined,
+      port: port ? Number(port) : undefined,
+      username: username || undefined,
+      password: password || undefined,
+      db: pathname?.length > 1 ? Number(pathname.slice(1)) : undefined,
+    };
   }
 
   public get frequencyUrl(): URL {

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, beforeEach, jest, expect } from '@jest/globals';
 import { ApiPromise } from '@polkadot/api';
 import { BlockchainService } from './blockchain.service';

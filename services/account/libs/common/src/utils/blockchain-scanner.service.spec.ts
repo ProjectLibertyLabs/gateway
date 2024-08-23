@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Hash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
-import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@liaoliaots/nestjs-redis';
+import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainScannerService } from './blockchain-scanner.service';

@@ -36,7 +36,7 @@ These microservices are 100% independent of each other, so use only what you wan
 ### Account Service
 
 Account Service is a service enabling easy interaction with accounts on Frequency.
-Accounts are be defined as an `msaId` (a 64 bit identifier) and can contain additional information such as a handle, keys, and more.
+Accounts are defined as an `msaId` (a 64 bit identifier) and can contain additional information such as a handle, keys, and more.
 
 - Account authentication and creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)
 - Delegation management

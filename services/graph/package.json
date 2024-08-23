@@ -25,7 +25,8 @@
     "clean": "rm -Rf dist",
     "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",
     "format": "prettier --write .",
-    "test": "jest  --coverage --verbose",
+    "test": "jest",
+    "test:verbose": "jest --coverage --verbose",
     "test:e2e": "set -a ; . .env ; jest --testRegex \".e2e-spec.ts$\" --detectOpenHandles",
     "test:k6": "k6 run k6-test/script.k6.js"
   },

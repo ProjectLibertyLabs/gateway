@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
@@ -16,6 +15,7 @@ import { AppConfigModule } from '@libs/common/config/config.module';
 import { AppConfigService } from '@libs/common/config/config.service';
 import * as QueueConstants from '@libs/common';
 import { QueueModule } from '@libs/common/queues/queue.module';
+import { CacheModule } from '@libs/common/cache/cache.module';
 
 @Module({
   imports: [
@@ -26,16 +26,12 @@ import { QueueModule } from '@libs/common/queues/queue.module';
     CrawlerModule,
     IPFSProcessorModule,
     PubSubModule,
-    RedisModule.forRootAsync(
-      {
-        // imports: [ConfigModule],
-        useFactory: (configService: AppConfigService) => ({
-          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
-        }),
-        inject: [AppConfigService],
-      },
-      true, // isGlobal
-    ),
+    CacheModule.forRootAsync({
+      useFactory: (configService: AppConfigService) => [
+        { url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix },
+      ],
+      inject: [AppConfigService],
+    }),
     QueueModule,
 
     // Bullboard UI
@@ -100,6 +96,6 @@ import { QueueModule } from '@libs/common/queues/queue.module';
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [ScanControllerV1, SearchControllerV1, WebhookControllerV1, HealthController],
-  exports: [RedisModule, ScheduleModule],
+  exports: [ScheduleModule],
 })
 export class ApiModule {}

@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import {
@@ -19,21 +19,20 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
 import * as QueueConstants from '#lib/queues/queue-constants';
 import fs from 'fs';
-import {
-  GraphStateManager,
-  BlockchainService,
-  ProviderGraphUpdateJob,
-  SECONDS_PER_BLOCK,
-  GraphUpdateJob,
-  ConnectionDto,
-  Direction,
-  createReconnectionJob,
-  SkipTransitiveGraphs,
-} from '#lib';
+import { BlockchainService } from '#lib/blockchain';
+import { GraphUpdateJob, ConnectionDto, Direction } from '#lib/dtos';
+import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#lib/interfaces';
+import { GraphStateManager } from '#lib/services/graph-state-manager';
+import { SECONDS_PER_BLOCK } from '#lib/types/constants';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
-export class RequestProcessorService extends BaseConsumer {
+export class RequestProcessorService extends BaseConsumer implements OnModuleDestroy {
+  async onModuleDestroy(): Promise<void> {
+    await this.reconnectionQueue.close();
+    await this.graphChangePublisherQueue.close();
+  }
+
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,

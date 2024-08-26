@@ -302,90 +302,6 @@
         },
         "tags": ["health"]
       }
-    },
-    "/dev/request/{jobId}": {
-      "get": {
-        "operationId": "DevelopmentControllerV1_requestJob",
-        "summary": "Get a Job given a jobId",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "jobId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["dev"]
-      }
-    },
-    "/dev/asset/{assetId}": {
-      "get": {
-        "operationId": "DevelopmentControllerV1_getAsset",
-        "summary": "Get an Asset given an assetId",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "assetId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "2XX": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Buffer"
-                }
-              }
-            }
-          }
-        },
-        "tags": ["dev"]
-      }
-    },
-    "/dev/dummy/announcement/{queueType}/{count}": {
-      "post": {
-        "operationId": "DevelopmentControllerV1_populate",
-        "summary": "Create dummy announcement data",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "queueType",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "count",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": ["dev"]
-      }
     }
   },
   "info": {
@@ -672,10 +588,6 @@
           }
         },
         "required": ["profile"]
-      },
-      "Buffer": {
-        "type": "object",
-        "properties": {}
       }
     }
   }

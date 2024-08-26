@@ -1,15 +1,15 @@
 import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { RedisClientOptions } from '@songkeys/nestjs-redis';
 import { BlockchainModule } from '#lib/blockchain/blockchain.module';
-import { NonceService } from '#lib/services/nonce.service';
+import { NONCE_SERVICE_REDIS_NAMESPACE, NonceService } from '#lib/services/nonce.service';
 import { ProviderWebhookService } from '#lib/services/provider-webhook.service';
 import { ConfigModule } from '#lib/config/config.module';
 import { ConfigService } from '#lib/config/config.service';
-import { redisEventsToEventEmitter } from '#lib/utils/redis';
 import { QueueModule } from '#lib/queues';
+import { CacheModule } from '#lib/cache/cache.module';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 
@@ -34,28 +34,21 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    RedisModule.forRootAsync(
-      {
-        imports: [ConfigModule, EventEmitterModule],
-        useFactory: (configService: ConfigService, eventEmitter: EventEmitter2) => ({
-          config: [
-            {
-              url: configService.redisUrl.toString(),
-              keyPrefix: configService.cacheKeyPrefix,
-              maxRetriesPerRequest: null,
-              onClientCreated(client) {
-                redisEventsToEventEmitter(client, eventEmitter);
-              },
-              readyLog: false,
-              errorLog: false,
-            },
-          ],
-        }),
-        inject: [ConfigService, EventEmitter2],
-      },
-      true, // isGlobal
-    ),
-    QueueModule.forRoot({ maxRetriesPerRequest: null }),
+    QueueModule,
+    CacheModule.forRootAsync({
+      useFactory: (configService: ConfigService) => [
+        {
+          url: configService.redisUrl.toString(),
+          keyPrefix: configService.cacheKeyPrefix,
+        },
+        {
+          url: configService.redisUrl.toString(),
+          namespace: NONCE_SERVICE_REDIS_NAMESPACE,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+        },
+      ],
+      inject: [ConfigService],
+    }),
     ScheduleModule.forRoot(),
     BlockchainModule,
     TransactionPublisherModule,

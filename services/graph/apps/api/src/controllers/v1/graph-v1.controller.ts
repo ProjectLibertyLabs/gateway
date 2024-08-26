@@ -1,5 +1,5 @@
 import { ApiService } from '#api/api.service';
-import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#lib';
+import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#lib/dtos';
 import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 

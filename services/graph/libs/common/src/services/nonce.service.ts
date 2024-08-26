@@ -7,6 +7,8 @@ import * as RedisUtils from '../utils/redis';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../config/config.service';
 
+export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
+
 @Injectable()
 export class NonceService implements OnApplicationBootstrap {
   private logger: Logger;
@@ -14,7 +16,7 @@ export class NonceService implements OnApplicationBootstrap {
   private accountId: Uint8Array;
 
   constructor(
-    @InjectRedis() private redis: Redis,
+    @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private redis: Redis,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
   ) {

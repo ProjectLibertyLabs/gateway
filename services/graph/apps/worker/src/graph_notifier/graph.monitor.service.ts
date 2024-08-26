@@ -6,7 +6,6 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#lib/constants';
 import { BlockchainScannerService } from '#lib/utils/blockchain-scanner.service';
 import { ConfigService } from '#lib/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -15,11 +14,12 @@ import { FrameSystemEventRecord, PalletSchemasSchemaVersionId } from '@polkadot/
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
 import { CapacityCheckerService } from '#lib/blockchain/capacity-checker.service';
-import { createReconnectionJob, ProviderGraphUpdateJob, UpdateTransitiveGraphs } from '#lib';
 import * as RedisConstants from '#lib/utils/redis';
 import * as QueueConstants from '#lib/queues/queue-constants';
 import * as GraphServiceWebhook from '#lib/types/webhook-types';
 import axios from 'axios';
+import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#lib/interfaces';
+import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#lib/types/constants';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
@@ -71,6 +71,10 @@ export class GraphMonitorService extends BlockchainScannerService {
     if (this.schedulerRegistry.doesExist('interval', this.intervalName)) {
       this.schedulerRegistry.deleteInterval(this.intervalName);
     }
+
+    await this.reconnectionQueue.close();
+    await this.publishQueue.close();
+    await this.requestQueue.close();
   }
 
   constructor(

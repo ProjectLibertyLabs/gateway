@@ -110,30 +110,6 @@ export default async () => {
           },
         ],
         [
-          import('../../../libs/common/src/types/dtos/transaction.response.dto'),
-          { TransactionResponse: { referenceId: { required: true, type: () => String } } },
-        ],
-        [
-          import('../../../libs/common/src/types/dtos/wallet.login.response.dto'),
-          {
-            WalletLoginResponse: {
-              referenceId: { required: true, type: () => String },
-              msaId: { required: false, type: () => String },
-              publicKey: { required: false, type: () => String },
-            },
-          },
-        ],
-        [
-          import('../../../libs/common/src/types/dtos/wallet.login.config.response.dto'),
-          {
-            WalletLoginConfigResponse: {
-              providerId: { required: true, type: () => String },
-              siwfUrl: { required: true, type: () => String },
-              frequencyRpcUrl: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
           import('../../../libs/common/src/types/dtos/delegation.response.dto'),
           {
             DelegationResponse: {
@@ -147,8 +123,33 @@ export default async () => {
           import('../../../libs/common/src/types/dtos/keys.response.dto'),
           { KeysResponse: { msaKeys: { required: true } } },
         ],
+        [
+          import('../../../libs/common/src/types/dtos/transaction.response.dto'),
+          { TransactionResponse: { referenceId: { required: true, type: () => String } } },
+        ],
+        [
+          import('../../../libs/common/src/types/dtos/wallet.login.config.response.dto'),
+          {
+            WalletLoginConfigResponse: {
+              providerId: { required: true, type: () => String },
+              siwfUrl: { required: true, type: () => String },
+              frequencyRpcUrl: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import('../../../libs/common/src/types/dtos/wallet.login.response.dto'),
+          {
+            WalletLoginResponse: {
+              referenceId: { required: true, type: () => String },
+              msaId: { required: false, type: () => String },
+              publicKey: { required: false, type: () => String },
+            },
+          },
+        ],
       ],
       controllers: [
+        [import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
         [
           import('./controllers/v1/accounts-v1.controller'),
           {
@@ -202,7 +203,6 @@ export default async () => {
             },
           },
         ],
-        [import('./controllers/health.controller'), { HealthController: { healthz: {}, livez: {}, readyz: {} } }],
       ],
     },
   };

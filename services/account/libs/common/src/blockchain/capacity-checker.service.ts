@@ -1,7 +1,7 @@
 import { ICapacityLimit } from '#lib/interfaces/capacity-limit.interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '#lib/config';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BlockchainService, ICapacityInfo } from './blockchain.service';

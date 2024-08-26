@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';

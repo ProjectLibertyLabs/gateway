@@ -1,4 +1,4 @@
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
@@ -7,6 +7,8 @@ import { createKeys } from '#lib/blockchain/create-keys';
 import { RedisUtils } from '#lib/utils/redis';
 import { ConfigService } from '#lib/config/config.service';
 
+export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
+
 @Injectable()
 export class NonceService implements OnApplicationBootstrap {
   private logger: Logger;
@@ -14,7 +16,7 @@ export class NonceService implements OnApplicationBootstrap {
   private accountId: Uint8Array;
 
   constructor(
-    @InjectRedis() private redis: Redis,
+    @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private redis: Redis,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
   ) {

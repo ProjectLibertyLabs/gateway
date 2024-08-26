@@ -10,6 +10,8 @@
       "@libs/common/*": ["libs/common/src/*"],
       "#libs/blockchain": ["libs/common/src/blockchain"],
       "#libs/blockchain/*": ["libs/common/src/blockchain/*"],
+      "#libs/cache": ["libs/common/src/cache"],
+      "#libs/cache/*": ["libs/common/src/cache/*"],
       "#libs/config": ["libs/common/src/config"],
       "#libs/config/*": ["libs/common/src/config/*"],
       "#libs/crawler": ["libs/common/src/crawler"],

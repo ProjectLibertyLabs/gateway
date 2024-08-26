@@ -14,7 +14,7 @@ Blockchain technology is a decentralized ledger system where data is stored acro
 
 - **Finalized vs Non-Finalized:**
   - **Finalized Transactions:** Once a transaction is confirmed and included in a block, it is considered finalized. Finalized transactions are immutable and cannot be changed or reverted.
-  - **Non-Finalized Transactions:** Transactions that have been submitted to the network but not yet included in a block are considered non-finalized. They are pending confirmation and can still be altered or rejected.
+  - **Non-Finalized Transactions:** Transactions that have been submitted to the network but are not yet included in a block are considered non-finalized. They are pending confirmation and can still be altered or rejected.
 
 ## Writing Changes to the Blockchain
 

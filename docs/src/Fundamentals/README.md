@@ -6,12 +6,12 @@
 
 Frequency provides a shared global state to make interoperability and user control fundamental to the internet.
 Applications provide unique experiences to their users while accessing the content and graph connections from other applications.
-Just like how the internet is a shared global network, your applications can break out of their artificial boundaries.
+In the same way the internet is a shared global network, Frequency allows your applications to move past artificial boundaries.
 
 ## User Control with Delegation
 
 Users are at the core of every application and network.
-Users must maintain ultimate control, but delegation to your application gives you the ability to provide seamless experiences for your users and their data.
+While users must maintain ultimate control, delegation to your application gives you the ability to provide seamless experiences for your users and their data.
 
 Learn more about Delegation in [Frequency Documentation](https://docs.frequency.xyz/Delegation/).
 

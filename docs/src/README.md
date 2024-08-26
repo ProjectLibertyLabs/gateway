@@ -1,10 +1,10 @@
 # Making Decentrialized Social Easy
 
-Get started building on Decentralized Social as easy as deploying a Web2 API.
+Getting started building on Decentralized Social is as easy as deploying a Web2 API.
 
 ## Build What You Want
 
-Gateway offers a suite of tools you can pick and choose to build the best for your users.
+Gateway offers a suite of tools you can pick and choose from to build the best applications for your users.
 
 <!-- Add more visual elements to the services -->
 
@@ -26,8 +26,7 @@ Gateway provides a simple API to interact with the Frequency social layers of id
 
 ![Gateway Application Layer Diagram](./gateway_arch-Layer.drawio.png)
 
-Each microservice is a different building block.
-These microservices are 100% independent of each other, so use only what you want.
+These microservices are completely independent of one another, so you can use only those pieces you want or need.
 
 ![Gateway Application Microservice Diagram](./gateway_arch-TopLevelServices.drawio.png)
 
@@ -35,8 +34,8 @@ These microservices are 100% independent of each other, so use only what you wan
 
 ### Account Service
 
-Account Service is a service enabling easy interaction with accounts on Frequency.
-Accounts are defined as an `msaId` (a 64 bit identifier) and can contain additional information such as a handle, keys, and more.
+The Account Service enables easy interaction with accounts on Frequency.
+Accounts are defined as an `msaId` (64-bit identifier) and can contain additional information such as a handle, keys, and more.
 
 - Account authentication and creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)
 - Delegation management
@@ -45,7 +44,7 @@ Accounts are defined as an `msaId` (a 64 bit identifier) and can contain additio
 
 ### Graph Service
 
-The Graph Service is a service enabling easy interaction with social graphs on Frequency.
+The Graph Service enables easy interaction with social graphs on Frequency.
 Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidiectional (double opt-in friend connection).
 
 - Fetch user graph
@@ -54,19 +53,18 @@ Each Graph connection on Frequency can be private or public and can be unidirect
 
 ### Content Publishing Service
 
-The Content Publishing Service is a service enabling the creation of new content related activity on Frequency.
+The Content Publishing Service enables the creation of new content-related activity on Frequency.
 
-- Create posts to be broadcast publicly
+- Create posts to publicly broadcast
 - Create replies to posts
 - Create reactions to posts
 - Create updates to existing content
 - Request deletion of content
-- Media attachement storage with [IPFS](https://ipfs.tech)
+- Store and attach media with [IPFS](https://ipfs.tech)
 
 ### Content Watcher Service
 
-The Content Watcher Service is a service enabling processing external content from Frequency.
-Feed content through your custom webhooks to connect to the larger ecosystem of content.
+The Content Watcher Service enables the processing of content external from Frequency and feeding content through custom webhooks to connect to the larger ecosystem of content.
 
 - Parses and validates Frequency content
 - Filterable webhooks

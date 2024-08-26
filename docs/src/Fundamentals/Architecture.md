@@ -38,7 +38,7 @@ The Account Service in Gateway handles user account management, including creati
 
 #### Blockchain
 
-The [Frequency](https://www.frequency.xyz) blockchain stores metadata and transaction records, providing a secure and user controlled data store. This ensures that all interactions are transparent and traceable, enhancing trust in the system.
+The [Frequency](https://www.frequency.xyz) blockchain stores metadata and transaction records, providing a secure and user-controlled data store. This ensures that all interactions are transparent and traceable, enhancing trust in the system.
 
 - **Usage in Gateway:** Metadata for user actions, such as content publication, follows/unfollows, and other social interactions, are stored on the blockchain. This ensures that all actions are verifiable and under user control.
 
@@ -69,7 +69,7 @@ Developers can integrate their custom code within this modular framework, extend
 
 [BullMQ](https://bullmq.io) is a Node.js library for creating robust job queues with Redis.
 
-- **What does this add to Redis?**: BullMQ enhances Redis by providing a reliable and scalable way to manage background jobs and task queues, ensuring that tasks are processed efficiently and reliably.
+- **Struture for Redis Queues**: BullMQ enhances Redis by providing a reliable and scalable way to manage background jobs and task queues, ensuring that tasks are processed efficiently and reliably.
 - **Usage in Gateway:** BullMQ can be used to handle background processing tasks such as sending notifications, processing user actions, and managing content updates.
 
 ## IPFS Kubo API

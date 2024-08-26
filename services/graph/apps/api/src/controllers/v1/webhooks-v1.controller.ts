@@ -36,20 +36,20 @@ export class WebhooksControllerV1 {
 
   @Get('users/:msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get all registered webhooks for a specific MSA ID' })
-  @ApiOkResponse({ description: 'Retrieved all registered webhooks for the given MSA ID' })
+  @ApiOperation({ summary: 'Get all registered webhooks for a specific MSA Id' })
+  @ApiOkResponse({ description: 'Retrieved all registered webhooks for the given MSA Id' })
   @ApiParam({
     name: 'msaId',
     example: '2',
     type: String,
-    description: 'MSA ID for which to request registered webhooks ',
+    description: 'MSA Id for which to request registered webhooks ',
   })
   @ApiQuery({
     name: 'includeAll',
     type: Boolean,
     example: true,
     required: false,
-    description: "Boolean whether to include webhooks registered for 'all' MSAs (default: true)",
+    description: "Boolean whether to include webhooks registered for 'all' MSA Ids (default: true)",
   })
   async getWebhooksForMsa(@Param('msaId') msaId: string, @Query('includeAll') includeAll = 'true'): Promise<string[]> {
     return this.apiService.getWebhooksForMsa(msaId, JSON.parse(includeAll ?? 'true'));

@@ -63,14 +63,14 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 - **Endpoint**: `/accounts/{msaId}`
 - **Method**: `GET`
-- **Summary**: Get account for current msaId.
+- **Summary**: Get account for current MSA Id
 - **Security**: Token-based authentication
 
 #### Parameters
 
 | Name  | In   | Description                | Required | Type   |
 | ----- | ---- | -------------------------- | -------- | ------ |
-| msaId | path | MSA ID of the current user | Yes      | string |
+| msaId | path | MSA Id of the current user | Yes      | string |
 
 #### Responses
 
@@ -129,7 +129,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 - **Endpoint**: `/handles`
 - **Method**: `GET`
-- **Summary**: Get the handle associated with an MSA ID.
+- **Summary**: Get the handle associated with an MSA Id.
 - **Security**: Token-based authentication
 
 #### Responses
@@ -173,7 +173,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 - **Endpoint**: `/keys/:msaId`
 - **Method**: `POST`
-- **Summary**: Create new control keys for an MSA ID.
+- **Summary**: Create new control keys for an MSA Id.
 
 #### Parameters
 
@@ -193,7 +193,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 
 - **Endpoint**: `/keys/:msaId`
 - **Method**: `GET`
-- **Summary**: Get all control keys associated with an MSA ID.
+- **Summary**: Get all control keys associated with an MSA Id.
 
 #### Parameters
 

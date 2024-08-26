@@ -102,9 +102,9 @@ export class AccountsService {
         this.logger.error(`Error during SIWF signin request: ${e}`);
         const { cause } = e as any;
         this.logger.error(`cause: ${cause}`);
-        throw new Error('Failed to Sign-In With Frequency');
+        throw new Error('Failed to Sign In With Frequency');
       }
     }
-    throw new Error('Invalid Sign-In With Frequency Request');
+    throw new Error('Invalid Sign In With Frequency Request');
   }
 }

@@ -23,7 +23,7 @@ export class ContentControllerV1 {
   }
 
   @Post(':userDsnpId/broadcast')
-  @ApiOperation({ summary: 'Create DSNP Broadcast for User' })
+  @ApiOperation({ summary: 'Create DSNP Broadcast for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async broadcast(
@@ -35,7 +35,7 @@ export class ContentControllerV1 {
   }
 
   @Post(':userDsnpId/reply')
-  @ApiOperation({ summary: 'Create DSNP Reply for User' })
+  @ApiOperation({ summary: 'Create DSNP Reply for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
@@ -44,7 +44,7 @@ export class ContentControllerV1 {
   }
 
   @Post(':userDsnpId/reaction')
-  @ApiOperation({ summary: 'Create DSNP Reaction for User' })
+  @ApiOperation({ summary: 'Create DSNP Reaction for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async reaction(
@@ -55,7 +55,7 @@ export class ContentControllerV1 {
   }
 
   @Put(':userDsnpId')
-  @ApiOperation({ summary: 'Update DSNP Content for User' })
+  @ApiOperation({ summary: 'Update DSNP Content for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
@@ -64,7 +64,7 @@ export class ContentControllerV1 {
   }
 
   @Delete(':userDsnpId')
-  @ApiOperation({ summary: 'Delete DSNP Content for User' })
+  @ApiOperation({ summary: 'Delete DSNP Content for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async delete(

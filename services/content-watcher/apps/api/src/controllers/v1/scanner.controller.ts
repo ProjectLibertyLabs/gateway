@@ -35,9 +35,9 @@ export class ScanControllerV1 {
   }
 
   @Post('options')
-  @ApiOperation({ summary: 'Set watch options to filter the blockchain content scanner by schemas or MSA IDs' })
+  @ApiOperation({ summary: 'Set watch options to filter the blockchain content scanner by schemas or MSA Ids' })
   @ApiBody({
-    description: 'watchOptions: Filter contents by schemaIds and/or dsnpIds',
+    description: 'watchOptions: Filter contents by schemaIds and/or msaIds',
     type: ChainWatchOptionsDto,
   })
   setWatchOptions(@Body() watchOptions: ChainWatchOptionsDto) {
@@ -54,7 +54,7 @@ export class ScanControllerV1 {
   @ApiOperation({ summary: 'Resume the blockchain content event scanner' })
   @ApiQuery({
     name: 'immediate',
-    description: 'immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)',
+    description: 'Immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)',
     type: 'boolean',
     required: false,
   })

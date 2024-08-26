@@ -20,11 +20,11 @@ Before you begin, ensure you have the following installed on your machine:
 To have your application interact on Frequency Testnet, you will need to register as a Provider.
 This will enable users to delegate to you, and your chain actions to be free via [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html).
 
-### Create an Application Wallet
+### Create an Application Account in a Wallet
 
-- Open Polkadot Extension
+- Open a wallet extension such as the [Polkadot extension](https://polkadot.js.org/extension/)
 - Follow account creation steps
-- Make sure to keep the seed phrase for service configuration step
+- _Make sure to keep the seed phrase for the service configuration step_
 
 [Detailed Instructions](https://support.polkadot.network/support/solutions/articles/65000098878-how-to-create-a-polkadot-account)
 
@@ -36,11 +36,11 @@ Visit the Frequency Testnet Faucet and get tokens: [Testnet Faucet](https://fauc
 
 Creating your provider account is easy via the [Provider Dashboard](https://provider.frequency.xyz/).
 
-- Use the browser with the Polkadot Extension setup earlier
+- Use the same browser with the wallet extension
 - Visit the [Provider Dashboard](https://provider.frequency.xyz/)
 - Select `Become a Provider`
 - Select the `Testnet Paseo` network
-- Connect the address created earlier
+- Connect the Application Account created earlier
 - Select `Create an MSA` and approve the transaction popups
 - Choose a public Provider name (e.g. "Cool Test App") and continue via `Create Provider`
 - Stake for Capacity by selecting `Stake to Provider` and stake 100 XRQCY Tokens
@@ -102,5 +102,5 @@ Stop all the Docker services via the script (with the option to remove saved dat
   - Graph Service: [Local](http://localhost:3012/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/graph/)
   - Content Publishing Service: [Local](http://localhost:3010/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-publishing/)
   - Content Watcher Service: [Local](http://localhost:3011/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-watcher/)
-- [Learn about each service](../Build/README.md)
-- [Read about Running in Production](../Run/README.md)
+- [Learn about each service](../Build/)
+- [Read about Running in Production](../Run/)

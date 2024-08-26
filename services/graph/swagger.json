@@ -4,7 +4,7 @@
     "/v1/graphs/getGraphs": {
       "post": {
         "operationId": "GraphControllerV1_getGraphs",
-        "summary": "Fetch graphs for specified dsnpIds and blockNumber",
+        "summary": "Fetch graphs for specified MSA Ids and Block Number",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -37,7 +37,7 @@
     "/v1/graphs": {
       "put": {
         "operationId": "GraphControllerV1_updateGraph",
-        "summary": "Request an update to given users graph",
+        "summary": "Request an update to a given user's graph",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -112,14 +112,14 @@
     "/v1/webhooks/users/{msaId}": {
       "get": {
         "operationId": "WebhooksControllerV1_getWebhooksForMsa",
-        "summary": "Get all registered webhooks for a specific MSA ID",
+        "summary": "Get all registered webhooks for a specific MSA Id",
         "parameters": [
           {
             "name": "msaId",
             "required": true,
             "in": "path",
             "example": "2",
-            "description": "MSA ID for which to request registered webhooks ",
+            "description": "MSA Id for which to request registered webhooks ",
             "schema": {
               "type": "string"
             }
@@ -129,7 +129,7 @@
             "required": false,
             "in": "query",
             "example": true,
-            "description": "Boolean whether to include webhooks registered for 'all' MSAs (default: true)",
+            "description": "Boolean whether to include webhooks registered for 'all' MSA Ids (default: true)",
             "schema": {
               "type": "boolean"
             }
@@ -137,7 +137,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Retrieved all registered webhooks for the given MSA ID"
+            "description": "Retrieved all registered webhooks for the given MSA Id"
           }
         },
         "tags": ["v1/webhooks"]
@@ -260,19 +260,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
       "GraphKeyPairDto": {
         "type": "object",
@@ -298,7 +285,7 @@
         "type": "object",
         "properties": {
           "dsnpIds": {
-            "description": "Array of MSA IDs for which to query graphs",
+            "description": "Array of MSA Ids for which to query graphs",
             "example": ["2", "3", "4", "5"],
             "type": "array",
             "items": {
@@ -326,7 +313,7 @@
         "properties": {
           "userId": {
             "type": "string",
-            "description": "MSA ID of the user represented by this graph edge",
+            "description": "MSA Id of the user represented by this graph edge",
             "example": "3"
           },
           "since": {
@@ -342,7 +329,7 @@
         "properties": {
           "dsnpId": {
             "type": "string",
-            "description": "MSA ID that is the owner of the graph represented by the graph edges in this object",
+            "description": "MSA Id that is the owner of the graph represented by the graph edges in this object",
             "example": "2"
           },
           "dsnpGraphEdges": {
@@ -360,7 +347,7 @@
         "properties": {
           "dsnpId": {
             "type": "string",
-            "description": "MSA ID representing the target of this connection",
+            "description": "MSA Id representing the target of this connection",
             "example": "3"
           },
           "privacyType": {
@@ -402,7 +389,7 @@
         "properties": {
           "dsnpId": {
             "type": "string",
-            "description": "MSA ID that owns the connections represented in this object",
+            "description": "MSA Id that owns the connections represented in this object",
             "example": "2"
           },
           "connections": {
@@ -441,7 +428,7 @@
         "type": "object",
         "properties": {
           "dsnpIds": {
-            "description": "MSA IDs for which to watch for graph updates",
+            "description": "MSA Ids for which to watch for graph updates",
             "example": ["2", "3", "4", "5"],
             "type": "array",
             "items": {

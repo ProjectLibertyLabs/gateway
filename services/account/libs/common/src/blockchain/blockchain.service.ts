@@ -194,14 +194,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   /**
-   * Return the current maximum MSA ID.
+   * Return the current maximum MSA Id.
    *
-   * NOTE: in most other places we treat MSA ID as a string to eliminate
+   * NOTE: in most other places we treat MSA Id as a string to eliminate
    * portability problems with `bigint`, but here we explicitly return it
    * as a `bigint` because the return value of this function is used almost
    * exclusively in the context of a mathematical comparison.
    *
-   * @returns {bigint} The current maximum MSA ID from the chain
+   * @returns {bigint} The current maximum MSA Id from the chain
    */
   public async getMsaIdMax(): Promise<bigint> {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
@@ -406,7 +406,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   /**
    * Handles the PublicKeyAdded transaction result events and extracts the public key from the event data.
    * @param {Event} event - The PublicKeyAdded event
-   * @returns {PublicKeyValues} An object containing the MSA ID & new public key
+   * @returns {PublicKeyValues} An object containing the MSA Id & new public key
    */
   public handlePublishKeyTxResult(event: Event): PublicKeyValues {
     const publicKeyValues: Partial<PublicKeyValues> = {};

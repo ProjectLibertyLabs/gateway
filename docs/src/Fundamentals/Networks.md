@@ -70,7 +70,7 @@ To interact with the Frequency networks using the Polkadot.js Explorer, follow t
    - For local development, connect to your local node by selecting "DEVELOPMENT -> Local Node or Custom Endpoint" and entering the URL of your local node (e.g., `http://localhost:9933`).
 
 3. **Connect Your Wallet:**
-   - Ensure your Polkadot-supporting wallet is connected.
+   - Ensure your Polkadot-supported wallet is connected.
    - You will be able to see and interact with your accounts and transactions on the selected Frequency network.
 
 By using these steps, you can easily switch between the different Frequency networks and manage your blockchain activities efficiently.

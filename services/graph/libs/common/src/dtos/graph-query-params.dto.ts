@@ -9,7 +9,7 @@ export class GraphsQueryParamsDto {
   @ArrayUnique()
   @IsString({ each: true })
   @ApiProperty({
-    description: 'Array of MSA IDs for which to query graphs',
+    description: 'Array of MSA Ids for which to query graphs',
     example: ['2', '3', '4', '5'],
     type: [String],
   })

@@ -82,7 +82,7 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   /**
-   * Adds webhook registrations for a list of MSA IDs to the set
+   * Adds webhook registrations for a list of MSA Ids to the set
    * of webhooks in the Redis cache. Returns whether any new
    * webhooks were added.
    * @param {any} watchGraphsDto:WatchGraphsDto

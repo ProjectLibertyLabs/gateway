@@ -10,7 +10,7 @@ declare namespace Components {
   namespace Schemas {
     export interface GraphChangeNotificationV1 {
       /**
-       * MSA ID for which this notification is being sent
+       * MSA Id for which this notification is being sent
        * example:
        * 2
        */

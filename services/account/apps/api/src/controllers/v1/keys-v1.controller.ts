@@ -21,11 +21,11 @@ export class KeysControllerV1 {
 
   @Post('add')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'add new control keys for an MSA ID' })
-  @ApiOkResponse({ description: 'Found public keys.' })
+  @ApiOperation({ summary: 'Add new control keys for an MSA Id' })
+  @ApiOkResponse({ description: 'Found public keys' })
   @ApiBody({ type: KeysRequest })
   /**
-   * Add new control keys for an MSA ID.
+   * Add new control keys for an MSA Id.
    * @param queryParams - The query parameters for adding the public keys.
    * @returns A promise that resolves to an array of public keys associated with the given msaId.
    * @throws An error if no public keys can be found.
@@ -40,14 +40,14 @@ export class KeysControllerV1 {
       return response;
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException('Failed to find public keys for the given msaId', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Failed to find public keys for the given MSA Id', HttpStatus.BAD_REQUEST);
     }
   }
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch public keys given an msaId.' })
-  @ApiOkResponse({ description: 'Found public keys.' })
+  @ApiOperation({ summary: 'Fetch public keys given an MSA Id' })
+  @ApiOkResponse({ description: 'Found public keys' })
   /**
    * Gets public keys.
    * @param queryParams - The query parameters for getting the public keys.

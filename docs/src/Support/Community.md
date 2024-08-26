@@ -2,7 +2,7 @@
 
 ## Gateway
 
-All Gateway code is open source and you can participate in the development as well.
+All Gateway code is open source, and you are welcome to participate in its development.
 
 - [Gateway on GitHub](https://github.com/ProjectLibertyLabs/gateway)
 
@@ -12,8 +12,8 @@ Many of the Gateway related tools are also open source:
 
 ## Frequency
 
-Frequency is build using the Polkadot SDK.
-Most Polkadot SDK (also called Substrate) tooling works with Frequency
+Frequency is built using the Polkadot SDK.
+Most Polkadot SDK (also called Substrate) tooling works with Frequency.
 
 - [Frequency Homepage](https://www.frequency.xyz)
 - [Frequency Documentation](https://docs.frequency.xyz)
@@ -28,9 +28,8 @@ Most Polkadot SDK (also called Substrate) tooling works with Frequency
 ## IPFS
 
 IPFS (the InterPlanetary File System) is a peer-to-peer network and protocol designed to make the web faster, safer, and more open.
-Key is that it uses "content-based addressing."
-This allows content to move to different servers and when it is demand, act as a distributed CDN.
-While most users rely on the providers they use to maintain the availability of the files, users can move services and providers can offer to help maintain the availability of a user's content easily.
+It uses "content-based addressing" which allows content to move to different servers and act as a distributed CDN on demand.
+While most users rely on providers to maintain the availability of files, users may move services and providers may help them to maintain the availability of their content.
 
 - [Learn more about IPFS](https://ipfs.tech)
 - [Hosted IPFS Services (Pinning Services)](https://docs.ipfs.tech/concepts/persistence/#pinning-services)

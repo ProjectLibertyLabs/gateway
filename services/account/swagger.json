@@ -4,7 +4,7 @@
     "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsControllerV1_getSIWFConfig",
-        "summary": "Get the Sign-In With Frequency Configuration",
+        "summary": "Get the Sign In With Frequency configuration",
         "parameters": [],
         "responses": {
           "200": {
@@ -22,7 +22,7 @@
       },
       "post": {
         "operationId": "AccountsControllerV1_postSignInWithFrequency",
-        "summary": "Request to sign in with Frequency",
+        "summary": "Request to Sign In With Frequency",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -52,7 +52,7 @@
     "/v1/accounts/{msaId}": {
       "get": {
         "operationId": "AccountsControllerV1_getAccountForMsa",
-        "summary": "Fetch an account given an msaId.",
+        "summary": "Fetch an account given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -81,7 +81,7 @@
     "/v1/accounts/account/{publicKey}": {
       "get": {
         "operationId": "AccountsControllerV1_getAccountForPublicKey",
-        "summary": "Fetch an account given a public key.",
+        "summary": "Fetch an account given a public key",
         "parameters": [
           {
             "name": "publicKey",
@@ -110,7 +110,7 @@
     "/v1/delegation/{msaId}": {
       "get": {
         "operationId": "DelegationControllerV1_getDelegation",
-        "summary": "Get the delegation information associated with an msaId.",
+        "summary": "Get the delegation information associated with an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -123,7 +123,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Found delegation information."
+            "description": "Found delegation information"
           }
         },
         "tags": ["v1/delegation"]
@@ -178,7 +178,7 @@
     "/v1/handles/{msaId}": {
       "get": {
         "operationId": "HandlesControllerV1_getHandle",
-        "summary": "Fetch a handle given an msaId.",
+        "summary": "Fetch a handle given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -200,7 +200,7 @@
     "/v1/keys/add": {
       "post": {
         "operationId": "KeysControllerV1_addKey",
-        "summary": "add new control keys for an MSA ID",
+        "summary": "Add new control keys for an MSA Id",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -214,7 +214,7 @@
         },
         "responses": {
           "200": {
-            "description": "Found public keys."
+            "description": "Found public keys"
           }
         },
         "tags": ["v1/keys"]
@@ -223,7 +223,7 @@
     "/v1/keys/{msaId}": {
       "get": {
         "operationId": "KeysControllerV1_getKeys",
-        "summary": "Fetch public keys given an msaId.",
+        "summary": "Fetch public keys given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -236,7 +236,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Found public keys."
+            "description": "Found public keys"
           }
         },
         "tags": ["v1/keys"]
@@ -291,19 +291,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
       "WalletLoginConfigResponse": {
         "type": "object",

@@ -12,7 +12,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletLoginConfigResponse"
+                  "$ref": "#/components/schemas/WalletLoginConfigResponseDto"
                 }
               }
             }
@@ -40,7 +40,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletLoginResponse"
+                  "$ref": "#/components/schemas/WalletLoginResponseDto"
                 }
               }
             }
@@ -69,7 +69,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountResponse"
+                  "$ref": "#/components/schemas/AccountResponseDto"
                 }
               }
             }
@@ -98,7 +98,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountResponse"
+                  "$ref": "#/components/schemas/AccountResponseDto"
                 }
               }
             }
@@ -139,7 +139,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HandleRequest"
+                "$ref": "#/components/schemas/HandleRequestDto"
               }
             }
           }
@@ -162,7 +162,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HandleRequest"
+                "$ref": "#/components/schemas/HandleRequestDto"
               }
             }
           }
@@ -207,7 +207,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KeysRequest"
+                "$ref": "#/components/schemas/KeysRequestDto"
               }
             }
           }
@@ -307,7 +307,7 @@
         },
         "required": ["providerId", "siwfUrl", "frequencyRpcUrl"]
       },
-      "HandleResponseDTO": {
+      "HandleResponseDto": {
         "type": "object",
         "properties": {
           "base_handle": {
@@ -322,14 +322,14 @@
         },
         "required": ["base_handle", "canonical_base", "suffix"]
       },
-      "AccountResponse": {
+      "AccountResponseDto": {
         "type": "object",
         "properties": {
           "msaId": {
             "type": "string"
           },
           "handle": {
-            "$ref": "#/components/schemas/HandleResponseDTO"
+            "$ref": "#/components/schemas/HandleResponseDto"
           }
         },
         "required": ["msaId"]
@@ -420,7 +420,7 @@
           }
         }
       },
-      "WalletLoginResponse": {
+      "WalletLoginResponseDto": {
         "type": "object",
         "properties": {
           "referenceId": {
@@ -435,7 +435,7 @@
         },
         "required": ["referenceId"]
       },
-      "HandlePayload": {
+      "HandlePayloadDto": {
         "type": "object",
         "properties": {
           "baseHandle": {
@@ -447,14 +447,14 @@
         },
         "required": ["baseHandle", "expiration"]
       },
-      "HandleRequest": {
+      "HandleRequestDto": {
         "type": "object",
         "properties": {
           "accountId": {
             "type": "string"
           },
           "payload": {
-            "$ref": "#/components/schemas/HandlePayload"
+            "$ref": "#/components/schemas/HandlePayloadDto"
           },
           "proof": {
             "type": "string"
@@ -462,7 +462,7 @@
         },
         "required": ["accountId", "payload", "proof"]
       },
-      "KeysRequestPayload": {
+      "KeysRequestPayloadDto": {
         "type": "object",
         "properties": {
           "msaId": {
@@ -477,7 +477,7 @@
         },
         "required": ["msaId", "expiration", "newPublicKey"]
       },
-      "KeysRequest": {
+      "KeysRequestDto": {
         "type": "object",
         "properties": {
           "msaOwnerAddress": {
@@ -490,7 +490,7 @@
             "type": "string"
           },
           "payload": {
-            "$ref": "#/components/schemas/KeysRequestPayload"
+            "$ref": "#/components/schemas/KeysRequestPayloadDto"
           }
         },
         "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]

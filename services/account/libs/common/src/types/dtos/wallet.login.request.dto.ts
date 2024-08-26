@@ -76,6 +76,6 @@ export class WalletLoginRequestDto implements WalletProxyResponse {
   signUp: SignUpResponseDto;
 }
 
-export type PublishSIWFSignupRequest = ValidSignUpPayloads & {
+export type PublishSIWFSignupRequestDto = ValidSignUpPayloads & {
   type: TransactionType.SIWF_SIGNUP;
 };

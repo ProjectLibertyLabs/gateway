@@ -3,9 +3,9 @@ import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TransactionType } from '#lib/types/enums';
 import { HandlesService } from '#api/services/handles.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
-import { ChangeHandleRequest, CreateHandleRequest, HandleRequest } from '#lib/types/dtos/handles.request.dto';
+import { ChangeHandleRequest, CreateHandleRequest, HandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
-import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
@@ -23,14 +23,14 @@ export class HandlesControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new handle for an account' })
   @ApiOkResponse({ description: 'Handle creation request enqueued' })
-  @ApiBody({ type: HandleRequest })
+  @ApiBody({ type: HandleRequestDto })
   /**
    * Creates a handle using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
    * @returns A message that the handle creation is in progress.
    * @throws An error if the handle creation fails.
    */
-  async createHandle(@Body() createHandleRequest: HandleRequest): Promise<TransactionResponse> {
+  async createHandle(@Body() createHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
     try {
       const response = await this.enqueueService.enqueueRequest<CreateHandleRequest>({
         ...createHandleRequest,
@@ -48,14 +48,14 @@ export class HandlesControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to change a handle' })
   @ApiOkResponse({ description: 'Handle change request enqueued' })
-  @ApiBody({ type: HandleRequest })
+  @ApiBody({ type: HandleRequestDto })
   /**
    * Using the provided query parameters, removes the old handle and creates a new one.
    * @param queryParams - The query parameters for changing the handle.
    * @returns A message that the handle change is in progress.
    * @throws An error if the handle creation fails.
    */
-  async changeHandle(@Body() changeHandleRequest: HandleRequest): Promise<TransactionResponse> {
+  async changeHandle(@Body() changeHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
     try {
       const response = await this.enqueueService.enqueueRequest<ChangeHandleRequest>({
         ...changeHandleRequest,
@@ -79,7 +79,7 @@ export class HandlesControllerV1 {
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.
    */
-  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponseDTO> {
+  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponseDto> {
     try {
       const handle = await this.handlesService.getHandle(msaId);
       if (!handle) {

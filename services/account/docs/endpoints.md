@@ -81,7 +81,7 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 - **Description**: Account still pending creation
 
 - **Status Code**: `200 OK`
-- **Schema**: [AccountResponse](#AccountResponse)
+- **Schema**: [AccountResponseDto](#AccountResponseDto)
 
 ### 5. Create Handle
 
@@ -304,9 +304,9 @@ The DSNP Gateway Account Services Prototype API is designed for managing DSNP id
 |                 |                          | Unauthorized Error | description: Access token invalid or not found                                                                                                                           |                                                                                          |
 | Schemas         |                          |                    |                                                                                                                                                                          |                                                                                          |
 |                 | CreateAccountRequest     | Object             | addProviderSignature: string<br>algo: enum (SR25519)<br>baseHandle: string<br>encoding: enum (hex)<br>expiration: number<br>handleSignature: string<br>publicKey: string | addProviderSignature, algo, baseHandle, encoding, expiration, handleSignature, publicKey |
-|                 | CreateAccountResponse    | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
+|                 | CreateAccountResponseDto | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
 |                 | AccountsResponse         | Array              | msaId: string<br>handle: string                                                                                                                                          | msaId                                                                                    |
-|                 | AccountResponse          | Object             | msaId: string<br>handle: string                                                                                                                                          | msaId                                                                                    |
+|                 | AccountResponseDto       | Object             | msaId: string<br>handle: string                                                                                                                                          | msaId                                                                                    |
 |                 | CreateDelegationRequest  | Object             | pallet: string<br>extrinsicName: string<br>encodedExtrinsic: hexstring                                                                                                   | pallet, extrinsicName, encodedExtrinsic                                                  |
 |                 | CreateDelegationResponse | Object             | accessToken: string<br>expires: integer                                                                                                                                  | expires, accessToken                                                                     |
 |                 | DelegationResponse       | Object             | nodeUrl: string<br>ipfsGateway: string<br>providerId: string<br>schemas: array of integers<br>network: enum (local, testnet, mainnet)                                    | nodeUrl, providerId, schemas, network                                                    |

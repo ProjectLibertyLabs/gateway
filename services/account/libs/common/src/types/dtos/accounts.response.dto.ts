@@ -2,7 +2,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
-export class HandleResponseDTO {
+export class HandleResponseDto {
   @ApiProperty()
   base_handle: string;
 
@@ -13,14 +13,14 @@ export class HandleResponseDTO {
   suffix: number;
 }
 
-export class AccountResponse {
+export class AccountResponseDto {
   @ApiProperty()
   @IsNotEmpty()
   msaId: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  handle?: HandleResponseDTO;
+  handle?: HandleResponseDto;
 }
 
 export class MsaIdResponse {

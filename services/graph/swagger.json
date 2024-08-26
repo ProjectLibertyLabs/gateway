@@ -308,7 +308,7 @@
         },
         "required": ["dsnpIds", "privacyType"]
       },
-      "DsnpGraphEdge": {
+      "DsnpGraphEdgeDto": {
         "type": "object",
         "properties": {
           "userId": {
@@ -336,7 +336,7 @@
             "description": "Optional array of graph edges in the specific user graph represented by this object",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DsnpGraphEdge"
+              "$ref": "#/components/schemas/DsnpGraphEdgeDto"
             }
           }
         },

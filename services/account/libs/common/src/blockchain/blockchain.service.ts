@@ -20,10 +20,10 @@ import { ConfigService } from '#lib/config/config.service';
 import { TransactionType } from '#lib/types/enums';
 import { HexString } from '@polkadot/util/types';
 import { decodeAddress } from '@polkadot/util-crypto';
-import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
-import { PublishHandleRequest } from '#lib/types/dtos/handles.request.dto';
+import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
+import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
-import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
@@ -222,7 +222,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     throw new Error(`No keys found for msaId: ${msaId}`);
   }
 
-  public async addPublicKeyToMsa(keysRequest: KeysRequest): Promise<SubmittableExtrinsic<any>> {
+  public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const msaIdU64 = this.api.createType('u64', payload.msaId);
 
@@ -241,7 +241,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return addKeyResponse;
   }
 
-  public async publishHandle(jobData: TransactionData<PublishHandleRequest>) {
+  public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
     const handleVec = new Bytes(this.api.registry, jobData.payload.baseHandle);
     const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
       'CommonPrimitivesHandlesClaimHandlePayload',
@@ -267,7 +267,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDTO | null> {
+  public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDto | null> {
     const handleResponse: Option<HandleResponse> = await this.rpc('handles', 'getHandleForMsa', msaId.toString());
     if (handleResponse.isSome) {
       const handle = handleResponse.unwrap();

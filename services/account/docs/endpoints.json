@@ -521,7 +521,7 @@
         },
         "required": ["expires", "accessToken"]
       },
-      "AuthAccountResponse": {
+      "AuthAccountResponseDto": {
         "type": "object",
         "properties": {
           "msaId": {

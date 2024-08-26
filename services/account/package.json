@@ -52,7 +52,7 @@
     "@frequency-chain/api-augment": "^1.11.1",
     "@jest/globals": "^29.7.0",
     "@liaoliaots/nestjs-redis": "^9.0.5",
-    "@nestjs/bullmq": "^10.1.1",
+    "@nestjs/bullmq": "^10.2.1",
     "@nestjs/cli": "^10.3.2",
     "@nestjs/common": "^9.4.0",
     "@nestjs/config": "^3.2.2",

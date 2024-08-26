@@ -27,7 +27,7 @@ export async function setupProviderAndUsers() {
 
   const currentBlockNumber = await getCurrentBlockNumber();
 
-  // Get keys and MSA IDs for users provisioned in setup
+  // Get keys and MSA Ids for users provisioned in setup
   const provider = await provisionProvider(BASE_SEED_PHRASE, 'Alice');
   const users = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, 4);
 

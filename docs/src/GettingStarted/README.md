@@ -24,7 +24,7 @@ This will enable users to delegate to you, and your chain actions to be free via
 
 - Open a wallet extension such as the [Polkadot extension](https://polkadot.js.org/extension/)
 - Follow account creation steps
-- _Make sure to keep the seed phrase for service configuration step_
+- _Make sure to keep the seed phrase for the service configuration step_
 
 [Detailed Instructions](https://support.polkadot.network/support/solutions/articles/65000098878-how-to-create-a-polkadot-account)
 

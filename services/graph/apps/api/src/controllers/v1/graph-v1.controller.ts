@@ -16,7 +16,7 @@ export class GraphControllerV1 {
   // TODO: Use HTTP QUERY method or GET with a body instead of POST (can then eliminate endpoint name, will just be GET /graph)
   @Post('getGraphs')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch graphs for specified dsnpIds and blockNumber' })
+  @ApiOperation({ summary: 'Fetch graphs for specified MSA Ids and Block Number' })
   @ApiOkResponse({ description: 'Graphs retrieved successfully', type: [UserGraphDto] })
   async getGraphs(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
     try {
@@ -31,7 +31,7 @@ export class GraphControllerV1 {
   // Enqueue a request to update a user graph
   @Put()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Request an update to given users graph' })
+  @ApiOperation({ summary: "Request an update to a given user's graph" })
   @ApiCreatedResponse({ description: 'Graph update request created successfully', type: GraphChangeRepsonseDto })
   @ApiBody({ type: ProviderGraphDto })
   async updateGraph(@Body() providerGraphDto: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {

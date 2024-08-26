@@ -71,7 +71,7 @@ export class HandlesControllerV1 {
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch a handle given an msaId.' })
+  @ApiOperation({ summary: 'Fetch a handle given an MSA Id' })
   @ApiOkResponse({ description: 'Found a handle' })
   /**
    * Gets a handle for msaId.

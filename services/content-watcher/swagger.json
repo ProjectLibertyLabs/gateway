@@ -46,11 +46,11 @@
       },
       "post": {
         "operationId": "ScanControllerV1_setWatchOptions",
-        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA IDs",
+        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA Ids",
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "watchOptions: Filter contents by schemaIds and/or dsnpIds",
+          "description": "watchOptions: Filter contents by schemaIds and/or msaIds",
           "content": {
             "application/json": {
               "schema": {
@@ -89,7 +89,7 @@
             "name": "immediate",
             "required": false,
             "in": "query",
-            "description": "immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)",
+            "description": "Immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)",
             "schema": {
               "type": "boolean"
             }
@@ -239,19 +239,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
       "ResetScannerDto": {
         "type": "object",

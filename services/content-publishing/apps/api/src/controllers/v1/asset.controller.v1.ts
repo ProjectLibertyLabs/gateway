@@ -27,7 +27,7 @@ export class AssetControllerV1 {
   @UseInterceptors(FilesInterceptor('files'))
   @HttpCode(202)
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload Asset Files' })
+  @ApiOperation({ summary: 'Upload asset files' })
   @ApiBody({
     description: 'Asset files',
     type: FilesUploadDto,

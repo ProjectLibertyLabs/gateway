@@ -4,7 +4,7 @@
     "/v1/asset/upload": {
       "put": {
         "operationId": "AssetControllerV1_assetUpload",
-        "summary": "Upload Asset Files",
+        "summary": "Upload asset files",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -35,7 +35,7 @@
     "/v1/content/{userDsnpId}/broadcast": {
       "post": {
         "operationId": "ContentControllerV1_broadcast",
-        "summary": "Create DSNP Broadcast for User",
+        "summary": "Create DSNP Broadcast for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -74,7 +74,7 @@
     "/v1/content/{userDsnpId}/reply": {
       "post": {
         "operationId": "ContentControllerV1_reply",
-        "summary": "Create DSNP Reply for User",
+        "summary": "Create DSNP Reply for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -113,7 +113,7 @@
     "/v1/content/{userDsnpId}/reaction": {
       "post": {
         "operationId": "ContentControllerV1_reaction",
-        "summary": "Create DSNP Reaction for User",
+        "summary": "Create DSNP Reaction for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -152,7 +152,7 @@
     "/v1/content/{userDsnpId}": {
       "put": {
         "operationId": "ContentControllerV1_update",
-        "summary": "Update DSNP Content for User",
+        "summary": "Update DSNP Content for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -189,7 +189,7 @@
       },
       "delete": {
         "operationId": "ContentControllerV1_delete",
-        "summary": "Delete DSNP Content for User",
+        "summary": "Delete DSNP Content for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -313,19 +313,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
       "FilesUploadDto": {
         "type": "object",

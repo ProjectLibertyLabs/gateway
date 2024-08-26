@@ -46,7 +46,7 @@ components:
       properties:
         msaId:
           type: string
-          description: MSA ID for which this notification is being sent
+          description: MSA Id for which this notification is being sent
           example: '2'
         schemaId:
           type: number

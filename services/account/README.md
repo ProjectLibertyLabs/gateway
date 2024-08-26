@@ -31,7 +31,7 @@
 
 # 📖 `account-service` <a name="about-project"></a>
 
-Account Service is a service enabling easy interaction with [DSNP](https://dsnp.org/) accounts on [Frequency](https://docs.frequency.xyz/). Accounts can be defined as a user's handle and msaId.
+Account Service is a service enabling easy interaction with [DSNP](https://dsnp.org/) accounts on [Frequency](https://docs.frequency.xyz/). Accounts can be defined as a user's handle and MSA Id.
 
 Visit [Key Features](#key-features) for more details on what Account Services does.
 
@@ -153,7 +153,7 @@ The API is responsible for handling incoming HTTP requests and the Worker is res
 - **Keys Handling**
   - Add keys to an account
   - Get keys
-- **Get delegation info for an msaId**
+- **Get delegation info for an MSA Id**
 - **Easy integration with Web3 wallets**
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

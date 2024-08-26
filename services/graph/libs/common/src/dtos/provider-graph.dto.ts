@@ -12,7 +12,7 @@ export class ProviderGraphDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
-    description: 'MSA ID that owns the connections represented in this object',
+    description: 'MSA Id that owns the connections represented in this object',
     example: '2',
     type: String,
   })

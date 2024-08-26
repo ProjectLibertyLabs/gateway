@@ -7,7 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ConnectionDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ description: 'MSA ID representing the target of this connection', type: String, example: '3' })
+  @ApiProperty({ description: 'MSA Id representing the target of this connection', type: String, example: '3' })
   dsnpId: string;
 
   @IsNotEmpty()

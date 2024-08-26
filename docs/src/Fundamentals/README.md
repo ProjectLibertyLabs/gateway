@@ -6,7 +6,7 @@
 
 Frequency provides a shared global state to make interoperability and user control fundamental to the internet.
 Applications provide unique experiences to their users while accessing the content and graph connections from other applications.
-In the same way the internet is a shared global network, Frequency allows your applications to move past artificial boundaries.
+Your application can then interact with this shared global state seamlessly, in the same way that modern networking software allows isolated computers to interact seamlessly over a global network moving past the artificial application boundaries.
 
 ## User Control with Delegation
 

@@ -17,14 +17,14 @@ export class AccountsControllerV1 {
 
   @Get('siwf')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get the Sign-In With Frequency Configuration' })
+  @ApiOperation({ summary: 'Get the Sign In With Frequency configuration' })
   @ApiOkResponse({ description: 'Returned SIWF Configuration data', type: WalletLoginConfigResponse })
   async getSIWFConfig(): Promise<WalletLoginConfigResponse> {
     try {
-      this.logger.debug('Received request for Sign-In With Frequency Configuration');
+      this.logger.debug('Received request for Sign In With Frequency Configuration');
       return this.accountsService.getSIWFConfig();
     } catch (error) {
-      const errorMessage = 'Failed to get the Sign-In With Frequency Configuration';
+      const errorMessage = 'Failed to get the Sign In With Frequency configuration';
       this.logger.error(`${errorMessage}: ${error}`);
       throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
@@ -32,7 +32,7 @@ export class AccountsControllerV1 {
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch an account given an msaId.' })
+  @ApiOperation({ summary: 'Fetch an account given an MSA Id' })
   @ApiOkResponse({ description: 'Found account', type: AccountResponse })
   /**
    * Gets an account.
@@ -55,7 +55,7 @@ export class AccountsControllerV1 {
 
   @Get('account/:publicKey')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch an account given a public key.' })
+  @ApiOperation({ summary: 'Fetch an account given a public key' })
   @ApiOkResponse({ description: 'Found account', type: AccountResponse })
   /**
    * Gets an account.
@@ -81,12 +81,12 @@ export class AccountsControllerV1 {
 
   @Post('siwf')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Request to sign in with Frequency' })
+  @ApiOperation({ summary: 'Request to Sign In With Frequency' })
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
   @ApiBody({ type: WalletLoginRequestDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
     try {
-      this.logger.debug(`Received Sign-In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
+      this.logger.debug(`Received Sign In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
       return this.accountsService.signInWithFrequency(walletLoginRequest);
     } catch (error) {
       const errorMessage = 'Failed to Sign In With Frequency';

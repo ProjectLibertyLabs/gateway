@@ -1,7 +1,7 @@
 # Support Channels
 
 Need help with Gateway or working through the Frequency ecosystem?
-There are lots of different options to meet your needs.
+There are many different options to meet your needs.
 
 ## GitHub Issues
 

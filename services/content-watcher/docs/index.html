@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf8" />
-    <title>Graph Service</title>
+    <title>Content Watcher Service API</title>
     <!-- needed for adaptive design -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
@@ -176,13 +176,17 @@
         transition: transform 0.2s ease-out;
         transform: rotateZ(-90deg);
       } /*!sc*/
-      .eHleNU {
-        height: 18px;
-        width: 18px;
-        min-width: 18px;
+      .fxsrq {
+        height: 20px;
+        width: 20px;
+        min-width: 20px;
         vertical-align: middle;
+        float: right;
         transition: transform 0.2s ease-out;
-        transform: rotateZ(-90deg);
+        transform: rotateZ(0);
+      } /*!sc*/
+      .fxsrq polygon {
+        fill: white;
       } /*!sc*/
       .jqLwgG {
         height: 1.5em;
@@ -196,20 +200,16 @@
       .jqLwgG polygon {
         fill: #1d8127;
       } /*!sc*/
-      .fxsrq {
-        height: 20px;
-        width: 20px;
-        min-width: 20px;
+      .eHleNU {
+        height: 18px;
+        width: 18px;
+        min-width: 18px;
         vertical-align: middle;
-        float: right;
         transition: transform 0.2s ease-out;
-        transform: rotateZ(0);
-      } /*!sc*/
-      .fxsrq polygon {
-        fill: white;
+        transform: rotateZ(-90deg);
       } /*!sc*/
       data-styled.g15[id='sc-cwHqhk'] {
-        content: 'fPWjto,eHleNU,jqLwgG,fxsrq,';
+        content: 'fPWjto,fxsrq,jqLwgG,eHleNU,';
       } /*!sc*/
       .fCxZSn {
         border-left: 1px solid #7c7cbb;
@@ -1041,13 +1041,6 @@
       data-styled.g60[id='sc-gFAXEw'] {
         content: 'ffgeXz,';
       } /*!sc*/
-      .kkDjeQ {
-        color: #666;
-        word-break: break-word;
-      } /*!sc*/
-      data-styled.g61[id='sc-gmPhgS'] {
-        content: 'kkDjeQ,';
-      } /*!sc*/
       .gypzqL {
         color: #d41f1c;
         font-size: 0.9em;
@@ -1058,20 +1051,19 @@
       data-styled.g62[id='sc-hRJeED'] {
         content: 'gypzqL,';
       } /*!sc*/
-      .jnfAav {
+      .eYbZrn {
         border-radius: 2px;
-        word-break: break-word;
-        background-color: rgba(51, 51, 51, 0.05);
-        color: rgba(51, 51, 51, 0.9);
+        background-color: rgba(104, 104, 207, 0.05);
+        color: rgba(50, 50, 159, 0.9);
+        margin: 0 5px;
         padding: 0 5px;
-        border: 1px solid rgba(51, 51, 51, 0.1);
-        font-family: Courier, monospace;
+        border: 1px solid rgba(50, 50, 159, 0.1);
       } /*!sc*/
       + {
         margin-left: 0;
       } /*!sc*/
-      data-styled.g66[id='sc-ddjGcj'] {
-        content: 'jnfAav,';
+      data-styled.g68[id='sc-fxwsqt'] {
+        content: 'eYbZrn,';
       } /*!sc*/
       .hJudwp {
         margin-top: 0;
@@ -1339,20 +1331,20 @@
         font-family: Montserrat, sans-serif;
         margin: 0;
       } /*!sc*/
-      .eJsTbX {
+      .fPaeRy {
         font-size: 0.929em;
         line-height: 20px;
-        background-color: #95507c;
+        background-color: #2f8132;
         color: #ffffff;
         padding: 3px 10px;
         text-transform: uppercase;
         font-family: Montserrat, sans-serif;
         margin: 0;
       } /*!sc*/
-      .fPaeRy {
+      .eJsTbX {
         font-size: 0.929em;
         line-height: 20px;
-        background-color: #2f8132;
+        background-color: #95507c;
         color: #ffffff;
         padding: 3px 10px;
         text-transform: uppercase;
@@ -1370,7 +1362,7 @@
         margin: 0;
       } /*!sc*/
       data-styled.g113[id='sc-EgOky'] {
-        content: 'bBtSVQ,eJsTbX,fPaeRy,dgboYG,';
+        content: 'bBtSVQ,fPaeRy,eJsTbX,dgboYG,';
       } /*!sc*/
       .fuVsyo {
         position: absolute;
@@ -1417,22 +1409,6 @@
       data-styled.g117[id='sc-kWtorq'] {
         content: 'kRQFMp,';
       } /*!sc*/
-      .hDzmxh {
-        display: block;
-        border: 0;
-        width: 100%;
-        text-align: left;
-        padding: 10px;
-        border-radius: 2px;
-        margin-bottom: 4px;
-        line-height: 1.5em;
-        cursor: pointer;
-        color: #1d8127;
-        background-color: rgba(29, 129, 39, 0.07);
-      } /*!sc*/
-      .hDzmxh:focus {
-        outline: auto #1d8127;
-      } /*!sc*/
       .eWbvUv {
         display: block;
         border: 0;
@@ -1461,8 +1437,24 @@
       .eWbvUv:focus {
         outline: 0;
       } /*!sc*/
+      .hDzmxh {
+        display: block;
+        border: 0;
+        width: 100%;
+        text-align: left;
+        padding: 10px;
+        border-radius: 2px;
+        margin-bottom: 4px;
+        line-height: 1.5em;
+        cursor: pointer;
+        color: #1d8127;
+        background-color: rgba(29, 129, 39, 0.07);
+      } /*!sc*/
+      .hDzmxh:focus {
+        outline: auto #1d8127;
+      } /*!sc*/
       data-styled.g119[id='sc-gdyfxU'] {
-        content: 'hDzmxh,eWbvUv,';
+        content: 'eWbvUv,hDzmxh,';
       } /*!sc*/
       .eBHfiv {
         vertical-align: top;
@@ -1672,9 +1664,9 @@
           </div>
           <div class="sc-dtBeHJ eyrQrY scrollbar-container undefined">
             <ul role="menu" class="sc-iHmqaY gVzKKH">
-              <li tabindex="0" depth="1" data-item-id="tag/v1graphs" role="menuitem" class="sc-kYxEyd jiiTgL">
+              <li tabindex="0" depth="1" data-item-id="tag/v1scanner" role="menuitem" class="sc-kYxEyd jiiTgL">
                 <label class="sc-bpUCxw kyKUpm -depth1"
-                  ><span width="calc(100% - 38px)" title="v1/graphs" class="sc-eyvHYj kgCeIH">v1/graphs</span
+                  ><span width="calc(100% - 38px)" title="v1/scanner" class="sc-eyvHYj kgCeIH">v1/scanner</span
                   ><svg
                     class="sc-cwHqhk fPWjto"
                     version="1.1"
@@ -1690,28 +1682,101 @@
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1graphs/operation/GraphControllerV1_getGraphs"
+                    data-item-id="tag/v1scanner/operation/ScanControllerV1_resetScanner"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
                     <label class="sc-bpUCxw iwtEuE -depth2"
                       ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Fetch graphs for specified MSA Ids and Block Number</span
+                        >Reset blockchain scan to a specific block number or offset from the current position</span
                       ></label
                     >
                   </li>
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1graphs/operation/GraphControllerV1_updateGraph"
+                    data-item-id="tag/v1scanner/operation/ScanControllerV1_getWatchOptions"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
                     <label class="sc-bpUCxw iwtEuE -depth2"
-                      ><span type="put" class="sc-ehiymJ hkxktA operation-type put">put</span
+                      ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Request an update to a given user's graph</span
+                        >Get the current watch options for the blockchain content event scanner</span
+                      ></label
+                    >
+                  </li>
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/v1scanner/operation/ScanControllerV1_setWatchOptions"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Set watch options to filter the blockchain content scanner by schemas or MSA Ids</span
+                      ></label
+                    >
+                  </li>
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/v1scanner/operation/ScanControllerV1_pauseScanner"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Pause the blockchain scanner</span
+                      ></label
+                    >
+                  </li>
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/v1scanner/operation/ScanControllerV1_startScanner"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Resume the blockchain content event scanner</span
+                      ></label
+                    >
+                  </li>
+                </ul>
+              </li>
+              <li tabindex="0" depth="1" data-item-id="tag/v1search" role="menuitem" class="sc-kYxEyd jiiTgL">
+                <label class="sc-bpUCxw kyKUpm -depth1"
+                  ><span width="calc(100% - 38px)" title="v1/search" class="sc-eyvHYj kgCeIH">v1/search</span
+                  ><svg
+                    class="sc-cwHqhk fPWjto"
+                    version="1.1"
+                    viewBox="0 0 24 24"
+                    x="0"
+                    xmlns="http://www.w3.org/2000/svg"
+                    y="0"
+                    aria-hidden="true"
+                  >
+                    <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                ></label>
+                <ul class="sc-iHmqaY eNA-DKG">
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/v1search/operation/SearchControllerV1_search"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Search for DSNP content by id, start/end block, and filters</span
                       ></label
                     >
                   </li>
@@ -1735,98 +1800,42 @@
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks"
-                    role="menuitem"
-                    class="sc-kYxEyd jiiTgL"
-                  >
-                    <label class="sc-bpUCxw iwtEuE -depth2"
-                      ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
-                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Get all registered webhooks</span
-                      ></label
-                    >
-                  </li>
-                  <li
-                    tabindex="0"
-                    depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs"
+                    data-item-id="tag/v1webhooks/operation/WebhookControllerV1_registerWebhook"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
                     <label class="sc-bpUCxw iwtEuE -depth2"
                       ><span type="put" class="sc-ehiymJ hkxktA operation-type put">put</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Watch graphs for specified dsnpIds and receive updates</span
+                        >Register a webhook to be called when new content is encountered on the chain</span
                       ></label
                     >
                   </li>
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks"
+                    data-item-id="tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
                     <label class="sc-bpUCxw iwtEuE -depth2"
                       ><span type="delete" class="sc-ehiymJ hkxktA operation-type delete">del</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Delete all registered webhooks</span
+                        >Clear all previously registered webhooks</span
                       ></label
                     >
                   </li>
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa"
+                    data-item-id="tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
                     <label class="sc-bpUCxw iwtEuE -depth2"
                       ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Get all registered webhooks for a specific MSA Id</span
-                      ></label
-                    >
-                  </li>
-                  <li
-                    tabindex="0"
-                    depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa"
-                    role="menuitem"
-                    class="sc-kYxEyd jiiTgL"
-                  >
-                    <label class="sc-bpUCxw iwtEuE -depth2"
-                      ><span type="delete" class="sc-ehiymJ hkxktA operation-type delete">del</span
-                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Delete all webhooks registered for a specific MSA</span
-                      ></label
-                    >
-                  </li>
-                  <li
-                    tabindex="0"
-                    depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl"
-                    role="menuitem"
-                    class="sc-kYxEyd jiiTgL"
-                  >
-                    <label class="sc-bpUCxw iwtEuE -depth2"
-                      ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
-                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Get all webhooks registered to the specified URL</span
-                      ></label
-                    >
-                  </li>
-                  <li
-                    tabindex="0"
-                    depth="2"
-                    data-item-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-                    role="menuitem"
-                    class="sc-kYxEyd jiiTgL"
-                  >
-                    <label class="sc-bpUCxw iwtEuE -depth2"
-                      ><span type="delete" class="sc-ehiymJ hkxktA operation-type delete">del</span
-                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Delete all MSA webhooks registered with the given URL</span
+                        >Get the list of currently registered webhooks</span
                       ></label
                     >
                   </li>
@@ -1957,7 +1966,7 @@
             <div class="sc-kAycRU NrBoN">
               <div class="sc-fqkwJk jLkFlo api-info">
                 <h1 class="sc-imWZod sc-fTFkHh cDCvoe hJudwp">
-                  Graph Service<!-- -->
+                  Content Watcher Service API<!-- -->
                   <span>(<!-- -->1.0<!-- -->)</span>
                 </h1>
                 <p>
@@ -1979,54 +1988,453 @@
                 <div data-role="redoc-summary" html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"></div>
                 <div
                   data-role="redoc-description"
-                  html="&lt;p&gt;Graph Service API&lt;/p&gt;
+                  html="&lt;p&gt;Content Watcher Service API&lt;/p&gt;
 "
                   class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"
                 >
-                  <p>Graph Service API</p>
+                  <p>Content Watcher Service API</p>
                 </div>
               </div>
             </div>
           </div>
-          <div id="tag/v1graphs" data-section-id="tag/v1graphs" class="sc-dcJtft gWwwsw">
+          <div id="tag/v1scanner" data-section-id="tag/v1scanner" class="sc-dcJtft gWwwsw">
             <div class="sc-kAycRU NrBoN">
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
-                  <a class="sc-jlZhRR buKOug" href="#tag/v1graphs" aria-label="tag/v1graphs"></a>v1/graphs
+                  <a class="sc-jlZhRR buKOug" href="#tag/v1scanner" aria-label="tag/v1scanner"></a>v1/scanner
                 </h2>
               </div>
             </div>
           </div>
           <div
-            id="tag/v1graphs/operation/GraphControllerV1_getGraphs"
-            data-section-id="tag/v1graphs/operation/GraphControllerV1_getGraphs"
+            id="tag/v1scanner/operation/ScanControllerV1_resetScanner"
+            data-section-id="tag/v1scanner/operation/ScanControllerV1_resetScanner"
             class="sc-dcJtft dNqlFH"
           >
             <div
-              data-section-id="operation/GraphControllerV1_getGraphs"
-              id="operation/GraphControllerV1_getGraphs"
+              data-section-id="operation/ScanControllerV1_resetScanner"
+              id="operation/ScanControllerV1_resetScanner"
               class="sc-kAycRU NrBoN"
             >
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1graphs/operation/GraphControllerV1_getGraphs"
-                    aria-label="tag/v1graphs/operation/GraphControllerV1_getGraphs"
+                    href="#tag/v1scanner/operation/ScanControllerV1_resetScanner"
+                    aria-label="tag/v1scanner/operation/ScanControllerV1_resetScanner"
                   ></a
-                  >Fetch graphs for specified MSA Ids and Block Number<!-- -->
+                  >Reset blockchain scan to a specific block number or offset from the current position<!-- -->
                 </h2>
                 <h5 class="sc-dAlxHm fZUozT">
                   Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
                   <div class="sc-NxrBK sc-hRJeED sc-kWtorq kMMoBE gypzqL kRQFMp">required</div>
                 </h5>
-                <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"></div>
+                <div
+                  html="&lt;p&gt;blockNumber&lt;/p&gt;
+"
+                  class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"
+                >
+                  <p>blockNumber</p>
+                </div>
                 <table class="sc-dAbbbq hPLMVw">
                   <tbody>
                     <tr class="">
+                      <td kind="field" title="blockNumber" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">blockNumber</span>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">number</span
+                            ><span>
+                              <span class="sc-NxrBK sc-fxwsqt kMMoBE eYbZrn"> <!-- -->&gt;= 1<!-- --> </span></span
+                            >
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;The block number to reset the scanner to&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>The block number to reset the scanner to</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="">
+                      <td kind="field" title="rewindOffset" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">rewindOffset</span>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">number</span>
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;Number of blocks to rewind the scanner to (from &lt;code&gt;blockNumber&lt;/code&gt; if supplied; else from latest block&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>
+                                Number of blocks to rewind the scanner to (from <code>blockNumber</code> if supplied;
+                                else from latest block
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="last">
+                      <td kind="field" title="immediate" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">immediate</span>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">boolean</span>
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;Whether to schedule the new scan immediately or wait for the next scheduled interval&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>
+                                Whether to schedule the new scan immediately or wait for the next scheduled interval
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU eWbvUv" disabled="">
+                      <strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="post" class="sc-EgOky bBtSVQ http-verb post">post</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/scanner/reset</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/scanner/reset</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Request samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="react-tabs__tab react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:R154oq:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:R154oq:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        Payload
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:R154oq:0"
+                      aria-labelledby="tab:R154oq:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button>
+                            </div>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                  <ul class="obj collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"blockNumber"</span>:
+                                        <span class="token number">0</span><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"rewindOffset"</span>:
+                                        <span class="token number">100</span><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"immediate"</span>:
+                                        <span class="token boolean">true</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">}</span></code
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/v1scanner/operation/ScanControllerV1_getWatchOptions"
+            data-section-id="tag/v1scanner/operation/ScanControllerV1_getWatchOptions"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/ScanControllerV1_getWatchOptions"
+              id="operation/ScanControllerV1_getWatchOptions"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/v1scanner/operation/ScanControllerV1_getWatchOptions"
+                    aria-label="tag/v1scanner/operation/ScanControllerV1_getWatchOptions"
+                  ></a
+                  >Get the current watch options for the blockchain content event scanner<!-- -->
+                </h2>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU hDzmxh">
+                      <svg
+                        class="sc-cwHqhk jqLwgG"
+                        version="1.1"
+                        viewBox="0 0 24 24"
+                        x="0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        y="0"
+                        aria-hidden="true"
+                      >
+                        <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                      ><strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/scanner/options</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/scanner/options</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Response samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="tab-success react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:R1758q:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:R1758q:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        200
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:R1758q:0"
+                      aria-labelledby="tab:R1758q:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
+                              ><button>Collapse all</button>
+                            </div>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                  <ul class="obj collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"schemaIds"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed"><span class="token number">1</span>,</div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed"><span class="token number">19</span></div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"dsnpIds"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="token string">&quot;10074&quot;</span>,
+                                            </div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="token string">&quot;100001&quot;</span>
+                                            </div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">}</span></code
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/v1scanner/operation/ScanControllerV1_setWatchOptions"
+            data-section-id="tag/v1scanner/operation/ScanControllerV1_setWatchOptions"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/ScanControllerV1_setWatchOptions"
+              id="operation/ScanControllerV1_setWatchOptions"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/v1scanner/operation/ScanControllerV1_setWatchOptions"
+                    aria-label="tag/v1scanner/operation/ScanControllerV1_setWatchOptions"
+                  ></a
+                  >Set watch options to filter the blockchain content scanner by schemas or MSA Ids<!-- -->
+                </h2>
+                <h5 class="sc-dAlxHm fZUozT">
+                  Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
+                  <div class="sc-NxrBK sc-hRJeED sc-kWtorq kMMoBE gypzqL kRQFMp">required</div>
+                </h5>
+                <div
+                  html="&lt;p&gt;watchOptions: Filter contents by schemaIds and/or msaIds&lt;/p&gt;
+"
+                  class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"
+                >
+                  <p>watchOptions: Filter contents by schemaIds and/or msaIds</p>
+                </div>
+                <table class="sc-dAbbbq hPLMVw">
+                  <tbody>
+                    <tr class="">
+                      <td kind="field" title="schemaIds" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">schemaIds</span>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ">Array of </span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">numbers</span>
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;Specific schema ids to watch for&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>Specific schema ids to watch for</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="last">
                       <td kind="field" title="dsnpIds" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
                         <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">dsnpIds</span>
-                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
                       </td>
                       <td class="sc-fPXMhL kdholP">
                         <div>
@@ -2036,20 +2444,342 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;Array of MSA Ids for which to query graphs&lt;/p&gt;
+                              html="&lt;p&gt;Specific dsnpIds (msa_id) to watch for&lt;/p&gt;
 "
                               class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
                             >
-                              <p>Array of MSA Ids for which to query graphs</p>
+                              <p>Specific dsnpIds (msa_id) to watch for</p>
                             </div>
                           </div>
                         </div>
                       </td>
                     </tr>
+                  </tbody>
+                </table>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU eWbvUv" disabled="">
+                      <strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="post" class="sc-EgOky bBtSVQ http-verb post">post</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/scanner/options</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/scanner/options</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Request samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="react-tabs__tab react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:R155oq:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:R155oq:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        Payload
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:R155oq:0"
+                      aria-labelledby="tab:R155oq:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
+                              ><button>Collapse all</button>
+                            </div>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                  <ul class="obj collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"schemaIds"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed"><span class="token number">1</span>,</div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed"><span class="token number">19</span></div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"dsnpIds"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="token string">&quot;10074&quot;</span>,
+                                            </div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="token string">&quot;100001&quot;</span>
+                                            </div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">}</span></code
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/v1scanner/operation/ScanControllerV1_pauseScanner"
+            data-section-id="tag/v1scanner/operation/ScanControllerV1_pauseScanner"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/ScanControllerV1_pauseScanner"
+              id="operation/ScanControllerV1_pauseScanner"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/v1scanner/operation/ScanControllerV1_pauseScanner"
+                    aria-label="tag/v1scanner/operation/ScanControllerV1_pauseScanner"
+                  ></a
+                  >Pause the blockchain scanner<!-- -->
+                </h2>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU eWbvUv" disabled="">
+                      <strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="post" class="sc-EgOky bBtSVQ http-verb post">post</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/scanner/pause</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/scanner/pause</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/v1scanner/operation/ScanControllerV1_startScanner"
+            data-section-id="tag/v1scanner/operation/ScanControllerV1_startScanner"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/ScanControllerV1_startScanner"
+              id="operation/ScanControllerV1_startScanner"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/v1scanner/operation/ScanControllerV1_startScanner"
+                    aria-label="tag/v1scanner/operation/ScanControllerV1_startScanner"
+                  ></a
+                  >Resume the blockchain content event scanner<!-- -->
+                </h2>
+                <div>
+                  <h5 class="sc-dAlxHm fZUozT">
+                    query<!-- -->
+                    Parameters
+                  </h5>
+                  <table class="sc-dAbbbq hPLMVw">
+                    <tbody>
+                      <tr class="last">
+                        <td kind="field" title="immediate" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">immediate</span>
+                        </td>
+                        <td class="sc-fPXMhL kdholP">
+                          <div>
+                            <div>
+                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">boolean</span>
+                            </div>
+                            <div>
+                              <div
+                                html="&lt;p&gt;Immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)&lt;/p&gt;
+"
+                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                              >
+                                <p>
+                                  Immediate: whether to resume scan immediately (true), or wait until next scheduled
+                                  scan (false)
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU eWbvUv" disabled="">
+                      <strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="post" class="sc-EgOky bBtSVQ http-verb post">post</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/scanner/start</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/scanner/start</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tag/v1search" data-section-id="tag/v1search" class="sc-dcJtft gWwwsw">
+            <div class="sc-kAycRU NrBoN">
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a class="sc-jlZhRR buKOug" href="#tag/v1search" aria-label="tag/v1search"></a>v1/search
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/v1search/operation/SearchControllerV1_search"
+            data-section-id="tag/v1search/operation/SearchControllerV1_search"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/SearchControllerV1_search"
+              id="operation/SearchControllerV1_search"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/v1search/operation/SearchControllerV1_search"
+                    aria-label="tag/v1search/operation/SearchControllerV1_search"
+                  ></a
+                  >Search for DSNP content by id, start/end block, and filters<!-- -->
+                </h2>
+                <h5 class="sc-dAlxHm fZUozT">
+                  Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
+                  <div class="sc-NxrBK sc-hRJeED sc-kWtorq kMMoBE gypzqL kRQFMp">required</div>
+                </h5>
+                <div
+                  html="&lt;p&gt;Search for DSNP content by id, startBlock, endBlock, and filters&lt;/p&gt;
+"
+                  class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"
+                >
+                  <p>Search for DSNP content by id, startBlock, endBlock, and filters</p>
+                </div>
+                <table class="sc-dAbbbq hPLMVw">
+                  <tbody>
                     <tr class="">
-                      <td kind="field" title="privacyType" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">privacyType</span>
-                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                      <td kind="field" title="clientReferenceId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">clientReferenceId</span>
                       </td>
                       <td class="sc-fPXMhL kdholP">
                         <div>
@@ -2058,27 +2788,76 @@
                             ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
                           </div>
                           <div>
-                            <span class="sc-NxrBK kMMoBE"> <!-- -->Enum<!-- -->:</span>
-                            <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">&quot;private&quot;</span>
-                            <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">&quot;public&quot;</span>
-                          </div>
-                          <div>
                             <div
-                              html="&lt;p&gt;Graph type to query (public or private)&lt;/p&gt;
+                              html="&lt;p&gt;An optional client-supplied reference ID by which it can identify the result of this search&lt;/p&gt;
 "
                               class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
                             >
-                              <p>Graph type to query (public or private)</p>
+                              <p>
+                                An optional client-supplied reference ID by which it can identify the result of this
+                                search
+                              </p>
                             </div>
                           </div>
                         </div>
                       </td>
                     </tr>
-                    <tr class="last">
-                      <td kind="field" title="graphKeyPairs" class="sc-dLNtp sc-eldOKa sc-hCPjmr fCxZSn jTSwDU dAEmWx">
+                    <tr class="">
+                      <td kind="field" title="startBlock" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">startBlock</span>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">number</span
+                            ><span>
+                              <span class="sc-NxrBK sc-fxwsqt kMMoBE eYbZrn"> <!-- -->&gt;= 1<!-- --> </span></span
+                            >
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;The block number to search (backward) from&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>The block number to search (backward) from</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="">
+                      <td kind="field" title="blockCount" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">blockCount</span>
+                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">number</span
+                            ><span>
+                              <span class="sc-NxrBK sc-fxwsqt kMMoBE eYbZrn"> <!-- -->&gt;= 1<!-- --> </span></span
+                            >
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;The number of blocks to scan (backwards)&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>The number of blocks to scan (backwards)</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="">
+                      <td kind="field" title="filters" class="sc-dLNtp sc-eldOKa sc-hCPjmr fCxZSn jTSwDU dAEmWx">
                         <span class="sc-gFqAYk fWSzIS"></span
-                        ><button aria-label="expand graphKeyPairs">
-                          <span class="property-name">graphKeyPairs</span
+                        ><button aria-label="expand filters">
+                          <span class="property-name">filters</span
                           ><svg
                             class="sc-cwHqhk eHleNU"
                             version="1.1"
@@ -2095,20 +2874,39 @@
                       <td class="sc-fPXMhL kdholP">
                         <div>
                           <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ">Array of </span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">objects</span
-                            ><span class="sc-NxrBK sc-gmPhgS kMMoBE kkDjeQ"> (<!-- -->GraphKeyPairDto<!-- -->) </span>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">object</span>
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;Graph encryption keypairs for the users requested in &lt;code&gt;dsnpIds&lt;/code&gt;. (Only for &lt;code&gt;privacyType&lt;/code&gt; === &amp;quot;private&amp;quot;&lt;/p&gt;
+                              html="&lt;p&gt;The schemaIds/dsnpIds to filter by&lt;/p&gt;
 "
                               class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
                             >
-                              <p>
-                                Graph encryption keypairs for the users requested in <code>dsnpIds</code>. (Only for
-                                <code>privacyType</code> === &quot;private&quot;
-                              </p>
+                              <p>The schemaIds/dsnpIds to filter by</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="last">
+                      <td kind="field" title="webhookUrl" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">webhookUrl</span>
+                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;A webhook URL to be notified of the results of this search&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>A webhook URL to be notified of the results of this search</p>
                             </div>
                           </div>
                         </div>
@@ -2132,11 +2930,11 @@
                         <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
                       ><strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
                       <div
-                        html="&lt;p&gt;Graphs retrieved successfully&lt;/p&gt;
+                        html="&lt;p&gt;Returns a jobId to be used to retrieve the results&lt;/p&gt;
 "
                         class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
                       >
-                        <p>Graphs retrieved successfully</p>
+                        <p>Returns a jobId to be used to retrieve the results</p>
                       </div>
                     </button>
                   </div>
@@ -2146,7 +2944,7 @@
                 <div class="sc-dkmVhU ciDfNo">
                   <button class="sc-iEXLnV jJBChh">
                     <span type="post" class="sc-EgOky bBtSVQ http-verb post">post</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/graphs/getGraphs</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/search</span
                     ><svg
                       class="sc-cwHqhk fxsrq"
                       style="margin-right: -25px"
@@ -2164,7 +2962,7 @@
                     <div class="sc-dlWDvs kyqjNC">
                       <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
                       <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/graphs/getGraphs</div>
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/search</div>
                       </div>
                     </div>
                   </div>
@@ -2176,10 +2974,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R99cq:0"
+                        id="tab:R99pa:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R99cq:0"
+                        aria-controls="panel:R99pa:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -2189,8 +2987,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R99cq:0"
-                      aria-labelledby="tab:R99cq:0"
+                      id="panel:R99pa:0"
+                      aria-labelledby="tab:R99pa:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -2211,491 +3009,64 @@
                                   <ul class="obj collapsible">
                                     <li>
                                       <div class="hoverable">
-                                        <span class="property token string">"dsnpIds"</span>:
-                                        <button class="collapser" aria-label="collapse"></button
-                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
-                                        <ul class="array collapsible">
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <span class="token string">&quot;2&quot;</span>,
-                                            </div>
-                                          </li>
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <span class="token string">&quot;3&quot;</span>,
-                                            </div>
-                                          </li>
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <span class="token string">&quot;4&quot;</span>,
-                                            </div>
-                                          </li>
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <span class="token string">&quot;5&quot;</span>
-                                            </div>
-                                          </li>
-                                        </ul>
-                                        <span class="token punctuation">]</span><span class="token punctuation">,</span>
-                                      </div>
-                                    </li>
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"privacyType"</span>:
-                                        <span class="token string">&quot;public&quot;</span
+                                        <span class="property token string">"clientReferenceId"</span>:
+                                        <span class="token string">&quot;string&quot;</span
                                         ><span class="token punctuation">,</span>
                                       </div>
                                     </li>
                                     <li>
                                       <div class="hoverable">
-                                        <span class="property token string">"graphKeyPairs"</span>:
-                                        <button class="collapser" aria-label="collapse"></button
-                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
-                                        <ul class="array collapsible">
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <button class="collapser" aria-label="expand"></button
-                                              ><span class="token punctuation">{</span><span class="ellipsis"></span>
-                                              <ul class="obj collapsible">
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"publicKey"</span>:
-                                                    <span class="token string">&quot;string&quot;</span
-                                                    ><span class="token punctuation">,</span>
-                                                  </div>
-                                                </li>
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"privateKey"</span>:
-                                                    <span class="token string">&quot;string&quot;</span
-                                                    ><span class="token punctuation">,</span>
-                                                  </div>
-                                                </li>
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"keyType"</span>:
-                                                    <span class="token string">&quot;X25519&quot;</span>
-                                                  </div>
-                                                </li>
-                                              </ul>
-                                              <span class="token punctuation">}</span>
-                                            </div>
-                                          </li>
-                                        </ul>
-                                        <span class="token punctuation">]</span>
+                                        <span class="property token string">"startBlock"</span>:
+                                        <span class="token number">100</span><span class="token punctuation">,</span>
                                       </div>
                                     </li>
-                                  </ul>
-                                  <span class="token punctuation">}</span></code
-                                >
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Response samples<!-- --></h3>
-                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
-                    <ul class="react-tabs__tab-list" role="tablist">
-                      <li
-                        class="tab-success react-tabs__tab--selected"
-                        role="tab"
-                        id="tab:R9pcq:0"
-                        aria-selected="true"
-                        aria-disabled="false"
-                        aria-controls="panel:R9pcq:0"
-                        tabindex="0"
-                        data-rttab="true"
-                      >
-                        200
-                      </li>
-                    </ul>
-                    <div
-                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
-                      role="tabpanel"
-                      id="panel:R9pcq:0"
-                      aria-labelledby="tab:R9pcq:0"
-                    >
-                      <div>
-                        <div class="sc-bbSYpP kIESIX">
-                          <span class="sc-fjvwmM bLpZTa">Content type</span>
-                          <div class="sc-JrEyx OirWV">application/json</div>
-                        </div>
-                        <div class="sc-uVXKs fszzxn">
-                          <div class="sc-esYjtY hxmTDe">
-                            <div class="sc-koYCI kEwLiZ">
-                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
-                              ><button>Collapse all</button>
-                            </div>
-                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
-                              <div class="redoc-json">
-                                <code
-                                  ><button class="collapser" aria-label="collapse"></button
-                                  ><span class="token punctuation">[</span><span class="ellipsis"></span>
-                                  <ul class="array collapsible">
                                     <li>
                                       <div class="hoverable">
+                                        <span class="property token string">"blockCount"</span>:
+                                        <span class="token number">101</span><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"filters"</span>:
                                         <button class="collapser" aria-label="collapse"></button
                                         ><span class="token punctuation">{</span><span class="ellipsis"></span>
                                         <ul class="obj collapsible">
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="property token string">"dsnpId"</span>:
-                                              <span class="token string">&quot;2&quot;</span
+                                              <span class="property token string">"schemaIds"</span>:
+                                              <button class="collapser" aria-label="expand"></button
+                                              ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                              <ul class="array collapsible">
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token number">1</span>,
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token number">19</span>
+                                                  </div>
+                                                </li>
+                                              </ul>
+                                              <span class="token punctuation">]</span
                                               ><span class="token punctuation">,</span>
                                             </div>
                                           </li>
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="property token string">"dsnpGraphEdges"</span>:
+                                              <span class="property token string">"dsnpIds"</span>:
                                               <button class="collapser" aria-label="expand"></button
                                               ><span class="token punctuation">[</span><span class="ellipsis"></span>
                                               <ul class="array collapsible">
                                                 <li>
                                                   <div class="hoverable collapsed">
-                                                    <button class="collapser" aria-label="expand"></button
-                                                    ><span class="token punctuation">{</span
-                                                    ><span class="ellipsis"></span>
-                                                    <ul class="obj collapsible">
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"userId"</span>:
-                                                          <span class="token string">&quot;3&quot;</span
-                                                          ><span class="token punctuation">,</span>
-                                                        </div>
-                                                      </li>
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"since"</span>:
-                                                          <span class="token number">12</span>
-                                                        </div>
-                                                      </li>
-                                                    </ul>
-                                                    <span class="token punctuation">}</span>
+                                                    <span class="token string">&quot;10074&quot;</span>,
                                                   </div>
                                                 </li>
-                                              </ul>
-                                              <span class="token punctuation">]</span>
-                                            </div>
-                                          </li>
-                                        </ul>
-                                        <span class="token punctuation">}</span>
-                                      </div>
-                                    </li>
-                                  </ul>
-                                  <span class="token punctuation">]</span></code
-                                >
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="tag/v1graphs/operation/GraphControllerV1_updateGraph"
-            data-section-id="tag/v1graphs/operation/GraphControllerV1_updateGraph"
-            class="sc-dcJtft dNqlFH"
-          >
-            <div
-              data-section-id="operation/GraphControllerV1_updateGraph"
-              id="operation/GraphControllerV1_updateGraph"
-              class="sc-kAycRU NrBoN"
-            >
-              <div class="sc-fqkwJk jLkFlo">
-                <h2 class="sc-jXbVAB hXYRhd">
-                  <a
-                    class="sc-jlZhRR buKOug"
-                    href="#tag/v1graphs/operation/GraphControllerV1_updateGraph"
-                    aria-label="tag/v1graphs/operation/GraphControllerV1_updateGraph"
-                  ></a
-                  >Request an update to a given user's graph<!-- -->
-                </h2>
-                <h5 class="sc-dAlxHm fZUozT">
-                  Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
-                  <div class="sc-NxrBK sc-hRJeED sc-kWtorq kMMoBE gypzqL kRQFMp">required</div>
-                </h5>
-                <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"></div>
-                <table class="sc-dAbbbq hPLMVw">
-                  <tbody>
-                    <tr class="">
-                      <td kind="field" title="dsnpId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">dsnpId</span>
-                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                      </td>
-                      <td class="sc-fPXMhL kdholP">
-                        <div>
-                          <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
-                          </div>
-                          <div>
-                            <div
-                              html="&lt;p&gt;MSA Id that owns the connections represented in this object&lt;/p&gt;
-"
-                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                            >
-                              <p>MSA Id that owns the connections represented in this object</p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr class="">
-                      <td kind="field" title="connections" class="sc-dLNtp sc-eldOKa sc-hCPjmr fCxZSn jTSwDU dAEmWx">
-                        <span class="sc-gFqAYk fWSzIS"></span
-                        ><button aria-label="expand connections">
-                          <span class="property-name">connections</span
-                          ><svg
-                            class="sc-cwHqhk eHleNU"
-                            version="1.1"
-                            viewBox="0 0 24 24"
-                            x="0"
-                            xmlns="http://www.w3.org/2000/svg"
-                            y="0"
-                            aria-hidden="true"
-                          >
-                            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                          </svg>
-                        </button>
-                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                      </td>
-                      <td class="sc-fPXMhL kdholP">
-                        <div>
-                          <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">object</span>
-                          </div>
-                          <div>
-                            <div
-                              html="&lt;p&gt;Array of connections known to the Provider for ths MSA referenced in this object&lt;/p&gt;
-"
-                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                            >
-                              <p>Array of connections known to the Provider for ths MSA referenced in this object</p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr class="">
-                      <td kind="field" title="graphKeyPairs" class="sc-dLNtp sc-eldOKa sc-hCPjmr fCxZSn jTSwDU dAEmWx">
-                        <span class="sc-gFqAYk fWSzIS"></span
-                        ><button aria-label="expand graphKeyPairs">
-                          <span class="property-name">graphKeyPairs</span
-                          ><svg
-                            class="sc-cwHqhk eHleNU"
-                            version="1.1"
-                            viewBox="0 0 24 24"
-                            x="0"
-                            xmlns="http://www.w3.org/2000/svg"
-                            y="0"
-                            aria-hidden="true"
-                          >
-                            <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                          </svg>
-                        </button>
-                      </td>
-                      <td class="sc-fPXMhL kdholP">
-                        <div>
-                          <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ">Array of </span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">objects</span
-                            ><span class="sc-NxrBK sc-gmPhgS kMMoBE kkDjeQ"> (<!-- -->GraphKeyPairDto<!-- -->) </span>
-                          </div>
-                          <div>
-                            <div
-                              html="&lt;p&gt;Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph&lt;/p&gt;
-"
-                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                            >
-                              <p>
-                                Optional array of graph encryption keypairs decrypting/encrypting the above-referenced
-                                users private graph
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr class="last">
-                      <td kind="field" title="webhookUrl" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">webhookUrl</span>
-                      </td>
-                      <td class="sc-fPXMhL kdholP">
-                        <div>
-                          <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
-                          </div>
-                          <div>
-                            <div
-                              html="&lt;p&gt;Optional URL of a webhook to invoke when the request is complete&lt;/p&gt;
-"
-                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                            >
-                              <p>Optional URL of a webhook to invoke when the request is complete</p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div>
-                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
-                  <div>
-                    <button class="sc-gdyfxU hDzmxh">
-                      <svg
-                        class="sc-cwHqhk jqLwgG"
-                        version="1.1"
-                        viewBox="0 0 24 24"
-                        x="0"
-                        xmlns="http://www.w3.org/2000/svg"
-                        y="0"
-                        aria-hidden="true"
-                      >
-                        <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
-                      ><strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Graph update request created successfully&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Graph update request created successfully</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
-                <div class="sc-dkmVhU ciDfNo">
-                  <button class="sc-iEXLnV jJBChh">
-                    <span type="put" class="sc-EgOky eJsTbX http-verb put">put</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/graphs</span
-                    ><svg
-                      class="sc-cwHqhk fxsrq"
-                      style="margin-right: -25px"
-                      version="1.1"
-                      viewBox="0 0 24 24"
-                      x="0"
-                      xmlns="http://www.w3.org/2000/svg"
-                      y="0"
-                      aria-hidden="true"
-                    >
-                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                    </svg>
-                  </button>
-                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
-                    <div class="sc-dlWDvs kyqjNC">
-                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
-                      <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/graphs</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Request samples<!-- --></h3>
-                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
-                    <ul class="react-tabs__tab-list" role="tablist">
-                      <li
-                        class="react-tabs__tab react-tabs__tab--selected"
-                        role="tab"
-                        id="tab:R99kq:0"
-                        aria-selected="true"
-                        aria-disabled="false"
-                        aria-controls="panel:R99kq:0"
-                        tabindex="0"
-                        data-rttab="true"
-                      >
-                        Payload
-                      </li>
-                    </ul>
-                    <div
-                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
-                      role="tabpanel"
-                      id="panel:R99kq:0"
-                      aria-labelledby="tab:R99kq:0"
-                    >
-                      <div>
-                        <div class="sc-bbSYpP kIESIX">
-                          <span class="sc-fjvwmM bLpZTa">Content type</span>
-                          <div class="sc-JrEyx OirWV">application/json</div>
-                        </div>
-                        <div class="sc-uVXKs fszzxn">
-                          <div class="sc-esYjtY hxmTDe">
-                            <div class="sc-koYCI kEwLiZ">
-                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
-                              ><button>Collapse all</button>
-                            </div>
-                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
-                              <div class="redoc-json">
-                                <code
-                                  ><button class="collapser" aria-label="collapse"></button
-                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
-                                  <ul class="obj collapsible">
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"dsnpId"</span>:
-                                        <span class="token string">&quot;2&quot;</span
-                                        ><span class="token punctuation">,</span>
-                                      </div>
-                                    </li>
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"connections"</span>:
-                                        <button class="collapser" aria-label="collapse"></button
-                                        ><span class="token punctuation">{</span><span class="ellipsis"></span>
-                                        <ul class="obj collapsible">
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <span class="property token string">"data"</span>:
-                                              <button class="collapser" aria-label="expand"></button
-                                              ><span class="token punctuation">[</span><span class="ellipsis"></span>
-                                              <ul class="array collapsible">
                                                 <li>
                                                   <div class="hoverable collapsed">
-                                                    <button class="collapser" aria-label="expand"></button
-                                                    ><span class="token punctuation">{</span
-                                                    ><span class="ellipsis"></span>
-                                                    <ul class="obj collapsible">
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"dsnpId"</span>:
-                                                          <span class="token string">&quot;3&quot;</span
-                                                          ><span class="token punctuation">,</span>
-                                                        </div>
-                                                      </li>
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"privacyType"</span>:
-                                                          <span class="token string">&quot;public&quot;</span
-                                                          ><span class="token punctuation">,</span>
-                                                        </div>
-                                                      </li>
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"direction"</span>:
-                                                          <span class="token string">&quot;connectionTo&quot;</span
-                                                          ><span class="token punctuation">,</span>
-                                                        </div>
-                                                      </li>
-                                                      <li>
-                                                        <div class="hoverable collapsed">
-                                                          <span class="property token string">"connectionType"</span>:
-                                                          <span class="token string">&quot;follow&quot;</span>
-                                                        </div>
-                                                      </li>
-                                                    </ul>
-                                                    <span class="token punctuation">}</span>
+                                                    <span class="token string">&quot;100001&quot;</span>
                                                   </div>
                                                 </li>
                                               </ul>
@@ -2704,45 +3075,6 @@
                                           </li>
                                         </ul>
                                         <span class="token punctuation">}</span><span class="token punctuation">,</span>
-                                      </div>
-                                    </li>
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"graphKeyPairs"</span>:
-                                        <button class="collapser" aria-label="collapse"></button
-                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
-                                        <ul class="array collapsible">
-                                          <li>
-                                            <div class="hoverable collapsed">
-                                              <button class="collapser" aria-label="expand"></button
-                                              ><span class="token punctuation">{</span><span class="ellipsis"></span>
-                                              <ul class="obj collapsible">
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"publicKey"</span>:
-                                                    <span class="token string">&quot;string&quot;</span
-                                                    ><span class="token punctuation">,</span>
-                                                  </div>
-                                                </li>
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"privateKey"</span>:
-                                                    <span class="token string">&quot;string&quot;</span
-                                                    ><span class="token punctuation">,</span>
-                                                  </div>
-                                                </li>
-                                                <li>
-                                                  <div class="hoverable collapsed">
-                                                    <span class="property token string">"keyType"</span>:
-                                                    <span class="token string">&quot;X25519&quot;</span>
-                                                  </div>
-                                                </li>
-                                              </ul>
-                                              <span class="token punctuation">}</span>
-                                            </div>
-                                          </li>
-                                        </ul>
-                                        <span class="token punctuation">]</span><span class="token punctuation">,</span>
                                       </div>
                                     </li>
                                     <li>
@@ -2769,21 +3101,21 @@
                       <li
                         class="tab-success react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R9pkq:0"
+                        id="tab:R9ppa:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R9pkq:0"
+                        aria-controls="panel:R9ppa:0"
                         tabindex="0"
                         data-rttab="true"
                       >
-                        201
+                        200
                       </li>
                     </ul>
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R9pkq:0"
-                      aria-labelledby="tab:R9pkq:0"
+                      id="panel:R9ppa:0"
+                      aria-labelledby="tab:R9ppa:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -2797,19 +3129,7 @@
                             </div>
                             <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
                               <div class="redoc-json">
-                                <code
-                                  ><button class="collapser" aria-label="collapse"></button
-                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
-                                  <ul class="obj collapsible">
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"referenceId"</span>:
-                                        <span class="token string">&quot;string&quot;</span>
-                                      </div>
-                                    </li>
-                                  </ul>
-                                  <span class="token punctuation">}</span></code
-                                >
+                                <code><span class="token string">&quot;string&quot;</span></code>
                               </div>
                             </div>
                           </div>
@@ -2831,121 +3151,40 @@
             </div>
           </div>
           <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks"
+            id="tag/v1webhooks/operation/WebhookControllerV1_registerWebhook"
+            data-section-id="tag/v1webhooks/operation/WebhookControllerV1_registerWebhook"
             class="sc-dcJtft dNqlFH"
           >
             <div
-              data-section-id="operation/WebhooksControllerV1_getAllWebhooks"
-              id="operation/WebhooksControllerV1_getAllWebhooks"
+              data-section-id="operation/WebhookControllerV1_registerWebhook"
+              id="operation/WebhookControllerV1_registerWebhook"
               class="sc-kAycRU NrBoN"
             >
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks"
+                    href="#tag/v1webhooks/operation/WebhookControllerV1_registerWebhook"
+                    aria-label="tag/v1webhooks/operation/WebhookControllerV1_registerWebhook"
                   ></a
-                  >Get all registered webhooks<!-- -->
-                </h2>
-                <div>
-                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
-                  <div>
-                    <button class="sc-gdyfxU eWbvUv" disabled="">
-                      <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Retrieved all registered webhooks&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Retrieved all registered webhooks</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
-                <div class="sc-dkmVhU ciDfNo">
-                  <button class="sc-iEXLnV jJBChh">
-                    <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks</span
-                    ><svg
-                      class="sc-cwHqhk fxsrq"
-                      style="margin-right: -25px"
-                      version="1.1"
-                      viewBox="0 0 24 24"
-                      x="0"
-                      xmlns="http://www.w3.org/2000/svg"
-                      y="0"
-                      aria-hidden="true"
-                    >
-                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                    </svg>
-                  </button>
-                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
-                    <div class="sc-dlWDvs kyqjNC">
-                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
-                      <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs"
-            class="sc-dcJtft dNqlFH"
-          >
-            <div
-              data-section-id="operation/WebhooksControllerV1_watchGraphs"
-              id="operation/WebhooksControllerV1_watchGraphs"
-              class="sc-kAycRU NrBoN"
-            >
-              <div class="sc-fqkwJk jLkFlo">
-                <h2 class="sc-jXbVAB hXYRhd">
-                  <a
-                    class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs"
-                  ></a
-                  >Watch graphs for specified dsnpIds and receive updates<!-- -->
+                  >Register a webhook to be called when new content is encountered on the chain<!-- -->
                 </h2>
                 <h5 class="sc-dAlxHm fZUozT">
                   Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
                   <div class="sc-NxrBK sc-hRJeED sc-kWtorq kMMoBE gypzqL kRQFMp">required</div>
                 </h5>
-                <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"></div>
+                <div
+                  html="&lt;p&gt;Register a webhook to be called when a new content is encountered&lt;/p&gt;
+"
+                  class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq"
+                >
+                  <p>Register a webhook to be called when a new content is encountered</p>
+                </div>
                 <table class="sc-dAbbbq hPLMVw">
                   <tbody>
                     <tr class="">
-                      <td kind="field" title="dsnpIds" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">dsnpIds</span>
-                      </td>
-                      <td class="sc-fPXMhL kdholP">
-                        <div>
-                          <div>
-                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ">Array of </span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">strings</span>
-                          </div>
-                          <div>
-                            <div
-                              html="&lt;p&gt;MSA Ids for which to watch for graph updates&lt;/p&gt;
-"
-                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                            >
-                              <p>MSA Ids for which to watch for graph updates</p>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr class="last">
-                      <td kind="field" title="webhookEndpoint" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">webhookEndpoint</span>
+                      <td kind="field" title="url" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">url</span>
                         <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
                       </td>
                       <td class="sc-fPXMhL kdholP">
@@ -2956,11 +3195,34 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;Webhook URL to call when graph changes for the referenced MSAs are detected&lt;/p&gt;
+                              html="&lt;p&gt;Webhook URL&lt;/p&gt;
 "
                               class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
                             >
-                              <p>Webhook URL to call when graph changes for the referenced MSAs are detected</p>
+                              <p>Webhook URL</p>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="last">
+                      <td kind="field" title="announcementTypes" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">announcementTypes</span>
+                        <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                      </td>
+                      <td class="sc-fPXMhL kdholP">
+                        <div>
+                          <div>
+                            <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ">Array of </span
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">strings</span>
+                          </div>
+                          <div>
+                            <div
+                              html="&lt;p&gt;Announcement types to send to the webhook&lt;/p&gt;
+"
+                              class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                            >
+                              <p>Announcement types to send to the webhook</p>
                             </div>
                           </div>
                         </div>
@@ -2973,13 +3235,7 @@
                   <div>
                     <button class="sc-gdyfxU eWbvUv" disabled="">
                       <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Successfully started watching graphs&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Successfully started watching graphs</p>
-                      </div>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
                     </button>
                   </div>
                 </div>
@@ -3018,10 +3274,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:Riila:0"
+                        id="tab:Riipq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:Riila:0"
+                        aria-controls="panel:Riipq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -3031,8 +3287,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:Riila:0"
-                      aria-labelledby="tab:Riila:0"
+                      id="panel:Riipq:0"
+                      aria-labelledby="tab:Riipq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -3053,40 +3309,46 @@
                                   <ul class="obj collapsible">
                                     <li>
                                       <div class="hoverable">
-                                        <span class="property token string">"dsnpIds"</span>:
+                                        <span class="property token string">"url"</span>:
+                                        <span class="token string">&quot;</span
+                                        ><a href="https://example.com/webhook">https://example.com/webhook</a
+                                        ><span class="token string">&quot;</span
+                                        ><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"announcementTypes"</span>:
                                         <button class="collapser" aria-label="collapse"></button
                                         ><span class="token punctuation">[</span><span class="ellipsis"></span>
                                         <ul class="array collapsible">
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="token string">&quot;2&quot;</span>,
+                                              <span class="token string">&quot;Broadcast&quot;</span>,
                                             </div>
                                           </li>
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="token string">&quot;3&quot;</span>,
+                                              <span class="token string">&quot;Reaction&quot;</span>,
                                             </div>
                                           </li>
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="token string">&quot;4&quot;</span>,
+                                              <span class="token string">&quot;Tombstone&quot;</span>,
                                             </div>
                                           </li>
                                           <li>
                                             <div class="hoverable collapsed">
-                                              <span class="token string">&quot;5&quot;</span>
+                                              <span class="token string">&quot;Reply&quot;</span>,
+                                            </div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="token string">&quot;Update&quot;</span>
                                             </div>
                                           </li>
                                         </ul>
-                                        <span class="token punctuation">]</span><span class="token punctuation">,</span>
-                                      </div>
-                                    </li>
-                                    <li>
-                                      <div class="hoverable">
-                                        <span class="property token string">"webhookEndpoint"</span>:
-                                        <span class="token string">&quot;</span
-                                        ><a href="http://localhost/webhook">http://localhost/webhook</a
-                                        ><span class="token string">&quot;</span>
+                                        <span class="token punctuation">]</span>
                                       </div>
                                     </li>
                                   </ul>
@@ -3104,36 +3366,30 @@
             </div>
           </div>
           <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks"
+            id="tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks"
+            data-section-id="tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks"
             class="sc-dcJtft dNqlFH"
           >
             <div
-              data-section-id="operation/WebhooksControllerV1_deleteAllWebhooks"
-              id="operation/WebhooksControllerV1_deleteAllWebhooks"
+              data-section-id="operation/WebhookControllerV1_clearAllWebHooks"
+              id="operation/WebhookControllerV1_clearAllWebHooks"
               class="sc-kAycRU NrBoN"
             >
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks"
+                    href="#tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks"
+                    aria-label="tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks"
                   ></a
-                  >Delete all registered webhooks<!-- -->
+                  >Clear all previously registered webhooks<!-- -->
                 </h2>
                 <div>
                   <h3 class="sc-dSIJcR hePoiW">Responses</h3>
                   <div>
                     <button class="sc-gdyfxU eWbvUv" disabled="">
                       <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Removed all registered webhooks&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Removed all registered webhooks</p>
-                      </div>
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"></div>
                     </button>
                   </div>
                 </div>
@@ -3169,111 +3425,45 @@
             </div>
           </div>
           <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa"
+            id="tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks"
+            data-section-id="tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks"
             class="sc-dcJtft dNqlFH"
           >
             <div
-              data-section-id="operation/WebhooksControllerV1_getWebhooksForMsa"
-              id="operation/WebhooksControllerV1_getWebhooksForMsa"
+              data-section-id="operation/WebhookControllerV1_getRegisteredWebhooks"
+              id="operation/WebhookControllerV1_getRegisteredWebhooks"
               class="sc-kAycRU NrBoN"
             >
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa"
+                    href="#tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks"
+                    aria-label="tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks"
                   ></a
-                  >Get all registered webhooks for a specific MSA Id<!-- -->
+                  >Get the list of currently registered webhooks<!-- -->
                 </h2>
-                <div>
-                  <h5 class="sc-dAlxHm fZUozT">
-                    path<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dAbbbq hPLMVw">
-                    <tbody>
-                      <tr class="last">
-                        <td kind="field" title="msaId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">msaId</span>
-                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                        </td>
-                        <td class="sc-fPXMhL kdholP">
-                          <div>
-                            <div>
-                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
-                            </div>
-                            <div>
-                              <span class="sc-NxrBK kMMoBE"> <!-- -->Example:<!-- --> </span>
-                              <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">2</span>
-                            </div>
-                            <div>
-                              <div
-                                html="&lt;p&gt;MSA Id for which to request registered webhooks &lt;/p&gt;
-"
-                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                              >
-                                <p>MSA Id for which to request registered webhooks</p>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div>
-                  <h5 class="sc-dAlxHm fZUozT">
-                    query<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dAbbbq hPLMVw">
-                    <tbody>
-                      <tr class="last">
-                        <td kind="field" title="includeAll" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">includeAll</span>
-                        </td>
-                        <td class="sc-fPXMhL kdholP">
-                          <div>
-                            <div>
-                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">boolean</span>
-                            </div>
-                            <div>
-                              <span class="sc-NxrBK kMMoBE"> <!-- -->Example:<!-- --> </span>
-                              <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">includeAll=true</span>
-                            </div>
-                            <div>
-                              <div
-                                html="&lt;p&gt;Boolean whether to include webhooks registered for &amp;#39;all&amp;#39; MSA Ids (default: true)&lt;/p&gt;
-"
-                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                              >
-                                <p>
-                                  Boolean whether to include webhooks registered for &#39;all&#39; MSA Ids (default:
-                                  true)
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
                 <div>
                   <h3 class="sc-dSIJcR hePoiW">Responses</h3>
                   <div>
-                    <button class="sc-gdyfxU eWbvUv" disabled="">
-                      <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
+                    <button class="sc-gdyfxU hDzmxh">
+                      <svg
+                        class="sc-cwHqhk jqLwgG"
+                        version="1.1"
+                        viewBox="0 0 24 24"
+                        x="0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        y="0"
+                        aria-hidden="true"
+                      >
+                        <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                      ><strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
                       <div
-                        html="&lt;p&gt;Retrieved all registered webhooks for the given MSA Id&lt;/p&gt;
+                        html="&lt;p&gt;Returns a list of registered webhooks&lt;/p&gt;
 "
                         class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
                       >
-                        <p>Retrieved all registered webhooks for the given MSA Id</p>
+                        <p>Returns a list of registered webhooks</p>
                       </div>
                     </button>
                   </div>
@@ -3283,7 +3473,7 @@
                 <div class="sc-dkmVhU ciDfNo">
                   <button class="sc-iEXLnV jJBChh">
                     <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks/users/{msaId}</span
+                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks</span
                     ><svg
                       class="sc-cwHqhk fxsrq"
                       style="margin-right: -25px"
@@ -3301,313 +3491,111 @@
                     <div class="sc-dlWDvs kyqjNC">
                       <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
                       <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks/users/{msaId}</div>
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks</div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa"
-            class="sc-dcJtft dNqlFH"
-          >
-            <div
-              data-section-id="operation/WebhooksControllerV1_deleteWebhooksForMsa"
-              id="operation/WebhooksControllerV1_deleteWebhooksForMsa"
-              class="sc-kAycRU NrBoN"
-            >
-              <div class="sc-fqkwJk jLkFlo">
-                <h2 class="sc-jXbVAB hXYRhd">
-                  <a
-                    class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa"
-                  ></a
-                  >Delete all webhooks registered for a specific MSA<!-- -->
-                </h2>
                 <div>
-                  <h5 class="sc-dAlxHm fZUozT">
-                    path<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dAbbbq hPLMVw">
-                    <tbody>
-                      <tr class="last">
-                        <td kind="field" title="msaId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">msaId</span>
-                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                        </td>
-                        <td class="sc-fPXMhL kdholP">
-                          <div>
-                            <div>
-                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Response samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="tab-success react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:Rjjpq:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:Rjjpq:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        200
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:Rjjpq:0"
+                      aria-labelledby="tab:Rjjpq:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
+                              ><button>Collapse all</button>
                             </div>
-                            <div>
-                              <span class="sc-NxrBK kMMoBE"> <!-- -->Example:<!-- --> </span>
-                              <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">2</span>
-                            </div>
-                            <div>
-                              <div
-                                html="&lt;p&gt;MSA for which to remove all webhook registrations&lt;/p&gt;
-"
-                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                              >
-                                <p>MSA for which to remove all webhook registrations</p>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                  <ul class="array collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                        <ul class="obj collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="property token string">"url"</span>:
+                                              <span class="token string">&quot;</span
+                                              ><a href="https://example.com/webhook">https://example.com/webhook</a
+                                              ><span class="token string">&quot;</span
+                                              ><span class="token punctuation">,</span>
+                                            </div>
+                                          </li>
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <span class="property token string">"announcementTypes"</span>:
+                                              <button class="collapser" aria-label="expand"></button
+                                              ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                              <ul class="array collapsible">
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token string">&quot;Broadcast&quot;</span>,
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token string">&quot;Reaction&quot;</span>,
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token string">&quot;Tombstone&quot;</span>,
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token string">&quot;Reply&quot;</span>,
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="token string">&quot;Update&quot;</span>
+                                                  </div>
+                                                </li>
+                                              </ul>
+                                              <span class="token punctuation">]</span>
+                                            </div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">}</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">]</span></code
+                                >
                               </div>
                             </div>
                           </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div>
-                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
-                  <div>
-                    <button class="sc-gdyfxU eWbvUv" disabled="">
-                      <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Removed all registered webhooks for the specified MSA&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Removed all registered webhooks for the specified MSA</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
-                <div class="sc-dkmVhU ciDfNo">
-                  <button class="sc-iEXLnV jJBChh">
-                    <span type="delete" class="sc-EgOky dgboYG http-verb delete">delete</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks/users/{msaId}</span
-                    ><svg
-                      class="sc-cwHqhk fxsrq"
-                      style="margin-right: -25px"
-                      version="1.1"
-                      viewBox="0 0 24 24"
-                      x="0"
-                      xmlns="http://www.w3.org/2000/svg"
-                      y="0"
-                      aria-hidden="true"
-                    >
-                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                    </svg>
-                  </button>
-                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
-                    <div class="sc-dlWDvs kyqjNC">
-                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
-                      <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks/users/{msaId}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl"
-            class="sc-dcJtft dNqlFH"
-          >
-            <div
-              data-section-id="operation/WebhooksControllerV1_getWebhooksForUrl"
-              id="operation/WebhooksControllerV1_getWebhooksForUrl"
-              class="sc-kAycRU NrBoN"
-            >
-              <div class="sc-fqkwJk jLkFlo">
-                <h2 class="sc-jXbVAB hXYRhd">
-                  <a
-                    class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl"
-                  ></a
-                  >Get all webhooks registered to the specified URL<!-- -->
-                </h2>
-                <div>
-                  <h5 class="sc-dAlxHm fZUozT">
-                    query<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dAbbbq hPLMVw">
-                    <tbody>
-                      <tr class="last">
-                        <td kind="field" title="url" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">url</span>
-                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                        </td>
-                        <td class="sc-fPXMhL kdholP">
-                          <div>
-                            <div>
-                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
-                            </div>
-                            <div>
-                              <span class="sc-NxrBK kMMoBE"> <!-- -->Example:<!-- --> </span>
-                              <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">url=http://localhost/webhook</span>
-                            </div>
-                            <div>
-                              <div
-                                html="&lt;p&gt;URL for which to fetch all watched MSAs&lt;/p&gt;
-"
-                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                              >
-                                <p>URL for which to fetch all watched MSAs</p>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div>
-                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
-                  <div>
-                    <button class="sc-gdyfxU eWbvUv" disabled="">
-                      <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Retrieved all webhooks registered to the specified URL&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Retrieved all webhooks registered to the specified URL</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
-                <div class="sc-dkmVhU ciDfNo">
-                  <button class="sc-iEXLnV jJBChh">
-                    <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks/urls</span
-                    ><svg
-                      class="sc-cwHqhk fxsrq"
-                      style="margin-right: -25px"
-                      version="1.1"
-                      viewBox="0 0 24 24"
-                      x="0"
-                      xmlns="http://www.w3.org/2000/svg"
-                      y="0"
-                      aria-hidden="true"
-                    >
-                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                    </svg>
-                  </button>
-                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
-                    <div class="sc-dlWDvs kyqjNC">
-                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
-                      <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks/urls</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-            data-section-id="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-            class="sc-dcJtft dNqlFH"
-          >
-            <div
-              data-section-id="operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-              id="operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-              class="sc-kAycRU NrBoN"
-            >
-              <div class="sc-fqkwJk jLkFlo">
-                <h2 class="sc-jXbVAB hXYRhd">
-                  <a
-                    class="sc-jlZhRR buKOug"
-                    href="#tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-                    aria-label="tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl"
-                  ></a
-                  >Delete all MSA webhooks registered with the given URL<!-- -->
-                </h2>
-                <div>
-                  <h5 class="sc-dAlxHm fZUozT">
-                    query<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dAbbbq hPLMVw">
-                    <tbody>
-                      <tr class="last">
-                        <td kind="field" title="url" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">url</span>
-                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
-                        </td>
-                        <td class="sc-fPXMhL kdholP">
-                          <div>
-                            <div>
-                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
-                            </div>
-                            <div>
-                              <span class="sc-NxrBK kMMoBE"> <!-- -->Example:<!-- --> </span>
-                              <span class="sc-NxrBK sc-ddjGcj kMMoBE jnfAav">url=http://localhost/webhook</span>
-                            </div>
-                            <div>
-                              <div
-                                html="&lt;p&gt;URL for which to un-watch all MSAs&lt;/p&gt;
-"
-                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
-                              >
-                                <p>URL for which to un-watch all MSAs</p>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div>
-                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
-                  <div>
-                    <button class="sc-gdyfxU eWbvUv" disabled="">
-                      <strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
-                      <div
-                        html="&lt;p&gt;Removed all webhooks registered to the specified URL&lt;/p&gt;
-"
-                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
-                      >
-                        <p>Removed all webhooks registered to the specified URL</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
-                <div class="sc-dkmVhU ciDfNo">
-                  <button class="sc-iEXLnV jJBChh">
-                    <span type="delete" class="sc-EgOky dgboYG http-verb delete">delete</span
-                    ><span class="sc-ejfMNw gHPYVn">/v1/webhooks/urls</span
-                    ><svg
-                      class="sc-cwHqhk fxsrq"
-                      style="margin-right: -25px"
-                      version="1.1"
-                      viewBox="0 0 24 24"
-                      x="0"
-                      xmlns="http://www.w3.org/2000/svg"
-                      y="0"
-                      aria-hidden="true"
-                    >
-                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
-                    </svg>
-                  </button>
-                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
-                    <div class="sc-dlWDvs kyqjNC">
-                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
-                      <div tabindex="0" role="button">
-                        <div class="sc-hHOBVR lhFNhe"><span></span>/v1/webhooks/urls</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -3830,148 +3818,132 @@
           data: {
             openapi: '3.0.0',
             paths: {
-              '/v1/graphs/getGraphs': {
+              '/v1/scanner/reset': {
                 post: {
-                  operationId: 'GraphControllerV1_getGraphs',
-                  summary: 'Fetch graphs for specified MSA Ids and Block Number',
+                  operationId: 'ScanControllerV1_resetScanner',
+                  summary: 'Reset blockchain scan to a specific block number or offset from the current position',
                   parameters: [],
                   requestBody: {
                     required: true,
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/GraphsQueryParamsDto' } } },
+                    description: 'blockNumber',
+                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ResetScannerDto' } } },
+                  },
+                  responses: { 201: { description: '' } },
+                  tags: ['v1/scanner'],
+                },
+              },
+              '/v1/scanner/options': {
+                get: {
+                  operationId: 'ScanControllerV1_getWatchOptions',
+                  summary: 'Get the current watch options for the blockchain content event scanner',
+                  parameters: [],
+                  responses: {
+                    200: {
+                      description: '',
+                      content: {
+                        'application/json': { schema: { $ref: '#/components/schemas/ChainWatchOptionsDto' } },
+                      },
+                    },
+                  },
+                  tags: ['v1/scanner'],
+                },
+                post: {
+                  operationId: 'ScanControllerV1_setWatchOptions',
+                  summary: 'Set watch options to filter the blockchain content scanner by schemas or MSA Ids',
+                  parameters: [],
+                  requestBody: {
+                    required: true,
+                    description: 'watchOptions: Filter contents by schemaIds and/or msaIds',
+                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ChainWatchOptionsDto' } } },
+                  },
+                  responses: { 201: { description: '' } },
+                  tags: ['v1/scanner'],
+                },
+              },
+              '/v1/scanner/pause': {
+                post: {
+                  operationId: 'ScanControllerV1_pauseScanner',
+                  summary: 'Pause the blockchain scanner',
+                  parameters: [],
+                  responses: { 201: { description: '' } },
+                  tags: ['v1/scanner'],
+                },
+              },
+              '/v1/scanner/start': {
+                post: {
+                  operationId: 'ScanControllerV1_startScanner',
+                  summary: 'Resume the blockchain content event scanner',
+                  parameters: [
+                    {
+                      name: 'immediate',
+                      required: false,
+                      in: 'query',
+                      description:
+                        'Immediate: whether to resume scan immediately (true), or wait until next scheduled scan (false)',
+                      schema: { type: 'boolean' },
+                    },
+                  ],
+                  responses: { 201: { description: '' } },
+                  tags: ['v1/scanner'],
+                },
+              },
+              '/v1/search': {
+                post: {
+                  operationId: 'SearchControllerV1_search',
+                  summary: 'Search for DSNP content by id, start/end block, and filters',
+                  parameters: [],
+                  requestBody: {
+                    required: true,
+                    description: 'Search for DSNP content by id, startBlock, endBlock, and filters',
+                    content: {
+                      'application/json': { schema: { $ref: '#/components/schemas/ContentSearchRequestDto' } },
+                    },
                   },
                   responses: {
                     200: {
-                      description: 'Graphs retrieved successfully',
+                      description: 'Returns a jobId to be used to retrieve the results',
+                      content: { 'application/json': { schema: { type: 'string' } } },
+                    },
+                  },
+                  tags: ['v1/search'],
+                },
+              },
+              '/v1/webhooks': {
+                put: {
+                  operationId: 'WebhookControllerV1_registerWebhook',
+                  summary: 'Register a webhook to be called when new content is encountered on the chain',
+                  parameters: [],
+                  requestBody: {
+                    required: true,
+                    description: 'Register a webhook to be called when a new content is encountered',
+                    content: {
+                      'application/json': { schema: { $ref: '#/components/schemas/WebhookRegistrationDto' } },
+                    },
+                  },
+                  responses: { 200: { description: '' } },
+                  tags: ['v1/webhooks'],
+                },
+                delete: {
+                  operationId: 'WebhookControllerV1_clearAllWebHooks',
+                  summary: 'Clear all previously registered webhooks',
+                  parameters: [],
+                  responses: { 200: { description: '' } },
+                  tags: ['v1/webhooks'],
+                },
+                get: {
+                  operationId: 'WebhookControllerV1_getRegisteredWebhooks',
+                  summary: 'Get the list of currently registered webhooks',
+                  parameters: [],
+                  responses: {
+                    200: {
+                      description: 'Returns a list of registered webhooks',
                       content: {
                         'application/json': {
-                          schema: { type: 'array', items: { $ref: '#/components/schemas/UserGraphDto' } },
+                          schema: { type: 'array', items: { $ref: '#/components/schemas/WebhookRegistrationDto' } },
                         },
                       },
                     },
                   },
-                  tags: ['v1/graphs'],
-                },
-              },
-              '/v1/graphs': {
-                put: {
-                  operationId: 'GraphControllerV1_updateGraph',
-                  summary: "Request an update to a given user's graph",
-                  parameters: [],
-                  requestBody: {
-                    required: true,
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/ProviderGraphDto' } } },
-                  },
-                  responses: {
-                    201: {
-                      description: 'Graph update request created successfully',
-                      content: {
-                        'application/json': { schema: { $ref: '#/components/schemas/GraphChangeRepsonseDto' } },
-                      },
-                    },
-                  },
-                  tags: ['v1/graphs'],
-                },
-              },
-              '/v1/webhooks': {
-                get: {
-                  operationId: 'WebhooksControllerV1_getAllWebhooks',
-                  summary: 'Get all registered webhooks',
-                  parameters: [],
-                  responses: { 200: { description: 'Retrieved all registered webhooks' } },
-                  tags: ['v1/webhooks'],
-                },
-                put: {
-                  operationId: 'WebhooksControllerV1_watchGraphs',
-                  summary: 'Watch graphs for specified dsnpIds and receive updates',
-                  parameters: [],
-                  requestBody: {
-                    required: true,
-                    content: { 'application/json': { schema: { $ref: '#/components/schemas/WatchGraphsDto' } } },
-                  },
-                  responses: { 200: { description: 'Successfully started watching graphs' } },
-                  tags: ['v1/webhooks'],
-                },
-                delete: {
-                  operationId: 'WebhooksControllerV1_deleteAllWebhooks',
-                  summary: 'Delete all registered webhooks',
-                  parameters: [],
-                  responses: { 200: { description: 'Removed all registered webhooks' } },
-                  tags: ['v1/webhooks'],
-                },
-              },
-              '/v1/webhooks/users/{msaId}': {
-                get: {
-                  operationId: 'WebhooksControllerV1_getWebhooksForMsa',
-                  summary: 'Get all registered webhooks for a specific MSA Id',
-                  parameters: [
-                    {
-                      name: 'msaId',
-                      required: true,
-                      in: 'path',
-                      example: '2',
-                      description: 'MSA Id for which to request registered webhooks ',
-                      schema: { type: 'string' },
-                    },
-                    {
-                      name: 'includeAll',
-                      required: false,
-                      in: 'query',
-                      example: true,
-                      description: "Boolean whether to include webhooks registered for 'all' MSA Ids (default: true)",
-                      schema: { type: 'boolean' },
-                    },
-                  ],
-                  responses: { 200: { description: 'Retrieved all registered webhooks for the given MSA Id' } },
-                  tags: ['v1/webhooks'],
-                },
-                delete: {
-                  operationId: 'WebhooksControllerV1_deleteWebhooksForMsa',
-                  summary: 'Delete all webhooks registered for a specific MSA',
-                  parameters: [
-                    {
-                      name: 'msaId',
-                      required: true,
-                      in: 'path',
-                      example: '2',
-                      description: 'MSA for which to remove all webhook registrations',
-                      schema: { type: 'string' },
-                    },
-                  ],
-                  responses: { 200: { description: 'Removed all registered webhooks for the specified MSA' } },
-                  tags: ['v1/webhooks'],
-                },
-              },
-              '/v1/webhooks/urls': {
-                get: {
-                  operationId: 'WebhooksControllerV1_getWebhooksForUrl',
-                  summary: 'Get all webhooks registered to the specified URL',
-                  parameters: [
-                    {
-                      name: 'url',
-                      required: true,
-                      in: 'query',
-                      example: 'http://localhost/webhook',
-                      description: 'URL for which to fetch all watched MSAs',
-                      schema: { type: 'string' },
-                    },
-                  ],
-                  responses: { 200: { description: 'Retrieved all webhooks registered to the specified URL' } },
-                  tags: ['v1/webhooks'],
-                },
-                delete: {
-                  operationId: 'WebhooksControllerV1_deleteAllWebhooksForUrl',
-                  summary: 'Delete all MSA webhooks registered with the given URL',
-                  parameters: [
-                    {
-                      name: 'url',
-                      required: true,
-                      in: 'query',
-                      example: 'http://localhost/webhook',
-                      description: 'URL for which to un-watch all MSAs',
-                      schema: { type: 'string' },
-                    },
-                  ],
-                  responses: { 200: { description: 'Removed all webhooks registered to the specified URL' } },
                   tags: ['v1/webhooks'],
                 },
               },
@@ -4003,181 +3975,99 @@
                 },
               },
             },
-            info: { title: 'Graph Service', description: 'Graph Service API', version: '1.0', contact: {} },
+            info: {
+              title: 'Content Watcher Service API',
+              description: 'Content Watcher Service API',
+              version: '1.0',
+              contact: {},
+            },
             tags: [],
             servers: [],
             components: {
               schemas: {
-                GraphKeyPairDto: {
+                ResetScannerDto: {
                   type: 'object',
                   properties: {
-                    publicKey: {
-                      type: 'string',
-                      description: 'Public graph encryption key as a hex string (prefixed with "0x")',
+                    blockNumber: {
+                      type: 'number',
+                      minimum: 1,
+                      description: 'The block number to reset the scanner to',
+                      example: 0,
                     },
-                    privateKey: {
-                      type: 'string',
-                      description: 'Private graph encryption key as a hex string (prefixed with "0x")',
+                    rewindOffset: {
+                      type: 'number',
+                      description:
+                        'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block',
+                      example: 100,
                     },
-                    keyType: {
-                      type: 'string',
-                      enum: ['X25519'],
-                      description: 'Key type of graph encryption keypair (currently only X25519 supported)',
-                      example: 'X25519',
+                    immediate: {
+                      type: 'boolean',
+                      description:
+                        'Whether to schedule the new scan immediately or wait for the next scheduled interval',
+                      example: true,
                     },
                   },
-                  required: ['publicKey', 'privateKey', 'keyType'],
                 },
-                GraphsQueryParamsDto: {
+                ChainWatchOptionsDto: {
                   type: 'object',
                   properties: {
+                    schemaIds: {
+                      type: 'array',
+                      items: { type: 'number' },
+                      description: 'Specific schema ids to watch for',
+                      example: [1, 19],
+                    },
                     dsnpIds: {
-                      description: 'Array of MSA Ids for which to query graphs',
-                      example: ['2', '3', '4', '5'],
+                      description: 'Specific dsnpIds (msa_id) to watch for',
+                      example: ['10074', '100001'],
                       type: 'array',
                       items: { type: 'string' },
                     },
-                    privacyType: {
-                      enum: ['private', 'public'],
-                      type: 'string',
-                      description: 'Graph type to query (public or private)',
-                      example: 'public',
-                    },
-                    graphKeyPairs: {
-                      description:
-                        'Graph encryption keypairs for the users requested in `dsnpIds`. (Only for `privacyType` === "private"',
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/GraphKeyPairDto' },
-                    },
                   },
-                  required: ['dsnpIds', 'privacyType'],
                 },
-                DsnpGraphEdge: {
+                ContentSearchRequestDto: {
                   type: 'object',
                   properties: {
-                    userId: {
+                    clientReferenceId: {
                       type: 'string',
-                      description: 'MSA Id of the user represented by this graph edge',
-                      example: '3',
+                      description:
+                        'An optional client-supplied reference ID by which it can identify the result of this search',
                     },
-                    since: {
+                    startBlock: {
                       type: 'number',
-                      description: 'Block number when connection represented by this graph edge was created',
-                      example: 12,
+                      minimum: 1,
+                      description: 'The block number to search (backward) from',
+                      example: 100,
                     },
-                  },
-                  required: ['userId', 'since'],
-                },
-                UserGraphDto: {
-                  type: 'object',
-                  properties: {
-                    dsnpId: {
-                      type: 'string',
-                      description:
-                        'MSA Id that is the owner of the graph represented by the graph edges in this object',
-                      example: '2',
+                    blockCount: {
+                      type: 'number',
+                      minimum: 1,
+                      description: 'The number of blocks to scan (backwards)',
+                      example: 101,
                     },
-                    dsnpGraphEdges: {
-                      description:
-                        'Optional array of graph edges in the specific user graph represented by this object',
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/DsnpGraphEdge' },
-                    },
-                  },
-                  required: ['dsnpId'],
-                },
-                ConnectionDto: {
-                  type: 'object',
-                  properties: {
-                    dsnpId: {
-                      type: 'string',
-                      description: 'MSA Id representing the target of this connection',
-                      example: '3',
-                    },
-                    privacyType: {
-                      enum: ['private', 'public'],
-                      type: 'string',
-                      description: 'Indicator connection type (public or private)',
-                      example: 'public',
-                    },
-                    direction: {
-                      enum: ['connectionTo', 'connectionFrom', 'bidirectional', 'disconnect'],
-                      type: 'string',
-                      description: 'Indicator of the direction of this connection',
-                      example: 'connectionTo',
-                    },
-                    connectionType: {
-                      enum: ['follow', 'friendship'],
-                      type: 'string',
-                      description: 'Indicator of the type of connection (follow or friendship)',
-                      example: 'follow',
-                    },
-                  },
-                  required: ['dsnpId', 'privacyType', 'direction', 'connectionType'],
-                },
-                ConnectionDtoWrapper: {
-                  type: 'object',
-                  properties: {
-                    data: {
-                      description: 'Wrapper object for array of connections',
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/ConnectionDto' },
-                    },
-                  },
-                  required: ['data'],
-                },
-                ProviderGraphDto: {
-                  type: 'object',
-                  properties: {
-                    dsnpId: {
-                      type: 'string',
-                      description: 'MSA Id that owns the connections represented in this object',
-                      example: '2',
-                    },
-                    connections: {
-                      description: 'Array of connections known to the Provider for ths MSA referenced in this object',
-                      allOf: [{ $ref: '#/components/schemas/ConnectionDtoWrapper' }],
-                    },
-                    graphKeyPairs: {
-                      description:
-                        'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph',
-                      type: 'array',
-                      items: { $ref: '#/components/schemas/GraphKeyPairDto' },
+                    filters: {
+                      description: 'The schemaIds/dsnpIds to filter by',
+                      allOf: [{ $ref: '#/components/schemas/ChainWatchOptionsDto' }],
                     },
                     webhookUrl: {
                       type: 'string',
-                      description: 'Optional URL of a webhook to invoke when the request is complete',
+                      description: 'A webhook URL to be notified of the results of this search',
                     },
                   },
-                  required: ['dsnpId', 'connections'],
+                  required: ['blockCount', 'webhookUrl'],
                 },
-                GraphChangeRepsonseDto: {
+                WebhookRegistrationDto: {
                   type: 'object',
                   properties: {
-                    referenceId: {
-                      type: 'string',
-                      description:
-                        'Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved',
-                    },
-                  },
-                  required: ['referenceId'],
-                },
-                WatchGraphsDto: {
-                  type: 'object',
-                  properties: {
-                    dsnpIds: {
-                      description: 'MSA Ids for which to watch for graph updates',
-                      example: ['2', '3', '4', '5'],
+                    url: { type: 'string', description: 'Webhook URL', example: 'https://example.com/webhook' },
+                    announcementTypes: {
+                      description: 'Announcement types to send to the webhook',
+                      example: ['Broadcast', 'Reaction', 'Tombstone', 'Reply', 'Update'],
                       type: 'array',
                       items: { type: 'string' },
                     },
-                    webhookEndpoint: {
-                      type: 'string',
-                      description: 'Webhook URL to call when graph changes for the referenced MSAs are detected',
-                      example: 'http://localhost/webhook',
-                    },
                   },
-                  required: ['webhookEndpoint'],
+                  required: ['url', 'announcementTypes'],
                 },
               },
             },
@@ -4185,17 +4075,18 @@
         },
         searchIndex: {
           store: [
-            'tag/v1graphs',
-            'tag/v1graphs/operation/GraphControllerV1_getGraphs',
-            'tag/v1graphs/operation/GraphControllerV1_updateGraph',
+            'tag/v1scanner',
+            'tag/v1scanner/operation/ScanControllerV1_resetScanner',
+            'tag/v1scanner/operation/ScanControllerV1_getWatchOptions',
+            'tag/v1scanner/operation/ScanControllerV1_setWatchOptions',
+            'tag/v1scanner/operation/ScanControllerV1_pauseScanner',
+            'tag/v1scanner/operation/ScanControllerV1_startScanner',
+            'tag/v1search',
+            'tag/v1search/operation/SearchControllerV1_search',
             'tag/v1webhooks',
-            'tag/v1webhooks/operation/WebhooksControllerV1_getAllWebhooks',
-            'tag/v1webhooks/operation/WebhooksControllerV1_watchGraphs',
-            'tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooks',
-            'tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForMsa',
-            'tag/v1webhooks/operation/WebhooksControllerV1_deleteWebhooksForMsa',
-            'tag/v1webhooks/operation/WebhooksControllerV1_getWebhooksForUrl',
-            'tag/v1webhooks/operation/WebhooksControllerV1_deleteAllWebhooksForUrl',
+            'tag/v1webhooks/operation/WebhookControllerV1_registerWebhook',
+            'tag/v1webhooks/operation/WebhookControllerV1_clearAllWebHooks',
+            'tag/v1webhooks/operation/WebhookControllerV1_getRegisteredWebhooks',
             'tag/health',
             'tag/health/operation/HealthController_healthz',
             'tag/health/operation/HealthController_livez',
@@ -4205,71 +4096,95 @@
             version: '2.3.9',
             fields: ['title', 'description'],
             fieldVectors: [
-              ['title/0', [0, 2.664]],
+              ['title/0', [0, 3.561]],
               ['description/0', []],
-              ['title/1', [1, 1.778, 2, 1.141, 3, 1.141, 4, 0.953, 5, 1.394, 6, 1.778, 7, 1.778]],
-              ['description/1', [8, 2.147]],
-              ['title/2', [2, 1.357, 9, 2.114, 10, 1.658, 11, 1.658, 12, 2.114]],
-              ['description/2', [0, 1.684]],
-              ['title/3', [13, 1.821]],
-              ['description/3', []],
-              ['title/4', [14, 1.122, 15, 1.122]],
-              ['description/4', [13, 1.151]],
-              ['title/5', [2, 1.24, 3, 1.24, 10, 1.514, 16, 1.931, 17, 1.931, 18, 1.931]],
-              ['description/5', [13, 1.151]],
-              ['title/6', [14, 0.992, 15, 0.992, 19, 1.673]],
-              ['description/6', [13, 1.151]],
-              ['title/7', [4, 1.133, 5, 1.658, 14, 0.804, 15, 0.804, 20, 1.658]],
-              ['description/7', [21, 1.684]],
-              ['title/8', [4, 1.133, 14, 0.804, 15, 0.804, 19, 1.357, 20, 1.658]],
-              ['description/8', [21, 1.684]],
-              ['title/9', [3, 1.499, 14, 0.888, 15, 0.888, 22, 1.83]],
-              ['description/9', [23, 1.684]],
-              ['title/10', [4, 1.035, 11, 1.514, 14, 0.735, 15, 0.735, 19, 1.24, 22, 1.514]],
-              ['description/10', [23, 1.684]],
-              ['title/11', [24, 2.664]],
-              ['description/11', []],
-              ['title/12', [24, 1.83, 25, 1.499, 26, 1.499, 27, 1.499]],
-              ['description/12', [28, 2.147]],
-              ['title/13', [25, 1.499, 26, 1.499, 27, 1.499, 29, 2.334]],
-              ['description/13', [30, 2.147]],
-              ['title/14', [25, 1.499, 26, 1.499, 27, 1.499, 31, 2.334]],
-              ['description/14', [32, 2.147]],
+              ['title/1', [1, 1.723, 2, 0.801, 3, 1.723, 4, 1.723, 5, 1.36, 6, 1.723, 7, 1.723, 8, 1.122, 9, 1.723]],
+              ['description/1', [10, 2.136]],
+              ['title/2', [2, 0.919, 8, 1.288, 11, 1.562, 12, 1.562, 13, 0.919, 14, 1.562, 15, 1.083]],
+              ['description/2', [16, 1.687]],
+              [
+                'title/3',
+                [
+                  2, 0.752, 11, 1.278, 12, 1.278, 13, 0.752, 15, 0.886, 17, 1.618, 18, 1.278, 19, 1.618, 20, 1.618, 21,
+                  1.278,
+                ],
+              ],
+              ['description/3', [16, 1.687]],
+              ['title/4', [2, 1.307, 15, 1.539, 22, 2.811]],
+              ['description/4', [23, 2.136]],
+              ['title/5', [2, 1.079, 13, 1.079, 14, 1.834, 15, 1.271, 24, 2.322]],
+              ['description/5', [25, 2.136]],
+              ['title/6', [26, 2.811]],
+              ['description/6', []],
+              ['title/7', [5, 1.562, 13, 0.919, 18, 1.562, 21, 1.562, 27, 1.978, 28, 1.978, 29, 1.978]],
+              ['description/7', [26, 1.687]],
+              ['title/8', [30, 1.949]],
+              ['description/8', []],
+              ['title/9', [13, 0.919, 31, 1.288, 32, 1.288, 33, 1.978, 34, 1.978, 35, 1.978, 36, 1.978]],
+              ['description/9', [30, 1.17]],
+              ['title/10', [31, 1.656, 32, 1.656, 37, 2.543, 38, 2.543]],
+              ['description/10', [30, 1.17]],
+              ['title/11', [8, 1.656, 31, 1.656, 32, 1.656, 39, 2.543]],
+              ['description/11', [30, 1.17]],
+              ['title/12', [40, 2.811]],
+              ['description/12', []],
+              ['title/13', [40, 2.008, 41, 1.656, 42, 1.656, 43, 1.656]],
+              ['description/13', [44, 2.136]],
+              ['title/14', [41, 1.656, 42, 1.656, 43, 1.656, 45, 2.543]],
+              ['description/14', [46, 2.136]],
+              ['title/15', [41, 1.656, 42, 1.656, 43, 1.656, 47, 2.543]],
+              ['description/15', [48, 2.136]],
             ],
             invertedIndex: [
-              ['block', { _index: 6, title: { 1: {} }, description: {} }],
-              ['check', { _index: 25, title: { 12: {}, 13: {}, 14: {} }, description: {} }],
-              ['delet', { _index: 19, title: { 6: {}, 8: {}, 10: {} }, description: {} }],
-              ['dsnpid', { _index: 17, title: { 5: {} }, description: {} }],
-              ['fetch', { _index: 1, title: { 1: {} }, description: {} }],
-              ['given', { _index: 11, title: { 2: {}, 10: {} }, description: {} }],
-              ['graph', { _index: 2, title: { 1: {}, 2: {}, 5: {} }, description: {} }],
-              ['health', { _index: 24, title: { 11: {}, 12: {} }, description: {} }],
-              ['healthz', { _index: 28, title: {}, description: { 12: {} } }],
-              ['id', { _index: 5, title: { 1: {}, 7: {} }, description: {} }],
-              ['live', { _index: 29, title: { 13: {} }, description: {} }],
-              ['livez', { _index: 30, title: {}, description: { 13: {} } }],
-              ['msa', { _index: 4, title: { 1: {}, 7: {}, 8: {}, 10: {} }, description: {} }],
-              ['number', { _index: 7, title: { 1: {} }, description: {} }],
-              ['readi', { _index: 31, title: { 14: {} }, description: {} }],
-              ['readyz', { _index: 32, title: {}, description: { 14: {} } }],
-              ['receiv', { _index: 18, title: { 5: {} }, description: {} }],
-              ['regist', { _index: 14, title: { 4: {}, 6: {}, 7: {}, 8: {}, 9: {}, 10: {} }, description: {} }],
-              ['request', { _index: 9, title: { 2: {} }, description: {} }],
-              ['servic', { _index: 27, title: { 12: {}, 13: {}, 14: {} }, description: {} }],
-              ['specif', { _index: 20, title: { 7: {}, 8: {} }, description: {} }],
-              ['specifi', { _index: 3, title: { 1: {}, 5: {}, 9: {} }, description: {} }],
-              ['statu', { _index: 26, title: { 12: {}, 13: {}, 14: {} }, description: {} }],
-              ['updat', { _index: 10, title: { 2: {}, 5: {} }, description: {} }],
-              ['url', { _index: 22, title: { 9: {}, 10: {} }, description: {} }],
-              ['user', { _index: 12, title: { 2: {} }, description: {} }],
-              ['v1/graph', { _index: 0, title: { 0: {} }, description: { 2: {} } }],
-              ['v1/graphs/getgraph', { _index: 8, title: {}, description: { 1: {} } }],
-              ['v1/webhook', { _index: 13, title: { 3: {} }, description: { 4: {}, 5: {}, 6: {} } }],
-              ['v1/webhooks/url', { _index: 23, title: {}, description: { 9: {}, 10: {} } }],
-              ['v1/webhooks/users/{msaid', { _index: 21, title: {}, description: { 7: {}, 8: {} } }],
-              ['watch', { _index: 16, title: { 5: {} }, description: {} }],
-              ['webhook', { _index: 15, title: { 4: {}, 6: {}, 7: {}, 8: {}, 9: {}, 10: {} }, description: {} }],
+              ['block', { _index: 5, title: { 1: {}, 7: {} }, description: {} }],
+              ['blockchain', { _index: 2, title: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} }, description: {} }],
+              ['call', { _index: 33, title: { 9: {} }, description: {} }],
+              ['chain', { _index: 36, title: { 9: {} }, description: {} }],
+              ['check', { _index: 41, title: { 13: {}, 14: {}, 15: {} }, description: {} }],
+              ['clear', { _index: 37, title: { 10: {} }, description: {} }],
+              ['content', { _index: 13, title: { 2: {}, 3: {}, 5: {}, 7: {}, 9: {} }, description: {} }],
+              ['current', { _index: 8, title: { 1: {}, 2: {}, 11: {} }, description: {} }],
+              ['dsnp', { _index: 28, title: { 7: {} }, description: {} }],
+              ['encount', { _index: 35, title: { 9: {} }, description: {} }],
+              ['event', { _index: 14, title: { 2: {}, 5: {} }, description: {} }],
+              ['filter', { _index: 18, title: { 3: {}, 7: {} }, description: {} }],
+              ['health', { _index: 40, title: { 12: {}, 13: {} }, description: {} }],
+              ['healthz', { _index: 44, title: {}, description: { 13: {} } }],
+              ['id', { _index: 21, title: { 3: {}, 7: {} }, description: {} }],
+              ['list', { _index: 39, title: { 11: {} }, description: {} }],
+              ['live', { _index: 45, title: { 14: {} }, description: {} }],
+              ['livez', { _index: 46, title: {}, description: { 14: {} } }],
+              ['msa', { _index: 20, title: { 3: {} }, description: {} }],
+              ['new', { _index: 34, title: { 9: {} }, description: {} }],
+              ['number', { _index: 6, title: { 1: {} }, description: {} }],
+              ['offset', { _index: 7, title: { 1: {} }, description: {} }],
+              ['option', { _index: 12, title: { 2: {}, 3: {} }, description: {} }],
+              ['paus', { _index: 22, title: { 4: {} }, description: {} }],
+              ['posit', { _index: 9, title: { 1: {} }, description: {} }],
+              ['previous', { _index: 38, title: { 10: {} }, description: {} }],
+              ['readi', { _index: 47, title: { 15: {} }, description: {} }],
+              ['readyz', { _index: 48, title: {}, description: { 15: {} } }],
+              ['regist', { _index: 31, title: { 9: {}, 10: {}, 11: {} }, description: {} }],
+              ['reset', { _index: 1, title: { 1: {} }, description: {} }],
+              ['resum', { _index: 24, title: { 5: {} }, description: {} }],
+              ['scan', { _index: 3, title: { 1: {} }, description: {} }],
+              ['scanner', { _index: 15, title: { 2: {}, 3: {}, 4: {}, 5: {} }, description: {} }],
+              ['schema', { _index: 19, title: { 3: {} }, description: {} }],
+              ['search', { _index: 27, title: { 7: {} }, description: {} }],
+              ['servic', { _index: 43, title: { 13: {}, 14: {}, 15: {} }, description: {} }],
+              ['set', { _index: 17, title: { 3: {} }, description: {} }],
+              ['specif', { _index: 4, title: { 1: {} }, description: {} }],
+              ['start/end', { _index: 29, title: { 7: {} }, description: {} }],
+              ['statu', { _index: 42, title: { 13: {}, 14: {}, 15: {} }, description: {} }],
+              ['v1/scanner', { _index: 0, title: { 0: {} }, description: {} }],
+              ['v1/scanner/opt', { _index: 16, title: {}, description: { 2: {}, 3: {} } }],
+              ['v1/scanner/paus', { _index: 23, title: {}, description: { 4: {} } }],
+              ['v1/scanner/reset', { _index: 10, title: {}, description: { 1: {} } }],
+              ['v1/scanner/start', { _index: 25, title: {}, description: { 5: {} } }],
+              ['v1/search', { _index: 26, title: { 6: {} }, description: { 7: {} } }],
+              ['v1/webhook', { _index: 30, title: { 8: {} }, description: { 9: {}, 10: {}, 11: {} } }],
+              ['watch', { _index: 11, title: { 2: {}, 3: {} }, description: {} }],
+              ['webhook', { _index: 32, title: { 9: {}, 10: {}, 11: {} }, description: {} }],
             ],
             pipeline: [],
           },

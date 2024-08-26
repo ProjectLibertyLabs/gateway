@@ -159,7 +159,7 @@
       },
       "get": {
         "operationId": "getHandles",
-        "summary": "Get all control keys associated with an MSA ID.",
+        "summary": "Get all control keys associated with an MSA Id.",
         "responses": {
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -227,7 +227,7 @@
     "/keys/{msaId}": {
       "post": {
         "operationId": "createKeys",
-        "summary": "Create new control keys for an MSA ID.",
+        "summary": "Create new control keys for an MSA Id.",
         "parameters": [
           {
             "name": "msaId",
@@ -256,7 +256,7 @@
       },
       "get": {
         "operationId": "getKeys",
-        "summary": "Get all control keys associated with an MSA ID.",
+        "summary": "Get all control keys associated with an MSA Id.",
         "parameters": [
           {
             "name": "msaId",

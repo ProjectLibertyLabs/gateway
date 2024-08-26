@@ -64,7 +64,7 @@ The Content Publishing Service enables the creation of new content-related activ
 
 ### Content Watcher Service
 
-The Content Watcher Service enables the processing of content external from Frequency and feeding content through custom webhooks to connect to the larger ecosystem of content.
+The Content Watcher Service enables client applications to process content found on Frequency by registering for webhook notifications, triggered when relevant content is found, eleminating the need to interact with the chain for new content.
 
 - Parses and validates Frequency content
 - Filterable webhooks

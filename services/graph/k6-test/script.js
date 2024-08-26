@@ -65,7 +65,7 @@ export default function () {
       let request = http.get(url);
 
       check(request, {
-        'Retrieved all registered webhooks for the given MSA ID': (r) => r.status === 200,
+        'Retrieved all registered webhooks for the given MSA Id': (r) => r.status === 200,
       });
 
       sleep(SLEEP_DURATION);

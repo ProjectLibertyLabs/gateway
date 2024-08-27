@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DsnpGraphEdge } from './dsnp-graph-edge.dto';
+import { DsnpGraphEdgeDto } from './dsnp-graph-edge.dto';
 
 export class UserGraphDto {
   @ApiProperty({
@@ -11,7 +11,7 @@ export class UserGraphDto {
 
   @ApiPropertyOptional({
     description: 'Optional array of graph edges in the specific user graph represented by this object',
-    type: [DsnpGraphEdge],
+    type: [DsnpGraphEdgeDto],
   })
-  dsnpGraphEdges?: DsnpGraphEdge[];
+  dsnpGraphEdges?: DsnpGraphEdgeDto[];
 }

@@ -1,14 +1,17 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { describe, it, beforeEach, jest, expect } from '@jest/globals';
+import { describe, it, jest, expect } from '@jest/globals';
 import { ApiPromise } from '@polkadot/api';
+import { ConfigModule } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { BlockchainService } from './blockchain.service';
 import { ConfigService } from '../config/config.service';
 
 describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
+  let configService: ConfigService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     mockApi = {
       createType: jest.fn(),
       query: {
@@ -17,33 +20,44 @@ describe('BlockchainService', () => {
         },
       },
     } as unknown as ApiPromise;
-    const configService = {
-      logger: jest.fn(),
-      nestConfigService: jest.fn(),
-      webhookBaseUrl: jest.fn(),
-      providerApiToken: jest.fn(),
-      getProviderId: jest.fn(),
-      getQueueHighWater: jest.fn(),
-      getApiPort: jest.fn(),
-      getReconnectionServiceRequired: jest.fn(),
-      getBlockchainScanIntervalMinutes: jest.fn(),
-      getRedisUrl: jest.fn(),
-      getFrequencyUrl: jest.fn(),
-      getAccountEnvironmentType: jest.fn(),
-      getAccountEnvironmentConfig: jest.fn(),
-      getProviderAccountSeedPhrase: jest.fn(),
-      redisUrl: jest.fn(),
-      frequencyUrl: jest.fn(),
-      getHealthCheckMaxRetries: jest.fn(),
-      getHealthCheckMaxRetryIntervalSeconds: jest.fn(),
-      getHealthCheckSuccessThreshold: jest.fn(),
-      getWebhookFailureThreshold: jest.fn(),
-      getWebhookRetryIntervalSeconds: jest.fn(),
-      webhookRetryIntervalSeconds: jest.fn(),
-      getPageSize: jest.fn(),
-      getDebounceSeconds: jest.fn(),
+
+    process.env = {
+      REDIS_URL: undefined,
+      FREQUENCY_URL: undefined,
+      FREQUENCY_HTTP_URL: undefined,
+      API_PORT: undefined,
+      BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
+      TRUST_UNFINALIZED_BLOCKS: undefined,
+      PROVIDER_ACCOUNT_SEED_PHRASE: '//Alice',
+      PROVIDER_ID: '1',
+      SIWF_URL: undefined,
+      SIWF_DOMAIN: undefined,
+      WEBHOOK_BASE_URL: undefined,
+      PROVIDER_ACCESS_TOKEN: undefined,
+      WEBHOOK_FAILURE_THRESHOLD: undefined,
+      HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
+      WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
+      HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
+      HEALTH_CHECK_MAX_RETRIES: undefined,
+      CAPACITY_LIMIT: undefined,
+      CACHE_KEY_PREFIX: undefined,
     };
-    blockchainService = new BlockchainService(configService as unknown as ConfigService);
+
+    const moduleRef = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          ignoreEnvFile: true,
+          load: [() => process.env],
+        }),
+      ],
+      controllers: [],
+      providers: [ConfigService, BlockchainService],
+    }).compile();
+
+    await ConfigModule.envVariablesLoaded;
+
+    configService = moduleRef.get<ConfigService>(ConfigService);
+    blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     blockchainService.api = mockApi;
   });
 
@@ -60,6 +74,31 @@ describe('BlockchainService', () => {
 
       // Assert
       expect(result).toBe(expectedEpochStart.toNumber());
+    });
+  });
+
+  describe('validateProviderSeedPhrase', () => {
+    beforeAll(() => {
+      jest.spyOn(configService, 'providerPublicKeyAddress', 'get').mockReturnValue('<public address>');
+      jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValue('1');
+    });
+
+    afterAll(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should not throw if seed phrase is correct for provider', async () => {
+      await expect(blockchainService.validateProviderSeedPhrase()).resolves.not.toThrow();
+    });
+
+    it('should not throw if no seed phrase configured (read-only mode)', async () => {
+      jest.spyOn(configService, 'providerPublicKeyAddress', 'get').mockReturnValueOnce('');
+      await expect(blockchainService.validateProviderSeedPhrase()).resolves.not.toThrow();
+    });
+
+    it('should throw if seed phrase is incorrect for provider', async () => {
+      jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
+      await expect(blockchainService.validateProviderSeedPhrase()).rejects.toThrow();
     });
   });
 });

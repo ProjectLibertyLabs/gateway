@@ -37,6 +37,13 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
 
   private logger: Logger;
 
+  private readyResolve: (boolean) => void;
+  private readyReject: (reason: any) => void;
+  private isReadyPromise = new Promise<boolean>((resolve, reject) => {
+    this.readyResolve = resolve;
+    this.readyReject = reject;
+  });
+
   public async onApplicationBootstrap() {
     const providerUrl = this.configService.frequencyUrl!;
     let provider: any;
@@ -49,13 +56,13 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
       throw new Error('Unrecognized chain URL type');
     }
     this.api = await ApiPromise.create({ provider, ...options });
-    await this.api.isReady;
+    this.readyResolve(await this.api.isReady);
+    await this.validateProviderSeedPhrase();
     this.logger.log('Blockchain API ready.');
   }
 
   public async isReady(): Promise<boolean> {
-    await this.api.isReady;
-    return true;
+    return (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
   public async beforeApplicationShutdown(_signal?: string | undefined) {
@@ -253,5 +260,22 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     const result = results.find((receipt) => receipt.found);
     this.logger.debug(`Found tx receipt: ${JSON.stringify(result)}`);
     return result ?? { found: false, success: false };
+  }
+
+  public async publicKeyToMsaId(publicKey: string): Promise<string | null> {
+    const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
+    if (handleResponse.isSome) return handleResponse.unwrap().toString();
+    return null;
+  }
+
+  public async validateProviderSeedPhrase() {
+    const { providerPublicKeyAddress, providerId } = this.configService;
+    if (providerPublicKeyAddress) {
+      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+
+      if (resolvedProviderId !== providerId) {
+        throw new Error('Provided account secret does not match configured Provider ID');
+      }
+    }
   }
 }

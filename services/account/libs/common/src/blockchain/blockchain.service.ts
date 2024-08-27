@@ -86,6 +86,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
       this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
       this.readyResolve(await this.api.isReady);
+      await this.validateProviderSeedPhrase();
       this.logger.log('Blockchain API ready.');
     } catch (err) {
       this.readyReject(err);
@@ -419,5 +420,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
 
     return publicKeyValues as PublicKeyValues;
+  }
+
+  public async validateProviderSeedPhrase() {
+    const { providerPublicKeyAddress, providerId } = this.configService;
+    if (providerPublicKeyAddress) {
+      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+
+      if (resolvedProviderId !== providerId) {
+        throw new Error('Provided account secret does not match configured Provider ID');
+      }
+    }
   }
 }

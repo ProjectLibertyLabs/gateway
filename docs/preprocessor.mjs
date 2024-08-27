@@ -2,9 +2,9 @@
 // Use console.error, not console.log
 //
 // This does a few things:
-// - Runs openapi-to-md when `{{#swagger-embed ../services/account/swagger.json}}` or other is found
+// - Runs openapi-to-md when `{{#swagger-embed ../swagger.json}}` or other is found
 // - Replaces `{{#button-links}}` with the child links of that page in button form
-// - Replaces `{{#markdown-embed ../services/account/ENVIRONMENT.md [trim from top]}}` or other is found with the contents of that file
+// - Replaces `{{#markdown-embed ../libraries/list.md [trim from top]}}` or other is found with the contents of that file
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -46,9 +46,9 @@ function replaceButtonLinks(chapter) {
 }
 
 function swaggerEmbed(chapter) {
-  const regex = /{{#swagger-embed\s(.+?)}}/;
-  const match = chapter.content.match(regex);
-  if (match) {
+  const regex = /{{#swagger-embed\s(.+?)}}/g;
+  const matches = [...chapter.content.matchAll(regex)];
+  matches.forEach((match) => {
     const swaggerFile = match[1];
     const output = runNpxCommand('openapi-to-md', [swaggerFile]);
     const replaceWith = output
@@ -60,7 +60,7 @@ function swaggerEmbed(chapter) {
       .map((line) => (line.startsWith('#') ? line + '{}' : line))
       .join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
-  }
+  });
   if (chapter.sub_items) {
     chapter.sub_items.forEach((section) => {
       section.Chapter && swaggerEmbed(section.Chapter);
@@ -69,14 +69,14 @@ function swaggerEmbed(chapter) {
 }
 
 function markdownEmbed(chapter) {
-  const regex = /{{#markdown-embed\s(.+?)\s(.+?)}}/;
-  const match = chapter.content.match(regex);
-  if (match) {
+  const regex = /{{#markdown-embed\s(.+?)\s(.+?)}}/g;
+  const matches = [...chapter.content.matchAll(regex)];
+  matches.forEach((match) => {
     const markdownFile = match[1];
     const output = readFileSync(markdownFile, 'utf8');
     const replaceWith = output.split('\n').slice(match[2]).join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
-  }
+  });
   if (chapter.sub_items) {
     chapter.sub_items.forEach((section) => {
       section.Chapter && markdownEmbed(section.Chapter);

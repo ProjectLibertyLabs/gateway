@@ -67,7 +67,10 @@ export class DevelopmentControllerV1 {
 
   @Get('/asset/:assetId')
   @ApiOperation({ summary: 'Get an Asset given an assetId', description: 'ONLY enabled when ENVIRONMENT="dev".' })
-  @ApiResponse({ status: '2XX', type: Buffer })
+  @ApiResponse({
+    status: '2XX',
+    content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
+  })
   // eslint-disable-next-line consistent-return
   async getAsset(@Param('assetId') assetId: string) {
     if (await this.ipfsService.isPinned(assetId)) {

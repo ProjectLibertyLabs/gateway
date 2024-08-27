@@ -14,7 +14,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { KeysRequest, AddKeyRequest } from '#lib/types/dtos/keys.request.dto';
+import { KeysRequestDto, AddKeyRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
 import { ReadOnlyGuard } from '#api/guards/read-only.guard';
@@ -36,16 +36,16 @@ export class KeysControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add new control keys for an MSA Id' })
   @ApiOkResponse({ description: 'Found public keys' })
-  @ApiBody({ type: KeysRequest })
+  @ApiBody({ type: KeysRequestDto })
   /**
    * Add new control keys for an MSA Id.
    * @param queryParams - The query parameters for adding the public keys.
    * @returns A promise that resolves to an array of public keys associated with the given msaId.
    * @throws An error if no public keys can be found.
    */
-  async addKey(@Body() addKeysRequest: KeysRequest): Promise<TransactionResponse> {
+  async addKey(@Body() addKeysRequest: KeysRequestDto): Promise<TransactionResponse> {
     try {
-      const response = await this.enqueueService.enqueueRequest<AddKeyRequest>({
+      const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
         ...addKeysRequest,
         type: TransactionType.ADD_KEY,
       });

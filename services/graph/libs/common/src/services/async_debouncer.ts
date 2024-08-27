@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
 import * as QueueConstants from '../queues/queue-constants';
-import { DsnpGraphEdge } from '../dtos/dsnp-graph-edge.dto';
+import { DsnpGraphEdgeDto } from '../dtos/dsnp-graph-edge.dto';
 import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';
 import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
@@ -23,7 +23,7 @@ export class AsyncDebouncerService {
     dsnpId: string,
     privacyType: PrivacyType,
     graphKeyPairs?: GraphKeyPairDto[],
-  ): Promise<DsnpGraphEdge[]> {
+  ): Promise<DsnpGraphEdgeDto[]> {
     return this.debounceAsyncOperation(dsnpId, privacyType, graphKeyPairs);
   }
 
@@ -31,7 +31,7 @@ export class AsyncDebouncerService {
     dsnpId: string,
     schemaId: number,
     graphKeyPairs?: GraphKeyPairDto[],
-  ): Promise<DsnpGraphEdge[]> {
+  ): Promise<DsnpGraphEdgeDto[]> {
     if (!schemaId) {
       throw new Error('Schema ID is required');
     }
@@ -43,13 +43,13 @@ export class AsyncDebouncerService {
     dsnpId: string,
     privacyType: PrivacyType,
     graphKeyPairs?: GraphKeyPairDto[],
-  ): Promise<DsnpGraphEdge[]> {
+  ): Promise<DsnpGraphEdgeDto[]> {
     const cacheKey = this.getCacheKey(dsnpId, privacyType);
 
     const cachedFuture = await this.redis.get(cacheKey);
     if (cachedFuture) {
       this.logger.debug(`Async operation for key ${dsnpId} is already inflight`, cachedFuture);
-      const graphData: DsnpGraphEdge[] = JSON.parse(cachedFuture);
+      const graphData: DsnpGraphEdgeDto[] = JSON.parse(cachedFuture);
       if (graphData && graphData.length > 0) {
         return graphData;
       }
@@ -60,7 +60,7 @@ export class AsyncDebouncerService {
         throw new Error('Graph key pairs are required for private graph');
       }
     }
-    let graphEdges: DsnpGraphEdge[] = [];
+    let graphEdges: DsnpGraphEdgeDto[] = [];
     try {
       graphEdges = await this.graphStateManager.getConnectionsWithPrivacyType(dsnpId, privacyType, graphKeyPairs);
     } catch (err) {

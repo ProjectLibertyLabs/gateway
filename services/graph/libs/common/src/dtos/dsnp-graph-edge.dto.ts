@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DsnpGraphEdge {
+export class DsnpGraphEdgeDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'MSA Id of the user represented by this graph edge', type: String, example: '3' })

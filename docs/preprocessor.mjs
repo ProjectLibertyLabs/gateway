@@ -51,7 +51,14 @@ function swaggerEmbed(chapter) {
   if (match) {
     const swaggerFile = match[1];
     const output = runNpxCommand('openapi-to-md', [swaggerFile]);
-    const replaceWith = output.split('\n').slice(5).join('\n');
+    const replaceWith = output
+      .split('\n')
+      // Remove the default header
+      .slice(5)
+      // This hack fixes the markdown issue that mdBook headers support classes which breaks
+      // with some params lines: https://rust-lang.github.io/mdBook/format/markdown.html#heading-attributes
+      .map((line) => (line.startsWith('#') ? line + '{}' : line))
+      .join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
   }
   if (chapter.sub_items) {

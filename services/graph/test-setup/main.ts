@@ -15,7 +15,7 @@ import {
   provisionUsersOnChain,
 } from '@projectlibertylabs/frequency-scenario-template';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { EnvironmentType, Graph, ImportBundleBuilder } from '@dsnp/graph-sdk';
+import { EnvironmentType, Graph } from '@dsnp/graph-sdk';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 

@@ -1,6 +1,7 @@
 import { ApiService } from '#api/api.service';
+import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#lib/dtos';
-import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/graphs')
@@ -30,6 +31,7 @@ export class GraphControllerV1 {
 
   // Enqueue a request to update a user graph
   @Put()
+  @UseGuards(ReadOnlyGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Request an update to a given user's graph" })
   @ApiCreatedResponse({ description: 'Graph update request created successfully', type: GraphChangeRepsonseDto })

@@ -42,8 +42,12 @@ export class ConfigService implements OnModuleInit {
   async onModuleInit() {
     await cryptoWaitReady();
 
-    if (this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')) {
-      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(this.providerAccountSeedPhrase).address;
+    const { providerAccountSeedPhrase } = this;
+
+    if (providerAccountSeedPhrase) {
+      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(providerAccountSeedPhrase).address;
+    } else {
+      this.logger.log('******* Running in READ-ONLY mode; chain-modifying endpoints will be disabled **********');
     }
   }
 
@@ -64,6 +68,10 @@ export class ConfigService implements OnModuleInit {
     } else {
       this.capacityLimit = obj;
     }
+  }
+
+  public get isReadOnly(): boolean {
+    return !this.providerAccountSeedPhrase;
   }
 
   public get providerPublicKeyAddress(): string | undefined {

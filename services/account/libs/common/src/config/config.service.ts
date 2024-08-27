@@ -43,7 +43,7 @@ export class ConfigService implements OnModuleInit {
     if (providerAccountSeedPhrase) {
       this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(providerAccountSeedPhrase).address;
     } else {
-      this.logger.log('******* Running in READ-ONLY mode; POST, PUT and DELETE endpoints will be disabled **********');
+      this.logger.log('******* Running in READ-ONLY mode; chain-modifying endpoints will be disabled **********');
     }
   }
 

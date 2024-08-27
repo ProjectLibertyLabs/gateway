@@ -85,12 +85,15 @@ export class AccountsControllerV1 {
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
   @ApiBody({ type: WalletLoginRequestDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponse> {
+    if (walletLoginRequest.signUp) {
+      throw new HttpException('New account sign-up unavailable in read-only mode', HttpStatus.FORBIDDEN);
+    }
     try {
       this.logger.debug(`Received Sign In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
       return this.accountsService.signInWithFrequency(walletLoginRequest);
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = 'Failed to Sign In With Frequency';
-      this.logger.error(`${errorMessage}: ${error}`);
+      this.logger.error(errorMessage, error, error?.stack);
       throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
   }

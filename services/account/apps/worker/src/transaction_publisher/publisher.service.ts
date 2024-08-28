@@ -74,7 +74,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
       const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
+      const providerKeys = createKeys(this.configService.providerAccountSeedPhrase!);
       let tx: SubmittableExtrinsic<'promise'>;
       let targetEvent: ITxStatus['successEvent'];
       switch (job.data.type) {

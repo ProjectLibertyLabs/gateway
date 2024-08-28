@@ -1,14 +1,27 @@
 import { KeysService } from '#api/services/keys.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { TransactionType } from '#lib/types/enums';
-import { Controller, Get, HttpCode, HttpStatus, Logger, Param, HttpException, Body, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Param,
+  HttpException,
+  Body,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysRequestDto, AddKeyRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 import { KeysResponse } from '#lib/types/dtos/keys.response.dto';
+import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')
+@UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class KeysControllerV1 {
   private readonly logger: Logger;
 

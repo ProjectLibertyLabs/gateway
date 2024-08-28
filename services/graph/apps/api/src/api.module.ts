@@ -17,7 +17,7 @@ import { CacheModule } from '#lib/cache/cache.module';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(true), // allowReadOnly
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

@@ -13,7 +13,7 @@ import { CacheModule } from '#lib/cache/cache.module';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

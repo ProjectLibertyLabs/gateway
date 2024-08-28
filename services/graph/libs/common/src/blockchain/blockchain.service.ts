@@ -33,8 +33,6 @@ export interface ICapacityInfo {
 export class BlockchainService implements OnApplicationBootstrap, BeforeApplicationShutdown {
   public api: ApiPromise;
 
-  private configService: ConfigService;
-
   private logger: Logger;
 
   private readyResolve: (boolean) => void;
@@ -69,8 +67,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     await this.api?.disconnect();
   }
 
-  constructor(configService: ConfigService) {
-    this.configService = configService;
+  constructor(private readonly configService: ConfigService) {
     this.logger = new Logger(this.constructor.name);
   }
 

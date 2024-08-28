@@ -2,7 +2,6 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisClientOptions } from '@songkeys/nestjs-redis';
 import { BlockchainModule } from '#lib/blockchain/blockchain.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE, NonceService } from '#lib/services/nonce.service';
 import { ProviderWebhookService } from '#lib/services/provider-webhook.service';
@@ -15,7 +14,7 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

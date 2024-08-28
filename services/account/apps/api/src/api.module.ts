@@ -22,7 +22,7 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot(true), // allowReadOnly
     BlockchainModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

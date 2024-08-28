@@ -1,13 +1,18 @@
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigService } from './config.service';
 import { configModuleOptions } from './env.config';
 
-@Global()
-@Module({
-  imports: [NestConfigModule.forRoot(configModuleOptions)],
-  controllers: [],
-  providers: [ConfigService],
-  exports: [ConfigService],
-})
-export class ConfigModule {}
+@Module({})
+export class ConfigModule {
+  static forRoot(allowReadOnly = false) {
+    return {
+      module: ConfigModule,
+      global: true,
+      imports: [NestConfigModule.forRoot(configModuleOptions(allowReadOnly))],
+      controllers: [],
+      providers: [ConfigService],
+      exports: [ConfigService],
+    };
+  }
+}

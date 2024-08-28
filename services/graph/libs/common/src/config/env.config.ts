@@ -26,7 +26,7 @@ const capacityLimitsSchema = Joi.object({
   totalLimit: capacityLimitSchema,
 });
 
-export const configModuleOptions: ConfigModuleOptions = {
+export const configModuleOptions = (allowReadOnly: boolean): ConfigModuleOptions => ({
   isGlobal: true,
   validationSchema: Joi.object({
     TRUST_UNFINALIZED_BLOCKS: Joi.bool().default(false),
@@ -39,7 +39,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     RECONNECTION_SERVICE_REQUIRED: Joi.boolean().default(false),
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: Joi.number().min(1).default(6),
     GRAPH_ENVIRONMENT_TYPE: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
-    PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
+    PROVIDER_ACCOUNT_SEED_PHRASE: allowReadOnly ? Joi.string().optional().allow('') : Joi.string().required(),
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {
       try {
         const id = BigInt(value);
@@ -95,4 +95,4 @@ export const configModuleOptions: ConfigModuleOptions = {
       })
       .required(),
   }),
-};
+});

@@ -26,7 +26,7 @@ const capacityLimitsSchema = Joi.object({
   totalLimit: capacityLimitSchema,
 });
 
-export const configModuleOptions: ConfigModuleOptions = {
+export const configModuleOptions = (allowReadOnly: boolean): ConfigModuleOptions => ({
   isGlobal: true,
   validationSchema: Joi.object({
     CACHE_KEY_PREFIX: Joi.string().default('account:'),
@@ -36,7 +36,7 @@ export const configModuleOptions: ConfigModuleOptions = {
     FREQUENCY_URL: Joi.string().uri().required(),
     FREQUENCY_HTTP_URL: Joi.string().uri().required(),
     API_PORT: Joi.number().min(0).default(3000),
-    PROVIDER_ACCOUNT_SEED_PHRASE: Joi.string().required(),
+    PROVIDER_ACCOUNT_SEED_PHRASE: allowReadOnly ? Joi.string().allow('') : Joi.string().required(),
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {
       try {
         const id = BigInt(value);
@@ -88,4 +88,4 @@ export const configModuleOptions: ConfigModuleOptions = {
       })
       .required(),
   }),
-};
+});

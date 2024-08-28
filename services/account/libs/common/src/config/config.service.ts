@@ -1,5 +1,5 @@
 import { ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
@@ -33,15 +33,23 @@ export class ConfigService implements OnModuleInit {
 
   private providerAddress: string;
 
+  private readonly logger: Logger;
+
   async onModuleInit() {
     await cryptoWaitReady();
 
-    if (this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')) {
-      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(this.providerAccountSeedPhrase).address;
+    const { providerAccountSeedPhrase } = this;
+
+    if (providerAccountSeedPhrase) {
+      this.providerAddress = new Keyring({ type: 'sr25519' }).createFromUri(providerAccountSeedPhrase).address;
+    } else {
+      this.logger.log('******* Running in READ-ONLY mode; chain-modifying endpoints will be disabled **********');
     }
   }
 
   constructor(private nestConfigService: NestConfigService<ConfigEnvironmentVariables>) {
+    this.logger = new Logger(ConfigService.name);
+
     const obj = JSON.parse(nestConfigService.get('CAPACITY_LIMIT') ?? '{}', (key, value) => {
       if (key === 'value') {
         return BigInt(value);
@@ -57,6 +65,10 @@ export class ConfigService implements OnModuleInit {
     } else {
       this.capacityLimitObj = obj;
     }
+  }
+
+  public get isReadOnly(): boolean {
+    return !this.providerAddress;
   }
 
   public get providerPublicKeyAddress(): string | undefined {
@@ -99,8 +111,8 @@ export class ConfigService implements OnModuleInit {
     return this.nestConfigService.get<number>('API_PORT')!;
   }
 
-  public get providerAccountSeedPhrase(): string {
-    return this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE')!;
+  public get providerAccountSeedPhrase(): string | undefined {
+    return this.nestConfigService.get<string>('PROVIDER_ACCOUNT_SEED_PHRASE');
   }
 
   public get redisUrl(): URL {

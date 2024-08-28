@@ -12,10 +12,10 @@ export class ReadOnlyGuard implements CanActivate {
       // If the system is in read-only mode, disable certain routes
       const request = context.switchToHttp().getRequest();
       const { method } = request;
-      const readOnlyMethods = ['POST', 'PUT', 'DELETE']; // Methods that should be restricted
+      const restrictedMethods = ['POST', 'PUT', 'DELETE']; // Methods that should be restricted
 
       // Return false if the method is in the restricted list
-      if (readOnlyMethods.includes(method)) {
+      if (restrictedMethods.includes(method)) {
         return false;
       }
     }

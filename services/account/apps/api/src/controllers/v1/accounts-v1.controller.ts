@@ -5,13 +5,17 @@ import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.confi
 import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '#lib/config';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
 export class AccountsControllerV1 {
   private readonly logger: Logger;
 
-  constructor(private accountsService: AccountsService) {
+  constructor(
+    private accountsService: AccountsService,
+    private readonly configService: ConfigService,
+  ) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -85,7 +89,7 @@ export class AccountsControllerV1 {
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
   @ApiBody({ type: WalletLoginRequestDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
-    if (walletLoginRequest.signUp) {
+    if (this.configService.isReadOnly && walletLoginRequest.signUp) {
       throw new HttpException('New account sign-up unavailable in read-only mode', HttpStatus.FORBIDDEN);
     }
     try {

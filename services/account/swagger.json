@@ -189,6 +189,28 @@
         ]
       }
     },
+    "/v1/handles/change/{newHandle}": {
+      "get": {
+        "operationId": "HandlesControllerV1_getChangeHandlePayload",
+        "summary": "Get a properly encoded ClaimHandlePayload that can be signed.",
+        "parameters": [
+          {
+            "name": "newHandle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ClaimHandlePayload request enqueued"
+          }
+        },
+        "tags": ["v1/handles"]
+      }
+    },
     "/v1/handles/{msaId}": {
       "get": {
         "operationId": "HandlesControllerV1_getHandle",

@@ -28,6 +28,16 @@ export class HandleRequestDto {
   proof: HexString;
 }
 
+export class ChangeHandlePayloadRequest {
+  @ApiProperty()
+  @IsNotEmpty()
+  payload: HandleRequest['payload'];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  encodedPayload: HexString;
+}
+
 export type CreateHandleRequest = HandleRequestDto & {
   type: TransactionType.CREATE_HANDLE;
 };

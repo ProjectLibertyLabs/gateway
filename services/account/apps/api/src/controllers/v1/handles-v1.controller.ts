@@ -8,20 +8,23 @@ import {
   Param,
   HttpException,
   Body,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TransactionType } from '#lib/types/enums';
 import { HandlesService } from '#api/services/handles.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
+import {
+  ChangeHandlePayloadRequest,
+  ChangeHandleRequest,
+  CreateHandleRequest,
+} from '#lib/types/dtos/handles.request.dto';
 import { ChangeHandleRequest, CreateHandleRequest, HandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
-import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
-@UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class HandlesControllerV1 {
   private readonly logger: Logger;
 
@@ -79,6 +82,32 @@ export class HandlesControllerV1 {
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to change handle');
+    }
+  }
+
+  @Get('change/:newHandle')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a properly encoded ClaimHandlePayload that can be signed.' })
+  @ApiOkResponse({ description: 'Returned an encoded ClaimHandlePayload for signing' })
+  /**
+   * Using the provided query parameters, creates a new payload that can be signed to change handle.
+   * @param queryParams - The query parameters for changing the handle.
+   * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
+   * @throws An error if the change handle payload creation fails.
+   */
+  async getChangeHandlePayload(@Param('newHandle') newHandle: string): Promise<ChangeHandlePayloadRequest> {
+    try {
+      const expiration = await this.handlesService.getExpiration();
+      const payload = { baseHandle: newHandle, expiration };
+      const encodedPayload = u8aToHex(u8aWrapBytes(this.handlesService.encodePayload(payload).toU8a()));
+
+      return {
+        payload,
+        encodedPayload,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Failed to create change handle payload.');
     }
   }
 

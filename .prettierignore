@@ -9,3 +9,4 @@ services/account/rust-webhook-server/target
 services/*/apps/api/src/metadata.ts
 **/swagger.json
 services/*/docs/index.html
+**/metadata.ts

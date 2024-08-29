@@ -1,0 +1,17 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"default\"]",
+  "declared_features": "",
+  "target": 13897877484550706946,
+  "profile": 4374887572363265115,
+  "path": 7186038908431637527,
+  "deps": [
+    [2334936782960947306, "lock_api", false, 11496681734051448468],
+    [3556327346382006477, "parking_lot_core", false, 8696756932282957784]
+  ],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/parking_lot-78b12767cbb1eea8/dep-lib-parking_lot" } }],
+  "rustflags": [],
+  "metadata": 3021512261575560469,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

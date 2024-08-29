@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { Codec, ExtrinsicPayloadValue, ISubmittableResult, SignerPayloadJSON } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
@@ -24,6 +24,8 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { ExtrinsicPayload, Signature } from '@polkadot/types/interfaces';
+import { Extrinsic } from '#lib/blockchain/extrinsic';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -106,6 +108,18 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           const trx = await this.blockchainService.addPublicKeyAgreementToMsa(job.data);
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
           [tx, txHash] = await this.processSingleTxn(providerKeys, trx);
+          this.logger.debug(`tx: ${tx}`);
+          break;
+        }
+        case TransactionType.RETIRE_MSA: {
+          tx = await this.blockchainService.retireMsa();
+          // const ext = this.blockchainService.createType(
+          //   'Extrinsic',
+          //   { method: job.data.unsignedPayload.method },
+          //   { version: job.data.unsignedPayload.transactionVersion },
+          // );
+          targetEvent = { section: 'msa', method: 'retireMsa' };
+          txHash = await this.processProxyTxn(tx, job.data.accountId, job.data.signature, job.data.unsignedPayload);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -192,6 +206,34 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       return [ext.extrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
+      throw error;
+    }
+  }
+
+  async processProxyTxn(
+    ext: any,
+    accountId: string,
+    signatureHex: string,
+    unsignedPayload: SignerPayloadJSON,
+  ): Promise<HexString> {
+    try {
+      this.logger.debug(signatureHex, 'signatureHex****');
+      // const payload = this.blockchainService.createType('ExtrinsicPayload', unsignedPayload, {
+      //   version: unsignedPayload.version,
+      // });
+      ext.addSignature(accountId, signatureHex, unsignedPayload);
+      this.logger.debug('MADE IT');
+
+      const txHash = (await ext.send()).toHex();
+      this.logger.debug('MADE IT 2');
+
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return txHash;
+    } catch (error: any) {
+      this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
     }
   }

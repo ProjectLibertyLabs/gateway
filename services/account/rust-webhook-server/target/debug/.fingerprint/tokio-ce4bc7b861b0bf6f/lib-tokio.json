@@ -1,0 +1,22 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"bytes\", \"default\", \"io-util\", \"libc\", \"mio\", \"net\", \"parking_lot\", \"rt\", \"signal\", \"signal-hook-registry\", \"socket2\", \"sync\", \"time\"]",
+  "declared_features": "",
+  "target": 15733882506898359369,
+  "profile": 1200860260873630964,
+  "path": 8134582820409494848,
+  "deps": [
+    [4036510229207645508, "pin_project_lite", false, 1624198107662093173],
+    [7131157336065139194, "parking_lot", false, 3260934759980027010],
+    [7824443447113870146, "bytes", false, 11138825224544319717],
+    [11943424025318460506, "libc", false, 13402574157289762715],
+    [13030878473775569958, "signal_hook_registry", false, 7729526762961330332],
+    [16141457784764382781, "mio", false, 1348683878408381923],
+    [18147007049232167056, "socket2", false, 15288503285592642209]
+  ],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/tokio-ce4bc7b861b0bf6f/dep-lib-tokio" } }],
+  "rustflags": [],
+  "metadata": 4714391938075185209,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

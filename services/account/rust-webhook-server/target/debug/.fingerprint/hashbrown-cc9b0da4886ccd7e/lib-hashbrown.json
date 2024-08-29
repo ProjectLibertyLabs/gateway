@@ -1,0 +1,14 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"raw\"]",
+  "declared_features": "",
+  "target": 2387001741810630927,
+  "profile": 4374887572363265115,
+  "path": 12157040899001013202,
+  "deps": [],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/hashbrown-cc9b0da4886ccd7e/dep-lib-hashbrown" } }],
+  "rustflags": [],
+  "metadata": 6228333144549390726,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

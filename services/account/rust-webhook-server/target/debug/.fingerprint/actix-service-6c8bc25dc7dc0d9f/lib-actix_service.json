@@ -1,0 +1,20 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 5270885160191379815,
+  "profile": 4374887572363265115,
+  "path": 3372333800549347681,
+  "deps": [
+    [4036510229207645508, "pin_project_lite", false, 1624198107662093173],
+    [14133539909871685996, "futures_core", false, 10803312797492847810],
+    [15340987198089805406, "paste", false, 10410431844796739614]
+  ],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/actix-service-6c8bc25dc7dc0d9f/dep-lib-actix_service" } }
+  ],
+  "rustflags": [],
+  "metadata": 1941377951816218124,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

@@ -1,0 +1,14 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 18437980530483880663,
+  "profile": 1200860260873630964,
+  "path": 979725158452018995,
+  "deps": [],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/parse-size-9456df377128f495/dep-lib-parse-size" } }],
+  "rustflags": [],
+  "metadata": 6761273995409057415,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

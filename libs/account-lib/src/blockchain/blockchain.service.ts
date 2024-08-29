@@ -1,14 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
+import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Event, ExtrinsicPayload, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
-  CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
@@ -19,7 +18,6 @@ import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@f
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { HexString } from '@polkadot/util/types';
-import { decodeAddress } from '@polkadot/util-crypto';
 import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
@@ -30,6 +28,7 @@ import {
   ItemizedSignaturePayloadDto,
 } from '#account-lib/types/dtos/graphs.request.dto';
 import { hexToU8a } from '@polkadot/util';
+import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
@@ -510,5 +509,97 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         throw new Error('Provided account secret does not match configured Provider ID');
       }
     }
+  }
+
+  public async createRetireMsaPayload(
+    accountId: string,
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
+    console.log('HERE');
+    const tx = await this.api.tx.msa.retireMsa();
+    const unsignedPayload = await this.getRawPayloadForSigning(tx, accountId);
+    this.logger.debug(unsignedPayload, 'unsignedpayload');
+    const encodedPayload = this.api
+      .createType('ExtrinsicPayload', unsignedPayload, {
+        version: unsignedPayload.version,
+      })
+      .toHex();
+    this.logger.debug(encodedPayload, 'encodedPayload');
+
+    // const rawNonce = (await this.api.query.system.account(accountId)).nonce;
+    // const nonce = this.api.registry.createType('Compact<Index>', rawNonce).toHex();
+    // const method = this.api.createType('Call', tx).toHex();
+    // const lastHeader = await this.api.rpc.chain.getHeader();
+    // const era = this.api.registry
+    //   .createType('ExtrinsicEra', {
+    //     current: lastHeader.number.toNumber(),
+    //     period: 64,
+    //   })
+    //   .toHex();
+    // const blockNumber = await this.getLatestFinalizedBlockNumber();
+    // const blockHash = (await this.getBlockHash(blockNumber)).toHex();
+    //
+    // const unsignedPayload: SignerPayloadJSON = {
+    //   address: accountId,
+    //   blockHash,
+    //   blockNumber: `0x${blockNumber.toString(16)}`,
+    //   method,
+    //   specVersion: this.api.runtimeVersion.specVersion.toHex(),
+    //   transactionVersion: this.api.runtimeVersion.transactionVersion.toHex(),
+    //   genesisHash: this.api.genesisHash.toHex(),
+    //   era,
+    //   tip: '0x00',
+    //   version: tx.version,
+    //   nonce,
+    //   signedExtensions: [
+    //     'CheckNonZeroSender',
+    //     'CheckSpecVersion',
+    //     'CheckTxVersion',
+    //     'CheckGenesis',
+    //     'CheckMortality',
+    //     'CheckNonce',
+    //     'CheckWeight',
+    //     'ChargeTransactionPayment',
+    //   ],
+    // };
+    //
+
+    console.log('****unsignedPayload: ', unsignedPayload);
+    return {
+      unsignedPayload,
+      encodedPayload,
+    };
+  }
+
+  // eslint-disable-next-line consistent-return
+  public async getRawPayloadForSigning(tx: any, signerAddress: string): Promise<SignerPayloadJSON> {
+    let signRaw;
+    try {
+      await tx.signAsync(signerAddress, {
+        signer: {
+          signRaw: (raw) => {
+            signRaw = raw;
+            throw new Error('Stop here');
+          },
+          // signPayload: (payload) => {
+          //   signRaw = payload;
+          //   throw new Error("Stop here");ww
+          // },
+        },
+      });
+    } catch (_e) {
+      return signRaw;
+    }
+  }
+
+  public async retireMsa() {
+    return this.api.tx.msa.retireMsa();
+  }
+
+  public async retireMsaMethod() {
+    return this.api.tx.msa.retireMsa().method.toHex();
+  }
+
+  public async retireMsaVersion() {
+    return this.api.tx.msa.retireMsa().version;
   }
 }

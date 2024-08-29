@@ -1,0 +1,10 @@
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/libidna-e63f4013365b0e20.rmeta: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/punycode.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46_mapping_table.rs
+
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/libidna-e63f4013365b0e20.rlib: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/punycode.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46_mapping_table.rs
+
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/idna-e63f4013365b0e20.d: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/punycode.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46_mapping_table.rs
+
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/lib.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/punycode.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/idna-0.2.3/src/uts46_mapping_table.rs:

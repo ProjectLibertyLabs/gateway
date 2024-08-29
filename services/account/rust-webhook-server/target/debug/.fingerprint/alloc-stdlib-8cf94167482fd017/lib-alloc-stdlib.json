@@ -1,0 +1,16 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 11160133771039725901,
+  "profile": 4374887572363265115,
+  "path": 4807237285712944096,
+  "deps": [[10972449868527073996, "alloc_no_stdlib", false, 7074550832076977862]],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/alloc-stdlib-8cf94167482fd017/dep-lib-alloc-stdlib" } }
+  ],
+  "rustflags": [],
+  "metadata": 1391733675060750169,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

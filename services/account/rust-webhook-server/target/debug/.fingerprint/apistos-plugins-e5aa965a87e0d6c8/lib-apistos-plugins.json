@@ -1,0 +1,16 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 3571837604380956796,
+  "profile": 15050267068516055493,
+  "path": 10577645080784326530,
+  "deps": [[13495967772847384152, "actix_web", false, 12675131661299571143]],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/apistos-plugins-e5aa965a87e0d6c8/dep-lib-apistos-plugins" } }
+  ],
+  "rustflags": [],
+  "metadata": 5696828707528783389,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

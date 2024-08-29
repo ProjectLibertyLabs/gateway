@@ -1,0 +1,16 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 13988420919824902104,
+  "profile": 1200860260873630964,
+  "path": 3255360220958975004,
+  "deps": [[17315865306982240130, "unicode_segmentation", false, 17458705165191849440]],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/convert_case-87ab69185a69bf55/dep-lib-convert_case" } }
+  ],
+  "rustflags": [],
+  "metadata": 5706240816199398616,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

@@ -1,0 +1,14 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 774057797881942798,
+  "profile": 4374887572363265115,
+  "path": 9482682496241158869,
+  "deps": [],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/local-waker-b01b087d3e20fbc0/dep-lib-local-waker" } }],
+  "rustflags": [],
+  "metadata": 6713523129465780550,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

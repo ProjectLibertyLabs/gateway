@@ -1,0 +1,14 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 3363631476033229303,
+  "profile": 4374887572363265115,
+  "path": 5954099376416317454,
+  "deps": [],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/httpdate-de23f0da70d65703/dep-lib-httpdate" } }],
+  "rustflags": [],
+  "metadata": 18164780291907066373,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

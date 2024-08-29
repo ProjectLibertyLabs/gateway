@@ -95,4 +95,38 @@ describe('Account Controller', () => {
       .expect((res) => res.body.msaId === validMsaId)
       .expect((res) => res.body.handle.base_handle === handle);
   });
+
+  it('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given a valid accountId', async () => {
+    const accountId = users[0].keypair.address;
+    await request(app.getHttpServer())
+      .get(`/v1/accounts/retireMsa/${accountId}`)
+      .expect(200)
+      .expect((res) => res.body.unsignedPayload === '')
+      .expect((res) => res.body.encodedPayload === '');
+  });
+
+  // if (
+  //   ('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given an invalid accountId', async () => {})
+  // );
+
+  it('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
+    const { keypair } = users[0];
+    const accountId = keypair.address;
+    const getRetireMsaResponse = await request(app.getHttpServer()).get(`/v1/accounts/retireMsa/${accountId}`);
+    console.log('getRetireMsaResponse:', getRetireMsaResponse.body.data);
+    const responseData = getRetireMsaResponse.body.data;
+    // To be removed
+    await cryptoWaitReady();
+
+    const uint8Signature = keypair.sign(JSON.stringify(responseData.unsignedPayload), { withType: false });
+    const signature = u8aToHex(uint8Signature);
+
+    const retireMsaRequest = {
+      unsignedPayload: responseData.unsignedPayload,
+      encodedPayload: responseData.encodedPayload,
+      signature,
+      accountId,
+    };
+    await request(app.getHttpServer()).post(`/v1/accounts/retireMsa`).send(retireMsaRequest).expect(200);
+  });
 });

@@ -84,13 +84,13 @@
         ]
       }
     },
-    "/v1/accounts/account/{publicKey}": {
+    "/v1/accounts/account/{accountId}": {
       "get": {
-        "operationId": "AccountsControllerV1_getAccountForPublicKey",
+        "operationId": "AccountsControllerV1_getAccountForAccountId",
         "summary": "Fetch an account given a public key",
         "parameters": [
           {
-            "name": "publicKey",
+            "name": "accountId",
             "required": true,
             "in": "path",
             "schema": {
@@ -105,6 +105,62 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/accounts"
+        ]
+      }
+    },
+    "/v1/accounts/retireMsa/{accountId}": {
+      "get": {
+        "operationId": "AccountsControllerV1_getRetireMsaPayload",
+        "summary": "Get a retireMsa unsigned, encoded extrinsic payload.",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created extrinsic"
+          }
+        },
+        "tags": [
+          "v1/accounts"
+        ]
+      }
+    },
+    "/v1/accounts/retireMsa": {
+      "post": {
+        "operationId": "AccountsControllerV1_postRetireMsa",
+        "summary": "Request to retire an Msa Id.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetireMsaRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signed in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -558,6 +614,40 @@
             "type": "string"
           },
           "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "referenceId"
+        ]
+      },
+      "RetireMsaRequestDto": {
+        "type": "object",
+        "properties": {
+          "unsignedPayload": {
+            "type": "object"
+          },
+          "encodedPayload": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "unsignedPayload",
+          "encodedPayload",
+          "signature",
+          "accountId"
+        ]
+      },
+      "TransactionResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
             "type": "string"
           }
         },

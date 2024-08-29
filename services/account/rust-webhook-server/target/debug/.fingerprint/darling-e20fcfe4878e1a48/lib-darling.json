@@ -1,0 +1,17 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"default\", \"suggestions\"]",
+  "declared_features": "",
+  "target": 6269004854277361932,
+  "profile": 1200860260873630964,
+  "path": 6547951848041615083,
+  "deps": [
+    [4485822131812776377, "darling_core", false, 15583206014667439773],
+    [4932565065778705772, "darling_macro", false, 3087234401112248289]
+  ],
+  "local": [{ "CheckDepInfo": { "dep_info": "debug/.fingerprint/darling-e20fcfe4878e1a48/dep-lib-darling" } }],
+  "rustflags": [],
+  "metadata": 377200618859079488,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

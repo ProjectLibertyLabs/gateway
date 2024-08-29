@@ -1,0 +1,20 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 7185083786937015531,
+  "profile": 15050267068516055493,
+  "path": 1649938991144221737,
+  "deps": [[306360791786300570, "apistos_plugins", false, 13818589734810639547]],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/apistos-swagger-ui-f01b42dd97fef705/dep-lib-apistos-swagger-ui"
+      }
+    }
+  ],
+  "rustflags": [],
+  "metadata": 5696828707528783389,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

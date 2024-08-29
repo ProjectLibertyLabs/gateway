@@ -1,0 +1,16 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[]",
+  "declared_features": "",
+  "target": 13264439055798883273,
+  "profile": 4374887572363265115,
+  "path": 11532486885508375367,
+  "deps": [],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/validator_types-93c40dc1e7bf8424/dep-lib-validator_types" } }
+  ],
+  "rustflags": [],
+  "metadata": 14720167720337838958,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

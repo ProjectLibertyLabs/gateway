@@ -1,0 +1,27 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"alloc\", \"async-await\", \"async-await-macro\", \"channel\", \"futures-channel\", \"futures-io\", \"futures-macro\", \"futures-sink\", \"io\", \"memchr\", \"sink\", \"slab\", \"std\"]",
+  "declared_features": "",
+  "target": 18238406189943261982,
+  "profile": 4374887572363265115,
+  "path": 18348843644587978835,
+  "deps": [
+    [1903734211574517601, "futures_macro", false, 10551098542349573918],
+    [1986394810334161016, "futures_io", false, 9308528001988063703],
+    [4036510229207645508, "pin_project_lite", false, 1624198107662093173],
+    [4419467325743386257, "futures_channel", false, 10461226270378198998],
+    [4761952582670444189, "pin_utils", false, 13888837955385250050],
+    [14133539909871685996, "futures_core", false, 10803312797492847810],
+    [15818844694086178958, "memchr", false, 11687439194848646893],
+    [16008099193544558814, "futures_sink", false, 14277516473993934046],
+    [16068796036868804342, "futures_task", false, 12300822240376318751],
+    [17040352472033410869, "slab", false, 5516360861375449515]
+  ],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/futures-util-50eb29a7ad8deb05/dep-lib-futures-util" } }
+  ],
+  "rustflags": [],
+  "metadata": 5677230335954518303,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

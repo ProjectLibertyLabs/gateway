@@ -1,0 +1,20 @@
+{
+  "rustc": 16006274961074835420,
+  "features": "[\"alloc\", \"dfa-onepass\", \"hybrid\", \"meta\", \"nfa-backtrack\", \"nfa-pikevm\", \"nfa-thompson\", \"perf-inline\", \"perf-literal\", \"perf-literal-multisubstring\", \"perf-literal-substring\", \"std\", \"syntax\", \"unicode\", \"unicode-age\", \"unicode-bool\", \"unicode-case\", \"unicode-gencat\", \"unicode-perl\", \"unicode-script\", \"unicode-segment\", \"unicode-word-boundary\"]",
+  "declared_features": "",
+  "target": 5453405124896219811,
+  "profile": 4374887572363265115,
+  "path": 10740631638891679032,
+  "deps": [
+    [7325384046744447800, "aho_corasick", false, 4613144078173405528],
+    [12784352588272788987, "regex_syntax", false, 5500474430944307312],
+    [15818844694086178958, "memchr", false, 11687439194848646893]
+  ],
+  "local": [
+    { "CheckDepInfo": { "dep_info": "debug/.fingerprint/regex-automata-e3dad453acff001a/dep-lib-regex-automata" } }
+  ],
+  "rustflags": [],
+  "metadata": 8878122455581797878,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

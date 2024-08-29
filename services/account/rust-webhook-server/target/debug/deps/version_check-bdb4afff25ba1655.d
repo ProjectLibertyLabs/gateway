@@ -1,0 +1,10 @@
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/libversion_check-bdb4afff25ba1655.rmeta: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/version.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/channel.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/date.rs
+
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/libversion_check-bdb4afff25ba1655.rlib: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/version.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/channel.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/date.rs
+
+/Users/claireolmstead/Desktop/Amplica/gateway/services/account/rust-webhook-server/target/debug/deps/version_check-bdb4afff25ba1655.d: /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/lib.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/version.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/channel.rs /Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/date.rs
+
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/lib.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/version.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/channel.rs:
+/Users/claireolmstead/.cargo/registry/src/index.crates.io-6f17d22bba15001f/version_check-0.9.4/src/date.rs:

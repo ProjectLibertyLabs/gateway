@@ -63,8 +63,8 @@ services:
     # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
     # Other options you may want to add depending on your test scenario.
     environment:
-      - SEALING_MODE=interval
-      - SEALING_INTERVAL=12
+      - SEALING_MODE=instant
+#      - SEALING_INTERVAL=12
     #   - CREATE_EMPTY_BLOCKS=true
     # The 'command' may contain additional CLI options to the Frequency node,
     # such as:

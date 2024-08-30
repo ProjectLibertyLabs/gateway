@@ -2,6 +2,8 @@
   "extends": "@projectlibertylabs/ts-config",
   "compilerOptions": {
     "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "#api": ["apps/api/src"],
       "#api/*": ["apps/api/src/*"],

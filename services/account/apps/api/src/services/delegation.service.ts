@@ -1,7 +1,9 @@
-import { BlockchainService } from '#lib/blockchain/blockchain.service';
+import { BLOCK_EXPIRATION_SECS, BlockchainService } from '#lib/blockchain/blockchain.service';
 import { ConfigService } from '#lib/config/config.service';
 import { DelegationResponse } from '#lib/types/dtos/delegation.response.dto';
+import { RevokeDelegationRequest } from '#lib/types/dtos/revokeDelegation.request.dto';
 import { Injectable, Logger } from '@nestjs/common';
+import { SECONDS_PER_BLOCK } from 'libs/common/src';
 
 @Injectable()
 export class DelegationService {
@@ -35,5 +37,18 @@ export class DelegationService {
       throw new Error('Failed to find the delegation.');
     }
     throw new Error('Invalid msaId.');
+  }
+
+  async getRevokeDelegationPayload(
+    providerId: string,
+    expirationTime: number = BLOCK_EXPIRATION_SECS,
+  ): Promise<RevokeDelegationRequest> {
+    const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+    const expirationBlockNumber = lastFinalizedBlockNumber + expirationTime / SECONDS_PER_BLOCK;
+    const revokeDelegationType = this.blockchainService.createType('RevokeDelegationPayload', {
+      providerId,
+      expirationBlockNumber,
+    });
+    // return this.blockchainService.getRevokeDelegationPayload(providerId);
   }
 }

@@ -25,6 +25,7 @@ import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 import { Extrinsic } from './extrinsic';
+import { SECONDS_PER_BLOCK } from '../constants';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -55,6 +56,7 @@ export interface ICapacityInfo {
   currentEpoch: number;
 }
 
+export const BLOCK_EXPIRATION_SECS = 10 * 60; // 10 minutes
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;

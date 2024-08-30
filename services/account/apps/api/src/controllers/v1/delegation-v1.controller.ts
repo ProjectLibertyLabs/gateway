@@ -1,7 +1,8 @@
 import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 import { DelegationService } from '#api/services/delegation.service';
 import { DelegationResponse } from '#lib/types/dtos/delegation.response.dto';
-import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
+import { RevokeDelegationRequest } from '#lib/types/dtos/revokeDelegation.request.dto';
+import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/delegation')
@@ -26,6 +27,24 @@ export class DelegationControllerV1 {
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to find the delegation', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  // Revoke Delegation endpoint
+  @Get('revokeDelegation/:providerId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a properly encoded RevokeDelegationPayload that can be signed' })
+  @ApiOkResponse({ description: 'Returned an encoded RevokeDelegationPayload for signing' })
+  async getRevokeDelegationPayload(
+    @Param('providerId') providerId: string,
+    @Query('expirationTime') expirationTime?: number,
+  ): Promise<RevokeDelegationRequest> {
+    try {
+      const revokeDelegationPayload = this.delegationService.getRevokeDelegationPayload(providerId, expirationTime);
+      return revokeDelegationPayload;
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -244,14 +244,10 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public createClaimHandPayloadType(baseHandle: string, expiration: number) {
     const handleVec = new Bytes(this.api.registry, baseHandle).toHex();
-    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
-      'CommonPrimitivesHandlesClaimHandlePayload',
-      {
-        baseHandle: handleVec,
-        expiration,
-      },
-    );
-    return claimHandlePayload;
+    return this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', {
+      baseHandle: handleVec,
+      expiration,
+    });
   }
 
   public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {

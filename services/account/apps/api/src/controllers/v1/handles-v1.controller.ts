@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Param,
-  HttpException,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException, Body } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TransactionType } from '#lib/types/enums';
 import { HandlesService } from '#api/services/handles.service';
@@ -17,8 +7,8 @@ import {
   ChangeHandlePayloadRequest,
   ChangeHandleRequest,
   CreateHandleRequest,
+  HandleRequestDto,
 } from '#lib/types/dtos/handles.request.dto';
-import { ChangeHandleRequest, CreateHandleRequest, HandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#lib/types/dtos/transaction.response.dto';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';

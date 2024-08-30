@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
-import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
-import { HandleRequestDto } from '#lib/types/dtos';
-import { CommonPrimitivesHandlesClaimHandlePayload } from '@polkadot/types/lookup';
+import { HandleRequestDto, HandleResponseDto } from '#lib/types/dtos';
 
 @Injectable()
 export class HandlesService {
@@ -25,7 +23,7 @@ export class HandlesService {
     return lastFinalizedBlockNumber + 10;
   }
 
-  encodePayload(payload: HandleRequestDto['payload']): CommonPrimitivesHandlesClaimHandlePayload {
+  encodePayload(payload: HandleRequestDto['payload']) {
     return this.blockchainService.createClaimHandPayloadType(payload.baseHandle, payload.expiration);
   }
 }

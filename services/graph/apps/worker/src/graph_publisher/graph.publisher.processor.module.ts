@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { BlockchainModule, NonceService } from '#lib';
 import { GraphUpdatePublisherService } from './graph.publisher.processor.service';
+import { NonceService } from '#lib/services/nonce.service';
+import { BlockchainModule } from '#lib/blockchain';
 
 @Module({
   imports: [BlockchainModule],

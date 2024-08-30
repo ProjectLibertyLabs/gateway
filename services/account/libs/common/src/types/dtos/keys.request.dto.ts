@@ -4,7 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
 
-class KeysRequestPayload {
+class KeysRequestPayloadDto {
   @ApiProperty()
   @IsNotEmpty()
   msaId: string;
@@ -18,7 +18,7 @@ class KeysRequestPayload {
   newPublicKey: string;
 }
 
-export class KeysRequest {
+export class KeysRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   msaOwnerAddress: string;
@@ -33,11 +33,11 @@ export class KeysRequest {
 
   @ApiProperty()
   @IsNotEmpty()
-  payload: KeysRequestPayload;
+  payload: KeysRequestPayloadDto;
 }
 
-export type AddKeyRequest = KeysRequest & {
+export type AddKeyRequestDto = KeysRequestDto & {
   type: TransactionType.ADD_KEY;
 };
 
-export type PublishKeysRequest = AddKeyRequest;
+export type PublishKeysRequestDto = AddKeyRequestDto;

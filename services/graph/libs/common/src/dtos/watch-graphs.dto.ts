@@ -7,7 +7,7 @@ export class WatchGraphsDto {
   @IsNumberString({ no_symbols: true }, { each: true })
   @ApiProperty({
     required: false,
-    description: 'MSA IDs for which to watch for graph updates',
+    description: 'MSA Ids for which to watch for graph updates',
     type: [String],
     example: ['2', '3', '4', '5'],
   })

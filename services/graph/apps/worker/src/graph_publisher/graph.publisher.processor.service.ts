@@ -10,20 +10,15 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as QueueConstants from '#lib/queues/queue-constants';
-import {
-  BaseConsumer,
-  BlockchainService,
-  ConfigService,
-  GraphUpdateJob,
-  ICapacityInfo,
-  NonceService,
-  TXN_WATCH_LIST_KEY,
-  createKeys,
-} from '#lib';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ITxStatus } from '#lib/interfaces/tx-status.interface';
+import { ConfigService } from '#lib/config';
+import { BlockchainService, createKeys, ICapacityInfo } from '#lib/blockchain';
+import { GraphUpdateJob } from '#lib/dtos';
+import { NonceService } from '#lib/services/nonce.service';
+import { BaseConsumer } from '#lib/utils';
+import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#lib/types/constants';
 
-export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
 /**
@@ -37,6 +32,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
+    await this.graphChangePublishQueue.close();
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
     } catch (err) {

@@ -8,11 +8,6 @@ export const generateSwaggerDoc = async (app: INestApplication) => {
     .setTitle('Graph Service')
     .setDescription('Graph Service API')
     .setVersion('1.0')
-    .addBearerAuth({
-      type: 'http',
-      description: 'Enter JWT token',
-    })
-    .addCookieAuth('SESSION')
     .build();
   await SwaggerModule.loadPluginMetadata(metadata);
 

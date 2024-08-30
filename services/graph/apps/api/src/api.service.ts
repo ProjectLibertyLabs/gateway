@@ -6,18 +6,18 @@ import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import * as QueueConstants from '#lib/queues/queue-constants';
 import * as RedisConstants from '#lib/utils/redis';
+import { ConfigService } from '#lib/config';
+import { BlockchainService } from '#lib/blockchain';
 import {
-  AsyncDebouncerService,
-  BlockchainService,
-  ConfigService,
-  GraphChangeRepsonseDto,
-  GraphStateManager,
-  GraphsQueryParamsDto,
   ProviderGraphDto,
-  ProviderGraphUpdateJob,
-  UserGraphDto,
+  GraphChangeRepsonseDto,
   WatchGraphsDto,
-} from '#lib';
+  GraphsQueryParamsDto,
+  UserGraphDto,
+} from '#lib/dtos';
+import { ProviderGraphUpdateJob } from '#lib/interfaces';
+import { AsyncDebouncerService } from '#lib/services/async_debouncer';
+import { GraphStateManager } from '#lib/services/graph-state-manager';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -82,7 +82,7 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   /**
-   * Adds webhook registrations for a list of MSA IDs to the set
+   * Adds webhook registrations for a list of MSA Ids to the set
    * of webhooks in the Redis cache. Returns whether any new
    * webhooks were added.
    * @param {any} watchGraphsDto:WatchGraphsDto

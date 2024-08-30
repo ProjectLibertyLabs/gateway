@@ -4,10 +4,10 @@ import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { TransactionType } from '#lib/types/enums';
 import { ConfigService } from '#lib/config/config.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
-import { WalletLoginRequestDto, PublishSIWFSignupRequest } from '#lib/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponse } from '#lib/types/dtos/wallet.login.response.dto';
-import { AccountResponse, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
-import { WalletLoginConfigResponse } from '#lib/types/dtos/wallet.login.config.response.dto';
+import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#lib/types/dtos/wallet.login.request.dto';
+import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dto';
+import { AccountResponseDto, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
+import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.config.response.dto';
 
 @Injectable()
 export class AccountsService {
@@ -21,7 +21,7 @@ export class AccountsService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async getAccount(msaId: string): Promise<AccountResponse | null> {
+  async getAccount(msaId: string): Promise<AccountResponseDto | null> {
     try {
       const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
       if (isValidMsaId) {
@@ -56,8 +56,8 @@ export class AccountsService {
     }
   }
 
-  async getSIWFConfig(): Promise<WalletLoginConfigResponse> {
-    let response: WalletLoginConfigResponse;
+  async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
+    let response: WalletLoginConfigResponseDto;
     try {
       const { providerId, frequencyHttpUrl, siwfUrl } = this.configService;
       response = {
@@ -73,17 +73,18 @@ export class AccountsService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponse> {
+  async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
     const api = await this.blockchainService.getApi();
     const { providerId } = this.configService;
     if (request.signUp) {
       try {
         const siwfPayload = await validateSignup(api, request.signUp, providerId.toString());
         // Pass all this data to the transaction publisher queue
-        const referenceId: WalletLoginResponse = await this.enqueueService.enqueueRequest<PublishSIWFSignupRequest>({
-          ...siwfPayload,
-          type: TransactionType.SIWF_SIGNUP,
-        });
+        const referenceId: WalletLoginResponseDto =
+          await this.enqueueService.enqueueRequest<PublishSIWFSignupRequestDto>({
+            ...siwfPayload,
+            type: TransactionType.SIWF_SIGNUP,
+          });
         return referenceId;
       } catch (e: any) {
         this.logger.error(`Failed Signup validation ${e.toString()}`);
@@ -92,7 +93,7 @@ export class AccountsService {
     } else if (request.signIn) {
       try {
         const parsedSignin = await validateSignin(api, request.signIn, 'localhost');
-        const response: WalletLoginResponse = {
+        const response: WalletLoginResponseDto = {
           referenceId: '0',
           msaId: parsedSignin.msaId,
           publicKey: parsedSignin.publicKey,
@@ -102,9 +103,9 @@ export class AccountsService {
         this.logger.error(`Error during SIWF signin request: ${e}`);
         const { cause } = e as any;
         this.logger.error(`cause: ${cause}`);
-        throw new Error('Failed to Sign-In With Frequency');
+        throw new Error('Failed to Sign In With Frequency');
       }
     }
-    throw new Error('Invalid Sign-In With Frequency Request');
+    throw new Error('Invalid Sign In With Frequency Request');
   }
 }

@@ -1,33 +1,23 @@
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { RedisModule } from '@songkeys/nestjs-redis';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
-import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
 import * as QueueConstants from '#lib/queues/queue-constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { QueueModule } from '#lib/queues/queue.module';
+import { ConfigModule, ConfigService } from '#lib/config';
+import { BlockchainModule } from '#lib/blockchain';
+import { GraphStateManager } from '#lib/services/graph-state-manager';
+import { CacheModule } from '#lib/cache/cache.module';
 
 @Module({
   imports: [
-    ConfigModule,
-    BlockchainModule,
-    RedisModule.forRootAsync(
-      {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
-        }),
-        inject: [ConfigService],
-      },
-      true, // isGlobal
-    ),
-    QueueModule,
+    ConfigModule.forRoot(true), // allowReadOnly
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -46,6 +36,17 @@ import { QueueModule } from '#lib/queues/queue.module';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
+    BlockchainModule,
+    CacheModule.forRootAsync({
+      useFactory: (configService: ConfigService) => [
+        {
+          url: configService.redisUrl.toString(),
+          keyPrefix: configService.cacheKeyPrefix,
+        },
+      ],
+      inject: [ConfigService, EventEmitter2],
+    }),
+    QueueModule,
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',

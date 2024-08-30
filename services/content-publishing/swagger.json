@@ -4,7 +4,7 @@
     "/v1/asset/upload": {
       "put": {
         "operationId": "AssetControllerV1_assetUpload",
-        "summary": "Upload Asset Files",
+        "summary": "Upload asset files",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -29,13 +29,15 @@
             }
           }
         },
-        "tags": ["v1/asset"]
+        "tags": [
+          "v1/asset"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/broadcast": {
       "post": {
         "operationId": "ContentControllerV1_broadcast",
-        "summary": "Create DSNP Broadcast for User",
+        "summary": "Create DSNP Broadcast for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -68,13 +70,15 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/reply": {
       "post": {
         "operationId": "ContentControllerV1_reply",
-        "summary": "Create DSNP Reply for User",
+        "summary": "Create DSNP Reply for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -107,13 +111,15 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/reaction": {
       "post": {
         "operationId": "ContentControllerV1_reaction",
-        "summary": "Create DSNP Reaction for User",
+        "summary": "Create DSNP Reaction for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -146,13 +152,15 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}": {
       "put": {
         "operationId": "ContentControllerV1_update",
-        "summary": "Update DSNP Content for User",
+        "summary": "Update DSNP Content for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -185,11 +193,13 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       },
       "delete": {
         "operationId": "ContentControllerV1_delete",
-        "summary": "Delete DSNP Content for User",
+        "summary": "Delete DSNP Content for user",
         "parameters": [
           {
             "name": "userDsnpId",
@@ -222,7 +232,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/profile/{userDsnpId}": {
@@ -261,7 +273,9 @@
             }
           }
         },
-        "tags": ["v1/profile"]
+        "tags": [
+          "v1/profile"
+        ]
       }
     },
     "/healthz": {
@@ -274,7 +288,9 @@
             "description": "Service is healthy"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/livez": {
@@ -287,7 +303,9 @@
             "description": "Service is live"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/readyz": {
@@ -300,7 +318,9 @@
             "description": "Service is ready"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/dev/request/{jobId}": {
@@ -323,7 +343,9 @@
             "description": ""
           }
         },
-        "tags": ["dev"]
+        "tags": [
+          "dev"
+        ]
       }
     },
     "/dev/asset/{assetId}": {
@@ -343,17 +365,20 @@
         ],
         "responses": {
           "2XX": {
-            "description": "",
             "content": {
-              "application/json": {
+              "application/octet-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/Buffer"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
-            }
+            },
+            "description": ""
           }
         },
-        "tags": ["dev"]
+        "tags": [
+          "dev"
+        ]
       }
     },
     "/dev/dummy/announcement/{queueType}/{count}": {
@@ -384,7 +409,9 @@
             "description": ""
           }
         },
-        "tags": ["dev"]
+        "tags": [
+          "dev"
+        ]
       }
     }
   },
@@ -397,19 +424,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
       "FilesUploadDto": {
         "type": "object",
@@ -422,7 +436,9 @@
             }
           }
         },
-        "required": ["files"]
+        "required": [
+          "files"
+        ]
       },
       "UploadResponseDto": {
         "type": "object",
@@ -434,7 +450,9 @@
             }
           }
         },
-        "required": ["assetIds"]
+        "required": [
+          "assetIds"
+        ]
       },
       "AssetReferenceDto": {
         "type": "object",
@@ -456,7 +474,9 @@
             "pattern": "DURATION_REGEX"
           }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
       "AssetDto": {
         "type": "object",
@@ -482,7 +502,10 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["mention", "hashtag"]
+            "enum": [
+              "mention",
+              "hashtag"
+            ]
           },
           "name": {
             "type": "string",
@@ -492,7 +515,9 @@
             "type": "string"
           }
         },
-        "required": ["type"]
+        "required": [
+          "type"
+        ]
       },
       "LocationDto": {
         "type": "object",
@@ -521,10 +546,19 @@
           },
           "units": {
             "type": "string",
-            "enum": ["cm", "m", "km", "inches", "feet", "miles"]
+            "enum": [
+              "cm",
+              "m",
+              "km",
+              "inches",
+              "feet",
+              "miles"
+            ]
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "NoteActivityDto": {
         "type": "object",
@@ -555,7 +589,10 @@
             "$ref": "#/components/schemas/LocationDto"
           }
         },
-        "required": ["content", "published"]
+        "required": [
+          "content",
+          "published"
+        ]
       },
       "BroadcastDto": {
         "type": "object",
@@ -564,7 +601,9 @@
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["content"]
+        "required": [
+          "content"
+        ]
       },
       "AnnouncementResponseDto": {
         "type": "object",
@@ -573,7 +612,9 @@
             "type": "string"
           }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
       "ReplyDto": {
         "type": "object",
@@ -585,7 +626,10 @@
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["inReplyTo", "content"]
+        "required": [
+          "inReplyTo",
+          "content"
+        ]
       },
       "ReactionDto": {
         "type": "object",
@@ -604,7 +648,11 @@
             "type": "string"
           }
         },
-        "required": ["emoji", "apply", "inReplyTo"]
+        "required": [
+          "emoji",
+          "apply",
+          "inReplyTo"
+        ]
       },
       "UpdateDto": {
         "type": "object",
@@ -614,13 +662,20 @@
           },
           "targetAnnouncementType": {
             "type": "string",
-            "enum": ["broadcast", "reply"]
+            "enum": [
+              "broadcast",
+              "reply"
+            ]
           },
           "content": {
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["targetContentHash", "targetAnnouncementType", "content"]
+        "required": [
+          "targetContentHash",
+          "targetAnnouncementType",
+          "content"
+        ]
       },
       "TombstoneDto": {
         "type": "object",
@@ -630,10 +685,16 @@
           },
           "targetAnnouncementType": {
             "type": "string",
-            "enum": ["broadcast", "reply"]
+            "enum": [
+              "broadcast",
+              "reply"
+            ]
           }
         },
-        "required": ["targetContentHash", "targetAnnouncementType"]
+        "required": [
+          "targetContentHash",
+          "targetAnnouncementType"
+        ]
       },
       "ProfileActivityDto": {
         "type": "object",
@@ -671,11 +732,9 @@
             "$ref": "#/components/schemas/ProfileActivityDto"
           }
         },
-        "required": ["profile"]
-      },
-      "Buffer": {
-        "type": "object",
-        "properties": {}
+        "required": [
+          "profile"
+        ]
       }
     }
   }

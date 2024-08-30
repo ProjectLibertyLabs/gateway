@@ -1,23 +1,24 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
 import { AxiosError, AxiosResponse } from 'axios';
 import * as QueueConstants from '#lib/queues/queue-constants';
-import {
-  BaseConsumer,
-  ConfigService,
-  ConnectionDto,
-  GraphKeyPairDto,
-  IGraphUpdateJob,
-  ProviderGraphUpdateJob,
-  ProviderWebhookService,
-} from '#lib';
+import { ConnectionDto, GraphKeyPairDto } from '#lib/dtos';
+import { IGraphUpdateJob, ProviderGraphUpdateJob } from '#lib/interfaces';
+import { ProviderWebhookService } from '#lib/services/provider-webhook.service';
+import { BaseConsumer } from '#lib/utils';
+import { ConfigService } from '#lib/config';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
-export class GraphReconnectionService extends BaseConsumer {
+export class GraphReconnectionService extends BaseConsumer implements OnModuleDestroy {
+  async onModuleDestroy(): Promise<any> {
+    await this.graphChangeRequestQueuue.close();
+    await this.reconnectRequestQueue.close();
+  }
+
   constructor(
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectRequestQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueuue: Queue,

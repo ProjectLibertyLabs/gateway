@@ -1,27 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { RedisModule } from '@songkeys/nestjs-redis';
-import { BlockchainModule, ConfigModule, ConfigService, GraphStateManager } from '#lib';
+import { ConfigModule, ConfigService } from '#lib/config';
+import { BlockchainModule } from '#lib/blockchain';
+import { GraphStateManager } from '#lib/services/graph-state-manager';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#lib/services/nonce.service';
+import { QueueModule } from '#lib/queues/queue.module';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { QueueModule } from '#lib/queues/queue.module';
+import { CacheModule } from '#lib/cache/cache.module';
 
 @Module({
   imports: [
-    ConfigModule,
-    QueueModule,
-    RedisModule.forRootAsync(
-      {
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
-          config: [{ url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix }],
-        }),
-        inject: [ConfigService],
-      },
-      true, // isGlobal
-    ),
+    ConfigModule.forRoot(),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -34,11 +26,26 @@ import { QueueModule } from '#lib/queues/queue.module';
       // set this to `true` if you want to emit the removeListener event
       removeListener: false,
       // the maximum amount of listeners that can be assigned to an event
-      maxListeners: 10,
+      maxListeners: 20,
       // show event name in memory leak message when more than maximum amount of listeners is assigned
-      verboseMemoryLeak: false,
+      verboseMemoryLeak: true,
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
+    }),
+    QueueModule,
+    CacheModule.forRootAsync({
+      useFactory: (configService: ConfigService) => [
+        {
+          url: configService.redisUrl.toString(),
+          keyPrefix: configService.cacheKeyPrefix,
+        },
+        {
+          namespace: NONCE_SERVICE_REDIS_NAMESPACE,
+          url: configService.redisUrl.toString(),
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+        },
+      ],
+      inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
     BlockchainModule,
@@ -47,5 +54,6 @@ import { QueueModule } from '#lib/queues/queue.module';
     GraphNotifierModule,
   ],
   providers: [GraphStateManager],
+  exports: [],
 })
 export class WorkerModule {}

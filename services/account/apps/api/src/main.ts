@@ -14,56 +14,32 @@ BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
 
+/*
+ * Shutdown timer will forcibly terminate the app if it doesn't complete
+ * a graceful shutdown when requested. This is mostly because the @nestjs/bullmq
+ * package doesn't seem to behave on exit under certain conditions (mainly if it
+ * can't connect to Redis at startup)
+ */
+function startShutdownTimer() {
+  setTimeout(() => process.exit(1), 10_000);
+}
+
 async function bootstrap() {
-  // Starting the disconnect timeout here to ensure that the application does not hang indefinitely.
-  let redisConnectTimeout: NodeJS.Timeout | null = setTimeout(() => {
-    logger.error('Redis connection timeout!');
-    process.exit(1);
-  }, 30_000);
-
-  const app = await NestFactory.create(ApiModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
-  });
-  logger.debug('DEBUG log is enabled');
-  logger.verbose('VERBOSE log is enabled');
-
   process.on('uncaughtException', (error) => {
     console.error('****** UNCAUGHT EXCEPTION ******', error);
     process.exit(1);
   });
+
+  const app = await NestFactory.create(ApiModule, {
+    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+  });
+
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
     logger.warn('Received shutdown event');
+    startShutdownTimer();
     await app.close();
-  });
-
-  eventEmitter.on('redis.ready', () => {
-    logger.log('Redis Connected!');
-    if (redisConnectTimeout !== null) {
-      clearTimeout(redisConnectTimeout);
-      redisConnectTimeout = null;
-    }
-  });
-
-  // Note that if redis disconnects Bull Queues will log lots of Error: connect ECONNREFUSED that we cannot stop
-  // This is due to https://github.com/taskforcesh/bullmq/issues/1073
-  eventEmitter.on('redis.close', () => {
-    // Shutdown after a disconnect of more than 30 seconds
-    if (redisConnectTimeout === null) {
-      logger.error('Redis Disconnect Detected! Waiting 30 seconds for reconnection before shutdown.');
-      redisConnectTimeout = setTimeout(() => {
-        logger.error('Redis reconnection timeout!');
-        process.exit(1);
-      }, 30_000);
-    }
-  });
-
-  eventEmitter.on('redis.error', (err: Error) => {
-    // Only log errors if we are not in a connection situation
-    if (redisConnectTimeout === null) {
-      logger.error('Redis Error!', err);
-    }
   });
 
   try {
@@ -75,15 +51,16 @@ async function bootstrap() {
     logger.log(`Listening on port ${configService.apiPort}`);
     await app.listen(configService.apiPort);
   } catch (e) {
-    await app.close();
     logger.log('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
     }
+    startShutdownTimer();
+    await app.close();
   }
 }
 
-bootstrap().catch((err) => {
-  logger.error('Unhandled exception in boostrap', err);
-});
+bootstrap()
+  .then(() => logger.log('bootstrap exited'))
+  .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));

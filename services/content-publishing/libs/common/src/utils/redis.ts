@@ -1,3 +1,9 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ClientNamespace } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+
+export const redisReadyMap = new Map<ClientNamespace, boolean>([['default', false]]);
+
 /**
  * 45 days upper limit to avoid keeping abandoned data forever
  */
@@ -40,4 +46,21 @@ export function getLockKey(suffix: string) {
 }
 export function getNonceKey(suffix: string) {
   return `${CHAIN_NONCE_KEY}:${suffix}`;
+}
+
+export function redisEventsToEventEmitter(
+  client: Redis,
+  eventEmitter: EventEmitter2,
+  namespace: ClientNamespace = 'default',
+) {
+  client.on('error', (err) => {
+    eventEmitter.emit('redis.error', namespace, err);
+  });
+  client.on('ready', () => {
+    redisReadyMap.set(namespace, true);
+    eventEmitter.emit('redis.ready', namespace);
+  });
+  client.on('close', () => {
+    eventEmitter.emit('redis.close', namespace);
+  });
 }

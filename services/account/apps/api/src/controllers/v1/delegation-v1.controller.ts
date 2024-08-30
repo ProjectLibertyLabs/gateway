@@ -1,10 +1,12 @@
+import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 import { DelegationService } from '#api/services/delegation.service';
 import { DelegationResponse } from '#lib/types/dtos/delegation.response.dto';
-import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
+@UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
   private readonly logger: Logger;
 
@@ -15,8 +17,8 @@ export class DelegationControllerV1 {
   // Delegation endpoint
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get the delegation information associated with an msaId.' })
-  @ApiOkResponse({ description: 'Found delegation information.' })
+  @ApiOperation({ summary: 'Get the delegation information associated with an MSA Id' })
+  @ApiOkResponse({ description: 'Found delegation information' })
   async getDelegation(@Param('msaId') msaId: string): Promise<DelegationResponse> {
     try {
       const delegation = await this.delegationService.getDelegation(msaId);

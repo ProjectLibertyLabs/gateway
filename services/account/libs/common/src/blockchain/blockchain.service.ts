@@ -20,10 +20,10 @@ import { ConfigService } from '#lib/config/config.service';
 import { TransactionType } from '#lib/types/enums';
 import { HexString } from '@polkadot/util/types';
 import { decodeAddress } from '@polkadot/util-crypto';
-import { KeysRequest } from '#lib/types/dtos/keys.request.dto';
-import { PublishHandleRequest } from '#lib/types/dtos/handles.request.dto';
+import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
+import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
-import { HandleResponseDTO } from '#lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
@@ -86,6 +86,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
       this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
       this.readyResolve(await this.api.isReady);
+      await this.validateProviderSeedPhrase();
       this.logger.log('Blockchain API ready.');
     } catch (err) {
       this.readyReject(err);
@@ -194,14 +195,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   /**
-   * Return the current maximum MSA ID.
+   * Return the current maximum MSA Id.
    *
-   * NOTE: in most other places we treat MSA ID as a string to eliminate
+   * NOTE: in most other places we treat MSA Id as a string to eliminate
    * portability problems with `bigint`, but here we explicitly return it
    * as a `bigint` because the return value of this function is used almost
    * exclusively in the context of a mathematical comparison.
    *
-   * @returns {bigint} The current maximum MSA ID from the chain
+   * @returns {bigint} The current maximum MSA Id from the chain
    */
   public async getMsaIdMax(): Promise<bigint> {
     const count = await this.query('msa', 'currentMsaIdentifierMaximum');
@@ -222,7 +223,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     throw new Error(`No keys found for msaId: ${msaId}`);
   }
 
-  public async addPublicKeyToMsa(keysRequest: KeysRequest): Promise<SubmittableExtrinsic<any>> {
+  public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const msaIdU64 = this.api.createType('u64', payload.msaId);
 
@@ -241,7 +242,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return addKeyResponse;
   }
 
-  public async publishHandle(jobData: TransactionData<PublishHandleRequest>) {
+  public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
     const handleVec = new Bytes(this.api.registry, jobData.payload.baseHandle);
     const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
       'CommonPrimitivesHandlesClaimHandlePayload',
@@ -267,7 +268,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDTO | null> {
+  public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDto | null> {
     const handleResponse: Option<HandleResponse> = await this.rpc('handles', 'getHandleForMsa', msaId.toString());
     if (handleResponse.isSome) {
       const handle = handleResponse.unwrap();
@@ -406,7 +407,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   /**
    * Handles the PublicKeyAdded transaction result events and extracts the public key from the event data.
    * @param {Event} event - The PublicKeyAdded event
-   * @returns {PublicKeyValues} An object containing the MSA ID & new public key
+   * @returns {PublicKeyValues} An object containing the MSA Id & new public key
    */
   public handlePublishKeyTxResult(event: Event): PublicKeyValues {
     const publicKeyValues: Partial<PublicKeyValues> = {};
@@ -419,5 +420,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
 
     return publicKeyValues as PublicKeyValues;
+  }
+
+  public async validateProviderSeedPhrase() {
+    const { providerPublicKeyAddress, providerId } = this.configService;
+    if (providerPublicKeyAddress) {
+      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+
+      if (resolvedProviderId !== providerId) {
+        throw new Error('Provided account secret does not match configured Provider ID');
+      }
+    }
   }
 }

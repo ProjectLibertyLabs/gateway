@@ -4,7 +4,7 @@
     "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsControllerV1_getSIWFConfig",
-        "summary": "Get the Sign-In With Frequency Configuration",
+        "summary": "Get the Sign In With Frequency configuration",
         "parameters": [],
         "responses": {
           "200": {
@@ -12,17 +12,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletLoginConfigResponse"
+                  "$ref": "#/components/schemas/WalletLoginConfigResponseDto"
                 }
               }
             }
           }
         },
-        "tags": ["v1/accounts"]
+        "tags": [
+          "v1/accounts"
+        ]
       },
       "post": {
         "operationId": "AccountsControllerV1_postSignInWithFrequency",
-        "summary": "Request to sign in with Frequency",
+        "summary": "Request to Sign In With Frequency",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -40,19 +42,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletLoginResponse"
+                  "$ref": "#/components/schemas/WalletLoginResponseDto"
                 }
               }
             }
           }
         },
-        "tags": ["v1/accounts"]
+        "tags": [
+          "v1/accounts"
+        ]
       }
     },
     "/v1/accounts/{msaId}": {
       "get": {
         "operationId": "AccountsControllerV1_getAccountForMsa",
-        "summary": "Fetch an account given an msaId.",
+        "summary": "Fetch an account given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -69,19 +73,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountResponse"
+                  "$ref": "#/components/schemas/AccountResponseDto"
                 }
               }
             }
           }
         },
-        "tags": ["v1/accounts"]
+        "tags": [
+          "v1/accounts"
+        ]
       }
     },
     "/v1/accounts/account/{publicKey}": {
       "get": {
         "operationId": "AccountsControllerV1_getAccountForPublicKey",
-        "summary": "Fetch an account given a public key.",
+        "summary": "Fetch an account given a public key",
         "parameters": [
           {
             "name": "publicKey",
@@ -98,19 +104,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountResponse"
+                  "$ref": "#/components/schemas/AccountResponseDto"
                 }
               }
             }
           }
         },
-        "tags": ["v1/accounts"]
+        "tags": [
+          "v1/accounts"
+        ]
       }
     },
     "/v1/delegation/{msaId}": {
       "get": {
         "operationId": "DelegationControllerV1_getDelegation",
-        "summary": "Get the delegation information associated with an msaId.",
+        "summary": "Get the delegation information associated with an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -123,10 +131,12 @@
         ],
         "responses": {
           "200": {
-            "description": "Found delegation information."
+            "description": "Found delegation information"
           }
         },
-        "tags": ["v1/delegation"]
+        "tags": [
+          "v1/delegation"
+        ]
       }
     },
     "/v1/handles": {
@@ -139,7 +149,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HandleRequest"
+                "$ref": "#/components/schemas/HandleRequestDto"
               }
             }
           }
@@ -149,7 +159,9 @@
             "description": "Handle creation request enqueued"
           }
         },
-        "tags": ["v1/handles"]
+        "tags": [
+          "v1/handles"
+        ]
       }
     },
     "/v1/handles/change": {
@@ -162,7 +174,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HandleRequest"
+                "$ref": "#/components/schemas/HandleRequestDto"
               }
             }
           }
@@ -172,13 +184,15 @@
             "description": "Handle change request enqueued"
           }
         },
-        "tags": ["v1/handles"]
+        "tags": [
+          "v1/handles"
+        ]
       }
     },
     "/v1/handles/{msaId}": {
       "get": {
         "operationId": "HandlesControllerV1_getHandle",
-        "summary": "Fetch a handle given an msaId.",
+        "summary": "Fetch a handle given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -194,36 +208,40 @@
             "description": "Found a handle"
           }
         },
-        "tags": ["v1/handles"]
+        "tags": [
+          "v1/handles"
+        ]
       }
     },
     "/v1/keys/add": {
       "post": {
         "operationId": "KeysControllerV1_addKey",
-        "summary": "add new control keys for an MSA ID",
+        "summary": "Add new control keys for an MSA Id",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/KeysRequest"
+                "$ref": "#/components/schemas/KeysRequestDto"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Found public keys."
+            "description": "Found public keys"
           }
         },
-        "tags": ["v1/keys"]
+        "tags": [
+          "v1/keys"
+        ]
       }
     },
     "/v1/keys/{msaId}": {
       "get": {
         "operationId": "KeysControllerV1_getKeys",
-        "summary": "Fetch public keys given an msaId.",
+        "summary": "Fetch public keys given an MSA Id",
         "parameters": [
           {
             "name": "msaId",
@@ -236,10 +254,12 @@
         ],
         "responses": {
           "200": {
-            "description": "Found public keys."
+            "description": "Found public keys"
           }
         },
-        "tags": ["v1/keys"]
+        "tags": [
+          "v1/keys"
+        ]
       }
     },
     "/healthz": {
@@ -252,7 +272,9 @@
             "description": "Service is healthy"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/livez": {
@@ -265,7 +287,9 @@
             "description": "Service is live"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/readyz": {
@@ -278,7 +302,9 @@
             "description": "Service is ready"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     }
   },
@@ -291,21 +317,8 @@
   "tags": [],
   "servers": [],
   "components": {
-    "securitySchemes": {
-      "bearer": {
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "type": "http",
-        "description": "Enter JWT token"
-      },
-      "cookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "SESSION"
-      }
-    },
     "schemas": {
-      "WalletLoginConfigResponse": {
+      "WalletLoginConfigResponseDto": {
         "type": "object",
         "properties": {
           "providerId": {
@@ -318,9 +331,13 @@
             "type": "string"
           }
         },
-        "required": ["providerId", "siwfUrl", "frequencyRpcUrl"]
+        "required": [
+          "providerId",
+          "siwfUrl",
+          "frequencyRpcUrl"
+        ]
       },
-      "HandleResponseDTO": {
+      "HandleResponseDto": {
         "type": "object",
         "properties": {
           "base_handle": {
@@ -333,19 +350,25 @@
             "type": "number"
           }
         },
-        "required": ["base_handle", "canonical_base", "suffix"]
+        "required": [
+          "base_handle",
+          "canonical_base",
+          "suffix"
+        ]
       },
-      "AccountResponse": {
+      "AccountResponseDto": {
         "type": "object",
         "properties": {
           "msaId": {
             "type": "string"
           },
           "handle": {
-            "$ref": "#/components/schemas/HandleResponseDTO"
+            "$ref": "#/components/schemas/HandleResponseDto"
           }
         },
-        "required": ["msaId"]
+        "required": [
+          "msaId"
+        ]
       },
       "SiwsPayloadDto": {
         "type": "object",
@@ -357,7 +380,10 @@
             "type": "string"
           }
         },
-        "required": ["message", "signature"]
+        "required": [
+          "message",
+          "signature"
+        ]
       },
       "ErrorResponseDto": {
         "type": "object",
@@ -366,7 +392,9 @@
             "type": "string"
           }
         },
-        "required": ["message"]
+        "required": [
+          "message"
+        ]
       },
       "SignInResponseDto": {
         "type": "object",
@@ -392,7 +420,11 @@
             "type": "string"
           }
         },
-        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
+        "required": [
+          "pallet",
+          "extrinsicName",
+          "encodedExtrinsic"
+        ]
       },
       "SignUpResponseDto": {
         "type": "object",
@@ -433,7 +465,7 @@
           }
         }
       },
-      "WalletLoginResponse": {
+      "WalletLoginResponseDto": {
         "type": "object",
         "properties": {
           "referenceId": {
@@ -446,9 +478,11 @@
             "type": "string"
           }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
-      "HandlePayload": {
+      "HandlePayloadDto": {
         "type": "object",
         "properties": {
           "baseHandle": {
@@ -458,24 +492,31 @@
             "type": "number"
           }
         },
-        "required": ["baseHandle", "expiration"]
+        "required": [
+          "baseHandle",
+          "expiration"
+        ]
       },
-      "HandleRequest": {
+      "HandleRequestDto": {
         "type": "object",
         "properties": {
           "accountId": {
             "type": "string"
           },
           "payload": {
-            "$ref": "#/components/schemas/HandlePayload"
+            "$ref": "#/components/schemas/HandlePayloadDto"
           },
           "proof": {
             "type": "string"
           }
         },
-        "required": ["accountId", "payload", "proof"]
+        "required": [
+          "accountId",
+          "payload",
+          "proof"
+        ]
       },
-      "KeysRequestPayload": {
+      "KeysRequestPayloadDto": {
         "type": "object",
         "properties": {
           "msaId": {
@@ -488,9 +529,13 @@
             "type": "string"
           }
         },
-        "required": ["msaId", "expiration", "newPublicKey"]
+        "required": [
+          "msaId",
+          "expiration",
+          "newPublicKey"
+        ]
       },
-      "KeysRequest": {
+      "KeysRequestDto": {
         "type": "object",
         "properties": {
           "msaOwnerAddress": {
@@ -503,10 +548,15 @@
             "type": "string"
           },
           "payload": {
-            "$ref": "#/components/schemas/KeysRequestPayload"
+            "$ref": "#/components/schemas/KeysRequestPayloadDto"
           }
         },
-        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
+        "required": [
+          "msaOwnerAddress",
+          "msaOwnerSignature",
+          "newKeyOwnerSignature",
+          "payload"
+        ]
       }
     }
   }

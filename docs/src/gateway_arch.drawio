@@ -22,7 +22,7 @@
         <mxCell id="2GxuKcNO7kwAiyH6a_4Z-127" value="Custom Frontend Apps" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" parent="RVvHofBdQBIMrhMscmG6-1" vertex="1">
           <mxGeometry width="269" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="2GxuKcNO7kwAiyH6a_4Z-128" value="Sign in with Frequency" style="shape=label;whiteSpace=wrap;html=1;fixedSize=1;rounded=0;strokeColor=#23445d;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fillColor=#bac8d3;" parent="RVvHofBdQBIMrhMscmG6-1" vertex="1">
+        <mxCell id="2GxuKcNO7kwAiyH6a_4Z-128" value="Sign In With Frequency" style="shape=label;whiteSpace=wrap;html=1;fixedSize=1;rounded=0;strokeColor=#23445d;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=20;fillColor=#bac8d3;" parent="RVvHofBdQBIMrhMscmG6-1" vertex="1">
           <mxGeometry x="270" width="130" height="60" as="geometry" />
         </mxCell>
         <mxCell id="2GxuKcNO7kwAiyH6a_4Z-125" value="Custom Backend Services" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Helvetica;" parent="RVvHofBdQBIMrhMscmG6-1" vertex="1">

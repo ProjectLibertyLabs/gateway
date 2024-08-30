@@ -19,7 +19,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
-        ...configModuleOptions,
+        ...configModuleOptions(true),
         ignoreEnvFile: true,
         load: [() => process.env],
       }),
@@ -30,7 +30,9 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 
   await ConfigModule.envVariablesLoaded;
 
-  return moduleRef.get<ConfigService>(ConfigService);
+  const configService = moduleRef.get<ConfigService>(ConfigService);
+  await configService.onModuleInit();
+  return configService;
 };
 
 describe('GraphSericeConfig', () => {
@@ -109,6 +111,12 @@ describe('GraphSericeConfig', () => {
         setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
       ).rejects.toBeDefined();
     });
+
+    it('missing provider account seed phrase should activate read-only mode', async () => {
+      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
+      const graphConfigService = await setupConfigService(env);
+      expect(graphConfigService.isReadOnly).toBeTruthy();
+    });
   });
 
   describe('valid environment', () => {
@@ -155,6 +163,8 @@ describe('GraphSericeConfig', () => {
 
     it('should get provider account seed phrase', () => {
       expect(graphServiceConfig.providerAccountSeedPhrase).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
+      expect(graphServiceConfig.providerPublicKeyAddress).toBeDefined();
+      expect(graphServiceConfig.isReadOnly).toStrictEqual(false);
     });
 
     it('should get provider id', () => {

@@ -16,7 +16,7 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
-        ...configModuleOptions,
+        ...configModuleOptions(true),
         ignoreEnvFile: true,
         load: [() => process.env],
       }),
@@ -27,7 +27,9 @@ const setupConfigService = async (envObj: any): Promise<ConfigService> => {
 
   await ConfigModule.envVariablesLoaded;
 
-  return moduleRef.get<ConfigService>(ConfigService);
+  const configService = moduleRef.get<ConfigService>(ConfigService);
+  await configService.onModuleInit();
+  return configService;
 };
 
 describe('AccountServiceConfig', () => {
@@ -128,6 +130,12 @@ describe('AccountServiceConfig', () => {
         setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
       ).rejects.toBeDefined();
     });
+
+    it('missing provider account seed phrase should activate read-only mode', async () => {
+      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
+      const accountConfigService = await setupConfigService(env);
+      expect(accountConfigService.isReadOnly).toBeTruthy();
+    });
   });
 
   describe('valid environment', () => {
@@ -166,8 +174,10 @@ describe('AccountServiceConfig', () => {
       expect(accountServiceConfig.trustUnfinalizedBlocks).toStrictEqual(JSON.parse(ALL_ENV.TRUST_UNFINALIZED_BLOCKS!));
     });
 
-    it('should get provider account seed phrase', () => {
+    it('should get provider account seed phrase and not be readonly', () => {
       expect(accountServiceConfig.providerAccountSeedPhrase).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
+      expect(accountServiceConfig.providerPublicKeyAddress).toBeDefined();
+      expect(accountServiceConfig.isReadOnly).toStrictEqual(false);
     });
 
     it('should get provider id', () => {

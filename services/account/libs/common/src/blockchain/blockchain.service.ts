@@ -431,4 +431,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
     }
   }
+
+  public createRetireMsaTx() {
+    return this.api.tx.msa.retireMsa();
+  }
 }

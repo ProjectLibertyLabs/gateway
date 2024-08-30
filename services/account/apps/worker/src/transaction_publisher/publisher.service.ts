@@ -102,6 +102,13 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
+        case TransactionType.RETIRE_MSA: {
+          tx = this.job.data.tsx;
+          targetEvent = { section: 'msa', method: 'retireMsa' };
+          txHash = await this.processProxyTxn(job.data.accountId, tx);
+          this.logger.debug(`tx: ${tx}`);
+          break;
+        }
         default: {
           throw new Error(`Invalid job type.`);
         }
@@ -182,6 +189,21 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
+      return [ext.extrinsic, txHash];
+    } catch (error: any) {
+      this.logger.error(`Error processing batch transaction: ${error}`);
+      throw error;
+    }
+  }
+
+  async processProxyTxn(
+    accountId,
+    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    try {
+      const txHash = (await ext.send()).toHex();
+      ext.(txHash);
+
       return [ext.extrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);

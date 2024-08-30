@@ -101,4 +101,38 @@ export class AccountsControllerV1 {
       throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('retireMsa')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic.' })
+  @ApiOkResponse({ description: 'Created extrinsic' })
+  /**
+   * Gets an account.
+   * @param queryParams - The query parameters for creating the account.
+   * @returns A promise that resolves to an Account object => {msaId, handle}.
+   * @throws An error if the msaId or account cannot be found.
+   */
+  async getRetireMsaEncoded() {
+    try {
+      return this.accountsService.getRetireMsaTx();
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException('Failed to create a retireMsa unsigned, encoded extrinsic.', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('retireMsa/')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Request to retire an Msa Id.' })
+  @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
+  @ApiBody({ type: undefined })
+  async postRetireMsa(@Body() tx: any): Promise<any> {
+    try {
+      return this.accountsService.retireMsa(tx);
+    } catch (error) {
+      const errorMessage = 'Failed to Sign In With Frequency';
+      this.logger.error(`${errorMessage}: ${error}`);
+      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

@@ -5,4 +5,5 @@ export enum TransactionType {
   SIWF_SIGNUP = 'SIWF_SIGNUP',
   SIWF_SIGNIN = 'SIWF_SIGNIN',
   ADD_KEY = 'ADD_KEY',
+  RETIRE_MSA = 'RETIRE_MSA',
 }

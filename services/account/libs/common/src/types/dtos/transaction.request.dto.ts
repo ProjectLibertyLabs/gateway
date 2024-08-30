@@ -3,9 +3,10 @@ import { HexString } from '@polkadot/util/types';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishSIWFSignupRequestDto } from './wallet.login.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
+import { RetireMsaRequest } from '#lib/types/dtos/accounts.request.dto';
 
 export type TransactionData<
-  RequestType = PublishHandleRequestDto | PublishSIWFSignupRequestDto | PublishKeysRequestDto,
+  RequestType = PublishHandleRequestDto | PublishSIWFSignupRequestDto | PublishKeysRequestDto | RetireMsaRequest,
 > = RequestType & {
   providerId: string;
   referenceId: string;

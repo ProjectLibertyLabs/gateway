@@ -108,4 +108,21 @@ export class AccountsService {
     }
     throw new Error('Invalid Sign In With Frequency Request');
   }
+
+  getRetireMsaTx() {
+    return this.blockchainService.createRetireMsaTx();
+  }
+
+  async retireMsa(accountId: string) {
+    try {
+      const referenceId: WalletLoginResponse = await this.enqueueService.enqueueRequest<RetireMsaRequest>({
+        accountId,
+        type: TransactionType.RETIRE_MSA,
+      });
+      return referenceId;
+    } catch (e: any) {
+      this.logger.error(`Failed to enqueue retire msa request: ${e.toString()}`);
+      throw new Error('Failed to enqueue retire msa request');
+    }
+  }
 }

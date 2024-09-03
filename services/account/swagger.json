@@ -18,9 +18,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       },
       "post": {
         "operationId": "AccountsControllerV1_postSignInWithFrequency",
@@ -48,9 +46,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/accounts/{msaId}": {
@@ -79,9 +75,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/accounts/account/{publicKey}": {
@@ -110,9 +104,7 @@
             }
           }
         },
-        "tags": [
-          "v1/accounts"
-        ]
+        "tags": ["v1/accounts"]
       }
     },
     "/v1/delegation/{msaId}": {
@@ -134,9 +126,7 @@
             "description": "Found delegation information"
           }
         },
-        "tags": [
-          "v1/delegation"
-        ]
+        "tags": ["v1/delegation"]
       }
     },
     "/v1/handles": {
@@ -159,9 +149,7 @@
             "description": "Handle creation request enqueued"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/handles/change": {
@@ -184,9 +172,7 @@
             "description": "Handle change request enqueued"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/handles/change/{newHandle}": {
@@ -230,9 +216,7 @@
             "description": "Found a handle"
           }
         },
-        "tags": [
-          "v1/handles"
-        ]
+        "tags": ["v1/handles"]
       }
     },
     "/v1/keys/add": {
@@ -255,9 +239,7 @@
             "description": "Found public keys"
           }
         },
-        "tags": [
-          "v1/keys"
-        ]
+        "tags": ["v1/keys"]
       }
     },
     "/v1/keys/{msaId}": {
@@ -279,9 +261,7 @@
             "description": "Found public keys"
           }
         },
-        "tags": [
-          "v1/keys"
-        ]
+        "tags": ["v1/keys"]
       }
     },
     "/healthz": {
@@ -294,9 +274,7 @@
             "description": "Service is healthy"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/livez": {
@@ -309,9 +287,7 @@
             "description": "Service is live"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/readyz": {
@@ -324,9 +300,7 @@
             "description": "Service is ready"
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     }
   },
@@ -353,11 +327,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "providerId",
-          "siwfUrl",
-          "frequencyRpcUrl"
-        ]
+        "required": ["providerId", "siwfUrl", "frequencyRpcUrl"]
       },
       "HandleResponseDto": {
         "type": "object",
@@ -372,11 +342,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "base_handle",
-          "canonical_base",
-          "suffix"
-        ]
+        "required": ["base_handle", "canonical_base", "suffix"]
       },
       "AccountResponseDto": {
         "type": "object",
@@ -388,9 +354,7 @@
             "$ref": "#/components/schemas/HandleResponseDto"
           }
         },
-        "required": [
-          "msaId"
-        ]
+        "required": ["msaId"]
       },
       "SiwsPayloadDto": {
         "type": "object",
@@ -402,10 +366,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message",
-          "signature"
-        ]
+        "required": ["message", "signature"]
       },
       "ErrorResponseDto": {
         "type": "object",
@@ -414,9 +375,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "SignInResponseDto": {
         "type": "object",
@@ -442,11 +401,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "pallet",
-          "extrinsicName",
-          "encodedExtrinsic"
-        ]
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
       },
       "SignUpResponseDto": {
         "type": "object",
@@ -500,9 +455,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "referenceId"
-        ]
+        "required": ["referenceId"]
       },
       "HandlePayloadDto": {
         "type": "object",
@@ -514,10 +467,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "baseHandle",
-          "expiration"
-        ]
+        "required": ["baseHandle", "expiration"]
       },
       "HandleRequestDto": {
         "type": "object",
@@ -532,11 +482,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "accountId",
-          "payload",
-          "proof"
-        ]
+        "required": ["accountId", "payload", "proof"]
       },
       "KeysRequestPayloadDto": {
         "type": "object",
@@ -551,11 +497,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "msaId",
-          "expiration",
-          "newPublicKey"
-        ]
+        "required": ["msaId", "expiration", "newPublicKey"]
       },
       "KeysRequestDto": {
         "type": "object",
@@ -573,12 +515,7 @@
             "$ref": "#/components/schemas/KeysRequestPayloadDto"
           }
         },
-        "required": [
-          "msaOwnerAddress",
-          "msaOwnerSignature",
-          "newKeyOwnerSignature",
-          "payload"
-        ]
+        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
       }
     }
   }

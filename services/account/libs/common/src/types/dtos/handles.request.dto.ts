@@ -31,7 +31,7 @@ export class HandleRequestDto {
 export class ChangeHandlePayloadRequest {
   @ApiProperty()
   @IsNotEmpty()
-  payload: HandleRequest['payload'];
+  payload: HandleRequestDto['payload'];
 
   @ApiProperty()
   @IsNotEmpty()

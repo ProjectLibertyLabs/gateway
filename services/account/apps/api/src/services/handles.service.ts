@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BlockchainService } from '#lib/blockchain/blockchain.service';
 import { HandleRequestDto, HandleResponseDto } from '#lib/types/dtos';
+import { BlockchainConstants } from '#lib/blockchain/blockchain-constants';
 
 @Injectable()
 export class HandlesService {
@@ -20,7 +21,8 @@ export class HandlesService {
 
   async getExpiration(): Promise<number> {
     const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-    return lastFinalizedBlockNumber + 10;
+    // standard expiration in SIWF is 10 minutes
+    return lastFinalizedBlockNumber + 600 / BlockchainConstants.SECONDS_PER_BLOCK;
   }
 
   encodePayload(payload: HandleRequestDto['payload']) {

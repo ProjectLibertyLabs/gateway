@@ -3,6 +3,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import metadata from '#content-publishing-api/metadata';
 
+export const apiFile = './openapi-specs/content-publishing.openapi.json';
+
 export const generateSwaggerDoc = async (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle('Content Publishing Service API')
@@ -20,7 +22,7 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
 
   // write swagger.json to disk
   fs.writeFileSync(
-    './swagger.json',
+    apiFile,
     JSON.stringify(document, (_, v) => v, 2),
   );
   SwaggerModule.setup(apiPath, app, document);

@@ -18,7 +18,11 @@ import {
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#content-publishing-lib/interfaces';
 import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
-import { getAssetMetadataKey, getAssetDataKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
+import {
+  getAssetMetadataKey,
+  getAssetDataKey,
+  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+} from '#content-publishing-lib/utils/redis';
 
 @Injectable()
 export class ApiService {

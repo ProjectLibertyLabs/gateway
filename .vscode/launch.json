@@ -7,14 +7,9 @@
     {
       "name": "Debug chain setup",
       "request": "launch",
-      "runtimeArgs": [
-        "run-script",
-        "main"
-      ],
+      "runtimeArgs": ["run-script", "main"],
       "runtimeExecutable": "npm",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "type": "node",
       "cwd": "${workspaceFolder}/apps/api/test/setup"
     },
@@ -22,14 +17,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Worker (NestJS via ts-node)",
-      "args": [
-        "${workspaceFolder}/apps/worker/src/main.ts"
-      ],
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register"
-      ],
+      "args": ["${workspaceFolder}/apps/worker/src/main.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}"
     },
@@ -37,14 +26,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Api (NestJS via ts-node)",
-      "args": [
-        "${workspaceFolder}/apps/api/src/main.ts"
-      ],
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register"
-      ],
+      "args": ["${workspaceFolder}/apps/api/src/main.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}"
     },
@@ -66,14 +49,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Worker (NestJS via ts-node)",
-      "args": [
-        "${workspaceFolder}/apps/worker/src/main.ts"
-      ],
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register"
-      ],
+      "args": ["${workspaceFolder}/apps/worker/src/main.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}"
     },
@@ -81,14 +58,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Api (NestJS via ts-node)",
-      "args": [
-        "${workspaceFolder}/apps/api/src/main.ts"
-      ],
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register"
-      ],
+      "args": ["${workspaceFolder}/apps/api/src/main.ts"],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}"
     },

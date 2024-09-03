@@ -14,7 +14,11 @@ import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TransactionType } from '#account-lib/types/enums';
 import { HandlesService } from '#account-api/services/handles.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { ChangeHandleRequest, CreateHandleRequest, HandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
+import {
+  ChangeHandleRequest,
+  CreateHandleRequest,
+  HandleRequestDto,
+} from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';

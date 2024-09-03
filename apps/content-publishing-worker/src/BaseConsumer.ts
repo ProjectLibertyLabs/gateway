@@ -1,4 +1,7 @@
-import { MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS, DELAY_TO_CHECK_FOR_SHUTDOWN_MS } from '#content-publishing-lib/utils/processing';
+import {
+  MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS,
+  DELAY_TO_CHECK_FOR_SHUTDOWN_MS,
+} from '#content-publishing-lib/utils/processing';
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker, delay } from 'bullmq';

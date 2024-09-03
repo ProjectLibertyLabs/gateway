@@ -5,7 +5,11 @@ import fs from 'fs';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { createKeys } from '#content-publishing-lib/blockchain/create-keys';
-import { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } from '#content-publishing-lib/utils/redis';
+import {
+  NUMBER_OF_NONCE_KEYS_TO_CHECK,
+  NONCE_KEY_EXPIRE_SECONDS,
+  getNonceKey,
+} from '#content-publishing-lib/utils/redis';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 

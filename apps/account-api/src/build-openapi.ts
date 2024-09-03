@@ -20,7 +20,7 @@ process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
 // eslint-disable-next-line
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
-import { generateSwaggerDoc } from '#account-lib/config/swagger_config';
+import { apiFile, generateSwaggerDoc } from '#account-lib/config/swagger_config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
@@ -30,10 +30,10 @@ async function bootstrap() {
   const document = await generateSwaggerDoc(app);
   // write swagger.json to disk
   fs.writeFileSync(
-    './swagger.json',
+    apiFile,
     JSON.stringify(document, (_, v) => v, 2),
   );
-  console.log('OpenAPI written to ./swagger.json');
+  console.log(`OpenAPI written to ${apiFile}`);
   // Do NOT call await app.close() as that requires a connection to Redis
   process.exit(0);
 }

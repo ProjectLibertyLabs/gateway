@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 
+export const apiFile = './openapi-specs/account.openapi.json';
+
 export const generateSwaggerDoc = async (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle('Account Service')
@@ -21,7 +23,7 @@ export const initSwagger = async (app: INestApplication, apiPath: string) => {
 
   // write swagger.json to disk
   fs.writeFileSync(
-    './swagger.json',
+    apiFile,
     JSON.stringify(document, (_, v) => v, 2),
   );
   SwaggerModule.setup(apiPath, app, document);

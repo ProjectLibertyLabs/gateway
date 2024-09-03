@@ -36,6 +36,13 @@
     "generate:types:graph": "npx openapi-client-axios-typegen openapi-specs/graph-webhooks.openapi.yaml > libs/graph-lib/src/types/webhook-types.d.ts ; prettier --write libs/graph-lib/src/types/webhook-types.d.ts",
     "generate:types:content-watcher": "npx @hey-api/openapi-ts --types -i openapi-specs/content-announcement.openapi.json -o libs/content-watcher-lib/src/types/content-announcement ; prettier --write libs/content-watcher-lib/src/types/content-announcement",
     "generate:types": "npm run generate:types:graph ; npm run generate:types:content-watcher",
+    "generate:swagger-ui:account": "npx --yes @redocly/cli build-docs openapi-specs/account.openapi.json --output=./docs/account/index.html",
+    "generate:swagger-ui:content-publishing": "npx --yes @redocly/cli build-docs openapi-specs/content-publishing.openapi.json --output=./docs/content-publishing/index.html",
+    "generate:swagger-ui:content-watcher": "npx --yes @redocly/cli build-docs openapi-specs/content-watcher.openapi.json --output=./docs/content-watcher/index.html",
+    "generate:swagger-ui:graph": "npx --yes @redocly/cli build-docs openapi-specs/graph.openapi.json --output=./docs/graph/index.html",
+    "generate:swagger-ui": "npm run generate:swagger-ui:account ; npm run generate:swagger-ui:content-publishing ; npm run generate:swagger-ui:content-watcher ; npm run generate:swagger-ui:graph",
+    "test": "jest",
+    "test:verbose": "jest --coverage --verbose",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -99,6 +106,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "ioredis-mock": "^8.9.0",
     "jest": "^29.5.0",
     "openapi-client-axios-typegen": "^7.6.2",
     "prettier": "^3.0.0",
@@ -109,32 +117,5 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/apps/",
-      "<rootDir>/libs/"
-    ],
-    "moduleNameMapper": {
-      "^#account-lib/account-lib(|/.*)$": "<rootDir>/libs/account-lib/src/$1",
-      "^@app/content-publishing-lib(|/.*)$": "<rootDir>/libs/content-publishing-lib/src/$1",
-      "^#content-watcher-lib/content-watcher-lib(|/.*)$": "<rootDir>/libs/content-watcher-lib/src/$1",
-      "^#graph-lib/graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1"
-    }
   }
 }

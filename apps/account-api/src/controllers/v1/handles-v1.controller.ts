@@ -15,6 +15,7 @@ import { TransactionType } from '#account-lib/types/enums';
 import { HandlesService } from '#account-api/services/handles.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
+  ChangeHandlePayloadRequest,
   ChangeHandleRequest,
   CreateHandleRequest,
   HandleRequestDto,
@@ -22,10 +23,11 @@ import {
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
-@UseGuards(ReadOnlyGuard) // Apply guard at the controller level
+@UseGuards(ReadOnlyGuard)
 export class HandlesControllerV1 {
   private readonly logger: Logger;
 
@@ -83,6 +85,32 @@ export class HandlesControllerV1 {
     } catch (error) {
       this.logger.error(error);
       throw new Error('Failed to change handle');
+    }
+  }
+
+  @Get('change/:newHandle')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a properly encoded ClaimHandlePayload that can be signed.' })
+  @ApiOkResponse({ description: 'Returned an encoded ClaimHandlePayload for signing' })
+  /**
+   * Using the provided query parameters, creates a new payload that can be signed to change handle.
+   * @param queryParams - The query parameters for changing the handle.
+   * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
+   * @throws An error if the change handle payload creation fails.
+   */
+  async getChangeHandlePayload(@Param('newHandle') newHandle: string): Promise<ChangeHandlePayloadRequest> {
+    try {
+      const expiration = await this.handlesService.getExpiration();
+      const payload = { baseHandle: newHandle, expiration };
+      const encodedPayload = u8aToHex(u8aWrapBytes(this.handlesService.encodePayload(payload).toU8a()));
+
+      return {
+        payload,
+        encodedPayload,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Failed to create change handle payload.');
     }
   }
 

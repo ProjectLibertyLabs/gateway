@@ -242,17 +242,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return addKeyResponse;
   }
 
-  public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
-    const handleVec = new Bytes(this.api.registry, jobData.payload.baseHandle);
-    const claimHandlePayload: CommonPrimitivesHandlesClaimHandlePayload = this.api.registry.createType(
-      'CommonPrimitivesHandlesClaimHandlePayload',
-      {
-        baseHandle: handleVec,
-        expiration: jobData.payload.expiration,
-      },
-    );
+  public createClaimHandPayloadType(baseHandle: string, expiration: number) {
+    const handleVec = new Bytes(this.api.registry, baseHandle).toHex();
+    return this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', {
+      baseHandle: handleVec,
+      expiration,
+    });
+  }
 
-    this.logger.debug(`claimHandlePayload: ${claimHandlePayload}`);
+  public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
+    this.logger.debug(`claimHandlePayload: ${jobData.payload}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
     const claimHandleProof: Sr25519Signature = { Sr25519: jobData.proof };
@@ -260,9 +259,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
     switch (jobData.type) {
       case TransactionType.CREATE_HANDLE:
-        return this.api.tx.handles.claimHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
+        return this.api.tx.handles.claimHandle(jobData.accountId, claimHandleProof, jobData.payload);
       case TransactionType.CHANGE_HANDLE:
-        return this.api.tx.handles.changeHandle(jobData.accountId, claimHandleProof, claimHandlePayload);
+        return this.api.tx.handles.changeHandle(jobData.accountId, claimHandleProof, jobData.payload);
       default:
         throw new Error(`Unrecognized transaction type: ${(jobData as any).type}`);
     }

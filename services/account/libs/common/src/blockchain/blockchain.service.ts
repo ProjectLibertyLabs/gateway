@@ -4,9 +4,9 @@ import { options } from '@frequency-chain/api-augment';
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
-import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
-import { Bytes, Option, u32 } from '@polkadot/types';
+import { SignerOptions, SignerResult, SubmittableExtrinsic } from '@polkadot/api/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
+import { Bytes, GenericExtrinsicPayload, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
@@ -19,12 +19,14 @@ import { HandleResponse, KeyInfoResponse } from '@frequency-chain/api-augment/in
 import { ConfigService } from '#lib/config/config.service';
 import { TransactionType } from '#lib/types/enums';
 import { HexString } from '@polkadot/util/types';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { blake2AsHex, decodeAddress } from '@polkadot/util-crypto';
 import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 import { Extrinsic } from './extrinsic';
+import * as readline from 'readline';
+import { assert, isHex } from '@polkadot/util';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -432,20 +434,27 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async createRetireMsaTx(publicKey: string) {
+  public async createRetireMsaPayload(accountId: string): Promise<GenericExtrinsicPayload> {
     const tx = await this.api.tx.msa.retireMsa();
-    const nonce = Number((await this.api.query.system.account(publicKey)).nonce);
+    const nonce = Number((await this.api.query.system.account(accountId)).nonce);
+    const method = this.api.createType('Call', tx);
+    const lastHeader = await this.api.rpc.chain.getHeader();
+    const era = this.api.registry.createType('ExtrinsicEra', {
+      current: lastHeader.number.toNumber(),
+      period: 64,
+    });
 
-    const transactionData = {
-      method: tx.toHex(),
-      specVersion: this.api.tx.runtimeVersion.specVersion,
-      genesisHash: this.api.tx.genesisHash,
-      era: tx.era,
+    const payload = {
+      method: method.toHex(),
+      specVersion: this.api.runtimeVersion.specVersion,
+      genesisHash: this.api.genesisHash,
+      era: era.toHex(),
       tip: 0,
+      version: tx.version,
       nonce,
     };
 
-    return this.api.createType('ExtrinsicPayload', transactionData, { version: tx.version });
+    return this.api.createType('ExtrinsicPayload', payload, { version: payload.version });
   }
 
   public async retireMsa() {

@@ -84,13 +84,13 @@
         ]
       }
     },
-    "/v1/accounts/account/{publicKey}": {
+    "/v1/accounts/account/{accountId}": {
       "get": {
-        "operationId": "AccountsControllerV1_getAccountForPublicKey",
+        "operationId": "AccountsControllerV1_getAccountForAccountId",
         "summary": "Fetch an account given a public key",
         "parameters": [
           {
-            "name": "publicKey",
+            "name": "accountId",
             "required": true,
             "in": "path",
             "schema": {
@@ -115,13 +115,13 @@
         ]
       }
     },
-    "/v1/accounts/retireMsa/{publicKey}": {
+    "/v1/accounts/retireMsa/{accountId}": {
       "get": {
-        "operationId": "AccountsControllerV1_getRetireMsaEncoded",
-        "summary": "Get a retireMsa unsigned, encoded extrinsic.",
+        "operationId": "AccountsControllerV1_getRetireMsaPayload",
+        "summary": "Get a retireMsa unsigned, encoded extrinsic payload.",
         "parameters": [
           {
-            "name": "publicKey",
+            "name": "accountId",
             "required": true,
             "in": "path",
             "schema": {
@@ -149,7 +149,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/RetireMsaRequestDto"
               }
             }
           }
@@ -160,7 +160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletLoginResponseDto"
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -555,6 +555,36 @@
             "type": "string"
           },
           "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "referenceId"
+        ]
+      },
+      "RetireMsaRequestDto": {
+        "type": "object",
+        "properties": {
+          "encodedPayload": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "encodedPayload",
+          "signature",
+          "accountId"
+        ]
+      },
+      "TransactionResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
             "type": "string"
           }
         },

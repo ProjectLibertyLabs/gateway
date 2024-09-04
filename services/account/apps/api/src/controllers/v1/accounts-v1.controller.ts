@@ -7,9 +7,8 @@ import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpE
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#lib/config';
 import { GenericExtrinsicPayload } from '@polkadot/types';
-import { Signature } from '@polkadot/types/interfaces';
 import { TransactionResponse } from '#lib/types/dtos';
-import { HexString } from '@polkadot/util/types';
+import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -61,7 +60,7 @@ export class AccountsControllerV1 {
     }
   }
 
-  @Get('account/:publicKey')
+  @Get('account/:accountId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Fetch an account given a public key' })
   @ApiOkResponse({ description: 'Found account', type: AccountResponseDto })
@@ -71,10 +70,10 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getAccountForPublicKey(@Param('publicKey') publicKey: string): Promise<AccountResponseDto> {
+  async getAccountForAccountId(@Param('accountId') accountId: string): Promise<AccountResponseDto> {
     try {
-      this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
-      const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
+      this.logger.debug(`Received request to get account with accountId: ${accountId}`);
+      const response = await this.accountsService.getMsaIdForAccountId(accountId);
       if (response?.msaId) {
         const account = await this.accountsService.getAccount(response.msaId);
         if (account) return account;
@@ -106,9 +105,9 @@ export class AccountsControllerV1 {
     }
   }
 
-  @Get('retireMsa/:publicKey')
+  @Get('retireMsa/:accountId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic.' })
+  @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic payload.' })
   @ApiOkResponse({ description: 'Created extrinsic' })
   /**
    * Gets an account.
@@ -116,9 +115,9 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getRetireMsaEncoded(@Param('publicKey') publicKey: string): Promise<GenericExtrinsicPayload> {
+  async getRetireMsaPayload(@Param('accountId') accountId: string): Promise<GenericExtrinsicPayload> {
     try {
-      return this.accountsService.getRetireMsaTx(publicKey);
+      return this.accountsService.getRetireMsaPayload(accountId);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to create a retireMsa unsigned, encoded extrinsic.', HttpStatus.BAD_REQUEST);
@@ -128,15 +127,11 @@ export class AccountsControllerV1 {
   @Post('retireMsa')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to retire an Msa Id.' })
-  @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
-  @ApiBody({ type: undefined })
-  async postRetireMsa(
-    @Body() tx: GenericExtrinsicPayload,
-    signature: Signature,
-    publicKey: HexString,
-  ): Promise<TransactionResponse> {
+  @ApiCreatedResponse({ description: 'Signed in successfully', type: TransactionResponse })
+  @ApiBody({ type: RetireMsaRequestDto })
+  async postRetireMsa(@Body() retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
     try {
-      return this.accountsService.retireMsa(tx, signature, publicKey);
+      return this.accountsService.retireMsa(retireMsaRequest);
     } catch (error) {
       const errorMessage = 'Failed to Sign In With Frequency';
       this.logger.error(`${errorMessage}: ${error}`);

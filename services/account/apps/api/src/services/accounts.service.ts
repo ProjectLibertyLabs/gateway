@@ -8,11 +8,9 @@ import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#lib/types/d
 import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dto';
 import { AccountResponseDto, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
 import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.config.response.dto';
-import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
+import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
 import { GenericExtrinsicPayload } from '@polkadot/types';
-import { Signature } from '@polkadot/types/interfaces';
 import { TransactionResponse } from '#lib/types/dtos';
-import { HexString } from '@polkadot/util/types';
 
 @Injectable()
 export class AccountsService {
@@ -46,7 +44,7 @@ export class AccountsService {
     }
   }
 
-  async getMsaIdForPublicKey(publicKey: string): Promise<MsaIdResponse | null> {
+  async getMsaIdForAccountId(publicKey: string): Promise<MsaIdResponse | null> {
     try {
       const msaId = await this.blockchainService.publicKeyToMsaId(publicKey);
       if (msaId) {
@@ -114,20 +112,14 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaTx(publicKey: string) {
-    return this.blockchainService.createRetireMsaTx(publicKey);
+  getRetireMsaPayload(accountId: string): Promise<GenericExtrinsicPayload> {
+    return this.blockchainService.createRetireMsaPayload(accountId);
   }
 
-  async retireMsa(
-    tx: GenericExtrinsicPayload,
-    signature: Signature,
-    publicKey: HexString,
-  ): Promise<TransactionResponse> {
+  async retireMsa(retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
     try {
-      const referenceId = await this.enqueueService.enqueueRequest<RetireMsaRequestDto>({
-        tx,
-        signature,
-        publicKey,
+      const referenceId = await this.enqueueService.enqueueRequest<PublishRetireMsaRequestDto>({
+        ...retireMsaRequest,
         type: TransactionType.RETIRE_MSA,
       });
       return referenceId;

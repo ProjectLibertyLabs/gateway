@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { Codec, ExtrinsicPayloadValue, ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#lib/blockchain/blockchain.service';
@@ -24,6 +24,8 @@ import {
   CapacityCheckerService,
 } from '#lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Signature } from '@polkadot/types/interfaces';
+import { GenericExtrinsicPayload } from '@polkadot/types';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -104,9 +106,13 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         }
         case TransactionType.RETIRE_MSA: {
           tx = await this.blockchainService.retireMsa();
-          const signatureHex = job.data.signature.toHex();
           targetEvent = { section: 'msa', method: 'retireMsa' };
-          txHash = await this.processProxyTxn(tx, job.data.publicKey, signatureHex, job.data.tx);
+          txHash = await this.processProxyTxn(
+            tx,
+            job.data.accountId,
+            job.data.signature,
+            job.data.encodedPayload as unknown as ExtrinsicPayloadValue,
+          );
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -197,9 +203,14 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processProxyTxn(ext, publicKey, signatureHex, txPayload): Promise<HexString> {
+  async processProxyTxn(
+    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    accountId: string,
+    signatureHex: Signature,
+    encodedPayload: ExtrinsicPayloadValue,
+  ): Promise<HexString> {
     try {
-      ext.addSignature(publicKey, signatureHex, txPayload);
+      ext.addSignature(accountId, signatureHex, encodedPayload);
       const txHash = (await ext.send()).toHex();
       if (!txHash) {
         throw new Error('Tx hash is undefined');
@@ -207,7 +218,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       this.logger.debug(`Tx hash: ${txHash}`);
       return txHash;
     } catch (error: any) {
-      this.logger.error(`Error processing batch transaction: ${error}`);
+      this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
     }
   }

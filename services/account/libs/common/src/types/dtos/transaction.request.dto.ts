@@ -1,12 +1,16 @@
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
+import { PublishRetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishSIWFSignupRequestDto } from './wallet.login.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
-import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
 
 export type TransactionData<
-  RequestType = PublishHandleRequestDto | PublishSIWFSignupRequestDto | PublishKeysRequestDto | RetireMsaRequestDto,
+  RequestType =
+    | PublishHandleRequestDto
+    | PublishSIWFSignupRequestDto
+    | PublishKeysRequestDto
+    | PublishRetireMsaRequestDto,
 > = RequestType & {
   providerId: string;
   referenceId: string;

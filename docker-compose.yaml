@@ -178,7 +178,13 @@ services:
       - gateway-net
 
   account-service-api:
-    image: gateway-dev:latest
+    image: account-service
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.account
+      tags:
+        - account-service-api:latest
     ports:
       - ${SERVICE_PORT_3:-3013}:3000
     environment:
@@ -195,7 +201,13 @@ services:
       - gateway-net
 
   account-service-worker:
-    image: gateway-dev:latest
+    image: account-service
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.account
+      tags:
+        - account-service-api:latest
     command: make start-account-worker
     environment:
       <<: [*common-environment, *account-service-env]

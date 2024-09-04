@@ -8,7 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "build-account": "make docker-build-account"
   },
   "devDependencies": {
     "@projectlibertylabs/prettier-config": "^1.0.0"

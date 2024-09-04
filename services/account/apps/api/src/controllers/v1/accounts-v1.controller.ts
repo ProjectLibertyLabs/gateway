@@ -6,6 +6,10 @@ import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dt
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#lib/config';
+import { GenericExtrinsicPayload } from '@polkadot/types';
+import { Signature } from '@polkadot/types/interfaces';
+import { TransactionResponse } from '#lib/types/dtos';
+import { HexString } from '@polkadot/util/types';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -102,7 +106,7 @@ export class AccountsControllerV1 {
     }
   }
 
-  @Get('retireMsa')
+  @Get('retireMsa/:publicKey')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic.' })
   @ApiOkResponse({ description: 'Created extrinsic' })
@@ -112,23 +116,27 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getRetireMsaEncoded() {
+  async getRetireMsaEncoded(@Param('publicKey') publicKey: string): Promise<GenericExtrinsicPayload> {
     try {
-      return this.accountsService.getRetireMsaTx();
+      return this.accountsService.getRetireMsaTx(publicKey);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to create a retireMsa unsigned, encoded extrinsic.', HttpStatus.BAD_REQUEST);
     }
   }
 
-  @Post('retireMsa/')
+  @Post('retireMsa')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to retire an Msa Id.' })
-  @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponse })
+  @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
   @ApiBody({ type: undefined })
-  async postRetireMsa(@Body() tx: any): Promise<any> {
+  async postRetireMsa(
+    @Body() tx: GenericExtrinsicPayload,
+    signature: Signature,
+    publicKey: HexString,
+  ): Promise<TransactionResponse> {
     try {
-      return this.accountsService.retireMsa(tx);
+      return this.accountsService.retireMsa(tx, signature, publicKey);
     } catch (error) {
       const errorMessage = 'Failed to Sign In With Frequency';
       this.logger.error(`${errorMessage}: ${error}`);

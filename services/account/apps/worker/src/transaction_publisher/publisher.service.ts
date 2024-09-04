@@ -103,9 +103,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.RETIRE_MSA: {
-          tx = this.job.data.tsx;
+          tx = await this.blockchainService.retireMsa();
+          const signatureHex = job.data.signature.toHex();
           targetEvent = { section: 'msa', method: 'retireMsa' };
-          txHash = await this.processProxyTxn(job.data.accountId, tx);
+          txHash = await this.processProxyTxn(tx, job.data.publicKey, signatureHex, job.data.tx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -196,15 +197,15 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processProxyTxn(
-    accountId,
-    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  async processProxyTxn(ext, publicKey, signatureHex, txPayload): Promise<HexString> {
     try {
+      ext.addSignature(publicKey, signatureHex, txPayload);
       const txHash = (await ext.send()).toHex();
-      ext.(txHash);
-
-      return [ext.extrinsic, txHash];
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return txHash;
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
       throw error;

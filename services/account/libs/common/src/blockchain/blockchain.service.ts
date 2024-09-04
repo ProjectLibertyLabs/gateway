@@ -432,7 +432,23 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public createRetireMsaTx() {
+  public async createRetireMsaTx(publicKey: string) {
+    const tx = await this.api.tx.msa.retireMsa();
+    const nonce = Number((await this.api.query.system.account(publicKey)).nonce);
+
+    const transactionData = {
+      method: tx.toHex(),
+      specVersion: this.api.tx.runtimeVersion.specVersion,
+      genesisHash: this.api.tx.genesisHash,
+      era: tx.era,
+      tip: 0,
+      nonce,
+    };
+
+    return this.api.createType('ExtrinsicPayload', transactionData, { version: tx.version });
+  }
+
+  public async retireMsa() {
     return this.api.tx.msa.retireMsa();
   }
 }

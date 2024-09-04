@@ -8,6 +8,11 @@ import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#lib/types/d
 import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dto';
 import { AccountResponseDto, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
 import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.config.response.dto';
+import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
+import { GenericExtrinsicPayload } from '@polkadot/types';
+import { Signature } from '@polkadot/types/interfaces';
+import { TransactionResponse } from '#lib/types/dtos';
+import { HexString } from '@polkadot/util/types';
 
 @Injectable()
 export class AccountsService {
@@ -109,14 +114,20 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaTx() {
-    return this.blockchainService.createRetireMsaTx();
+  getRetireMsaTx(publicKey: string) {
+    return this.blockchainService.createRetireMsaTx(publicKey);
   }
 
-  async retireMsa(accountId: string) {
+  async retireMsa(
+    tx: GenericExtrinsicPayload,
+    signature: Signature,
+    publicKey: HexString,
+  ): Promise<TransactionResponse> {
     try {
-      const referenceId: WalletLoginResponse = await this.enqueueService.enqueueRequest<RetireMsaRequest>({
-        accountId,
+      const referenceId = await this.enqueueService.enqueueRequest<RetireMsaRequestDto>({
+        tx,
+        signature,
+        publicKey,
         type: TransactionType.RETIRE_MSA,
       });
       return referenceId;

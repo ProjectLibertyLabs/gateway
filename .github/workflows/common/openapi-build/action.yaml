@@ -19,21 +19,17 @@ runs:
         node-version: 20
 
     - name: Install dependencies
-      run: make npm-${{ inputs.service }}
+      run: npm ci
       shell: bash
 
     - name: Generate Swagger Metadata
-      run: make metadata-${{ inputs.service }}
+      run: npm run generate:metadata:${{ inputs.service }}
       shell: bash
 
     - name: Generate OpenAPI/Swagger JSON
-      run: make openapi-${{ inputs.service }}
+      run: npm run generate:openapi:${{ inputs.service }}
       shell: bash
 
     - name: Generate OpenAPI/Swagger UI
-      run: make swagger-${{ inputs.service }}
-      shell: bash
-
-    - name: Copy OpenAPI Spec (index.html) to root docs directory
-      run: cp ./services/${{ inputs.service }}/docs/index.html ./docs/${{ inputs.service }}/
+      run: npm run generate:swagger-ui:${{ inputs.service }}
       shell: bash

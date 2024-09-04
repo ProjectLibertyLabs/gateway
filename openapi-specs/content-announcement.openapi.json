@@ -44,6 +44,11 @@
             "nullable": true,
             "description": "An optional identifier for the request, may be used for tracking or correlation"
           },
+          "webhookUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "An optional webhook URL registered as part of a specific search request"
+          },
           "schemaId": {
             "type": "integer",
             "description": "Identifier for the schema being used or referenced"

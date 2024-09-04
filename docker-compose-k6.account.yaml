@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.account
-    command: ['api']
+    command: ['account-api']
     ports:
       - 3000:3000
     volumes: !reset []
@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.account
-    command: ['worker']
+    command: ['account-worker']
     volumes: !reset []
     depends_on: !override
       - redis

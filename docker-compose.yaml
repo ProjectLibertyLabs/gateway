@@ -22,7 +22,7 @@ x-common-environment: &common-environment
   DEBUG: true
 
 x-content-publishing-env: &content-publishing-env
-  START_PROCESS: api
+  START_PROCESS: content-publishing-api
   FILE_UPLOAD_MAX_SIZE_IN_BYTES: 2000000000
   ASSET_EXPIRATION_INTERVAL_SECONDS: 300
   BATCH_INTERVAL_SECONDS: 12
@@ -107,7 +107,7 @@ services:
       <<: [*common-environment, *content-publishing-env]
     volumes:
       - ./:/app
-      - content_publishing_node_cache:/app/services/content-publishing/node_modules
+      - content_publishing_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -122,7 +122,7 @@ services:
       <<: [*common-environment, *content-publishing-env]
     volumes:
       - ./:/app
-      - content_publishing_node_cache:/app/services/content-publishing/node_modules
+      - content_publishing_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -139,7 +139,7 @@ services:
       <<: [*common-environment, *content-watcher-env]
     volumes:
       - ./:/app
-      - content_watcher_node_cache:/app/services/content-watcher/node_modules
+      - content_watcher_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -156,7 +156,7 @@ services:
       <<: [*common-environment, *graph-service-env]
     volumes:
       - ./:/app
-      - graph_node_cache:/app/services/graph/node_modules
+      - graph_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - gateway-base
@@ -170,7 +170,7 @@ services:
       <<: [*common-environment, *graph-service-env]
     volumes:
       - ./:/app
-      - graph_node_cache:/app/services/graph/node_modules
+      - graph_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - gateway-base
@@ -186,7 +186,7 @@ services:
     command: make start-account-api
     volumes:
       - ./:/app
-      - account_node_cache:/app/services/account/node_modules
+      - account_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -201,7 +201,7 @@ services:
       <<: [*common-environment, *account-service-env]
     volumes:
       - ./:/app
-      - account_node_cache:/app/services/account/node_modules
+      - account_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -215,9 +215,12 @@ volumes:
   chainstorage:
     external: false
   redis_data:
-  account_node_cache:
-  graph_node_cache:
-  content_publishing_node_cache:
+  account_api_node_cache:
+  account_worker_node_cache:
+  graph_api_node_cache:
+  graph_worker_node_cache:
+  content_publishing_api_node_cache:
+  content_publishing_worker_node_cache:
   content_watcher_node_cache:
 
 networks:

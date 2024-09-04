@@ -1,20 +1,26 @@
 # Use a multi-stage build for efficiency
 FROM node:20 AS builder
 
-WORKDIR /build/packages
+WORKDIR /build
 
-COPY packages ./
-
-WORKDIR /build/services/account
-
-COPY services/account/package* ./
+COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-COPY services/account ./
+WORKDIR /build/libs/account-lib
+
+COPY libs/account-lib ./
+
+WORKDIR /build/apps/account-api
+
+COPY apps/account-api ./
+
+WORKDIR /build/apps/account-worker
+
+COPY apps/account-worker ./
 
 # Build the application
-RUN npm run build && \
+RUN npm run build:account && \
     rm -rf node_modules && \
 	npm ci --omit=dev
 
@@ -25,12 +31,13 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /build/services/account/dist ./dist/
-COPY services/account/package*.json ./
-COPY services/account/lua ./lua/
-COPY services/account/scripts/docker-entrypoint.sh ./
-COPY --from=builder /build/services/account/node_modules ./node_modules/
+COPY --from=builder /build/dist ./dist/
+COPY ./package*.json ./
+COPY lua ./lua/
+COPY scripts/account/docker-entrypoint.sh ./
+COPY --from=builder /build/node_modules ./node_modules/
 RUN chmod +x ./docker-entrypoint.sh
+RUN mkdir ./openapi-specs
 
 # We want jq and curl in the final image, but we don't need the support files
 RUN apt-get update && \

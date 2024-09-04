@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
 import { ConnectionType } from './connection-type.enum';
 import { Direction } from './direction.enum';

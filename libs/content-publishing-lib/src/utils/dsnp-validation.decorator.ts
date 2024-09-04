@@ -50,11 +50,12 @@ function validateContentHash(contentHash: string): boolean {
 }
 
 export function IsDsnpUserURI(validationOptions?: ValidationOptions) {
+  // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpUserURI',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {
@@ -88,11 +89,12 @@ export function IsDsnpUserURI(validationOptions?: ValidationOptions) {
 }
 
 export function IsDsnpContentURI(validationOptions?: ValidationOptions) {
+  // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpContentURI',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {
@@ -130,11 +132,12 @@ export function IsDsnpContentURI(validationOptions?: ValidationOptions) {
 }
 
 export function IsDsnpContentHash(validationOptions?: ValidationOptions) {
+  // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpContentHash',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {

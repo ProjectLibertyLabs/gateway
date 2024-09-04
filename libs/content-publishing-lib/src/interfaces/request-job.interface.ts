@@ -1,4 +1,5 @@
 import { AnnouncementTypeDto, AttachmentType, RequestTypeDto } from '#content-publishing-lib/dtos';
+
 export interface IAssetTypeInfo {
   mimeType: string;
   attachmentType: AttachmentType;

@@ -7,10 +7,17 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
-import { ApiModule } from '#api/api.module';
-import { ProviderGraphDto, ConnectionDto, KeyType, GraphKeyPairDto, GraphsQueryParamsDto, Direction } from '#lib/dtos';
 import { PrivacyType, ConnectionType } from '@dsnp/graph-sdk';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { ApiModule } from '#graph-api/api.module';
+import {
+  GraphsQueryParamsDto,
+  KeyType,
+  GraphKeyPairDto,
+  ProviderGraphDto,
+  Direction,
+  ConnectionDto,
+} from '#graph-lib/dtos';
 
 let app: INestApplication;
 let testModule: TestingModule;

@@ -24,7 +24,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   private readonly logger: Logger;
 
   private scanInProgress = false;
+
   private paused = false;
+
   private scanResetBlockNumber: number | undefined;
 
   constructor(
@@ -127,7 +129,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         if (messages.length > 0) {
           this.logger.debug(`Found ${messages.length} messages to process`);
         }
-        await this.chainEventProcessor.queueIPFSJobs(messages, this.ipfsQueue);
+        await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue);
         await this.saveProgress(currentBlockNumber);
       }
     } catch (err) {

@@ -143,7 +143,7 @@ export class ApiService {
         ipfsCid: references[index],
         mimeType: f.mimetype,
         createdOn: Date.now(),
-        type: type,
+        type,
       };
 
       metadataTransaction = metadataTransaction.setex(

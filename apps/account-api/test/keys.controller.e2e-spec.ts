@@ -6,9 +6,9 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { AddKeyData, ChainUser, ExtrinsicHelper, createKeys } from '@projectlibertylabs/frequency-scenario-template';
 import { KeyringPair } from '@polkadot/keyring/types';
+import { KeysRequestDto } from '#account-lib/types/dtos';
 import { ApiModule } from '../src/api.module';
 import {
   generateAddPublicKeyExtrinsic,

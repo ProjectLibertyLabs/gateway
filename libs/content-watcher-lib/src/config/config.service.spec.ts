@@ -114,7 +114,7 @@ describe('ContentWatcherConfigService', () => {
 
     it('should get scan interval', () => {
       expect(contentWatcherConfigService.blockchainScanIntervalSeconds).toStrictEqual(
-        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string),
+        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
       );
     });
 

@@ -58,7 +58,7 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
-    const providerId = this.configService.providerId;
+    const { providerId } = this.configService;
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,
       providerId,
@@ -91,6 +91,7 @@ export class ApiService implements BeforeApplicationShutdown {
   async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<boolean> {
     let itemsAdded = false;
     const ids = watchGraphsDto?.dsnpIds || [RedisConstants.REDIS_WEBHOOK_ALL];
+    // eslint-disable-next-line no-restricted-syntax
     for (const dsnpId of ids) {
       // eslint-disable-next-line no-await-in-loop
       const result = await this.watchGraphForMsa(dsnpId, watchGraphsDto.webhookEndpoint);
@@ -105,9 +106,9 @@ export class ApiService implements BeforeApplicationShutdown {
       let webhookAdded = false;
       const url = new URL(webhook).toString();
       const existingWebhooks = new Set(
-        await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId).then((webhooksStr) => {
-          return webhooksStr ? (JSON.parse(webhooksStr) as string[]) : [];
-        }),
+        await this.redis
+          .hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId)
+          .then((webhooksStr) => (webhooksStr ? (JSON.parse(webhooksStr) as string[]) : [])),
       );
       if (existingWebhooks.size === 0 || !existingWebhooks.has(url)) {
         webhookAdded = true;

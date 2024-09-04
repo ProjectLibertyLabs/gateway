@@ -72,7 +72,7 @@ export class ChainEventProcessorService {
           }
         }
         const messagesWithSchemaId: MessageResponseWithSchemaId = {
-          schemaId: schemaId,
+          schemaId,
           messages,
         };
         return messagesWithSchemaId;
@@ -87,7 +87,11 @@ export class ChainEventProcessorService {
     return collectedMessages;
   }
 
-  public async queueIPFSJobs(messages: MessageResponseWithSchemaId[], queue: Queue, requestId?: string): Promise<void> {
+  public static async queueIPFSJobs(
+    messages: MessageResponseWithSchemaId[],
+    queue: Queue,
+    requestId?: string,
+  ): Promise<void> {
     const jobs = messages.flatMap((messageResponse) =>
       messageResponse.messages
         .filter((message) => message.cid && message.cid.isSome)

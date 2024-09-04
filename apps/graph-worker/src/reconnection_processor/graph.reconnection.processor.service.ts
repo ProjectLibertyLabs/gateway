@@ -69,7 +69,7 @@ export class GraphReconnectionService extends BaseConsumer implements OnModuleDe
     providerId: ProviderId | string,
   ): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
     const providerAPI = this.providerWebhookService.providerApi;
-    const pageSize = this.configService.pageSize;
+    const { pageSize } = this.configService;
     const params = {
       pageNumber: 1,
       pageSize,

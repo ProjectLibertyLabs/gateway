@@ -31,14 +31,16 @@ export class CrawlerService extends BaseConsumer {
     this.logger.log(`Processing crawler job ${job.id}: ${JSON.stringify(job.data)}`);
 
     try {
-      let startBlock = job.data.startBlock;
+      let { startBlock } = job.data;
       if (!startBlock) {
         startBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+        // eslint-disable-next-line no-param-reassign
         job.data.startBlock = startBlock;
         this.logger.debug(`No starting block specified; starting from end of chain at block ${startBlock}`);
       }
       // Make sure blockCount is not longer than the current chain length
       if (job.data.blockCount >= startBlock) {
+        // eslint-disable-next-line no-param-reassign
         job.data.blockCount = startBlock;
       }
       let blockList = new Array(job.data.blockCount).fill(0).map((_v, index) => startBlock - index);
@@ -53,6 +55,7 @@ export class CrawlerService extends BaseConsumer {
       blockList = blockList.slice(CRAWLER_BLOCK_CHUNK_SIZE);
 
       if (blockList.length > 0) {
+        // eslint-disable-next-line no-param-reassign
         job.data.blockCount = blockList.length;
         await job.updateData(job.data);
         await job.moveToDelayed(Date.now());
@@ -79,7 +82,7 @@ export class CrawlerService extends BaseConsumer {
           this.logger.debug(`Found ${messages.length} messages for block ${blockNumber}`);
         }
         // eslint-disable-next-line no-await-in-loop
-        await this.chainEventService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId);
+        await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId);
       }),
     );
   }

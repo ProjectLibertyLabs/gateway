@@ -24,6 +24,7 @@ import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
+import { RevokeDelegationRequestDto } from '#lib/types/dtos/revokeDelegation.request.dto';
 import { Extrinsic } from './extrinsic';
 import { SECONDS_PER_BLOCK } from '../constants';
 
@@ -250,6 +251,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       baseHandle: handleVec,
       expiration,
     });
+  }
+
+  public async revokeDelegationByDelegator(jobData: TransactionData<RevokeDelegationRequestDto>) {
+    this.logger.warn(`REMOVE:revokeDelegationPayload: ${jobData.payload}`);
+
+    const revokeDelegationProof: Sr25519Signature = { Sr25519: jobData.proof };
+    this.logger.warn(`REMOVE:revokeDelegationProof: ${JSON.stringify(revokeDelegationProof)}`);
+
+    this.logger.warn(`REMOVE:revokeDelegationProviderId: ${jobData.providerId}`);
+    return this.api.tx.msa.revokeDelegationByDelegator(jobData.providerId);
   }
 
   public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {

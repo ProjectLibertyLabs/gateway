@@ -96,7 +96,6 @@
     "@songkeys/nestjs-redis": "^10.0.0",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.12",
-    "app": "^0.1.0",
     "axios": "^1.7.5",
     "bullmq": "^5.12.12",
     "class-transformer": "^0.5.1",

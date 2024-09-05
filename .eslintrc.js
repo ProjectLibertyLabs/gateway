@@ -89,6 +89,7 @@ module.exports = {
       files: ['**/content-announcement/*'],
       rules: {
         'no-use-before-define': 'off',
+        'no-shadow': 'off',
       },
     },
   ],

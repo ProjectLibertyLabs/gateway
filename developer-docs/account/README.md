@@ -43,7 +43,7 @@ The account-service is a NestJS application that is split into two main parts: t
 
 The API is responsible for handling incoming HTTP requests and the Worker is responsible for processing jobs that require blockchain interaction.
 
-![Gateway Account Service](./docs/account_service_arch.drawio.png)
+![Gateway Account Service](./account_service_arch.drawio.png)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -181,12 +181,12 @@ In order to run this project you need:
 
 ### Environment Variables
 
-Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
+Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](../../env-files/account.template.env).
 
 1. Copy the template values into the .env files.
 
 ```sh
-   cp env.template .env
+   cp env-files/account.template.env .env
 ```
 
 2. Replace template values with values appropriate to your environment.
@@ -201,7 +201,7 @@ Install NPM Dependencies:
 
 ### Usage
 
-Note: using [docker compose file](docker-compose.yaml) to start the services. This will start the services in development mode.
+Note: using [docker compose file](../../docker-compose.yaml) to start the services. This will start the services in development mode.
 
 The following command will start all of the necessary containers for the account service to run in development mode.
 
@@ -321,7 +321,7 @@ You may also view and manage the application's queue at [http://localhost:3000/q
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/ProjectLibertyLabs/acccount-service/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

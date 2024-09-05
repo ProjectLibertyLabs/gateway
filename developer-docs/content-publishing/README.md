@@ -39,7 +39,7 @@ The Content Publishing Service is part of the "Social Gateway" collection of ser
 
 The Content Publishing Service consists of two applications: an API controller, and one (or more) Worker processes. The API and Worker processes communicate via a shared BullMQ message queue. The API controller handles incoming requests and enqueues content publishing tasks for the Worker(s).
 
-![Content Publishing Service Arch](./docs/content_publishing_service_arch.drawio.png)
+![Content Publishing Service Arch](./content_publishing_service_arch.drawio.png)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -139,7 +139,7 @@ The Content Publishing Service consists of two applications: an API controller, 
 
 - [Live Docs](https://projectlibertylabs.github.io/content-publishing-service/)
 - [API Documentation](https://projectlibertylabs.github.io/content-publishing-service/)
-- [GitHub](https://github.com/ProjectLibertyLabs/content-publishing-service)
+- [GitHub](https://github.com/ProjectLibertyLabs/gateway)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -161,12 +161,12 @@ In order to run this project you need:
 
 ### Environment Variables
 
-Use the provided [env.template](./env.template) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
+Use the provided [env.template](../../env-files/content-publishing.template.env) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
 
 1.  For running the application under Docker, copy the environment template to `.env.docker.dev`; for running bare-metal, copy to `.env`.
 
 ```sh
-cp env.template .env
+cp env-files/content-publishing.template.env .env
 ```
 
 2. Configure the environment variable values according to your environment.
@@ -176,7 +176,6 @@ cp env.template .env
 Install NPM Dependencies:
 
 ```sh
-  cd services/content-publishing
   npm install
 ```
 
@@ -198,7 +197,7 @@ Each of the application services may be run either under Docker or bare-metal, d
 
 The instructions are the same for running both the API service and the worker service:
 
-- **Substitute "api" or "worker" for the "< service >" tag in the commands below.**
+- **Substitute "content-publishing-api" or "content-publishing-worker" for the "< service >" tag in the commands below.**
 
 #### Running bare metal
 
@@ -253,7 +252,7 @@ To run tests, run the following command:
 Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/ProjectLibertyLabs/content-publishing-service/issues)
+- [Open Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

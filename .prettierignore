@@ -10,3 +10,4 @@ services/*/apps/api/src/metadata.ts
 **/swagger.json
 services/*/docs/index.html
 **/metadata.ts
+openapi-specs/*

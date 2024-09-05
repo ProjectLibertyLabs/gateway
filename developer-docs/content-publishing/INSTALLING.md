@@ -60,7 +60,7 @@ To run the application:
 
 For the application to start & run correctly, it is necessary to configure the environment with certain parameters. These should be injected into a container pod if running in a containerized environment.
 
-The following is a list of environment variables that may be set to control the application's behavior and environment. The complete list can always be referenced [here](./env.template)
+The following is a list of environment variables that may be set to control the application's behavior and environment. The complete list can always be referenced [here](../../env-files/content-publishing.template.env)
 
 | Variable                           | required? | Description                                                                                                 | Default                                                                   |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |

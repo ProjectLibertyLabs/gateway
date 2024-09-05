@@ -99,12 +99,14 @@ services:
         - gateway-dev:latest
 
   content-publishing-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_0:-3010}:3000
     command: make start-content-publishing-api
     environment:
       <<: [*common-environment, *content-publishing-env]
+      START_PROCESS: content-publishing-api
     volumes:
       - ./:/app
       - content_publishing_api_node_cache:/app/node_modules
@@ -116,10 +118,12 @@ services:
       - gateway-net
 
   content-publishing-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-content-publishing-worker
     environment:
       <<: [*common-environment, *content-publishing-env]
+      START_PROCESS: content-publishing-worker
     volumes:
       - ./:/app
       - content_publishing_worker_node_cache:/app/node_modules
@@ -131,6 +135,7 @@ services:
       - gateway-net
 
   content-watcher-service:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_1:-3011}:3000
@@ -148,12 +153,14 @@ services:
       - gateway-net
 
   graph-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_2:-3012}:3000
     command: make start-graph-api
     environment:
       <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-api
     volumes:
       - ./:/app
       - graph_api_node_cache:/app/node_modules
@@ -164,10 +171,12 @@ services:
       - gateway-net
 
   graph-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-graph-worker
     environment:
       <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-worker
     volumes:
       - ./:/app
       - graph_worker_node_cache:/app/node_modules
@@ -178,6 +187,7 @@ services:
       - gateway-net
 
   account-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_3:-3013}:3000
@@ -195,6 +205,7 @@ services:
       - gateway-net
 
   account-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-account-worker
     environment:

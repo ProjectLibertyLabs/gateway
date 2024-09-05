@@ -6,7 +6,6 @@ services:
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.content-publishing
-    command: ['content-publishing-api']
     ports:
       - 3000:3000
     volumes: !reset []
@@ -19,7 +18,6 @@ services:
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.content-publishing
-    command: ['content-publishing-worker']
     volumes: !reset []
     depends_on: !override
       - redis

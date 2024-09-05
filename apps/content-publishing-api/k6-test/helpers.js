@@ -1,4 +1,4 @@
-import { validContentNoUploadedAssets } from '../apps/api/test/mockRequestData.ts';
+import { validContentNoUploadedAssets } from '../test/mockRequestData';
 import { b64encode } from 'k6/encoding';
 import http from 'k6/http';
 import { check } from 'k6';

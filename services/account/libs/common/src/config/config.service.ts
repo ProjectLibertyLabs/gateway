@@ -1,3 +1,4 @@
+import { EnvironmentType } from '@dsnp/graph-sdk';
 import { ICapacityLimits } from '#lib/interfaces/capacity-limit.interface';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
@@ -9,6 +10,7 @@ export interface ConfigEnvironmentVariables {
   FREQUENCY_URL: URL;
   FREQUENCY_HTTP_URL: URL;
   API_PORT: number;
+  GRAPH_ENVIRONMENT_TYPE: keyof EnvironmentType;
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: number;
   TRUST_UNFINALIZED_BLOCKS: boolean;
   PROVIDER_ACCOUNT_SEED_PHRASE: string;
@@ -167,5 +169,9 @@ export class ConfigService implements OnModuleInit {
 
   public get capacityLimit(): ICapacityLimits {
     return this.capacityLimitObj;
+  }
+
+  public get graphEnvironmentType(): keyof EnvironmentType {
+    return this.nestConfigService.get<keyof EnvironmentType>('GRAPH_ENVIRONMENT_TYPE')!;
   }
 }

@@ -35,6 +35,7 @@ export const configModuleOptions = (allowReadOnly: boolean): ConfigModuleOptions
     REDIS_URL: Joi.string().uri().required(),
     FREQUENCY_URL: Joi.string().uri().required(),
     FREQUENCY_HTTP_URL: Joi.string().uri().required(),
+    GRAPH_ENVIRONMENT_TYPE: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
     API_PORT: Joi.number().min(0).default(3000),
     PROVIDER_ACCOUNT_SEED_PHRASE: allowReadOnly ? Joi.string().allow('') : Joi.string().required(),
     PROVIDER_ID: Joi.required().custom((value: string, helpers) => {

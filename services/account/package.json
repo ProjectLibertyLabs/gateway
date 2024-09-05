@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/ProjectLibertyLabs/account-service#readme",
   "dependencies": {
+    "@dsnp/graph-sdk": "^1.1.3",
     "@bull-board/api": "^5.21.4",
     "@bull-board/express": "^5.21.4",
     "@bull-board/nestjs": "^5.21.4",

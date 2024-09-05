@@ -11,12 +11,14 @@ import { BlockchainModule } from '#lib/blockchain/blockchain.module';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import { QueueModule, QueueConstants } from '#lib/queues';
 import { CacheModule } from '#lib/cache/cache.module';
+import { GraphsService } from '#api/services/graphs.service';
 import {
   AccountsControllerV1,
   DelegationControllerV1,
   HandlesControllerV1,
   KeysControllerV1,
   HealthController,
+  GraphsControllerV1,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
 
@@ -64,10 +66,17 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, HandlesService, DelegationService, KeysService, EnqueueService],
+  providers: [AccountsService, HandlesService, DelegationService, KeysService, EnqueueService, GraphsService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
-  controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],
+  controllers: [
+    AccountsControllerV1,
+    DelegationControllerV1,
+    HandlesControllerV1,
+    KeysControllerV1,
+    GraphsControllerV1,
+    HealthController,
+  ],
   exports: [],
 })
 export class ApiModule {}

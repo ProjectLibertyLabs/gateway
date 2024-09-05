@@ -36,7 +36,7 @@ services:
   account-service-webhook:
     image: rust:1.80.0
     volumes:
-      - ./services/account/rust-webhook-server:/app
+      - ./rust-webhook-server:/app
     ports:
       - '3001:3001'
     command: sh -c "cd /app && cargo run"

@@ -18,7 +18,7 @@ import {
   validProfileNoUploadedAssets,
   validReaction,
   validReplyNoUploadedAssets,
-} from '../test/mockRequestData.js';
+} from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
 

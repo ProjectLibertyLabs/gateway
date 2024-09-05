@@ -5,12 +5,12 @@ The Content Watcher Service monitors and retrieves the latest feed state, includ
 ## API Reference
 
 [Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/content-watcher)
-{{#swagger-embed ../services/content-watcher/swagger.json}}
+{{#swagger-embed ../openapi-specs/content-watcher.openapi.json}}
 
 
 ## Configuration
 
-{{#markdown-embed ../services/content-watcher/ENVIRONMENT.md 2}}
+{{#markdown-embed ../developer-docs/content-watcher/ENVIRONMENT.md 2}}
 
 ## Best Practices
 

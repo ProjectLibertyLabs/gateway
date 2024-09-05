@@ -7,7 +7,6 @@ import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpE
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#account-lib/config';
 
-const foo = 'bar';
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
 export class AccountsControllerV1 {

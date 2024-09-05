@@ -11,6 +11,10 @@ import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.confi
 import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
 import { GenericExtrinsicPayload } from '@polkadot/types';
 import { TransactionResponse } from '#lib/types/dtos';
+import { ExtrinsicPayload } from '@polkadot/types/interfaces';
+import { ExtrinsicPayloadValue } from '@polkadot/types/types/extrinsic';
+import { HexString } from '@polkadot/util/types';
+import { SignerPayloadJSON } from '@polkadot/types/types';
 
 @Injectable()
 export class AccountsService {
@@ -112,7 +116,9 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaPayload(accountId: string): Promise<GenericExtrinsicPayload> {
+  getRetireMsaPayload(
+    accountId: string,
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
     return this.blockchainService.createRetireMsaPayload(accountId);
   }
 

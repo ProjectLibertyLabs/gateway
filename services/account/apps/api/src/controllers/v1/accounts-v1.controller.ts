@@ -9,6 +9,10 @@ import { ConfigService } from '#lib/config';
 import { GenericExtrinsicPayload } from '@polkadot/types';
 import { TransactionResponse } from '#lib/types/dtos';
 import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
+import { ExtrinsicPayload } from '@polkadot/types/interfaces';
+import { ExtrinsicPayloadValue } from '@polkadot/types/types/extrinsic';
+import { SignerPayloadJSON } from '@polkadot/types/types';
+import { HexString } from '@polkadot/util/types';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -115,7 +119,9 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getRetireMsaPayload(@Param('accountId') accountId: string): Promise<GenericExtrinsicPayload> {
+  async getRetireMsaPayload(
+    @Param('accountId') accountId: string,
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
     try {
       return this.accountsService.getRetireMsaPayload(accountId);
     } catch (error) {

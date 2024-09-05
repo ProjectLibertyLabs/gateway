@@ -13,5 +13,10 @@
   },
   "devDependencies": {
     "@projectlibertylabs/prettier-config": "^1.0.0"
+  },
+  "dependencies": {
+    "@polkadot/keyring": "^13.0.2",
+    "@polkadot/util": "^13.0.2",
+    "@polkadot/util-crypto": "^13.0.2"
   }
 }

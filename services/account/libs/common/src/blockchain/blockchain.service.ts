@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
+import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Event, ExtrinsicPayload, SignedBlock } from '@polkadot/types/interfaces';
 import { SignerOptions, SignerResult, SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, GenericExtrinsicPayload, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
@@ -19,14 +19,15 @@ import { HandleResponse, KeyInfoResponse } from '@frequency-chain/api-augment/in
 import { ConfigService } from '#lib/config/config.service';
 import { TransactionType } from '#lib/types/enums';
 import { HexString } from '@polkadot/util/types';
-import { blake2AsHex, decodeAddress } from '@polkadot/util-crypto';
+import { blake2AsHex, cryptoWaitReady, decodeAddress } from '@polkadot/util-crypto';
 import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
 import { Extrinsic } from './extrinsic';
 import * as readline from 'readline';
-import { assert, isHex } from '@polkadot/util';
+import { assert, isHex, u8aToHex } from '@polkadot/util';
+import { ExtrinsicPayloadValue } from '@polkadot/types/types/extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -434,30 +435,77 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async createRetireMsaPayload(accountId: string): Promise<GenericExtrinsicPayload> {
+  public async createRetireMsaPayload(
+    accountId: string,
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
     const tx = await this.api.tx.msa.retireMsa();
-    const nonce = Number((await this.api.query.system.account(accountId)).nonce);
-    const method = this.api.createType('Call', tx);
+    const rawNonce = (await this.api.query.system.account(accountId)).nonce;
+    const nonce = this.api.registry.createType('Compact<Index>', rawNonce).toHex();
+    const method = this.api.createType('Call', tx).toHex();
     const lastHeader = await this.api.rpc.chain.getHeader();
-    const era = this.api.registry.createType('ExtrinsicEra', {
-      current: lastHeader.number.toNumber(),
-      period: 64,
-    });
+    const era = this.api.registry
+      .createType('ExtrinsicEra', {
+        current: lastHeader.number.toNumber(),
+        period: 64,
+      })
+      .toHex();
+    const blockNumber = await this.getLatestFinalizedBlockNumber();
+    const blockHash = (await this.getBlockHash(blockNumber)).toHex();
 
-    const payload = {
-      method: method.toHex(),
-      specVersion: this.api.runtimeVersion.specVersion,
-      genesisHash: this.api.genesisHash,
-      era: era.toHex(),
-      tip: 0,
+    const unsignedPayload: SignerPayloadJSON = {
+      address: accountId,
+      blockHash,
+      blockNumber: `0x${blockNumber.toString(16)}`,
+      method,
+      specVersion: this.api.runtimeVersion.specVersion.toHex(),
+      transactionVersion: this.api.runtimeVersion.transactionVersion.toHex(),
+      genesisHash: this.api.genesisHash.toHex(),
+      era,
+      tip: '0x00',
       version: tx.version,
       nonce,
+      signedExtensions: [
+        'CheckNonZeroSender',
+        'CheckSpecVersion',
+        'CheckTxVersion',
+        'CheckGenesis',
+        'CheckMortality',
+        'CheckNonce',
+        'CheckWeight',
+        'ChargeTransactionPayment',
+      ],
     };
 
-    return this.api.createType('ExtrinsicPayload', payload, { version: payload.version });
+    // To be removed
+    await cryptoWaitReady();
+    const keyring = new Keyring();
+    const keypair = keyring.createFromUri('//Charlie');
+
+    const payload = this.api.createType('ExtrinsicPayload', unsignedPayload, {
+      version: unsignedPayload.version,
+    });
+    this.logger.debug(payload.toHuman(), 'PAYLOAD');
+    const encodedPayload = payload.toHex();
+
+    const uint8Signature = keypair.sign(payload.toU8a(), { withType: false });
+    const signature = u8aToHex(uint8Signature);
+
+    return {
+      unsignedPayload,
+      encodedPayload,
+      signature,
+    };
   }
 
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
+  }
+
+  public async retireMsaMethod() {
+    return this.api.tx.msa.retireMsa().method.toHex();
+  }
+
+  public async retireMsaVersion() {
+    return this.api.tx.msa.retireMsa().version;
   }
 }

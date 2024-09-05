@@ -565,6 +565,9 @@
       "RetireMsaRequestDto": {
         "type": "object",
         "properties": {
+          "unsignedPayload": {
+            "type": "object"
+          },
           "encodedPayload": {
             "type": "string"
           },
@@ -576,6 +579,7 @@
           }
         },
         "required": [
+          "unsignedPayload",
           "encodedPayload",
           "signature",
           "accountId"

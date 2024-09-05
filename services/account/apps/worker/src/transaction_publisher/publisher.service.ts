@@ -1,29 +1,29 @@
-import {InjectRedis} from '@songkeys/nestjs-redis';
-import {InjectQueue, Processor} from '@nestjs/bullmq';
-import {Injectable, OnApplicationShutdown} from '@nestjs/common';
-import {DelayedError, Job, Queue} from 'bullmq';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import { InjectQueue, Processor } from '@nestjs/bullmq';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import {KeyringPair} from '@polkadot/keyring/types';
-import {SubmittableExtrinsic} from '@polkadot/api-base/types';
-import {Codec, ISubmittableResult} from '@polkadot/types/types';
-import {MILLISECONDS_PER_SECOND} from 'time-constants';
-import {SchedulerRegistry} from '@nestjs/schedule';
-import {BlockchainService, ICapacityInfo} from '#lib/blockchain/blockchain.service';
-import {createKeys} from '#lib/blockchain/create-keys';
-import {NonceService} from '#lib/services/nonce.service';
-import {TransactionType} from '#lib/types/enums';
-import {QueueConstants} from '#lib/queues';
-import {BaseConsumer} from '#worker/BaseConsumer';
-import {RedisUtils, TransactionData} from 'libs/common/src';
-import {ConfigService} from '#lib/config/config.service';
-import {ITxStatus} from '#lib/interfaces/tx-status.interface';
-import {HexString} from '@polkadot/util/types';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { BlockchainService, ICapacityInfo } from '#lib/blockchain/blockchain.service';
+import { createKeys } from '#lib/blockchain/create-keys';
+import { NonceService } from '#lib/services/nonce.service';
+import { TransactionType } from '#lib/types/enums';
+import { QueueConstants } from '#lib/queues';
+import { BaseConsumer } from '#worker/BaseConsumer';
+import { RedisUtils, TransactionData } from 'libs/common/src';
+import { ConfigService } from '#lib/config/config.service';
+import { ITxStatus } from '#lib/interfaces/tx-status.interface';
+import { HexString } from '@polkadot/util/types';
 import {
   CAPACITY_AVAILABLE_EVENT,
   CAPACITY_EXHAUSTED_EVENT,
   CapacityCheckerService,
 } from '#lib/blockchain/capacity-checker.service';
-import {OnEvent} from '@nestjs/event-emitter';
+import { OnEvent } from '@nestjs/event-emitter';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';

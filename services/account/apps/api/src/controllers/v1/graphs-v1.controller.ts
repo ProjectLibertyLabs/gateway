@@ -1,27 +1,27 @@
 import {
-  BadRequestException, Body,
+  BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Logger,
-  Param, Post,
+  Param,
+  Post,
   Query,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import {ApiBody, ApiOkResponse, ApiOperation, ApiQuery, ApiTags} from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GraphsService } from '#api/services/graphs.service';
 import { EnqueueService } from '#lib/services/enqueue-request.service';
 import {
-  AddNewGraphKeyPayloadRequest, AddNewGraphKeyRequestDto,
+  AddNewGraphKeyPayloadRequest,
+  AddNewGraphKeyRequestDto,
   GraphKeysRequestDto,
-  ItemizedSignaturePayloadDto
 } from '#lib/types/dtos/graphs.request.dto';
 import { HexString } from '@polkadot/util/types';
 import { isHexString } from '#lib/utils/utility';
-import {ChangeHandleRequest, HandleRequestDto, TransactionResponse} from "#lib/types/dtos";
-import {TransactionType} from "#lib/types/enums";
+import { TransactionResponse } from '#lib/types/dtos';
+import { TransactionType } from '#lib/types/enums';
 
 @Controller('v1/graphs')
 @ApiTags('v1/graphs')
@@ -49,12 +49,13 @@ export class GraphsControllerV1 {
    * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
    * @param queryParams - The query parameters for adding a new key
    * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
-   * @throws An error if the change handle payload creation fails.
+   * @throws An error if the key already exists or the payload creation fails.
    */
   async getAddKeyPayload(
     @Param('msaId') msaId: string,
     @Query('newKey') newKey: HexString,
   ): Promise<AddNewGraphKeyPayloadRequest> {
+    // this is temporary until we find a better way to enforce data validation. the validation decorator didn't work
     if (!isHexString(newKey)) {
       throw new BadRequestException('Not a valid Hex value!');
     }
@@ -63,14 +64,14 @@ export class GraphsControllerV1 {
 
   @Post('/addKey')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request to add a new key' })
+  @ApiOperation({ summary: 'Request to add a new graph key' })
   @ApiOkResponse({ description: 'Add new key request enqueued' })
   @ApiBody({ type: AddNewGraphKeyRequestDto })
   /**
-   * Using the provided query parameters, removes the old handle and creates a new one.
-   * @param queryParams - The query parameters for changing the handle.
-   * @returns A message that the handle change is in progress.
-   * @throws An error if the handle creation fails.
+   * Using the provided query parameters, adds a new graph key for the account
+   * @param queryParams - The query parameters for adding a new graph key
+   * @returns A message that the adding  anew graph key operation is in progress.
+   * @throws An error if enqueueing the operation fails.
    */
   async addNewKey(@Body() request: AddNewGraphKeyRequestDto): Promise<TransactionResponse> {
     try {

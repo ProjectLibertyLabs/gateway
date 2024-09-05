@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
-import {Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown} from '@nestjs/common';
-import {options} from '@frequency-chain/api-augment';
-import {ApiPromise, HttpProvider, WsProvider} from '@polkadot/api';
-import {KeyringPair} from '@polkadot/keyring/types';
-import {BlockHash, BlockNumber, Event, SignedBlock} from '@polkadot/types/interfaces';
-import {SubmittableExtrinsic} from '@polkadot/api/types';
-import {AnyNumber, ISubmittableResult} from '@polkadot/types/types';
-import {Bytes, Option, u32} from '@polkadot/types';
+import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { options } from '@frequency-chain/api-augment';
+import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
+import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
+import { Bytes, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
@@ -15,18 +15,18 @@ import {
   PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
-import {HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse} from '@frequency-chain/api-augment/interfaces';
-import {ConfigService} from '#lib/config/config.service';
-import {TransactionType} from '#lib/types/enums';
-import {HexString} from '@polkadot/util/types';
-import {decodeAddress} from '@polkadot/util-crypto';
-import {KeysRequestDto} from '#lib/types/dtos/keys.request.dto';
-import {PublishHandleRequestDto} from '#lib/types/dtos/handles.request.dto';
-import {TransactionData} from '#lib/types/dtos/transaction.request.dto';
-import {HandleResponseDto} from '#lib/types/dtos/accounts.response.dto';
-import {GraphKeysRequestDto, ItemActionType, ItemizedSignaturePayloadDto} from '#lib/types/dtos/graphs.request.dto';
-import {Extrinsic} from './extrinsic';
-import {hexToU8a} from "@polkadot/util";
+import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
+import { ConfigService } from '#lib/config/config.service';
+import { TransactionType } from '#lib/types/enums';
+import { HexString } from '@polkadot/util/types';
+import { decodeAddress } from '@polkadot/util-crypto';
+import { KeysRequestDto } from '#lib/types/dtos/keys.request.dto';
+import { PublishHandleRequestDto } from '#lib/types/dtos/handles.request.dto';
+import { TransactionData } from '#lib/types/dtos/transaction.request.dto';
+import { HandleResponseDto } from '#lib/types/dtos/accounts.response.dto';
+import { GraphKeysRequestDto, ItemActionType, ItemizedSignaturePayloadDto } from '#lib/types/dtos/graphs.request.dto';
+import { hexToU8a } from '@polkadot/util';
+import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -250,15 +250,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async addGraphPublicKeyToMsa(keysRequest: GraphKeysRequestDto): Promise<SubmittableExtrinsic<any>> {
-    console.log("received :", keysRequest);
     const { accountId, payload, proof } = keysRequest;
     const txPayload = this.createItemizedSignaturePayloadV2Type(payload);
-    console.log(`txPayload: `, txPayload.toHuman());
 
     return this.api.tx.statefulStorage.applyItemActionsWithSignatureV2(
-        hexToU8a(accountId),
-        {Sr25519: proof},
-        txPayload,
+      hexToU8a(accountId),
+      { Sr25519: proof },
+      txPayload,
     );
   }
 
@@ -270,7 +268,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     });
   }
 
-  public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto) : any {
+  public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
     const actions = payload.actions.map((a) => {
       switch (a.type) {
         case ItemActionType.ADD_ITEM:

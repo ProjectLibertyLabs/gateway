@@ -2,7 +2,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import {TransactionType} from "#lib/types/enums";
+import { TransactionType } from '#lib/types/enums';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {
@@ -13,7 +13,7 @@ export enum ItemActionType {
 export class AddItemActionDto {
   type: ItemActionType.ADD_ITEM;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   encodedPayload: HexString;
 }
@@ -64,7 +64,7 @@ export class AddNewGraphKeyPayloadRequest {
   @IsNotEmpty()
   payload: ItemizedSignaturePayloadDto;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   encodedPayload: HexString;
 }

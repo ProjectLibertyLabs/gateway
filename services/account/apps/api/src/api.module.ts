@@ -66,15 +66,15 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, HandlesService, DelegationService, KeysService, EnqueueService, GraphsService],
+  providers: [AccountsService, DelegationService, EnqueueService, GraphsService, HandlesService, KeysService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [
     AccountsControllerV1,
     DelegationControllerV1,
+    GraphsControllerV1,
     HandlesControllerV1,
     KeysControllerV1,
-    GraphsControllerV1,
     HealthController,
   ],
   exports: [],

@@ -24,9 +24,12 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
+// 30 days as immortal period
+const IMMORTAL_BLOCK_PERIOD = (30 * 24 * 60 * 60) / BlockchainConstants.SECONDS_PER_BLOCK;
 
 /**
  * Service responsible for publishing account updates.
@@ -102,6 +105,13 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
+        case TransactionType.ADD_GRAPH_KEY: {
+          tx = await this.blockchainService.addGraphPublicKeyToMsa(job.data);
+          targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
+          txHash = await this.processSingleTxn(providerKeys, tx);
+          this.logger.debug(`tx: ${tx}`);
+          break;
+        }
         default: {
           throw new Error(`Invalid job type.`);
         }
@@ -114,8 +124,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         providerId: job.data.providerId,
         txHash,
         successEvent: targetEvent,
-        birth: tx.era.asMortalEra.birth(lastFinalizedBlockNumber),
-        death: tx.era.asMortalEra.death(lastFinalizedBlockNumber),
+        birth: tx.era.isMortalEra ? tx.era.asMortalEra.birth(lastFinalizedBlockNumber) : lastFinalizedBlockNumber,
+        death: tx.era.isMortalEra
+          ? tx.era.asMortalEra.death(lastFinalizedBlockNumber)
+          : lastFinalizedBlockNumber + IMMORTAL_BLOCK_PERIOD,
       };
       const obj: Record<string, string> = {};
       obj[txHash] = JSON.stringify(status);

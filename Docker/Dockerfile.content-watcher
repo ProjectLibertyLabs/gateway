@@ -1,20 +1,22 @@
 # Use a multi-stage build for efficiency
 FROM node:20 AS builder
 
-WORKDIR /build/packages
+WORKDIR /build
 
-COPY packages ./
-
-WORKDIR /build/services/content-watcher
-
-COPY services/content-watcher/package* ./
+COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-COPY services/content-watcher ./
+WORKDIR /build/libs/content-watcher-lib
+
+COPY libs/content-watcher-lib ./
+
+WORKDIR /build/apps/content-watcher
+
+COPY apps/content-watcher ./
 
 # Build the application
-RUN npm run build && \
+RUN npm run build:content-watcher && \
     rm -rf node_modules && \
 	npm ci --omit=dev
 
@@ -25,9 +27,10 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /build/services/content-watcher/dist ./dist/
-COPY services/content-watcher/package*.json ./
-COPY --from=builder /build/services/content-watcher/node_modules ./node_modules/
+COPY --from=builder /build/dist ./dist/
+COPY package*.json ./
+COPY --from=builder /build/node_modules ./node_modules/
+RUN mkdir ./openapi-specs
 
 # We want jq and curl in the final image, but we don't need the support files
 RUN apt-get update && \
@@ -37,4 +40,4 @@ RUN apt-get update && \
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/usr/bin/tini", "--", "node", "dist/apps/api/main.js" ]
+ENTRYPOINT [ "/usr/bin/tini", "--", "node", "dist/apps/content-watcher/main.js" ]

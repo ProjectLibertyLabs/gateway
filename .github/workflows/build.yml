@@ -15,7 +15,7 @@ jobs:
       changes: ${{ steps.determine-matrix.outputs.changes }}
       # IF you add a new filter it ALSO needs to be here
       services: >-
-        ["account", "graph", "content-publishing", "content-watcher"]
+        ["account", "content-publishing", "content-watcher", "graph"]
       # Resolves to true if it should run everything, aka when common files change
       run-all: ${{ steps.determine-matrix.outputs.changes.common }}
     steps:
@@ -27,18 +27,24 @@ jobs:
           # Adding a filter? Check for the need to add to the outputs as well
           filters: |
             common:
-              - 'packages/**'
               - 'Docker/**'
               - '.github/**'
               - 'docker-compose.yaml'
             account:
-              - 'services/account/**'
+              - 'apps/account-api/**'
+              - 'apps/account-worker/**'
+              - 'libs/account-lib/**'
             graph:
-              - 'services/graph/**'
+              - 'apps/graph-api/**'
+              - 'apps/graph-worker/**'
+              - 'libs/graph-lib/**'
             content-publishing:
-              - 'services/content-publishing/**'
+              - 'apps/content-publishing-api/**'
+              - 'apps/content-publishing-worker/**'
+              - 'libs/content-publishing-lib/**'
             content-watcher:
-              - 'services/content-watcher/**'
+              - 'apps/content-watcher/**'
+              - 'libs/content-watcher-lib/**'
 
   build:
     name: '[${{ matrix.service }}] Build and Test'
@@ -65,26 +71,21 @@ jobs:
           node-version: 20
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-          cache-dependency-path: services/${{ matrix.service }}/package-lock.json
+          cache-dependency-path: ./package-lock.json
       - name: Install dependencies
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: services/${{ matrix.service }}
         run: npm ci
       - name: Build NestJS
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: services/${{ matrix.service }}
-        run: npm run build
+        run: npm run build:${{ matrix.service }}
       - name: Lint
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: services/${{ matrix.service }}
-        run: npm run lint
+        run: npm run lint:${{ matrix.service }}
       - name: Unit Test
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: services/${{ matrix.service }}
-        run: npm run test
+        run: npm run test:${{ matrix.service }}
       - name: License Check
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: services/${{ matrix.service }}
         # List all the licenses and error out if it is not one of the supported licenses
         run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
 
@@ -106,7 +107,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
         # Use GitHub Container Registry instead due to rate limits
         with:
-          config-inline: |
+          buildkitd-config-inline: |
             [registry."ghcr.io"]
       - name: Login to DockerHub
         if: ${{ steps.should.outputs.RUN == 'true' }}

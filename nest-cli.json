@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/account-api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/account-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/account-api",
+  "projects": {
+    "account-api": {
+      "type": "application",
+      "root": "apps/account-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/account-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/account-api/tsconfig.app.json"
+      }
+    },
+    "account-worker": {
+      "type": "application",
+      "root": "apps/account-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/account-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/account-worker/tsconfig.app.json"
+      }
+    },
+    "account-lib": {
+      "type": "library",
+      "root": "libs/account-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/account-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/account-lib/tsconfig.lib.json"
+      }
+    },
+    "content-publishing-api": {
+      "type": "application",
+      "root": "apps/content-publishing-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/content-publishing-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/content-publishing-api/tsconfig.app.json"
+      }
+    },
+    "content-publishing-lib": {
+      "type": "library",
+      "root": "libs/content-publishing-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/content-publishing-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/content-publishing-lib/tsconfig.lib.json"
+      }
+    },
+    "content-publishing-worker": {
+      "type": "application",
+      "root": "apps/content-publishing-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/content-publishing-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/content-publishing-worker/tsconfig.app.json"
+      }
+    },
+    "content-watcher": {
+      "type": "application",
+      "root": "apps/content-watcher",
+      "entryFile": "main",
+      "sourceRoot": "apps/content-watcher/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/content-watcher/tsconfig.app.json"
+      }
+    },
+    "content-watcher-lib": {
+      "type": "library",
+      "root": "libs/content-watcher-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/content-watcher-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/content-watcher-lib/tsconfig.lib.json"
+      }
+    },
+    "graph-api": {
+      "type": "application",
+      "root": "apps/graph-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/graph-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/graph-api/tsconfig.app.json"
+      }
+    },
+    "graph-lib": {
+      "type": "library",
+      "root": "libs/graph-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/graph-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/graph-lib/tsconfig.lib.json"
+      }
+    },
+    "graph-worker": {
+      "type": "application",
+      "root": "apps/graph-worker",
+      "entryFile": "main",
+      "sourceRoot": "apps/graph-worker/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/graph-worker/tsconfig.app.json"
+      }
+    }
+  }
+}

@@ -1,20 +1,26 @@
 # Use a multi-stage build for efficiency
 FROM node:20 AS builder
 
-WORKDIR /build/packages
+WORKDIR /build
 
-COPY packages ./
-
-WORKDIR /build/services/content-publishing
-
-COPY services/content-publishing/package* ./
+COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-COPY services/content-publishing ./
+WORKDIR /build/libs/content-publishing-lib
+
+COPY libs/content-publishing-lib ./
+
+WORKDIR /build/apps/content-publishing-api
+
+COPY apps/content-publishing-api ./
+
+WORKDIR /build/apps/content-publishing-worker
+
+COPY apps/content-publishing-worker ./
 
 # Build the application
-RUN npm run build && \
+RUN npm run build:content-publishing && \
     rm -rf node_modules && \
 	npm ci --omit=dev
 
@@ -25,12 +31,13 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY --from=builder /build/services/content-publishing/dist ./dist/
-COPY services/content-publishing/package*.json ./
-COPY services/content-publishing/lua ./lua/
-COPY services/content-publishing/scripts/docker-entrypoint.sh ./
-COPY --from=builder /build/services/content-publishing/node_modules ./node_modules/
+COPY --from=builder /build/dist ./dist/
+COPY ./package*.json ./
+COPY lua ./lua/
+COPY scripts/content-publishing/docker-entrypoint.sh ./
+COPY --from=builder /build/node_modules ./node_modules/
 RUN chmod +x ./docker-entrypoint.sh
+RUN mkdir ./openapi-specs
 
 # We want jq and curl in the final image, but we don't need the support files
 RUN apt-get update && \
@@ -40,6 +47,4 @@ RUN apt-get update && \
 
 EXPOSE 3000
 
-ENV START_PROCESS="api"
-
-ENTRYPOINT ["/usr/bin/tini", "--", "./docker-entrypoint.sh"]
+ENTRYPOINT [ "/usr/bin/tini", "--", "./docker-entrypoint.sh", "prod" ]

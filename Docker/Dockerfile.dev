@@ -4,4 +4,4 @@ WORKDIR /app
 
 EXPOSE 3000
 
-VOLUME [ "/app", "/app/services/account/node_modules", "/app/services/graph/node_modules", "/app/services/content-publishing/node_modules", "/app/services/content-watcher/node_modules" ]
+VOLUME [ "/app" ]

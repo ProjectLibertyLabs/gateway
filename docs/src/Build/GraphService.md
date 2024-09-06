@@ -5,12 +5,12 @@ The Graph Service manages the social graphs, including follow/unfollow actions, 
 ## API Reference
 
 [Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/graph)
-{{#swagger-embed ../services/graph/swagger.json}}
+{{#swagger-embed ../openapi-specs/graph.openapi.json}}
 
 
 ## Configuration
 
-{{#markdown-embed ../services/graph/ENVIRONMENT.md 2}}
+{{#markdown-embed ../developer-docs/graph/ENVIRONMENT.md 2}}
 
 
 ## Best Practices

@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  account-service-api:
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.account
+    command: ['account-api']
+    ports:
+      - 3000:3000
+    volumes: !reset []
+    depends_on: !override
+      redis:
+        condition: service_started
+      ipfs:
+        condition: service_healthy
+      account-service-webhook:
+        condition: service_healthy
+    environment:
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
+
+  account-service-worker:
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.account
+    command: ['account-worker']
+    volumes: !reset []
+    depends_on: !override
+      - redis
+      - ipfs
+    environment:
+      WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
+
+  account-service-webhook:
+    image: rust:1.80.0
+    volumes:
+      - ./rust-webhook-server:/app
+    ports:
+      - '3001:3001'
+    command: sh -c "cd /app && cargo run"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:3001/webhooks/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - gateway-net
+
+  gateway-base:
+    profiles:
+      - skip
+  content-publishing-service-worker:
+    profiles:
+      - skip
+  content-publishing-service-api:
+    profiles:
+      - skip
+  content-watcher-service:
+    profiles:
+      - skip
+  graph-service-api:
+    profiles:
+      - skip
+  graph-service-worker:
+    profiles:
+      - skip

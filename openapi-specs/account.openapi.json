@@ -1,0 +1,522 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/accounts/siwf": {
+      "get": {
+        "operationId": "AccountsControllerV1_getSIWFConfig",
+        "summary": "Get the Sign In With Frequency configuration",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returned SIWF Configuration data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletLoginConfigResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["v1/accounts"]
+      },
+      "post": {
+        "operationId": "AccountsControllerV1_postSignInWithFrequency",
+        "summary": "Request to Sign In With Frequency",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletLoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signed in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletLoginResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["v1/accounts"]
+      }
+    },
+    "/v1/accounts/{msaId}": {
+      "get": {
+        "operationId": "AccountsControllerV1_getAccountForMsa",
+        "summary": "Fetch an account given an MSA Id",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["v1/accounts"]
+      }
+    },
+    "/v1/accounts/account/{publicKey}": {
+      "get": {
+        "operationId": "AccountsControllerV1_getAccountForPublicKey",
+        "summary": "Fetch an account given a public key",
+        "parameters": [
+          {
+            "name": "publicKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["v1/accounts"]
+      }
+    },
+    "/v1/delegation/{msaId}": {
+      "get": {
+        "operationId": "DelegationControllerV1_getDelegation",
+        "summary": "Get the delegation information associated with an MSA Id",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found delegation information"
+          }
+        },
+        "tags": ["v1/delegation"]
+      }
+    },
+    "/v1/handles": {
+      "post": {
+        "operationId": "HandlesControllerV1_createHandle",
+        "summary": "Request to create a new handle for an account",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandleRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Handle creation request enqueued"
+          }
+        },
+        "tags": ["v1/handles"]
+      }
+    },
+    "/v1/handles/change": {
+      "post": {
+        "operationId": "HandlesControllerV1_changeHandle",
+        "summary": "Request to change a handle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandleRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Handle change request enqueued"
+          }
+        },
+        "tags": ["v1/handles"]
+      }
+    },
+    "/v1/handles/change/{newHandle}": {
+      "get": {
+        "operationId": "HandlesControllerV1_getChangeHandlePayload",
+        "summary": "Get a properly encoded ClaimHandlePayload that can be signed.",
+        "parameters": [
+          {
+            "name": "newHandle",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ClaimHandlePayload request enqueued"
+          }
+        },
+        "tags": ["v1/handles"]
+      }
+    },
+    "/v1/handles/{msaId}": {
+      "get": {
+        "operationId": "HandlesControllerV1_getHandle",
+        "summary": "Fetch a handle given an MSA Id",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found a handle"
+          }
+        },
+        "tags": ["v1/handles"]
+      }
+    },
+    "/v1/keys/add": {
+      "post": {
+        "operationId": "KeysControllerV1_addKey",
+        "summary": "Add new control keys for an MSA Id",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeysRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Found public keys"
+          }
+        },
+        "tags": ["v1/keys"]
+      }
+    },
+    "/v1/keys/{msaId}": {
+      "get": {
+        "operationId": "KeysControllerV1_getKeys",
+        "summary": "Fetch public keys given an MSA Id",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found public keys"
+          }
+        },
+        "tags": ["v1/keys"]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_healthz",
+        "summary": "Check the health status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": ["health"]
+      }
+    },
+    "/livez": {
+      "get": {
+        "operationId": "HealthController_livez",
+        "summary": "Check the live status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is live"
+          }
+        },
+        "tags": ["health"]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_readyz",
+        "summary": "Check the ready status of the service",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is ready"
+          }
+        },
+        "tags": ["health"]
+      }
+    }
+  },
+  "info": {
+    "title": "Account Service",
+    "description": "Account Service API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "WalletLoginConfigResponseDto": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "siwfUrl": {
+            "type": "string"
+          },
+          "frequencyRpcUrl": {
+            "type": "string"
+          }
+        },
+        "required": ["providerId", "siwfUrl", "frequencyRpcUrl"]
+      },
+      "HandleResponseDto": {
+        "type": "object",
+        "properties": {
+          "base_handle": {
+            "type": "string"
+          },
+          "canonical_base": {
+            "type": "string"
+          },
+          "suffix": {
+            "type": "number"
+          }
+        },
+        "required": ["base_handle", "canonical_base", "suffix"]
+      },
+      "AccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "msaId": {
+            "type": "string"
+          },
+          "handle": {
+            "$ref": "#/components/schemas/HandleResponseDto"
+          }
+        },
+        "required": ["msaId"]
+      },
+      "SiwsPayloadDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          }
+        },
+        "required": ["message", "signature"]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["message"]
+      },
+      "SignInResponseDto": {
+        "type": "object",
+        "properties": {
+          "siwsPayload": {
+            "$ref": "#/components/schemas/SiwsPayloadDto"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorResponseDto"
+          }
+        }
+      },
+      "EncodedExtrinsicDto": {
+        "type": "object",
+        "properties": {
+          "pallet": {
+            "type": "string"
+          },
+          "extrinsicName": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "string"
+          }
+        },
+        "required": ["pallet", "extrinsicName", "encodedExtrinsic"]
+      },
+      "SignUpResponseDto": {
+        "type": "object",
+        "properties": {
+          "extrinsics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EncodedExtrinsicDto"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorResponseDto"
+          }
+        }
+      },
+      "WalletLoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "signIn": {
+            "description": "The wallet login request information",
+            "example": {
+              "siwsPayload": {
+                "message": "0x1234567890abcdef",
+                "signature": "0x1234567890abcdef"
+              },
+              "err": {
+                "message": "Error message"
+              }
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SignInResponseDto"
+              }
+            ]
+          },
+          "signUp": {
+            "$ref": "#/components/schemas/SignUpResponseDto"
+          }
+        }
+      },
+      "WalletLoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "type": "string"
+          },
+          "msaId": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["referenceId"]
+      },
+      "HandlePayloadDto": {
+        "type": "object",
+        "properties": {
+          "baseHandle": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "number"
+          }
+        },
+        "required": ["baseHandle", "expiration"]
+      },
+      "HandleRequestDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/HandlePayloadDto"
+          },
+          "proof": {
+            "type": "string"
+          }
+        },
+        "required": ["accountId", "payload", "proof"]
+      },
+      "KeysRequestPayloadDto": {
+        "type": "object",
+        "properties": {
+          "msaId": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "newPublicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["msaId", "expiration", "newPublicKey"]
+      },
+      "KeysRequestDto": {
+        "type": "object",
+        "properties": {
+          "msaOwnerAddress": {
+            "type": "string"
+          },
+          "msaOwnerSignature": {
+            "type": "string"
+          },
+          "newKeyOwnerSignature": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/KeysRequestPayloadDto"
+          }
+        },
+        "required": ["msaOwnerAddress", "msaOwnerSignature", "newKeyOwnerSignature", "payload"]
+      }
+    }
+  }
+}

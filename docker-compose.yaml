@@ -22,7 +22,7 @@ x-common-environment: &common-environment
   DEBUG: true
 
 x-content-publishing-env: &content-publishing-env
-  START_PROCESS: api
+  START_PROCESS: content-publishing-api
   FILE_UPLOAD_MAX_SIZE_IN_BYTES: 2000000000
   ASSET_EXPIRATION_INTERVAL_SECONDS: 300
   BATCH_INTERVAL_SECONDS: 12
@@ -99,15 +99,17 @@ services:
         - gateway-dev:latest
 
   content-publishing-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_0:-3010}:3000
     command: make start-content-publishing-api
     environment:
       <<: [*common-environment, *content-publishing-env]
+      START_PROCESS: content-publishing-api
     volumes:
       - ./:/app
-      - content_publishing_node_cache:/app/services/content-publishing/node_modules
+      - content_publishing_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -116,13 +118,15 @@ services:
       - gateway-net
 
   content-publishing-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-content-publishing-worker
     environment:
       <<: [*common-environment, *content-publishing-env]
+      START_PROCESS: content-publishing-worker
     volumes:
       - ./:/app
-      - content_publishing_node_cache:/app/services/content-publishing/node_modules
+      - content_publishing_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -131,6 +135,7 @@ services:
       - gateway-net
 
   content-watcher-service:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_1:-3011}:3000
@@ -139,7 +144,7 @@ services:
       <<: [*common-environment, *content-watcher-env]
     volumes:
       - ./:/app
-      - content_watcher_node_cache:/app/services/content-watcher/node_modules
+      - content_watcher_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -148,15 +153,17 @@ services:
       - gateway-net
 
   graph-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_2:-3012}:3000
     command: make start-graph-api
     environment:
       <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-api
     volumes:
       - ./:/app
-      - graph_node_cache:/app/services/graph/node_modules
+      - graph_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - gateway-base
@@ -164,13 +171,15 @@ services:
       - gateway-net
 
   graph-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-graph-worker
     environment:
       <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-worker
     volumes:
       - ./:/app
-      - graph_node_cache:/app/services/graph/node_modules
+      - graph_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - gateway-base
@@ -178,6 +187,7 @@ services:
       - gateway-net
 
   account-service-api:
+    pull_policy: never
     image: gateway-dev:latest
     ports:
       - ${SERVICE_PORT_3:-3013}:3000
@@ -186,7 +196,7 @@ services:
     command: make start-account-api
     volumes:
       - ./:/app
-      - account_node_cache:/app/services/account/node_modules
+      - account_api_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -195,13 +205,14 @@ services:
       - gateway-net
 
   account-service-worker:
+    pull_policy: never
     image: gateway-dev:latest
     command: make start-account-worker
     environment:
       <<: [*common-environment, *account-service-env]
     volumes:
       - ./:/app
-      - account_node_cache:/app/services/account/node_modules
+      - account_worker_node_cache:/app/node_modules
     depends_on:
       - redis
       - ipfs
@@ -215,9 +226,12 @@ volumes:
   chainstorage:
     external: false
   redis_data:
-  account_node_cache:
-  graph_node_cache:
-  content_publishing_node_cache:
+  account_api_node_cache:
+  account_worker_node_cache:
+  graph_api_node_cache:
+  graph_worker_node_cache:
+  content_publishing_api_node_cache:
+  content_publishing_worker_node_cache:
   content_watcher_node_cache:
 
 networks:

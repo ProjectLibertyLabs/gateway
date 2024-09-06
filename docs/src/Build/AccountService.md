@@ -6,11 +6,11 @@ It includes endpoints for managing user authentication, account details, delegat
 ## API Reference
 
 [Open Direct API Reference Page](https://projectlibertylabs.github.io/gateway/account)
-{{#swagger-embed ../services/account/swagger.json}}
+{{#swagger-embed ../openapi-specs/account.openapi.json}}
 
 ## Configuration
 
-{{#markdown-embed ../services/account/ENVIRONMENT.md 2}}
+{{#markdown-embed ../developer-docs/account/ENVIRONMENT.md 2}}
 
 ## Best Practices
 

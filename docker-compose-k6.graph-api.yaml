@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  graph-service-api:
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.graph
+    ports:
+      - 3000:3000
+    volumes: !reset []
+    depends_on: !override
+      - redis
+
+  graph-service-worker:
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: ./Docker/Dockerfile.graph
+    volumes: !reset []
+    depends_on: !override
+      - redis
+
+  gateway-base:
+    profiles:
+      - skip
+  content-publishing-service-worker:
+    profiles:
+      - skip
+  content-publishing-service-api:
+    profiles:
+      - skip
+  content-watcher-service:
+    profiles:
+      - skip
+  account-service-api:
+    profiles:
+      - skip
+  account-service-worker:
+    profiles:
+      - skip

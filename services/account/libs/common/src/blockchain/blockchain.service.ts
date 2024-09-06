@@ -48,6 +48,14 @@ interface PublicKeyValues {
   debugMsg: string;
 }
 
+interface ItemizedPageUpdated {
+  msaId: string;
+  schemaId: string;
+  prevContentHash: string;
+  currContentHash: string;
+  debugMsg: string;
+}
+
 export interface ICapacityInfo {
   providerId: string;
   currentBlockNumber: number;
@@ -465,6 +473,26 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
 
     return publicKeyValues as PublicKeyValues;
+  }
+
+  /**
+   * Handles the PublicGraphKeyAdded transaction result events and extracts the public key from the event data.
+   * @param {Event} event - The ItemizedPageUpdated event
+   * @returns {PublicKeyValues} An object containing the MSA Id & new graph public key
+   */
+  public handlePublishGraphKeyTxResult(event: Event): ItemizedPageUpdated {
+    const graphKeyValues: Partial<ItemizedPageUpdated> = {};
+
+    // Grab the event data
+    if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
+      graphKeyValues.msaId = event.data.msaId.toString();
+      graphKeyValues.schemaId = event.data.schemaId.toString();
+      graphKeyValues.prevContentHash = event.data.prevContentHash.toString();
+      graphKeyValues.currContentHash = event.data.currContentHash.toString();
+      graphKeyValues.debugMsg = `New Graph Public Key Added for msaId: ${graphKeyValues.msaId} and schemaId: ${graphKeyValues.schemaId}`;
+    }
+
+    return graphKeyValues as ItemizedPageUpdated;
   }
 
   public async validateProviderSeedPhrase() {

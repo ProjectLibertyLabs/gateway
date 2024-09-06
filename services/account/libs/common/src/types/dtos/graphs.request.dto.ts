@@ -72,3 +72,5 @@ export class AddNewGraphKeyPayloadRequest {
 export type GraphKeysRequestDto = AddNewGraphKeyRequestDto & {
   type: TransactionType.ADD_GRAPH_KEY;
 };
+
+export type PublishGraphKeysRequestDto = GraphKeysRequestDto;

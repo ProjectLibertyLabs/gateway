@@ -1,0 +1,10 @@
+**/rust-webhook-server
+**/swagger.json
+**/metadata.ts
+**/index.html
+*.md
+*.json
+**/k6-test
+**/coverage
+**/docs
+

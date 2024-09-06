@@ -57,7 +57,6 @@ export interface ICapacityInfo {
   currentEpoch: number;
 }
 
-export const BLOCK_EXPIRATION_SECS = 10 * 60; // 10 minutes
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;

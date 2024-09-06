@@ -15,6 +15,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
@@ -51,7 +52,11 @@ export class DelegationControllerV1 {
     @Query('expirationTime') expirationTime?: number,
   ): Promise<RevokeDelegationPayloadRequest> {
     try {
-      const revokeDelegationPayload = this.delegationService.getRevokeDelegationPayload(providerId, expirationTime);
+      const expiration = await this.delegationService.getExpiration();
+      const payload = { providerId, expiration };
+      const encodedPayload = u8aToHex(u8aWrapBytes(this.delegationService.encodePayload(payload).toU8a()));
+      const revokeDelegationPayload: RevokeDelegationPayloadRequest = { payload, encodedPayload };
+      this.logger.warn(`REMOVE:RevokeDelegationPayload: ${revokeDelegationPayload}`);
       return revokeDelegationPayload;
     } catch (error) {
       this.logger.error(error);
@@ -66,7 +71,8 @@ export class DelegationControllerV1 {
   @ApiOkResponse({ description: 'Successfully revoked the delegation' })
   async postRevokeDelegation(encodedPayload: RevokeDelegationPayloadRequest): Promise<void> {
     try {
-      await this.delegationService.postRevokeDelegation(encodedPayload);
+      // TODO: Implement the postRevokeDelegation method in the DelegationService
+      // await this.delegationService.postRevokeDelegation(encodedPayload);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to revoke the delegation', HttpStatus.BAD_REQUEST);

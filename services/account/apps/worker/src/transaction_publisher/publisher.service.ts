@@ -101,14 +101,14 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
-        // TODO: Does this need to be a non-capacity transaction?
-        case TransactionType.REVOKE_DELEGATION: {
-          tx = await this.blockchainService.revokeDelegationByDelegator(job.data);
-          targetEvent = { section: 'delegation', method: 'DelegationRevoked' };
-          txHash = await this.processSingleTxn(providerKeys, tx);
-          this.logger.debug(`tx: ${tx}`);
-          break;
-        }
+        // TODO: Finish implementing the non-capacity wrapped transaction types
+        // case TransactionType.REVOKE_DELEGATION: {
+        //   tx = await this.blockchainService.revokeDelegationByDelegator(job.data);
+        //   targetEvent = { section: 'delegation', method: 'DelegationRevoked' };
+        //   txHash = await this.processSingleTxn(providerKeys, tx);
+        //   this.logger.debug(`tx: ${tx}`);
+        //   break;
+        // }
         default: {
           throw new Error(`Invalid job type.`);
         }
@@ -171,22 +171,23 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processFreeTxn(tx: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<HexString> {
-    this.logger.debug(`Submitting free tx of size ${tx.length}, method: ${tx.method.section}.${tx.method.method}`);
-    try {
-      const nonce = await this.nonceService.getNextNonce();
-      this.logger.warn(`REMOVE:Nonce: ${nonce}`);
-      const txHash = (await tx.signAndSend(address)).toHex();
-      if (!txHash) {
-        throw new Error('Tx hash is undefined');
-      }
-      this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
-    } catch (error) {
-      this.logger.error(`Error processing free transaction: ${error}`);
-      throw error;
-    }
-  }
+  // TODO: why does signAndSend need an address and not just a nonce, like above?
+  // async processFreeTxn(tx: SubmittableExtrinsic<'promise', ISubmittableResult>): Promise<HexString> {
+  //   this.logger.debug(`Submitting free tx of size ${tx.length}, method: ${tx.method.section}.${tx.method.method}`);
+  //   try {
+  //     const nonce = await this.nonceService.getNextNonce();
+  //     this.logger.warn(`REMOVE:Nonce: ${nonce}`);
+  //     const txHash = (await tx.signAndSend(address)).toHex();
+  //     if (!txHash) {
+  //       throw new Error('Tx hash is undefined');
+  //     }
+  //     this.logger.debug(`Tx hash: ${txHash}`);
+  //     return txHash;
+  //   } catch (error) {
+  //     this.logger.error(`Error processing free transaction: ${error}`);
+  //     throw error;
+  //   }
+  // }
 
   async processBatchTxn(
     providerKeys: KeyringPair,

@@ -6,8 +6,14 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
-import { ApiModule } from '../src/api.module';
+import { ApiModule } from '#api/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { TransactionResponse } from '#lib/types/dtos';
+import { SignerPayloadJSON } from '@polkadot/types/types';
+import { HexString } from '@polkadot/util/types';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { Keyring } from '@polkadot/api';
+import { u8aToHex } from '@polkadot/util';
 
 describe('Account Controller', () => {
   let app: INestApplication;
@@ -94,5 +100,46 @@ describe('Account Controller', () => {
       .expect(200)
       .expect((res) => res.body.msaId === validMsaId)
       .expect((res) => res.body.handle.base_handle === handle);
+  });
+
+  it('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given a valid accountId', async () => {
+    const user = users[0];
+    const keyInfoResponse = await ExtrinsicHelper.apiPromise.rpc.msa.getKeysByMsaId(user.msaId);
+    const accountId = keyInfoResponse.unwrap().msa_keys[0];
+    await request(app.getHttpServer())
+      .get(`/v1/accounts/retireMsa/${accountId}`)
+      .expect(200)
+      .expect((res) => res.body.unsignedPayload === '')
+      .expect((res) => res.body.encodedPayload === '');
+  });
+
+  // if (
+  //   ('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given an invalid accountId', async () => {})
+  // );
+
+  it('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
+    const user = users[0];
+    const keyInfoResponse = await ExtrinsicHelper.apiPromise.rpc.msa.getKeysByMsaId(user.msaId);
+    const accountId = keyInfoResponse.unwrap().msa_keys[0];
+    const getRetireMsaResponse = await request(app.getHttpServer()).get(`/v1/accounts/retireMsa/${accountId}`);
+    const responseData: {
+      unsignedPayload: SignerPayloadJSON;
+      encodedPayload: HexString;
+    } = getRetireMsaResponse.body.message;
+    // To be removed
+    await cryptoWaitReady();
+    const keyring = new Keyring();
+    const keypair = keyring.createFromUri('//Charlie');
+
+    const uint8Signature = keypair.sign(JSON.stringify(responseData.unsignedPayload), { withType: false });
+    const signature = u8aToHex(uint8Signature);
+
+    const retireMsaRequest = {
+      unsignedPayload: responseData.unsignedPayload,
+      encodedPayload: responseData.encodedPayload,
+      signature,
+      accountId,
+    };
+    await request(app.getHttpServer()).post(`/v1/accounts/retireMsa`).send(retireMsaRequest).expect(200);
   });
 });

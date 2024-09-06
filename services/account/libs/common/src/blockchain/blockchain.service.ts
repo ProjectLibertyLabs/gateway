@@ -437,7 +437,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async createRetireMsaPayload(
     accountId: string,
-  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
     const tx = await this.api.tx.msa.retireMsa();
     const rawNonce = (await this.api.query.system.account(accountId)).nonce;
     const nonce = this.api.registry.createType('Compact<Index>', rawNonce).toHex();
@@ -476,24 +476,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       ],
     };
 
-    // To be removed
-    await cryptoWaitReady();
-    const keyring = new Keyring();
-    const keypair = keyring.createFromUri('//Charlie');
-
-    const payload = this.api.createType('ExtrinsicPayload', unsignedPayload, {
-      version: unsignedPayload.version,
-    });
-    this.logger.debug(payload.toHuman(), 'PAYLOAD');
-    const encodedPayload = payload.toHex();
-
-    const uint8Signature = keypair.sign(payload.toU8a(), { withType: false });
-    const signature = u8aToHex(uint8Signature);
+    const encodedPayload = this.api
+      .createType('ExtrinsicPayload', unsignedPayload, {
+        version: unsignedPayload.version,
+      })
+      .toHex();
 
     return {
       unsignedPayload,
       encodedPayload,
-      signature,
     };
   }
 

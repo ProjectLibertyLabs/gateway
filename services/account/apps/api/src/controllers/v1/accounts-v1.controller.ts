@@ -121,7 +121,7 @@ export class AccountsControllerV1 {
    */
   async getRetireMsaPayload(
     @Param('accountId') accountId: string,
-  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
+  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
     try {
       return this.accountsService.getRetireMsaPayload(accountId);
     } catch (error) {

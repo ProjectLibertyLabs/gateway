@@ -116,9 +116,7 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaPayload(
-    accountId: string,
-  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString; signature: HexString }> {
+  getRetireMsaPayload(accountId: string): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
     return this.blockchainService.createRetireMsaPayload(accountId);
   }
 

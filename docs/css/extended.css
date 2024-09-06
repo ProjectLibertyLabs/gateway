@@ -1,12 +1,23 @@
-:root {
-  --content-max-width: 1000px;
+.nav-return,
+.nav-return:visited {
+  color: var(--sidebar-fg);
+  text-decoration: none;
 }
 
-table {
-  width: 100%;
+#logo {
+  letter-spacing: -0.1rem;
+  font-size: 4.2rem;
+  font-weight: 300;
 }
 
-/* Button Links */
+#logo,
+#logo:hover,
+#logo:visited,
+#logo:hover:visited {
+  color: var(--headers);
+  text-decoration: none;
+}
+
 .button-links {
   display: flex;
   justify-content: space-around;
@@ -19,8 +30,8 @@ table {
 .button-links a:link {
   box-sizing: content-box;
   font-weight: 300;
-  color: var(--sidebar-fg);
-  background-color: var(--sidebar-bg);
+  color: var(--button-nav-fg);
+  background-color: var(--button-nav-bg);
   border: 2px solid transparent;
   border-radius: 15px;
   user-select: none;
@@ -63,6 +74,6 @@ table {
 .button-links a:hover,
 .button-links a:visited:hover {
   text-decoration: none;
-  border: 2px solid var(--sidebar-active);
-  color: var(--sidebar-fg);
+  border: 2px solid var(--button-nav-hover);
+  color: var(--button-nav-fg);
 }

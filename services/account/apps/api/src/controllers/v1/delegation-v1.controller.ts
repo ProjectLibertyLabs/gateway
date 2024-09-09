@@ -2,18 +2,7 @@ import { ReadOnlyGuard } from '#api/guards/read-only.guard';
 import { DelegationService } from '#api/services/delegation.service';
 import { DelegationResponse } from '#lib/types/dtos/delegation.response.dto';
 import { RevokeDelegationPayloadRequest } from '#lib/types/dtos/revokeDelegation.request.dto';
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Logger,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
@@ -27,11 +16,17 @@ export class DelegationControllerV1 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  // Delegation endpoint
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get the delegation information associated with an MSA Id' })
   @ApiOkResponse({ description: 'Found delegation information' })
+  /**
+   * Retrieves the delegation for a given MSA ID.
+   *
+   * @param msaId - The MSA ID for which to retrieve the delegation.
+   * @returns A Promise that resolves to a DelegationResponse object representing the delegation.
+   * @throws HttpException if the delegation cannot be found.
+   */
   async getDelegation(@Param('msaId') msaId: string): Promise<DelegationResponse> {
     try {
       const delegation = await this.delegationService.getDelegation(msaId);
@@ -42,21 +37,27 @@ export class DelegationControllerV1 {
     }
   }
 
-  // Revoke Delegation endpoint
   @Get('revokeDelegation/:providerId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a properly encoded RevokeDelegationPayload that can be signed' })
   @ApiOkResponse({ description: 'Returned an encoded RevokeDelegationPayload for signing' })
-  async getRevokeDelegationPayload(
-    @Param('providerId') providerId: string,
-    @Query('expirationTime') expirationTime?: number,
-  ): Promise<RevokeDelegationPayloadRequest> {
+  /**
+   * Retrieves the revoke delegation payload for a given provider ID.
+   * This encoded payload can be signed by the user to revoke the delegation to the given provider id.
+   * The payload can be used to verify the encoded payload is correct before signing.
+   * See the Frequency Rust Docs for more information:
+   *   https://frequency-chain.github.io/frequency/pallet_msa/pallet/struct.Pallet.html#method.revoke_delegation_by_delegator
+   *
+   * @param providerId - The ID of the provider.
+   * @returns A promise that resolves to a RevokeDelegationPayloadRequest object containing the payload and encoded payload.
+   * @throws {HttpException} If there is an error generating the RevokeDelegationPayload.
+   */
+  async getRevokeDelegationPayload(@Param('providerId') providerId: string): Promise<RevokeDelegationPayloadRequest> {
     try {
-      const expiration = await this.delegationService.getExpiration();
-      const payload = { providerId, expiration };
+      const payload = { providerId };
       const encodedPayload = u8aToHex(u8aWrapBytes(this.delegationService.encodePayload(payload).toU8a()));
       const revokeDelegationPayload: RevokeDelegationPayloadRequest = { payload, encodedPayload };
-      this.logger.warn(`REMOVE:RevokeDelegationPayload: ${revokeDelegationPayload}`);
+      this.logger.verbose(`RevokeDelegationPayload: ${JSON.stringify(revokeDelegationPayload)}`);
       return revokeDelegationPayload;
     } catch (error) {
       this.logger.error(error);

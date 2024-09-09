@@ -18,7 +18,10 @@ export class DelegationService {
   constructor(
     private configService: ConfigService,
     private blockchainService: BlockchainService,
-    private enqueueService: EnqueueService,
+    // REMOVE: is this causing the redis dependency?
+    // Seems like it is, but why is that a problem?
+    // Doesn't enqueue service work elsewhere in the api app?
+    // private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -46,24 +49,6 @@ export class DelegationService {
     throw new Error('Invalid msaId.');
   }
 
-  // async getRevokeDelegationPayload(
-  //   providerId: string,
-  //   expirationTime: number = BLOCK_EXPIRATION_SECS,
-  // ): Promise<RevokeDelegationPayloadRequest> {
-  //   const revokeDelegationType = this.blockchainService.createType('RevokeDelegationPayload', {
-  //     providerId,
-  //     expiration: expirationBlockNumber,
-  //   });
-  //   const encodedPayload = u8aToHex(u8aWrapBytes(revokeDelegationType.toU8a()));
-  //   this.logger.debug(`RevokeDelegationPayload: ${encodedPayload}`);
-
-  //   const revokeDelegationRequest: RevokeDelegationPayloadRequest = {
-  //     payload: revokeDelegationType,
-  //     encodedPayload,
-  //   };
-  //   return revokeDelegationRequest;
-  // }
-
   async getExpiration(): Promise<number> {
     const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
     // standard expiration in SIWF is 10 minutes
@@ -71,13 +56,9 @@ export class DelegationService {
   }
 
   encodePayload(payload: RevokeDelegationPayloadRequest['payload']) {
-    // return this.blockchainService.createClaimHandPayloadType(payload.providerId, payload.expiration);
-    const revokeDelegationType = this.blockchainService.createType('RevokeDelegationPayload', {
-      providerId: payload.providerId,
-      expiration: payload.expiration,
+    return this.blockchainService.createType('Compact<u64>', {
+      providerMsaId: payload.providerId,
     });
-    this.logger.warn(`REMOVE:RevokeDelegationPayload: ${revokeDelegationType}`);
-    return revokeDelegationType;
   }
 
   // async postRevokeDelegation(@Body() revokeDelegationRequest: RevokeDelegationRequestDto): Promise<TransactionResponse> {

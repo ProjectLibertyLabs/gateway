@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
 import { IsNotEmpty } from 'class-validator';
-import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
@@ -9,10 +8,6 @@ class RevokeDelegationPayloadDto {
   @ApiProperty()
   @IsNotEmpty()
   providerId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  expiration: number;
 }
 
 export class RevokeDelegationRequestDto {

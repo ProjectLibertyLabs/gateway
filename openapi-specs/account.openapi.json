@@ -286,7 +286,7 @@
         ]
       }
     },
-    "/v1/keys/publicKeyAgreements/{msaId}": {
+    "/v1/keys/publicKeyAgreements/getAddKeyPayload": {
       "get": {
         "operationId": "KeysControllerV1_getPublicKeyAgreementsKeyPayload",
         "summary": "Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.",
@@ -294,7 +294,7 @@
           {
             "name": "msaId",
             "required": true,
-            "in": "path",
+            "in": "query",
             "schema": {
               "type": "string"
             }

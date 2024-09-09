@@ -24,12 +24,9 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
-// 30 days as immortal period
-const IMMORTAL_BLOCK_PERIOD = (30 * 24 * 60 * 60) / BlockchainConstants.SECONDS_PER_BLOCK;
 
 /**
  * Service responsible for publishing account updates.
@@ -83,9 +80,9 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
-          tx = await this.blockchainService.publishHandle(job.data);
+          const trx = await this.blockchainService.publishHandle(job.data);
           targetEvent = { section: 'handles', method: 'HandleClaimed' };
-          txHash = await this.processSingleTxn(providerKeys, tx);
+          [tx, txHash] = await this.processSingleTxn(providerKeys, trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -99,16 +96,16 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.ADD_KEY: {
-          tx = await this.blockchainService.addPublicKeyToMsa(job.data);
+          const trx = await this.blockchainService.addPublicKeyToMsa(job.data);
           targetEvent = { section: 'msa', method: 'PublicKeyAdded' };
-          txHash = await this.processSingleTxn(providerKeys, tx);
+          [tx, txHash] = await this.processSingleTxn(providerKeys, trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.ADD_PUBLIC_KEY_AGREEMENT: {
-          tx = await this.blockchainService.addPublicKeyAgreementToMsa(job.data);
+          const trx = await this.blockchainService.addPublicKeyAgreementToMsa(job.data);
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
-          txHash = await this.processSingleTxn(providerKeys, tx);
+          [tx, txHash] = await this.processSingleTxn(providerKeys, trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -124,10 +121,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         providerId: job.data.providerId,
         txHash,
         successEvent: targetEvent,
-        birth: tx.era.isMortalEra ? tx.era.asMortalEra.birth(lastFinalizedBlockNumber) : lastFinalizedBlockNumber,
-        death: tx.era.isMortalEra
-          ? tx.era.asMortalEra.death(lastFinalizedBlockNumber)
-          : lastFinalizedBlockNumber + IMMORTAL_BLOCK_PERIOD,
+        birth: tx.era.asMortalEra.birth(lastFinalizedBlockNumber),
+        death: tx.era.asMortalEra.death(lastFinalizedBlockNumber),
       };
       const obj: Record<string, string> = {};
       obj[txHash] = JSON.stringify(status);
@@ -152,7 +147,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   async processSingleTxn(
     providerKeys: KeyringPair,
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<HexString> {
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
@@ -169,7 +164,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         throw new Error('Tx hash is undefined');
       }
       this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
+      return [ext.extrinsic, txHash];
     } catch (error) {
       this.logger.error(`Error processing single transaction: ${error}`);
       throw error;

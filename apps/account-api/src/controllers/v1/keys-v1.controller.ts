@@ -86,7 +86,7 @@ export class KeysControllerV1 {
     }
   }
 
-  @Get('publicKeyAgreements/:msaId')
+  @Get('publicKeyAgreements/getAddKeyPayload')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({
     name: 'newKey',
@@ -103,7 +103,7 @@ export class KeysControllerV1 {
    * @throws An error if the key already exists or the payload creation fails.
    */
   async getPublicKeyAgreementsKeyPayload(
-    @Param('msaId') msaId: string,
+    @Query('msaId') msaId: string,
     @Query('newKey') newKey: HexString,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
     // this is temporary until we find a better way to enforce data validation. the validation decorator didn't work

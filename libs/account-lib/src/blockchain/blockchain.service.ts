@@ -482,23 +482,23 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   /**
-   * Handles the PublicGraphKeyAdded transaction result events and extracts the public key from the event data.
+   * Handles the ItemizedPageUpdated transaction result events and extracts the public key from the event data.
    * @param {Event} event - The ItemizedPageUpdated event
-   * @returns {PublicKeyValues} An object containing the MSA Id & new graph public key
+   * @returns {ItemizedPageUpdated} An object containing the MSA Id & new public key
    */
-  public handlePublishGraphKeyTxResult(event: Event): ItemizedPageUpdated {
-    const graphKeyValues: Partial<ItemizedPageUpdated> = {};
+  public handlePublishPublicKeyAgreementTxResult(event: Event): ItemizedPageUpdated {
+    const itemizedKeyValues: Partial<ItemizedPageUpdated> = {};
 
     // Grab the event data
     if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
-      graphKeyValues.msaId = event.data.msaId.toString();
-      graphKeyValues.schemaId = event.data.schemaId.toString();
-      graphKeyValues.prevContentHash = event.data.prevContentHash.toString();
-      graphKeyValues.currContentHash = event.data.currContentHash.toString();
-      graphKeyValues.debugMsg = `New Graph Public Key Added for msaId: ${graphKeyValues.msaId} and schemaId: ${graphKeyValues.schemaId}`;
+      itemizedKeyValues.msaId = event.data.msaId.toString();
+      itemizedKeyValues.schemaId = event.data.schemaId.toString();
+      itemizedKeyValues.prevContentHash = event.data.prevContentHash.toString();
+      itemizedKeyValues.currContentHash = event.data.currContentHash.toString();
+      itemizedKeyValues.debugMsg = `Itemized Page updated for msaId: ${itemizedKeyValues.msaId} and schemaId: ${itemizedKeyValues.schemaId}`;
     }
 
-    return graphKeyValues as ItemizedPageUpdated;
+    return itemizedKeyValues as ItemizedPageUpdated;
   }
 
   public async validateProviderSeedPhrase() {

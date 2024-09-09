@@ -189,7 +189,8 @@ export class TxnNotifierService
               break;
             case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
               {
-                const itemizedPageUpdated = this.blockchainService.handlePublishGraphKeyTxResult(successEvent);
+                const itemizedPageUpdated =
+                  this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
 
                 webhookResponse = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
                   schemaId: itemizedPageUpdated.schemaId,

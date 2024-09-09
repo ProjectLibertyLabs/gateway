@@ -1,12 +1,16 @@
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
-import { GraphKeysRequestDto, PublishGraphKeysRequestDto } from './graphs.request.dto';
+import { PublicKeyAgreementRequestDto, PublishPublicKeyAgreementRequestDto } from './graphs.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishSIWFSignupRequestDto } from './wallet.login.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
 
 export type TransactionData<
-  RequestType = PublishHandleRequestDto | PublishSIWFSignupRequestDto | PublishKeysRequestDto | GraphKeysRequestDto,
+  RequestType =
+    | PublishHandleRequestDto
+    | PublishSIWFSignupRequestDto
+    | PublishKeysRequestDto
+    | PublicKeyAgreementRequestDto,
 > = RequestType & {
   providerId: string;
   referenceId: string;
@@ -41,7 +45,7 @@ export interface PublishKeysWebhookRsp extends TxWebhookRspBase, PublishKeysOpts
   transactionType: PublishKeysRequestDto['type'];
 }
 export interface PublishGraphKeysWebhookRsp extends TxWebhookRspBase, PublishGraphKeysOpts {
-  transactionType: PublishGraphKeysRequestDto['type'];
+  transactionType: PublishPublicKeyAgreementRequestDto['type'];
 }
 export type TxWebhookRsp =
   | PublishHandleWebhookRsp

@@ -45,7 +45,7 @@ export class ItemizedSignaturePayloadDto {
   actions: ItemActionDto[];
 }
 
-export class AddNewGraphKeyRequestDto {
+export class AddNewPublicKeyAgreementRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   accountId: string;
@@ -59,7 +59,7 @@ export class AddNewGraphKeyRequestDto {
   proof: HexString;
 }
 
-export class AddNewGraphKeyPayloadRequest {
+export class AddNewPublicKeyAgreementPayloadRequest {
   @ApiProperty()
   @IsNotEmpty()
   payload: ItemizedSignaturePayloadDto;
@@ -69,8 +69,8 @@ export class AddNewGraphKeyPayloadRequest {
   encodedPayload: HexString;
 }
 
-export type GraphKeysRequestDto = AddNewGraphKeyRequestDto & {
-  type: TransactionType.ADD_GRAPH_KEY;
+export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & {
+  type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
 };
 
-export type PublishGraphKeysRequestDto = GraphKeysRequestDto;
+export type PublishPublicKeyAgreementRequestDto = PublicKeyAgreementRequestDto;

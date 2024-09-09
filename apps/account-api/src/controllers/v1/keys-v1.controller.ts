@@ -12,12 +12,21 @@ import {
   Body,
   Post,
   UseGuards,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { KeysRequestDto, AddKeyRequestDto } from '#account-lib/types/dtos/keys.request.dto';
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { KeysResponse } from '#account-lib/types/dtos/keys.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
+import { HexString } from '@polkadot/util/types';
+import {
+  AddNewPublicKeyAgreementPayloadRequest,
+  AddNewPublicKeyAgreementRequestDto,
+  PublicKeyAgreementRequestDto,
+} from '#account-lib/types/dtos/graphs.request.dto';
+import { isHexString } from '#account-lib/utils/utility';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')
@@ -74,6 +83,58 @@ export class KeysControllerV1 {
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to find public keys for the given msaId', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('publicKeyAgreements/:msaId')
+  @HttpCode(HttpStatus.OK)
+  @ApiQuery({
+    name: 'newKey',
+    description: 'New public key to be added in hex format',
+    type: 'string',
+    required: true,
+  })
+  @ApiOperation({ summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.' })
+  @ApiOkResponse({ description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing' })
+  /**
+   * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
+   * @param queryParams - The query parameters for adding a new key
+   * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
+   * @throws An error if the key already exists or the payload creation fails.
+   */
+  async getPublicKeyAgreementsKeyPayload(
+    @Param('msaId') msaId: string,
+    @Query('newKey') newKey: HexString,
+  ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
+    // this is temporary until we find a better way to enforce data validation. the validation decorator didn't work
+    if (!isHexString(newKey)) {
+      throw new BadRequestException('Not a valid Hex value!');
+    }
+    return this.keysService.getAddPublicKeyAgreementPayload(msaId, newKey);
+  }
+
+  @Post('publicKeyAgreements')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request to add a new public Key' })
+  @ApiOkResponse({ description: 'Add new key request enqueued' })
+  @ApiBody({ type: AddNewPublicKeyAgreementRequestDto })
+  /**
+   * Using the provided query parameters, adds a new public key for the account
+   * @param queryParams - The query parameters for adding a new graph key
+   * @returns A message that the adding  anew graph key operation is in progress.
+   * @throws An error if enqueueing the operation fails.
+   */
+  async AddNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
+    try {
+      const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
+        ...request,
+        type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
+      });
+      this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
+      return response;
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error('Failed to add new key');
     }
   }
 }

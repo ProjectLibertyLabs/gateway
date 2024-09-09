@@ -17,9 +17,8 @@ import {
   HandlesControllerV1,
   KeysControllerV1,
   HealthController,
-  GraphsControllerV1,
 } from './controllers';
-import { AccountsService, HandlesService, DelegationService, KeysService, GraphsService } from './services';
+import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
 
 @Module({
   imports: [
@@ -65,17 +64,10 @@ import { AccountsService, HandlesService, DelegationService, KeysService, Graphs
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, DelegationService, EnqueueService, GraphsService, HandlesService, KeysService],
+  providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
-  controllers: [
-    AccountsControllerV1,
-    DelegationControllerV1,
-    GraphsControllerV1,
-    HandlesControllerV1,
-    KeysControllerV1,
-    HealthController,
-  ],
+  controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],
   exports: [],
 })
 export class ApiModule {}

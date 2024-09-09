@@ -187,7 +187,7 @@ export class TxnNotifierService
                 );
               }
               break;
-            case TransactionType.ADD_GRAPH_KEY:
+            case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
               {
                 const itemizedPageUpdated = this.blockchainService.handlePublishGraphKeyTxResult(successEvent);
 

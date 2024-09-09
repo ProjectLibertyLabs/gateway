@@ -139,64 +139,6 @@
         ]
       }
     },
-    "/v1/graphs/addKey/{msaId}": {
-      "get": {
-        "operationId": "GraphsControllerV1_getAddKeyPayload",
-        "summary": "Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.",
-        "parameters": [
-          {
-            "name": "msaId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "newKey",
-            "required": true,
-            "in": "query",
-            "description": "New public key to be added in hex format",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing"
-          }
-        },
-        "tags": [
-          "v1/graphs"
-        ]
-      }
-    },
-    "/v1/graphs/addKey": {
-      "post": {
-        "operationId": "GraphsControllerV1_addNewKey",
-        "summary": "Request to add a new graph key",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddNewGraphKeyRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Add new key request enqueued"
-          }
-        },
-        "tags": [
-          "v1/graphs"
-        ]
-      }
-    },
     "/v1/handles": {
       "post": {
         "operationId": "HandlesControllerV1_createHandle",
@@ -337,6 +279,64 @@
         "responses": {
           "200": {
             "description": "Found public keys"
+          }
+        },
+        "tags": [
+          "v1/keys"
+        ]
+      }
+    },
+    "/v1/keys/publicKeyAgreements/{msaId}": {
+      "get": {
+        "operationId": "KeysControllerV1_getPublicKeyAgreementsKeyPayload",
+        "summary": "Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "newKey",
+            "required": true,
+            "in": "query",
+            "description": "New public key to be added in hex format",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing"
+          }
+        },
+        "tags": [
+          "v1/keys"
+        ]
+      }
+    },
+    "/v1/keys/publicKeyAgreements": {
+      "post": {
+        "operationId": "KeysControllerV1_AddNewPublicKeyAgreements",
+        "summary": "Request to add a new public Key",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Add new key request enqueued"
           }
         },
         "tags": [
@@ -564,51 +564,6 @@
           "referenceId"
         ]
       },
-      "ItemizedSignaturePayloadDto": {
-        "type": "object",
-        "properties": {
-          "schemaId": {
-            "type": "number"
-          },
-          "targetHash": {
-            "type": "number"
-          },
-          "expiration": {
-            "type": "number"
-          },
-          "actions": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "required": [
-          "schemaId",
-          "targetHash",
-          "expiration",
-          "actions"
-        ]
-      },
-      "AddNewGraphKeyRequestDto": {
-        "type": "object",
-        "properties": {
-          "accountId": {
-            "type": "string"
-          },
-          "payload": {
-            "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
-          },
-          "proof": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "accountId",
-          "payload",
-          "proof"
-        ]
-      },
       "HandlePayloadDto": {
         "type": "object",
         "properties": {
@@ -683,6 +638,51 @@
           "msaOwnerSignature",
           "newKeyOwnerSignature",
           "payload"
+        ]
+      },
+      "ItemizedSignaturePayloadDto": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number"
+          },
+          "targetHash": {
+            "type": "number"
+          },
+          "expiration": {
+            "type": "number"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "schemaId",
+          "targetHash",
+          "expiration",
+          "actions"
+        ]
+      },
+      "AddNewPublicKeyAgreementRequestDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
+          },
+          "proof": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountId",
+          "payload",
+          "proof"
         ]
       }
     }

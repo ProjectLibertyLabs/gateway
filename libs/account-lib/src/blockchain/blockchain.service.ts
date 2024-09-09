@@ -25,7 +25,7 @@ import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request
 import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import {
-  GraphKeysRequestDto,
+  PublicKeyAgreementRequestDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
 } from '#account-lib/types/dtos/graphs.request.dto';
@@ -261,7 +261,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return addKeyResponse;
   }
 
-  public async addGraphPublicKeyToMsa(keysRequest: GraphKeysRequestDto): Promise<SubmittableExtrinsic<any>> {
+  public async addPublicKeyAgreementToMsa(
+    keysRequest: PublicKeyAgreementRequestDto,
+  ): Promise<SubmittableExtrinsic<any>> {
     const { accountId, payload, proof } = keysRequest;
     const txPayload = this.createItemizedSignaturePayloadV2Type(payload);
 

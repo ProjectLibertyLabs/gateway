@@ -105,8 +105,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
-        case TransactionType.ADD_GRAPH_KEY: {
-          tx = await this.blockchainService.addGraphPublicKeyToMsa(job.data);
+        case TransactionType.ADD_PUBLIC_KEY_AGREEMENT: {
+          tx = await this.blockchainService.addPublicKeyAgreementToMsa(job.data);
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
           txHash = await this.processSingleTxn(providerKeys, tx);
           this.logger.debug(`tx: ${tx}`);

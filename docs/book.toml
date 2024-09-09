@@ -10,11 +10,15 @@ command = "node preprocessor.mjs"
 
 
 [output.html]
+additional-css = [
+  "css/extended.css",
+  "css/highlight.css",
+  "css/highlight-dark.css",
+]
 no-section-label = true
 git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"
 edit-url-template = "https://github.com/ProjectLibertyLabs/gateway/blob/main/docs/src/{path}"
 preferred-dark-theme = "coal"
-additional-css = ["css/extended.css"]
 
 [output.html.fold]
 enable = true

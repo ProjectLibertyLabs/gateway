@@ -1,0 +1,60 @@
+/* source-code-pro-500 - latin_vietnamese_latin-ext_greek_cyrillic-ext_cyrillic */
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  src: url('../fonts/source-code-pro-v11-all-charsets-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Italic.eot');
+  src:
+    url('../fonts/Poppins-Italic.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Poppins-Italic.woff2') format('woff2'),
+    url('../fonts/Poppins-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-SemiBold.eot');
+  src:
+    url('../fonts/Poppins-SemiBold.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Poppins-SemiBold.woff2') format('woff2'),
+    url('../fonts/Poppins-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Regular.eot');
+  src:
+    url('../fonts/Poppins-Regular.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Poppins-Regular.woff2') format('woff2'),
+    url('../fonts/Poppins-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Light.eot');
+  src:
+    url('../fonts/Poppins-Light.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Poppins-Light.woff2') format('woff2'),
+    url('../fonts/Poppins-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Adjusted Verdana Fallback';
+  src: local(Verdana);
+  size-adjust: 98%;
+  ascent-override: normal;
+  descent-override: normal;
+  line-gap-override: normal;
+}

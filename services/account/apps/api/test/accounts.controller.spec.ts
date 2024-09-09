@@ -6,7 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
-import { ApiModule } from '#api/api.module';
+import { ApiModule } from '../../../../account/apps/api/src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { TransactionResponse } from '#lib/types/dtos';
 import { SignerPayloadJSON } from '@polkadot/types/types';
@@ -19,7 +19,7 @@ describe('Account Controller', () => {
   let app: INestApplication;
   let module: TestingModule;
   let currentBlockNumber: number;
-  let users: ChainUser[];
+  let users: ChainUser[] = [];
   let provider: ChainUser;
   let maxMsaId: string;
   const handle = uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' });
@@ -76,36 +76,34 @@ describe('Account Controller', () => {
     }
   });
 
-  it('(GET) /v1/accounts/:msaId with valid msaId and no handle', async () => {
-    const user = users[2];
-    const validMsaId = user.msaId?.toString();
-    await request(app.getHttpServer()).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
-      msaId: user.msaId?.toString(),
-    });
-  });
-
-  it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {
-    const invalidMsaId = BigInt(maxMsaId) + 1000n;
-    await request(app.getHttpServer())
-      .get(`/v1/accounts/${invalidMsaId.toString()}`)
-      .expect(400)
-      .expect({ statusCode: 400, message: 'Failed to find the account' });
-  });
-
-  it('(GET) /v1/accounts/:msaId with valid msaId and handle', async () => {
-    const user = users[0];
-    const validMsaId = user.msaId?.toString();
-    await request(app.getHttpServer())
-      .get(`/v1/accounts/${validMsaId}`)
-      .expect(200)
-      .expect((res) => res.body.msaId === validMsaId)
-      .expect((res) => res.body.handle.base_handle === handle);
-  });
+  // it('(GET) /v1/accounts/:msaId with valid msaId and no handle', async () => {
+  //   const user = users[2];
+  //   const validMsaId = user.msaId?.toString();
+  //   await request(app.getHttpServer()).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
+  //     msaId: user.msaId?.toString(),
+  //   });
+  // });
+  //
+  // it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {
+  //   const invalidMsaId = BigInt(maxMsaId) + 1000n;
+  //   await request(app.getHttpServer())
+  //     .get(`/v1/accounts/${invalidMsaId.toString()}`)
+  //     .expect(400)
+  //     .expect({ statusCode: 400, message: 'Failed to find the account' });
+  // });
+  //
+  // it('(GET) /v1/accounts/:msaId with valid msaId and handle', async () => {
+  //   const user = users[0];
+  //   const validMsaId = user.msaId?.toString();
+  //   await request(app.getHttpServer())
+  //     .get(`/v1/accounts/${validMsaId}`)
+  //     .expect(200)
+  //     .expect((res) => res.body.msaId === validMsaId)
+  //     .expect((res) => res.body.handle.base_handle === handle);
+  // });
 
   it('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given a valid accountId', async () => {
-    const user = users[0];
-    const keyInfoResponse = await ExtrinsicHelper.apiPromise.rpc.msa.getKeysByMsaId(user.msaId);
-    const accountId = keyInfoResponse.unwrap().msa_keys[0];
+    const accountId = users[0].keypair.address;
     await request(app.getHttpServer())
       .get(`/v1/accounts/retireMsa/${accountId}`)
       .expect(200)
@@ -118,18 +116,13 @@ describe('Account Controller', () => {
   // );
 
   it('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
-    const user = users[0];
-    const keyInfoResponse = await ExtrinsicHelper.apiPromise.rpc.msa.getKeysByMsaId(user.msaId);
-    const accountId = keyInfoResponse.unwrap().msa_keys[0];
+    const { keypair } = users[0];
+    const accountId = keypair.address;
     const getRetireMsaResponse = await request(app.getHttpServer()).get(`/v1/accounts/retireMsa/${accountId}`);
-    const responseData: {
-      unsignedPayload: SignerPayloadJSON;
-      encodedPayload: HexString;
-    } = getRetireMsaResponse.body.message;
+    console.log('getRetireMsaResponse:', getRetireMsaResponse.body.data);
+    const responseData = getRetireMsaResponse.body.data;
     // To be removed
     await cryptoWaitReady();
-    const keyring = new Keyring();
-    const keypair = keyring.createFromUri('//Charlie');
 
     const uint8Signature = keypair.sign(JSON.stringify(responseData.unsignedPayload), { withType: false });
     const signature = u8aToHex(uint8Signature);

@@ -155,7 +155,8 @@
       "^#lib/queues(|/.*)$": "<rootDir>/libs/common/src/queues/$1",
       "^#lib/services(|/.*)$": "<rootDir>/libs/common/src/services/$1",
       "^#lib/types(|/.*)$": "<rootDir>/libs/common/src/types/$1",
-      "^#lib/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1"
+      "^#lib/utils(|/.*)$": "<rootDir>/libs/common/src/utils/$1",
+      "^#lib/cache(|/.*)$": "<rootDir>/libs/common/src/cache/$1"
     }
   }
 }

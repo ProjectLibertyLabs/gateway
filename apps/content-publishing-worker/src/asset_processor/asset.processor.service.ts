@@ -5,7 +5,7 @@ import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '#content-publishing-lib/config';
 import { IAssetJob } from '#types/interfaces/content-publishing';
-import { ASSET_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
+import { ASSET_QUEUE_NAME } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 

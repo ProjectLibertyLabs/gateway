@@ -8,14 +8,15 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
-import { PUBLISH_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
+import { PUBLISH_QUEUE_NAME } from '#types/constants/queue.constants';
 import { BaseConsumer } from '../BaseConsumer';
 import { IPublisherJob } from '#types/interfaces/content-publishing';
 import { IPFSPublisher } from './ipfs.publisher';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
 import { IContentTxStatus } from '#types/interfaces';
-import { CAPACITY_EPOCH_TIMEOUT_NAME, TXN_WATCH_LIST_KEY } from '#types/constants/content-publishing-constants';
-import { SECONDS_PER_BLOCK } from '#types/constants/account-constants';
+import { CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
+import { TXN_WATCH_LIST_KEY } from '#types/constants/redis-keys.constants';
+import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 
 @Injectable()
 @Processor(PUBLISH_QUEUE_NAME, {

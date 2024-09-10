@@ -18,7 +18,7 @@ import { RedisUtils } from '#account-lib/utils/redis';
 import { TxWebhookRsp } from '#types/dtos/account';
 import { TransactionType } from '#types/enums/account-enums';
 import { IAccountTxStatus } from '#types/interfaces';
-import { SECONDS_PER_BLOCK } from '#types/constants/account-constants';
+import { SECONDS_PER_BLOCK, ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
 
 @Injectable()
 export class TxnNotifierService
@@ -238,7 +238,7 @@ export class TxnNotifierService
   }
 
   async getWebhookList(msaId: number): Promise<string[]> {
-    const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
+    const redisKey = `${ACCOUNT_SERVICE_WATCHER_PREFIX}:${msaId}`;
     const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
 
     return redisList || [];

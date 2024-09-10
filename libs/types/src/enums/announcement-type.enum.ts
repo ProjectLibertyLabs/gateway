@@ -8,3 +8,13 @@ export enum AnnouncementType {
   Update = 6,
   PublicFollows = 113,
 }
+
+// eslint-disable-next-line no-shadow
+export enum AnnouncementTypeName {
+  TOMBSTONE = 'tombstone',
+  BROADCAST = 'broadcast',
+  REPLY = 'reply',
+  REACTION = 'reaction',
+  PROFILE = 'profile',
+  UPDATE = 'update',
+}

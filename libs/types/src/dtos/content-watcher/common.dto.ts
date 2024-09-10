@@ -3,7 +3,7 @@
  */
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsPositive, isPositive } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsPositive } from 'class-validator';
 import { IScanReset } from '#types/interfaces/content-watcher';
 
 export class DsnpUserIdParam {
@@ -51,21 +51,4 @@ export class ResetScannerDto implements IScanReset {
     example: true,
   })
   immediate?: boolean;
-}
-
-// eslint-disable-next-line no-shadow
-export enum AnnouncementTypeDto {
-  BROADCAST = 'broadcast',
-  REPLY = 'reply',
-  REACTION = 'reaction',
-  UPDATE = 'update',
-  TOMBSTONE = 'tombstone',
-  PROFILE = 'profile',
-}
-
-// eslint-disable-next-line no-shadow
-export enum EnvironmentDto {
-  MAIN_NET = 'mainnet',
-  ROCOCO = 'rococo',
-  DEV = 'dev',
 }

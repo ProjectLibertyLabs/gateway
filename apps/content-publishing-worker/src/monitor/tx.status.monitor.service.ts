@@ -13,10 +13,10 @@ import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
-import { TXN_WATCH_LIST_KEY } from '#types/constants/content-publishing-constants';
-import { PUBLISH_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
+import { TXN_WATCH_LIST_KEY } from '#types/constants/redis-keys.constants';
+import { PUBLISH_QUEUE_NAME } from '#types/constants/queue.constants';
 import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
-import { SECONDS_PER_BLOCK } from '#types/constants/account-constants';
+import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {

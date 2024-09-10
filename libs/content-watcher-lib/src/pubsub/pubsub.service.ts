@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants/content-watcher.constants';
+import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
 import { AppConfigService } from '../config/config.service';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { AnnouncementResponse } from '#types/content-announcement';

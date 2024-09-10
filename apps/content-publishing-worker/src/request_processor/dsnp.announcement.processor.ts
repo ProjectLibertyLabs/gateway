@@ -50,7 +50,7 @@ import {
   UPDATE_QUEUE_NAME,
   PROFILE_QUEUE_NAME,
   TOMBSTONE_QUEUE_NAME,
-} from '#types/constants/content-publishing.queue.constants';
+} from '#types/constants/queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType } from '#types/enums/announcement-type.enum';

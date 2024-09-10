@@ -23,7 +23,7 @@ import { BlockchainService } from '#graph-lib/blockchain';
 import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
-import { SECONDS_PER_BLOCK } from '#types/constants/graph.constants';
+import { SECONDS_PER_BLOCK } from '#types/constants';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)

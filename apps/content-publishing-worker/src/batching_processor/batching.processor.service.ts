@@ -13,7 +13,7 @@ import {
   getLockKey as getBatchLockKey,
   BATCH_LOCK_EXPIRE_SECONDS,
 } from '#content-publishing-lib/utils/redis';
-import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#types/constants/content-publishing.queue.constants';
+import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#types/constants/queue.constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { Announcement, IBatchMetadata, IBatchAnnouncerJobData } from '#types/interfaces/content-publishing';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';

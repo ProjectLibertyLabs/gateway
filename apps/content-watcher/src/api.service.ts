@@ -6,9 +6,9 @@ import { Queue } from 'bullmq';
 import { ScannerService } from '#content-watcher-lib/scanner/scanner.service';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
-import { calculateJobId, REQUEST_QUEUE_NAME } from '#types/constants/content-watcher.queue.constants';
+import { REQUEST_QUEUE_NAME } from '#types/constants/queue.constants';
 import { ChainWatchOptionsDto, ContentSearchRequestDto, IWebhookRegistration } from '#types/dtos/content-watcher';
-import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants/content-watcher.constants';
+import { calculateJobId, EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher';
 
 @Injectable()

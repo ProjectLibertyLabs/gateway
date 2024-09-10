@@ -18,8 +18,8 @@ import * as QueueConstants from '#graph-lib/queues/queue-constants';
 import * as GraphServiceWebhook from '#types/graph-webhook/webhook-types';
 import axios from 'axios';
 import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants/graph.constants';
 import { IGraphTxStatus } from '#types/interfaces';
+import { TXN_WATCH_LIST_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;

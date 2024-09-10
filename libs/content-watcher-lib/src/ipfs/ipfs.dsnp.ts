@@ -4,7 +4,8 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { AppConfigService } from '../config/config.service';
-import * as QueueConstants from '#types/constants/content-watcher.queue.constants';
+import * as QueueConstants from '#types/constants/queue.constants';
+import { calculateJobId } from '#types/constants';
 import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
@@ -71,7 +72,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     queue: Queue,
   ): Promise<void> {
     if (!(await this.isQueueFull(queue))) {
-      const jobId = QueueConstants.calculateJobId(announcementResponse);
+      const jobId = calculateJobId(announcementResponse);
       await queue.add(name, announcementResponse, { jobId });
     }
   }

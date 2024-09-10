@@ -14,8 +14,8 @@ import {
   WatchGraphsDto,
   GraphsQueryParamsDto,
   UserGraphDto,
-} from '#graph-lib/dtos';
-import { ProviderGraphUpdateJob } from '#graph-lib/interfaces';
+} from '#types/dtos/graph';
+import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 

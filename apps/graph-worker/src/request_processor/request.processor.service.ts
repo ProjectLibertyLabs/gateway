@@ -20,10 +20,14 @@ import { BaseConsumer } from '../BaseConsumer';
 import * as QueueConstants from '#graph-lib/queues/queue-constants';
 import fs from 'fs';
 import { BlockchainService } from '#graph-lib/blockchain';
-import { GraphUpdateJob, ConnectionDto, Direction } from '#graph-lib/dtos';
-import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#graph-lib/interfaces';
+import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
+import {
+  ProviderGraphUpdateJob,
+  createReconnectionJob,
+  SkipTransitiveGraphs,
+} from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
-import { SECONDS_PER_BLOCK } from '#graph-lib/types/constants';
+import { SECONDS_PER_BLOCK } from '#types/constants/graph.constants';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)

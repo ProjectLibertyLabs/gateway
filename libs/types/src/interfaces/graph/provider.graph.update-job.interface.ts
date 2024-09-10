@@ -1,5 +1,5 @@
-import { ConnectionDto } from '../dtos/connection.dto';
-import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
+import { ConnectionDto } from '#types/dtos/graph/connection.dto';
+import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 
 export class ProviderGraphUpdateJob {
   referenceId: string;

@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
 import * as QueueConstants from '../queues/queue-constants';
-import { DsnpGraphEdgeDto } from '../dtos/dsnp-graph-edge.dto';
+import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';
-import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
+import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 
 @Injectable()
 export class AsyncDebouncerService {

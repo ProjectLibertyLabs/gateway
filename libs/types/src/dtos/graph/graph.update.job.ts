@@ -1,4 +1,4 @@
-import { ProviderGraphUpdateJob } from '#graph-lib/interfaces';
+import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { Update } from '@dsnp/graph-sdk';
 
 export class GraphUpdateJob {

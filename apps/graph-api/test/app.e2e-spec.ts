@@ -17,7 +17,7 @@ import {
   ProviderGraphDto,
   Direction,
   ConnectionDto,
-} from '#graph-lib/dtos';
+} from '#types/dtos/graph';
 
 let app: INestApplication;
 let testModule: TestingModule;

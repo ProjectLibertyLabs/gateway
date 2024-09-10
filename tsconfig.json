@@ -210,18 +210,6 @@
       "#graph-lib/config/*": [
         "libs/graph-lib/src/config/*"
       ],
-      "#graph-lib/dtos": [
-        "libs/graph-lib/src/dtos"
-      ],
-      "#graph-lib/dtos/*": [
-        "libs/graph-lib/src/dtos/*"
-      ],
-      "#graph-lib/interfaces": [
-        "libs/graph-lib/src/interfaces"
-      ],
-      "#graph-lib/interfaces/*": [
-        "libs/graph-lib/src/interfaces/*"
-      ],
       "#graph-lib/queues": [
         "libs/graph-lib/src/queues"
       ],
@@ -233,12 +221,6 @@
       ],
       "#graph-lib/services/*": [
         "libs/graph-lib/src/services/*"
-      ],
-      "#graph-lib/types": [
-        "libs/graph-lib/src/types"
-      ],
-      "#graph-lib/types/*": [
-        "libs/graph-lib/src/types/*"
       ],
       "#graph-lib/utils": [
         "libs/graph-lib/src/utils"

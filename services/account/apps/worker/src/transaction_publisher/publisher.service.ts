@@ -211,10 +211,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   ): Promise<HexString> {
     try {
       this.logger.debug(signatureHex, 'signatureHex****');
-      const payload = this.blockchainService.createType('ExtrinsicPayload', unsignedPayload, {
-        version: unsignedPayload.version,
-      });
-      ext.addSignature(accountId, signatureHex, payload);
+      // const payload = this.blockchainService.createType('ExtrinsicPayload', unsignedPayload, {
+      //   version: unsignedPayload.version,
+      // });
+      ext.addSignature(accountId, signatureHex, unsignedPayload);
       this.logger.debug('MADE IT');
 
       const txHash = (await ext.send()).toHex();

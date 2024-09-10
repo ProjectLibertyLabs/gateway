@@ -19,7 +19,6 @@ import log from 'loglevel';
 import { Keyring } from '@polkadot/api';
 import { u8aToHex } from '@polkadot/util';
 import request from 'supertest';
-import { BlockchainService } from '#lib/blockchain/blockchain.service';
 
 export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';

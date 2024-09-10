@@ -2,7 +2,6 @@ import { ExtrinsicHelper, initialize } from '@projectlibertylabs/frequency-scena
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
-import { SignerPayloadJSON } from '@polkadot/types/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -17,47 +16,35 @@ async function main() {
 }
 
 async function retireMsa() {
-  await cryptoWaitReady();
   const aliceKeys = new Keyring({ type: 'sr25519' }).createFromUri('//Alice');
 
-  // @ts-ignore
-  // eslint-disable-next-line consistent-return
-  const getRawPayloadForSigning = async (tx: any, signerAddress: string) => {
-    let signRaw;
-    try {
-      await tx.signAsync(signerAddress, {
-        signer: {
-          signRaw: (raw) => {
-            signRaw = raw;
-            throw new Error('Stop here');
-          },
-        },
-      });
-    } catch (_e) {
-      return signRaw;
-    }
-  };
-
   const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
+  // generate SignerPayload
+  // const signerPayload = ExtrinsicHelper.apiPromise.createType('SignerPayload', {
+  //   address: aliceKeys.address,
+  //   genesisHash: ExtrinsicHelper.apiPromise.genesisHash,
+  //   method: tx,
+  //   runtimeVersion: ExtrinsicHelper.apiPromise.runtimeVersion,
+  //   // tip: tip,
+  //   version: ExtrinsicHelper.apiPromise.extrinsicVersion,
+  //   // nonce,
+  //   // blockHash: api.genesisHash,
+  // });
+  const signerPayload: any = tx.registry.createTypeUnsafe('SignerPayload', [
+    tx,
+    { version: ExtrinsicHelper.apiPromise.extrinsicVersion },
+  ]);
   const encodedTx = tx.toHex();
 
-  const unsignedPayload = await getRawPayloadForSigning(tx, aliceKeys.address);
-
-  console.log('unsignedPayload', unsignedPayload);
-
-  const encodedPayload = ExtrinsicHelper.apiPromise.createType('ExtrinsicPayload', unsignedPayload, {
+  // generate ExtrinsicPayload
+  const ExtrinsicPayload = ExtrinsicHelper.apiPromise.createType('ExtrinsicPayload', signerPayload.toPayload(), {
     version: ExtrinsicHelper.apiPromise.extrinsicVersion,
   });
-  console.log('encodedPayload', encodedPayload.toHex());
 
-  const { signature } = encodedPayload.sign(aliceKeys);
-
+  const { signature } = ExtrinsicPayload.sign(aliceKeys);
   const transaction = ExtrinsicHelper.apiPromise.tx(encodedTx);
-
-  console.log('Sending transaction with signature:', signature);
-
-  transaction.addSignature(aliceKeys.addressRaw, signature, unsignedPayload);
-
+  transaction.addSignature(aliceKeys.addressRaw, signature, signerPayload.toPayload());
+  console.log('Sending transaction');
   await new Promise<void>((resolve, reject) => {
     transaction.send(({ status, dispatchError }) => {
       if (dispatchError) {

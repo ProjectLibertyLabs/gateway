@@ -13,6 +13,7 @@ docs/**/*.html
 docs/**/*.js
 docs/**/*.hbs
 
+
 **/metadata.ts
 openapi-specs/*
 **/tsconfig*.json

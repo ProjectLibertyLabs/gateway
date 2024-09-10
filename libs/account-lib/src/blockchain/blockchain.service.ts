@@ -15,7 +15,7 @@ import {
   PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
-import { HandleResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
+import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { HexString } from '@polkadot/util/types';
@@ -24,6 +24,12 @@ import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import {
+  PublicKeyAgreementRequestDto,
+  ItemActionType,
+  ItemizedSignaturePayloadDto,
+} from '#account-lib/types/dtos/graphs.request.dto';
+import { hexToU8a } from '@polkadot/util';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
@@ -43,6 +49,14 @@ interface HandleTxnValues {
 interface PublicKeyValues {
   msaId: string;
   newPublicKey: string;
+  debugMsg: string;
+}
+
+interface ItemizedPageUpdated {
+  msaId: string;
+  schemaId: string;
+  prevContentHash: string;
+  currContentHash: string;
   debugMsg: string;
 }
 
@@ -127,6 +141,11 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async getBlockByNumber(blockNumber: number): Promise<SignedBlock> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
     return this.api.rpc.chain.getBlock(blockHash);
+  }
+
+  public async getItemizedStorage(msaId: string, schemaId: number): Promise<ItemizedStoragePageResponse> {
+    const msa = BigInt(msaId);
+    return this.api.rpc.statefulStorage.getItemizedStorage(msa, schemaId);
   }
 
   public getLatestFinalizedBlockHash(): Promise<BlockHash> {
@@ -242,11 +261,52 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return addKeyResponse;
   }
 
+  public async addPublicKeyAgreementToMsa(
+    keysRequest: PublicKeyAgreementRequestDto,
+  ): Promise<SubmittableExtrinsic<any>> {
+    const { accountId, payload, proof } = keysRequest;
+    const txPayload = this.createItemizedSignaturePayloadV2Type(payload);
+
+    return this.api.tx.statefulStorage.applyItemActionsWithSignatureV2(
+      hexToU8a(accountId),
+      { Sr25519: proof },
+      txPayload,
+    );
+  }
+
   public createClaimHandPayloadType(baseHandle: string, expiration: number) {
     const handleVec = new Bytes(this.api.registry, baseHandle).toHex();
     return this.api.registry.createType('CommonPrimitivesHandlesClaimHandlePayload', {
       baseHandle: handleVec,
       expiration,
+    });
+  }
+
+  public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
+    const actions = payload.actions.map((a) => {
+      switch (a.type) {
+        case ItemActionType.ADD_ITEM:
+          return this.api.registry.createType('PalletStatefulStorageItemAction', {
+            Add: {
+              data: Array.from(hexToU8a(a.encodedPayload)),
+            },
+          });
+        case ItemActionType.DELETE_ITEM:
+          return this.api.registry.createType('PalletStatefulStorageItemAction', {
+            Delete: {
+              index: a.index,
+            },
+          });
+        default:
+          throw new Error(`No action item type : ${a}`);
+      }
+    });
+
+    return this.api.registry.createType('PalletStatefulStorageItemizedSignaturePayloadV2', {
+      schemaId: payload.schemaId,
+      targetHash: payload.targetHash,
+      expiration: payload.expiration,
+      actions,
     });
   }
 
@@ -419,6 +479,26 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
 
     return publicKeyValues as PublicKeyValues;
+  }
+
+  /**
+   * Handles the ItemizedPageUpdated transaction result events and extracts the public key from the event data.
+   * @param {Event} event - The ItemizedPageUpdated event
+   * @returns {ItemizedPageUpdated} An object containing the MSA Id & new public key
+   */
+  public handlePublishPublicKeyAgreementTxResult(event: Event): ItemizedPageUpdated {
+    const itemizedKeyValues: Partial<ItemizedPageUpdated> = {};
+
+    // Grab the event data
+    if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
+      itemizedKeyValues.msaId = event.data.msaId.toString();
+      itemizedKeyValues.schemaId = event.data.schemaId.toString();
+      itemizedKeyValues.prevContentHash = event.data.prevContentHash.toString();
+      itemizedKeyValues.currContentHash = event.data.currContentHash.toString();
+      itemizedKeyValues.debugMsg = `Itemized Page updated for msaId: ${itemizedKeyValues.msaId} and schemaId: ${itemizedKeyValues.schemaId}`;
+    }
+
+    return itemizedKeyValues as ItemizedPageUpdated;
   }
 
   public async validateProviderSeedPhrase() {

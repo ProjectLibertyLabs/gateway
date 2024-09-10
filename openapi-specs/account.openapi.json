@@ -295,6 +295,7 @@
             "name": "msaId",
             "required": true,
             "in": "query",
+            "description": "MSA ID of account to generate a payload for",
             "schema": {
               "type": "string"
             }
@@ -303,7 +304,7 @@
             "name": "newKey",
             "required": true,
             "in": "query",
-            "description": "New public key to be added in hex format",
+            "description": "Public key should be a 32 bytes value in hex format!",
             "schema": {
               "type": "string"
             }

@@ -4063,12 +4063,12 @@
                 </h2>
                 <div>
                   <h5 class="sc-dpBQxM eJAAZj">
-                    path<!-- -->
+                    query<!-- -->
                     Parameters
                   </h5>
                   <table class="sc-dprtRQ eNFxPe">
                     <tbody>
-                      <tr class="last">
+                      <tr class="">
                         <td kind="field" title="msaId" class="sc-ovuCP sc-eauhAA iyKqKI iQpMVv">
                           <span class="sc-gQaihK kPDxnK"></span><span class="property-name">msaId</span>
                           <div class="sc-CNKsk sc-hGZxvd hPAOR feFoaC">required</div>
@@ -4079,20 +4079,18 @@
                               <span class="sc-CNKsk sc-cqgMZH hPAOR dWKYKL"></span
                               ><span class="sc-CNKsk sc-gQkENW hPAOR bIEFFi">string</span>
                             </div>
-                            <div><div html="" class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"></div></div>
+                            <div>
+                              <div
+                                html="&lt;p&gt;MSA ID of account to generate a payload for&lt;/p&gt;
+"
+                                class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
+                              >
+                                <p>MSA ID of account to generate a payload for</p>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div>
-                  <h5 class="sc-dpBQxM eJAAZj">
-                    query<!-- -->
-                    Parameters
-                  </h5>
-                  <table class="sc-dprtRQ eNFxPe">
-                    <tbody>
                       <tr class="last">
                         <td kind="field" title="newKey" class="sc-ovuCP sc-eauhAA iyKqKI iQpMVv">
                           <span class="sc-gQaihK kPDxnK"></span><span class="property-name">newKey</span>
@@ -4106,11 +4104,11 @@
                             </div>
                             <div>
                               <div
-                                html="&lt;p&gt;New public key to be added in hex format&lt;/p&gt;
+                                html="&lt;p&gt;Public key should be a 32 bytes value in hex format!&lt;/p&gt;
 "
                                 class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
                               >
-                                <p>New public key to be added in hex format</p>
+                                <p>Public key should be a 32 bytes value in hex format!</p>
                               </div>
                             </div>
                           </div>
@@ -4139,7 +4137,7 @@
                 <div class="sc-duWCru dWZoid">
                   <button class="sc-iPHsxv ebcgbH">
                     <span type="get" class="sc-txhaY IVbnb http-verb get">get</span
-                    ><span class="sc-etPtWW iqHzp">/v1/keys/publicKeyAgreements/{msaId}</span
+                    ><span class="sc-etPtWW iqHzp">/v1/keys/publicKeyAgreements/getAddKeyPayload</span
                     ><svg
                       class="sc-cHqXqK fmmJjS"
                       style="margin-right: -25px"
@@ -4157,7 +4155,7 @@
                     <div class="sc-dwGkES evaCJX">
                       <div html="" class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"></div>
                       <div tabindex="0" role="button">
-                        <div class="sc-hSyjfr gufODt"><span></span>/v1/keys/publicKeyAgreements/{msaId}</div>
+                        <div class="sc-hSyjfr gufODt"><span></span>/v1/keys/publicKeyAgreements/getAddKeyPayload</div>
                       </div>
                     </div>
                   </div>
@@ -4763,17 +4761,23 @@
                   tags: ['v1/keys'],
                 },
               },
-              '/v1/keys/publicKeyAgreements/{msaId}': {
+              '/v1/keys/publicKeyAgreements/getAddKeyPayload': {
                 get: {
                   operationId: 'KeysControllerV1_getPublicKeyAgreementsKeyPayload',
                   summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.',
                   parameters: [
-                    { name: 'msaId', required: true, in: 'path', schema: { type: 'string' } },
+                    {
+                      name: 'msaId',
+                      required: true,
+                      in: 'query',
+                      description: 'MSA ID of account to generate a payload for',
+                      schema: { type: 'string' },
+                    },
                     {
                       name: 'newKey',
                       required: true,
                       in: 'query',
-                      description: 'New public key to be added in hex format',
+                      description: 'Public key should be a 32 bytes value in hex format!',
                       schema: { type: 'string' },
                     },
                   ],
@@ -5086,7 +5090,7 @@
               ['v1/key', { _index: 31, title: { 12: {} }, description: {} }],
               ['v1/keys/add', { _index: 34, title: {}, description: { 13: {} } }],
               ['v1/keys/publickeyagr', { _index: 38, title: {}, description: { 16: {} } }],
-              ['v1/keys/publickeyagreements/{msaid', { _index: 37, title: {}, description: { 15: {} } }],
+              ['v1/keys/publickeyagreements/getaddkeypayload', { _index: 37, title: {}, description: { 15: {} } }],
               ['v1/keys/{msaid', { _index: 35, title: {}, description: { 14: {} } }],
             ],
             pipeline: [],

@@ -1,8 +1,9 @@
 // eslint-disable-next-line max-classes-per-file
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumberString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '#account-lib/types/enums';
+import { IsHexPublicKey } from '#account-lib/utils/custom.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {
@@ -74,3 +75,13 @@ export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & 
 };
 
 export type PublishPublicKeyAgreementRequestDto = PublicKeyAgreementRequestDto;
+
+export class PublicKeyAgreementsKeyPayload {
+  @IsNumberString()
+  @ApiProperty({ type: String, description: 'MSA ID of account to generate a payload for' })
+  msaId: string;
+
+  @IsHexPublicKey({ message: 'Public key should be a 32 bytes value in hex format!' })
+  @ApiProperty({ type: String, description: 'Public key should be a 32 bytes value in hex format!' })
+  newKey: HexString;
+}

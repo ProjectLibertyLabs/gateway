@@ -20,13 +20,12 @@ import { KeysRequestDto, AddKeyRequestDto } from '#account-lib/types/dtos/keys.r
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { KeysResponse } from '#account-lib/types/dtos/keys.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
-import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
   PublicKeyAgreementRequestDto,
+  PublicKeyAgreementsKeyPayload,
 } from '#account-lib/types/dtos/graphs.request.dto';
-import { isHexString } from '#account-lib/utils/utility';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')
@@ -88,12 +87,6 @@ export class KeysControllerV1 {
 
   @Get('publicKeyAgreements/getAddKeyPayload')
   @HttpCode(HttpStatus.OK)
-  @ApiQuery({
-    name: 'newKey',
-    description: 'New public key to be added in hex format',
-    type: 'string',
-    required: true,
-  })
   @ApiOperation({ summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.' })
   @ApiOkResponse({ description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing' })
   /**
@@ -103,13 +96,8 @@ export class KeysControllerV1 {
    * @throws An error if the key already exists or the payload creation fails.
    */
   async getPublicKeyAgreementsKeyPayload(
-    @Query('msaId') msaId: string,
-    @Query('newKey') newKey: HexString,
+    @Query() { msaId, newKey }: PublicKeyAgreementsKeyPayload,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
-    // this is temporary until we find a better way to enforce data validation. the validation decorator didn't work
-    if (!isHexString(newKey)) {
-      throw new BadRequestException('Not a valid Hex value!');
-    }
     return this.keysService.getAddPublicKeyAgreementPayload(msaId, newKey);
   }
 

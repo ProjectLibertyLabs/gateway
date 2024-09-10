@@ -2,7 +2,8 @@ import { ExtrinsicHelper, initialize } from '@projectlibertylabs/frequency-scena
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
-import { SignerPayloadJSON } from '@polkadot/types/types';
+import { u8aToHex } from '@polkadot/util';
+import { SignerResult, Signer } from '@polkadot/types/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -22,7 +23,7 @@ async function retireMsa() {
 
   // @ts-ignore
   // eslint-disable-next-line consistent-return
-  const getRawPayloadForSigning = async (tx: any, signerAddress: string) => {
+  const getRawPayloadForSigning = async (tx: any, signerAddress: string): Promise<SignerPayloadRaw> => {
     let signRaw;
     try {
       await tx.signAsync(signerAddress, {
@@ -38,25 +39,34 @@ async function retireMsa() {
     }
   };
 
-  const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
-  const encodedTx = tx.toHex();
-
-  const unsignedPayload = await getRawPayloadForSigning(tx, aliceKeys.address);
-
-  console.log('unsignedPayload', unsignedPayload);
-
-  const encodedPayload = ExtrinsicHelper.apiPromise.createType('ExtrinsicPayload', unsignedPayload, {
-    version: ExtrinsicHelper.apiPromise.extrinsicVersion,
+  const getSignerForRawSignature = (result: SignerResult): Signer => ({
+    signRaw: () => Promise.resolve(result),
   });
-  console.log('encodedPayload', encodedPayload.toHex());
 
-  const { signature } = encodedPayload.sign(aliceKeys);
+  const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
 
-  const transaction = ExtrinsicHelper.apiPromise.tx(encodedTx);
+  const payload = await getRawPayloadForSigning(tx, aliceKeys.address);
 
-  console.log('Sending transaction with signature:', signature);
+  console.log('payload:', payload);
 
-  transaction.addSignature(aliceKeys.addressRaw, signature, unsignedPayload);
+  const { data } = payload;
+  console.log('data:', data);
+
+  // TODO: make into signer result
+  const sig: SignerResult = { id: 1, signature: u8aToHex(aliceKeys.sign(data)) };
+  console.log('sig:', sig);
+
+  const signer = getSignerForRawSignature(sig);
+  console.log('signer:', signer);
+
+  const transaction = await tx.signAsync(aliceKeys.address, { signer });
+
+  console.log('did it sign???');
+  // const transaction = await ExtrinsicHelper.apiPromise.tx();
+
+  // console.log('Sending transaction with signature:', u8aToHex(signature));
+
+  // transaction.addSignature(aliceKeys.addressRaw, signature, signerPayload.toPayload());
 
   await new Promise<void>((resolve, reject) => {
     transaction.send(({ status, dispatchError }) => {

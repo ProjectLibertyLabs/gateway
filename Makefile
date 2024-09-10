@@ -27,8 +27,8 @@ generate-openapi:
 generate-swagger-ui:
 	@npm run generate:swagger-ui
 
-test: $(TEST_TARGETS)
-# test-e2e: $(E2E_TARGETS)
+.PHONY test: $(TEST_TARGETS)
+test-e2e: $(E2E_TARGETS)
 # test-k6: $(K6_TARGETS)
 
 lint:
@@ -54,8 +54,8 @@ $(SWAGGER_TARGETS): swagger-%: openapi-%
 $(TEST_TARGETS):
 	@npm run test:$(@:test-%=%)
 
-# $(E2E_TARGETS):
-# 	@( cd apps/$(@:test-e2e-%=%) ; npm run test:e2e )
+$(E2E_TARGETS):
+	@npm run test:e2e:$(@:test-e2e-%=%)
 
 # $(K6_TARGETS):
 # 	@( cd apps/$(@:test-k6-%=%) ; npm run test:k6 )

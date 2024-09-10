@@ -254,11 +254,13 @@ docker compose up -d account-service-api account-service-worker
 
 ### Run the tests
 
+Make sure to follow the steps above and use `restart-chain-docker.sh` to start the services. This will ensure that the local node is running and is properly configured. Then run the following command to run the tests. **NOTE:** The tests are not idempotent. When re-running the e2e tests, use the `restart-chain-docker.sh` script to reset the chain.
+
 ```bash
-make test-e2e
+make test-e2e-account
 ```
 
-This will run the tests in `apps/api/test` folder.
+This will run the tests in `apps/account-api/test` folder.
 
 #### Check e2e test file for more details on the test
 

@@ -15,8 +15,7 @@ import {
 } from '#content-publishing-lib/utils/redis';
 import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#types/constants/content-publishing.queue.constants';
 import { ConfigService } from '#content-publishing-lib/config';
-import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
-import { IBatchAnnouncerJobData } from '#types/interfaces/content-publishing';
+import { Announcement, IBatchMetadata, IBatchAnnouncerJobData } from '#types/interfaces/content-publishing';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 
 @Injectable()

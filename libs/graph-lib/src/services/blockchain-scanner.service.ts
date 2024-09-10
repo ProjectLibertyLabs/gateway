@@ -9,7 +9,7 @@ import Redis from 'ioredis';
 import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import * as QueueConstants from '../queues/queue-constants';
-import { UpdateTransitiveGraphs, createReconnectionJob } from '../graph-interfaces/graph-update-job.interface';
+import { UpdateTransitiveGraphs, createReconnectionJob } from '#types/interfaces/graph';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 

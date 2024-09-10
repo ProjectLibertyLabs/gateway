@@ -1,4 +1,4 @@
-import { ResetScannerDto } from '#content-watcher-lib/content-watcher/common.dto';
+import { ResetScannerDto } from '#types/dtos/content-watcher/common.dto';
 import request from 'supertest';
 
 const WATCHER_URI = 'http://localhost:3000';

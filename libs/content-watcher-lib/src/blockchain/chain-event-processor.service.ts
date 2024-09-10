@@ -11,6 +11,7 @@ import { Queue } from 'bullmq';
 
 @Injectable()
 export class ChainEventProcessorService {
+  // eslint-disable-next-line no-empty-function
   constructor(private readonly blockchainService: BlockchainService) {}
 
   public async getMessagesInBlock(

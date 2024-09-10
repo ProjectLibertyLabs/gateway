@@ -14,9 +14,9 @@ import {
   isImage,
   UploadResponseDto,
   AttachmentType,
-} from '#content-publishing-lib/dtos';
-import { IRequestJob, IAssetMetadata, IAssetJob } from '#content-publishing-lib/interfaces';
-import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+} from '#types/dtos/content-publishing';
+import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
+import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
 import {
   getAssetMetadataKey,

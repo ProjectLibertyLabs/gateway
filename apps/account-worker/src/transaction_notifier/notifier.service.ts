@@ -15,10 +15,10 @@ import { ConfigService } from '#account-lib/config/config.service';
 import * as QueueConstants from '#types/constants/queue.constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
 import { RedisUtils } from '#account-lib/utils/redis';
-import { SECONDS_PER_BLOCK } from '#content-publishing-lib/constants';
 import { TxWebhookRsp } from '#types/dtos/account';
 import { TransactionType } from '#types/enums/account-enums';
-import { ITxStatus } from '#types/interfaces';
+import { IAccountTxStatus } from '#types/interfaces';
+import { SECONDS_PER_BLOCK } from '#types/constants/account-constants';
 
 @Injectable()
 export class TxnNotifierService
@@ -85,7 +85,7 @@ export class TxnNotifierService
     if (pendingTxns.length > 0) {
       const startingBlock = Math.min(
         ...pendingTxns.map((valStr) => {
-          const val = JSON.parse(valStr) as ITxStatus;
+          const val = JSON.parse(valStr) as IAccountTxStatus;
           return val.birth;
         }),
       );
@@ -100,7 +100,7 @@ export class TxnNotifierService
 
     // Get set of tx hashes to monitor from cache
     const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map(
-      (val) => JSON.parse(val) as ITxStatus,
+      (val) => JSON.parse(val) as IAccountTxStatus,
     );
 
     const extrinsicIndices: [HexString, number][] = [];
@@ -129,7 +129,7 @@ export class TxnNotifierService
           ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
         );
         const txStatusStr = await this.cacheManager.hget(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
-        const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
+        const txStatus = JSON.parse(txStatusStr!) as IAccountTxStatus;
         const successEvent = extrinsicEvents.find(
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,

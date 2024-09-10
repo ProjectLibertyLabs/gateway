@@ -6,17 +6,17 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
-import { PUBLISH_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
-import { IPublisherJob } from '../interfaces';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#content-publishing-lib/constants';
 import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
 import { ConfigService } from '#content-publishing-lib/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
-import { ITxStatus } from '#content-publishing-lib/interfaces/tx-status.interface';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
+import { TXN_WATCH_LIST_KEY } from '#types/constants/content-publishing-constants';
+import { PUBLISH_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
+import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
+import { SECONDS_PER_BLOCK } from '#types/constants/account-constants';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {
@@ -63,7 +63,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
+    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map(
+      (val) => JSON.parse(val) as IContentTxStatus,
+    );
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {
@@ -95,7 +97,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
         );
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
-        const txStatus = JSON.parse(txStatusStr) as ITxStatus;
+        const txStatus = JSON.parse(txStatusStr) as IContentTxStatus;
         const successEvent = extrinsicEvents.find(
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,

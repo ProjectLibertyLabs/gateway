@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ICapacityLimits } from '#types/interfaces';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { ICapacityLimits } from '../interfaces/capacity-limit.interface';
 import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 

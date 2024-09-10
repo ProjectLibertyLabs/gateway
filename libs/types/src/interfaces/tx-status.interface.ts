@@ -1,10 +1,27 @@
 import { TxMonitorJob } from '#types/dtos/account/transaction.request.dto';
+import { HexString } from '@polkadot/util/types';
+import { IPublisherJob } from './content-publishing/publisher-job.interface';
 
-export interface ITxStatus extends Pick<TxMonitorJob, 'providerId' | 'referenceId' | 'txHash' | 'type'> {
-  successEvent: {
+export interface ITxStatusBase {
+  providerId?: string;
+
+  referenceId?: string;
+
+  txHash: HexString;
+
+  successEvent?: {
     section: string;
+
     method: string;
   };
+
   birth: number;
+
   death: number;
+}
+
+export interface IAccountTxStatus extends ITxStatusBase, Pick<TxMonitorJob, 'type'> {}
+
+export interface IContentTxStatus extends ITxStatusBase {
+  referencePublishJob: IPublisherJob;
 }

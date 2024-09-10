@@ -12,7 +12,6 @@ import {
   createBroadcast,
   createProfile,
   createUpdate,
-  AnnouncementType,
   createReply,
   createReaction,
   createTombstone,
@@ -22,11 +21,12 @@ import {
   ReplyAnnouncement,
   ReactionAnnouncement,
   TombstoneAnnouncement,
-} from '#content-publishing-lib/interfaces';
-import { QueueConstants } from '#content-publishing-lib/queues';
+} from '#types/interfaces/content-publishing';
+import * as QueueConstants from '#types/constants/content-publishing.queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
-import { AnnouncementTypeDto } from '#content-publishing-lib/dtos';
+import { AnnouncementTypeDto } from '#types/dtos/content-publishing';
+import { AnnouncementType } from '#types/enums/announcement-type.enum';
 
 @Controller('dev')
 @ApiTags('dev')

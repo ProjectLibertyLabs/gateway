@@ -1,7 +1,7 @@
 import { ConfigService } from '#content-publishing-lib/config/config.service';
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
-import * as QueueConstants from './queue.constants';
+import * as QueueConstants from '../../../types/src/constants/content-publishing.queue.constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import Redis from 'ioredis';
 import { redisEventsToEventEmitter, redisReadyMap } from '#content-publishing-lib/utils/redis';

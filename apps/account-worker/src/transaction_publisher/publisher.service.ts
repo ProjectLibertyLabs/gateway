@@ -15,7 +15,7 @@ import { TransactionType } from '#types/enums/account-enums';
 import * as QueueConstants from '#types/constants/queue.constants';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
 import { ConfigService } from '#account-lib/config/config.service';
-import { ITxStatus } from '#types/interfaces/tx-status.interface';
+import { IAccountTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import {
   CAPACITY_AVAILABLE_EVENT,
@@ -77,7 +77,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const providerKeys = createKeys(this.configService.providerAccountSeedPhrase!);
       let tx: SubmittableExtrinsic<'promise'>;
-      let targetEvent: ITxStatus['successEvent'];
+      let targetEvent: IAccountTxStatus['successEvent'];
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
@@ -109,7 +109,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       }
       this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
-      const status: ITxStatus = {
+      const status: IAccountTxStatus = {
         type: job.data.type,
         referenceId: job.data.referenceId,
         providerId: job.data.providerId,

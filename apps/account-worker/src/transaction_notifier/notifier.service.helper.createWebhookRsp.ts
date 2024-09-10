@@ -9,17 +9,21 @@ import {
   PublishKeysWebhookRsp,
   TxWebhookOpts,
 } from '#types/dtos/account';
-import { ITxStatus } from '#types/interfaces';
+import { IAccountTxStatus } from '#types/interfaces';
 
 export function createWebhookRsp(
-  txStatus: ITxStatus,
+  txStatus: IAccountTxStatus,
   msaId: string,
   options: PublishHandleOpts,
 ): PublishHandleWebhookRsp;
-export function createWebhookRsp(txStatus: ITxStatus, msaId: string, options: SIWFOpts): SIWFWebhookRsp;
-export function createWebhookRsp(txStatus: ITxStatus, msaId: string, options: PublishKeysOpts): PublishKeysWebhookRsp;
+export function createWebhookRsp(txStatus: IAccountTxStatus, msaId: string, options: SIWFOpts): SIWFWebhookRsp;
 export function createWebhookRsp(
-  { type: transactionType, providerId, referenceId }: ITxStatus,
+  txStatus: IAccountTxStatus,
+  msaId: string,
+  options: PublishKeysOpts,
+): PublishKeysWebhookRsp;
+export function createWebhookRsp(
+  { type: transactionType, providerId, referenceId }: IAccountTxStatus,
   msaId: string,
   options: TxWebhookOpts,
 ): unknown {

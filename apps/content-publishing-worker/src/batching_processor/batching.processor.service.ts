@@ -13,10 +13,10 @@ import {
   getLockKey as getBatchLockKey,
   BATCH_LOCK_EXPIRE_SECONDS,
 } from '#content-publishing-lib/utils/redis';
-import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#content-publishing-lib/queues/queue.constants';
+import { BATCH_QUEUE_NAME, QUEUE_NAME_TO_ANNOUNCEMENT_MAP } from '#types/constants/content-publishing.queue.constants';
 import { ConfigService } from '#content-publishing-lib/config';
-import { Announcement, IBatchMetadata } from '#content-publishing-lib/interfaces';
-import { IBatchAnnouncerJobData } from '../interfaces';
+import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
+import { IBatchAnnouncerJobData } from'#types/interfaces/content-publishing';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 
 @Injectable()

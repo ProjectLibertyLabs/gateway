@@ -7,7 +7,7 @@ import {
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
   AnnouncementTypeDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
 
 @Controller('v1/profile')
 @ApiTags('v1/profile')

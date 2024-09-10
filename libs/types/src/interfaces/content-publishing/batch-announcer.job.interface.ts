@@ -1,4 +1,4 @@
-import { Announcement } from '#content-publishing-lib/interfaces/dsnp';
+import { Announcement } from './dsnp';
 
 export interface IBatchAnnouncerJobData {
   batchId: string;

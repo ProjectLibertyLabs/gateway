@@ -1,5 +1,5 @@
-import { Announcement } from '#content-publishing-lib/interfaces';
-import { UPDATE_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { Announcement } from '#types/interfaces/content-publishing';
+import { UPDATE_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';

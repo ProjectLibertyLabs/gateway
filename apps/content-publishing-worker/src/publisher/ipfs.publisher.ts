@@ -7,7 +7,7 @@ import { NonceService } from './nonce.service';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { createKeys } from '#content-publishing-lib/blockchain/create-keys';
-import { IPublisherJob } from '../interfaces';
+import { IPublisherJob } from'#types/interfaces/content-publishing';
 
 @Injectable()
 export class IPFSPublisher {

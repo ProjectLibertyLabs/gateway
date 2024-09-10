@@ -4,8 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '#content-publishing-lib/config';
-import { IAssetJob } from '#content-publishing-lib/interfaces';
-import { ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { IAssetJob } from '#types/interfaces/content-publishing';
+import { ASSET_QUEUE_NAME } from '#types/constants/content-publishing.queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 

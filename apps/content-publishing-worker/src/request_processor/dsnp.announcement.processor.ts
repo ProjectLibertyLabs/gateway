@@ -27,10 +27,9 @@ import {
   AttachmentType,
   AssetDto,
   TagDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
 import {
   IRequestJob,
-  AnnouncementType,
   createTombstone,
   createNote,
   BroadcastAnnouncement,
@@ -43,7 +42,7 @@ import {
   createUpdate,
   ProfileAnnouncement,
   createProfile,
-} from '#content-publishing-lib/interfaces';
+} from '#types/interfaces/content-publishing';
 import {
   BROADCAST_QUEUE_NAME,
   REPLY_QUEUE_NAME,
@@ -51,9 +50,10 @@ import {
   UPDATE_QUEUE_NAME,
   PROFILE_QUEUE_NAME,
   TOMBSTONE_QUEUE_NAME,
-} from '#content-publishing-lib/queues/queue.constants';
+} from '#types/constants/content-publishing.queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
+import { AnnouncementType } from '#types/enums/announcement-type.enum';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {

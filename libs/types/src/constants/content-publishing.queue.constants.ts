@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto } from '#content-publishing-lib/dtos';
+import { AnnouncementTypeDto } from '#types/dtos/content-publishing';
 
 /**
  * Name of the queue that has all incoming asset uploads

@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto, AttachmentType, RequestTypeDto } from '#content-publishing-lib/dtos';
+import { AnnouncementTypeDto, AttachmentType, RequestTypeDto } from '#types/dtos/content-publishing';
 
 export interface IAssetTypeInfo {
   mimeType: string;

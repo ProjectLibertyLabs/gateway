@@ -11,7 +11,7 @@ import {
   ReactionDto,
   UpdateDto,
   TombstoneDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
 
 @Controller('v1/content')
 @ApiTags('v1/content')

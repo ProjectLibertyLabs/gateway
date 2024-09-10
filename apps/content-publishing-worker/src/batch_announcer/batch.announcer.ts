@@ -9,7 +9,7 @@ import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
-import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
+import { IBatchAnnouncerJobData, IPublisherJob } from'#types/interfaces/content-publishing';
 
 @Injectable()
 export class BatchAnnouncer {

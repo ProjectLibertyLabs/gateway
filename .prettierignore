@@ -13,3 +13,4 @@ services/*/docs/index.html
 openapi-specs/*
 **/target/**
 jest.config.json
+docs/*

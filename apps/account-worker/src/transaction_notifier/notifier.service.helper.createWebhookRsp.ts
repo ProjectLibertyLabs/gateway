@@ -1,14 +1,15 @@
 /* eslint-disable no-redeclare */
+
 import {
   PublishHandleOpts,
   PublishHandleWebhookRsp,
-  PublishKeysOpts,
-  PublishKeysWebhookRsp,
   SIWFOpts,
   SIWFWebhookRsp,
+  PublishKeysOpts,
+  PublishKeysWebhookRsp,
   TxWebhookOpts,
-} from '#account-lib/types/dtos/transaction.request.dto';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
+} from '#types/dtos/account';
+import { ITxStatus } from '#types/interfaces';
 
 export function createWebhookRsp(
   txStatus: ITxStatus,

@@ -5,18 +5,20 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#account-lib/types/enums';
-import { RedisUtils, SECONDS_PER_BLOCK, TxWebhookRsp } from '#account-lib';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#account-lib/config/config.service';
-import { QueueConstants } from '#account-lib/queues';
+import * as QueueConstants from '#types/constants/queue.constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
+import { RedisUtils } from '#account-lib/utils/redis';
+import { SECONDS_PER_BLOCK } from '#content-publishing-lib/constants';
+import { TxWebhookRsp } from '#types/dtos/account';
+import { TransactionType } from '#types/enums/account-enums';
+import { ITxStatus } from '#types/interfaces';
 
 @Injectable()
 export class TxnNotifierService

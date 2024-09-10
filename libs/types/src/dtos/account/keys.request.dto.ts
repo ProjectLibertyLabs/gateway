@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '../enums';
+import { TransactionType } from '#types/enums/account-enums';
 
 class KeysRequestPayloadDto {
   @ApiProperty()

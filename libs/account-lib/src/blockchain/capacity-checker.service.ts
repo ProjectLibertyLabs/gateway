@@ -1,4 +1,4 @@
-import { ICapacityLimit } from '#account-lib/interfaces/capacity-limit.interface';
+import { ICapacityLimit } from '#types/interfaces/capacity-limit.interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '#account-lib/config';
 import { InjectRedis } from '@songkeys/nestjs-redis';

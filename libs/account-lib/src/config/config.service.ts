@@ -1,4 +1,4 @@
-import { ICapacityLimits } from '#account-lib/interfaces/capacity-limit.interface';
+import { ICapacityLimits } from '#types/interfaces/capacity-limit.interface';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import Keyring from '@polkadot/keyring';

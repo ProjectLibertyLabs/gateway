@@ -68,7 +68,7 @@ Each Gateway service is an independent microservice.
 <summary>Account Service</summary>
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/account)
-- [README](./services/account/README.md)
+- [README](./developer-docs/account/README.md)
 
 </details>
 
@@ -76,7 +76,7 @@ Each Gateway service is an independent microservice.
 <summary>Graph Service</summary>
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/graph/)
-- [README](./services/graph/README.md)
+- [README](./developer-docs/graph/README.md)
 
 </details>
 
@@ -84,7 +84,7 @@ Each Gateway service is an independent microservice.
 <summary>Content Publishing Service</summary>
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/content-publishing/)
-- [README](./services/content-publishing/README.md)
+- [README](./developer-docs/content-publishing/README.md)
 
 </details>
 
@@ -92,7 +92,7 @@ Each Gateway service is an independent microservice.
 <summary>Content Watcher Service</summary>
 
 - [API Documentation](https://projectlibertylabs.github.io/gateway/content-watcher/)
-- [README](./services/content-watcher/README.md)
+- [README](./developer-docs/content-watcher/README.md)
 
 </details>
 

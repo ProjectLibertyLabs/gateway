@@ -206,7 +206,7 @@ Note: using [docker compose file](../../docker-compose.yaml) to start the servic
 The following command will start all of the necessary containers for the account service to run in development mode.
 
 ```bash
-make restart-chain-docker
+./scripts/account/restart-chain-docker
 ```
 
 In order to run the `account-service` in development mode without containers, you can use the following commands:
@@ -214,7 +214,7 @@ In order to run the `account-service` in development mode without containers, yo
 #### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
 
 ```bash
-make restart-local-dev
+./scripts/account/restart-local-dev
 ```
 
 Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
@@ -222,7 +222,7 @@ Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/
 #### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
 
 ```sh
-make mock-webhook
+cd rust-webhook-server && cargo run
 ```
 
 #### 3. Start the Api and Worker.<br /><br />

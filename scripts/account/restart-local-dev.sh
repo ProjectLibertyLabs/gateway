@@ -6,8 +6,8 @@ docker compose down
 
 # Remove specified volumes
 echo "Removing specified volumes..."
-docker volume rm account-service_redis_data
-docker volume rm account-service_chainstorage
+docker volume rm gateway_redis_data
+docker volume rm gateway_chainstorage
 
 # Start specific services in detached mode
 echo "Starting redis and frequency services..."
@@ -19,7 +19,7 @@ sleep 15
 
 # Run make setup
 echo "Running make setup to provision Provider with capacity, etc..."
-make setup
+cd apps/account-api/test/setup && npm install && npm run main
 
 # Start api and worker apps in different terminals
 echo "Please run 'make mock-webhook' in a separate terminal..."

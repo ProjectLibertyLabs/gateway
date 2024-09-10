@@ -72,7 +72,7 @@
     "test:graph": "dotenvx run -f env-files/graph.template.env -- jest 'graph*'",
     "test": "npm run test:account ; npm run test:content-publishing ; npm run test:content-watcher ; npm run test:graph",
     "test:verbose": "jest --coverage --verbose",
-    "test:e2e:account": "dotenvx run -f .env.account -- jest --silent --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit 'account*'",
+    "test:e2e:account": "dotenvx run -f env-files/account.template.env -- jest --silent --runInBand --testRegex \".e2e-spec.ts\" --detectOpenHandles --forceExit 'account*'",
     "test:e2e:content-publishing": "dotenvx run -f .env.content-publishing -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'content-publishing*'",
     "test:e2e:content-watcher": "dotenvx run -f .env.content-watcher -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'content-watcher*'",
     "test:e2e:graph": "dotenvx run -f .env.graph -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'graph*'",

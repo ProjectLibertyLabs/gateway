@@ -4,10 +4,17 @@
 **/*.yaml
 **/*.yml
 # Ignore rust build files
-services/account/rust-webhook-server/target
+rust-webhook-server/target
 # Ignore generated content
-services/*/apps/api/src/metadata.ts
-**/swagger.json
-services/*/docs/index.html
+apps/**/metadata.ts
+
+# Ignore most docs
+docs/**/*.html
+docs/**/*.js
+docs/**/*.hbs
+
 **/metadata.ts
 openapi-specs/*
+**/tsconfig*.json
+nest-cli.json
+jest.config.json

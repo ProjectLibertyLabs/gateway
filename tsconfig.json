@@ -120,18 +120,6 @@
       "#content-publishing-lib/config/*": [
         "libs/content-publishing-lib/src/config/*"
       ],
-      "#content-publishing-lib/dtos": [
-        "libs/content-publishing-lib/src/dtos"
-      ],
-      "#content-publishing-lib/dtos/*": [
-        "libs/content-publishing-lib/src/dtos/*"
-      ],
-      "#content-publishing-lib/interfaces": [
-        "libs/content-publishing-lib/src/interfaces"
-      ],
-      "#content-publishing-lib/interfaces/*": [
-        "libs/content-publishing-lib/src/interfaces/*"
-      ],
       "#content-publishing-lib/queues": [
         "libs/content-publishing-lib/src/queues"
       ],
@@ -174,18 +162,6 @@
       "#content-watcher-lib/crawler/*": [
         "libs/content-watcher-lib/src/crawler/*"
       ],
-      "#content-watcher-lib/dtos": [
-        "libs/content-watcher-lib/src/dtos"
-      ],
-      "#content-watcher-lib/dtos/*": [
-        "libs/content-watcher-lib/src/dtos/*"
-      ],
-      "#content-watcher-lib/interfaces": [
-        "libs/content-watcher-lib/src/interfaces"
-      ],
-      "#content-watcher-lib/interfaces/*": [
-        "libs/content-watcher-lib/src/interfaces/*"
-      ],
       "#content-watcher-lib/ipfs": [
         "libs/content-watcher-lib/src/ipfs"
       ],
@@ -209,12 +185,6 @@
       ],
       "#content-watcher-lib/scanner/*": [
         "libs/content-watcher-lib/src/scanner/*"
-      ],
-      "#content-watcher-lib/types": [
-        "libs/content-watcher-lib/src/types"
-      ],
-      "#content-watcher-lib/types/*": [
-        "libs/content-watcher-lib/src/types/*"
       ],
       "#content-watcher-lib/utils": [
         "libs/content-watcher-lib/src/utils"

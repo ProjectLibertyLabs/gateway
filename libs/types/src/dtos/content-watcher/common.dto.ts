@@ -4,7 +4,7 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsPositive, isPositive } from 'class-validator';
-import { IScanReset } from '../interfaces/scan-reset.interface';
+import { IScanReset } from '#types/interfaces/content-watcher';
 
 export class DsnpUserIdParam {
   @IsNotEmpty()

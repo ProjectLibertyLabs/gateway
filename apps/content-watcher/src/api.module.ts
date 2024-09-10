@@ -13,7 +13,7 @@ import { PubSubModule } from '#content-watcher-lib/pubsub/pubsub.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
 import { AppConfigModule } from '#content-watcher-lib/config/config.module';
 import { AppConfigService } from '#content-watcher-lib/config/config.service';
-import * as QueueConstants from '#content-watcher-lib';
+import * as QueueConstants from '#types/constants/content-watcher.queue.constants';
 import { QueueModule } from '#content-watcher-lib/queues/queue.module';
 import { CacheModule } from '#content-watcher-lib/cache/cache.module';
 

@@ -1,8 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Logger, Post, Query } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '#content-watcher/api.service';
-import { ResetScannerDto } from '#content-watcher-lib';
-import { ChainWatchOptionsDto } from '#content-watcher-lib/dtos/chain.watch.dto';
+import { ResetScannerDto, ChainWatchOptionsDto } from '#types/dtos/content-watcher';
 
 @Controller('v1/scanner')
 @ApiTags('v1/scanner')

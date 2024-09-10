@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { AnnouncementTypeDto } from '../dtos/common.dto';
+import { AnnouncementTypeDto } from '#types/dtos/content-watcher/common.dto';
 
 /**
  * Name of the queue that has all incoming IPFS messages from the blockchain

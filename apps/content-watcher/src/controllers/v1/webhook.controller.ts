@@ -1,5 +1,5 @@
 import { ApiService } from '#content-watcher/api.service';
-import { WebhookRegistrationDto } from '#content-watcher-lib/dtos/subscription.webhook.dto';
+import { WebhookRegistrationDto } from '#types/dtos/content-watcher';
 import { Body, Controller, Delete, Get, HttpStatus, Logger, Put } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 

@@ -24,13 +24,3 @@ export class FilesUploadDto {
   @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
   files: any[];
 }
-
-// eslint-disable-next-line no-shadow
-export enum AnnouncementTypeDto {
-  BROADCAST = 'broadcast',
-  REPLY = 'reply',
-  REACTION = 'reaction',
-  UPDATE = 'update',
-  TOMBSTONE = 'tombstone',
-  PROFILE = 'profile',
-}

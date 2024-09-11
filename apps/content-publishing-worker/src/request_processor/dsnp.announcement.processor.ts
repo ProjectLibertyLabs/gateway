@@ -15,7 +15,6 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ConfigService } from '#content-publishing-lib/config';
 import {
-  AnnouncementTypeDto,
   BroadcastDto,
   ReplyDto,
   ReactionDto,
@@ -27,10 +26,9 @@ import {
   AttachmentType,
   AssetDto,
   TagDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
 import {
   IRequestJob,
-  AnnouncementType,
   createTombstone,
   createNote,
   BroadcastAnnouncement,
@@ -43,7 +41,7 @@ import {
   createUpdate,
   ProfileAnnouncement,
   createProfile,
-} from '#content-publishing-lib/interfaces';
+} from '#types/interfaces/content-publishing';
 import {
   BROADCAST_QUEUE_NAME,
   REPLY_QUEUE_NAME,
@@ -54,6 +52,7 @@ import {
 } from '#content-publishing-lib/queues/queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
+import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
@@ -77,22 +76,22 @@ export class DsnpAnnouncementProcessor {
     this.logger.verbose(`Processing Activity: ${data.announcementType} for ${data.dsnpUserId}`);
     try {
       switch (data.announcementType) {
-        case AnnouncementTypeDto.BROADCAST:
+        case AnnouncementTypeName.BROADCAST:
           await this.queueBroadcast(data);
           break;
-        case AnnouncementTypeDto.REPLY:
+        case AnnouncementTypeName.REPLY:
           await this.queueReply(data);
           break;
-        case AnnouncementTypeDto.REACTION:
+        case AnnouncementTypeName.REACTION:
           await this.queueReaction(data);
           break;
-        case AnnouncementTypeDto.UPDATE:
+        case AnnouncementTypeName.UPDATE:
           await this.queueUpdate(data);
           break;
-        case AnnouncementTypeDto.PROFILE:
+        case AnnouncementTypeName.PROFILE:
           await this.queueProfile(data);
           break;
-        case AnnouncementTypeDto.TOMBSTONE:
+        case AnnouncementTypeName.TOMBSTONE:
           await this.queueTombstone(data);
           break;
         default:

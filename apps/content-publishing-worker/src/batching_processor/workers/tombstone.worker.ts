@@ -1,4 +1,4 @@
-import { Announcement } from '#content-publishing-lib/interfaces';
+import { Announcement } from '#types/interfaces/content-publishing';
 import { TOMBSTONE_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';

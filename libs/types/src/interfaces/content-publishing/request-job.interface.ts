@@ -1,4 +1,5 @@
-import { AnnouncementTypeDto, AttachmentType, RequestTypeDto } from '#types/dtos/content-publishing';
+import { AttachmentType, RequestTypeDto } from '#types/dtos/content-publishing';
+import { AnnouncementTypeName } from '#types/enums';
 
 export interface IAssetTypeInfo {
   mimeType: string;
@@ -6,7 +7,7 @@ export interface IAssetTypeInfo {
 }
 export interface IRequestJob {
   id: string;
-  announcementType: AnnouncementTypeDto;
+  announcementType: AnnouncementTypeName;
   dsnpUserId: string;
   assetToMimeType?: Map<string, IAssetTypeInfo>;
   content?: RequestTypeDto;

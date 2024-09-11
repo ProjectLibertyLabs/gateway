@@ -1,9 +1,6 @@
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
-import {
-  PublicKeyAgreementRequestDto,
-  PublishPublicKeyAgreementRequestDto,
-} from '../../../../types/src/dtos/account/graphs.request.dto';
+import { PublicKeyAgreementRequestDto, PublishPublicKeyAgreementRequestDto } from './graphs.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishSIWFSignupRequestDto } from './wallet.login.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';

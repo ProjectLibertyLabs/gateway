@@ -3,11 +3,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
+import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
 import { AppConfigService } from '../config/config.service';
-import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
-import { AnnouncementResponse } from '../types/content-announcement';
-import { IAnnouncementSubscription } from '../interfaces/announcement-subscription.interface';
+import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
+import { AnnouncementResponse } from '#types/content-announcement';
+import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 
 @Injectable()
 export class PubSubService {

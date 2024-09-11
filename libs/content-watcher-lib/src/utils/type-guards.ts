@@ -7,7 +7,7 @@ import {
   TombstoneAnnouncement,
   TypedAnnouncement,
   UpdateAnnouncement,
-} from '../types/content-announcement';
+} from '#types/content-announcement';
 
 export function isTypedAnnouncement(obj: object): obj is TypedAnnouncement {
   if ('announcementType' in obj) {

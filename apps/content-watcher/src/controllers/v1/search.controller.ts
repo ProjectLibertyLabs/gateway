@@ -7,6 +7,7 @@ import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller('v1/search')
 @ApiTags('v1/search')
 export class SearchControllerV1 {
+  // eslint-disable-next-line no-empty-function
   constructor(private readonly apiService: ApiService) {}
 
   @Post()

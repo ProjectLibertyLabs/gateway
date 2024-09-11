@@ -15,7 +15,7 @@ import {
   AttachmentType,
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
-import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#types/constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
 import {
   getAssetMetadataKey,

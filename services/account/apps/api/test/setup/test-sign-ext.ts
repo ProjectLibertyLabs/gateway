@@ -21,6 +21,9 @@ async function main() {
 async function retireMsa() {
   await cryptoWaitReady();
   const aliceKeys = new Keyring({ type: 'sr25519' }).createFromUri('//Alice');
+  // 7. Attempt to retire an MSA for BOB, who is not a provider and only has an msa and nothing else
+  //    Result:  SUCCESS!!!
+  const bobKeys = new Keyring({ type: 'sr25519' }).createFromUri('//Bob');
 
   // @ts-ignore
   // eslint-disable-next-line consistent-return
@@ -50,7 +53,7 @@ async function retireMsa() {
 
   const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
 
-  const payload = await getRawPayloadForSigning(tx, aliceKeys.address);
+  const payload = await getRawPayloadForSigning(tx, bobKeys.address);
   console.log('payload:', payload);
 
   const { data } = payload;
@@ -59,7 +62,7 @@ async function retireMsa() {
   console.log('prefixedData:', prefixedData);
 
   // 3. From github, use the withType option to sign the payload to get the id = 01 for the enum error
-  const signature = aliceKeys.sign(prefixedData, { withType: true });
+  const signature = bobKeys.sign(prefixedData, { withType: true });
   // Confirmed: this signature is correct and can be verified with polkadot-js, if you remove the prefix 0x01
   console.log('signature:', u8aToHex(signature));
 
@@ -69,7 +72,7 @@ async function retireMsa() {
   const signer = getSignerForRawSignature(prefixedSignature);
   console.log('signer:', signer);
 
-  const { nonce } = await ExtrinsicHelper.apiPromise.query.system.account(aliceKeys.address);
+  const { nonce } = await ExtrinsicHelper.apiPromise.query.system.account(bobKeys.address);
   console.log('nonce:', nonce.toHuman());
 
   // Adding signer after confirming that the payload and signature are correct
@@ -77,7 +80,7 @@ async function retireMsa() {
   // TODO: Something is wrong with signer, at least it's not doing what we want it to, which is close the circle
   // UPDATE: This error is solved by using the withType option in the sign function
   //   However, now the error is Invalid Transaction: Custom error: 2
-  const submittableExtrinsic = await tx.signAsync(aliceKeys.address, { nonce, signer });
+  const submittableExtrinsic = await tx.signAsync(bobKeys.address, { nonce, signer });
   // Here we can examine the signature, which should match the above signature
   // However, it a signature that can be verified with polkadot-js and it does not have the prefix 0x01
   console.log('submittableExtrinsic.signature:', submittableExtrinsic.signature.toHex());
@@ -98,7 +101,7 @@ async function retireMsa() {
   // 1. Attempt to remove the signer from the signAsync call
   // const signerPayload = await tx.signAsync(aliceKeys, { nonce, signer: null, era: 0 });
   // console.log('signerPayload:', signerPayload.data);
-  console.log('Signer Address:', aliceKeys.address);
+  console.log('Signer Address:', bobKeys.address);
 
   // const transaction = ExtrinsicHelper.apiPromise.tx(tx);
   // console.log('transaction:', transaction);

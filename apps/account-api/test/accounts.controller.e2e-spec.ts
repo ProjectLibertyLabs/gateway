@@ -8,6 +8,8 @@ import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectliber
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { u8aToHex } from '@polkadot/util';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 
 describe('Account Controller', () => {
   let app: INestApplication;

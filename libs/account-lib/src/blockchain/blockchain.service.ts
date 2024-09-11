@@ -513,77 +513,39 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async createRetireMsaPayload(
     accountId: string,
-  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
-    console.log('HERE');
+  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+    // Get the transaction for retireMsa, will be used to get the raw payload for signing
     const tx = await this.api.tx.msa.retireMsa();
-    const unsignedPayload = await this.getRawPayloadForSigning(tx, accountId);
-    this.logger.debug(unsignedPayload, 'unsignedpayload');
-    const encodedPayload = this.api
-      .createType('ExtrinsicPayload', unsignedPayload, {
-        version: unsignedPayload.version,
-      })
-      .toHex();
-    this.logger.debug(encodedPayload, 'encodedPayload');
 
-    // const rawNonce = (await this.api.query.system.account(accountId)).nonce;
-    // const nonce = this.api.registry.createType('Compact<Index>', rawNonce).toHex();
-    // const method = this.api.createType('Call', tx).toHex();
-    // const lastHeader = await this.api.rpc.chain.getHeader();
-    // const era = this.api.registry
-    //   .createType('ExtrinsicEra', {
-    //     current: lastHeader.number.toNumber(),
-    //     period: 64,
-    //   })
-    //   .toHex();
-    // const blockNumber = await this.getLatestFinalizedBlockNumber();
-    // const blockHash = (await this.getBlockHash(blockNumber)).toHex();
-    //
-    // const unsignedPayload: SignerPayloadJSON = {
-    //   address: accountId,
-    //   blockHash,
-    //   blockNumber: `0x${blockNumber.toString(16)}`,
-    //   method,
-    //   specVersion: this.api.runtimeVersion.specVersion.toHex(),
-    //   transactionVersion: this.api.runtimeVersion.transactionVersion.toHex(),
-    //   genesisHash: this.api.genesisHash.toHex(),
-    //   era,
-    //   tip: '0x00',
-    //   version: tx.version,
-    //   nonce,
-    //   signedExtensions: [
-    //     'CheckNonZeroSender',
-    //     'CheckSpecVersion',
-    //     'CheckTxVersion',
-    //     'CheckGenesis',
-    //     'CheckMortality',
-    //     'CheckNonce',
-    //     'CheckWeight',
-    //     'ChargeTransactionPayment',
-    //   ],
-    // };
-    //
+    // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
+    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    console.log('payload: SignerPayloadRaw: ', signerPayload);
 
-    console.log('****unsignedPayload: ', unsignedPayload);
+    // encoded payload
+    const { data } = signerPayload;
+
     return {
-      unsignedPayload,
-      encodedPayload,
+      signerPayload,
+      encodedPayload: data,
     };
   }
 
   // eslint-disable-next-line consistent-return
-  public async getRawPayloadForSigning(tx: any, signerAddress: string): Promise<SignerPayloadJSON> {
+  public async getRawPayloadForSigning(
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    signerAddress: string,
+    // eslint-disable-next-line consistent-return
+  ): Promise<SignerPayloadRaw> {
     let signRaw;
     try {
       await tx.signAsync(signerAddress, {
         signer: {
           signRaw: (raw) => {
+            console.log('signRaw called with [raw]:', raw);
             signRaw = raw;
+            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
             throw new Error('Stop here');
           },
-          // signPayload: (payload) => {
-          //   signRaw = payload;
-          //   throw new Error("Stop here");ww
-          // },
         },
       });
     } catch (_e) {

@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ExtrinsicPayloadValue, ISubmittableResult, SignerPayloadJSON } from '@polkadot/types/types';
+import { Codec, ISubmittableResult, Signer, SignerPayloadRaw } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
@@ -14,7 +14,7 @@ import { NonceService } from '#account-lib/services/nonce.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { QueueConstants } from '#account-lib/queues';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
-import { RedisUtils, TransactionData } from '#account-lib';
+import { RedisUtils } from '#account-lib';
 import { ConfigService } from '#account-lib/config/config.service';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
@@ -24,8 +24,7 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { ExtrinsicPayload, Signature } from '@polkadot/types/interfaces';
-import { Extrinsic } from '#lib/blockchain/extrinsic';
+import { TransactionData } from '#account-lib/types/dtos';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -113,13 +112,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         }
         case TransactionType.RETIRE_MSA: {
           tx = await this.blockchainService.retireMsa();
-          // const ext = this.blockchainService.createType(
-          //   'Extrinsic',
-          //   { method: job.data.unsignedPayload.method },
-          //   { version: job.data.unsignedPayload.transactionVersion },
-          // );
           targetEvent = { section: 'msa', method: 'retireMsa' };
-          txHash = await this.processProxyTxn(tx, job.data.accountId, job.data.signature, job.data.unsignedPayload);
+          txHash = await this.processProxyTxn(tx, job.data.accountId, job.data.signer, job.data.signerPayload);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -213,18 +207,18 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   async processProxyTxn(
     ext: any,
     accountId: string,
-    signatureHex: string,
-    unsignedPayload: SignerPayloadJSON,
+    signer: Signer,
+    signerPayload: SignerPayloadRaw,
   ): Promise<HexString> {
     try {
-      this.logger.debug(signatureHex, 'signatureHex****');
-      // const payload = this.blockchainService.createType('ExtrinsicPayload', unsignedPayload, {
-      //   version: unsignedPayload.version,
-      // });
-      ext.addSignature(accountId, signatureHex, unsignedPayload);
+      const { nonce } = await this.blockchainService.api.query.system.account(accountId);
+
+      this.logger.debug(signer, 'signer****');
+
+      const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
       this.logger.debug('MADE IT');
 
-      const txHash = (await ext.send()).toHex();
+      const txHash = (await submittableExtrinsic.send()).toHex();
       this.logger.debug('MADE IT 2');
 
       if (!txHash) {

@@ -2,10 +2,9 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
-import { createKeys } from '../blockchain/create-keys';
 import * as RedisUtils from '../utils/redis';
-import { BlockchainService } from '../blockchain/blockchain.service';
-import { ConfigService } from '../config/config.service';
+import { BlockchainService, createKeys } from '#graph-lib/blockchain';
+import { ConfigService } from '#graph-lib/config';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 

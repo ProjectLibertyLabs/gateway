@@ -1,21 +1,20 @@
-import { TransactionType } from '#lib/types/enums';
-import { ExtrinsicPayload, Signature } from '@polkadot/types/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { SignerPayloadJSON } from '@polkadot/types/types';
+import { Signer, SignerPayloadRaw } from '@polkadot/types/types';
+import { TransactionType } from '#account-lib';
 
 export class RetireMsaRequestDto {
   @ApiProperty({ type: Object })
   @IsNotEmpty()
-  unsignedPayload: SignerPayloadJSON;
+  signerPayload: SignerPayloadRaw;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()
-  encodedPayload: ExtrinsicPayload;
+  encodedPayload: string;
 
-  @ApiProperty({ type: String })
+  @ApiProperty({ type: Object })
   @IsNotEmpty()
-  signature: string;
+  signer: Signer;
 
   @ApiProperty()
   @IsNotEmpty()

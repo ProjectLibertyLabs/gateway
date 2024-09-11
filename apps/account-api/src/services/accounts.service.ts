@@ -1,20 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
-import { BlockchainService } from '#lib/blockchain/blockchain.service';
-import { TransactionType } from '#lib/types/enums';
-import { ConfigService } from '#lib/config/config.service';
-import { EnqueueService } from '#lib/services/enqueue-request.service';
-import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#lib/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponseDto } from '#lib/types/dtos/wallet.login.response.dto';
-import { AccountResponseDto, MsaIdResponse } from '#lib/types/dtos/accounts.response.dto';
-import { WalletLoginConfigResponseDto } from '#lib/types/dtos/wallet.login.config.response.dto';
-import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
-import { GenericExtrinsicPayload } from '@polkadot/types';
-import { TransactionResponse } from '#lib/types/dtos';
-import { ExtrinsicPayload } from '@polkadot/types/interfaces';
-import { ExtrinsicPayloadValue } from '@polkadot/types/types/extrinsic';
-import { HexString } from '@polkadot/util/types';
-import { SignerPayloadJSON } from '@polkadot/types/types';
+import { SignerPayloadRaw } from '@polkadot/types/types';
+import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { EnqueueService, TransactionType } from '#account-lib';
+import {
+  AccountResponseDto,
+  MsaIdResponse,
+  PublishSIWFSignupRequestDto,
+  TransactionResponse,
+  WalletLoginConfigResponseDto,
+  WalletLoginRequestDto,
+  WalletLoginResponseDto,
+} from '#account-lib/types/dtos';
+import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
+import { ConfigService } from '#account-lib/config';
 
 @Injectable()
 export class AccountsService {
@@ -116,7 +115,7 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaPayload(accountId: string): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
+  getRetireMsaPayload(accountId: string): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
     return this.blockchainService.createRetireMsaPayload(accountId);
   }
 

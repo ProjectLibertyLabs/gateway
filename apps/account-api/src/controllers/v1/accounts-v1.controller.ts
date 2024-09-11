@@ -5,14 +5,10 @@ import { WalletLoginConfigResponseDto } from '#account-lib/types/dtos/wallet.log
 import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ConfigService } from '#lib/config';
-import { GenericExtrinsicPayload } from '@polkadot/types';
-import { TransactionResponse } from '#lib/types/dtos';
-import { RetireMsaRequestDto } from '#lib/types/dtos/accounts.request.dto';
-import { ExtrinsicPayload } from '@polkadot/types/interfaces';
-import { ExtrinsicPayloadValue } from '@polkadot/types/types/extrinsic';
-import { SignerPayloadJSON } from '@polkadot/types/types';
-import { HexString } from '@polkadot/util/types';
+import { ConfigService } from '#account-lib/config';
+import { TransactionResponse } from '#account-lib/types/dtos';
+import { RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
+import { SignerPayloadRaw } from '@polkadot/types/types';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -121,7 +117,7 @@ export class AccountsControllerV1 {
    */
   async getRetireMsaPayload(
     @Param('accountId') accountId: string,
-  ): Promise<{ unsignedPayload: SignerPayloadJSON; encodedPayload: HexString }> {
+  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
     try {
       return this.accountsService.getRetireMsaPayload(accountId);
     } catch (error) {

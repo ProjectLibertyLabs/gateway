@@ -71,11 +71,11 @@ async function retireMsa() {
   // Get the transaction for retireMsa, will be used to get the raw payload for signing
   const tx: SubmittableExtrinsic<'promise', ISubmittableResult> = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
 
-  const payload: SignerPayloadRaw = await getRawPayloadForSigning(tx, bobKeys.address);
+  const signerPayload: SignerPayloadRaw = await getRawPayloadForSigning(tx, bobKeys.address);
   // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
-  console.log('payload: SignerPayloadRaw: ', payload);
+  console.log('payload: SignerPayloadRaw: ', signerPayload);
 
-  const { data } = payload;
+  const { data } = signerPayload;
 
   // From github:https://github.com/polkadot-js/tools/issues/175
   // Use the withType option to sign the payload to get the prefix 0x01

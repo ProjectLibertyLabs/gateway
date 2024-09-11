@@ -63,7 +63,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as IContentTxStatus);
+    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map(
+      (val) => JSON.parse(val) as IContentTxStatus,
+    );
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {

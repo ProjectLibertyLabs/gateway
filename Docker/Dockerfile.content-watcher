@@ -7,9 +7,9 @@ COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-WORKDIR /build/libs/content-watcher-lib
+WORKDIR /build/libs
 
-COPY libs/content-watcher-lib ./
+COPY libs ./
 
 WORKDIR /build/apps/content-watcher
 

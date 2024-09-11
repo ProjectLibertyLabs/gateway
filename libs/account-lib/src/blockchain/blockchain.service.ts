@@ -17,18 +17,18 @@ import {
 } from '@polkadot/types/lookup';
 import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '#account-lib/config/config.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { HexString } from '@polkadot/util/types';
 import { decodeAddress } from '@polkadot/util-crypto';
-import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
-import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
-import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
-import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { KeysRequestDto } from '#types/dtos/account/keys.request.dto';
+import { PublishHandleRequestDto } from '#types/dtos/account/handles.request.dto';
+import { TransactionData } from '#types/dtos/account/transaction.request.dto';
+import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import {
   PublicKeyAgreementRequestDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
-} from '#account-lib/types/dtos/graphs.request.dto';
+} from '#types/dtos/account/graphs.request.dto';
 import { hexToU8a } from '@polkadot/util';
 import { Extrinsic } from './extrinsic';
 

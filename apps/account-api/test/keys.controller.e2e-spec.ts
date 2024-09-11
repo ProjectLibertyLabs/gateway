@@ -8,7 +8,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { AddKeyData, ChainUser, ExtrinsicHelper, createKeys } from '@projectlibertylabs/frequency-scenario-template';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { KeysRequestDto } from '#account-lib/types/dtos';
+import { KeysRequestDto } from '#types/dtos/account';
 import { ApiModule } from '../src/api.module';
 import {
   generateAddPublicKeyExtrinsic,

@@ -2,7 +2,7 @@
 import { IsNotEmpty, IsNumberString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { IsHexPublicKey } from '#account-lib/utils/custom.decorator';
 
 // eslint-disable-next-line no-shadow

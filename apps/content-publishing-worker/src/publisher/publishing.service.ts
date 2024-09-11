@@ -9,7 +9,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
-import { PUBLISH_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { PUBLISH_QUEUE_NAME } from '#types/constants';
 import { BaseConsumer } from '../BaseConsumer';
 import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';

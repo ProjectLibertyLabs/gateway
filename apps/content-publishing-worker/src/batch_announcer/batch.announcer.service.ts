@@ -4,7 +4,7 @@ import { Job, Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BatchAnnouncer } from './batch.announcer';
 import { BaseConsumer } from '../BaseConsumer';
-import { BATCH_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { BATCH_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '#types/constants';
 import { IBatchAnnouncerJobData } from '../interfaces';
 import { CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
 

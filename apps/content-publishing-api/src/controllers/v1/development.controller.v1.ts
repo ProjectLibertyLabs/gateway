@@ -22,7 +22,7 @@ import {
   ReactionAnnouncement,
   TombstoneAnnouncement,
 } from '#types/interfaces/content-publishing';
-import { QueueConstants } from '#content-publishing-lib/queues';
+import * as QueueConstants from '#types/constants/queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';

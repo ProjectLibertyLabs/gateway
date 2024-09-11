@@ -11,7 +11,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
 import { createKeys } from '#account-lib/blockchain/create-keys';
 import { NonceService } from '#account-lib/services/nonce.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { QueueConstants } from '#account-lib/queues';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
 import { RedisUtils, TransactionData } from '#account-lib';

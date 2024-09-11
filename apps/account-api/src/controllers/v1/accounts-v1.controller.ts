@@ -1,8 +1,8 @@
 import { AccountsService } from '#account-api/services/accounts.service';
-import { AccountResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
-import { WalletLoginRequestDto } from '#account-lib/types/dtos/wallet.login.request.dto';
-import { WalletLoginConfigResponseDto } from '#account-lib/types/dtos/wallet.login.config.response.dto';
-import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.response.dto';
+import { AccountResponseDto } from '#types/dtos/account/accounts.response.dto';
+import { WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
+import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
+import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#account-lib/config';

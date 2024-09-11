@@ -1,6 +1,6 @@
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { DelegationService } from '#account-api/services/delegation.service';
-import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
+import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
 import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 

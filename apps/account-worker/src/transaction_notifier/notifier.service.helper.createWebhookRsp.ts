@@ -9,7 +9,7 @@ import {
   SIWFOpts,
   SIWFWebhookRsp,
   TxWebhookOpts,
-} from '#account-lib/types/dtos/transaction.request.dto';
+} from '#types/dtos/account/transaction.request.dto';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 
 export function createWebhookRsp(

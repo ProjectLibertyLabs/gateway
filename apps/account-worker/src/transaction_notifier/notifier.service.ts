@@ -5,7 +5,7 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { RedisUtils, SECONDS_PER_BLOCK, TxWebhookRsp } from '#account-lib';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';

@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { ConfigService } from '#account-lib/config/config.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#account-lib/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.response.dto';
-import { AccountResponseDto, MsaIdResponse } from '#account-lib/types/dtos/accounts.response.dto';
-import { WalletLoginConfigResponseDto } from '#account-lib/types/dtos/wallet.login.config.response.dto';
+import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#types/dtos/account/wallet.login.request.dto';
+import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
+import { AccountResponseDto, MsaIdResponse } from '#types/dtos/account/accounts.response.dto';
+import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
 
 @Injectable()
 export class AccountsService {

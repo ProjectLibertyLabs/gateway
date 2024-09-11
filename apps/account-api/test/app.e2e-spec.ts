@@ -2,6 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { WalletLoginRequestDto } from '#types/dtos/account';
 import { ApiModule } from '../src/api.module';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 

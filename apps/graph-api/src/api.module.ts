@@ -7,7 +7,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
-import * as QueueConstants from '#graph-lib/queues/queue-constants';
+import * as QueueConstants from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { QueueModule } from '#graph-lib/queues/queue.module';
 import { ConfigModule, ConfigService } from '#graph-lib/config';

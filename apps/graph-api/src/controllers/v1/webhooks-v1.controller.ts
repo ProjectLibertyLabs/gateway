@@ -1,5 +1,5 @@
 import { ApiService } from '#graph-api/api.service';
-import { WatchGraphsDto } from '#graph-lib/dtos';
+import { WatchGraphsDto } from '#types/dtos/graph';
 import {
   Controller,
   HttpCode,

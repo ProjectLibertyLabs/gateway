@@ -36,6 +36,21 @@ export const PUBLISH_QUEUE_NAME = 'publishQueue';
 export const STATUS_QUEUE_NAME = 'statusQueue';
 
 /**
+ * Name of the queue that has all reconnecting requests
+ */
+export const RECONNECT_REQUEST_QUEUE = 'reconnectRequest';
+
+/**
+ * Name of the queue that has all incoming requests
+ */
+export const GRAPH_CHANGE_REQUEST_QUEUE = 'graphChangeRequest';
+
+/**
+ * Name of the queue that publishes graph changes to Frequency blockchain
+ */
+export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
+
+/**
  * All of the announcement type queues
  */
 export const BROADCAST_QUEUE_NAME = 'broadcastQueue';

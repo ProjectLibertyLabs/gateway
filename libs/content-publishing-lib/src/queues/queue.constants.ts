@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto } from '#content-publishing-lib/dtos';
+import { AnnouncementTypeName } from '#types/enums';
 
 /**
  * Name of the queue that has all incoming asset uploads
@@ -33,11 +33,11 @@ export const PROFILE_QUEUE_NAME = 'profileQueue';
 /**
  * Map between queue name and it's announcement type
  */
-export const QUEUE_NAME_TO_ANNOUNCEMENT_MAP = new Map<string, AnnouncementTypeDto>([
-  [BROADCAST_QUEUE_NAME, AnnouncementTypeDto.BROADCAST],
-  [REPLY_QUEUE_NAME, AnnouncementTypeDto.REPLY],
-  [REACTION_QUEUE_NAME, AnnouncementTypeDto.REACTION],
-  [UPDATE_QUEUE_NAME, AnnouncementTypeDto.UPDATE],
-  [TOMBSTONE_QUEUE_NAME, AnnouncementTypeDto.TOMBSTONE],
-  [PROFILE_QUEUE_NAME, AnnouncementTypeDto.PROFILE],
+export const QUEUE_NAME_TO_ANNOUNCEMENT_MAP = new Map<string, AnnouncementTypeName>([
+  [BROADCAST_QUEUE_NAME, AnnouncementTypeName.BROADCAST],
+  [REPLY_QUEUE_NAME, AnnouncementTypeName.REPLY],
+  [REACTION_QUEUE_NAME, AnnouncementTypeName.REACTION],
+  [UPDATE_QUEUE_NAME, AnnouncementTypeName.UPDATE],
+  [TOMBSTONE_QUEUE_NAME, AnnouncementTypeName.TOMBSTONE],
+  [PROFILE_QUEUE_NAME, AnnouncementTypeName.PROFILE],
 ]);

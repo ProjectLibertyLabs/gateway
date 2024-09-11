@@ -1,4 +1,4 @@
-import { AnnouncementTypeDto } from './common.dto';
+import { AnnouncementTypeName } from '#types/enums';
 
 /**
  * Regex for ISO 8601
@@ -32,11 +32,11 @@ export function isImage(mimeType: string): boolean {
 /**
  * checks to see if the type might have some assets
  */
-export function isAssetIncludedType(announcementType: AnnouncementTypeDto): boolean {
+export function isAssetIncludedType(announcementType: AnnouncementTypeName): boolean {
   return (
-    announcementType === AnnouncementTypeDto.PROFILE ||
-    announcementType === AnnouncementTypeDto.BROADCAST ||
-    announcementType === AnnouncementTypeDto.REPLY ||
-    announcementType === AnnouncementTypeDto.UPDATE
+    announcementType === AnnouncementTypeName.PROFILE ||
+    announcementType === AnnouncementTypeName.BROADCAST ||
+    announcementType === AnnouncementTypeName.REPLY ||
+    announcementType === AnnouncementTypeName.UPDATE
   );
 }

@@ -6,12 +6,12 @@ import {
   BroadcastDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
-  AnnouncementTypeDto,
   ReplyDto,
   ReactionDto,
   UpdateDto,
   TombstoneDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
+import { AnnouncementTypeName } from '#types/enums';
 
 @Controller('v1/content')
 @ApiTags('v1/content')
@@ -31,7 +31,12 @@ export class ContentControllerV1 {
     @Body() broadcastDto: BroadcastDto,
   ): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(broadcastDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.BROADCAST, userDsnpId.userDsnpId, broadcastDto, metadata);
+    return this.apiService.enqueueRequest(
+      AnnouncementTypeName.BROADCAST,
+      userDsnpId.userDsnpId,
+      broadcastDto,
+      metadata,
+    );
   }
 
   @Post(':userDsnpId/reply')
@@ -40,7 +45,7 @@ export class ContentControllerV1 {
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(replyDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.REPLY, userDsnpId.userDsnpId, replyDto, metadata);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.REPLY, userDsnpId.userDsnpId, replyDto, metadata);
   }
 
   @Post(':userDsnpId/reaction')
@@ -51,7 +56,7 @@ export class ContentControllerV1 {
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() reactionDto: ReactionDto,
   ): Promise<AnnouncementResponseDto> {
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.REACTION, userDsnpId.userDsnpId, reactionDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.REACTION, userDsnpId.userDsnpId, reactionDto);
   }
 
   @Put(':userDsnpId')
@@ -60,7 +65,7 @@ export class ContentControllerV1 {
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(updateDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.UPDATE, userDsnpId.userDsnpId, updateDto, metadata);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.UPDATE, userDsnpId.userDsnpId, updateDto, metadata);
   }
 
   @Delete(':userDsnpId')
@@ -71,6 +76,6 @@ export class ContentControllerV1 {
     @Param() userDsnpId: DsnpUserIdParam,
     @Body() tombstoneDto: TombstoneDto,
   ): Promise<AnnouncementResponseDto> {
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
   }
 }

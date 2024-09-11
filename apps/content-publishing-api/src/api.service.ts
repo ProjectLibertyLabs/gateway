@@ -7,15 +7,14 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import {
-  AnnouncementTypeDto,
   RequestTypeDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
   isImage,
   UploadResponseDto,
   AttachmentType,
-} from '#content-publishing-lib/dtos';
-import { IRequestJob, IAssetMetadata, IAssetJob } from '#content-publishing-lib/interfaces';
+} from '#types/dtos/content-publishing';
+import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
 import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
 import {
@@ -23,6 +22,7 @@ import {
   getAssetDataKey,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#content-publishing-lib/utils/redis';
+import { AnnouncementTypeName } from '#types/enums';
 
 @Injectable()
 export class ApiService {
@@ -37,7 +37,7 @@ export class ApiService {
   }
 
   async enqueueRequest(
-    announcementType: AnnouncementTypeDto,
+    announcementType: AnnouncementTypeName,
     dsnpUserId: string,
     content: RequestTypeDto,
     assetToMimeType?: IRequestJob['assetToMimeType'],

@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DelayedError, Job } from 'bullmq';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
-import { IRequestJob } from '#content-publishing-lib/interfaces';
+import { IRequestJob } from '#types/interfaces/content-publishing';
 import { REQUEST_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';

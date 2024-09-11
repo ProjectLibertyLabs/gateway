@@ -3,14 +3,14 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ContentSearchRequestDto, REQUEST_QUEUE_NAME, calculateJobId } from '#content-watcher-lib';
 import { ScannerService } from '#content-watcher-lib/scanner/scanner.service';
-import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#content-watcher-lib/constants';
-import { ChainWatchOptionsDto } from '#content-watcher-lib/dtos/chain.watch.dto';
-import { IWebhookRegistration } from '#content-watcher-lib/dtos/subscription.webhook.dto';
+import { calculateJobId, EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY, REQUEST_QUEUE_NAME } from '#types/constants';
+import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
+import { IWebhookRegistration } from '#types/dtos/content-watcher/subscription.webhook.dto';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
-import { IScanReset } from '#content-watcher-lib/interfaces/scan-reset.interface';
-import { IAnnouncementSubscription } from '#content-watcher-lib/interfaces/announcement-subscription.interface';
+import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
+import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
+import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
 
 @Injectable()
 export class ApiService {

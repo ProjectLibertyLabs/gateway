@@ -9,15 +9,15 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import * as QueueConstants from '#graph-lib/queues/queue-constants';
+import * as QueueConstants from '#types/constants/queue.constants';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { ITxStatus } from '#graph-lib/interfaces/tx-status.interface';
+import { IGraphTxStatus } from '#types/interfaces';
 import { ConfigService } from '#graph-lib/config';
 import { BlockchainService, createKeys, ICapacityInfo } from '#graph-lib/blockchain';
-import { GraphUpdateJob } from '#graph-lib/dtos';
+import { GraphUpdateJob } from '#types/dtos/graph';
 import { NonceService } from '#graph-lib/services/nonce.service';
 import { BaseConsumer } from '#graph-lib/utils';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#graph-lib/types/constants';
+import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -104,7 +104,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
 
       this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
-      const status: ITxStatus = {
+      const status: IGraphTxStatus = {
         providerId: this.configService.providerId,
         referenceId: job.data.originalRequestJob.referenceId,
         txHash: payWithCapacityTxHash.toHex(),

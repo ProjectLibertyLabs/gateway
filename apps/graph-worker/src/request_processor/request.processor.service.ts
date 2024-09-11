@@ -17,13 +17,13 @@ import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
-import * as QueueConstants from '#graph-lib/queues/queue-constants';
+import * as QueueConstants from '#types/constants/queue.constants';
 import fs from 'fs';
 import { BlockchainService } from '#graph-lib/blockchain';
-import { GraphUpdateJob, ConnectionDto, Direction } from '#graph-lib/dtos';
-import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#graph-lib/interfaces';
+import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
+import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
-import { SECONDS_PER_BLOCK } from '#graph-lib/types/constants';
+import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
@@ -52,7 +52,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     try {
-      const lastProcessedDsnpId = await this.cacheManager.get(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY);
+      const lastProcessedDsnpId = await this.cacheManager.get(LAST_PROCESSED_DSNP_ID_KEY);
       if (lastProcessedDsnpId && lastProcessedDsnpId === job.data.dsnpId) {
         this.logger.debug(`Delaying processing of job ${job.id} for ${blockDelay}ms`);
         // eslint-disable-next-line no-await-in-loop
@@ -103,11 +103,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
       if (reImported) {
         // Use lua script to update last processed dsnpId
         // @ts-expect-error updateLastProcessed is defined in the constructor
-        await this.cacheManager.updateLastProcessed(
-          QueueConstants.LAST_PROCESSED_DSNP_ID_KEY,
-          dsnpId.toString(),
-          blockDelay,
-        );
+        await this.cacheManager.updateLastProcessed(LAST_PROCESSED_DSNP_ID_KEY, dsnpId.toString(), blockDelay);
         this.logger.debug(`Re-imported bundles for ${dsnpId.toString()}`);
         // eslint-disable-next-line no-await-in-loop
         const userGraphExists = this.graphStateManager.graphContainsUser(dsnpId.toString());

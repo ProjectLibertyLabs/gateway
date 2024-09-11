@@ -110,16 +110,18 @@ export class AccountsControllerV1 {
   @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic payload.' })
   @ApiOkResponse({ description: 'Created extrinsic' })
   /**
-   * Gets an account.
+   * Gets the signer payload and encoded payload needed to retire a msa.
    * @param queryParams - The query parameters for creating the account.
-   * @returns A promise that resolves to an Account object => {msaId, handle}.
-   * @throws An error if the msaId or account cannot be found.
+   * @returns A promise that resolves to an object consisting of SignerPayloadRaw object => {address, data, type} and encodedPayload hex string.
+   * @throws An error if the payload fails to be created.
    */
   async getRetireMsaPayload(
     @Param('accountId') accountId: string,
   ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
     try {
-      return this.accountsService.getRetireMsaPayload(accountId);
+      const payload = await this.accountsService.getRetireMsaPayload(accountId);
+      if (payload) return payload;
+      throw new HttpException('MSA ID requested to retire was not found.', HttpStatus.NOT_FOUND);
     } catch (error) {
       this.logger.error(error);
       throw new HttpException('Failed to create a retireMsa unsigned, encoded extrinsic.', HttpStatus.BAD_REQUEST);
@@ -129,8 +131,13 @@ export class AccountsControllerV1 {
   @Post('retireMsa')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to retire an Msa Id.' })
-  @ApiCreatedResponse({ description: 'Signed in successfully', type: TransactionResponse })
+  @ApiCreatedResponse({ description: 'Created and queued request to retire an Msa Id', type: TransactionResponse })
   @ApiBody({ type: RetireMsaRequestDto })
+  /**
+   * Posts the signer and payload, signing the retire msa payload and executing that extrinsic.
+   * @returns Returns a TransactionResponse hex string when the extrinsic is added to the queue.
+   * @throws An error if the signed extrinsic fails to be created.
+   */
   async postRetireMsa(@Body() retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
     try {
       return this.accountsService.retireMsa(retireMsaRequest);

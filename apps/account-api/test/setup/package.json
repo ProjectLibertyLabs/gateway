@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "main": "tsx index.ts",
-    "sign-ext": "tsx test-sign-ext.ts",
+    "test-retire-msa": "tsx test-retire-msa.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",

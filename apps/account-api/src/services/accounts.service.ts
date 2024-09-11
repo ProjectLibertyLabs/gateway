@@ -47,14 +47,14 @@ export class AccountsService {
     }
   }
 
-  async getMsaIdForAccountId(publicKey: string): Promise<MsaIdResponse | null> {
+  async getMsaIdForAccountId(accountId: string): Promise<MsaIdResponse | null> {
     try {
-      const msaId = await this.blockchainService.publicKeyToMsaId(publicKey);
+      const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
       if (msaId) {
-        this.logger.debug(`Found msaId: ${msaId} for public key: ${publicKey}`);
+        this.logger.debug(`Found msaId: ${msaId} for account id: ${accountId}`);
         return { msaId };
       }
-      this.logger.debug(`Did not find msaId for public key: ${publicKey}`);
+      this.logger.debug(`Did not find msaId for account id: ${accountId}`);
       return null;
     } catch (e) {
       this.logger.error(`Error during get msaId request: ${e}`);
@@ -115,8 +115,17 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  getRetireMsaPayload(accountId: string): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
-    return this.blockchainService.createRetireMsaPayload(accountId);
+  async getRetireMsaPayload(
+    accountId: string,
+  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string } | null> {
+    try {
+      const msaId = await this.getMsaIdForAccountId(accountId);
+      if (msaId) return this.blockchainService.createRetireMsaPayload(accountId);
+      return null;
+    } catch (e) {
+      this.logger.error(`Failed to create retire msa payload: ${e}`);
+      throw new Error('Failed to create retire msa payload.');
+    }
   }
 
   async retireMsa(retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {

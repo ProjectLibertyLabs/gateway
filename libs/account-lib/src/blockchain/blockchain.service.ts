@@ -511,25 +511,6 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async createRetireMsaPayload(
-    accountId: string,
-  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
-    // Get the transaction for retireMsa, will be used to get the raw payload for signing
-    const tx = await this.api.tx.msa.retireMsa();
-
-    // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
-    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
-    console.log('payload: SignerPayloadRaw: ', signerPayload);
-
-    // encoded payload
-    const { data } = signerPayload;
-
-    return {
-      signerPayload,
-      encodedPayload: data,
-    };
-  }
-
   // eslint-disable-next-line consistent-return
   public async getRawPayloadForSigning(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
@@ -553,15 +534,25 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
+  public async createRetireMsaPayload(
+    accountId: string,
+  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+    // Get the transaction for retireMsa, will be used to get the raw payload for signing
+    const tx = await this.api.tx.msa.retireMsa();
+
+    // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
+    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    this.logger.debug('payload: SignerPayloadRaw: ', signerPayload);
+    // encoded payload
+    const { data } = signerPayload;
+
+    return {
+      signerPayload,
+      encodedPayload: data,
+    };
+  }
+
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
-  }
-
-  public async retireMsaMethod() {
-    return this.api.tx.msa.retireMsa().method.toHex();
-  }
-
-  public async retireMsaVersion() {
-    return this.api.tx.msa.retireMsa().version;
   }
 }

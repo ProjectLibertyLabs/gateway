@@ -3,8 +3,7 @@ import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
 import { u8aToHex } from '@polkadot/util';
-import { SignerResult, Signer, SignerPayloadRaw, ISubmittableResult } from '@polkadot/types/types';
-import { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import { SignerResult, Signer, SignerPayloadRaw } from '@polkadot/types/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -33,7 +32,7 @@ async function retireMsa() {
    */
   // @ts-ignore
   const getRawPayloadForSigning = async (
-    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    tx,
     signerAddress: string,
     // eslint-disable-next-line consistent-return
   ): Promise<SignerPayloadRaw> => {
@@ -69,7 +68,7 @@ async function retireMsa() {
   });
 
   // Get the transaction for retireMsa, will be used to get the raw payload for signing
-  const tx: SubmittableExtrinsic<'promise', ISubmittableResult> = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
+  const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
 
   const signerPayload: SignerPayloadRaw = await getRawPayloadForSigning(tx, bobKeys.address);
   // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload

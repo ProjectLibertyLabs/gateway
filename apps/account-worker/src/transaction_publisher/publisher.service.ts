@@ -111,10 +111,9 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.RETIRE_MSA: {
-          tx = await this.blockchainService.retireMsa();
+          const trx = await this.blockchainService.retireMsa();
           targetEvent = { section: 'msa', method: 'retireMsa' };
-          txHash = await this.processProxyTxn(tx, job.data.accountId, job.data.signer, job.data.signerPayload);
-          this.logger.debug(`tx: ${tx}`);
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signer);
           break;
         }
         default: {
@@ -205,27 +204,19 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   }
 
   async processProxyTxn(
-    ext: any,
+    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
     accountId: string,
     signer: Signer,
-    signerPayload: SignerPayloadRaw,
-  ): Promise<HexString> {
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     try {
       const { nonce } = await this.blockchainService.api.query.system.account(accountId);
-
-      this.logger.debug(signer, 'signer****');
-
       const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
-      this.logger.debug('MADE IT');
-
       const txHash = (await submittableExtrinsic.send()).toHex();
-      this.logger.debug('MADE IT 2');
 
-      if (!txHash) {
-        throw new Error('Tx hash is undefined');
-      }
+      if (!txHash) throw new Error('Tx hash is undefined');
+
       this.logger.debug(`Tx hash: ${txHash}`);
-      return txHash;
+      return [submittableExtrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;

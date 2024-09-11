@@ -111,7 +111,7 @@ describe('Account Controller', () => {
   //   ('(GET) /v1/accounts/retireMsa/:accountId get payload for retireMsa, given an invalid accountId', async () => {})
   // );
 
-  it.only('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
+  it('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
     const { keypair } = users[0];
     const accountId = keypair.address;
     const getRetireMsaResponse = await request(app.getHttpServer()).get(`/v1/accounts/retireMsa/${accountId}`);
@@ -121,12 +121,12 @@ describe('Account Controller', () => {
     await cryptoWaitReady();
 
     const uint8Signature = keypair.sign(JSON.stringify(responseData.unsignedPayload), { withType: false });
-    const signature = u8aToHex(uint8Signature);
+    const signer = u8aToHex(uint8Signature);
 
     const retireMsaRequest = {
-      unsignedPayload: responseData.unsignedPayload,
+      signerPayload: responseData.signerPayload,
       encodedPayload: responseData.encodedPayload,
-      signature,
+      signer,
       accountId,
     };
     await request(app.getHttpServer()).post(`/v1/accounts/retireMsa`).send(retireMsaRequest).expect(200);

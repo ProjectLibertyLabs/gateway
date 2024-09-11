@@ -7,9 +7,9 @@ COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-WORKDIR /build/libs/content-publishing-lib
+WORKDIR /build/libs
 
-COPY libs/content-publishing-lib ./
+COPY libs ./
 
 WORKDIR /build/apps/content-publishing-api
 

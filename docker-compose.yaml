@@ -56,7 +56,8 @@ services:
       - redis_data:/data/redis
 
   frequency:
-    image: frequencychain/standalone-node:v1.13.0-rc3
+    # Temporary workaround until Frequency mainnet schemas are properly named and included in the image
+    image: dsnp/instant-seal-node-with-deployed-schemas:latest
     # We need to specify the platform because it's the only image
     # built by Frequency at the moment, and auto-pull won't work otherwise
     platform: linux/amd64
@@ -200,7 +201,6 @@ services:
       - account_api_node_cache:/app/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
     networks:
       - gateway-net
@@ -216,7 +216,6 @@ services:
       - account_worker_node_cache:/app/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
 
     networks:

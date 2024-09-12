@@ -16,6 +16,7 @@
   "roots": ["<rootDir>/apps/", "<rootDir>/libs/"],
   "moduleNameMapper": {
     "^#account-lib(|/.*)$": "<rootDir>/libs/account-lib/src/$1",
+    "^#account-api(|/.*)$": "<rootDir>/apps/account-api/src/$1",
     "^#content-publishing-lib(|/.*)$": "<rootDir>/libs/content-publishing-lib/src/$1",
     "^#content-watcher-lib(|/.*)$": "<rootDir>/libs/content-watcher-lib/src/$1",
     "^#graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1"

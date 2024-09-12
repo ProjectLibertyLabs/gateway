@@ -17,13 +17,14 @@ import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
   ChangeHandlePayloadRequest,
   ChangeHandleRequest,
-  CreateHandleRequest,
+  CreateHandleRequest, HandleParam,
   HandleRequestDto,
 } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import {MsaIdParam} from "#account-lib/types/dtos/accounts.request.dto";
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
@@ -98,10 +99,10 @@ export class HandlesControllerV1 {
    * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
    * @throws An error if the change handle payload creation fails.
    */
-  async getChangeHandlePayload(@Param('newHandle') newHandle: string): Promise<ChangeHandlePayloadRequest> {
+  async getChangeHandlePayload(@Param() newHandle: HandleParam): Promise<ChangeHandlePayloadRequest> {
     try {
       const expiration = await this.handlesService.getExpiration();
-      const payload = { baseHandle: newHandle, expiration };
+      const payload = { baseHandle: newHandle.newHandle, expiration };
       const encodedPayload = u8aToHex(u8aWrapBytes(this.handlesService.encodePayload(payload).toU8a()));
 
       return {
@@ -124,9 +125,9 @@ export class HandlesControllerV1 {
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.
    */
-  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponseDto> {
+  async getHandle(@Param() msaId: MsaIdParam): Promise<HandleResponseDto> {
     try {
-      const handle = await this.handlesService.getHandle(msaId);
+      const handle = await this.handlesService.getHandle(msaId.msaId);
       if (!handle) {
         throw new HttpException('No handle found for MSA', HttpStatus.NOT_FOUND);
       }

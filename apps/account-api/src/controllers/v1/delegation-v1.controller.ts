@@ -3,6 +3,7 @@ import { DelegationService } from '#account-api/services/delegation.service';
 import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
 import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {MsaIdParam} from "#account-lib/types/dtos/accounts.request.dto";
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
@@ -19,9 +20,9 @@ export class DelegationControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get the delegation information associated with an MSA Id' })
   @ApiOkResponse({ description: 'Found delegation information' })
-  async getDelegation(@Param('msaId') msaId: string): Promise<DelegationResponse> {
+  async getDelegation(@Param() msaId: MsaIdParam): Promise<DelegationResponse> {
     try {
-      const delegation = await this.delegationService.getDelegation(msaId);
+      const delegation = await this.delegationService.getDelegation(msaId.msaId);
       return delegation;
     } catch (error) {
       this.logger.error(error);

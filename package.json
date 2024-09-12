@@ -14,7 +14,7 @@
     "build:graph": "nest build graph-api && nest build graph-worker",
     "build": "npm run build:account ; npm run build:content-publishing ; npm run build:content-watcher ; npm run build:graph",
     "start:account-api": "nest start account-api",
-    "start:account-api:watch": "nest start account-api --watch",
+    "start:account-api:watch": "nest start account-api --debug --watch",
     "start:account-api:prod": "node dist/apps/account-api/main.js",
     "start:account-api:dev": "dotenvx run -f .env.account -- nest start account-api --watch",
     "start:account-api:debug": "dotenvx run -f .env.account -- nest start account-api --debug --watch",

@@ -6,6 +6,7 @@ import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.res
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#account-lib/config';
+import {MsaIdParam, PublicKeyParam} from "#account-lib/types/dtos/accounts.request.dto";
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -44,10 +45,10 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccountForMsa(@Param('msaId') msaId: string): Promise<AccountResponseDto> {
+  async getAccountForMsa(@Param() msaId: MsaIdParam): Promise<AccountResponseDto> {
     try {
-      this.logger.debug(`Received request to get account with msaId: ${msaId}`);
-      const account = await this.accountsService.getAccount(msaId);
+      this.logger.debug(`Received request to get account with msaId: ${msaId.msaId}`);
+      const account = await this.accountsService.getAccount(msaId.msaId);
       if (account) return account;
       throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
     } catch (error) {
@@ -67,10 +68,10 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getAccountForPublicKey(@Param('publicKey') publicKey: string): Promise<AccountResponseDto> {
+  async getAccountForPublicKey(@Param() publicKey: PublicKeyParam): Promise<AccountResponseDto> {
     try {
-      this.logger.debug(`Received request to get account with publicKey: ${publicKey}`);
-      const response = await this.accountsService.getMsaIdForPublicKey(publicKey);
+      this.logger.debug(`Received request to get account with publicKey: ${publicKey.publicKey}`);
+      const response = await this.accountsService.getMsaIdForPublicKey(publicKey.publicKey);
       if (response?.msaId) {
         const account = await this.accountsService.getAccount(response.msaId);
         if (account) return account;

@@ -62,6 +62,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "MSA Id of account",
             "schema": {
               "type": "string"
             }
@@ -93,6 +94,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
+            "description": "Public key in hex format!",
             "schema": {
               "type": "string"
             }
@@ -124,6 +126,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "MSA Id of account",
             "schema": {
               "type": "string"
             }
@@ -199,6 +202,7 @@
             "required": true,
             "in": "path",
             "schema": {
+              "minLength": 3,
               "type": "string"
             }
           }
@@ -222,6 +226,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "MSA Id of account",
             "schema": {
               "type": "string"
             }
@@ -271,6 +276,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "MSA Id of account",
             "schema": {
               "type": "string"
             }
@@ -295,7 +301,7 @@
             "name": "msaId",
             "required": true,
             "in": "query",
-            "description": "MSA ID of account to generate a payload for",
+            "description": "MSA Id of account to generate a payload for",
             "schema": {
               "type": "string"
             }
@@ -494,10 +500,12 @@
         "type": "object",
         "properties": {
           "pallet": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "extrinsicName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "encodedExtrinsic": {
             "type": "string"
@@ -584,7 +592,8 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex format"
           },
           "payload": {
             "$ref": "#/components/schemas/HandlePayloadDto"
@@ -603,13 +612,15 @@
         "type": "object",
         "properties": {
           "msaId": {
-            "type": "string"
+            "type": "string",
+            "description": "MSA Id of account"
           },
           "expiration": {
             "type": "number"
           },
           "newPublicKey": {
-            "type": "string"
+            "type": "string",
+            "description": "newPublicKey in hex format"
           }
         },
         "required": [
@@ -622,7 +633,8 @@
         "type": "object",
         "properties": {
           "msaOwnerAddress": {
-            "type": "string"
+            "type": "string",
+            "description": "msaOwnerAddress in hex format"
           },
           "msaOwnerSignature": {
             "type": "string"
@@ -645,18 +657,24 @@
         "type": "object",
         "properties": {
           "schemaId": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 65536
           },
           "targetHash": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "expiration": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "actions": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "string"
             }
           }
         },
@@ -671,7 +689,8 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex format"
           },
           "payload": {
             "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"

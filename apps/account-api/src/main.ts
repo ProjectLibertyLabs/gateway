@@ -44,7 +44,12 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
 
     const configService = app.get<ConfigService>(ConfigService);
     await initSwagger(app, '/docs/swagger');

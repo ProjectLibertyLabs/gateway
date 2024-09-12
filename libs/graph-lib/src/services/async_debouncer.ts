@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';

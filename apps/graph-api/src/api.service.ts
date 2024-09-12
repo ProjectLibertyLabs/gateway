@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as RedisConstants from '#graph-lib/utils/redis';
 import { ConfigService } from '#graph-lib/config';
 import { BlockchainService } from '#graph-lib/blockchain';

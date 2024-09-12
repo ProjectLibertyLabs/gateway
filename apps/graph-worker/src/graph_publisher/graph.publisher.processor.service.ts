@@ -9,7 +9,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { IGraphTxStatus } from '#types/interfaces';
 import { ConfigService } from '#graph-lib/config';

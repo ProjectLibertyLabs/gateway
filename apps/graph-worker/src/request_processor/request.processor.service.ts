@@ -17,7 +17,7 @@ import { Option, Vec } from '@polkadot/types';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '../BaseConsumer';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import fs from 'fs';
 import { BlockchainService } from '#graph-lib/blockchain';
 import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';

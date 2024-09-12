@@ -1,7 +1,7 @@
 import { ConfigService } from '#account-lib/config/config.service';
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 
 @Global()
 @Module({

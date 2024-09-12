@@ -3,7 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionResponse, TransactionData } from '#types/dtos/account';
 

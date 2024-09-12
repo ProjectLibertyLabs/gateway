@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
-import { PUBLISH_QUEUE_NAME, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
+import { ContentPublishingQueues as QueueConstants, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { IPublisherJob } from '../interfaces';
 import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
 import { ConfigService } from '#content-publishing-lib/config';
@@ -45,7 +45,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     @InjectRedis() cacheManager: Redis,
     private readonly configService: ConfigService,
     private readonly capacityService: CapacityCheckerService,
-    @InjectQueue(PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
   ) {
     super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };

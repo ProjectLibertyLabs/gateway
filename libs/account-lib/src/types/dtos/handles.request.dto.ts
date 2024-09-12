@@ -3,7 +3,7 @@ import { IsInt, IsNotEmpty, IsString, Max, Min, MinLength, ValidateNested } from
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { IsAccountIdOrAddress, IsHexValue } from '#account-lib/utils/custom.decorator';
 import { Type } from 'class-transformer';
 
 class HandlePayloadDto {
@@ -20,8 +20,8 @@ class HandlePayloadDto {
 }
 
 export class HandleRequestDto {
-  @ApiProperty({ type: String, description: 'AccountId in hex format' })
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'Account id should be a 32 bytes value in hex format!' })
+  @ApiProperty({ type: String, description: 'AccountId in hex or SS58 format!' })
+  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
   accountId: string;
 
   @ApiProperty()

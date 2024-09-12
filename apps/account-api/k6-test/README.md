@@ -17,7 +17,7 @@ Note that the default iteration count and VU count is 1. So each request in each
 
 ## Running the script
 
-To run the script, you need to have k6 installed. You can download it from [here](https://k6.io/docs/getting-started/installation).
+To run the script, you need to have k6 installed. You can download it from [here](https://grafana.com/docs/k6/latest/set-up/install-k6/).
 
 To run the script, execute the following command:
 

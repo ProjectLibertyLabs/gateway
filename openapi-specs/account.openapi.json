@@ -593,7 +593,7 @@
         "properties": {
           "accountId": {
             "type": "string",
-            "description": "AccountId in hex format"
+            "description": "AccountId in hex or SS58 format!"
           },
           "payload": {
             "$ref": "#/components/schemas/HandlePayloadDto"
@@ -634,7 +634,7 @@
         "properties": {
           "msaOwnerAddress": {
             "type": "string",
-            "description": "msaOwnerAddress in hex format"
+            "description": "msaOwnerAddress in hex or SS58 format!"
           },
           "msaOwnerSignature": {
             "type": "string"
@@ -690,7 +690,7 @@
         "properties": {
           "accountId": {
             "type": "string",
-            "description": "AccountId in hex format"
+            "description": "AccountId in hex or SS58 format"
           },
           "payload": {
             "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"

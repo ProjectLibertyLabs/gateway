@@ -14,7 +14,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '#account-lib/types/enums';
-import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { IsAccountIdOrAddress, IsHexValue } from '#account-lib/utils/custom.decorator';
 import { Type } from 'class-transformer';
 
 // eslint-disable-next-line no-shadow
@@ -69,8 +69,8 @@ export class ItemizedSignaturePayloadDto {
 }
 
 export class AddNewPublicKeyAgreementRequestDto {
-  @ApiProperty({ type: String, description: 'AccountId in hex format' })
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'Account id should be a 32 bytes value in hex format!' })
+  @ApiProperty({ type: String, description: 'AccountId in hex or SS58 format' })
+  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
   accountId: string;
 
   @ApiProperty()

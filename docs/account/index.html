@@ -3145,11 +3145,11 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;AccountId in hex format&lt;/p&gt;
+                              html="&lt;p&gt;AccountId in hex or SS58 format!&lt;/p&gt;
 "
                               class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
                             >
-                              <p>AccountId in hex format</p>
+                              <p>AccountId in hex or SS58 format!</p>
                             </div>
                           </div>
                         </div>
@@ -3374,11 +3374,11 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;AccountId in hex format&lt;/p&gt;
+                              html="&lt;p&gt;AccountId in hex or SS58 format!&lt;/p&gt;
 "
                               class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
                             >
-                              <p>AccountId in hex format</p>
+                              <p>AccountId in hex or SS58 format!</p>
                             </div>
                           </div>
                         </div>
@@ -3805,11 +3805,11 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;msaOwnerAddress in hex format&lt;/p&gt;
+                              html="&lt;p&gt;msaOwnerAddress in hex or SS58 format!&lt;/p&gt;
 "
                               class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
                             >
-                              <p>msaOwnerAddress in hex format</p>
+                              <p>msaOwnerAddress in hex or SS58 format!</p>
                             </div>
                           </div>
                         </div>
@@ -4285,11 +4285,11 @@
                           </div>
                           <div>
                             <div
-                              html="&lt;p&gt;AccountId in hex format&lt;/p&gt;
+                              html="&lt;p&gt;AccountId in hex or SS58 format&lt;/p&gt;
 "
                               class="sc-epnzzT sc-eMwmJz drsioI ewnBNs"
                             >
-                              <p>AccountId in hex format</p>
+                              <p>AccountId in hex or SS58 format</p>
                             </div>
                           </div>
                         </div>
@@ -5057,7 +5057,7 @@
                 HandleRequestDto: {
                   type: 'object',
                   properties: {
-                    accountId: { type: 'string', description: 'AccountId in hex format' },
+                    accountId: { type: 'string', description: 'AccountId in hex or SS58 format!' },
                     payload: { $ref: '#/components/schemas/HandlePayloadDto' },
                     proof: { type: 'string' },
                   },
@@ -5075,7 +5075,7 @@
                 KeysRequestDto: {
                   type: 'object',
                   properties: {
-                    msaOwnerAddress: { type: 'string', description: 'msaOwnerAddress in hex format' },
+                    msaOwnerAddress: { type: 'string', description: 'msaOwnerAddress in hex or SS58 format!' },
                     msaOwnerSignature: { type: 'string' },
                     newKeyOwnerSignature: { type: 'string' },
                     payload: { $ref: '#/components/schemas/KeysRequestPayloadDto' },
@@ -5095,7 +5095,7 @@
                 AddNewPublicKeyAgreementRequestDto: {
                   type: 'object',
                   properties: {
-                    accountId: { type: 'string', description: 'AccountId in hex format' },
+                    accountId: { type: 'string', description: 'AccountId in hex or SS58 format' },
                     payload: { $ref: '#/components/schemas/ItemizedSignaturePayloadDto' },
                     proof: { type: 'string' },
                   },

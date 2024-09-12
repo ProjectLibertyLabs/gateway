@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumberString, Max, Min, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { IsAccountIdOrAddress, IsHexValue } from '#account-lib/utils/custom.decorator';
 import { Type } from 'class-transformer';
 
 class KeysRequestPayloadDto {
@@ -24,8 +24,8 @@ class KeysRequestPayloadDto {
 }
 
 export class KeysRequestDto {
-  @ApiProperty({ type: String, description: 'msaOwnerAddress in hex format' })
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'msaOwnerAddress should be a 32 bytes value in hex format!' })
+  @ApiProperty({ type: String, description: 'msaOwnerAddress in hex or SS58 format!' })
+  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
   msaOwnerAddress: string;
 
   @ApiProperty({ type: String })

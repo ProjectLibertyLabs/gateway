@@ -17,14 +17,15 @@ import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
   ChangeHandlePayloadRequest,
   ChangeHandleRequest,
-  CreateHandleRequest, HandleParam,
+  CreateHandleRequest,
+  HandleParam,
   HandleRequestDto,
 } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
 import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import {MsaIdParam} from "#account-lib/types/dtos/accounts.request.dto";
+import { MsaIdParam } from '#account-lib/types/dtos/accounts.request.dto';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')

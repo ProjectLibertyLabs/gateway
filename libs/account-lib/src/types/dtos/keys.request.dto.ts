@@ -1,14 +1,14 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
-import {IsInt, IsNotEmpty, IsNumberString, Max, Min, ValidateNested} from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumberString, Max, Min, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import {IsHexValue} from "#account-lib/utils/custom.decorator";
-import {Type} from "class-transformer";
+import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { Type } from 'class-transformer';
 
 class KeysRequestPayloadDto {
   @ApiProperty({ type: String, description: 'MSA Id of account' })
-  @IsNumberString( { no_symbols: true })
+  @IsNumberString({ no_symbols: true })
   @IsNotEmpty()
   msaId: string;
 
@@ -29,11 +29,19 @@ export class KeysRequestDto {
   msaOwnerAddress: string;
 
   @ApiProperty({ type: String })
-  @IsHexValue({ minLength: 128, maxLength: 128, message: 'msaOwnerSignature should be a 64 bytes value in hex format!' })
+  @IsHexValue({
+    minLength: 128,
+    maxLength: 128,
+    message: 'msaOwnerSignature should be a 64 bytes value in hex format!',
+  })
   msaOwnerSignature: HexString;
 
   @ApiProperty({ type: String })
-  @IsHexValue({ minLength: 128, maxLength: 128, message: 'newKeyOwnerSignature should be a 64 bytes value in hex format!' })
+  @IsHexValue({
+    minLength: 128,
+    maxLength: 128,
+    message: 'newKeyOwnerSignature should be a 64 bytes value in hex format!',
+  })
   newKeyOwnerSignature: HexString;
 
   @ApiProperty()

@@ -1,22 +1,24 @@
 // eslint-disable-next-line max-classes-per-file
 import {
   ArrayNotEmpty,
-  IsArray, IsEnum,
+  IsArray,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
   IsOptional,
   Max,
-  Min, ValidateIf,
-  ValidateNested
+  Min,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '#account-lib/types/enums';
 import { IsHexValue } from '#account-lib/utils/custom.decorator';
-import {Type} from "class-transformer";
-import {AttachmentType, TagTypeDto} from "#content-publishing-lib/dtos";
+import { Type } from 'class-transformer';
+import { AttachmentType, TagTypeDto } from '#content-publishing-lib/dtos';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {
@@ -41,7 +43,6 @@ export class ItemActionDto {
   @Min(0)
   index?: number;
 }
-
 
 export class ItemizedSignaturePayloadDto {
   @ApiProperty()

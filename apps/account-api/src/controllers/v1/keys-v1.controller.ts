@@ -26,7 +26,7 @@ import {
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
 } from '#account-lib/types/dtos/graphs.request.dto';
-import {MsaIdParam} from "#account-lib/types/dtos/accounts.request.dto";
+import { MsaIdParam } from '#account-lib/types/dtos/accounts.request.dto';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')

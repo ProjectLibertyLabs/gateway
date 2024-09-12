@@ -10,7 +10,7 @@ export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {
-          const pattern =  `^0x[A-F0-9]{${validationOptions.minLength},${validationOptions.maxLength ?? ""}}$`;
+          const pattern = `^0x[A-F0-9]{${validationOptions.minLength},${validationOptions.maxLength ?? ''}}$`;
           console.log(pattern);
           const re = new RegExp(pattern, 'i');
 

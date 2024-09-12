@@ -3,7 +3,7 @@ import { DelegationService } from '#account-api/services/delegation.service';
 import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
 import { Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import {MsaIdParam} from "#account-lib/types/dtos/accounts.request.dto";
+import { MsaIdParam } from '#account-lib/types/dtos/accounts.request.dto';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')

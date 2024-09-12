@@ -1,10 +1,10 @@
 // eslint-disable-next-line max-classes-per-file
-import {IsInt, IsNotEmpty, IsString, Max, Min, MinLength, ValidateNested} from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Max, Min, MinLength, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import {IsHexValue} from "#account-lib/utils/custom.decorator";
-import {Type} from "class-transformer";
+import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { Type } from 'class-transformer';
 
 class HandlePayloadDto {
   @ApiProperty()

@@ -6,7 +6,7 @@ import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.res
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#account-lib/config';
-import {MsaIdParam, PublicKeyParam} from "#account-lib/types/dtos/accounts.request.dto";
+import { MsaIdParam, PublicKeyParam } from '#account-lib/types/dtos/accounts.request.dto';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')

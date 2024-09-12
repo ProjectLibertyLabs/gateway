@@ -9,12 +9,12 @@ import {
   type WalletProxyResponse,
 } from '@projectlibertylabs/siwf';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested} from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import {Type} from "class-transformer";
-import {IsHexValue} from "#account-lib/utils/custom.decorator";
-import {ItemActionDto, ItemizedSignaturePayloadDto} from "#account-lib/types/dtos/graphs.request.dto";
+import { Type } from 'class-transformer';
+import { IsHexValue } from '#account-lib/utils/custom.decorator';
+import { ItemActionDto, ItemizedSignaturePayloadDto } from '#account-lib/types/dtos/graphs.request.dto';
 
 export class ErrorResponseDto implements ErrorResponse {
   @ApiProperty()

@@ -1,7 +1,7 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { ConfigService } from '#account-lib/config/config.service';
-import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
-import { Injectable, Logger } from '@nestjs/common';
+import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class DelegationService {
@@ -35,5 +35,39 @@ export class DelegationService {
       throw new Error('Failed to find the delegation.');
     }
     throw new Error('Invalid msaId.');
+  }
+
+  async getDelegationV2(msaId: string, providerId?: string): Promise<DelegationResponseV2> {
+    const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
+    if (!isValidMsaId) {
+      throw new HttpException('Invalid MSA', HttpStatus.NOT_FOUND);
+    }
+
+    if (providerId) {
+      const isValidProviderId = await this.blockchainService.isValidMsaId(providerId);
+      if (!isValidProviderId) {
+        throw new HttpException('Invalid provider', HttpStatus.NOT_FOUND);
+      }
+
+      const providerInfo = await this.blockchainService.api.query.msa.providerToRegistryEntry(providerId);
+      if (providerInfo.isNone) {
+        throw new HttpException('Supplied ID not a Provider', HttpStatus.BAD_REQUEST);
+      }
+
+      const delegation = await this.blockchainService.getProviderDelegationForMsa(msaId, providerId);
+      if (!delegation) {
+        throw new HttpException('No delegations found', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        msaId,
+        delegations: [delegation],
+      };
+    }
+
+    return {
+      msaId,
+      delegations: await this.blockchainService.getDelegationsForMsa(msaId),
+    };
   }
 }

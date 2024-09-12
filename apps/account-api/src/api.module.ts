@@ -20,6 +20,7 @@ import {
   HealthController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
+import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 
 @Module({
   imports: [
@@ -68,7 +69,14 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
   providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
-  controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],
+  controllers: [
+    AccountsControllerV1,
+    DelegationsControllerV2,
+    DelegationControllerV1,
+    HandlesControllerV1,
+    KeysControllerV1,
+    HealthController,
+  ],
   exports: [],
 })
 export class ApiModule {}

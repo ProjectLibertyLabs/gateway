@@ -1,6 +1,6 @@
 import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '#account-lib/config/config.service';
 import { initSwagger } from '#account-lib/config/swagger_config';
@@ -32,6 +32,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+  });
+
+  // Enable URL-based API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   // Get event emitter & register a shutdown listener

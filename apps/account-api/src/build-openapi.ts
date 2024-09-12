@@ -7,6 +7,12 @@ import '@frequency-chain/api-augment';
 import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 
+// eslint-disable-next-line
+import { ApiModule } from './api.module';
+// eslint-disable-next-line
+import { apiFile, generateSwaggerDoc } from '#account-lib/config/swagger_config';
+import { VersioningType } from '@nestjs/common';
+
 // Mock out required env vars before the module loads
 process.env.REDIS_URL = 'http://127.0.0.1';
 process.env.FREQUENCY_URL = 'http://127.0.0.1';
@@ -18,14 +24,14 @@ process.env.WEBHOOK_BASE_URL = 'http://127.0.0.1';
 process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
 process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
 
-// eslint-disable-next-line
-import { ApiModule } from './api.module';
-// eslint-disable-next-line
-import { apiFile, generateSwaggerDoc } from '#account-lib/config/swagger_config';
-
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error'],
+  });
+
+  // Enable URL-based API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   const document = await generateSwaggerDoc(app);

@@ -2,11 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
 import { SignerPayloadRaw } from '@polkadot/types/types';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { EnqueueService, TransactionType } from '#account-lib';
+import { TransactionType } from '#account-lib';
 import {
   AccountResponseDto,
-  MsaIdResponse,
+  MsaIdResponseDto,
   PublishSIWFSignupRequestDto,
+  RetireMsaPayloadResponseDto,
   TransactionResponse,
   WalletLoginConfigResponseDto,
   WalletLoginRequestDto,
@@ -14,6 +15,7 @@ import {
 } from '#account-lib/types/dtos';
 import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
 import { ConfigService } from '#account-lib/config';
+import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 
 @Injectable()
 export class AccountsService {
@@ -47,7 +49,7 @@ export class AccountsService {
     }
   }
 
-  async getMsaIdForAccountId(accountId: string): Promise<MsaIdResponse | null> {
+  async getMsaIdForAccountId(accountId: string): Promise<MsaIdResponseDto | null> {
     try {
       const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
       if (msaId) {
@@ -115,9 +117,7 @@ export class AccountsService {
     throw new Error('Invalid Sign In With Frequency Request');
   }
 
-  async getRetireMsaPayload(
-    accountId: string,
-  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string } | null> {
+  async getRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto | null> {
     try {
       const msaId = await this.getMsaIdForAccountId(accountId);
       if (msaId) return this.blockchainService.createRetireMsaPayload(accountId);

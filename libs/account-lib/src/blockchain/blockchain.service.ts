@@ -21,7 +21,7 @@ import { HexString } from '@polkadot/util/types';
 import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
-import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto, RetireMsaPayloadResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import {
   PublicKeyAgreementRequestDto,
   ItemActionType,
@@ -534,9 +534,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  public async createRetireMsaPayload(
-    accountId: string,
-  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+  public async createRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto> {
     // Get the transaction for retireMsa, will be used to get the raw payload for signing
     const tx = await this.api.tx.msa.retireMsa();
 

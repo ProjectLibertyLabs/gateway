@@ -3,7 +3,8 @@ import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
 import { u8aToHex } from '@polkadot/util';
-import { SignerResult, Signer, SignerPayloadRaw } from '@polkadot/types/types';
+import { SignerResult, Signer, SignerPayloadRaw, ISubmittableResult } from '@polkadot/types/types';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 
 const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
 
@@ -30,13 +31,12 @@ async function retireMsa() {
    * @param signerAddress - The address of the signer.
    * @returns A promise that resolves to the raw payload for signing.
    */
-  // @ts-ignore
   const getRawPayloadForSigning = async (
-    tx,
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
     signerAddress: string,
-    // eslint-disable-next-line consistent-return
   ): Promise<SignerPayloadRaw> => {
-    let signRaw;
+    const fakeError = '*** Interrupt signing for payload collection ***';
+    let signRaw: SignerPayloadRaw;
     try {
       await tx.signAsync(signerAddress, {
         signer: {
@@ -44,13 +44,18 @@ async function retireMsa() {
             console.log('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
-            throw new Error('Stop here');
+            throw new Error(fakeError);
           },
         },
       });
-    } catch (_e) {
-      return signRaw;
+    } catch (e: any) {
+      // If we encountered an actual error, re-throw it; otherwise
+      // ignore the fake error we threw above
+      if (e?.message !== fakeError) {
+        throw e;
+      }
     }
+    return signRaw;
   };
 
   /**

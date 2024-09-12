@@ -1,5 +1,4 @@
-import { AccountsService } from '#account-api/services/accounts.service';
-import { AccountResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { AccountResponseDto, RetireMsaPayloadResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import { WalletLoginRequestDto } from '#account-lib/types/dtos/wallet.login.request.dto';
 import { WalletLoginConfigResponseDto } from '#account-lib/types/dtos/wallet.login.config.response.dto';
 import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.response.dto';
@@ -9,6 +8,7 @@ import { ConfigService } from '#account-lib/config';
 import { TransactionResponse } from '#account-lib/types/dtos';
 import { RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
 import { SignerPayloadRaw } from '@polkadot/types/types';
+import { AccountsService } from '#account-api/services';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -115,9 +115,7 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an object consisting of SignerPayloadRaw object => {address, data, type} and encodedPayload hex string.
    * @throws An error if the payload fails to be created.
    */
-  async getRetireMsaPayload(
-    @Param('accountId') accountId: string,
-  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+  async getRetireMsaPayload(@Param('accountId') accountId: string): Promise<RetireMsaPayloadResponseDto> {
     try {
       const payload = await this.accountsService.getRetireMsaPayload(accountId);
       if (payload) return payload;
@@ -130,8 +128,8 @@ export class AccountsControllerV1 {
 
   @Post('retireMsa')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Request to retire an Msa Id.' })
-  @ApiCreatedResponse({ description: 'Created and queued request to retire an Msa Id', type: TransactionResponse })
+  @ApiOperation({ summary: 'Request to retire an MSA ID.' })
+  @ApiCreatedResponse({ description: 'Created and queued request to retire an MSA ID', type: TransactionResponse })
   @ApiBody({ type: RetireMsaRequestDto })
   /**
    * Posts the signer and payload, signing the retire msa payload and executing that extrinsic.
@@ -142,7 +140,7 @@ export class AccountsControllerV1 {
     try {
       return this.accountsService.retireMsa(retireMsaRequest);
     } catch (error) {
-      const errorMessage = 'Failed to Sign In With Frequency';
+      const errorMessage = 'Failed to retire MSA ID.';
       this.logger.error(`${errorMessage}: ${error}`);
       throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }

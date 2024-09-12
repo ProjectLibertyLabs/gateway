@@ -16,9 +16,8 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { AccountId } from '@polkadot/types/interfaces';
 import { cryptoWaitReady, decodeAddress } from '@polkadot/util-crypto';
 import log from 'loglevel';
-import { Keyring } from '@polkadot/api';
-import { u8aToHex } from '@polkadot/util';
-import request from 'supertest';
+import { SignerResult, Signer, SignerPayloadRaw, ISubmittableResult } from '@polkadot/types/types';
+import { SubmittableExtrinsic } from '@polkadot/api/types';
 
 export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
@@ -88,3 +87,53 @@ export async function generateAddPublicKeyExtrinsic(
   return () =>
     ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
 }
+
+/**
+ * Retrieves the raw payload for signing a transaction.
+ * Use signAsync to properly encode the payload for signing.
+ * In this case we want the encoded payload for retireMsa, which does not take any arguments.
+ *
+ * @param tx - The transaction object.
+ * @param signerAddress - The address of the signer.
+ * @returns A promise that resolves to the raw payload for signing.
+ */
+export const getRawPayloadForSigning = async (
+  tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+  signerAddress: string,
+): Promise<SignerPayloadRaw> => {
+  const fakeError = '*** Interrupt signing for payload collection ***';
+  let signRaw: SignerPayloadRaw;
+  try {
+    await tx.signAsync(signerAddress, {
+      signer: {
+        signRaw: (raw) => {
+          console.log('signRaw called with [raw]:', raw);
+          signRaw = raw;
+          // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
+          throw new Error(fakeError);
+        },
+      },
+    });
+  } catch (e: any) {
+    // If we encountered an actual error, re-throw it; otherwise
+    // ignore the fake error we threw above
+    if (e?.message !== fakeError) {
+      throw e;
+    }
+  }
+  return signRaw;
+};
+
+/**
+ * Returns a signer function for a given SignerResult.
+ * Signer will be used to pass our verified signature to the transaction without any mutation.
+ *
+ * @param result - The SignerResult object.
+ * @returns A Signer function that will pass the signature to the transaction without mutation.
+ */
+export const getSignerForRawSignature = (result: SignerResult): Signer => ({
+  signRaw: (raw) => {
+    console.log('signRaw function called with [raw]:', raw);
+    return Promise.resolve(result);
+  },
+});

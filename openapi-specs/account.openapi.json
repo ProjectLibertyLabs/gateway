@@ -142,7 +142,7 @@
     "/v1/accounts/retireMsa": {
       "post": {
         "operationId": "AccountsControllerV1_postRetireMsa",
-        "summary": "Request to retire an Msa Id.",
+        "summary": "Request to retire an MSA ID.",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -156,7 +156,7 @@
         },
         "responses": {
           "201": {
-            "description": "Signed in successfully",
+            "description": "Created and queued request to retire an MSA ID",
             "content": {
               "application/json": {
                 "schema": {
@@ -621,26 +621,34 @@
           "referenceId"
         ]
       },
+      "SignerPayloadRaw": {
+        "type": "object",
+        "properties": {}
+      },
+      "Signer": {
+        "type": "object",
+        "properties": {}
+      },
       "RetireMsaRequestDto": {
         "type": "object",
         "properties": {
-          "unsignedPayload": {
-            "type": "object"
+          "signerPayload": {
+            "$ref": "#/components/schemas/SignerPayloadRaw"
           },
           "encodedPayload": {
             "type": "string"
           },
-          "signature": {
-            "type": "string"
+          "signer": {
+            "$ref": "#/components/schemas/Signer"
           },
           "accountId": {
             "type": "string"
           }
         },
         "required": [
-          "unsignedPayload",
+          "signerPayload",
           "encodedPayload",
-          "signature",
+          "signer",
           "accountId"
         ]
       },

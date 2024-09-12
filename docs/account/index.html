@@ -1732,7 +1732,7 @@
                     <label class="sc-bpUCxw iwtEuE -depth2"
                       ><span type="post" class="sc-ehiymJ hkxktA operation-type post">post</span
                       ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
-                        >Request to retire an Msa Id.</span
+                        >Request to retire an MSA ID.</span
                       ></label
                     >
                   </li>
@@ -3095,7 +3095,7 @@
                     href="#tag/v1accounts/operation/AccountsControllerV1_postRetireMsa"
                     aria-label="tag/v1accounts/operation/AccountsControllerV1_postRetireMsa"
                   ></a
-                  >Request to retire an Msa Id.<!-- -->
+                  >Request to retire an MSA ID.<!-- -->
                 </h2>
                 <h5 class="sc-dAlxHm fZUozT">
                   Request Body schema: <span class="sc-cWSIco fpgAnb">application/json</span>
@@ -3105,15 +3105,16 @@
                 <table class="sc-dAbbbq hPLMVw">
                   <tbody>
                     <tr class="">
-                      <td kind="field" title="unsignedPayload" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">unsignedPayload</span>
+                      <td kind="field" title="signerPayload" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">signerPayload</span>
                         <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
                       </td>
                       <td class="sc-fPXMhL kdholP">
                         <div>
                           <div>
                             <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">object</span>
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">object</span
+                            ><span class="sc-NxrBK sc-gmPhgS kMMoBE kkDjeQ"> (<!-- -->SignerPayloadRaw<!-- -->) </span>
                           </div>
                           <div><div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div></div>
                         </div>
@@ -3135,15 +3136,16 @@
                       </td>
                     </tr>
                     <tr class="">
-                      <td kind="field" title="signature" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
-                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">signature</span>
+                      <td kind="field" title="signer" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                        <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">signer</span>
                         <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
                       </td>
                       <td class="sc-fPXMhL kdholP">
                         <div>
                           <div>
                             <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
-                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span>
+                            ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">object</span
+                            ><span class="sc-NxrBK sc-gmPhgS kMMoBE kkDjeQ"> (<!-- -->Signer<!-- -->) </span>
                           </div>
                           <div><div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div></div>
                         </div>
@@ -3182,11 +3184,11 @@
                         <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
                       ><strong class="sc-bVHBsO eBHfiv">201<!-- --> </strong>
                       <div
-                        html="&lt;p&gt;Signed in successfully&lt;/p&gt;
+                        html="&lt;p&gt;Created and queued request to retire an MSA ID&lt;/p&gt;
 "
                         class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
                       >
-                        <p>Signed in successfully</p>
+                        <p>Created and queued request to retire an MSA ID</p>
                       </div>
                     </button>
                   </div>
@@ -3261,7 +3263,7 @@
                                   <ul class="obj collapsible">
                                     <li>
                                       <div class="hoverable">
-                                        <span class="property token string">"unsignedPayload"</span>:
+                                        <span class="property token string">"signerPayload"</span>:
                                         <span class="token punctuation">{ }</span
                                         ><span class="token punctuation">,</span>
                                       </div>
@@ -3275,8 +3277,8 @@
                                     </li>
                                     <li>
                                       <div class="hoverable">
-                                        <span class="property token string">"signature"</span>:
-                                        <span class="token string">&quot;string&quot;</span
+                                        <span class="property token string">"signer"</span>:
+                                        <span class="token punctuation">{ }</span
                                         ><span class="token punctuation">,</span>
                                       </div>
                                     </li>
@@ -5094,7 +5096,7 @@
               '/v1/accounts/retireMsa': {
                 post: {
                   operationId: 'AccountsControllerV1_postRetireMsa',
-                  summary: 'Request to retire an Msa Id.',
+                  summary: 'Request to retire an MSA ID.',
                   parameters: [],
                   requestBody: {
                     required: true,
@@ -5102,7 +5104,7 @@
                   },
                   responses: {
                     201: {
-                      description: 'Signed in successfully',
+                      description: 'Created and queued request to retire an MSA ID',
                       content: { 'application/json': { schema: { $ref: '#/components/schemas/TransactionResponse' } } },
                     },
                   },
@@ -5339,15 +5341,17 @@
                   },
                   required: ['referenceId'],
                 },
+                SignerPayloadRaw: { type: 'object', properties: {} },
+                Signer: { type: 'object', properties: {} },
                 RetireMsaRequestDto: {
                   type: 'object',
                   properties: {
-                    unsignedPayload: { type: 'object' },
+                    signerPayload: { $ref: '#/components/schemas/SignerPayloadRaw' },
                     encodedPayload: { type: 'string' },
-                    signature: { type: 'string' },
+                    signer: { $ref: '#/components/schemas/Signer' },
                     accountId: { type: 'string' },
                   },
-                  required: ['unsignedPayload', 'encodedPayload', 'signature', 'accountId'],
+                  required: ['signerPayload', 'encodedPayload', 'signer', 'accountId'],
                 },
                 TransactionResponse: {
                   type: 'object',

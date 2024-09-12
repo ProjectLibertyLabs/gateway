@@ -1,10 +1,28 @@
+// eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { Signer, SignerPayloadRaw } from '@polkadot/types/types';
+import { SignerPayloadJSON, SignerResult, ISubmittableResult } from '@polkadot/types/types';
+import { H256 } from '@polkadot/types/interfaces';
 import { TransactionType } from '#account-lib';
 
+export class SignerPayloadRaw {
+  address: string;
+
+  data: string;
+
+  type: 'payload' | 'bytes';
+}
+
+export class Signer {
+  signPayload?: (payload: SignerPayloadJSON) => Promise<SignerResult>;
+
+  signRaw?: (raw: SignerPayloadRaw) => Promise<SignerResult>;
+
+  update?: (id: number, status: H256 | ISubmittableResult) => void;
+}
+
 export class RetireMsaRequestDto {
-  @ApiProperty({ type: Object })
+  @ApiProperty({ type: SignerPayloadRaw })
   @IsNotEmpty()
   signerPayload: SignerPayloadRaw;
 
@@ -16,7 +34,7 @@ export class RetireMsaRequestDto {
   @IsNotEmpty()
   signer: Signer;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsNotEmpty()
   accountId: string;
 }

@@ -44,10 +44,6 @@ export namespace ContentPublishingQueues {
    */
   export const ASSET_QUEUE_NAME = 'assetQueue';
   /**
-   * Name of the queue that has all incoming requests
-   */
-  // export const REQUEST_QUEUE_NAME = 'requestQueue';
-  /**
    * Name of the queue that has all individual announcements batched together
    */
   export const BATCH_QUEUE_NAME = 'batchQueue';

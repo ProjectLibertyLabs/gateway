@@ -1,6 +1,6 @@
 # Gateway Architecture
 
-![Gateway Application Microservice Diagram](../gateway_arch-TopLevelServices.drawio.png)
+{{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
 
 ## Authentication
 

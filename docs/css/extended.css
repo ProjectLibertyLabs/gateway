@@ -77,3 +77,13 @@
   border: 2px solid var(--button-nav-hover);
   color: var(--button-nav-fg);
 }
+
+.svg-embed {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.svg-embed svg {
+  width: 100%;
+  height: 100%;
+}

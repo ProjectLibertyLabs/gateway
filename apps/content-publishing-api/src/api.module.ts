@@ -8,7 +8,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
 import { ConfigModule, ConfigService } from '#content-publishing-lib/config';
 import { QueuesModule } from '#content-publishing-lib/queues';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { ApiService } from './api.service';
 import { HealthController } from './controllers/health.controller';

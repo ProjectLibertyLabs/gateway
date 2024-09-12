@@ -5,7 +5,7 @@ import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { AppConfigService } from '../config/config.service';
 import { calculateJobId } from '#types/constants';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';

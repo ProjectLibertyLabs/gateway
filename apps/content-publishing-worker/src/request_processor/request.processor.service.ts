@@ -4,13 +4,13 @@ import { DelayedError, Job } from 'bullmq';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { IRequestJob } from '#types/interfaces/content-publishing';
-import { REQUEST_QUEUE_NAME } from '#types/constants';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 
 @Injectable()
-@Processor(REQUEST_QUEUE_NAME)
+@Processor(QueueConstants.REQUEST_QUEUE_NAME)
 export class RequestProcessorService extends BaseConsumer {
   constructor(
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,

@@ -15,7 +15,7 @@ import {
   AttachmentType,
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
-import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#types/constants';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
 import {
   getAssetMetadataKey,
@@ -30,8 +30,8 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(ASSET_QUEUE_NAME) private assetQueue: Queue,
+    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
   ) {
     this.logger = new Logger(this.constructor.name);
   }

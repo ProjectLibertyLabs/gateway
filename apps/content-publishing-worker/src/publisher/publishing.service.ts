@@ -9,10 +9,10 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import {
+  ContentPublishingQueues as QueueConstants,
   CAPACITY_EPOCH_TIMEOUT_NAME,
   SECONDS_PER_BLOCK,
   TXN_WATCH_LIST_KEY,
-  PUBLISH_QUEUE_NAME,
 } from '#types/constants';
 import { BaseConsumer } from '../BaseConsumer';
 import { IPublisherJob } from '../interfaces';
@@ -21,13 +21,13 @@ import { IContentTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
 
 @Injectable()
-@Processor(PUBLISH_QUEUE_NAME, {
+@Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,

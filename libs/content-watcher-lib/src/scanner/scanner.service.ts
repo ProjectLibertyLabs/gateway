@@ -10,7 +10,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
 import { AppConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';

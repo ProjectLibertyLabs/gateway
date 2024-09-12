@@ -4,7 +4,12 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ScannerService } from '#content-watcher-lib/scanner/scanner.service';
-import { calculateJobId, EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY, REQUEST_QUEUE_NAME } from '#types/constants';
+import {
+  calculateJobId,
+  EVENTS_TO_WATCH_KEY,
+  REGISTERED_WEBHOOK_KEY,
+  ContentWatcherQueues as QueueConstants,
+} from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { IWebhookRegistration } from '#types/dtos/content-watcher/subscription.webhook.dto';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
@@ -18,7 +23,7 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
     this.logger = new Logger(this.constructor.name);

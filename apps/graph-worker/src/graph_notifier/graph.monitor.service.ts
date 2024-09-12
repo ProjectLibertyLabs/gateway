@@ -15,7 +15,7 @@ import { HexString } from '@polkadot/util/types';
 import { IGraphTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
 import * as RedisConstants from '#graph-lib/utils/redis';
-import * as QueueConstants from '#types/constants/queue.constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as GraphServiceWebhook from '#graph-lib/types/webhook-types';
 import axios from 'axios';
 import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';

@@ -42,14 +42,7 @@ import {
   ProfileAnnouncement,
   createProfile,
 } from '#types/interfaces/content-publishing';
-import {
-  BROADCAST_QUEUE_NAME,
-  REPLY_QUEUE_NAME,
-  REACTION_QUEUE_NAME,
-  UPDATE_QUEUE_NAME,
-  PROFILE_QUEUE_NAME,
-  TOMBSTONE_QUEUE_NAME,
-} from '#types/constants';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
@@ -59,12 +52,12 @@ export class DsnpAnnouncementProcessor {
   private logger: Logger;
 
   constructor(
-    @InjectQueue(BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
-    @InjectQueue(REPLY_QUEUE_NAME) private replyQueue: Queue,
-    @InjectQueue(REACTION_QUEUE_NAME) private reactionQueue: Queue,
-    @InjectQueue(UPDATE_QUEUE_NAME) private updateQueue: Queue,
-    @InjectQueue(PROFILE_QUEUE_NAME) private profileQueue: Queue,
-    @InjectQueue(TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
+    @InjectQueue(QueueConstants.BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
+    @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
+    @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
+    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
+    @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {

@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { Codec, ISubmittableResult, Signer } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
@@ -109,6 +109,14 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
+        case TransactionType.REVOKE_DELEGATION: {
+          const trx = await this.blockchainService.revokeDelegationByDelegator(job.data.providerId);
+          targetEvent = { section: 'msa', method: 'DelegationRevoked' };
+          this.logger.verbose(job.data, 'REMOVE: process::REVOKE_DELEGATION: job.data');
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signer);
+          this.logger.debug(`tx: ${tx}`);
+          break;
+        }
         default: {
           throw new Error(`Invalid job type.`);
         }
@@ -192,6 +200,26 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       return [ext.extrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
+      throw error;
+    }
+  }
+
+  async processProxyTxn(
+    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    accountId: string,
+    signer: Signer,
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    try {
+      const { nonce } = await this.blockchainService.api.query.system.account(accountId);
+      const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
+      const txHash = (await submittableExtrinsic.send()).toHex();
+
+      if (!txHash) throw new Error('Tx hash is undefined');
+
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return [submittableExtrinsic, txHash];
+    } catch (error: any) {
+      this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
     }
   }

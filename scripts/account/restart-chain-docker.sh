@@ -6,10 +6,10 @@ docker compose down frequency redis account-service-api account-service-worker
 
 # Remove specified volumes
 echo "Removing specified volumes..."
-docker volume rm gateway_redis_data
-docker volume rm gateway_chainstorage
-docker volume rm gateway_acccount_api_node_cache
-docker volume rm gateway_account_worker_node_cache
+docker volume rm gateway_redis_data -f
+docker volume rm gateway_chainstorage -f
+docker volume rm gateway_acccount_api_node_cache -f
+docker volume rm gateway_account_worker_node_cache -f
 
 # Start specific services in detached mode
 echo "Starting redis and frequency instant sealing services..."

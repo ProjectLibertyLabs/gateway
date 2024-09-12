@@ -3,7 +3,7 @@ import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '../enums';
-import { Signer, SignerPayloadRaw } from '@polkadot/types/types';
+import { ISubmittableResult, Signer, SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types';
 
 class RevokeDelegationPayloadDto {
   @ApiProperty()
@@ -70,11 +70,29 @@ export class RevokeDelegationPayloadResponseDto {
   @ApiProperty()
   @IsNotEmpty()
   encodedPayload: HexString;
-
-  // @ApiProperty()
-  // @IsNotEmpty()
-  // signer: Signer;
 }
-export type RevokeDelegationRequest = RevokeDelegationPayloadResponseDto & {
+
+export class RevokeDelegationPayloadRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  accountId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  providerId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  extSignerPayloadRaw: ExtrinsicSignerPayloadRaw;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  encodedPayload: HexString;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  signer: Signer;
+}
+export type PublishRevokeDelegationRequestDto = RevokeDelegationPayloadRequestDto & {
   type: TransactionType.REVOKE_DELEGATION;
 };

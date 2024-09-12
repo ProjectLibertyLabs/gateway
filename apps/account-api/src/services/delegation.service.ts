@@ -1,11 +1,17 @@
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { ConfigService } from '#account-lib/config/config.service';
+import { TransactionResponse } from '#account-lib/types/dtos';
 import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
-import { RevokeDelegationPayloadResponseDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
+import {
+  PublishRevokeDelegationRequestDto,
+  RevokeDelegationPayloadRequestDto,
+  RevokeDelegationPayloadResponseDto,
+} from '#account-lib/types/dtos/revokeDelegation.request.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { HexString } from '@polkadot/util/types';
-// import { EnqueueService, SECONDS_PER_BLOCK, TransactionType } from '#account-libs/common/src';
+import { TransactionType } from '#account-lib';
+import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 
 @Injectable()
 export class DelegationService {
@@ -14,10 +20,7 @@ export class DelegationService {
   constructor(
     private configService: ConfigService,
     private blockchainService: BlockchainService,
-    // REMOVE: is this causing the redis dependency?
-    // Seems like it is, but why is that a problem?
-    // Doesn't enqueue service work elsewhere in the api app?
-    // private enqueueService: EnqueueService,
+    private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -45,16 +48,10 @@ export class DelegationService {
     throw new Error('Invalid msaId.');
   }
 
-  async getExpiration(): Promise<number> {
-    const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-    // standard expiration in SIWF is 10 minutes
-    return lastFinalizedBlockNumber + BlockchainConstants.BLOCK_EXPIRATION_SECS / BlockchainConstants.SECONDS_PER_BLOCK;
-  }
-
-  // encodePayload(payload: RevokeDelegationPayloadRequest['payload']) {
-  //   return this.blockchainService.createType('Compact<u64>', {
-  //     providerMsaId: payload.providerId,
-  //   });
+  // async getExpiration(): Promise<number> {
+  //   const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+  //   // standard expiration in SIWF is 10 minutes
+  //   return lastFinalizedBlockNumber + BlockchainConstants.BLOCK_EXPIRATION_SECS / BlockchainConstants.SECONDS_PER_BLOCK;
   // }
 
   async getRevokeDelegationPayload(accountId: string, providerId: string): Promise<RevokeDelegationPayloadResponseDto> {
@@ -75,24 +72,17 @@ export class DelegationService {
     return revokeDelegationPayloadResponseDto;
   }
 
-  // async retireMsa(retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
-  //   try {
-  //     const referenceId = await this.enqueueService.enqueueRequest<PublishRetireMsaRequestDto>({
-  //       ...retireMsaRequest,
-  //       type: TransactionType.RETIRE_MSA,
-  //     });
-  //     return referenceId;
-  //   } catch (e: any) {
-  //     this.logger.error(`Failed to enqueue retire msa request: ${e.toString()}`);
-  //     throw new Error('Failed to enqueue retire msa request');
-  //   }
-  // }
-  // async postRevokeDelegation(@Body() revokeDelegationRequest: RevokeDelegationRequestDto): Promise<TransactionResponse> {
-  //   try {
-  //     const response = await this.enqueueService.enqueueRequest<RevokeDelegationRequest>({
-  //       ...revokeDelegationRequest
-  //       type: TransactionType.REVOKE_DELEGATION,
-  //     })
-  //   }
-  // }
+  async postRevokeDelegation(revokeDelegationRequest: RevokeDelegationPayloadRequestDto): Promise<TransactionResponse> {
+    try {
+      this.logger.verbose(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
+      const referenceId = await this.enqueueService.enqueueRequest<PublishRevokeDelegationRequestDto>({
+        ...revokeDelegationRequest,
+        type: TransactionType.REVOKE_DELEGATION,
+      });
+      return referenceId;
+    } catch (e: any) {
+      this.logger.error(`Failed to enqueue revokeDelegation request: ${e.toString()}`);
+      throw new Error('Failed to enqueue revokeDelegation request');
+    }
+  }
 }

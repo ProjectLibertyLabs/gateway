@@ -1,7 +1,9 @@
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { DelegationService } from '#account-api/services';
+import { TransactionResponse } from '#account-lib/types/dtos';
 import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -13,8 +15,11 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { RevokeDelegationPayloadResponseDto } from 'libs/account-lib/src/types/dtos/revokeDelegation.request.dto';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  RevokeDelegationPayloadRequestDto,
+  RevokeDelegationPayloadResponseDto,
+} from 'libs/account-lib/src/types/dtos/revokeDelegation.request.dto';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
@@ -76,17 +81,22 @@ export class DelegationControllerV1 {
   }
 
   // Pass through the revoke delegation request to the blockchain
-  // @Post('revokeDelegation')
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: 'Revoke a delegation' })
-  // @ApiOkResponse({ description: 'Successfully revoked the delegation' })
-  // async postRevokeDelegation(encodedPayload: RevokeDelegationPayloadRequest): Promise<void> {
-  //   try {
-  //     // TODO: Implement the postRevokeDelegation method in the DelegationService
-  //     // await this.delegationService.postRevokeDelegation(encodedPayload);
-  //   } catch (error) {
-  //     this.logger.error(error);
-  //     throw new HttpException('Failed to revoke the delegation', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
+  @Post('revokeDelegation')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Request to revoke a delegation' })
+  @ApiCreatedResponse({ description: 'Created and queued request to revoke a delegation' })
+  @ApiBody({ type: RevokeDelegationPayloadRequestDto })
+  async postRevokeDelegation(
+    @Body()
+    revokeDelegationRequest: RevokeDelegationPayloadRequestDto,
+  ): Promise<TransactionResponse> {
+    try {
+      this.logger.verbose(revokeDelegationRequest, 'RevokeDelegationPayloadRequest');
+      this.logger.verbose(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
+      return this.delegationService.postRevokeDelegation(revokeDelegationRequest);
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException('Failed to revoke the delegation', HttpStatus.BAD_REQUEST);
+    }
+  }
 }

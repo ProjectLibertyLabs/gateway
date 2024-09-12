@@ -171,6 +171,31 @@
         ]
       }
     },
+    "/v1/delegation/revokeDelegation": {
+      "post": {
+        "operationId": "DelegationControllerV1_postRevokeDelegation",
+        "summary": "Request to revoke a delegation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeDelegationPayloadRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created and queued request to revoke a delegation"
+          }
+        },
+        "tags": [
+          "v1/delegation"
+        ]
+      }
+    },
     "/v1/handles": {
       "post": {
         "operationId": "HandlesControllerV1_createHandle",
@@ -595,6 +620,37 @@
         },
         "required": [
           "referenceId"
+        ]
+      },
+      "ExtrinsicSignerPayloadRaw": {
+        "type": "object",
+        "properties": {}
+      },
+      "RevokeDelegationPayloadRequestDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "extSignerPayloadRaw": {
+            "$ref": "#/components/schemas/ExtrinsicSignerPayloadRaw"
+          },
+          "encodedPayload": {
+            "type": "object"
+          },
+          "signer": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "accountId",
+          "providerId",
+          "extSignerPayloadRaw",
+          "encodedPayload",
+          "signer"
         ]
       },
       "HandlePayloadDto": {

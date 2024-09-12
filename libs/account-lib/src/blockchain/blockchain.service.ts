@@ -5,10 +5,9 @@ import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
-  CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
@@ -281,6 +280,67 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       expiration,
     });
   }
+
+  // eslint-disable-next-line consistent-return, class-methods-use-this
+  public async getRawPayloadForSigning(
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    signerAddress: string,
+    // eslint-disable-next-line consistent-return
+  ): Promise<SignerPayloadRaw> {
+    let signRaw;
+    try {
+      await tx.signAsync(signerAddress, {
+        signer: {
+          signRaw: (raw) => {
+            console.log('signRaw called with [raw]:', raw);
+            signRaw = raw;
+            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
+            throw new Error('Stop here');
+          },
+        },
+      });
+    } catch (_e) {
+      return signRaw;
+    }
+  }
+
+  public async createRevokedDelegationPayload(
+    accountId: string,
+    providerId: string,
+  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+    // Get the transaction for revokeDelegation, will be used to get the raw payload for signing
+    const tx = this.api.tx.msa.revokeDelegationByDelegator(providerId);
+
+    // payload contains the signer address, the encoded data/payload for revokeDelegationByDelegator,
+    // and the type of the payload
+    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    this.logger.verbose('REMOVE: payload: SignerPayloadRaw: ', signerPayload);
+
+    // encoded payload
+    const { data } = signerPayload;
+
+    return {
+      signerPayload,
+      encodedPayload: data,
+    };
+  }
+
+  public async revokeDelegationByDelegator(
+    providerId: string,
+  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+    // REMOVE: Is this function async?
+    return this.api.tx.msa.revokeDelegationByDelegator(providerId);
+  }
+
+  // public async revokeDelegationByDelegator(jobData: TransactionData<RevokeDelegationRequestDto>) {
+  //   this.logger.warn(`REMOVE:revokeDelegationPayload: ${jobData.payload}`);
+
+  //   const revokeDelegationProof: Sr25519Signature = { Sr25519: jobData.proof };
+  //   this.logger.warn(`REMOVE:revokeDelegationProof: ${JSON.stringify(revokeDelegationProof)}`);
+
+  //   this.logger.warn(`REMOVE:revokeDelegationProviderId: ${jobData.providerId}`);
+  //   return this.api.tx.msa.revokeDelegationByDelegator(jobData.providerId);
+  // }
 
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
     const actions = payload.actions.map((a) => {

@@ -6,12 +6,12 @@ docker compose down frequency redis
 
 # Remove specified volumes
 echo "Removing specified volumes..."
-docker volume rm gateway_redis_data
-docker volume rm gateway_chainstorage
+docker volume rm gateway_redis_data -f
+docker volume rm gateway_chainstorage -f
 
 # Start specific services in detached mode
 echo "Starting redis and frequency instant sealing services..."
-docker compose -f docker-compose-e2e.yaml --profile e2e up -d
+docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile e2e up -d
 
 # Wait for 15 seconds
 echo "Waiting 15 seconds for Frequency to be ready..."

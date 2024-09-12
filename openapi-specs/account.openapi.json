@@ -139,6 +139,38 @@
         ]
       }
     },
+    "/v1/delegation/revokeDelegation/{accountId}/{providerId}": {
+      "get": {
+        "operationId": "DelegationControllerV1_getRevokeDelegationPayload",
+        "summary": "Get a properly encoded RevokeDelegationPayload that can be signed",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returned an encoded RevokeDelegationPayload for signing"
+          }
+        },
+        "tags": [
+          "v1/delegation"
+        ]
+      }
+    },
     "/v1/handles": {
       "post": {
         "operationId": "HandlesControllerV1_createHandle",

@@ -1,5 +1,10 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
+interface IsHexValueValidationOption extends ValidationOptions {
+  minLength: number;
+  maxLength?: number | undefined;
+}
+
 export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
   // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
@@ -29,9 +34,4 @@ export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
       },
     });
   };
-}
-
-interface IsHexValueValidationOption extends ValidationOptions {
-  minLength: number;
-  maxLength?: number | undefined;
 }

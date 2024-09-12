@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsNumberString, Min } from 'class-validator';
+// eslint-disable-next-line max-classes-per-file
+import { IsNotEmpty, IsNumberString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsHexValue } from '#account-lib/utils/custom.decorator';
 

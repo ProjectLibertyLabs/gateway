@@ -5,9 +5,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsNumberString,
-  IsOptional,
   Max,
   Min,
   ValidateIf,
@@ -18,7 +16,6 @@ import { HexString } from '@polkadot/util/types';
 import { TransactionType } from '#account-lib/types/enums';
 import { IsHexValue } from '#account-lib/utils/custom.decorator';
 import { Type } from 'class-transformer';
-import { AttachmentType, TagTypeDto } from '#content-publishing-lib/dtos';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {

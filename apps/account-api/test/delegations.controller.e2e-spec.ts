@@ -4,9 +4,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { ChainUser, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
+import { ChainUser, ExtrinsicHelper, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 
 let users: ChainUser[];
 let provider: ChainUser;
@@ -16,11 +17,13 @@ let publicKeySchema: Schema | undefined;
 let publicFollowsSchema: Schema | undefined;
 let privateFollowsSchema: Schema | undefined;
 let privateConnectionsSchema: Schema | undefined;
+let httpServer: any;
 
 describe('Delegation Controller', () => {
   let app: INestApplication;
   let module: TestingModule;
-  beforeEach(async () => {
+
+  beforeAll(async () => {
     ({ maxMsaId, provider, users } = await setupProviderAndUsers());
     const builder = new SchemaBuilder().withAutoDetectExistingSchema();
     updateSchema = await builder.withName('dsnp', 'update').resolve();
@@ -41,11 +44,33 @@ describe('Delegation Controller', () => {
     app.useGlobalPipes(new ValidationPipe());
     app.enableShutdownHooks();
     await app.init();
+
+    httpServer = app.getHttpServer();
+
+    // Redis timeout keeping test suite alive for too long; disable
+    const cacheMonitor = app.get<CacheMonitorService>(CacheMonitorService);
+    cacheMonitor.startConnectionTimer = jest.fn();
+  });
+
+  afterAll(async () => {
+    // Need a dummy task here to give Jest time to register things before shutting down
+    await new Promise<void>((resolve) => {
+      setImmediate(() => resolve());
+    });
+
+    await ExtrinsicHelper.disconnect();
+    await app.close();
+    await httpServer.close();
+
+    // Wait for some pending async stuff to finish
+    await new Promise<void>((resolve) => {
+      setTimeout(() => resolve(), 1000);
+    });
   });
 
   it('(GET) /delegation/:msaId with invalid msaId', async () => {
     const invalidMsaId = BigInt(maxMsaId) + 1000n;
-    await request(app.getHttpServer()).get(`/v1/delegation/${invalidMsaId.toString()}`).expect(400).expect({
+    await request(httpServer).get(`/v1/delegation/${invalidMsaId.toString()}`).expect(400).expect({
       statusCode: 400,
       message: 'Failed to find the delegation',
     });
@@ -53,7 +78,7 @@ describe('Delegation Controller', () => {
 
   it('(GET) /delegation/:msaId with a valid MSA that has no delegations', async () => {
     const validMsaId = provider.msaId?.toString(); // use provider's MSA; will have no delegations
-    await request(app.getHttpServer()).get(`/v1/delegation/${validMsaId}`).expect(400).expect({
+    await request(httpServer).get(`/v1/delegation/${validMsaId}`).expect(400).expect({
       statusCode: 400,
       message: 'Failed to find the delegation',
     });
@@ -61,7 +86,7 @@ describe('Delegation Controller', () => {
 
   it('(GET) /delegation/:msaId with valid msaId that has delegations', async () => {
     const validMsaId = users[0]?.msaId?.toString();
-    await request(app.getHttpServer())
+    await request(httpServer)
       .get(`/v1/delegation/${validMsaId}`)
       .expect(200)
       .expect({

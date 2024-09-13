@@ -12,3 +12,4 @@ services/*/docs/index.html
 **/metadata.ts
 openapi-specs/*
 **/target/**
+jest.config.json

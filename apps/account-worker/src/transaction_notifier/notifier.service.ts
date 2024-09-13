@@ -187,6 +187,20 @@ export class TxnNotifierService
                 );
               }
               break;
+            case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
+              {
+                const itemizedPageUpdated =
+                  this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
+
+                webhookResponse = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
+                  schemaId: itemizedPageUpdated.schemaId,
+                });
+
+                this.logger.log(
+                  `Keys: Added the graph key msaId ${webhookResponse.msaId} and schemaId ${webhookResponse.schemaId}.`,
+                );
+              }
+              break;
             default:
               this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
               break;

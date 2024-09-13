@@ -43,6 +43,7 @@ x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
   WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
+  GRAPH_ENVIRONMENT_TYPE: Mainnet
 
 services:
   redis:

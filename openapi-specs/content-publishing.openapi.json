@@ -29,7 +29,9 @@
             }
           }
         },
-        "tags": ["v1/asset"]
+        "tags": [
+          "v1/asset"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/broadcast": {
@@ -68,7 +70,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/reply": {
@@ -107,7 +111,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}/reaction": {
@@ -146,7 +152,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/content/{userDsnpId}": {
@@ -185,7 +193,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       },
       "delete": {
         "operationId": "ContentControllerV1_delete",
@@ -222,7 +232,9 @@
             }
           }
         },
-        "tags": ["v1/content"]
+        "tags": [
+          "v1/content"
+        ]
       }
     },
     "/v1/profile/{userDsnpId}": {
@@ -261,7 +273,9 @@
             }
           }
         },
-        "tags": ["v1/profile"]
+        "tags": [
+          "v1/profile"
+        ]
       }
     },
     "/healthz": {
@@ -274,7 +288,9 @@
             "description": "Service is healthy"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/livez": {
@@ -287,7 +303,9 @@
             "description": "Service is live"
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/readyz": {
@@ -300,92 +318,9 @@
             "description": "Service is ready"
           }
         },
-        "tags": ["health"]
-      }
-    },
-    "/dev/request/{jobId}": {
-      "get": {
-        "operationId": "DevelopmentControllerV1_requestJob",
-        "summary": "Get a Job given a jobId",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "jobId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["dev"]
-      }
-    },
-    "/dev/asset/{assetId}": {
-      "get": {
-        "operationId": "DevelopmentControllerV1_getAsset",
-        "summary": "Get an Asset given an assetId",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "assetId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "2XX": {
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            },
-            "description": ""
-          }
-        },
-        "tags": ["dev"]
-      }
-    },
-    "/dev/dummy/announcement/{queueType}/{count}": {
-      "post": {
-        "operationId": "DevelopmentControllerV1_populate",
-        "summary": "Create dummy announcement data",
-        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
-        "parameters": [
-          {
-            "name": "queueType",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "count",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": ["dev"]
+        "tags": [
+          "health"
+        ]
       }
     }
   },
@@ -410,7 +345,9 @@
             }
           }
         },
-        "required": ["files"]
+        "required": [
+          "files"
+        ]
       },
       "UploadResponseDto": {
         "type": "object",
@@ -422,7 +359,9 @@
             }
           }
         },
-        "required": ["assetIds"]
+        "required": [
+          "assetIds"
+        ]
       },
       "AssetReferenceDto": {
         "type": "object",
@@ -444,7 +383,9 @@
             "pattern": "DURATION_REGEX"
           }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
       "AssetDto": {
         "type": "object",
@@ -470,7 +411,10 @@
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["mention", "hashtag"]
+            "enum": [
+              "mention",
+              "hashtag"
+            ]
           },
           "name": {
             "type": "string",
@@ -480,7 +424,9 @@
             "type": "string"
           }
         },
-        "required": ["type"]
+        "required": [
+          "type"
+        ]
       },
       "LocationDto": {
         "type": "object",
@@ -509,10 +455,19 @@
           },
           "units": {
             "type": "string",
-            "enum": ["cm", "m", "km", "inches", "feet", "miles"]
+            "enum": [
+              "cm",
+              "m",
+              "km",
+              "inches",
+              "feet",
+              "miles"
+            ]
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "NoteActivityDto": {
         "type": "object",
@@ -543,7 +498,10 @@
             "$ref": "#/components/schemas/LocationDto"
           }
         },
-        "required": ["content", "published"]
+        "required": [
+          "content",
+          "published"
+        ]
       },
       "BroadcastDto": {
         "type": "object",
@@ -552,7 +510,9 @@
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["content"]
+        "required": [
+          "content"
+        ]
       },
       "AnnouncementResponseDto": {
         "type": "object",
@@ -561,7 +521,9 @@
             "type": "string"
           }
         },
-        "required": ["referenceId"]
+        "required": [
+          "referenceId"
+        ]
       },
       "ReplyDto": {
         "type": "object",
@@ -573,7 +535,10 @@
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["inReplyTo", "content"]
+        "required": [
+          "inReplyTo",
+          "content"
+        ]
       },
       "ReactionDto": {
         "type": "object",
@@ -592,7 +557,11 @@
             "type": "string"
           }
         },
-        "required": ["emoji", "apply", "inReplyTo"]
+        "required": [
+          "emoji",
+          "apply",
+          "inReplyTo"
+        ]
       },
       "UpdateDto": {
         "type": "object",
@@ -602,13 +571,20 @@
           },
           "targetAnnouncementType": {
             "type": "string",
-            "enum": ["broadcast", "reply"]
+            "enum": [
+              "broadcast",
+              "reply"
+            ]
           },
           "content": {
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
-        "required": ["targetContentHash", "targetAnnouncementType", "content"]
+        "required": [
+          "targetContentHash",
+          "targetAnnouncementType",
+          "content"
+        ]
       },
       "TombstoneDto": {
         "type": "object",
@@ -618,10 +594,16 @@
           },
           "targetAnnouncementType": {
             "type": "string",
-            "enum": ["broadcast", "reply"]
+            "enum": [
+              "broadcast",
+              "reply"
+            ]
           }
         },
-        "required": ["targetContentHash", "targetAnnouncementType"]
+        "required": [
+          "targetContentHash",
+          "targetAnnouncementType"
+        ]
       },
       "ProfileActivityDto": {
         "type": "object",
@@ -659,7 +641,9 @@
             "$ref": "#/components/schemas/ProfileActivityDto"
           }
         },
-        "required": ["profile"]
+        "required": [
+          "profile"
+        ]
       }
     }
   }

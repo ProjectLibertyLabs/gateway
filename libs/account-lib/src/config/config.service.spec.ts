@@ -38,6 +38,7 @@ describe('AccountServiceConfig', () => {
     FREQUENCY_URL: undefined,
     FREQUENCY_HTTP_URL: undefined,
     API_PORT: undefined,
+    GRAPH_ENVIRONMENT_TYPE: undefined,
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
     TRUST_UNFINALIZED_BLOCKS: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
@@ -95,6 +96,11 @@ describe('AccountServiceConfig', () => {
     it('invalid api port should fail', async () => {
       const { API_PORT: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid graph environment type should fail', async () => {
+      const { GRAPH_ENVIRONMENT_TYPE: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ GRAPH_ENVIRONMENT_TYPE: 'invalid', ...env })).rejects.toBeDefined();
     });
 
     it('invalid scan interval should fail', async () => {
@@ -168,6 +174,10 @@ describe('AccountServiceConfig', () => {
       expect(accountServiceConfig.blockchainScanIntervalSeconds).toStrictEqual(
         parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS as string, 10),
       );
+    });
+
+    it('should get graph environment type', () => {
+      expect(accountServiceConfig.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
     });
 
     it('should get finalized blocks trust parameter', () => {

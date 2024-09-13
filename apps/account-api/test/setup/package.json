@@ -7,7 +7,7 @@
     "main": "tsx index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module",
+  "type": "commonjs",
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
@@ -18,7 +18,6 @@
     "@polkadot/types": "^10.13.1",
     "@polkadot/util": "^12.6.2",
     "@polkadot/util-crypto": "^12.6.2",
-    "@polkadot/wasm-crypto": "^7.3.2",
     "@projectlibertylabs/frequency-scenario-template": "^1.1.6",
     "loglevel": "^1.9.1"
   },

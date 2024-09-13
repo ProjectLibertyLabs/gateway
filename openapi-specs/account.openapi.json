@@ -87,7 +87,7 @@
     "/v1/accounts/account/{accountId}": {
       "get": {
         "operationId": "AccountsControllerV1_getAccountForAccountId",
-        "summary": "Fetch an account given a public key",
+        "summary": "Fetch an account given an Account Id",
         "parameters": [
           {
             "name": "accountId",
@@ -621,35 +621,27 @@
           "referenceId"
         ]
       },
-      "SignerPayloadRaw": {
-        "type": "object",
-        "properties": {}
-      },
-      "Signer": {
-        "type": "object",
-        "properties": {}
-      },
       "RetireMsaRequestDto": {
         "type": "object",
         "properties": {
-          "signerPayload": {
-            "$ref": "#/components/schemas/SignerPayloadRaw"
-          },
-          "encodedPayload": {
+          "encodedExtrinsic": {
             "type": "string"
           },
-          "signer": {
-            "$ref": "#/components/schemas/Signer"
+          "payloadToSign": {
+            "type": "string"
           },
           "accountId": {
+            "type": "string"
+          },
+          "signature": {
             "type": "string"
           }
         },
         "required": [
-          "signerPayload",
-          "encodedPayload",
-          "signer",
-          "accountId"
+          "encodedExtrinsic",
+          "payloadToSign",
+          "accountId",
+          "signature"
         ]
       },
       "TransactionResponse": {

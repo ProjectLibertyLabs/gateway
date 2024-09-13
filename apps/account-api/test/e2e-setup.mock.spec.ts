@@ -123,17 +123,3 @@ export const getRawPayloadForSigning = async (
   }
   return signRaw;
 };
-
-/**
- * Returns a signer function for a given SignerResult.
- * Signer will be used to pass our verified signature to the transaction without any mutation.
- *
- * @param result - The SignerResult object.
- * @returns A Signer function that will pass the signature to the transaction without mutation.
- */
-export const getSignerForRawSignature = (result: SignerResult): Signer => ({
-  signRaw: (raw) => {
-    console.log('signRaw function called with [raw]:', raw);
-    return Promise.resolve(result);
-  },
-});

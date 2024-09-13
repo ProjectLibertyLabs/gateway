@@ -1,38 +1,15 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { SignerPayloadJSON, SignerResult, ISubmittableResult } from '@polkadot/types/types';
-import { H256 } from '@polkadot/types/interfaces';
+import { IsHexadecimal, IsNotEmpty } from 'class-validator';
 import { TransactionType } from '#account-lib';
+import { RetireMsaPayloadResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { HexString } from '@polkadot/util/types';
 
-export class SignerPayloadRaw {
-  address: string;
-
-  data: string;
-
-  type: 'payload' | 'bytes';
-}
-
-export class Signer {
-  signPayload?: (payload: SignerPayloadJSON) => Promise<SignerResult>;
-
-  signRaw?: (raw: SignerPayloadRaw) => Promise<SignerResult>;
-
-  update?: (id: number, status: H256 | ISubmittableResult) => void;
-}
-
-export class RetireMsaRequestDto {
-  @ApiProperty({ type: SignerPayloadRaw })
-  @IsNotEmpty()
-  signerPayload: SignerPayloadRaw;
-
+export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
   @ApiProperty({ type: String })
   @IsNotEmpty()
-  encodedPayload: string;
-
-  @ApiProperty({ type: Object })
-  @IsNotEmpty()
-  signer: Signer;
+  @IsHexadecimal()
+  signature: HexString;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()

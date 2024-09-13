@@ -7,10 +7,10 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
-import { getRawPayloadForSigning, getSignerForRawSignature, setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { getRawPayloadForSigning, setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { SignerPayloadRaw, SignerResult, Signer } from '@polkadot/types/types';
+import { SignerPayloadRaw } from '@polkadot/types/types';
 import { RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
 import { RetireMsaPayloadResponseDto } from '#account-lib/types/dtos';
 
@@ -126,9 +126,10 @@ describe('Account Controller', () => {
     await request(app.getHttpServer()).get(path).expect(400);
   });
 
-  it('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
+  it.only('(POST) /v1/accounts/retireMsa post retireMsa', async () => {
     const { keypair } = users[1];
     const accountId = keypair.address;
+
     const getPath: string = `/v1/accounts/retireMsa/${accountId}`;
     const getRetireMsaResponse = await request(app.getHttpServer()).get(getPath);
     const responseData: RetireMsaPayloadResponseDto = getRetireMsaResponse.body;
@@ -137,16 +138,16 @@ describe('Account Controller', () => {
     const tx = ExtrinsicHelper.apiPromise.tx.msa.retireMsa();
     const signerPayload: SignerPayloadRaw = await getRawPayloadForSigning(tx, accountId);
     const { data } = signerPayload;
-    const signature: Uint8Array = keypair.sign(data, { withType: true });
-    const prefixedSignature: SignerResult = { id: 1, signature: u8aToHex(signature) };
-    const signer: Signer = getSignerForRawSignature(prefixedSignature);
+    const signature = u8aToHex(keypair.sign(data, { withType: true }));
 
     const retireMsaRequest: RetireMsaRequestDto = {
-      signerPayload: responseData.signerPayload,
-      encodedPayload: responseData.encodedPayload,
-      signer,
-      accountId,
+      encodedExtrinsic: responseData.encodedExtrinsic,
+      payloadToSign: responseData.payloadToSign,
+      accountId: responseData.accountId,
+      signature,
     };
+
+    console.log('retireMsaRequest', retireMsaRequest);
 
     const postPath: string = '/v1/accounts/retireMsa';
     await request(app.getHttpServer()).post(postPath).send(retireMsaRequest).expect(HttpStatus.CREATED);

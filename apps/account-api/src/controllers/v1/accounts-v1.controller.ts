@@ -62,7 +62,7 @@ export class AccountsControllerV1 {
 
   @Get('account/:accountId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Fetch an account given a public key' })
+  @ApiOperation({ summary: 'Fetch an account given an Account Id' })
   @ApiOkResponse({ description: 'Found account', type: AccountResponseDto })
   /**
    * Gets an account.
@@ -112,13 +112,13 @@ export class AccountsControllerV1 {
   /**
    * Gets the signer payload and encoded payload needed to retire a msa.
    * @param queryParams - The query parameters for creating the account.
-   * @returns A promise that resolves to an object consisting of SignerPayloadRaw object => {address, data, type} and encodedPayload hex string.
+   * @returns A promise that resolves to an object consisting of a retire msa encodedExtrinsic hex string and payloadToSign hex string.
    * @throws An error if the payload fails to be created.
    */
   async getRetireMsaPayload(@Param('accountId') accountId: string): Promise<RetireMsaPayloadResponseDto> {
     try {
-      const payload = await this.accountsService.getRetireMsaPayload(accountId);
-      if (payload) return payload;
+      const result = await this.accountsService.getRetireMsaPayload(accountId);
+      if (result) return result;
       throw new HttpException('MSA ID requested to retire was not found.', HttpStatus.NOT_FOUND);
     } catch (error) {
       this.logger.error(error);

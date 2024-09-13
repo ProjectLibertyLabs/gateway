@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ISubmittableResult, Signer } from '@polkadot/types/types';
+import { Codec, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
@@ -25,6 +25,7 @@ import {
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { TransactionData } from '#account-lib/types/dtos';
+import { getSignerForRawSignature } from '#account-lib/utils/utility';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -111,9 +112,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.RETIRE_MSA: {
+          // const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
           const trx = await this.blockchainService.retireMsa();
           targetEvent = { section: 'msa', method: 'retireMsa' };
-          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signer);
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;
         }
         default: {
@@ -206,9 +208,11 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   async processProxyTxn(
     ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
     accountId: string,
-    signer: Signer,
+    signature: HexString,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     try {
+      const prefixedSignature: SignerResult = { id: 1, signature };
+      const signer: Signer = getSignerForRawSignature(prefixedSignature);
       const { nonce } = await this.blockchainService.api.query.system.account(accountId);
       const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
       const txHash = (await submittableExtrinsic.send()).toHex();

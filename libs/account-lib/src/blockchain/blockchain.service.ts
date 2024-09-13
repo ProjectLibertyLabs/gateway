@@ -233,12 +233,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return BigInt(msaId) > 0n && BigInt(msaId) <= msaIdMax;
   }
 
-  public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse> {
+  public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse | null> {
     const keyInfoResponse = await this.api.rpc.msa.getKeysByMsaId(msaId);
     if (keyInfoResponse.isSome) {
       return keyInfoResponse.unwrap();
     }
-    throw new Error(`No keys found for msaId: ${msaId}`);
+    this.logger.error(`No keys found for msaId: ${msaId}`);
+    return null;
   }
 
   public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
@@ -545,12 +546,17 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const { data } = signerPayload;
 
     return {
-      signerPayload,
-      encodedPayload: data,
+      encodedExtrinsic: tx.toHex(),
+      payloadToSign: data as HexString,
+      accountId,
     };
   }
 
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
+  }
+
+  public decodeTransaction(encodedExtrinsic: string) {
+    return this.api.tx(encodedExtrinsic);
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
-import { SignerPayloadRaw } from './accounts.request.dto';
+import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
+import { HexString } from '@polkadot/util/types';
 
 export class HandleResponseDto {
   @ApiProperty()
@@ -31,11 +31,17 @@ export class MsaIdResponseDto {
 }
 
 export class RetireMsaPayloadResponseDto {
-  @ApiProperty({ type: SignerPayloadRaw })
+  @ApiProperty({ type: String })
   @IsNotEmpty()
-  signerPayload: SignerPayloadRaw;
+  @IsHexadecimal()
+  encodedExtrinsic: HexString;
 
   @ApiProperty({ type: String })
   @IsNotEmpty()
-  encodedPayload: string;
+  @IsHexadecimal()
+  payloadToSign: HexString;
+
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  accountId: string;
 }

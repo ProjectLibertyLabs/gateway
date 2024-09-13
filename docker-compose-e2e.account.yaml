@@ -32,13 +32,11 @@ services:
       - e2e
 
   frequency:
-    image: dsnp/instant-seal-node-with-deployed-schemas:latest
-    # We need to specify the platform because it's the only image
-    # built by Frequency at the moment, and auto-pull won't work otherwise
-    platform: linux/amd64
-    # SEALING_MODE set to insstant for e2e testing
-    environment:
-      - SEALING_MODE=instant
+    profiles:
+      - e2e
+      - local-node
+
+  mock-webhook-server:
     profiles:
       - e2e
 

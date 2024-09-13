@@ -42,7 +42,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  WEBHOOK_BASE_URL: 'http://gateway:3001/webhooks/account-service'
+  WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
 
 services:
   redis:
@@ -64,7 +64,7 @@ services:
     # Other options you may want to add depending on your test scenario.
     environment:
       - SEALING_MODE=interval
-      - SEALING_INTERVAL=12
+      - SEALING_INTERVAL=1
     #   - CREATE_EMPTY_BLOCKS=true
     # The 'command' may contain additional CLI options to the Frequency node,
     # such as:
@@ -219,6 +219,20 @@ services:
 
     networks:
       - gateway-net
+
+  mock-webhook-server:
+    pull_policy: never
+    image: mock-webhook-server:latest
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.mock-webhook-server
+      tags:
+        - mock-webhook-server:latest
+    ports:
+      - ${ACCOUNT_WEBHOOK_PORT:-3001}:3001
+    profiles:
+      - webhook
+
 
 volumes:
   ipfs_data:

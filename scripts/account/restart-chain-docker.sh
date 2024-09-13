@@ -22,6 +22,3 @@ sleep 15
 # Run make setup
 echo "Running make setup to provision Provider with capacity, etc..."
 cd apps/account-api/test/setup && npm install && npm run main
-
-# Start the mock web server
-echo "Please run 'make mock-webhook' in a separate terminal..."

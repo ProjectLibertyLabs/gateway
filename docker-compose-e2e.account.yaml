@@ -38,7 +38,7 @@ services:
 
   mock-webhook-server:
     profiles:
-      - e2e
+      - skip
 
   ipfs:
     profiles:

@@ -269,13 +269,16 @@
         "properties": {
           "blockNumber": {
             "type": "number",
-            "minimum": 1,
+            "minimum": 0,
+            "maximum": 4294967296,
             "description": "The block number to reset the scanner to",
             "example": 0
           },
           "rewindOffset": {
             "type": "number",
-            "description": "Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block",
+            "minimum": 0,
+            "maximum": 4294967296,
+            "description": "Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block)",
             "example": 100
           },
           "immediate": {
@@ -290,6 +293,8 @@
         "properties": {
           "schemaIds": {
             "type": "array",
+            "minimum": 0,
+            "maximum": 65536,
             "items": {
               "type": "number"
             },
@@ -321,13 +326,15 @@
           },
           "startBlock": {
             "type": "number",
-            "minimum": 1,
+            "minimum": 0,
+            "maximum": 4294967296,
             "description": "The block number to search (backward) from",
             "example": 100
           },
           "blockCount": {
             "type": "number",
-            "minimum": 1,
+            "minimum": 0,
+            "maximum": 4294967296,
             "description": "The number of blocks to scan (backwards)",
             "example": 101
           },
@@ -341,7 +348,8 @@
           },
           "webhookUrl": {
             "type": "string",
-            "description": "A webhook URL to be notified of the results of this search"
+            "description": "A webhook URL to be notified of the results of this search",
+            "example": "https://example.com"
           }
         },
         "required": [
@@ -360,11 +368,11 @@
           "announcementTypes": {
             "description": "Announcement types to send to the webhook",
             "example": [
-              "Broadcast",
-              "Reaction",
-              "Tombstone",
-              "Reply",
-              "Update"
+              "broadcast",
+              "reaction",
+              "tombstone",
+              "reply",
+              "update"
             ],
             "type": "array",
             "items": {

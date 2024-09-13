@@ -1,13 +1,14 @@
 /* eslint-disable max-classes-per-file */
-import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsEnum, ValidateNested, IsArray, ArrayNotEmpty } from 'class-validator';
 import { ConnectionType } from './connection-type.enum';
 import { Direction } from './direction.enum';
 import { PrivacyType } from './privacy-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ConnectionDto {
-  @IsNotEmpty()
-  @IsString()
+  @IsMsaId({ each: true, message: 'dsnpId should be a valid positive number' })
   @ApiProperty({ description: 'MSA Id representing the target of this connection', type: String, example: '3' })
   dsnpId: string;
 
@@ -36,6 +37,10 @@ export class ConnectionDto {
 }
 
 export class ConnectionDtoWrapper {
+  @ValidateNested({ each: true })
+  @IsArray()
+  @ArrayNotEmpty()
+  @Type(() => ConnectionDto)
   @ApiProperty({ description: 'Wrapper object for array of connections', type: [ConnectionDto] })
   data: ConnectionDto[];
 }

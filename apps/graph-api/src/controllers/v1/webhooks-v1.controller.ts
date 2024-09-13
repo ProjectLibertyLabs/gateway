@@ -1,5 +1,6 @@
 import { ApiService } from '#graph-api/api.service';
 import { WatchGraphsDto } from '#types/dtos/graph';
+import { MsaIdDto, UrlDto } from '#types/dtos/common';
 import {
   Controller,
   HttpCode,
@@ -38,12 +39,6 @@ export class WebhooksControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all registered webhooks for a specific MSA Id' })
   @ApiOkResponse({ description: 'Retrieved all registered webhooks for the given MSA Id' })
-  @ApiParam({
-    name: 'msaId',
-    example: '2',
-    type: String,
-    description: 'MSA Id for which to request registered webhooks ',
-  })
   @ApiQuery({
     name: 'includeAll',
     type: Boolean,
@@ -51,7 +46,7 @@ export class WebhooksControllerV1 {
     required: false,
     description: "Boolean whether to include webhooks registered for 'all' MSA Ids (default: true)",
   })
-  async getWebhooksForMsa(@Param('msaId') msaId: string, @Query('includeAll') includeAll = 'true'): Promise<string[]> {
+  async getWebhooksForMsa(@Param() { msaId }: MsaIdDto, @Query('includeAll') includeAll = 'true'): Promise<string[]> {
     return this.apiService.getWebhooksForMsa(msaId, JSON.parse(includeAll ?? 'true'));
   }
 
@@ -59,13 +54,7 @@ export class WebhooksControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all webhooks registered to the specified URL' })
   @ApiOkResponse({ description: 'Retrieved all webhooks registered to the specified URL' })
-  @ApiQuery({
-    name: 'url',
-    type: String,
-    example: 'http://localhost/webhook',
-    description: 'URL for which to fetch all watched MSAs',
-  })
-  async getWebhooksForUrl(@Query('url') url: string): Promise<string[]> {
+  async getWebhooksForUrl(@Query() { url }: UrlDto): Promise<string[]> {
     return this.apiService.getWatchedGraphsForUrl(url);
   }
 
@@ -100,13 +89,7 @@ export class WebhooksControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete all webhooks registered for a specific MSA' })
   @ApiOkResponse({ description: 'Removed all registered webhooks for the specified MSA' })
-  @ApiParam({
-    name: 'msaId',
-    type: String,
-    example: '2',
-    description: 'MSA for which to remove all webhook registrations',
-  })
-  deleteWebhooksForMsa(@Param('msaId') msaId: string): Promise<void> {
+  deleteWebhooksForMsa(@Param() { msaId }: MsaIdDto): Promise<void> {
     return this.apiService.deleteWebhooksForUser(msaId);
   }
 
@@ -114,13 +97,7 @@ export class WebhooksControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete all MSA webhooks registered with the given URL' })
   @ApiOkResponse({ description: 'Removed all webhooks registered to the specified URL' })
-  @ApiQuery({
-    name: 'url',
-    type: String,
-    example: 'http://localhost/webhook',
-    description: 'URL for which to un-watch all MSAs',
-  })
-  deleteAllWebhooksForUrl(@Query('url') url: string): Promise<void> {
+  deleteAllWebhooksForUrl(@Query() { url }: UrlDto): Promise<void> {
     return this.apiService.deleteWebhooksForUrl(url);
   }
 }

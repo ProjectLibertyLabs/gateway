@@ -24,6 +24,7 @@
     "^#content-watcher-lib(|/.*)$": "<rootDir>/libs/content-watcher-lib/src/$1",
     "^#graph-api(|/.*)$": "<rootDir>/apps/graph-api/src/$1",
     "^#graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1",
-    "^#types(|/.*)$": "<rootDir>/libs/types/src/$1"
+    "^#types(|/.*)$": "<rootDir>/libs/types/src/$1",
+    "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
   }
 }

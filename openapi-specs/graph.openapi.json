@@ -128,8 +128,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
             "example": "2",
-            "description": "MSA Id for which to request registered webhooks ",
             "schema": {
               "type": "string"
             }
@@ -162,8 +162,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
             "example": "2",
-            "description": "MSA for which to remove all webhook registrations",
             "schema": {
               "type": "string"
             }
@@ -189,7 +189,7 @@
             "required": true,
             "in": "query",
             "example": "http://localhost/webhook",
-            "description": "URL for which to fetch all watched MSAs",
+            "description": "URL related to the request",
             "schema": {
               "type": "string"
             }
@@ -213,7 +213,7 @@
             "required": true,
             "in": "query",
             "example": "http://localhost/webhook",
-            "description": "URL for which to un-watch all MSAs",
+            "description": "URL related to the request",
             "schema": {
               "type": "string"
             }
@@ -290,11 +290,13 @@
         "properties": {
           "publicKey": {
             "type": "string",
-            "description": "Public graph encryption key as a hex string (prefixed with \"0x\")"
+            "description": "Public graph encryption key as a hex string (prefixed with \"0x\")",
+            "example": "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
           },
           "privateKey": {
             "type": "string",
-            "description": "Private graph encryption key as a hex string (prefixed with \"0x\")"
+            "description": "Private graph encryption key as a hex string (prefixed with \"0x\")",
+            "example": "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
           },
           "keyType": {
             "type": "string",
@@ -473,7 +475,8 @@
           },
           "webhookUrl": {
             "type": "string",
-            "description": "Optional URL of a webhook to invoke when the request is complete"
+            "description": "Optional URL of a webhook to invoke when the request is complete",
+            "example": "http://localhost/webhook"
           }
         },
         "required": [

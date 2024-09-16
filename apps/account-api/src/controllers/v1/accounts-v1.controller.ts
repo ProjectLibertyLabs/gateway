@@ -108,7 +108,7 @@ export class AccountsControllerV1 {
   @Get('retireMsa/:accountId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a retireMsa unsigned, encoded extrinsic payload.' })
-  @ApiOkResponse({ description: 'Created extrinsic' })
+  @ApiOkResponse({ description: 'Created extrinsic', type: RetireMsaPayloadResponseDto })
   /**
    * Gets the signer payload and encoded payload needed to retire a msa.
    * @param queryParams - The query parameters for creating the account.

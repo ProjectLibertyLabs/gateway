@@ -131,7 +131,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Created extrinsic"
+            "description": "Created extrinsic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetireMsaPayloadResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -619,6 +626,25 @@
         },
         "required": [
           "referenceId"
+        ]
+      },
+      "RetireMsaPayloadResponseDto": {
+        "type": "object",
+        "properties": {
+          "encodedExtrinsic": {
+            "type": "string"
+          },
+          "payloadToSign": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "encodedExtrinsic",
+          "payloadToSign",
+          "accountId"
         ]
       },
       "RetireMsaRequestDto": {

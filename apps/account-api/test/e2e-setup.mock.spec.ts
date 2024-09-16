@@ -22,7 +22,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 
-export async function setupProviderAndUsers() {
+export async function setupProviderAndUsers(numUsers = 4) {
   await cryptoWaitReady();
   await initialize(FREQUENCY_URL);
   log.setLevel('trace');
@@ -31,7 +31,7 @@ export async function setupProviderAndUsers() {
 
   // Get keys and MSA Ids for users provisioned in setup
   const provider = await provisionProvider(BASE_SEED_PHRASE, 'Alice');
-  const users = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, 4);
+  const users = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, numUsers);
 
   const maxMsaId = (await ExtrinsicHelper.apiPromise.query.msa.currentMsaIdentifierMaximum()).toString();
 

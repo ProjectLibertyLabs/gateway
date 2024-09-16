@@ -1,6 +1,6 @@
 # Core Concepts
 
-![Core Concept Diagram](../gateway_arch-Fundamentals.drawio.png)
+{{#svg-embed ./src/Fundamentals.svg Core Concept Diagram}}
 
 ## Global State
 

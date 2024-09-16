@@ -206,7 +206,7 @@ Note: using [docker compose file](../../docker-compose.yaml) to start the servic
 The following command will start all of the necessary containers for the account service to run in development mode.
 
 ```bash
-make restart-chain-docker
+./scripts/account/restart-chain-docker
 ```
 
 In order to run the `account-service` in development mode without containers, you can use the following commands:
@@ -214,7 +214,7 @@ In order to run the `account-service` in development mode without containers, yo
 #### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
 
 ```bash
-make restart-local-dev
+./scripts/account/restart-local-dev
 ```
 
 Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
@@ -222,7 +222,7 @@ Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/
 #### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
 
 ```sh
-make mock-webhook
+cd rust-webhook-server && cargo run
 ```
 
 #### 3. Start the Api and Worker.<br /><br />
@@ -254,11 +254,13 @@ docker compose up -d account-service-api account-service-worker
 
 ### Run the tests
 
+Make sure to follow the steps above and use `restart-chain-docker.sh` to start the services. This will ensure that the local node is running and is properly configured. Then run the following command to run the tests. **NOTE:** The tests are not idempotent. When re-running the e2e tests, use the `restart-chain-docker.sh` script to reset the chain.
+
 ```bash
-make test-e2e
+make test-e2e-account
 ```
 
-This will run the tests in `apps/api/test` folder.
+This will run the tests in `apps/account-api/test` folder.
 
 #### Check e2e test file for more details on the test
 

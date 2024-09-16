@@ -112,8 +112,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.RETIRE_MSA: {
-          // const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
-          const trx = await this.blockchainService.retireMsa();
+          const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
           targetEvent = { section: 'msa', method: 'retireMsa' };
           [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;

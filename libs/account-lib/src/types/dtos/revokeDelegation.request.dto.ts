@@ -2,8 +2,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '../enums';
-import { ISubmittableResult, Signer, SignerPayloadJSON, SignerPayloadRaw, SignerResult } from '@polkadot/types/types';
+import { TransactionType } from '#account-lib/types/enums';
 
 class RevokeDelegationPayloadDto {
   @ApiProperty()

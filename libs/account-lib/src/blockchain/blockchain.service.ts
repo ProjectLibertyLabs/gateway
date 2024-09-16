@@ -512,13 +512,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     }
   }
 
-  // eslint-disable-next-line consistent-return
-  public async getRawPayloadForSigning(
+  public static async getRawPayloadForSigning(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
     signerAddress: string,
-    // eslint-disable-next-line consistent-return
   ): Promise<SignerPayloadRaw> {
-    let signRaw;
+    const dummyError = 'Stop here';
+
+    let signRaw: SignerPayloadRaw;
     try {
       await tx.signAsync(signerAddress, {
         signer: {
@@ -526,13 +526,17 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
             this.logger.verbose('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
-            throw new Error('Stop here');
+            throw new Error(dummyError);
           },
         },
       });
-    } catch (_e) {
-      return signRaw;
+    } catch (e: any) {
+      if (e?.message !== dummyError) {
+        throw e;
+      }
     }
+
+    return signRaw;
   }
 
   public async createRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto> {
@@ -540,7 +544,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const tx = await this.api.tx.msa.retireMsa();
 
     // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
-    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    const signerPayload = await BlockchainService.getRawPayloadForSigning(tx, accountId);
     this.logger.debug('payload: SignerPayloadRaw: ', signerPayload);
     // encoded payload
     const { data } = signerPayload;

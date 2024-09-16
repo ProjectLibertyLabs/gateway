@@ -12,8 +12,7 @@ import { u8aToHex } from '@polkadot/util';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { SignerPayloadRaw } from '@polkadot/types/types';
 import { RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
-import { RetireMsaPayloadResponseDto } from '#account-lib/types/dtos';
-import { WalletLoginRequestDto } from '#account-lib/types/dtos';
+import { RetireMsaPayloadResponseDto, WalletLoginRequestDto } from '#account-lib/types/dtos';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 
 describe('Account Controller', () => {

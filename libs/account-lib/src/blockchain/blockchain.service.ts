@@ -9,6 +9,7 @@ import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
+  CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
@@ -403,6 +404,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
     if (delegationResponse.isSome) return delegationResponse.unwrap();
+    return null;
+  }
+
+  public async getProviderToRegistryEntry(
+    providerId: AnyNumber,
+  ): Promise<CommonPrimitivesMsaProviderRegistryEntry | null> {
+    const providerRegistry = await this.api.query.msa.providerToRegistryEntry(providerId);
+    if (providerRegistry.isSome) return providerRegistry.unwrap();
     return null;
   }
 

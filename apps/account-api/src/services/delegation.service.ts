@@ -1,4 +1,3 @@
-import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionResponse } from '#account-lib/types/dtos';
@@ -8,8 +7,7 @@ import {
   RevokeDelegationPayloadRequestDto,
   RevokeDelegationPayloadResponseDto,
 } from '#account-lib/types/dtos/revokeDelegation.request.dto';
-import { Injectable, Logger } from '@nestjs/common';
-import { HexString } from '@polkadot/util/types';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { TransactionType } from '#account-lib';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 
@@ -49,7 +47,27 @@ export class DelegationService {
   }
 
   async getRevokeDelegationPayload(accountId: string, providerId: string): Promise<RevokeDelegationPayloadResponseDto> {
-    // TODO: Validate input: make sure accountId and providerId are valid and the delegation exists
+    try {
+      const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
+      if (!msaId) {
+        throw new HttpException('MSA ID for account not found', HttpStatus.NOT_FOUND);
+      }
+
+      // Validate that the providerId is a registered provider, also checks for valid MSA ID
+      const providerRegistry = await this.blockchainService.getProviderToRegistryEntry(providerId);
+      if (!providerRegistry) {
+        throw new HttpException('Provider not found', HttpStatus.BAD_REQUEST);
+      }
+
+      // Validate that delegations exist for this msaId
+      const delegations = await this.getDelegation(msaId);
+      if (delegations.providerId !== providerId) {
+        throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
+      }
+    } catch (e: any) {
+      this.logger.error(`Failed to get revoke delegation payload: ${e.toString()}`);
+      throw new Error('Failed to get revoke delegation payload');
+    }
     return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
   }
 

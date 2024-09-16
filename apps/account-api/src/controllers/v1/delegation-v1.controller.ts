@@ -78,7 +78,11 @@ export class DelegationControllerV1 {
       return this.delegationService.getRevokeDelegationPayload(accountId, providerId);
     } catch (error) {
       this.logger.error(error);
-      throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
+      }
     }
   }
 

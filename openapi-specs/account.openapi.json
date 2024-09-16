@@ -622,10 +622,6 @@
           "referenceId"
         ]
       },
-      "ExtrinsicSignerPayloadRaw": {
-        "type": "object",
-        "properties": {}
-      },
       "RevokeDelegationPayloadRequestDto": {
         "type": "object",
         "properties": {
@@ -635,22 +631,22 @@
           "providerId": {
             "type": "string"
           },
-          "extSignerPayloadRaw": {
-            "$ref": "#/components/schemas/ExtrinsicSignerPayloadRaw"
-          },
-          "encodedPayload": {
+          "encodedExtrinsic": {
             "type": "object"
           },
-          "signer": {
+          "payloadToSign": {
+            "type": "object"
+          },
+          "signature": {
             "type": "object"
           }
         },
         "required": [
           "accountId",
           "providerId",
-          "extSignerPayloadRaw",
-          "encodedPayload",
-          "signer"
+          "encodedExtrinsic",
+          "payloadToSign",
+          "signature"
         ]
       },
       "HandlePayloadDto": {

@@ -1,12 +1,14 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { ChainUser, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { RevokeDelegationPayloadRequestDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
+import { u8aToHex } from '@polkadot/util';
 
 let users: ChainUser[];
 let provider: ChainUser;
@@ -43,7 +45,7 @@ describe('Delegation Controller', () => {
     await app.init();
   });
 
-  it('(GET) /delegation/:msaId with invalid msaId', async () => {
+  it('(GET) /v1/delegation/:msaId with invalid msaId', async () => {
     const invalidMsaId = BigInt(maxMsaId) + 1000n;
     await request(app.getHttpServer()).get(`/v1/delegation/${invalidMsaId.toString()}`).expect(400).expect({
       statusCode: 400,
@@ -51,7 +53,7 @@ describe('Delegation Controller', () => {
     });
   });
 
-  it('(GET) /delegation/:msaId with a valid MSA that has no delegations', async () => {
+  it('(GET) /v1/delegation/:msaId with a valid MSA that has no delegations', async () => {
     const validMsaId = provider.msaId?.toString(); // use provider's MSA; will have no delegations
     await request(app.getHttpServer()).get(`/v1/delegation/${validMsaId}`).expect(400).expect({
       statusCode: 400,
@@ -59,7 +61,7 @@ describe('Delegation Controller', () => {
     });
   });
 
-  it('(GET) /delegation/:msaId with valid msaId that has delegations', async () => {
+  it('(GET) /v1/delegation/:msaId with valid msaId that has delegations', async () => {
     const validMsaId = users[0]?.msaId?.toString();
     await request(app.getHttpServer())
       .get(`/v1/delegation/${validMsaId}`)
@@ -75,5 +77,31 @@ describe('Delegation Controller', () => {
         },
         revokedAt: '0x00000000',
       });
+  });
+
+  it('(POST) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {
+    const providerId = provider.msaId?.toString();
+    const { keypair } = users[1];
+    const accountId = keypair.address;
+    const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
+    const getRevokeDelegationPayloadResponse = await request(app.getHttpServer()).get(getPath).expect(200);
+    console.log(`RevokeDelegationPayloadResponse.body = ${JSON.stringify(getRevokeDelegationPayloadResponse.body)}`);
+    const { data } = getRevokeDelegationPayloadResponse.body.payloadToSign;
+
+    const signature: Uint8Array = keypair.sign(data, { withType: true });
+    console.log(`signature = ${u8aToHex(signature)}`);
+
+    const revokeDelegationRequest: RevokeDelegationPayloadRequestDto = {
+      accountId,
+      providerId,
+      encodedExtrinsic: getRevokeDelegationPayloadResponse.body.encodedExtrinsic,
+      payloadToSign: data,
+      signature: u8aToHex(signature),
+    };
+    console.log(`revokeDelegationRequest = ${JSON.stringify(revokeDelegationRequest)}`);
+
+    // TODO: This test is failing with a 400 error.
+    const postPath = '/v1/delegation/revokeDelegation';
+    await request(app.getHttpServer()).post(postPath).send(revokeDelegationRequest).expect(HttpStatus.CREATED);
   });
 });

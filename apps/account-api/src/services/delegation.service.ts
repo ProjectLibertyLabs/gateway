@@ -48,28 +48,9 @@ export class DelegationService {
     throw new Error('Invalid msaId.');
   }
 
-  // async getExpiration(): Promise<number> {
-  //   const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-  //   // standard expiration in SIWF is 10 minutes
-  //   return lastFinalizedBlockNumber + BlockchainConstants.BLOCK_EXPIRATION_SECS / BlockchainConstants.SECONDS_PER_BLOCK;
-  // }
-
   async getRevokeDelegationPayload(accountId: string, providerId: string): Promise<RevokeDelegationPayloadResponseDto> {
-    const { signerPayload, encodedPayload } = await this.blockchainService.createRevokedDelegationPayload(
-      accountId,
-      providerId,
-    );
-    const revokeDelegationPayloadResponseDto: RevokeDelegationPayloadResponseDto = {
-      accountId,
-      providerId,
-      extSignerPayloadRaw: {
-        address: signerPayload.address,
-        data: signerPayload.data,
-        type: signerPayload.type,
-      },
-      encodedPayload: encodedPayload as HexString,
-    };
-    return revokeDelegationPayloadResponseDto;
+    // TODO: Validate input: make sure accountId and providerId are valid and the delegation exists
+    return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
   }
 
   async postRevokeDelegation(revokeDelegationRequest: RevokeDelegationPayloadRequestDto): Promise<TransactionResponse> {

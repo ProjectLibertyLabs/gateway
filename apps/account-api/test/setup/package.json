@@ -5,6 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "main": "tsx index.ts",
+    "test-revoke": "tsx test-revoke.ts",
+    "test-revoke-e2e": "tsx test-revoke-e2e.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",

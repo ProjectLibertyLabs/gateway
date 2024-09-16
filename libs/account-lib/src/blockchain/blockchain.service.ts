@@ -30,6 +30,7 @@ import {
 } from '#account-lib/types/dtos/graphs.request.dto';
 import { hexToU8a } from '@polkadot/util';
 import { Extrinsic } from './extrinsic';
+import { RevokeDelegationPayloadResponseDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -292,7 +293,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       await tx.signAsync(signerAddress, {
         signer: {
           signRaw: (raw) => {
-            console.log('signRaw called with [raw]:', raw);
+            this.logger.verbose('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
             throw new Error('Stop here');
@@ -307,40 +308,34 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async createRevokedDelegationPayload(
     accountId: string,
     providerId: string,
-  ): Promise<{ signerPayload: SignerPayloadRaw; encodedPayload: string }> {
+  ): Promise<RevokeDelegationPayloadResponseDto> {
     // Get the transaction for revokeDelegation, will be used to get the raw payload for signing
     const tx = this.api.tx.msa.revokeDelegationByDelegator(providerId);
 
     // payload contains the signer address, the encoded data/payload for revokeDelegationByDelegator,
     // and the type of the payload
     const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
-    this.logger.verbose('REMOVE: payload: SignerPayloadRaw: ', signerPayload);
 
     // encoded payload
     const { data } = signerPayload;
 
     return {
-      signerPayload,
-      encodedPayload: data,
+      accountId,
+      providerId,
+      encodedExtrinsic: tx.toHex(),
+      payloadToSign: data as HexString,
     };
+  }
+
+  public decodeTransaction(encodedExtrinsic: string) {
+    return this.api.tx(encodedExtrinsic);
   }
 
   public async revokeDelegationByDelegator(
     providerId: string,
   ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
-    // REMOVE: Is this function async?
     return this.api.tx.msa.revokeDelegationByDelegator(providerId);
   }
-
-  // public async revokeDelegationByDelegator(jobData: TransactionData<RevokeDelegationRequestDto>) {
-  //   this.logger.warn(`REMOVE:revokeDelegationPayload: ${jobData.payload}`);
-
-  //   const revokeDelegationProof: Sr25519Signature = { Sr25519: jobData.proof };
-  //   this.logger.warn(`REMOVE:revokeDelegationProof: ${JSON.stringify(revokeDelegationProof)}`);
-
-  //   this.logger.warn(`REMOVE:revokeDelegationProviderId: ${jobData.providerId}`);
-  //   return this.api.tx.msa.revokeDelegationByDelegator(jobData.providerId);
-  // }
 
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
     const actions = payload.actions.map((a) => {

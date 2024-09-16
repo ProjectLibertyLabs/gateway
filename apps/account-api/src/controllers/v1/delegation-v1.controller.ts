@@ -12,14 +12,13 @@ import {
   Logger,
   Param,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   RevokeDelegationPayloadRequestDto,
   RevokeDelegationPayloadResponseDto,
-} from 'libs/account-lib/src/types/dtos/revokeDelegation.request.dto';
+} from '#account-lib/types/dtos/revokeDelegation.request.dto';
 
 @Controller('v1/delegation')
 @ApiTags('v1/delegation')
@@ -91,8 +90,7 @@ export class DelegationControllerV1 {
     revokeDelegationRequest: RevokeDelegationPayloadRequestDto,
   ): Promise<TransactionResponse> {
     try {
-      this.logger.verbose(revokeDelegationRequest, 'RevokeDelegationPayloadRequest');
-      this.logger.verbose(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
+      this.logger.verbose(revokeDelegationRequest, 'Posting RevokeDelegationPayloadRequest');
       return this.delegationService.postRevokeDelegation(revokeDelegationRequest);
     } catch (error) {
       this.logger.error(error);

@@ -84,13 +84,13 @@
         ]
       }
     },
-    "/v1/accounts/account/{publicKey}": {
+    "/v1/accounts/account/{accountId}": {
       "get": {
-        "operationId": "AccountsControllerV1_getAccountForPublicKey",
-        "summary": "Fetch an account given a public key",
+        "operationId": "AccountsControllerV1_getAccountForAccountId",
+        "summary": "Fetch an account given an Account Id",
         "parameters": [
           {
-            "name": "publicKey",
+            "name": "accountId",
             "required": true,
             "in": "path",
             "schema": {
@@ -105,6 +105,69 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/accounts"
+        ]
+      }
+    },
+    "/v1/accounts/retireMsa/{accountId}": {
+      "get": {
+        "operationId": "AccountsControllerV1_getRetireMsaPayload",
+        "summary": "Get a retireMsa unsigned, encoded extrinsic payload.",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created extrinsic",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetireMsaPayloadResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v1/accounts"
+        ]
+      }
+    },
+    "/v1/accounts/retireMsa": {
+      "post": {
+        "operationId": "AccountsControllerV1_postRetireMsa",
+        "summary": "Request to retire an MSA ID.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetireMsaRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created and queued request to retire an MSA ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
                 }
               }
             }
@@ -643,6 +706,59 @@
           "referenceId"
         ]
       },
+      "RetireMsaPayloadResponseDto": {
+        "type": "object",
+        "properties": {
+          "encodedExtrinsic": {
+            "type": "string"
+          },
+          "payloadToSign": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "encodedExtrinsic",
+          "payloadToSign",
+          "accountId"
+        ]
+      },
+      "RetireMsaRequestDto": {
+        "type": "object",
+        "properties": {
+          "encodedExtrinsic": {
+            "type": "string"
+          },
+          "payloadToSign": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "encodedExtrinsic",
+          "payloadToSign",
+          "accountId",
+          "signature"
+        ]
+      },
+      "TransactionResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "referenceId"
+        ]
+      },
       "DelegationResponse": {
         "type": "object",
         "properties": {
@@ -710,17 +826,6 @@
           "encodedExtrinsic",
           "payloadToSign",
           "signature"
-        ]
-      },
-      "TransactionResponse": {
-        "type": "object",
-        "properties": {
-          "referenceId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "referenceId"
         ]
       },
       "HandlePayloadDto": {

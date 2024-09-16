@@ -14,7 +14,7 @@ import { NonceService } from '#account-lib/services/nonce.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { QueueConstants } from '#account-lib/queues';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
-import { RedisUtils, TransactionData } from '#account-lib';
+import { RedisUtils } from '#account-lib';
 import { ConfigService } from '#account-lib/config/config.service';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
@@ -24,6 +24,7 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { TransactionData } from '#account-lib/types/dtos';
 import { getSignerForRawSignature } from '#account-lib/utils/utility';
 
 export const SECONDS_PER_BLOCK = 12;
@@ -108,6 +109,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
           [tx, txHash] = await this.processSingleTxn(providerKeys, trx);
           this.logger.debug(`tx: ${tx}`);
+          break;
+        }
+        case TransactionType.RETIRE_MSA: {
+          const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
+          targetEvent = { section: 'msa', method: 'retireMsa' };
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;
         }
         case TransactionType.REVOKE_DELEGATION: {

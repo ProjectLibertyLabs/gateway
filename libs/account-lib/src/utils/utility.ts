@@ -1,4 +1,4 @@
-import { Signer, SignerResult } from '@polkadot/types/types';
+import { SignerResult, Signer } from '@polkadot/types/types';
 
 export function isHexString(str: string): boolean {
   const hexRegex = /^0[xX][0-9a-fA-F]+$/;

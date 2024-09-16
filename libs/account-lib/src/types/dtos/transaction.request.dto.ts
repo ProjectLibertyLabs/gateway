@@ -4,6 +4,7 @@ import { PublicKeyAgreementRequestDto, PublishPublicKeyAgreementRequestDto } fro
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishSIWFSignupRequestDto } from './wallet.login.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
+import { PublishRetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
 import { PublishRevokeDelegationRequestDto } from './revokeDelegation.request.dto';
 
 export type TransactionData<
@@ -11,6 +12,7 @@ export type TransactionData<
     | PublishHandleRequestDto
     | PublishSIWFSignupRequestDto
     | PublishKeysRequestDto
+    | PublishRetireMsaRequestDto
     | PublicKeyAgreementRequestDto
     | PublishRevokeDelegationRequestDto,
 > = RequestType & {

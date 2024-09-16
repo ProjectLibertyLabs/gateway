@@ -131,7 +131,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Found delegation information"
+            "description": "Found delegation information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegationResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -163,7 +170,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Returned an encoded RevokeDelegationPayload for signing"
+            "description": "Returned an encoded RevokeDelegationPayload for signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeDelegationPayloadResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -188,7 +202,14 @@
         },
         "responses": {
           "201": {
-            "description": "Created and queued request to revoke a delegation"
+            "description": "Created and queued request to revoke a delegation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -622,6 +643,48 @@
           "referenceId"
         ]
       },
+      "DelegationResponse": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "schemaPermissions": {
+            "type": "object"
+          },
+          "revokedAt": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "providerId",
+          "schemaPermissions",
+          "revokedAt"
+        ]
+      },
+      "RevokeDelegationPayloadResponseDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "encodedExtrinsic": {
+            "type": "object"
+          },
+          "payloadToSign": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "accountId",
+          "providerId",
+          "encodedExtrinsic",
+          "payloadToSign"
+        ]
+      },
       "RevokeDelegationPayloadRequestDto": {
         "type": "object",
         "properties": {
@@ -647,6 +710,17 @@
           "encodedExtrinsic",
           "payloadToSign",
           "signature"
+        ]
+      },
+      "TransactionResponse": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "referenceId"
         ]
       },
       "HandlePayloadDto": {

@@ -31,9 +31,6 @@ export namespace BlockchainConstants {
 
   export const SECONDS_PER_BLOCK = 12;
 
-  // Default expiration time for a block, same as SIWF
-  export const BLOCK_EXPIRATION_SECS = 10 * 60; // 10 minutes
-
   /**
    * The number of blocks to crawl for a given job
    * @type {number}

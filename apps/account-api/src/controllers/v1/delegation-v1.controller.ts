@@ -33,7 +33,7 @@ export class DelegationControllerV1 {
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get the delegation information associated with an MSA Id' })
-  @ApiOkResponse({ description: 'Found delegation information' })
+  @ApiOkResponse({ description: 'Found delegation information', type: DelegationResponse })
   /**
    * Retrieves the delegation for a given MSA ID.
    *
@@ -54,7 +54,10 @@ export class DelegationControllerV1 {
   @Get('revokeDelegation/:accountId/:providerId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a properly encoded RevokeDelegationPayload that can be signed' })
-  @ApiOkResponse({ description: 'Returned an encoded RevokeDelegationPayload for signing' })
+  @ApiOkResponse({
+    description: 'Returned an encoded RevokeDelegationPayload for signing',
+    type: RevokeDelegationPayloadResponseDto,
+  })
   /**
    * Retrieves the revoke delegation payload for a given provider ID.
    * This encoded payload can be signed by the user to revoke the delegation to the given provider id.
@@ -83,7 +86,7 @@ export class DelegationControllerV1 {
   @Post('revokeDelegation')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to revoke a delegation' })
-  @ApiCreatedResponse({ description: 'Created and queued request to revoke a delegation' })
+  @ApiCreatedResponse({ description: 'Created and queued request to revoke a delegation', type: TransactionResponse })
   @ApiBody({ type: RevokeDelegationPayloadRequestDto })
   async postRevokeDelegation(
     @Body()

@@ -85,3 +85,7 @@ start-graph-api: update-packages
 
 start-graph-worker: update-packages
 	@npm run start:graph-worker:watch
+
+.PHONY: setup-account
+setup-account:
+	@cd apps/account-api/test/setup && npm install && npm run main

@@ -35,11 +35,13 @@ export class KeysService {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const keyInfoResponse = await this.blockchainService.getKeysByMsa(msaId);
-      this.logger.debug('Successfully found keys.');
-      return { msaKeys: keyInfoResponse.msa_keys };
+      if (keyInfoResponse) {
+        this.logger.debug('Successfully found keys.');
+        return { msaKeys: keyInfoResponse.msa_keys };
+      }
     }
     this.logger.error('Invalid msaId.');
-    throw new Error('Invalid msaId.');
+    throw new Error('Keys not found.');
   }
 
   async getAddPublicKeyAgreementPayload(

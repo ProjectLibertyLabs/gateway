@@ -42,8 +42,8 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
+  WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
-  WEBHOOK_BASE_URL: 'http://social-app-template-backend:3001/webhooks/account-service'
 
 services:
   redis:
@@ -56,7 +56,8 @@ services:
       - redis_data:/data/redis
 
   frequency:
-    image: frequencychain/standalone-node:v1.13.0-rc3
+    # Temporary workaround until Frequency mainnet schemas are properly named and included in the image
+    image: dsnp/instant-seal-node-with-deployed-schemas:latest
     # We need to specify the platform because it's the only image
     # built by Frequency at the moment, and auto-pull won't work otherwise
     platform: linux/amd64
@@ -64,7 +65,7 @@ services:
     # Other options you may want to add depending on your test scenario.
     environment:
       - SEALING_MODE=interval
-      - SEALING_INTERVAL=12
+      - SEALING_INTERVAL=1
     #   - CREATE_EMPTY_BLOCKS=true
     # The 'command' may contain additional CLI options to the Frequency node,
     # such as:
@@ -200,7 +201,6 @@ services:
       - account_api_node_cache:/app/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
     networks:
       - gateway-net
@@ -216,11 +216,24 @@ services:
       - account_worker_node_cache:/app/node_modules
     depends_on:
       - redis
-      - ipfs
       - gateway-base
 
     networks:
       - gateway-net
+
+  mock-webhook-server:
+    pull_policy: never
+    image: mock-webhook-server:latest
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.mock-webhook-server
+      tags:
+        - mock-webhook-server:latest
+    ports:
+      - ${ACCOUNT_WEBHOOK_PORT:-3001}:3001
+    profiles:
+      - webhook
+
 
 volumes:
   ipfs_data:

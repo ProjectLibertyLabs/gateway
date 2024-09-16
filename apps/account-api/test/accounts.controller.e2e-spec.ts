@@ -8,7 +8,7 @@ import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectliber
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
-import { WalletLoginRequestDto } from '#account-lib/types/dtos';
+import { WalletLoginRequestDto } from '#types/dtos/account';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 
 describe('Account Controller', () => {

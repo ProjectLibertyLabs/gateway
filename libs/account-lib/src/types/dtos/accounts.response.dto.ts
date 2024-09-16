@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsHexadecimal, IsNotEmpty, IsOptional } from 'class-validator';
+import { HexString } from '@polkadot/util/types';
 
 export class HandleResponseDto {
   @ApiProperty()
@@ -23,8 +24,24 @@ export class AccountResponseDto {
   handle?: HandleResponseDto;
 }
 
-export class MsaIdResponse {
+export class MsaIdResponseDto {
   @ApiProperty()
   @IsNotEmpty()
   msaId: string;
+}
+
+export class RetireMsaPayloadResponseDto {
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  @IsHexadecimal()
+  encodedExtrinsic: HexString;
+
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  @IsHexadecimal()
+  payloadToSign: HexString;
+
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  accountId: string;
 }

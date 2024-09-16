@@ -1,14 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
+import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Event, ExtrinsicPayload, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
-  CommonPrimitivesHandlesClaimHandlePayload,
   CommonPrimitivesMsaDelegation,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
@@ -19,17 +18,17 @@ import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@f
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { HexString } from '@polkadot/util/types';
-import { decodeAddress } from '@polkadot/util-crypto';
 import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
 import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
 import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
-import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto, RetireMsaPayloadResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import {
   PublicKeyAgreementRequestDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
 } from '#account-lib/types/dtos/graphs.request.dto';
 import { hexToU8a } from '@polkadot/util';
+import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
 
 export type Sr25519Signature = { Sr25519: HexString };
@@ -234,12 +233,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return BigInt(msaId) > 0n && BigInt(msaId) <= msaIdMax;
   }
 
-  public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse> {
+  public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse | null> {
     const keyInfoResponse = await this.api.rpc.msa.getKeysByMsaId(msaId);
     if (keyInfoResponse.isSome) {
       return keyInfoResponse.unwrap();
     }
-    throw new Error(`No keys found for msaId: ${msaId}`);
+    this.logger.error(`No keys found for msaId: ${msaId}`);
+    return null;
   }
 
   public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
@@ -510,5 +510,56 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         throw new Error('Provided account secret does not match configured Provider ID');
       }
     }
+  }
+
+  public static async getRawPayloadForSigning(
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    signerAddress: string,
+  ): Promise<SignerPayloadRaw> {
+    const dummyError = 'Stop here';
+
+    let signRaw: SignerPayloadRaw;
+    try {
+      await tx.signAsync(signerAddress, {
+        signer: {
+          signRaw: (raw) => {
+            signRaw = raw;
+            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
+            throw new Error(dummyError);
+          },
+        },
+      });
+    } catch (e: any) {
+      if (e?.message !== dummyError) {
+        throw e;
+      }
+    }
+
+    return signRaw;
+  }
+
+  public async createRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto> {
+    // Get the transaction for retireMsa, will be used to get the raw payload for signing
+    const tx = await this.api.tx.msa.retireMsa();
+
+    // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
+    const signerPayload = await BlockchainService.getRawPayloadForSigning(tx, accountId);
+    this.logger.debug('payload: SignerPayloadRaw: ', signerPayload);
+    // encoded payload
+    const { data } = signerPayload;
+
+    return {
+      encodedExtrinsic: tx.toHex(),
+      payloadToSign: data as HexString,
+      accountId,
+    };
+  }
+
+  public async retireMsa() {
+    return this.api.tx.msa.retireMsa();
+  }
+
+  public decodeTransaction(encodedExtrinsic: string) {
+    return this.api.tx(encodedExtrinsic);
   }
 }

@@ -6,7 +6,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { TransactionType } from '#account-lib/types/enums';
-import { RedisUtils, SECONDS_PER_BLOCK, TxWebhookRsp } from '#account-lib';
+import { RedisUtils, SECONDS_PER_BLOCK } from '#account-lib';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -17,6 +17,7 @@ import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#account-lib/config/config.service';
 import { QueueConstants } from '#account-lib/queues';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
+import { TxWebhookRsp } from '#account-lib/types/dtos';
 
 @Injectable()
 export class TxnNotifierService

@@ -1,13 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
+import { SignerPayloadRaw } from '@polkadot/types/types';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#account-lib/types/enums';
-import { ConfigService } from '#account-lib/config/config.service';
+import { TransactionType } from '#account-lib';
+import {
+  AccountResponseDto,
+  MsaIdResponseDto,
+  PublishSIWFSignupRequestDto,
+  RetireMsaPayloadResponseDto,
+  TransactionResponse,
+  WalletLoginConfigResponseDto,
+  WalletLoginRequestDto,
+  WalletLoginResponseDto,
+} from '#account-lib/types/dtos';
+import { PublishRetireMsaRequestDto, RetireMsaRequestDto } from '#account-lib/types/dtos/accounts.request.dto';
+import { ConfigService } from '#account-lib/config';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#account-lib/types/dtos/wallet.login.request.dto';
-import { WalletLoginResponseDto } from '#account-lib/types/dtos/wallet.login.response.dto';
-import { AccountResponseDto, MsaIdResponse } from '#account-lib/types/dtos/accounts.response.dto';
-import { WalletLoginConfigResponseDto } from '#account-lib/types/dtos/wallet.login.config.response.dto';
 
 @Injectable()
 export class AccountsService {
@@ -41,14 +49,14 @@ export class AccountsService {
     }
   }
 
-  async getMsaIdForPublicKey(publicKey: string): Promise<MsaIdResponse | null> {
+  async getMsaIdForAccountId(accountId: string): Promise<MsaIdResponseDto | null> {
     try {
-      const msaId = await this.blockchainService.publicKeyToMsaId(publicKey);
+      const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
       if (msaId) {
-        this.logger.debug(`Found msaId: ${msaId} for public key: ${publicKey}`);
+        this.logger.debug(`Found msaId: ${msaId} for account id: ${accountId}`);
         return { msaId };
       }
-      this.logger.debug(`Did not find msaId for public key: ${publicKey}`);
+      this.logger.debug(`Did not find msaId for account id: ${accountId}`);
       return null;
     } catch (e) {
       this.logger.error(`Error during get msaId request: ${e}`);
@@ -107,5 +115,29 @@ export class AccountsService {
       }
     }
     throw new Error('Invalid Sign In With Frequency Request');
+  }
+
+  async getRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto | null> {
+    try {
+      const msaId = await this.getMsaIdForAccountId(accountId);
+      if (msaId) return this.blockchainService.createRetireMsaPayload(accountId);
+      return null;
+    } catch (e) {
+      this.logger.error(`Failed to create retire msa payload: ${e}`);
+      throw new Error('Failed to create retire msa payload.');
+    }
+  }
+
+  async retireMsa(retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
+    try {
+      const referenceId = await this.enqueueService.enqueueRequest<PublishRetireMsaRequestDto>({
+        ...retireMsaRequest,
+        type: TransactionType.RETIRE_MSA,
+      });
+      return referenceId;
+    } catch (e: any) {
+      this.logger.error(`Failed to enqueue retire msa request: ${e.toString()}`);
+      throw new Error('Failed to enqueue retire msa request');
+    }
   }
 }

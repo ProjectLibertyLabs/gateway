@@ -5,7 +5,7 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { Codec, ISubmittableResult } from '@polkadot/types/types';
+import { Codec, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
@@ -14,7 +14,7 @@ import { NonceService } from '#account-lib/services/nonce.service';
 import { TransactionType } from '#account-lib/types/enums';
 import { QueueConstants } from '#account-lib/queues';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
-import { RedisUtils, TransactionData } from '#account-lib';
+import { RedisUtils } from '#account-lib';
 import { ConfigService } from '#account-lib/config/config.service';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
@@ -24,6 +24,8 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
+import { TransactionData } from '#account-lib/types/dtos';
+import { getSignerForRawSignature } from '#account-lib/utils/utility';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -109,6 +111,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           this.logger.debug(`tx: ${tx}`);
           break;
         }
+        case TransactionType.RETIRE_MSA: {
+          const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
+          targetEvent = { section: 'msa', method: 'retireMsa' };
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
+          break;
+        }
         default: {
           throw new Error(`Invalid job type.`);
         }
@@ -192,6 +200,28 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       return [ext.extrinsic, txHash];
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
+      throw error;
+    }
+  }
+
+  async processProxyTxn(
+    ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    accountId: string,
+    signature: HexString,
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    try {
+      const prefixedSignature: SignerResult = { id: 1, signature };
+      const signer: Signer = getSignerForRawSignature(prefixedSignature);
+      const { nonce } = await this.blockchainService.api.query.system.account(accountId);
+      const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
+      const txHash = (await submittableExtrinsic.send()).toHex();
+
+      if (!txHash) throw new Error('Tx hash is undefined');
+
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return [submittableExtrinsic, txHash];
+    } catch (error: any) {
+      this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
     }
   }

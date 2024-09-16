@@ -88,38 +88,3 @@ export async function generateAddPublicKeyExtrinsic(
     ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
 }
 
-/**
- * Retrieves the raw payload for signing a transaction.
- * Use signAsync to properly encode the payload for signing.
- * In this case we want the encoded payload for retireMsa, which does not take any arguments.
- *
- * @param tx - The transaction object.
- * @param signerAddress - The address of the signer.
- * @returns A promise that resolves to the raw payload for signing.
- */
-export const getRawPayloadForSigning = async (
-  tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  signerAddress: string,
-): Promise<SignerPayloadRaw> => {
-  const fakeError = '*** Interrupt signing for payload collection ***';
-  let signRaw: SignerPayloadRaw;
-  try {
-    await tx.signAsync(signerAddress, {
-      signer: {
-        signRaw: (raw) => {
-          console.log('signRaw called with [raw]:', raw);
-          signRaw = raw;
-          // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
-          throw new Error(fakeError);
-        },
-      },
-    });
-  } catch (e: any) {
-    // If we encountered an actual error, re-throw it; otherwise
-    // ignore the fake error we threw above
-    if (e?.message !== fakeError) {
-      throw e;
-    }
-  }
-  return signRaw;
-};

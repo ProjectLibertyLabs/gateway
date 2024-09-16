@@ -1,4 +1,4 @@
-name: Load Tests
+name: E2E Tests
 
 on:
   pull_request:
@@ -13,9 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changes: ${{ steps.determine-matrix.outputs.changes }}
+      # NOTE: only account E2E tests enabled in pipeline currently; add other services as they are updated
       # IF you add a new filter it ALSO needs to be here
       services: >-
-        ["account-api", "graph-api", "content-publishing-api", "content-watcher"]
+        ["account"]
       # Resolves to true if it should run everything, aka when common files change
       run-all: ${{ steps.determine-matrix.outputs.changes.common }}
     steps:
@@ -31,25 +32,26 @@ jobs:
               - 'tools/ci-k6/**'
               - '.github/**'
               - 'docker-compose.yaml'
-            account-api:
+              - 'docker-compose-e2e.*.yaml'
+              - 'libs/types'
+            account:
               - 'apps/account-api/**'
+              - 'apps/account-worker/**'
               - 'libs/account-lib/**'
-              - 'docker-compose-k6.account-api.yaml'
-            graph-api:
+            graph:
               - 'apps/graph-api/**'
+              - 'apps/graph-worker/**'
               - 'libs/graph-lib/**'
-              - 'docker-compose-k6.graph-api.yaml'
-            content-publishing-api:
+            content-publishing:
               - 'apps/content-publishing-api/**'
+              - 'apps/content-publishing-worker/**'
               - 'libs/content-publishing-lib/**'
-              - 'docker-compose-k6.content-publishing-api.yaml'
             content-watcher:
               - 'apps/content-watcher/**'
               - 'libs/content-watcher-lib/**'
-              - 'docker-compose-k6.content-watcher.yaml'
 
   build:
-    name: '[${{ matrix.service }}] Load Test'
+    name: '[${{ matrix.service }}] E2E Tests'
     runs-on: ubuntu-latest
     needs: service-matrix
     strategy:
@@ -69,49 +71,32 @@ jobs:
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.16.0
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: tools/ci-k6/package-lock.json
+
       - name: Install dependencies
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: tools/ci-k6
         run: npm ci
 
       - name: Start Frequency
         if: ${{ steps.should.outputs.RUN == 'true' }}
+        # NOTE: the 'sleep' below can be shortened or possibly eliminated once we switch from the 'dsnp/instant-seal-node-with-deployed-schemas'
+        #       to the 'frequencychain/standalone-node' with schemas in the genesis block (after Frequency 1.13 is deployed to Mainnet & the image is updated)
         run: |
-          docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d frequency
+          docker compose -f docker-compose.yaml -f docker-compose-e2e.${{ matrix.service }}.yaml --profile e2e up -d
           sleep 15
 
+      # TODO: make a service-agnostic setup script, or make service-specific setup scripts all in one place
       - name: Generate Provider and Capacity
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: tools/ci-k6
-        run: npm run main
+        working-directory: apps/account-api/test/setup
+        run: npm ci && npm run main
 
-      # Just start the services we need...
-      - name: Start All Services
+      - name: Run E2E Tests
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d
-
-      - name: Wait for API to be ready
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        uses: cygnetdigital/wait_for_response@v2.0.0
-        with:
-          url: 'http://localhost:3000/readyz'
-          responseCode: '200'
-          timeout: 120000
-          interval: 2000
-
-      - name: Setup K6
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        uses: grafana/setup-k6-action@v1
-      - name: Run k6 Tests
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: |
-          for test_file in apps/${{ matrix.service }}/k6-test/*.k6.js; do
-            k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
-          done
+        run: npm run test:e2e:${{ matrix.service }}
       - name: Stop Docker Compose
         if: ${{ steps.should.outputs.RUN == 'true' || failure() }}
-        run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml down
+        run: docker compose -f docker-compose.yaml -f docker-compose-e2e.${{ matrix.service }}.yaml --profile e2e down

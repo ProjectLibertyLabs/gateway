@@ -16,8 +16,9 @@ import {
   generateSignedAddKeyPayload,
   setupProviderAndUsers,
 } from './e2e-setup.mock.spec';
+import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 
-let HTTP_SERVER: any = process.env.HTTP_SERVER || 'http://0.0.0.0:3000';
+let HTTP_SERVER: any;
 
 describe('Keys Controller', () => {
   let app: INestApplication;
@@ -63,12 +64,25 @@ describe('Keys Controller', () => {
     app.enableShutdownHooks();
     await app.init();
     HTTP_SERVER = app.getHttpServer();
+
+    // Redis timeout keeping test suite alive for too long; disable
+    const cacheMonitor = app.get<CacheMonitorService>(CacheMonitorService);
+    cacheMonitor.startConnectionTimer = jest.fn();
   });
 
   afterAll(async () => {
     for (const u of users) {
       await removeExtraKeysFromMsa(u);
     }
+
+    await ExtrinsicHelper.disconnect();
+    await app.close();
+    await HTTP_SERVER.close();
+
+    // Wait for some pending async stuff to finish
+    await new Promise<void>((resolve) => {
+      setTimeout(() => resolve(), 1000);
+    });
   });
 
   describe('POST tests', () => {
@@ -91,7 +105,7 @@ describe('Keys Controller', () => {
         },
       };
 
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .post('/v1/keys/add')
         .send(keysRequest)
         .expect(200)
@@ -104,7 +118,7 @@ describe('Keys Controller', () => {
       // users[0] should have 2 keys based on our setup
       const user = users[0];
       const validMsaId = user.msaId!.toString();
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .get(`/v1/keys/${validMsaId}`)
         .expect(200)
         .expect({
@@ -116,7 +130,7 @@ describe('Keys Controller', () => {
       // users[3] should have a single key based on our setup
       const user = users[3];
       const validMsaId = user.msaId?.toString();
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .get(`/v1/keys/${validMsaId}`)
         .expect(200)
         .expect({ msaKeys: [user.keypair.address] });
@@ -124,7 +138,7 @@ describe('Keys Controller', () => {
 
     it('(GET) /keys/:msaId with invalid msaId', async () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
-      await request(app.getHttpServer())
+      await request(HTTP_SERVER)
         .get(`/v1/keys/${invalidMsaId.toString()}`)
         .expect(400)
         .expect({ statusCode: 400, message: 'Failed to find public keys for the given msaId' });

@@ -5,6 +5,7 @@
 // - Runs openapi-to-md when `{{#swagger-embed ../services/account/swagger.json}}` or other is found
 // - Replaces `{{#button-links}}` with the child links of that page in button form
 // - Replaces `{{#markdown-embed ../services/account/ENVIRONMENT.md [trim from top]}}` or other is found with the contents of that file
+// - Replaces `{{#svg-embed ../image.svg title}}` with the contents of the svg wrapped in <div class="svg-embed" title="[title]">[contents]</div>
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -84,6 +85,23 @@ function markdownEmbed(chapter) {
   }
 }
 
+function svgEmbed(chapter) {
+  const regex = /{{#svg-embed\s(.+?)\s(.+?)}}/;
+  const match = chapter.content.match(regex);
+  if (match) {
+    const svgFile = match[1];
+    const titleTag = match[2];
+    const output = readFileSync(svgFile, 'utf8');
+    const replaceWith = `<div class="svg-embed" title="${titleTag}">${output}</div>`;
+    chapter.content = chapter.content.replace(match[0], replaceWith);
+  }
+  if (chapter.sub_items) {
+    chapter.sub_items.forEach((section) => {
+      section.Chapter && svgEmbed(section.Chapter);
+    });
+  }
+}
+
 // Function to perform the preprocessing
 function preprocessMdBook([_context, book]) {
   // Button Links
@@ -99,6 +117,11 @@ function preprocessMdBook([_context, book]) {
   // Markdown Embed
   book.sections.forEach((section) => {
     section.Chapter && markdownEmbed(section.Chapter);
+  });
+
+  // SVG Embed
+  book.sections.forEach((section) => {
+    section.Chapter && svgEmbed(section.Chapter);
   });
 
   // Output the processed content in mdbook preprocessor format

@@ -8,8 +8,10 @@ import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectliber
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-let HTTP_SERVER: any = process.env.HTTP_SERVER || 'http://0.0.0.0:3000';
+let HTTP_SERVER: any;
 
 describe('Handles Controller', () => {
   let app: INestApplication;
@@ -17,6 +19,7 @@ describe('Handles Controller', () => {
   let users: ChainUser[];
   let provider: ChainUser;
   let currentBlockNumber: number;
+
   const handles = new Array(2)
     .fill(0)
     .map(() => uniqueNamesGenerator({ dictionaries: [colors, names], separator: '', length: 2, style: 'capital' }));
@@ -61,23 +64,37 @@ describe('Handles Controller', () => {
     }).compile();
 
     app = module.createNestApplication();
+    app.enableShutdownHooks();
+    app.useGlobalPipes();
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
       await app.close();
     });
+
     app.useGlobalPipes(new ValidationPipe());
     app.enableShutdownHooks();
+
     await app.init();
     HTTP_SERVER = app.getHttpServer();
+
+    // Redis timeout keeping test suite alive for too long; disable
+    const cacheMonitor = app.get<CacheMonitorService>(CacheMonitorService);
+    cacheMonitor.startConnectionTimer = jest.fn();
   });
 
   afterAll(async () => {
     // Clean up/retire any allocated handles
-    try {
-      await Promise.allSettled(users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()));
-    } catch (e) {
-      // do nothing
-    }
+    await Promise.allSettled(users.map((u) => ExtrinsicHelper.retireHandle(u.keypair).signAndSend()));
+
+    // Clean up/disconnect resources
+    await ExtrinsicHelper.disconnect();
+    await app.close();
+    HTTP_SERVER.close();
+
+    // Wait for some pending async stuff to finish
+    await new Promise<void>((resolve) => {
+      setTimeout(() => resolve(), 1000);
+    });
   });
 
   describe('Publishes Handle', () => {

@@ -24,11 +24,11 @@ Gateway offers a suite of tools you can pick and choose from to build the best a
 
 Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
 
-![Gateway Application Layer Diagram](./gateway_arch-Layer.drawio.png)
+{{#svg-embed ./src/GatewayLayers.svg Gateway Application Layer Diagram}}
 
 These microservices are completely independent of one another, so you can use only those pieces you want or need.
 
-![Gateway Application Microservice Diagram](./gateway_arch-TopLevelServices.drawio.png)
+{{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
 
 ## Key Microservices
 

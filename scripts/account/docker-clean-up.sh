@@ -6,11 +6,11 @@ docker compose down frequency redis account-service-api account-service-worker
 
 # Remove specified volumes
 echo "Removing specified volumes..."
-docker volume rm gateway_redis_data
-docker volume rm gateway_chainstorage
-docker volume rm gateway_account_api_node_cache
-docker volume rm gateway_account_worker_node_cache
-docker volume prune -f 
+docker -f volume rm gateway_redis_data
+docker -f volume rm gateway_chainstorage
+docker -f volume rm gateway_account_api_node_cache
+docker -f volume rm gateway_account_worker_node_cache
+docker volume prune -f
 
 # Remove account-service images
 echo "Removing account-service image..."

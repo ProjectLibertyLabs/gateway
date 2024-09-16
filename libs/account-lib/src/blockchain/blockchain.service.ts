@@ -523,7 +523,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       await tx.signAsync(signerAddress, {
         signer: {
           signRaw: (raw) => {
-            console.log('signRaw called with [raw]:', raw);
+            this.logger.verbose('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
             throw new Error('Stop here');

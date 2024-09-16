@@ -109,23 +109,22 @@ describe('Delegation Controller', () => {
     const { keypair } = users[1];
     const accountId = keypair.address;
     const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
-    const getRevokeDelegationPayloadResponse = await request(app.getHttpServer()).get(getPath).expect(200);
-    console.log(`RevokeDelegationPayloadResponse.body = ${JSON.stringify(getRevokeDelegationPayloadResponse.body)}`);
-    const { data } = getRevokeDelegationPayloadResponse.body.payloadToSign;
+    const response = await request(app.getHttpServer()).get(getPath).expect(200);
+    console.log(`response.body = ${JSON.stringify(response.body)}`);
+    const { payloadToSign, encodedExtrinsic } = response.body;
 
-    const signature: Uint8Array = keypair.sign(data, { withType: true });
+    const signature: Uint8Array = keypair.sign(payloadToSign, { withType: true });
     console.log(`signature = ${u8aToHex(signature)}`);
 
     const revokeDelegationRequest: RevokeDelegationPayloadRequestDto = {
       accountId,
       providerId,
-      encodedExtrinsic: getRevokeDelegationPayloadResponse.body.encodedExtrinsic,
-      payloadToSign: data,
+      encodedExtrinsic,
+      payloadToSign,
       signature: u8aToHex(signature),
     };
     console.log(`revokeDelegationRequest = ${JSON.stringify(revokeDelegationRequest)}`);
 
-    // TODO: This test is failing with a 400 error.
     const postPath = '/v1/delegation/revokeDelegation';
     await request(app.getHttpServer()).post(postPath).send(revokeDelegationRequest).expect(HttpStatus.CREATED);
   });

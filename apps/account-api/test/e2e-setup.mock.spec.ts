@@ -87,4 +87,3 @@ export async function generateAddPublicKeyExtrinsic(
   return () =>
     ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
 }
-

@@ -117,6 +117,13 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;
         }
+        case TransactionType.REVOKE_DELEGATION: {
+          const trx = await this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
+          targetEvent = { section: 'msa', method: 'DelegationRevoked' };
+          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
+          this.logger.debug(`tx: ${tx}`);
+          break;
+        }
         default: {
           throw new Error(`Invalid job type.`);
         }

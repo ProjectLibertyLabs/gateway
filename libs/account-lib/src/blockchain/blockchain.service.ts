@@ -9,6 +9,7 @@ import { AnyNumber, ISubmittableResult, SignerPayloadJSON, SignerPayloadRaw } fr
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
+  CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
   PalletCapacityEpochInfo,
@@ -30,6 +31,7 @@ import {
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
+import { RevokeDelegationPayloadResponseDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -282,6 +284,57 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     });
   }
 
+  // eslint-disable-next-line consistent-return, class-methods-use-this
+  public async getRawPayloadForSigning(
+    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    signerAddress: string,
+    // eslint-disable-next-line consistent-return
+  ): Promise<SignerPayloadRaw> {
+    let signRaw;
+    try {
+      await tx.signAsync(signerAddress, {
+        signer: {
+          signRaw: (raw) => {
+            this.logger.verbose('signRaw called with [raw]:', raw);
+            signRaw = raw;
+            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
+            throw new Error('Stop here');
+          },
+        },
+      });
+    } catch (_e) {
+      return signRaw;
+    }
+  }
+
+  public async createRevokedDelegationPayload(
+    accountId: string,
+    providerId: string,
+  ): Promise<RevokeDelegationPayloadResponseDto> {
+    // Get the transaction for revokeDelegation, will be used to get the raw payload for signing
+    const tx = this.api.tx.msa.revokeDelegationByDelegator(providerId);
+
+    // payload contains the signer address, the encoded data/payload for revokeDelegationByDelegator,
+    // and the type of the payload
+    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+
+    // encoded payload
+    const { data } = signerPayload;
+
+    return {
+      accountId,
+      providerId,
+      encodedExtrinsic: tx.toHex(),
+      payloadToSign: data as HexString,
+    };
+  }
+
+  public async revokeDelegationByDelegator(
+    providerId: string,
+  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+    return this.api.tx.msa.revokeDelegationByDelegator(providerId);
+  }
+
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
     const actions = payload.actions.map((a) => {
       switch (a.type) {
@@ -348,6 +401,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
     if (delegationResponse.isSome) return delegationResponse.unwrap();
+    return null;
+  }
+
+  public async getProviderToRegistryEntry(
+    providerId: AnyNumber,
+  ): Promise<CommonPrimitivesMsaProviderRegistryEntry | null> {
+    const providerRegistry = await this.api.query.msa.providerToRegistryEntry(providerId);
+    if (providerRegistry.isSome) return providerRegistry.unwrap();
     return null;
   }
 

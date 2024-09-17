@@ -5,6 +5,7 @@ export * from './graphs.request.dto';
 export * from './handles.request.dto';
 export * from './keys.request.dto';
 export * from './keys.response.dto';
+export * from './revokeDelegation.request.dto';
 export * from './transaction.request.dto';
 export * from './transaction.response.dto';
 export * from './wallet.login.config.response.dto';

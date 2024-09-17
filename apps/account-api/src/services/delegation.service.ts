@@ -1,7 +1,6 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionResponse } from '#account-lib/types/dtos';
-import { TransactionResponse } from '#account-lib/types/dtos';
 import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
 import {
   PublishRevokeDelegationRequestDto,

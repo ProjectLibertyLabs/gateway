@@ -19,7 +19,7 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
             const numberValue = BigInt(value);
-            if (validationOptions.minValue !== undefined) {
+            if (validationOptions.maxValue !== undefined) {
               return validationOptions.minValue <= numberValue && numberValue <= validationOptions.maxValue;
             }
             return validationOptions.minValue <= numberValue;

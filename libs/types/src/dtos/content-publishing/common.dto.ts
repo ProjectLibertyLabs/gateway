@@ -5,12 +5,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumberString } from 'class-validator';
 
-export class DsnpUserIdParam {
-  @IsNotEmpty()
-  @IsNumberString({ no_symbols: true })
-  userDsnpId: string;
-}
-
 export class AnnouncementResponseDto {
   referenceId: string;
 }

@@ -6,7 +6,10 @@ import { IsEnum, IsInt, IsNotEmpty, IsString, Matches, Max, Min, MinLength, Vali
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
 import { DSNP_EMOJI_REGEX } from './validation.dto';
-import { IsDsnpContentURI, IsDsnpContentHash } from '#content-publishing-lib/utils/dsnp-validation.decorator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDsnpContentURI } from '#utils/decorators/is-dsnp-content-uri.decorator';
+import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
+import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementTypeDto {
@@ -22,7 +25,12 @@ export class BroadcastDto {
 }
 
 export class ReplyDto {
-  @IsDsnpContentURI({ message: 'Invalid DSNP Content URI' })
+  @ApiProperty({
+    description: 'Target DSNP Content URI',
+    type: String,
+    example: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  })
+  @IsDsnpContentURI()
   inReplyTo: string;
 
   @IsNotEmpty()
@@ -32,19 +40,39 @@ export class ReplyDto {
 }
 
 export class TombstoneDto {
-  @IsDsnpContentHash({ message: 'Invalid DSNP content hash' })
+  @ApiProperty({
+    description: 'Target DSNP Content Hash',
+    type: String,
+    example: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  })
+  @IsDsnpContentHash()
   @IsNotEmpty()
   targetContentHash: string;
 
+  @ApiProperty({
+    description: 'Target announcement type',
+    type: String,
+    example: 'broadcast',
+  })
   @IsEnum(ModifiableAnnouncementTypeDto)
   targetAnnouncementType: ModifiableAnnouncementTypeDto;
 }
 
 export class UpdateDto {
-  @IsDsnpContentHash({ message: 'Invalid DSNP content hash' })
+  @ApiProperty({
+    description: 'Target DSNP Content Hash',
+    type: String,
+    example: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  })
+  @IsDsnpContentHash()
   @IsNotEmpty()
   targetContentHash: string;
 
+  @ApiProperty({
+    description: 'Target announcement type',
+    type: String,
+    example: 'broadcast',
+  })
   @IsEnum(ModifiableAnnouncementTypeDto)
   targetAnnouncementType: ModifiableAnnouncementTypeDto;
 
@@ -55,17 +83,30 @@ export class UpdateDto {
 }
 
 export class ReactionDto {
+  @ApiProperty({
+    description: 'the encoded reaction emoji',
+    type: String,
+    example: '😀',
+  })
   @MinLength(1)
   @IsString()
   @Matches(DSNP_EMOJI_REGEX)
   emoji: string;
 
-  @IsInt()
-  @Min(0)
-  @Max(255)
+  @ApiProperty({
+    description: 'Indicates whether the emoji should be applied and if so, at what strength',
+    type: 'number',
+    example: '1',
+  })
+  @IsIntValue({ minValue: 0, maxValue: 255 })
   apply: number;
 
-  @IsDsnpContentURI({ message: 'Invalid DSNP Content URI' })
+  @ApiProperty({
+    description: 'Target DSNP Content URI',
+    type: String,
+    example: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  })
+  @IsDsnpContentURI()
   inReplyTo: string;
 }
 

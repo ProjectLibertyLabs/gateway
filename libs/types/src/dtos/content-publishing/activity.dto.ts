@@ -12,7 +12,6 @@ import {
   IsLongitude,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUrl,
   Matches,
@@ -24,7 +23,9 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DURATION_REGEX } from './validation.dto';
-import { IsDsnpUserURI } from '#content-publishing-lib/utils/dsnp-validation.decorator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
+import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum UnitTypeDto {
@@ -51,55 +52,108 @@ export enum AttachmentType {
 }
 
 export class LocationDto {
+  @ApiProperty({
+    description: 'The display name for the location',
+    type: String,
+    example: 'New York City, NY',
+  })
   @MinLength(1)
   @IsString()
   name: string;
 
+  @ApiPropertyOptional({
+    description: 'The accuracy of the coordinates as a percentage.  (e.g. 94.0 means 94.0% accurate)',
+    type: 'number',
+    example: '94.0',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(100)
   accuracy?: number;
 
+  @ApiPropertyOptional({
+    description: 'The altitude of the location',
+    type: 'number',
+    example: '10',
+  })
   @IsOptional()
   @IsNumber()
   altitude?: number;
 
+  @ApiPropertyOptional({
+    description: 'The latitude of the location',
+    type: 'number',
+    example: '40.73',
+  })
   @IsOptional()
   @IsNumber()
   @IsLatitude()
   latitude?: number;
 
+  @ApiPropertyOptional({
+    description: 'The longitude of the location',
+    type: 'number',
+    example: '-73.93',
+  })
   @IsOptional()
   @IsNumber()
   @IsLongitude()
   longitude?: number;
 
+  @ApiPropertyOptional({
+    description: 'The area around the given point that comprises the location',
+    type: 'number',
+    example: '100',
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   radius?: number;
 
+  @ApiPropertyOptional({
+    description: 'The units for radius and altitude (defaults to meters)',
+    type: String,
+    example: 'm',
+  })
   @IsOptional()
   @IsEnum(UnitTypeDto)
   units?: UnitTypeDto;
 }
 
 export class AssetReferenceDto {
+  @ApiProperty({
+    description: 'The unique Id for the uploaded asset.',
+    type: String,
+    example: 'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu',
+  })
   @MinLength(1)
   @IsString()
   referenceId: string;
 
+  @ApiPropertyOptional({
+    description: 'A hint as to the rendering height in device-independent pixels for image or video assets.',
+    type: 'number',
+    example: '228',
+  })
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsIntValue({ minValue: 0 })
   height?: number;
 
+  @ApiPropertyOptional({
+    description: 'A hint as to the rendering width in device-independent pixels for image or video asset',
+    type: 'number',
+    example: '350',
+  })
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsIntValue({ minValue: 0 })
   width?: number;
 
+  @ApiPropertyOptional({
+    description: 'Approximate duration of the video or audio asset',
+    type: String,
+    example: 'PT10M32S',
+  })
   @IsOptional()
   @IsString()
   @Matches(DURATION_REGEX)
@@ -107,14 +161,29 @@ export class AssetReferenceDto {
 }
 
 export class TagDto {
+  @ApiProperty({
+    description: 'Identifies the tag type',
+    type: String,
+    example: 'mention',
+  })
   @IsEnum(TagTypeDto)
   type: TagTypeDto;
 
+  @ApiPropertyOptional({
+    description: 'The text of the tag',
+    type: String,
+    example: '@sally',
+  })
   @ValidateIf((o) => o.type === TagTypeDto.Hashtag)
   @MinLength(1)
   @IsString()
   name?: string;
 
+  @ApiPropertyOptional({
+    description: 'Link to the user mentioned',
+    type: String,
+    example: 'dsnp://12345678',
+  })
   @ValidateIf((o) => o.type === TagTypeDto.Mention)
   @IsDsnpUserURI({ message: 'Invalid DSNP User URI' })
   mentionedId?: string;
@@ -129,11 +198,21 @@ export class AssetDto {
   @Type(() => AssetReferenceDto)
   references?: AssetReferenceDto[];
 
+  @ApiPropertyOptional({
+    description: 'The display name for the file',
+    type: String,
+    example: 'TheScream',
+  })
   @IsOptional()
   @IsString()
   @MinLength(1)
   name?: string;
 
+  @ApiPropertyOptional({
+    description: 'The URL for the given content',
+    type: String,
+    example: 'https://upload.wikimedia.org/wikipedia/commons/d/d9/Wilhelm_Scream.ogg',
+  })
   @ValidateIf((o) => o.type === AttachmentType.LINK)
   @IsString()
   @MinLength(1)
@@ -142,6 +221,11 @@ export class AssetDto {
 }
 
 export class BaseActivityDto {
+  @ApiPropertyOptional({
+    description: 'The display name for the activity type',
+    type: String,
+    example: 'A simple activity',
+  })
   @IsOptional()
   name?: string;
 
@@ -158,10 +242,20 @@ export class BaseActivityDto {
 }
 
 export class NoteActivityDto extends BaseActivityDto {
+  @ApiProperty({
+    description: 'Text content of the note',
+    type: String,
+    example: 'Hello world!',
+  })
   @MinLength(1)
   @IsString()
   content: string;
 
+  @ApiProperty({
+    description: 'The time of publishing ISO8601',
+    type: String,
+    example: '1970-01-01T00:00:00+00:00',
+  })
   @IsISO8601({ strict: true, strictSeparator: true })
   published: string;
 
@@ -180,10 +274,20 @@ export class ProfileActivityDto extends BaseActivityDto {
   @Type(() => AssetReferenceDto)
   icon?: AssetReferenceDto[];
 
+  @ApiPropertyOptional({
+    description: 'Used as a plain text biography of the profile',
+    type: String,
+    example: 'John Doe is actually a small kitten.',
+  })
   @IsOptional()
   @IsString()
   summary?: string;
 
+  @ApiPropertyOptional({
+    description: 'The time of publishing ISO8601',
+    type: String,
+    example: '1970-01-01T00:00:00+00:00',
+  })
   @IsOptional()
   @IsISO8601({ strict: true, strictSeparator: true })
   published?: string;

@@ -12,6 +12,7 @@ describe('Content Publishing API Config', () => {
     API_PORT: undefined,
     // API_TIMEOUT_MS: undefined,
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: undefined,
+    FILE_UPLOAD_COUNT_LIMIT: undefined,
   };
 
   beforeAll(() => {
@@ -49,6 +50,12 @@ describe('Content Publishing API Config', () => {
     it('should get file upload limit', () => {
       expect(contentPublishingServiceConfig.fileUploadMaxSizeBytes).toStrictEqual(
         parseInt(ALL_ENV.FILE_UPLOAD_MAX_SIZE_IN_BYTES as string, 10),
+      );
+    });
+
+    it('should get file upload count limit', () => {
+      expect(contentPublishingServiceConfig.fileUploadCountLimit).toStrictEqual(
+        parseInt(ALL_ENV.FILE_UPLOAD_COUNT_LIMIT as string, 10),
       );
     });
 

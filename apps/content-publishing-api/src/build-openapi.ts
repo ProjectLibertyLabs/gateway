@@ -22,6 +22,7 @@ process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
 process.env.IPFS_ENDPOINT = 'http://127.0.0.1';
 process.env.IPFS_GATEWAY_URL = 'http://127.0.0.1';
 process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES = '100';
+process.env.FILE_UPLOAD_COUNT_LIMIT = '10';
 process.env.ASSET_EXPIRATION_INTERVAL_SECONDS = '100';
 process.env.BATCH_INTERVAL_SECONDS = '100';
 process.env.BATCH_MAX_COUNT = '100';

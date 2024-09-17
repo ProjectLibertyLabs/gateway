@@ -7,6 +7,7 @@ export interface IContentPublishingApiConfig {
   apiPort: number;
   // apiTimeoutMs: number;
   fileUploadMaxSizeBytes: number;
+  fileUploadCountLimit: number;
 }
 
 export default registerAs('content-publishing-api', (): IContentPublishingApiConfig => {
@@ -25,6 +26,10 @@ export default registerAs('content-publishing-api', (): IContentPublishingApiCon
     // },
     fileUploadMaxSizeBytes: {
       value: process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES,
+      joi: Joi.number().min(1).required(),
+    },
+    fileUploadCountLimit: {
+      value: process.env.FILE_UPLOAD_COUNT_LIMIT,
       joi: Joi.number().min(1).required(),
     },
   };

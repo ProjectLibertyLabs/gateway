@@ -4,12 +4,12 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
 import { AppConfigService } from '../config/config.service';
-import { calculateJobId } from '..';
-import * as QueueConstants from '../queues/queue-constants';
-import { IIPFSJob } from '../interfaces/ipfs.job.interface';
+import { calculateJobId } from '#types/constants';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
+import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
-import { AnnouncementResponse } from '../types/content-announcement';
+import { AnnouncementResponse } from '#types/content-announcement';
 import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isUpdate } from '../utils/type-guards';
 
 @Injectable()

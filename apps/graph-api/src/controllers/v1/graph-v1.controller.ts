@@ -1,6 +1,6 @@
 import { ApiService } from '#graph-api/api.service';
 import { ReadOnlyGuard } from '#graph-api/guards/read-only.guard';
-import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#graph-lib/dtos';
+import { UserGraphDto, GraphsQueryParamsDto, GraphChangeRepsonseDto, ProviderGraphDto } from '#types/dtos/graph';
 import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 

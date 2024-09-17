@@ -4,17 +4,16 @@ import { Job, Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BatchAnnouncer } from './batch.announcer';
 import { BaseConsumer } from '../BaseConsumer';
-import { BATCH_QUEUE_NAME, PUBLISH_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { ContentPublishingQueues as QueueConstants, CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import { CAPACITY_EPOCH_TIMEOUT_NAME } from '#content-publishing-lib/constants';
 
 @Injectable()
-@Processor(BATCH_QUEUE_NAME, {
+@Processor(QueueConstants.BATCH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class BatchAnnouncementService extends BaseConsumer implements OnModuleDestroy {
   constructor(
-    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private ipfsPublisher: BatchAnnouncer,
     private schedulerRegistry: SchedulerRegistry,
   ) {

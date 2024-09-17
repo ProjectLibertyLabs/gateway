@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BlockchainService } from './blockchain.service';
-import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
+import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { ApiDecoration } from '@polkadot/api/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { Vec } from '@polkadot/types';
 import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
-import { MessageResponseWithSchemaId } from '../interfaces/message_response_with_schema_id';
-import { createIPFSQueueJob } from '../interfaces/ipfs.job.interface';
+import { MessageResponseWithSchemaId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
+import { createIPFSQueueJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { Queue } from 'bullmq';
 
 @Injectable()

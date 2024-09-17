@@ -4,13 +4,13 @@ import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { ConfigService } from '#content-publishing-lib/config';
-import { IAssetJob } from '#content-publishing-lib/interfaces';
-import { ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import { IAssetJob } from '#types/interfaces/content-publishing';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 
 @Injectable()
-@Processor(ASSET_QUEUE_NAME)
+@Processor(QueueConstants.ASSET_QUEUE_NAME)
 export class AssetProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private redis: Redis,

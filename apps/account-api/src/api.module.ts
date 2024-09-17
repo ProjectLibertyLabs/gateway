@@ -9,7 +9,8 @@ import { ConfigModule } from '#account-lib/config/config.module';
 import { ConfigService } from '#account-lib/config/config.service';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { QueueModule, QueueConstants } from '#account-lib/queues';
+import { QueueModule } from '#account-lib/queues';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#account-lib/cache/cache.module';
 import {
   AccountsControllerV1,

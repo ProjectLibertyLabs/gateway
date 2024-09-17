@@ -5,8 +5,10 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#account-lib/types/enums';
-import { RedisUtils, SECONDS_PER_BLOCK } from '#account-lib';
+import { TransactionType } from '#types/enums/account-enums';
+import { RedisUtils } from '#account-lib';
+import { TxWebhookRsp } from '#types/dtos/account';
+import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -15,9 +17,8 @@ import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#account-lib/config/config.service';
-import { QueueConstants } from '#account-lib/queues';
+import { ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
-import { TxWebhookRsp } from '#account-lib/types/dtos';
 
 @Injectable()
 export class TxnNotifierService
@@ -251,7 +252,7 @@ export class TxnNotifierService
   }
 
   async getWebhookList(msaId: number): Promise<string[]> {
-    const redisKey = `${QueueConstants.REDIS_WATCHER_PREFIX}:${msaId}`;
+    const redisKey = `${ACCOUNT_SERVICE_WATCHER_PREFIX}:${msaId}`;
     const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
 
     return redisList || [];

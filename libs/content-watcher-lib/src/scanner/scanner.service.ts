@@ -10,12 +10,12 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
 import { AppConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import * as QueueConstants from '../queues/queue-constants';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '../constants';
-import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
+import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
+import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
-import { IScanReset } from '../interfaces/scan-reset.interface';
+import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 

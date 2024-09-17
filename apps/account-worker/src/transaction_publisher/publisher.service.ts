@@ -11,10 +11,11 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
 import { createKeys } from '#account-lib/blockchain/create-keys';
 import { NonceService } from '#account-lib/services/nonce.service';
-import { TransactionType } from '#account-lib/types/enums';
-import { QueueConstants } from '#account-lib/queues';
+import { TransactionType } from '#types/enums/account-enums';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
 import { RedisUtils } from '#account-lib';
+import { TransactionData } from '#types/dtos/account';
 import { ConfigService } from '#account-lib/config/config.service';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
@@ -24,7 +25,6 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { TransactionData } from '#account-lib/types/dtos';
 import { getSignerForRawSignature } from '#account-lib/utils/utility';
 
 export const SECONDS_PER_BLOCK = 12;

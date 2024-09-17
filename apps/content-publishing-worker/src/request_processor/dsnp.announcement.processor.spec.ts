@@ -3,9 +3,10 @@ import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import { ConfigService } from '#content-publishing-lib/config';
-import { AnnouncementTypeDto, ModifiableAnnouncementTypeDto, TagTypeDto } from '#content-publishing-lib/dtos';
-import { IRequestJob } from '#content-publishing-lib/interfaces';
+import { ModifiableAnnouncementTypeDto, TagTypeDto } from '#types/dtos/content-publishing';
+import { IRequestJob } from '#types/interfaces/content-publishing';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
+import { AnnouncementTypeName } from '#types/enums';
 
 const mockQueue = {
   add: jest.fn(),
@@ -58,7 +59,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '1',
-      announcementType: AnnouncementTypeDto.BROADCAST,
+      announcementType: AnnouncementTypeName.BROADCAST,
       dsnpUserId: 'dsnp://123',
       dependencyAttempt: 0,
       content: {
@@ -83,7 +84,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '2',
-      announcementType: AnnouncementTypeDto.REPLY,
+      announcementType: AnnouncementTypeName.REPLY,
       dsnpUserId: 'dsnp://456',
       dependencyAttempt: 0,
       content: {
@@ -110,7 +111,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '3',
-      announcementType: AnnouncementTypeDto.REACTION,
+      announcementType: AnnouncementTypeName.REACTION,
       dsnpUserId: 'dsnp://789',
       dependencyAttempt: 0,
       content: {
@@ -134,7 +135,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '4',
-      announcementType: AnnouncementTypeDto.UPDATE,
+      announcementType: AnnouncementTypeName.UPDATE,
       dsnpUserId: 'dsnp://101',
       dependencyAttempt: 0,
       content: {
@@ -162,7 +163,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '5',
-      announcementType: AnnouncementTypeDto.PROFILE,
+      announcementType: AnnouncementTypeName.PROFILE,
       dsnpUserId: 'dsnp://789',
       dependencyAttempt: 0,
       content: {
@@ -193,7 +194,7 @@ describe('DsnpAnnouncementProcessor', () => {
 
     const data: IRequestJob = {
       id: '6',
-      announcementType: AnnouncementTypeDto.TOMBSTONE,
+      announcementType: AnnouncementTypeName.TOMBSTONE,
       dsnpUserId: 'dsnp://999',
       dependencyAttempt: 0,
       content: {

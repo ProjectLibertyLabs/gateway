@@ -1,5 +1,5 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { KeysResponse } from '#account-lib/types/dtos/keys.response.dto';
+import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '#account-lib/config';
 import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
@@ -8,7 +8,7 @@ import {
   AddNewPublicKeyAgreementPayloadRequest,
   ItemActionType,
   ItemizedSignaturePayloadDto,
-} from '#account-lib/types/dtos/graphs.request.dto';
+} from '#types/dtos/account/graphs.request.dto';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 

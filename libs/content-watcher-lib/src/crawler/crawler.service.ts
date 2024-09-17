@@ -4,10 +4,10 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { DelayedError, Job, Queue } from 'bullmq';
-import * as QueueConstants from '../queues/queue-constants';
-import { ChainWatchOptionsDto } from '../dtos/chain.watch.dto';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
+import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { BaseConsumer } from '../utils/base-consumer';
-import { ContentSearchRequestDto } from '../dtos/content-search-request.dto';
+import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-search-request.dto';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 

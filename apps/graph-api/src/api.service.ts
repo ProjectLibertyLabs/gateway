@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
-import * as QueueConstants from '#graph-lib/queues/queue-constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as RedisConstants from '#graph-lib/utils/redis';
 import { ConfigService } from '#graph-lib/config';
 import { BlockchainService } from '#graph-lib/blockchain';
@@ -14,10 +14,11 @@ import {
   WatchGraphsDto,
   GraphsQueryParamsDto,
   UserGraphDto,
-} from '#graph-lib/dtos';
-import { ProviderGraphUpdateJob } from '#graph-lib/interfaces';
+} from '#types/dtos/graph';
+import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
+import { DEBOUNCER_CACHE_KEY, LAST_PROCESSED_DSNP_ID_KEY } from '#types/constants';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -49,8 +50,8 @@ export class ApiService implements BeforeApplicationShutdown {
 
   beforeApplicationShutdown(_signal?: string | undefined) {
     try {
-      this.redis.del(QueueConstants.DEBOUNCER_CACHE_KEY);
-      this.redis.del(QueueConstants.LAST_PROCESSED_DSNP_ID_KEY);
+      this.redis.del(DEBOUNCER_CACHE_KEY);
+      this.redis.del(LAST_PROCESSED_DSNP_ID_KEY);
       this.logger.log('Cleanup on shutdown completed.');
     } catch (e) {
       this.logger.error(`Error during cleanup on shutdown: ${e}`);

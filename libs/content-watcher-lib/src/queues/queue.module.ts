@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
 import { AppConfigService } from '../config/config.service';
-import * as QueueConstants from './queue-constants';
+import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 
 @Global()
 @Module({

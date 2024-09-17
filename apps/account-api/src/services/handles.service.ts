@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
-import { HandleRequestDto } from '#account-lib/types/dtos';
+import { HandleRequestDto } from '#types/dtos/account';
 
 @Injectable()
 export class HandlesService {

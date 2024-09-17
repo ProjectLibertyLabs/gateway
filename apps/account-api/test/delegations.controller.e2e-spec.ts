@@ -8,8 +8,8 @@ import { ChainUser, ExtrinsicHelper, Schema, SchemaBuilder } from '@projectliber
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
-import { RevokeDelegationPayloadRequestDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
 import { u8aToHex } from '@polkadot/util';
+import { RevokeDelegationPayloadRequestDto } from '#types/dtos/account';
 
 let users: ChainUser[];
 let provider: ChainUser;

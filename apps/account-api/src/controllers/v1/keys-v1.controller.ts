@@ -1,6 +1,6 @@
 import { KeysService } from '#account-api/services/keys.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import {
   Controller,
   Get,
@@ -13,19 +13,18 @@ import {
   Post,
   UseGuards,
   Query,
-  BadRequestException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { KeysRequestDto, AddKeyRequestDto } from '#account-lib/types/dtos/keys.request.dto';
-import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
-import { KeysResponse } from '#account-lib/types/dtos/keys.response.dto';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { KeysRequestDto, AddKeyRequestDto } from '#types/dtos/account/keys.request.dto';
+import { TransactionResponse } from '#types/dtos/account/transaction.response.dto';
+import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
-} from '#account-lib/types/dtos/graphs.request.dto';
+} from '#types/dtos/account/graphs.request.dto';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')

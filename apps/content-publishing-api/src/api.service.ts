@@ -7,22 +7,22 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import {
-  AnnouncementTypeDto,
   RequestTypeDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
   isImage,
   UploadResponseDto,
   AttachmentType,
-} from '#content-publishing-lib/dtos';
-import { IRequestJob, IAssetMetadata, IAssetJob } from '#content-publishing-lib/interfaces';
-import { REQUEST_QUEUE_NAME, ASSET_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+} from '#types/dtos/content-publishing';
+import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
 import {
   getAssetMetadataKey,
   getAssetDataKey,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#content-publishing-lib/utils/redis';
+import { AnnouncementTypeName } from '#types/enums';
 
 @Injectable()
 export class ApiService {
@@ -30,14 +30,14 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(ASSET_QUEUE_NAME) private assetQueue: Queue,
+    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
 
   async enqueueRequest(
-    announcementType: AnnouncementTypeDto,
+    announcementType: AnnouncementTypeName,
     dsnpUserId: string,
     content: RequestTypeDto,
     assetToMimeType?: IRequestJob['assetToMimeType'],

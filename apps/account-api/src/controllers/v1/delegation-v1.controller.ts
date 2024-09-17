@@ -77,12 +77,10 @@ export class DelegationControllerV1 {
       this.logger.verbose(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);
       return this.delegationService.getRevokeDelegationPayload(accountId, providerId);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error('Error generating RevokeDelegationPayload', error);
       if (error instanceof HttpException) {
-        this.logger.error('Caught HttpException');
         throw error;
       } else {
-        this.logger.error('Caught error: Failed to generate the RevokeDelegationPayload');
         throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
       }
     }

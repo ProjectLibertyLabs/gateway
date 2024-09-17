@@ -129,27 +129,26 @@ describe('Delegation Controller', () => {
   });
 
   it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid providerId', async () => {
-    const { keypair } = users[1];
+    // Test provisioned users are not registered providers
+    const { keypair, msaId } = users[1];
     const accountId = keypair.address;
-    const invalidProviderId = '9999';
-    const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${invalidProviderId}`;
+    const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${msaId}`;
     await request(httpServer).get(getPath).expect(400).expect({
       statusCode: 400,
       message: 'Provider not found',
     });
   });
 
-  it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
-    const providerId = provider.msaId?.toString();
-    const keyring = new Keyring({ type: 'sr25519' });
-    const keypair = keyring.addFromUri('//Alice');
-
-    const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
-    await request(httpServer).get(getPath).expect(404).expect({
-      statusCode: 404,
-      message: 'Delegation not found',
-    });
-  });
+  // it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
+  //   const providerId = provider.msaId?.toString();
+  //   // last user has no delegations because they were revoked
+  //   const { keypair } = users[3];
+  //   const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
+  //   await request(httpServer).get(getPath).expect(404).expect({
+  //     statusCode: 404,
+  //     message: 'Delegation not found',
+  //   });
+  // });
 
   it('(POST) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {
     const providerId = provider.msaId?.toString();

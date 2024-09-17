@@ -65,7 +65,8 @@ export class DelegationService {
     // Validate that delegations exist for this msaId
     try {
       const delegations = await this.getDelegation(msaId);
-      if (delegations.providerId !== providerId) {
+      // Check if the delegation is already revoked
+      if (delegations.revokedAt.toNumber() !== 0) {
         throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
       }
     } catch (e: any) {

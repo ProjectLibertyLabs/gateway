@@ -79,19 +79,27 @@ export class DelegationControllerV1 {
     } catch (error) {
       this.logger.error(error);
       if (error instanceof HttpException) {
+        this.logger.error('Caught HttpException');
         throw error;
       } else {
+        this.logger.error('Caught error: Failed to generate the RevokeDelegationPayload');
         throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
       }
     }
   }
 
-  // Pass through the revoke delegation request to the blockchain
   @Post('revokeDelegation')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to revoke a delegation' })
   @ApiCreatedResponse({ description: 'Created and queued request to revoke a delegation', type: TransactionResponse })
   @ApiBody({ type: RevokeDelegationPayloadRequestDto })
+  /**
+   * Posts a request to revoke a delegation.
+   *
+   * @param revokeDelegationRequest - The payload request for revoking the delegation.
+   * @returns A promise that resolves to a TransactionResponse.
+   * @throws HttpException if the revocation fails.
+   */
   async postRevokeDelegation(
     @Body()
     revokeDelegationRequest: RevokeDelegationPayloadRequestDto,

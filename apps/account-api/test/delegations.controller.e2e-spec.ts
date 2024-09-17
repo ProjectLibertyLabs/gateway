@@ -10,6 +10,7 @@ import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 import { RevokeDelegationPayloadRequestDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
 import { u8aToHex } from '@polkadot/util';
+import Keyring from '@polkadot/keyring';
 
 let users: ChainUser[];
 let provider: ChainUser;
@@ -102,6 +103,52 @@ describe('Delegation Controller', () => {
         },
         revokedAt: '0x00000000',
       });
+  });
+
+  it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid accountId', async () => {
+    const providerId = provider.msaId?.toString();
+    const { keypair } = users[1];
+    const invalidAccountId = `${keypair.address.slice(0, -1)}5`;
+    const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
+    await request(httpServer).get(getPath).expect(400).expect({
+      statusCode: 400,
+      message: 'Invalid accountId',
+    });
+  });
+
+  it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
+    const providerId = provider.msaId?.toString();
+    const keyring = new Keyring({ type: 'sr25519' });
+    const keypair = keyring.addFromUri('//Bob');
+
+    const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
+    await request(httpServer).get(getPath).expect(404).expect({
+      statusCode: 404,
+      message: 'MSA ID for account not found',
+    });
+  });
+
+  it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid providerId', async () => {
+    const { keypair } = users[1];
+    const accountId = keypair.address;
+    const invalidProviderId = '9999';
+    const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${invalidProviderId}`;
+    await request(httpServer).get(getPath).expect(400).expect({
+      statusCode: 400,
+      message: 'Provider not found',
+    });
+  });
+
+  it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
+    const providerId = provider.msaId?.toString();
+    const keyring = new Keyring({ type: 'sr25519' });
+    const keypair = keyring.addFromUri('//Alice');
+
+    const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
+    await request(httpServer).get(getPath).expect(404).expect({
+      statusCode: 404,
+      message: 'Delegation not found',
+    });
   });
 
   it('(POST) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {

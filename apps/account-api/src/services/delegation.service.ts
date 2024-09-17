@@ -10,6 +10,7 @@ import {
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { TransactionType } from '#account-lib';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
+import { isAddress } from '@polkadot/util-crypto';
 
 @Injectable()
 export class DelegationService {
@@ -47,26 +48,29 @@ export class DelegationService {
   }
 
   async getRevokeDelegationPayload(accountId: string, providerId: string): Promise<RevokeDelegationPayloadResponseDto> {
+    if (!isAddress(accountId)) {
+      throw new HttpException('Invalid accountId', HttpStatus.BAD_REQUEST);
+    }
+    const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
+    if (!msaId) {
+      throw new HttpException('MSA ID for account not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Validate that the providerId is a registered provider, also checks for valid MSA ID
+    const providerRegistry = await this.blockchainService.getProviderToRegistryEntry(providerId);
+    if (!providerRegistry) {
+      throw new HttpException('Provider not found', HttpStatus.BAD_REQUEST);
+    }
+
+    // Validate that delegations exist for this msaId
     try {
-      const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
-      if (!msaId) {
-        throw new HttpException('MSA ID for account not found', HttpStatus.NOT_FOUND);
-      }
-
-      // Validate that the providerId is a registered provider, also checks for valid MSA ID
-      const providerRegistry = await this.blockchainService.getProviderToRegistryEntry(providerId);
-      if (!providerRegistry) {
-        throw new HttpException('Provider not found', HttpStatus.BAD_REQUEST);
-      }
-
-      // Validate that delegations exist for this msaId
       const delegations = await this.getDelegation(msaId);
       if (delegations.providerId !== providerId) {
         throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
       }
     } catch (e: any) {
       this.logger.error(`Failed to get revoke delegation payload: ${e.toString()}`);
-      throw new Error('Failed to get revoke delegation payload');
+      throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
     }
     return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
   }

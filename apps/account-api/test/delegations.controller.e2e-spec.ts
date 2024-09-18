@@ -9,7 +9,9 @@ import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
 import { u8aToHex } from '@polkadot/util';
+import Keyring from '@polkadot/keyring';
 import { RevokeDelegationPayloadRequestDto, RevokeDelegationPayloadResponseDto } from '#types/dtos/account';
+import { KeyringPair } from '@polkadot/keyring/types';
 
 let users: ChainUser[];
 let revokedUser: ChainUser;
@@ -24,6 +26,7 @@ let privateConnectionsSchema: Schema | undefined;
 let httpServer: any;
 let invalidMsaId: string;
 let msaNonProviderId: string;
+let nonMsaKeypair: KeyringPair;
 
 describe('Delegation Controller', () => {
   let app: INestApplication;
@@ -40,6 +43,7 @@ describe('Delegation Controller', () => {
 
     invalidMsaId = (BigInt(maxMsaId) + 100n).toString();
     msaNonProviderId = users[0].msaId.toString();
+    nonMsaKeypair = new Keyring({ type: 'sr25519' }).createFromUri('//Alice//invalidUser');
 
     module = await Test.createTestingModule({
       imports: [ApiModule],
@@ -101,7 +105,7 @@ describe('Delegation Controller', () => {
       const validMsaId = users[0]?.msaId?.toString();
       await request(httpServer)
         .get(`/v1/delegation/${validMsaId}`)
-        .expect(200)
+        .expect(HttpStatus.OK)
         .expect({
           providerId: provider.msaId?.toString(),
           schemaPermissions: {
@@ -119,13 +123,62 @@ describe('Delegation Controller', () => {
   describe('/v1/delegation/revokeDelegation', () => {
     let delegationObj: RevokeDelegationPayloadResponseDto;
 
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid accountId', async () => {
+      const providerId = provider.msaId?.toString();
+      const { keypair } = users[1];
+      const invalidAccountId = `${keypair.address.slice(0, -1)}5H`;
+      const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
+      await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Invalid accountId',
+      });
+    });
+
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
+      const providerId = provider.msaId?.toString();
+      const getPath: string = `/v1/delegation/revokeDelegation/${nonMsaKeypair.address}/${providerId}`;
+      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'MSA ID for account not found',
+      });
+    });
+
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid providerId', async () => {
+      // Test provisioned users are not registered providers
+      const { keypair, msaId } = users[1];
+      const accountId = keypair.address;
+      const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${msaId}`;
+      await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Supplied ID not a Provider',
+      });
+    });
+
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
+      const providerId = provider.msaId?.toString();
+      const getPath: string = `/v1/delegation/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
+      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Delegation already revoked',
+      });
+    });
+
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
+      const providerId = provider.msaId?.toString();
+      const getPath: string = `/v1/delegation/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
+      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'No delegations found',
+      });
+    });
+
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {
       const providerId = provider.msaId?.toString();
       const accountId = users[1].keypair.address;
       const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
       const response = await request(httpServer)
         .get(getPath)
-        .expect(200)
+        .expect(HttpStatus.OK)
         .expect(({ body }) =>
           expect(body).toMatchObject({
             payloadToSign: expect.stringMatching(/^0x3c04/),

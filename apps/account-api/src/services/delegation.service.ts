@@ -7,8 +7,8 @@ import {
   TransactionResponse,
   PublishRevokeDelegationRequestDto,
 } from '#types/dtos/account';
-import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
 import { TransactionType } from '#types/enums';
+import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -83,5 +83,39 @@ export class DelegationService {
       this.logger.error(`Failed to enqueue revokeDelegation request: ${e.toString()}`);
       throw new Error('Failed to enqueue revokeDelegation request');
     }
+  }
+
+  async getDelegationV2(msaId: string, providerId?: string): Promise<DelegationResponseV2> {
+    const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
+    if (!isValidMsaId) {
+      throw new HttpException('Invalid MSA', HttpStatus.NOT_FOUND);
+    }
+
+    if (providerId) {
+      const isValidProviderId = await this.blockchainService.isValidMsaId(providerId);
+      if (!isValidProviderId) {
+        throw new HttpException('Invalid provider', HttpStatus.NOT_FOUND);
+      }
+
+      const providerInfo = await this.blockchainService.api.query.msa.providerToRegistryEntry(providerId);
+      if (providerInfo.isNone) {
+        throw new HttpException('Supplied ID not a Provider', HttpStatus.BAD_REQUEST);
+      }
+
+      const delegation = await this.blockchainService.getProviderDelegationForMsa(msaId, providerId);
+      if (!delegation) {
+        throw new HttpException('No delegations found', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        msaId,
+        delegations: [delegation],
+      };
+    }
+
+    return {
+      msaId,
+      delegations: await this.blockchainService.getDelegationsForMsa(msaId),
+    };
   }
 }

@@ -1,5 +1,6 @@
 export * from './accounts.request.dto';
 export * from './accounts.response.dto';
+export * from './delegation.request.dto';
 export * from './delegation.response.dto';
 export * from './graphs.request.dto';
 export * from './handles.request.dto';

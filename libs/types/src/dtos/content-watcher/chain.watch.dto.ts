@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsInt, IsNumberString, IsOptional, Max, Min } from 'class-validator';
 
 /**
  * Interface for chain filter options
@@ -12,7 +12,11 @@ export class ChainWatchOptionsDto {
   // Specific schema ids to watch for
   @IsOptional()
   @IsArray()
-  @Type(() => Number)
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsInt({ each: true })
+  @Min(0, { each: true })
+  @Max(65_536, { each: true })
   @ApiProperty({
     type: 'array',
     items: {
@@ -27,7 +31,9 @@ export class ChainWatchOptionsDto {
   // Specific dsnpIds (msa_id) to watch for
   @IsOptional()
   @IsArray()
-  @Type(() => String)
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @IsNumberString({ no_symbols: true }, { each: true })
   @ApiProperty({
     description: 'Specific dsnpIds (msa_id) to watch for',
     required: false,

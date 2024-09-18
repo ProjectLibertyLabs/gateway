@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { HandlesService } from '#account-api/services/handles.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
@@ -19,9 +19,9 @@ import {
   ChangeHandleRequest,
   CreateHandleRequest,
   HandleRequestDto,
-} from '#account-lib/types/dtos/handles.request.dto';
-import { TransactionResponse } from '#account-lib/types/dtos/transaction.response.dto';
-import { HandleResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
+} from '#types/dtos/account/handles.request.dto';
+import { TransactionResponse } from '#types/dtos/account/transaction.response.dto';
+import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 

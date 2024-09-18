@@ -12,18 +12,18 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord, PalletSchemasSchemaVersionId } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
-import { ITxStatus } from '#graph-lib/interfaces/tx-status.interface';
+import { IGraphTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
 import * as RedisConstants from '#graph-lib/utils/redis';
-import * as QueueConstants from '#graph-lib/queues/queue-constants';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as GraphServiceWebhook from '#graph-lib/types/webhook-types';
 import axios from 'axios';
-import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#graph-lib/interfaces';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#graph-lib/types/constants';
+import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
+import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
-type StatusUpdate = ITxStatus & GraphOperationStatus;
+type StatusUpdate = IGraphTxStatus & GraphOperationStatus;
 
 @Injectable()
 export class GraphMonitorService extends BlockchainScannerService {
@@ -50,7 +50,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       const minBirthBlock = Math.min(
         ...Object.values(pendingTxns)
           .map((jsonStr) => {
-            const txStatus = JSON.parse(jsonStr) as ITxStatus;
+            const txStatus = JSON.parse(jsonStr) as IGraphTxStatus;
             return txStatus.birth;
           })
           .sort((a, b) => a - b),
@@ -112,7 +112,9 @@ export class GraphMonitorService extends BlockchainScannerService {
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
+    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map(
+      (val) => JSON.parse(val) as IGraphTxStatus,
+    );
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {
@@ -146,7 +148,7 @@ export class GraphMonitorService extends BlockchainScannerService {
         );
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
-        const txStatus = JSON.parse(txStatusStr) as ITxStatus;
+        const txStatus = JSON.parse(txStatusStr) as IGraphTxStatus;
         const successEvent = extrinsicEvents.find(
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,

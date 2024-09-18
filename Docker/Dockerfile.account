@@ -7,9 +7,9 @@ COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-WORKDIR /build/libs/account-lib
+WORKDIR /build/libs
 
-COPY libs/account-lib ./
+COPY libs ./
 
 WORKDIR /build/apps/account-api
 

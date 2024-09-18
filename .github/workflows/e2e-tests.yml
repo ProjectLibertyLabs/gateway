@@ -80,6 +80,14 @@ jobs:
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm ci
 
+      - name: Set up Docker Buildx
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        uses: docker/setup-buildx-action@v3
+        # Use GitHub Container Registry instead due to rate limits
+        with:
+          buildkitd-config-inline: |
+            [registry."ghcr.io"]
+
       - name: Start Frequency
         if: ${{ steps.should.outputs.RUN == 'true' }}
         # NOTE: the 'sleep' below can be shortened or possibly eliminated once we switch from the 'dsnp/instant-seal-node-with-deployed-schemas'

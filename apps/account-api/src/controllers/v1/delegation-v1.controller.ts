@@ -1,7 +1,11 @@
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
-import { DelegationService } from '#account-api/services';
-import { TransactionResponse } from '#account-lib/types/dtos';
-import { DelegationResponse } from '#account-lib/types/dtos/delegation.response.dto';
+import { DelegationService } from '#account-api/services/delegation.service';
+import {
+  RevokeDelegationPayloadResponseDto,
+  TransactionResponse,
+  RevokeDelegationPayloadRequestDto,
+} from '#types/dtos/account';
+import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
 import {
   Body,
   Controller,
@@ -15,13 +19,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import {
-  RevokeDelegationPayloadRequestDto,
-  RevokeDelegationPayloadResponseDto,
-} from '#account-lib/types/dtos/revokeDelegation.request.dto';
 
-@Controller('v1/delegation')
-@ApiTags('v1/delegation')
+@Controller({ version: '1', path: 'delegation' })
+@ApiTags('delegation')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
   private readonly logger: Logger;

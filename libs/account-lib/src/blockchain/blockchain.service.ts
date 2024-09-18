@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
+import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, ExtrinsicPayload, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';
+import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, Option, u32 } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
@@ -17,21 +17,24 @@ import {
 } from '@polkadot/types/lookup';
 import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '#account-lib/config/config.service';
-import { TransactionType } from '#account-lib/types/enums';
+import { TransactionType } from '#types/enums/account-enums';
 import { HexString } from '@polkadot/util/types';
-import { KeysRequestDto } from '#account-lib/types/dtos/keys.request.dto';
-import { PublishHandleRequestDto } from '#account-lib/types/dtos/handles.request.dto';
-import { TransactionData } from '#account-lib/types/dtos/transaction.request.dto';
-import { HandleResponseDto, RetireMsaPayloadResponseDto } from '#account-lib/types/dtos/accounts.response.dto';
 import {
-  PublicKeyAgreementRequestDto,
+  Delegation,
+  HandleResponseDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
-} from '#account-lib/types/dtos/graphs.request.dto';
+  KeysRequestDto,
+  PublicKeyAgreementRequestDto,
+  PublishHandleRequestDto,
+  RetireMsaPayloadResponseDto,
+  RevokeDelegationPayloadResponseDto,
+  TransactionData,
+} from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
-import { RevokeDelegationPayloadResponseDto } from '#account-lib/types/dtos/revokeDelegation.request.dto';
+import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -400,8 +403,20 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    if (delegationResponse.isSome) return delegationResponse.unwrap();
-    return null;
+    return delegationResponse.unwrapOr(null);
+  }
+
+  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
+    const response = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
+    return response.isEmpty ? null : chainDelegationToNative(providerId, response.unwrap());
+  }
+
+  public async getDelegationsForMsa(msaId: AnyNumber, providerId?: AnyNumber): Promise<Delegation[]> {
+    const response = (await this.api.query.msa.delegatorAndProviderToDelegation.entries(msaId))
+      .filter(([_, entry]) => entry.isSome)
+      .map(([key, value]) => chainDelegationToNative(key.args[1], value.unwrap()));
+
+    return response;
   }
 
   public async getProviderToRegistryEntry(

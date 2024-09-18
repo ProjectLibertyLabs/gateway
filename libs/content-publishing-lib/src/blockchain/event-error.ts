@@ -1,4 +1,4 @@
-import { DispatchError } from '@polkadot/types/interfaces';
+import { DispatchError } from '@polkadot/types';
 import { SpRuntimeDispatchError } from '@polkadot/types/lookup';
 
 export class EventError extends Error {

@@ -15,7 +15,6 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ConfigService } from '#content-publishing-lib/config';
 import {
-  AnnouncementTypeDto,
   BroadcastDto,
   ReplyDto,
   ReactionDto,
@@ -27,10 +26,9 @@ import {
   AttachmentType,
   AssetDto,
   TagDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
 import {
   IRequestJob,
-  AnnouncementType,
   createTombstone,
   createNote,
   BroadcastAnnouncement,
@@ -43,29 +41,23 @@ import {
   createUpdate,
   ProfileAnnouncement,
   createProfile,
-} from '#content-publishing-lib/interfaces';
-import {
-  BROADCAST_QUEUE_NAME,
-  REPLY_QUEUE_NAME,
-  REACTION_QUEUE_NAME,
-  UPDATE_QUEUE_NAME,
-  PROFILE_QUEUE_NAME,
-  TOMBSTONE_QUEUE_NAME,
-} from '#content-publishing-lib/queues/queue.constants';
+} from '#types/interfaces/content-publishing';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
+import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
   private logger: Logger;
 
   constructor(
-    @InjectQueue(BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
-    @InjectQueue(REPLY_QUEUE_NAME) private replyQueue: Queue,
-    @InjectQueue(REACTION_QUEUE_NAME) private reactionQueue: Queue,
-    @InjectQueue(UPDATE_QUEUE_NAME) private updateQueue: Queue,
-    @InjectQueue(PROFILE_QUEUE_NAME) private profileQueue: Queue,
-    @InjectQueue(TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
+    @InjectQueue(QueueConstants.BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
+    @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
+    @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
+    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
+    @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
     private configService: ConfigService,
     private ipfsService: IpfsService,
   ) {
@@ -77,22 +69,22 @@ export class DsnpAnnouncementProcessor {
     this.logger.verbose(`Processing Activity: ${data.announcementType} for ${data.dsnpUserId}`);
     try {
       switch (data.announcementType) {
-        case AnnouncementTypeDto.BROADCAST:
+        case AnnouncementTypeName.BROADCAST:
           await this.queueBroadcast(data);
           break;
-        case AnnouncementTypeDto.REPLY:
+        case AnnouncementTypeName.REPLY:
           await this.queueReply(data);
           break;
-        case AnnouncementTypeDto.REACTION:
+        case AnnouncementTypeName.REACTION:
           await this.queueReaction(data);
           break;
-        case AnnouncementTypeDto.UPDATE:
+        case AnnouncementTypeName.UPDATE:
           await this.queueUpdate(data);
           break;
-        case AnnouncementTypeDto.PROFILE:
+        case AnnouncementTypeName.PROFILE:
           await this.queueProfile(data);
           break;
-        case AnnouncementTypeDto.TOMBSTONE:
+        case AnnouncementTypeName.TOMBSTONE:
           await this.queueTombstone(data);
           break;
         default:

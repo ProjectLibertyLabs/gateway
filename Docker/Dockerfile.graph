@@ -7,9 +7,9 @@ COPY package* tsconfig* nest-cli.json ./
 
 RUN npm ci
 
-WORKDIR /build/libs/graph-lib
+WORKDIR /build/libs
 
-COPY libs/graph-lib ./
+COPY libs ./
 
 WORKDIR /build/apps/graph-api
 

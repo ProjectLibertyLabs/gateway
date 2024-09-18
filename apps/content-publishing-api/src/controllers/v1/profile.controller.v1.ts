@@ -6,8 +6,8 @@ import {
   ProfileDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
-  AnnouncementTypeDto,
-} from '#content-publishing-lib/dtos';
+} from '#types/dtos/content-publishing';
+import { AnnouncementTypeName } from '#types/enums';
 
 @Controller('v1/profile')
 @ApiTags('v1/profile')
@@ -27,6 +27,6 @@ export class ProfileControllerV1 {
     @Body() profileDto: ProfileDto,
   ): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(profileDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeDto.PROFILE, userDsnpId.userDsnpId, profileDto, metadata);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.PROFILE, userDsnpId.userDsnpId, profileDto, metadata);
   }
 }

@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
-import * as QueueConstants from '../queues/queue-constants';
-import { DsnpGraphEdgeDto } from '../dtos/dsnp-graph-edge.dto';
+import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
+import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';
-import { GraphKeyPairDto } from '../dtos/graph-key-pair.dto';
+import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
+import { DEBOUNCER_CACHE_KEY } from '#types/constants';
 
 @Injectable()
 export class AsyncDebouncerService {
@@ -76,6 +77,6 @@ export class AsyncDebouncerService {
 
   private getCacheKey(key: string, privacyType: string): string {
     this.logger.debug(`Async operation for key ${key}:${privacyType}`);
-    return `${QueueConstants.DEBOUNCER_CACHE_KEY}:${key}:${privacyType}`;
+    return `${DEBOUNCER_CACHE_KEY}:${key}:${privacyType}`;
   }
 }

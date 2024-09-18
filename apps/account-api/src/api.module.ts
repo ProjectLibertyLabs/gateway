@@ -9,7 +9,8 @@ import { ConfigModule } from '#account-lib/config/config.module';
 import { ConfigService } from '#account-lib/config/config.service';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { QueueModule, QueueConstants } from '#account-lib/queues';
+import { QueueModule } from '#account-lib/queues';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#account-lib/cache/cache.module';
 import {
   AccountsControllerV1,
@@ -19,6 +20,7 @@ import {
   HealthController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
+import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 
 @Module({
   imports: [
@@ -67,7 +69,14 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
   providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
-  controllers: [AccountsControllerV1, DelegationControllerV1, HandlesControllerV1, KeysControllerV1, HealthController],
+  controllers: [
+    AccountsControllerV1,
+    DelegationsControllerV2,
+    DelegationControllerV1,
+    HandlesControllerV1,
+    KeysControllerV1,
+    HealthController,
+  ],
   exports: [],
 })
 export class ApiModule {}

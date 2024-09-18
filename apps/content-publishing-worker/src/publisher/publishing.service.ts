@@ -8,22 +8,26 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
-import { CAPACITY_EPOCH_TIMEOUT_NAME, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#content-publishing-lib/constants';
-import { PUBLISH_QUEUE_NAME } from '#content-publishing-lib/queues/queue.constants';
+import {
+  ContentPublishingQueues as QueueConstants,
+  CAPACITY_EPOCH_TIMEOUT_NAME,
+  SECONDS_PER_BLOCK,
+  TXN_WATCH_LIST_KEY,
+} from '#types/constants';
 import { BaseConsumer } from '../BaseConsumer';
 import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
-import { ITxStatus } from '#content-publishing-lib/interfaces/tx-status.interface';
+import { IContentTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
 
 @Injectable()
-@Processor(PUBLISH_QUEUE_NAME, {
+@Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
   concurrency: 2,
 })
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private blockchainService: BlockchainService,
     private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,
@@ -59,7 +63,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       const [txHash, tx] = await this.ipfsPublisher.publish(job.data);
 
-      const status: ITxStatus = {
+      const status: IContentTxStatus = {
         txHash: txHash.toHex(),
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),

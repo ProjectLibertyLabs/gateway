@@ -3,7 +3,7 @@
  */
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsPositive } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumberString, IsOptional, Max, Min } from 'class-validator';
 import { IScanReset } from '#types/interfaces/content-watcher';
 
 export class DsnpUserIdParam {
@@ -27,17 +27,20 @@ export class FilesUploadDto {
 
 export class ResetScannerDto implements IScanReset {
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsInt()
+  @Min(0)
+  @Max(4_294_967_296)
   @ApiProperty({ required: false, type: 'number', description: 'The block number to reset the scanner to', example: 0 })
   blockNumber?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(0)
+  @Max(4_294_967_296)
   @ApiProperty({
     required: false,
     type: 'number',
-    description: 'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block',
+    description: 'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block)',
     example: 100,
   })
   rewindOffset?: number;

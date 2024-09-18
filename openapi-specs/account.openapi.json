@@ -187,7 +187,9 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Message Source Account Identifier",
             "schema": {
+              "format": "int64",
               "type": "string"
             }
           }
@@ -218,7 +220,9 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Message Source Account Identifier",
             "schema": {
+              "format": "int64",
               "type": "string"
             }
           },
@@ -226,7 +230,9 @@
             "name": "providerId",
             "required": false,
             "in": "path",
+            "description": "Provider ID",
             "schema": {
+              "format": "int64",
               "type": "string"
             }
           }

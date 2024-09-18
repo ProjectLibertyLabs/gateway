@@ -21,7 +21,10 @@ export class WebhookRegistrationDto implements IWebhookRegistration {
   @IsEnum(AnnouncementTypeName, { each: true })
   @ApiProperty({
     description: 'Announcement types to send to the webhook',
+    isArray: true,
     example: ['broadcast', 'reaction', 'tombstone', 'reply', 'update'],
+    enum: AnnouncementTypeName,
+    enumName: 'AnnouncementTypeName',
   })
   announcementTypes: string[]; // Announcement types to send to the webhook
 }

@@ -357,6 +357,18 @@
           "webhookUrl"
         ]
       },
+      "AnnouncementTypeName": {
+        "type": "string",
+        "description": "Announcement types to send to the webhook",
+        "enum": [
+          "tombstone",
+          "broadcast",
+          "reply",
+          "reaction",
+          "profile",
+          "update"
+        ]
+      },
       "WebhookRegistrationDto": {
         "type": "object",
         "properties": {
@@ -366,7 +378,7 @@
             "example": "https://example.com/webhook"
           },
           "announcementTypes": {
-            "description": "Announcement types to send to the webhook",
+            "type": "array",
             "example": [
               "broadcast",
               "reaction",
@@ -374,9 +386,8 @@
               "reply",
               "update"
             ],
-            "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/AnnouncementTypeName"
             }
           }
         },

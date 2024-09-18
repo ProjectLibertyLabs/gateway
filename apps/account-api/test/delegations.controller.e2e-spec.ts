@@ -134,7 +134,7 @@ describe('Delegation Controller', () => {
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
       const providerId = provider.msaId?.toString();
       const keyring = new Keyring({ type: 'sr25519' });
-      const keypair = keyring.addFromUri('//Bob');
+      const keypair = keyring.addFromUri('//Bob//InvalidMSA');
 
       const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
       await request(httpServer).get(getPath).expect(404).expect({
@@ -154,16 +154,23 @@ describe('Delegation Controller', () => {
       });
     });
 
-    // it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
-    //   const providerId = provider.msaId?.toString();
-    //   // last user has no delegations because they were revoked
-    //   const { keypair } = users[3];
-    //   const getPath: string = `/v1/delegation/revokeDelegation/${keypair.address}/${providerId}`;
-    //   await request(httpServer).get(getPath).expect(404).expect({
-    //     statusCode: 404,
-    //     message: 'Delegation not found',
-    //   });
-    // });
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
+      const providerId = provider.msaId?.toString();
+      const getPath: string = `/v1/delegation/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
+      await request(httpServer).get(getPath).expect(404).expect({
+        statusCode: 404,
+        message: 'Delegation not found',
+      });
+    });
+
+    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
+      const providerId = provider.msaId?.toString();
+      const getPath: string = `/v1/delegation/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
+      await request(httpServer).get(getPath).expect(404).expect({
+        statusCode: 404,
+        message: 'Delegation not found',
+      });
+    });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {
       const providerId = provider.msaId?.toString();

@@ -37,6 +37,8 @@ async function main() {
 
   // Delegations
   const delegators: ChainUser[] = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, 256);
+  const revokedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//revoked`, 1))[0];
+  const undelegatedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//undelegated`, 1))[0];
 
   const builder = new SchemaBuilder().withAutoDetectExistingSchema();
   const updateSchema = await builder.withName('dsnp', 'update').resolve();
@@ -53,33 +55,65 @@ async function main() {
     privateConnectionsSchema!.id.toNumber(),
   ];
 
-  // Create followers
-  await provisionLocalUserCreationExtrinsics(provider, [...delegators.values()], { schemaIds, allocateHandle: false });
-  await provisionUserGraphResets([...delegators.values()]);
-  await provisionUserGraphEncryptionKeys([...delegators.values()], true);
-  const eventHandler: ChainEventHandler = (events) => {
+  // Create users
+  await provisionLocalUserCreationExtrinsics(provider, [...delegators, revokedUser], {
+    schemaIds,
+    allocateHandle: false,
+  });
+  await provisionUserGraphResets([...delegators, revokedUser]);
+  await provisionUserGraphEncryptionKeys([...delegators, revokedUser], true);
+
+  const eventHandler: (userMap: ChainUser[]) => ChainEventHandler = (userMap: ChainUser[]) => (events) => {
     events.forEach((eventRecord) => {
       const { event } = eventRecord;
       if (event && ExtrinsicHelper.apiPromise.events.msa.MsaCreated.is(event)) {
         const { msaId, key } = event.data;
         const address = key.toString();
-        const delegator = delegators.find((d) => d.keypair.address === address);
-        if (delegator) {
-          delegator.msaId = msaId;
+        const user = userMap.find((d) => d.keypair.address === address);
+        if (user) {
+          user.msaId = msaId;
         } else {
-          console.error('Cannot find delegator ', address);
+          console.error('Cannot find mapped user ', address);
         }
       }
     });
   };
 
-  await provisionUsersOnChain(provider.keypair, [...delegators.values()], [eventHandler]);
+  await provisionUsersOnChain(
+    provider.keypair,
+    [...delegators, revokedUser],
+    [eventHandler([...delegators, revokedUser])],
+  );
+
+  const delegation = await ExtrinsicHelper.apiPromise.query.msa.delegatorAndProviderToDelegation(
+    revokedUser.msaId,
+    provider.msaId,
+  );
+  if (delegation.isSome && delegation.unwrap().revokedAt.toNumber() === 0) {
+    console.log('Revoking delegation to set up a user with a revoked delegation...');
+    await ExtrinsicHelper.revokeDelegationByDelegator(revokedUser.keypair, provider.msaId).signAndSend();
+  }
+
+  // Make sure un-delegated user exists on-chain. Requires tokens.
+  if (!undelegatedUser?.msaId) {
+    console.log('Creating un-delegated user on-chain...');
+    // .fundAndSend() doesn't take into account an address that has NO balance at all (not even existential deposit).
+    // To work around this, we'll fund 2x the cost just to make sure
+    const extrinsic = ExtrinsicHelper.createMsa(undelegatedUser.keypair);
+    await extrinsic.fundOperation(provider.keypair);
+    const [targetEvent] = await ExtrinsicHelper.createMsa(undelegatedUser.keypair).fundAndSend(provider.keypair);
+    if (targetEvent && ExtrinsicHelper.apiPromise.events.msa.MsaCreated.is(targetEvent)) {
+      undelegatedUser.msaId = targetEvent.data.msaId;
+    }
+  }
 
   console.log(`Created Provider ${provider.msaId?.toString()} as Alice`);
   console.log(
     'Created delegated MSAs: ',
     delegators.map((d) => d.msaId!.toString()),
   );
+  console.log('Created MSA with revoked delegation: ', revokedUser.msaId.toString());
+  console.log(`Created un-delegated MSA: ${undelegatedUser.msaId.toString()}`);
   console.log('Setup complete');
 }
 

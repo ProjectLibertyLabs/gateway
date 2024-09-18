@@ -20,6 +20,7 @@ import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionType } from '#types/enums/account-enums';
 import { HexString } from '@polkadot/util/types';
 import {
+  Delegation,
   HandleResponseDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
@@ -33,6 +34,7 @@ import {
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
+import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -401,8 +403,20 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
     const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    if (delegationResponse.isSome) return delegationResponse.unwrap();
-    return null;
+    return delegationResponse.unwrapOr(null);
+  }
+
+  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
+    const response = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
+    return response.isEmpty ? null : chainDelegationToNative(providerId, response.unwrap());
+  }
+
+  public async getDelegationsForMsa(msaId: AnyNumber, providerId?: AnyNumber): Promise<Delegation[]> {
+    const response = (await this.api.query.msa.delegatorAndProviderToDelegation.entries(msaId))
+      .filter(([_, entry]) => entry.isSome)
+      .map(([key, value]) => chainDelegationToNative(key.args[1], value.unwrap()));
+
+    return response;
   }
 
   public async getProviderToRegistryEntry(

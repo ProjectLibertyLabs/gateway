@@ -2,7 +2,7 @@ import { ConfigService } from '#graph-lib/config';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 
 @Injectable()
-export class ReadOnlyGuard implements CanActivate {
+export class ReadOnlyDeploymentGuard implements CanActivate {
   // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(private configService: ConfigService) {}
 

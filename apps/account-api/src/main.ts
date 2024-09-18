@@ -5,6 +5,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '#account-lib/config/config.service';
 import { initSwagger } from '#account-lib/config/swagger_config';
 import { ApiModule } from './api.module';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 const logger = new Logger('main');
 
@@ -30,8 +32,9 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create(ApiModule, {
+  const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    rawBody: true,
   });
 
   // Enable URL-based API versioning
@@ -48,10 +51,13 @@ async function bootstrap() {
   });
 
   try {
+    const configService = app.get<ConfigService>(ConfigService);
+
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalInterceptors(new TimeoutInterceptor(configService.apiTimeoutMs));
+    app.useBodyParser('json', { limit: configService.apiBodyJsonLimit });
 
-    const configService = app.get<ConfigService>(ConfigService);
     await initSwagger(app, '/docs/swagger');
     logger.log(`Listening on port ${configService.apiPort}`);
     await app.listen(configService.apiPort);

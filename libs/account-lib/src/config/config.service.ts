@@ -26,6 +26,8 @@ export interface ConfigEnvironmentVariables {
   HEALTH_CHECK_MAX_RETRIES: number;
   CAPACITY_LIMIT: string;
   CACHE_KEY_PREFIX: string;
+  API_TIMEOUT_MS: number;
+  API_BODY_JSON_LIMIT: string;
 }
 
 /// Config service to get global app and provider-specific config values.
@@ -173,5 +175,13 @@ export class ConfigService implements OnModuleInit {
 
   public get graphEnvironmentType(): keyof EnvironmentType {
     return this.nestConfigService.get<keyof EnvironmentType>('GRAPH_ENVIRONMENT_TYPE')!;
+  }
+
+  public get apiTimeoutMs(): number {
+    return this.nestConfigService.get<number>('API_TIMEOUT_MS') ?? 5000;
+  }
+
+  public get apiBodyJsonLimit(): string {
+    return this.nestConfigService.get('API_BODY_JSON_LIMIT') ?? '1mb';
   }
 }

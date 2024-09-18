@@ -54,6 +54,8 @@ describe('AccountServiceConfig', () => {
     HEALTH_CHECK_MAX_RETRIES: undefined,
     CAPACITY_LIMIT: undefined,
     CACHE_KEY_PREFIX: undefined,
+    API_TIMEOUT_MS: undefined,
+    API_BODY_JSON_LIMIT: undefined,
   };
 
   beforeAll(() => {
@@ -119,6 +121,11 @@ describe('AccountServiceConfig', () => {
     it('missing capacity limits should fail', async () => {
       const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ CAPACITY_LIMIT: undefined, ...env })).rejects.toBeDefined();
+    });
+
+    it('invalid api timeout limit should fail', async () => {
+      const { API_TIMEOUT_MS: dummy, ...env } = ALL_ENV;
+      await expect(setupConfigService({ API_TIMEOUT_MS: 0, ...env })).rejects.toBeDefined();
     });
 
     it('invalid capacity limit should fail', async () => {
@@ -246,6 +253,14 @@ describe('AccountServiceConfig', () => {
 
     it('should get cache key prefix', () => {
       expect(accountServiceConfig.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
+    });
+
+    it('should get api timeout limit milliseconds', () => {
+      expect(accountServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));
+    });
+
+    it('should get api json body size limit', () => {
+      expect(accountServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
     });
   });
 });

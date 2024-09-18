@@ -1,10 +1,10 @@
 # Services
 
 <div class="button-links">
-  <a href="./AccountService.html">Account Service</a>
-  <a href="./ContentPublisher.html">Content PublisherService</a>
-  <a href="./GraphService.html">Graph Service</a>
-  <a href="./ContentWatcher.html">Content WatcherService</a>
+  <a href="./AccountService/AccountService.html">Account Service</a>
+  <a href="./ContentPublishing.html">Content PublisherService</a>
+  <a href="./GraphService/GraphService.html">Graph Service</a>
+  <a href="./ContentWatcher/ContentWatcher.html">Content WatcherService</a>
 </div>
 
 {{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
@@ -19,7 +19,7 @@ Accounts are defined as an `msaId` (64-bit identifier) and can contain additiona
 - User Handle creation and retrieval
 - User key retrieval and management
 
-See [Account Service Details & API Reference](./AccountService)
+See [Account Service Details & API Reference](./AccountService/README)
 
 ## Graph Service
 

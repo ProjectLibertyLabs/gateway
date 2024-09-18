@@ -5,8 +5,8 @@ It includes endpoints for managing user authentication, account details, delegat
 
 ## API Reference
 
-[Open Direct API Reference Page](https://projectlibertylabs.github.io/gateway/account)
-{{#swagger-embed ../openapi-specs/account.openapi.json}}
+- [REST API](./Api.md) (<a target="_blank" href="https://projectlibertylabs.github.io/gateway/account">Full docs</a>)
+- [Webhooks](./Webhooks.md) (<a target="_blank" href="https://projectlibertylabs.github.io/gateway/account/webhooks.html">Full docs</a>)
 
 ## Configuration
 

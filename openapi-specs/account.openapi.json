@@ -178,6 +178,82 @@
         ]
       }
     },
+    "/v2/delegations/{msaId}": {
+      "get": {
+        "operationId": "DelegationsControllerV2_getDelegation",
+        "summary": "Get all delegation information associated with an MSA Id",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "description": "Message Source Account Identifier",
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found delegation information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegationResponseV2"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delegations"
+        ]
+      }
+    },
+    "/v2/delegations/{msaId}/{providerId}": {
+      "get": {
+        "operationId": "DelegationsControllerV2_getProviderDelegation",
+        "summary": "Get an MSA's delegation information for a specific provider",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "description": "Message Source Account Identifier",
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          },
+          {
+            "name": "providerId",
+            "required": false,
+            "in": "path",
+            "description": "Provider ID",
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found delegation information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegationResponseV2"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delegations"
+        ]
+      }
+    },
     "/v1/delegation/{msaId}": {
       "get": {
         "operationId": "DelegationControllerV1_getDelegation",
@@ -205,7 +281,7 @@
           }
         },
         "tags": [
-          "v1/delegation"
+          "delegation"
         ]
       }
     },
@@ -244,7 +320,7 @@
           }
         },
         "tags": [
-          "v1/delegation"
+          "delegation"
         ]
       }
     },
@@ -276,7 +352,7 @@
           }
         },
         "tags": [
-          "v1/delegation"
+          "delegation"
         ]
       }
     },
@@ -757,6 +833,59 @@
         },
         "required": [
           "referenceId"
+        ]
+      },
+      "SchemaDelegation": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number"
+          },
+          "revokedAtBlock": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "schemaId"
+        ]
+      },
+      "Delegation": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "string"
+          },
+          "schemaDelegations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchemaDelegation"
+            }
+          },
+          "revokedAtBlock": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "providerId",
+          "schemaDelegations"
+        ]
+      },
+      "DelegationResponseV2": {
+        "type": "object",
+        "properties": {
+          "msaId": {
+            "type": "string"
+          },
+          "delegations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Delegation"
+            }
+          }
+        },
+        "required": [
+          "msaId",
+          "delegations"
         ]
       },
       "DelegationResponse": {

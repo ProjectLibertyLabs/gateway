@@ -1738,9 +1738,9 @@
                   </li>
                 </ul>
               </li>
-              <li tabindex="0" depth="1" data-item-id="tag/v1delegation" role="menuitem" class="sc-kYxEyd jiiTgL">
+              <li tabindex="0" depth="1" data-item-id="tag/delegations" role="menuitem" class="sc-kYxEyd jiiTgL">
                 <label class="sc-bpUCxw kyKUpm -depth1"
-                  ><span width="calc(100% - 38px)" title="v1/delegation" class="sc-eyvHYj kgCeIH">v1/delegation</span
+                  ><span width="calc(100% - 38px)" title="delegations" class="sc-eyvHYj kgCeIH">delegations</span
                   ><svg
                     class="sc-cwHqhk fPWjto"
                     version="1.1"
@@ -1756,7 +1756,52 @@
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1delegation/operation/DelegationControllerV1_getDelegation"
+                    data-item-id="tag/delegations/operation/DelegationsControllerV2_getDelegation"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Get all delegation information associated with an MSA Id</span
+                      ></label
+                    >
+                  </li>
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/delegations/operation/DelegationsControllerV2_getProviderDelegation"
+                    role="menuitem"
+                    class="sc-kYxEyd jiiTgL"
+                  >
+                    <label class="sc-bpUCxw iwtEuE -depth2"
+                      ><span type="get" class="sc-ehiymJ hkxktA operation-type get">get</span
+                      ><span tabindex="0" width="calc(100% - 38px)" class="sc-eyvHYj kgCeIH"
+                        >Get an MSA&#x27;s delegation information for a specific provider</span
+                      ></label
+                    >
+                  </li>
+                </ul>
+              </li>
+              <li tabindex="0" depth="1" data-item-id="tag/delegation" role="menuitem" class="sc-kYxEyd jiiTgL">
+                <label class="sc-bpUCxw kyKUpm -depth1"
+                  ><span width="calc(100% - 38px)" title="delegation" class="sc-eyvHYj kgCeIH">delegation</span
+                  ><svg
+                    class="sc-cwHqhk fPWjto"
+                    version="1.1"
+                    viewBox="0 0 24 24"
+                    x="0"
+                    xmlns="http://www.w3.org/2000/svg"
+                    y="0"
+                    aria-hidden="true"
+                  >
+                    <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                ></label>
+                <ul class="sc-iHmqaY eNA-DKG">
+                  <li
+                    tabindex="0"
+                    depth="2"
+                    data-item-id="tag/delegation/operation/DelegationControllerV1_getDelegation"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
@@ -1770,7 +1815,7 @@
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
+                    data-item-id="tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
@@ -1784,7 +1829,7 @@
                   <li
                     tabindex="0"
                     depth="2"
-                    data-item-id="tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation"
+                    data-item-id="tag/delegation/operation/DelegationControllerV1_postRevokeDelegation"
                     role="menuitem"
                     class="sc-kYxEyd jiiTgL"
                   >
@@ -3463,18 +3508,526 @@
               </div>
             </div>
           </div>
-          <div id="tag/v1delegation" data-section-id="tag/v1delegation" class="sc-dcJtft gWwwsw">
+          <div id="tag/delegations" data-section-id="tag/delegations" class="sc-dcJtft gWwwsw">
             <div class="sc-kAycRU NrBoN">
               <div class="sc-fqkwJk jLkFlo">
                 <h2 class="sc-jXbVAB hXYRhd">
-                  <a class="sc-jlZhRR buKOug" href="#tag/v1delegation" aria-label="tag/v1delegation"></a>v1/delegation
+                  <a class="sc-jlZhRR buKOug" href="#tag/delegations" aria-label="tag/delegations"></a>delegations
                 </h2>
               </div>
             </div>
           </div>
           <div
-            id="tag/v1delegation/operation/DelegationControllerV1_getDelegation"
-            data-section-id="tag/v1delegation/operation/DelegationControllerV1_getDelegation"
+            id="tag/delegations/operation/DelegationsControllerV2_getDelegation"
+            data-section-id="tag/delegations/operation/DelegationsControllerV2_getDelegation"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/DelegationsControllerV2_getDelegation"
+              id="operation/DelegationsControllerV2_getDelegation"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/delegations/operation/DelegationsControllerV2_getDelegation"
+                    aria-label="tag/delegations/operation/DelegationsControllerV2_getDelegation"
+                  ></a
+                  >Get all delegation information associated with an MSA Id<!-- -->
+                </h2>
+                <div>
+                  <h5 class="sc-dAlxHm fZUozT">
+                    path<!-- -->
+                    Parameters
+                  </h5>
+                  <table class="sc-dAbbbq hPLMVw">
+                    <tbody>
+                      <tr class="last">
+                        <td kind="field" title="msaId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">msaId</span>
+                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                        </td>
+                        <td class="sc-fPXMhL kdholP">
+                          <div>
+                            <div>
+                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">
+                                <!-- -->&lt;<!-- -->int64<!-- -->&gt;<!-- -->
+                              </span>
+                            </div>
+                            <div>
+                              <div
+                                html="&lt;p&gt;Message Source Account Identifier&lt;/p&gt;
+"
+                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                              >
+                                <p>Message Source Account Identifier</p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU hDzmxh">
+                      <svg
+                        class="sc-cwHqhk jqLwgG"
+                        version="1.1"
+                        viewBox="0 0 24 24"
+                        x="0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        y="0"
+                        aria-hidden="true"
+                      >
+                        <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                      ><strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
+                      <div
+                        html="&lt;p&gt;Found delegation information&lt;/p&gt;
+"
+                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
+                      >
+                        <p>Found delegation information</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
+                    ><span class="sc-ejfMNw gHPYVn">/v2/delegations/{msaId}</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v2/delegations/{msaId}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Response samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="tab-success react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:Rjipa:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:Rjipa:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        200
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:Rjipa:0"
+                      aria-labelledby="tab:Rjipa:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
+                              ><button>Collapse all</button>
+                            </div>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                  <ul class="obj collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"msaId"</span>:
+                                        <span class="token string">&quot;string&quot;</span
+                                        ><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"delegations"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <button class="collapser" aria-label="expand"></button
+                                              ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                              <ul class="obj collapsible">
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"providerId"</span>:
+                                                    <span class="token string">&quot;string&quot;</span
+                                                    ><span class="token punctuation">,</span>
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"schemaDelegations"</span>:
+                                                    <button class="collapser" aria-label="expand"></button
+                                                    ><span class="token punctuation">[</span
+                                                    ><span class="ellipsis"></span>
+                                                    <ul class="array collapsible">
+                                                      <li>
+                                                        <div class="hoverable collapsed">
+                                                          <button class="collapser" aria-label="expand"></button
+                                                          ><span class="token punctuation">{</span
+                                                          ><span class="ellipsis"></span>
+                                                          <ul class="obj collapsible">
+                                                            <li>
+                                                              <div class="hoverable collapsed">
+                                                                <span class="property token string">"schemaId"</span>:
+                                                                <span class="token number">0</span
+                                                                ><span class="token punctuation">,</span>
+                                                              </div>
+                                                            </li>
+                                                            <li>
+                                                              <div class="hoverable collapsed">
+                                                                <span class="property token string"
+                                                                  >"revokedAtBlock"</span
+                                                                >: <span class="token number">0</span>
+                                                              </div>
+                                                            </li>
+                                                          </ul>
+                                                          <span class="token punctuation">}</span>
+                                                        </div>
+                                                      </li>
+                                                    </ul>
+                                                    <span class="token punctuation">]</span
+                                                    ><span class="token punctuation">,</span>
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"revokedAtBlock"</span>:
+                                                    <span class="token number">0</span>
+                                                  </div>
+                                                </li>
+                                              </ul>
+                                              <span class="token punctuation">}</span>
+                                            </div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">}</span></code
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/delegations/operation/DelegationsControllerV2_getProviderDelegation"
+            data-section-id="tag/delegations/operation/DelegationsControllerV2_getProviderDelegation"
+            class="sc-dcJtft dNqlFH"
+          >
+            <div
+              data-section-id="operation/DelegationsControllerV2_getProviderDelegation"
+              id="operation/DelegationsControllerV2_getProviderDelegation"
+              class="sc-kAycRU NrBoN"
+            >
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a
+                    class="sc-jlZhRR buKOug"
+                    href="#tag/delegations/operation/DelegationsControllerV2_getProviderDelegation"
+                    aria-label="tag/delegations/operation/DelegationsControllerV2_getProviderDelegation"
+                  ></a
+                  >Get an MSA&#x27;s delegation information for a specific provider<!-- -->
+                </h2>
+                <div>
+                  <h5 class="sc-dAlxHm fZUozT">
+                    path<!-- -->
+                    Parameters
+                  </h5>
+                  <table class="sc-dAbbbq hPLMVw">
+                    <tbody>
+                      <tr class="">
+                        <td kind="field" title="msaId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">msaId</span>
+                          <div class="sc-NxrBK sc-hRJeED kMMoBE gypzqL">required</div>
+                        </td>
+                        <td class="sc-fPXMhL kdholP">
+                          <div>
+                            <div>
+                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">
+                                <!-- -->&lt;<!-- -->int64<!-- -->&gt;<!-- -->
+                              </span>
+                            </div>
+                            <div>
+                              <div
+                                html="&lt;p&gt;Message Source Account Identifier&lt;/p&gt;
+"
+                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                              >
+                                <p>Message Source Account Identifier</p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="last">
+                        <td kind="field" title="providerId" class="sc-dLNtp sc-eldOKa fCxZSn jTSwDU">
+                          <span class="sc-gFqAYk fWSzIS"></span><span class="property-name">providerId</span>
+                        </td>
+                        <td class="sc-fPXMhL kdholP">
+                          <div>
+                            <div>
+                              <span class="sc-NxrBK sc-cfxfQh kMMoBE hMkdpJ"></span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">string</span
+                              ><span class="sc-NxrBK sc-gFAXEw kMMoBE ffgeXz">
+                                <!-- -->&lt;<!-- -->int64<!-- -->&gt;<!-- -->
+                              </span>
+                            </div>
+                            <div>
+                              <div
+                                html="&lt;p&gt;Provider ID&lt;/p&gt;
+"
+                                class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"
+                              >
+                                <p>Provider ID</p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <h3 class="sc-dSIJcR hePoiW">Responses</h3>
+                  <div>
+                    <button class="sc-gdyfxU hDzmxh">
+                      <svg
+                        class="sc-cwHqhk jqLwgG"
+                        version="1.1"
+                        viewBox="0 0 24 24"
+                        x="0"
+                        xmlns="http://www.w3.org/2000/svg"
+                        y="0"
+                        aria-hidden="true"
+                      >
+                        <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon></svg
+                      ><strong class="sc-bVHBsO eBHfiv">200<!-- --> </strong>
+                      <div
+                        html="&lt;p&gt;Found delegation information&lt;/p&gt;
+"
+                        class="sc-eeDSqt sc-eBMFzZ bSgSrX cWARBq sc-dCFGXG gKOXES"
+                      >
+                        <p>Found delegation information</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sc-iGgVNO sc-gsFSjX hqwGrr ggsSF">
+                <div class="sc-dkmVhU ciDfNo">
+                  <button class="sc-iEXLnV jJBChh">
+                    <span type="get" class="sc-EgOky fPaeRy http-verb get">get</span
+                    ><span class="sc-ejfMNw gHPYVn">/v2/delegations/{msaId}/{providerId}</span
+                    ><svg
+                      class="sc-cwHqhk fxsrq"
+                      style="margin-right: -25px"
+                      version="1.1"
+                      viewBox="0 0 24 24"
+                      x="0"
+                      xmlns="http://www.w3.org/2000/svg"
+                      y="0"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17.3 8.3 12 13.6 6.7 8.3 5.3 9.7 12 16.4 18.7 9.7 "></polygon>
+                    </svg>
+                  </button>
+                  <div aria-hidden="true" class="sc-eZYMKX fuVsyo">
+                    <div class="sc-dlWDvs kyqjNC">
+                      <div html="" class="sc-eeDSqt sc-eBMFzZ bSgSrX gayXgA"></div>
+                      <div tabindex="0" role="button">
+                        <div class="sc-hHOBVR lhFNhe"><span></span>/v2/delegations/{msaId}/{providerId}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="sc-kpDprT cgzTaG"><!-- -->Response samples<!-- --></h3>
+                  <div class="sc-bXCLgj tlGxN" data-rttabs="true">
+                    <ul class="react-tabs__tab-list" role="tablist">
+                      <li
+                        class="tab-success react-tabs__tab--selected"
+                        role="tab"
+                        id="tab:Rjj9a:0"
+                        aria-selected="true"
+                        aria-disabled="false"
+                        aria-controls="panel:Rjj9a:0"
+                        tabindex="0"
+                        data-rttab="true"
+                      >
+                        200
+                      </li>
+                    </ul>
+                    <div
+                      class="react-tabs__tab-panel react-tabs__tab-panel--selected"
+                      role="tabpanel"
+                      id="panel:Rjj9a:0"
+                      aria-labelledby="tab:Rjj9a:0"
+                    >
+                      <div>
+                        <div class="sc-bbSYpP kIESIX">
+                          <span class="sc-fjvwmM bLpZTa">Content type</span>
+                          <div class="sc-JrEyx OirWV">application/json</div>
+                        </div>
+                        <div class="sc-uVXKs fszzxn">
+                          <div class="sc-esYjtY hxmTDe">
+                            <div class="sc-koYCI kEwLiZ">
+                              <button><div class="sc-fhzEvr gpWFPc">Copy</div></button><button>Expand all</button
+                              ><button>Collapse all</button>
+                            </div>
+                            <div class="sc-eeDSqt bSgSrX sc-fXSgRJ dXllNu">
+                              <div class="redoc-json">
+                                <code
+                                  ><button class="collapser" aria-label="collapse"></button
+                                  ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                  <ul class="obj collapsible">
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"msaId"</span>:
+                                        <span class="token string">&quot;string&quot;</span
+                                        ><span class="token punctuation">,</span>
+                                      </div>
+                                    </li>
+                                    <li>
+                                      <div class="hoverable">
+                                        <span class="property token string">"delegations"</span>:
+                                        <button class="collapser" aria-label="collapse"></button
+                                        ><span class="token punctuation">[</span><span class="ellipsis"></span>
+                                        <ul class="array collapsible">
+                                          <li>
+                                            <div class="hoverable collapsed">
+                                              <button class="collapser" aria-label="expand"></button
+                                              ><span class="token punctuation">{</span><span class="ellipsis"></span>
+                                              <ul class="obj collapsible">
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"providerId"</span>:
+                                                    <span class="token string">&quot;string&quot;</span
+                                                    ><span class="token punctuation">,</span>
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"schemaDelegations"</span>:
+                                                    <button class="collapser" aria-label="expand"></button
+                                                    ><span class="token punctuation">[</span
+                                                    ><span class="ellipsis"></span>
+                                                    <ul class="array collapsible">
+                                                      <li>
+                                                        <div class="hoverable collapsed">
+                                                          <button class="collapser" aria-label="expand"></button
+                                                          ><span class="token punctuation">{</span
+                                                          ><span class="ellipsis"></span>
+                                                          <ul class="obj collapsible">
+                                                            <li>
+                                                              <div class="hoverable collapsed">
+                                                                <span class="property token string">"schemaId"</span>:
+                                                                <span class="token number">0</span
+                                                                ><span class="token punctuation">,</span>
+                                                              </div>
+                                                            </li>
+                                                            <li>
+                                                              <div class="hoverable collapsed">
+                                                                <span class="property token string"
+                                                                  >"revokedAtBlock"</span
+                                                                >: <span class="token number">0</span>
+                                                              </div>
+                                                            </li>
+                                                          </ul>
+                                                          <span class="token punctuation">}</span>
+                                                        </div>
+                                                      </li>
+                                                    </ul>
+                                                    <span class="token punctuation">]</span
+                                                    ><span class="token punctuation">,</span>
+                                                  </div>
+                                                </li>
+                                                <li>
+                                                  <div class="hoverable collapsed">
+                                                    <span class="property token string">"revokedAtBlock"</span>:
+                                                    <span class="token number">0</span>
+                                                  </div>
+                                                </li>
+                                              </ul>
+                                              <span class="token punctuation">}</span>
+                                            </div>
+                                          </li>
+                                        </ul>
+                                        <span class="token punctuation">]</span>
+                                      </div>
+                                    </li>
+                                  </ul>
+                                  <span class="token punctuation">}</span></code
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tag/delegation" data-section-id="tag/delegation" class="sc-dcJtft gWwwsw">
+            <div class="sc-kAycRU NrBoN">
+              <div class="sc-fqkwJk jLkFlo">
+                <h2 class="sc-jXbVAB hXYRhd">
+                  <a class="sc-jlZhRR buKOug" href="#tag/delegation" aria-label="tag/delegation"></a>delegation
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div
+            id="tag/delegation/operation/DelegationControllerV1_getDelegation"
+            data-section-id="tag/delegation/operation/DelegationControllerV1_getDelegation"
             class="sc-dcJtft dNqlFH"
           >
             <div
@@ -3486,8 +4039,8 @@
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1delegation/operation/DelegationControllerV1_getDelegation"
-                    aria-label="tag/v1delegation/operation/DelegationControllerV1_getDelegation"
+                    href="#tag/delegation/operation/DelegationControllerV1_getDelegation"
+                    aria-label="tag/delegation/operation/DelegationControllerV1_getDelegation"
                   ></a
                   >Get the delegation information associated with an MSA Id<!-- -->
                 </h2>
@@ -3576,10 +4129,10 @@
                       <li
                         class="tab-success react-tabs__tab--selected"
                         role="tab"
-                        id="tab:Rjipa:0"
+                        id="tab:Rjipq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:Rjipa:0"
+                        aria-controls="panel:Rjipq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -3589,8 +4142,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:Rjipa:0"
-                      aria-labelledby="tab:Rjipa:0"
+                      id="panel:Rjipq:0"
+                      aria-labelledby="tab:Rjipq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -3644,8 +4197,8 @@
             </div>
           </div>
           <div
-            id="tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
-            data-section-id="tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
+            id="tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
+            data-section-id="tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
             class="sc-dcJtft dNqlFH"
           >
             <div
@@ -3657,8 +4210,8 @@
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
-                    aria-label="tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
+                    href="#tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
+                    aria-label="tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload"
                   ></a
                   >Get a properly encoded RevokeDelegationPayload that can be signed<!-- -->
                 </h2>
@@ -3764,10 +4317,10 @@
                       <li
                         class="tab-success react-tabs__tab--selected"
                         role="tab"
-                        id="tab:Rjj9a:0"
+                        id="tab:Rjj9q:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:Rjj9a:0"
+                        aria-controls="panel:Rjj9q:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -3777,8 +4330,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:Rjj9a:0"
-                      aria-labelledby="tab:Rjj9a:0"
+                      id="panel:Rjj9q:0"
+                      aria-labelledby="tab:Rjj9q:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -3839,8 +4392,8 @@
             </div>
           </div>
           <div
-            id="tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation"
-            data-section-id="tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation"
+            id="tag/delegation/operation/DelegationControllerV1_postRevokeDelegation"
+            data-section-id="tag/delegation/operation/DelegationControllerV1_postRevokeDelegation"
             class="sc-dcJtft dNqlFH"
           >
             <div
@@ -3852,8 +4405,8 @@
                 <h2 class="sc-jXbVAB hXYRhd">
                   <a
                     class="sc-jlZhRR buKOug"
-                    href="#tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation"
-                    aria-label="tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation"
+                    href="#tag/delegation/operation/DelegationControllerV1_postRevokeDelegation"
+                    aria-label="tag/delegation/operation/DelegationControllerV1_postRevokeDelegation"
                   ></a
                   >Request to revoke a delegation<!-- -->
                 </h2>
@@ -4001,10 +4554,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:Rijpa:0"
+                        id="tab:Rijpq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:Rijpa:0"
+                        aria-controls="panel:Rijpq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -4014,8 +4567,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:Rijpa:0"
-                      aria-labelledby="tab:Rijpa:0"
+                      id="panel:Rijpq:0"
+                      aria-labelledby="tab:Rijpq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -4086,10 +4639,10 @@
                       <li
                         class="tab-success react-tabs__tab--selected"
                         role="tab"
-                        id="tab:Rjjpa:0"
+                        id="tab:Rjjpq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:Rjjpa:0"
+                        aria-controls="panel:Rjjpq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -4099,8 +4652,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:Rjjpa:0"
-                      aria-labelledby="tab:Rjjpa:0"
+                      id="panel:Rjjpq:0"
+                      aria-labelledby="tab:Rjjpq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -4285,10 +4838,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R154pq:0"
+                        id="tab:R154qa:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R154pq:0"
+                        aria-controls="panel:R154qa:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -4298,8 +4851,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R154pq:0"
-                      aria-labelledby="tab:R154pq:0"
+                      id="panel:R154qa:0"
+                      aria-labelledby="tab:R154qa:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -4506,10 +5059,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R1559q:0"
+                        id="tab:R155aa:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R1559q:0"
+                        aria-controls="panel:R155aa:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -4519,8 +5072,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R1559q:0"
-                      aria-labelledby="tab:R1559q:0"
+                      id="panel:R155aa:0"
+                      aria-labelledby="tab:R155aa:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -4933,10 +5486,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R154qa:0"
+                        id="tab:R154qq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R154qa:0"
+                        aria-controls="panel:R154qq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -4946,8 +5499,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R154qa:0"
-                      aria-labelledby="tab:R154qa:0"
+                      id="panel:R154qq:0"
+                      aria-labelledby="tab:R154qq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -5382,10 +5935,10 @@
                       <li
                         class="react-tabs__tab react-tabs__tab--selected"
                         role="tab"
-                        id="tab:R156aa:0"
+                        id="tab:R156aq:0"
                         aria-selected="true"
                         aria-disabled="false"
-                        aria-controls="panel:R156aa:0"
+                        aria-controls="panel:R156aq:0"
                         tabindex="0"
                         data-rttab="true"
                       >
@@ -5395,8 +5948,8 @@
                     <div
                       class="react-tabs__tab-panel react-tabs__tab-panel--selected"
                       role="tabpanel"
-                      id="panel:R156aa:0"
-                      aria-labelledby="tab:R156aa:0"
+                      id="panel:R156aq:0"
+                      aria-labelledby="tab:R156aq:0"
                     >
                       <div>
                         <div class="sc-bbSYpP kIESIX">
@@ -5799,6 +6352,61 @@
                   tags: ['v1/accounts'],
                 },
               },
+              '/v2/delegations/{msaId}': {
+                get: {
+                  operationId: 'DelegationsControllerV2_getDelegation',
+                  summary: 'Get all delegation information associated with an MSA Id',
+                  parameters: [
+                    {
+                      name: 'msaId',
+                      required: true,
+                      in: 'path',
+                      description: 'Message Source Account Identifier',
+                      schema: { format: 'int64', type: 'string' },
+                    },
+                  ],
+                  responses: {
+                    200: {
+                      description: 'Found delegation information',
+                      content: {
+                        'application/json': { schema: { $ref: '#/components/schemas/DelegationResponseV2' } },
+                      },
+                    },
+                  },
+                  tags: ['delegations'],
+                },
+              },
+              '/v2/delegations/{msaId}/{providerId}': {
+                get: {
+                  operationId: 'DelegationsControllerV2_getProviderDelegation',
+                  summary: "Get an MSA's delegation information for a specific provider",
+                  parameters: [
+                    {
+                      name: 'msaId',
+                      required: true,
+                      in: 'path',
+                      description: 'Message Source Account Identifier',
+                      schema: { format: 'int64', type: 'string' },
+                    },
+                    {
+                      name: 'providerId',
+                      required: false,
+                      in: 'path',
+                      description: 'Provider ID',
+                      schema: { format: 'int64', type: 'string' },
+                    },
+                  ],
+                  responses: {
+                    200: {
+                      description: 'Found delegation information',
+                      content: {
+                        'application/json': { schema: { $ref: '#/components/schemas/DelegationResponseV2' } },
+                      },
+                    },
+                  },
+                  tags: ['delegations'],
+                },
+              },
               '/v1/delegation/{msaId}': {
                 get: {
                   operationId: 'DelegationControllerV1_getDelegation',
@@ -5810,7 +6418,7 @@
                       content: { 'application/json': { schema: { $ref: '#/components/schemas/DelegationResponse' } } },
                     },
                   },
-                  tags: ['v1/delegation'],
+                  tags: ['delegation'],
                 },
               },
               '/v1/delegation/revokeDelegation/{accountId}/{providerId}': {
@@ -5831,7 +6439,7 @@
                       },
                     },
                   },
-                  tags: ['v1/delegation'],
+                  tags: ['delegation'],
                 },
               },
               '/v1/delegation/revokeDelegation': {
@@ -5853,7 +6461,7 @@
                       content: { 'application/json': { schema: { $ref: '#/components/schemas/TransactionResponse' } } },
                     },
                   },
-                  tags: ['v1/delegation'],
+                  tags: ['delegation'],
                 },
               },
               '/v1/handles': {
@@ -6101,6 +6709,28 @@
                   properties: { referenceId: { type: 'string' } },
                   required: ['referenceId'],
                 },
+                SchemaDelegation: {
+                  type: 'object',
+                  properties: { schemaId: { type: 'number' }, revokedAtBlock: { type: 'number' } },
+                  required: ['schemaId'],
+                },
+                Delegation: {
+                  type: 'object',
+                  properties: {
+                    providerId: { type: 'string' },
+                    schemaDelegations: { type: 'array', items: { $ref: '#/components/schemas/SchemaDelegation' } },
+                    revokedAtBlock: { type: 'number' },
+                  },
+                  required: ['providerId', 'schemaDelegations'],
+                },
+                DelegationResponseV2: {
+                  type: 'object',
+                  properties: {
+                    msaId: { type: 'string' },
+                    delegations: { type: 'array', items: { $ref: '#/components/schemas/Delegation' } },
+                  },
+                  required: ['msaId', 'delegations'],
+                },
                 DelegationResponse: {
                   type: 'object',
                   properties: {
@@ -6196,10 +6826,13 @@
             'tag/v1accounts/operation/AccountsControllerV1_getAccountForAccountId',
             'tag/v1accounts/operation/AccountsControllerV1_getRetireMsaPayload',
             'tag/v1accounts/operation/AccountsControllerV1_postRetireMsa',
-            'tag/v1delegation',
-            'tag/v1delegation/operation/DelegationControllerV1_getDelegation',
-            'tag/v1delegation/operation/DelegationControllerV1_getRevokeDelegationPayload',
-            'tag/v1delegation/operation/DelegationControllerV1_postRevokeDelegation',
+            'tag/delegations',
+            'tag/delegations/operation/DelegationsControllerV2_getDelegation',
+            'tag/delegations/operation/DelegationsControllerV2_getProviderDelegation',
+            'tag/delegation',
+            'tag/delegation/operation/DelegationControllerV1_getDelegation',
+            'tag/delegation/operation/DelegationControllerV1_getRevokeDelegationPayload',
+            'tag/delegation/operation/DelegationControllerV1_postRevokeDelegation',
             'tag/v1handles',
             'tag/v1handles/operation/HandlesControllerV1_createHandle',
             'tag/v1handles/operation/HandlesControllerV1_changeHandle',
@@ -6219,97 +6852,109 @@
             version: '2.3.9',
             fields: ['title', 'description'],
             fieldVectors: [
-              ['title/0', [0, 4.063]],
+              ['title/0', [0, 4.218]],
               ['description/0', []],
-              ['title/1', [1, 1.68, 2, 2.533, 3, 3.086]],
-              ['description/1', [4, 2.125]],
-              ['title/2', [1, 1.68, 2, 2.533, 5, 1.5]],
-              ['description/2', [4, 2.125]],
-              ['title/3', [6, 1.53, 7, 1.749, 8, 1.53, 9, 1.209, 10, 1.084]],
-              ['description/3', [11, 2.588]],
-              ['title/4', [6, 1.53, 7, 2.505, 8, 1.53, 10, 1.084]],
-              ['description/4', [12, 2.588]],
-              ['title/5', [13, 2.488, 14, 2.488, 15, 1.53, 16, 2.488, 17, 2.488]],
-              ['description/5', [18, 2.588]],
-              ['title/6', [5, 1.339, 9, 1.339, 10, 1.2, 19, 2.755]],
-              ['description/6', [20, 2.588]],
-              ['title/7', [21, 4.063]],
+              ['title/1', [1, 1.798, 2, 2.651, 3, 3.204]],
+              ['description/1', [4, 2.205]],
+              ['title/2', [1, 1.798, 2, 2.651, 5, 1.618]],
+              ['description/2', [4, 2.205]],
+              ['title/3', [6, 1.624, 7, 1.844, 8, 1.624, 9, 1.179, 10, 1.07]],
+              ['description/3', [11, 2.665]],
+              ['title/4', [6, 1.624, 7, 2.641, 8, 1.624, 10, 1.07]],
+              ['description/4', [12, 2.665]],
+              ['title/5', [13, 2.582, 14, 2.582, 15, 1.624, 16, 2.582, 17, 2.582]],
+              ['description/5', [18, 2.665]],
+              ['title/6', [5, 1.444, 9, 1.306, 10, 1.185, 19, 2.86]],
+              ['description/6', [20, 2.665]],
+              ['title/7', [21, 2.13]],
               ['description/7', []],
-              ['title/8', [9, 1.209, 10, 1.084, 22, 2.042, 23, 2.488, 24, 2.488]],
-              ['description/8', [25, 2.588]],
-              ['title/9', [1, 1.5, 15, 1.694, 26, 1.936, 27, 2.755]],
-              ['description/9', [28, 2.588]],
-              ['title/10', [5, 1.5, 22, 2.533, 29, 3.086]],
-              ['description/10', [30, 2.588]],
-              ['title/11', [31, 3.336]],
-              ['description/11', []],
-              ['title/12', [5, 1.209, 7, 1.749, 32, 2.488, 33, 1.749, 34, 1.749]],
-              ['description/12', [31, 2.125]],
-              ['title/13', [5, 1.5, 34, 2.169, 35, 3.086]],
-              ['description/13', [36, 2.588]],
-              ['title/14', [1, 1.5, 15, 1.694, 26, 1.936, 37, 2.755]],
-              ['description/14', [38, 2.588]],
-              ['title/15', [6, 1.53, 8, 1.53, 9, 1.209, 10, 1.084, 34, 1.749]],
-              ['description/15', [39, 2.588]],
-              ['title/16', [40, 4.063]],
-              ['description/16', []],
-              ['title/17', [9, 1.102, 10, 0.988, 33, 1.594, 41, 1.862, 42, 2.268, 43, 1.594]],
-              ['description/17', [44, 2.588]],
-              ['title/18', [6, 1.394, 8, 1.394, 9, 1.102, 10, 0.988, 43, 1.594, 45, 1.862]],
-              ['description/18', [46, 2.588]],
-              ['title/19', [1, 1.5, 15, 1.694, 26, 1.936, 47, 2.755]],
-              ['description/19', [48, 2.588]],
-              ['title/20', [5, 1.209, 33, 1.749, 41, 2.042, 43, 1.749, 45, 2.042]],
-              ['description/20', [49, 2.588]],
-              ['title/21', [50, 3.336]],
-              ['description/21', []],
-              ['title/22', [50, 2.261, 51, 1.936, 52, 1.936, 53, 1.936]],
-              ['description/22', [54, 2.588]],
-              ['title/23', [51, 1.936, 52, 1.936, 53, 1.936, 55, 2.755]],
-              ['description/23', [56, 2.588]],
-              ['title/24', [51, 1.936, 52, 1.936, 53, 1.936, 57, 2.755]],
-              ['description/24', [58, 2.588]],
+              ['title/8', [9, 1.179, 10, 1.07, 21, 1.304, 22, 1.844, 23, 2.137]],
+              ['description/8', [24, 2.665]],
+              ['title/9', [21, 1.304, 22, 1.844, 25, 2.582, 26, 2.582, 27, 2.582]],
+              ['description/9', [28, 2.665]],
+              ['title/10', [21, 2.13]],
+              ['description/10', []],
+              ['title/11', [9, 1.179, 10, 1.07, 21, 1.304, 22, 1.844, 23, 2.137]],
+              ['description/11', [29, 2.665]],
+              ['title/12', [1, 1.605, 15, 1.799, 30, 2.042, 31, 2.86]],
+              ['description/12', [32, 2.665]],
+              ['title/13', [5, 1.618, 21, 1.618, 33, 3.204]],
+              ['description/13', [34, 2.665]],
+              ['title/14', [35, 3.491]],
+              ['description/14', []],
+              ['title/15', [5, 1.304, 7, 1.844, 36, 2.582, 37, 1.844, 38, 1.844]],
+              ['description/15', [35, 2.205]],
+              ['title/16', [5, 1.618, 38, 2.287, 39, 3.204]],
+              ['description/16', [40, 2.665]],
+              ['title/17', [1, 1.605, 15, 1.799, 30, 2.042, 41, 2.86]],
+              ['description/17', [42, 2.665]],
+              ['title/18', [6, 1.624, 8, 1.624, 9, 1.179, 10, 1.07, 38, 1.844]],
+              ['description/18', [43, 2.665]],
+              ['title/19', [44, 4.218]],
+              ['description/19', []],
+              ['title/20', [9, 1.075, 10, 0.975, 37, 1.681, 45, 1.948, 46, 2.354, 47, 1.681]],
+              ['description/20', [48, 2.665]],
+              ['title/21', [6, 1.481, 8, 1.481, 9, 1.075, 10, 0.975, 47, 1.681, 49, 1.948]],
+              ['description/21', [50, 2.665]],
+              ['title/22', [1, 1.605, 15, 1.799, 30, 2.042, 51, 2.86]],
+              ['description/22', [52, 2.665]],
+              ['title/23', [5, 1.304, 37, 1.844, 45, 2.137, 47, 1.844, 49, 2.137]],
+              ['description/23', [53, 2.665]],
+              ['title/24', [54, 3.491]],
+              ['description/24', []],
+              ['title/25', [54, 2.366, 55, 2.042, 56, 2.042, 57, 2.042]],
+              ['description/25', [58, 2.665]],
+              ['title/26', [55, 2.042, 56, 2.042, 57, 2.042, 59, 2.86]],
+              ['description/26', [60, 2.665]],
+              ['title/27', [55, 2.042, 56, 2.042, 57, 2.042, 61, 2.86]],
+              ['description/27', [62, 2.665]],
             ],
             invertedIndex: [
-              ['account', { _index: 7, title: { 3: {}, 4: {}, 12: {} }, description: {} }],
-              ['add', { _index: 41, title: { 17: {}, 20: {} }, description: {} }],
-              ['associ', { _index: 24, title: { 8: {} }, description: {} }],
-              ['chang', { _index: 35, title: { 13: {} }, description: {} }],
-              ['check', { _index: 51, title: { 22: {}, 23: {}, 24: {} }, description: {} }],
-              ['claimhandlepayload', { _index: 37, title: { 14: {} }, description: {} }],
+              ['account', { _index: 7, title: { 3: {}, 4: {}, 15: {} }, description: {} }],
+              ['add', { _index: 45, title: { 20: {}, 23: {} }, description: {} }],
+              ['associ', { _index: 23, title: { 8: {}, 11: {} }, description: {} }],
+              ['chang', { _index: 39, title: { 16: {} }, description: {} }],
+              ['check', { _index: 55, title: { 25: {}, 26: {}, 27: {} }, description: {} }],
+              ['claimhandlepayload', { _index: 41, title: { 17: {} }, description: {} }],
               ['configur', { _index: 3, title: { 1: {} }, description: {} }],
-              ['control', { _index: 42, title: { 17: {} }, description: {} }],
-              ['creat', { _index: 32, title: { 12: {} }, description: {} }],
-              ['deleg', { _index: 22, title: { 8: {}, 10: {} }, description: {} }],
-              ['encod', { _index: 15, title: { 5: {}, 9: {}, 14: {}, 19: {} }, description: {} }],
+              ['control', { _index: 46, title: { 20: {} }, description: {} }],
+              ['creat', { _index: 36, title: { 15: {} }, description: {} }],
+              ['deleg', { _index: 21, title: { 7: {}, 8: {}, 9: {}, 10: {}, 11: {}, 13: {} }, description: {} }],
+              ['encod', { _index: 15, title: { 5: {}, 12: {}, 17: {}, 22: {} }, description: {} }],
               ['extrins', { _index: 16, title: { 5: {} }, description: {} }],
-              ['fetch', { _index: 6, title: { 3: {}, 4: {}, 15: {}, 18: {} }, description: {} }],
+              ['fetch', { _index: 6, title: { 3: {}, 4: {}, 18: {}, 21: {} }, description: {} }],
               ['frequenc', { _index: 2, title: { 1: {}, 2: {} }, description: {} }],
-              ['given', { _index: 8, title: { 3: {}, 4: {}, 15: {}, 18: {} }, description: {} }],
-              ['handl', { _index: 34, title: { 12: {}, 13: {}, 15: {} }, description: {} }],
-              ['health', { _index: 50, title: { 21: {}, 22: {} }, description: {} }],
-              ['healthz', { _index: 54, title: {}, description: { 22: {} } }],
-              ['id', { _index: 10, title: { 3: {}, 4: {}, 6: {}, 8: {}, 15: {}, 17: {}, 18: {} }, description: {} }],
-              ['inform', { _index: 23, title: { 8: {} }, description: {} }],
-              ['key', { _index: 43, title: { 17: {}, 18: {}, 20: {} }, description: {} }],
-              ['live', { _index: 55, title: { 23: {} }, description: {} }],
-              ['livez', { _index: 56, title: {}, description: { 23: {} } }],
-              ['msa', { _index: 9, title: { 3: {}, 6: {}, 8: {}, 15: {}, 17: {}, 18: {} }, description: {} }],
-              ['new', { _index: 33, title: { 12: {}, 17: {}, 20: {} }, description: {} }],
+              ['given', { _index: 8, title: { 3: {}, 4: {}, 18: {}, 21: {} }, description: {} }],
+              ['handl', { _index: 38, title: { 15: {}, 16: {}, 18: {} }, description: {} }],
+              ['health', { _index: 54, title: { 24: {}, 25: {} }, description: {} }],
+              ['healthz', { _index: 58, title: {}, description: { 25: {} } }],
+              [
+                'id',
+                { _index: 10, title: { 3: {}, 4: {}, 6: {}, 8: {}, 11: {}, 18: {}, 20: {}, 21: {} }, description: {} },
+              ],
+              ['inform', { _index: 22, title: { 8: {}, 9: {}, 11: {} }, description: {} }],
+              ['key', { _index: 47, title: { 20: {}, 21: {}, 23: {} }, description: {} }],
+              ['live', { _index: 59, title: { 26: {} }, description: {} }],
+              ['livez', { _index: 60, title: {}, description: { 26: {} } }],
+              ['msa', { _index: 9, title: { 3: {}, 6: {}, 8: {}, 11: {}, 18: {}, 20: {}, 21: {} }, description: {} }],
+              ["msa'", { _index: 25, title: { 9: {} }, description: {} }],
+              ['new', { _index: 37, title: { 15: {}, 20: {}, 23: {} }, description: {} }],
               ['payload', { _index: 17, title: { 5: {} }, description: {} }],
-              ['properli', { _index: 26, title: { 9: {}, 14: {}, 19: {} }, description: {} }],
-              ['public', { _index: 45, title: { 18: {}, 20: {} }, description: {} }],
-              ['readi', { _index: 57, title: { 24: {} }, description: {} }],
-              ['readyz', { _index: 58, title: {}, description: { 24: {} } }],
-              ['request', { _index: 5, title: { 2: {}, 6: {}, 10: {}, 12: {}, 13: {}, 20: {} }, description: {} }],
+              ['properli', { _index: 30, title: { 12: {}, 17: {}, 22: {} }, description: {} }],
+              ['provid', { _index: 27, title: { 9: {} }, description: {} }],
+              ['public', { _index: 49, title: { 21: {}, 23: {} }, description: {} }],
+              ['readi', { _index: 61, title: { 27: {} }, description: {} }],
+              ['readyz', { _index: 62, title: {}, description: { 27: {} } }],
+              ['request', { _index: 5, title: { 2: {}, 6: {}, 13: {}, 15: {}, 16: {}, 23: {} }, description: {} }],
               ['retir', { _index: 19, title: { 6: {} }, description: {} }],
               ['retiremsa', { _index: 13, title: { 5: {} }, description: {} }],
-              ['revok', { _index: 29, title: { 10: {} }, description: {} }],
-              ['revokedelegationpayload', { _index: 27, title: { 9: {} }, description: {} }],
-              ['servic', { _index: 53, title: { 22: {}, 23: {}, 24: {} }, description: {} }],
-              ['sign', { _index: 1, title: { 1: {}, 2: {}, 9: {}, 14: {}, 19: {} }, description: {} }],
-              ['statefulstorageitemizedsignaturepayloadv2', { _index: 47, title: { 19: {} }, description: {} }],
-              ['statu', { _index: 52, title: { 22: {}, 23: {}, 24: {} }, description: {} }],
+              ['revok', { _index: 33, title: { 13: {} }, description: {} }],
+              ['revokedelegationpayload', { _index: 31, title: { 12: {} }, description: {} }],
+              ['servic', { _index: 57, title: { 25: {}, 26: {}, 27: {} }, description: {} }],
+              ['sign', { _index: 1, title: { 1: {}, 2: {}, 12: {}, 17: {}, 22: {} }, description: {} }],
+              ['specif', { _index: 26, title: { 9: {} }, description: {} }],
+              ['statefulstorageitemizedsignaturepayloadv2', { _index: 51, title: { 22: {} }, description: {} }],
+              ['statu', { _index: 56, title: { 25: {}, 26: {}, 27: {} }, description: {} }],
               ['unsign', { _index: 14, title: { 5: {} }, description: {} }],
               ['v1/account', { _index: 0, title: { 0: {} }, description: {} }],
               ['v1/accounts/account/{accountid', { _index: 12, title: {}, description: { 4: {} } }],
@@ -6317,22 +6962,23 @@
               ['v1/accounts/retiremsa/{accountid', { _index: 18, title: {}, description: { 5: {} } }],
               ['v1/accounts/siwf', { _index: 4, title: {}, description: { 1: {}, 2: {} } }],
               ['v1/accounts/{msaid', { _index: 11, title: {}, description: { 3: {} } }],
-              ['v1/deleg', { _index: 21, title: { 7: {} }, description: {} }],
-              ['v1/delegation/revokedeleg', { _index: 30, title: {}, description: { 10: {} } }],
+              ['v1/delegation/revokedeleg', { _index: 34, title: {}, description: { 13: {} } }],
               [
                 'v1/delegation/revokedelegation/{accountid}/{providerid',
-                { _index: 28, title: {}, description: { 9: {} } },
+                { _index: 32, title: {}, description: { 12: {} } },
               ],
-              ['v1/delegation/{msaid', { _index: 25, title: {}, description: { 8: {} } }],
-              ['v1/handl', { _index: 31, title: { 11: {} }, description: { 12: {} } }],
-              ['v1/handles/chang', { _index: 36, title: {}, description: { 13: {} } }],
-              ['v1/handles/change/{newhandl', { _index: 38, title: {}, description: { 14: {} } }],
-              ['v1/handles/{msaid', { _index: 39, title: {}, description: { 15: {} } }],
-              ['v1/key', { _index: 40, title: { 16: {} }, description: {} }],
-              ['v1/keys/add', { _index: 44, title: {}, description: { 17: {} } }],
-              ['v1/keys/publickeyagr', { _index: 49, title: {}, description: { 20: {} } }],
-              ['v1/keys/publickeyagreements/getaddkeypayload', { _index: 48, title: {}, description: { 19: {} } }],
-              ['v1/keys/{msaid', { _index: 46, title: {}, description: { 18: {} } }],
+              ['v1/delegation/{msaid', { _index: 29, title: {}, description: { 11: {} } }],
+              ['v1/handl', { _index: 35, title: { 14: {} }, description: { 15: {} } }],
+              ['v1/handles/chang', { _index: 40, title: {}, description: { 16: {} } }],
+              ['v1/handles/change/{newhandl', { _index: 42, title: {}, description: { 17: {} } }],
+              ['v1/handles/{msaid', { _index: 43, title: {}, description: { 18: {} } }],
+              ['v1/key', { _index: 44, title: { 19: {} }, description: {} }],
+              ['v1/keys/add', { _index: 48, title: {}, description: { 20: {} } }],
+              ['v1/keys/publickeyagr', { _index: 53, title: {}, description: { 23: {} } }],
+              ['v1/keys/publickeyagreements/getaddkeypayload', { _index: 52, title: {}, description: { 22: {} } }],
+              ['v1/keys/{msaid', { _index: 50, title: {}, description: { 21: {} } }],
+              ['v2/delegations/{msaid', { _index: 24, title: {}, description: { 8: {} } }],
+              ['v2/delegations/{msaid}/{providerid', { _index: 28, title: {}, description: { 9: {} } }],
             ],
             pipeline: [],
           },

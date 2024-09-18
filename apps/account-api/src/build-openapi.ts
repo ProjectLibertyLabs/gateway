@@ -1,3 +1,4 @@
+/* eslint-disable import/first */
 // This is a very hack way to generate the swagger
 // without needing any of the service dependencies.
 // At some point we should find a better way, but
@@ -22,10 +23,16 @@ process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
 import { apiFile, generateSwaggerDoc } from '#account-lib/config/swagger_config';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error'],
+  });
+
+  // Enable URL-based API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   const document = await generateSwaggerDoc(app);

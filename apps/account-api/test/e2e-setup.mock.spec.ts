@@ -16,8 +16,6 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { AccountId } from '@polkadot/types/interfaces';
 import { cryptoWaitReady, decodeAddress } from '@polkadot/util-crypto';
 import log from 'loglevel';
-import { SignerResult, Signer, SignerPayloadRaw, ISubmittableResult } from '@polkadot/types/types';
-import { SubmittableExtrinsic } from '@polkadot/api/types';
 
 export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
@@ -32,10 +30,12 @@ export async function setupProviderAndUsers(numUsers = 4) {
   // Get keys and MSA Ids for users provisioned in setup
   const provider = await provisionProvider(BASE_SEED_PHRASE, 'Alice');
   const users = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, numUsers);
+  const revokedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//revoked`, 1))[0];
+  const undelegatedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//undelegated`, 1))[0];
 
   const maxMsaId = (await ExtrinsicHelper.apiPromise.query.msa.currentMsaIdentifierMaximum()).toString();
 
-  return { provider, users, currentBlockNumber, maxMsaId };
+  return { provider, users, revokedUser, undelegatedUser, currentBlockNumber, maxMsaId };
 }
 
 /**

@@ -26,7 +26,7 @@ let privateConnectionsSchema: Schema | undefined;
 let httpServer: any;
 let invalidMsaId: string;
 let msaNonProviderId: string;
-let invalidKeypair: KeyringPair;
+let nonMsaKeypair: KeyringPair;
 
 describe('Delegation Controller', () => {
   let app: INestApplication;
@@ -43,7 +43,7 @@ describe('Delegation Controller', () => {
 
     invalidMsaId = (BigInt(maxMsaId) + 100n).toString();
     msaNonProviderId = users[0].msaId.toString();
-    invalidKeypair = new Keyring({ type: 'sr25519' }).createFromUri('//Alice//invalidUser');
+    nonMsaKeypair = new Keyring({ type: 'sr25519' }).createFromUri('//Alice//invalidUser');
 
     module = await Test.createTestingModule({
       imports: [ApiModule],
@@ -136,7 +136,7 @@ describe('Delegation Controller', () => {
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
       const providerId = provider.msaId?.toString();
-      const getPath: string = `/v1/delegation/revokeDelegation/${invalidKeypair.address}/${providerId}`;
+      const getPath: string = `/v1/delegation/revokeDelegation/${nonMsaKeypair.address}/${providerId}`;
       await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
         statusCode: HttpStatus.NOT_FOUND,
         message: 'MSA ID for account not found',

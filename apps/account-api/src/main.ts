@@ -5,7 +5,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '#account-lib/config/config.service';
 import { initSwagger } from '#account-lib/config/swagger_config';
 import { ApiModule } from './api.module';
-import { TimeoutInterceptor } from '#account-lib/utils/timeout.interceptor';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 const logger = new Logger('main');

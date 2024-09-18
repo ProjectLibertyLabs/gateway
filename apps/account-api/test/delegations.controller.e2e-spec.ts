@@ -30,7 +30,7 @@ describe('Delegation Controller', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    ({ maxMsaId, provider, revokedUsers: revokedUser, undelegatedUser, users } = await setupProviderAndUsers());
+    ({ maxMsaId, provider, revokedUser, undelegatedUser, users } = await setupProviderAndUsers());
     const builder = new SchemaBuilder().withAutoDetectExistingSchema();
     updateSchema = await builder.withName('dsnp', 'update').resolve();
     publicKeySchema = await builder.withName('dsnp', 'public-key-key-agreement').resolve();
@@ -224,7 +224,7 @@ describe('Delegation Controller', () => {
 
       it('should return an error for a providerId that is not a registered provider', async () => {
         await request(httpServer)
-          .get(path.replace('{msaId}', users[0].msaId.toString()).replace('{providerId}', users[1].msaId.toString()))
+          .get(path.replace('{msaId}', users[0].msaId.toString()).replace('{providerId}', msaNonProviderId))
           .expect(HttpStatus.BAD_REQUEST);
       });
 

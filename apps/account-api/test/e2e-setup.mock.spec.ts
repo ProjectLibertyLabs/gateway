@@ -35,7 +35,7 @@ export async function setupProviderAndUsers(numUsers = 4) {
 
   const maxMsaId = (await ExtrinsicHelper.apiPromise.query.msa.currentMsaIdentifierMaximum()).toString();
 
-  return { provider, users, revokedUsers: revokedUser, undelegatedUser, currentBlockNumber, maxMsaId };
+  return { provider, users, revokedUser, undelegatedUser, currentBlockNumber, maxMsaId };
 }
 
 /**

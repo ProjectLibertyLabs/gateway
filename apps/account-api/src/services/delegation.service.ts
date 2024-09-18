@@ -56,25 +56,25 @@ export class DelegationService {
       throw new HttpException('MSA ID for account not found', HttpStatus.NOT_FOUND);
     }
 
-    // Validate that the providerId is a registered provider, also checks for valid MSA ID
-    const providerRegistry = await this.blockchainService.getProviderToRegistryEntry(providerId);
-    if (!providerRegistry) {
-      throw new HttpException('Provider not found', HttpStatus.BAD_REQUEST);
+    if (providerId) {
+      const isValidProviderId = await this.blockchainService.isValidMsaId(providerId);
+      if (!isValidProviderId) {
+        throw new HttpException('Invalid provider', HttpStatus.BAD_REQUEST);
+      }
+
+      const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerId);
+      if (!providerInfo) {
+        throw new HttpException('Supplied ID not a Provider', HttpStatus.BAD_REQUEST);
+      }
     }
 
     // Validate that delegations exist for this msaId
-    try {
-      const delegations = await this.getDelegation(msaId);
-      if (delegations.revokedAt.toNumber() !== 0) {
-        throw new HttpException('Delegation already revoked', HttpStatus.NOT_FOUND);
-      }
-    } catch (error: any) {
-      if (error instanceof HttpException) {
-        throw error;
-      } else {
-        this.logger.error(`Failed to get revoke delegation payload: ${error.toString()}`);
-        throw new HttpException(`Delegation not found: ${error.toString()}`, HttpStatus.NOT_FOUND);
-      }
+    const delegations = await this.blockchainService.getProviderDelegationForMsa(msaId, providerId);
+    if (!delegations) {
+      throw new HttpException('No delegations found', HttpStatus.NOT_FOUND);
+    }
+    if (delegations.revokedAtBlock !== 0) {
+      throw new HttpException('Delegation already revoked', HttpStatus.NOT_FOUND);
     }
     return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
   }

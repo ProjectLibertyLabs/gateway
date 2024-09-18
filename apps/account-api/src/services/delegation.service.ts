@@ -65,13 +65,16 @@ export class DelegationService {
     // Validate that delegations exist for this msaId
     try {
       const delegations = await this.getDelegation(msaId);
-      // Check if the delegation is already revoked
       if (delegations.revokedAt.toNumber() !== 0) {
-        throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
+        throw new HttpException('Delegation already revoked', HttpStatus.NOT_FOUND);
       }
-    } catch (e: any) {
-      this.logger.error(`Failed to get revoke delegation payload: ${e.toString()}`);
-      throw new HttpException('Delegation not found', HttpStatus.NOT_FOUND);
+    } catch (error: any) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        this.logger.error(`Failed to get revoke delegation payload: ${error.toString()}`);
+        throw new HttpException(`Delegation not found: ${error.toString()}`, HttpStatus.NOT_FOUND);
+      }
     }
     return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
   }

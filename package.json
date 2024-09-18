@@ -73,7 +73,7 @@
     "test": "npm run test:account ; npm run test:content-publishing ; npm run test:content-watcher ; npm run test:graph",
     "test:verbose": "jest --coverage --verbose",
     "test:e2e:account": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-api/.*\\.e2e-spec\\.ts'",
-    "test:e2e:delegations": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-api/test/delegations.controller.e2e-spec.ts' -t 'v1/delegation'",
+    "test:e2e:delegations": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-api/test/delegations.controller.e2e-spec.ts' -t 'v1/delegation/revokeDelegation'",
     "test:e2e:content-publishing": "dotenvx run -f env-files/content-publishing.template.env -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'content-publishing*'",
     "test:e2e:content-watcher": "dotenvx run -f env-files/content-watcher.template.env -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'content-watcher*'",
     "test:e2e:graph": "dotenvx run -f env-files/graph.template.env -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'graph*'",

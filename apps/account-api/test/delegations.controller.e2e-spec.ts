@@ -159,7 +159,7 @@ describe('Delegation Controller', () => {
       const getPath: string = `/v1/delegation/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
       await request(httpServer).get(getPath).expect(404).expect({
         statusCode: 404,
-        message: 'Delegation not found',
+        message: 'Delegation already revoked',
       });
     });
 
@@ -168,7 +168,7 @@ describe('Delegation Controller', () => {
       const getPath: string = `/v1/delegation/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
       await request(httpServer).get(getPath).expect(404).expect({
         statusCode: 404,
-        message: 'Delegation not found',
+        message: 'Delegation not found: Error: Failed to find the delegation.',
       });
     });
 

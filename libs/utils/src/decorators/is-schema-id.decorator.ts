@@ -1,10 +1,10 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
-export function IsMsaId(validationOptions?: ValidationOptions) {
+export function IsSchemaId(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'IsMsaId',
+      name: 'IsSchemaId',
       target: object.constructor,
       propertyName,
       options: validationOptions,
@@ -14,8 +14,8 @@ export function IsMsaId(validationOptions?: ValidationOptions) {
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
             const numberValue = BigInt(value);
-            // ensure the value is up to u32
-            return numberValue <= 4_294_967_296;
+            // ensure the value is up to u16
+            return numberValue <= 65_536;
           }
 
           return false;

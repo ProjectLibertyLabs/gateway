@@ -1,14 +1,20 @@
 /* eslint-disable max-classes-per-file */
-import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsNumberString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ProviderDelegationRequestDto {
-  @IsNumberString({ no_symbols: true })
-  @ApiProperty({ description: 'Message Source Account Identifier', type: String, format: 'int64' })
+  @ApiProperty({ description: 'Msa Id representing the target of this request', type: String, example: '3' })
+  @IsMsaId({ message: 'msaId should be a valid positive number' })
   msaId: string;
 
-  @IsNumberString({ no_symbols: true })
-  @ApiProperty({ description: 'Provider ID', type: String, format: 'int64' })
+  @ApiPropertyOptional({
+    description: 'provider MsaId representing the target of this request',
+    type: String,
+    example: '1',
+  })
+  @IsOptional()
+  @IsMsaId({ message: 'providerId should be a valid positive number' })
   providerId?: string;
 }
 

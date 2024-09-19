@@ -25,6 +25,7 @@ import {
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
 } from '#types/dtos/account/graphs.request.dto';
+import { MsaIdDto } from '#types/dtos/common';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')
@@ -74,7 +75,7 @@ export class KeysControllerV1 {
    * @returns A promise that resolves to an array of public keys associated with the given msaId.
    * @throws An error if no public keys can be found.
    */
-  async getKeys(@Param('msaId') msaId: string): Promise<KeysResponse> {
+  async getKeys(@Param() { msaId }: MsaIdDto): Promise<KeysResponse> {
     try {
       const keys = await this.keysService.getKeysByMsa(msaId);
       return keys;

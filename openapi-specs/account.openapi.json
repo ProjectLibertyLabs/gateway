@@ -62,6 +62,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
               "type": "string"
             }
@@ -93,6 +95,8 @@
             "name": "accountId",
             "required": true,
             "in": "path",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
               "type": "string"
             }
@@ -124,6 +128,8 @@
             "name": "accountId",
             "required": true,
             "in": "path",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
               "type": "string"
             }
@@ -187,9 +193,9 @@
             "name": "msaId",
             "required": true,
             "in": "path",
-            "description": "Message Source Account Identifier",
+            "description": "Msa Id representing the target of this request",
+            "example": "3",
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           }
@@ -220,9 +226,9 @@
             "name": "msaId",
             "required": true,
             "in": "path",
-            "description": "Message Source Account Identifier",
+            "description": "Msa Id representing the target of this request",
+            "example": "3",
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           },
@@ -230,9 +236,9 @@
             "name": "providerId",
             "required": false,
             "in": "path",
-            "description": "Provider ID",
+            "description": "provider MsaId representing the target of this request",
+            "example": "1",
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           }
@@ -263,6 +269,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
               "type": "string"
             }
@@ -294,6 +302,8 @@
             "name": "accountId",
             "required": true,
             "in": "path",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
               "type": "string"
             }
@@ -302,6 +312,8 @@
             "name": "providerId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of provider",
+            "example": "1",
             "schema": {
               "type": "string"
             }
@@ -415,7 +427,10 @@
             "name": "newHandle",
             "required": true,
             "in": "path",
+            "description": "newHandle in the request",
+            "example": "handle",
             "schema": {
+              "minLength": 3,
               "type": "string"
             }
           }
@@ -439,6 +454,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
               "type": "string"
             }
@@ -488,6 +505,8 @@
             "name": "msaId",
             "required": true,
             "in": "path",
+            "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
               "type": "string"
             }
@@ -512,7 +531,8 @@
             "name": "msaId",
             "required": true,
             "in": "query",
-            "description": "MSA ID of account to generate a payload for",
+            "description": "Msa Id representing the target of this request",
+            "example": "3",
             "schema": {
               "type": "string"
             }
@@ -522,6 +542,7 @@
             "required": true,
             "in": "query",
             "description": "Public key should be a 32 bytes value in hex format!",
+            "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
             "schema": {
               "type": "string"
             }
@@ -677,7 +698,9 @@
             "type": "string"
           },
           "signature": {
-            "type": "string"
+            "type": "string",
+            "description": "Signature of the payload",
+            "example": "0x64f8dd8846ba72cbb1954761ec4b2e44b886abb4b4ef7455b869355f17b4ce4a601ad26eabc57a682244a97bc9a2001b59469ae76fea105b724e988967d4928d"
           }
         },
         "required": [
@@ -689,7 +712,9 @@
         "type": "object",
         "properties": {
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Error message",
+            "example": "Some error"
           }
         },
         "required": [
@@ -711,13 +736,17 @@
         "type": "object",
         "properties": {
           "pallet": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "extrinsicName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "string",
+            "description": "Scale encoded extrinsic",
+            "example": "0x00112233"
           }
         },
         "required": [
@@ -748,7 +777,7 @@
             "example": {
               "siwsPayload": {
                 "message": "0x1234567890abcdef",
-                "signature": "0x1234567890abcdef"
+                "signature": "0x64f8dd8846ba72cbb1954761ec4b2e44b886abb4b4ef7455b869355f17b4ce4a601ad26eabc57a682244a97bc9a2001b59469ae76fea105b724e988967d4928d"
               },
               "err": {
                 "message": "Error message"
@@ -786,13 +815,19 @@
         "type": "object",
         "properties": {
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "string",
+            "description": "encodedExtrinsic to be added!",
+            "example": "0x1234"
           },
           "payloadToSign": {
-            "type": "string"
+            "type": "string",
+            "description": "payload to be signed!",
+            "example": "0x1234"
           },
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           }
         },
         "required": [
@@ -805,16 +840,24 @@
         "type": "object",
         "properties": {
           "encodedExtrinsic": {
-            "type": "string"
+            "type": "string",
+            "description": "encodedExtrinsic to be added!",
+            "example": "0x1234"
           },
           "payloadToSign": {
-            "type": "string"
+            "type": "string",
+            "description": "payload to be signed!",
+            "example": "0x1234"
           },
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "signature": {
-            "type": "string"
+            "type": "string",
+            "description": "signature of the owner",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           }
         },
         "required": [
@@ -911,16 +954,24 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "providerId": {
-            "type": "string"
+            "type": "string",
+            "description": "provider MsaId representing the target of this request",
+            "example": "3"
           },
           "encodedExtrinsic": {
-            "type": "object"
+            "type": "string",
+            "description": "encodedExtrinsic to be added!",
+            "example": "0x1234"
           },
           "payloadToSign": {
-            "type": "object"
+            "type": "string",
+            "description": "payload to be signed!",
+            "example": "0x1234"
           }
         },
         "required": [
@@ -934,19 +985,29 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "providerId": {
-            "type": "string"
+            "type": "string",
+            "description": "provider MsaId representing the target of this request",
+            "example": "3"
           },
           "encodedExtrinsic": {
-            "type": "object"
+            "type": "string",
+            "description": "encodedExtrinsic to be added!",
+            "example": "0x1234"
           },
           "payloadToSign": {
-            "type": "object"
+            "type": "string",
+            "description": "payload to be signed!",
+            "example": "0x1234"
           },
           "signature": {
-            "type": "object"
+            "type": "string",
+            "description": "signature of the owner",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           }
         },
         "required": [
@@ -961,10 +1022,14 @@
         "type": "object",
         "properties": {
           "baseHandle": {
-            "type": "string"
+            "type": "string",
+            "description": "base handle in the request!",
+            "example": "handle"
           },
           "expiration": {
-            "type": "number"
+            "type": "number",
+            "description": "expiration block number for this payload",
+            "example": "1"
           }
         },
         "required": [
@@ -976,13 +1041,17 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format!",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "payload": {
             "$ref": "#/components/schemas/HandlePayloadDto"
           },
           "proof": {
-            "type": "string"
+            "type": "string",
+            "description": "proof is the signature for the payload",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           }
         },
         "required": [
@@ -995,13 +1064,19 @@
         "type": "object",
         "properties": {
           "msaId": {
-            "type": "string"
+            "type": "string",
+            "description": "Msa Id representing the target of this request",
+            "example": "3"
           },
           "expiration": {
-            "type": "number"
+            "type": "number",
+            "description": "expiration block number for this payload",
+            "example": "1"
           },
           "newPublicKey": {
-            "type": "string"
+            "type": "string",
+            "description": "newPublicKey in hex format",
+            "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b"
           }
         },
         "required": [
@@ -1014,13 +1089,19 @@
         "type": "object",
         "properties": {
           "msaOwnerAddress": {
-            "type": "string"
+            "type": "string",
+            "description": "msaOwnerAddress representing the target of this request",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "msaOwnerSignature": {
-            "type": "string"
+            "type": "string",
+            "description": "msaOwnerSignature is the signature by msa owner",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           },
           "newKeyOwnerSignature": {
-            "type": "string"
+            "type": "string",
+            "description": "newKeyOwnerSignature is the signature with new key",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           },
           "payload": {
             "$ref": "#/components/schemas/KeysRequestPayloadDto"
@@ -1037,18 +1118,30 @@
         "type": "object",
         "properties": {
           "schemaId": {
-            "type": "number"
+            "type": "number",
+            "description": "schemaId related to the payload",
+            "example": "1"
           },
           "targetHash": {
-            "type": "number"
+            "type": "number",
+            "description": "targetHash related to the stateful storage",
+            "example": "1234"
           },
           "expiration": {
-            "type": "number"
+            "type": "number",
+            "description": "expiration block number for this payload",
+            "example": "1"
           },
           "actions": {
+            "example": [
+              {
+                "type": "ADD_ITEM",
+                "encodedPayload": "0x1122"
+              }
+            ],
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "string"
             }
           }
         },
@@ -1063,13 +1156,17 @@
         "type": "object",
         "properties": {
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "payload": {
             "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
           },
           "proof": {
-            "type": "string"
+            "type": "string",
+            "description": "proof is the signature for the payload",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
           }
         },
         "required": [

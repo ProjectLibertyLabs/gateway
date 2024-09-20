@@ -28,11 +28,11 @@ export class ItemActionDto {
 
   @ApiProperty({
     type: String,
-    description: 'encodedPayload to be added!',
+    description: 'encodedPayload to be added',
     example: '0x1234',
   })
   @ValidateIf((o) => o.type === ItemActionType.ADD_ITEM)
-  @IsHexValue({ minLength: 2, maxLength: 1024, message: 'encodedPayload should be in hex format!' })
+  @IsHexValue({ minLength: 2, maxLength: 2048 })
   encodedPayload?: string;
 
   @ApiProperty({
@@ -41,7 +41,7 @@ export class ItemActionDto {
     example: '0',
   })
   @ValidateIf((o) => o.type === ItemActionType.DELETE_ITEM)
-  @IsIntValue({ minValue: 0, message: 'index should be zero or positive!' })
+  @IsIntValue({ minValue: 0 })
   index?: number;
 }
 
@@ -51,7 +51,7 @@ export class ItemizedSignaturePayloadDto {
     description: 'schemaId related to the payload',
     example: '1',
   })
-  @IsSchemaId({ message: 'schemaId should be positive number' })
+  @IsSchemaId()
   schemaId: number;
 
   @ApiProperty({
@@ -59,11 +59,11 @@ export class ItemizedSignaturePayloadDto {
     description: 'targetHash related to the stateful storage',
     example: '1234',
   })
-  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296, message: 'targetHash should be a positive number!' })
+  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   targetHash: number;
 
   @ApiProperty({ type: 'number', description: 'expiration block number for this payload', example: '1' })
-  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296, message: 'expiration should be a positive number!' })
+  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   expiration: number;
 
   @ApiProperty({
@@ -87,7 +87,7 @@ export class AddNewPublicKeyAgreementRequestDto {
     description: 'AccountId in hex or SS58 format',
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   accountId: string;
 
   @ApiProperty({
@@ -104,9 +104,7 @@ export class AddNewPublicKeyAgreementRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsSignature({
-    message: 'Proof should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   proof: HexString;
 }
 
@@ -119,10 +117,10 @@ export class AddNewPublicKeyAgreementPayloadRequest {
 
   @ApiProperty({
     type: String,
-    description: 'encodedPayload to be added!',
+    description: 'encodedPayload to be added',
     example: '0x1234',
   })
-  @IsHexValue({ minLength: 2, maxLength: 1024, message: 'encodedPayload should be in hex format!' })
+  @IsHexValue({ minLength: 2, maxLength: 2048 })
   encodedPayload: HexString;
 }
 
@@ -133,15 +131,15 @@ export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & 
 export type PublishPublicKeyAgreementRequestDto = PublicKeyAgreementRequestDto;
 
 export class PublicKeyAgreementsKeyPayload {
-  @ApiProperty({ description: 'Msa Id representing the target of this request', type: String, example: '3' })
-  @IsMsaId({ message: 'msaId should be a valid positive number' })
+  @ApiProperty({ description: 'MSA Id representing the target of this request', type: String, example: '3' })
+  @IsMsaId()
   msaId: string;
 
   @ApiProperty({
     type: String,
-    description: 'Public key should be a 32 bytes value in hex format!',
+    description: 'New public key to be added to the account (32-byte value in hex format)',
     example: '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b',
   })
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'Public key should be a 32 bytes value in hex format!' })
+  @IsHexValue({ minLength: 64, maxLength: 64 })
   newKey: HexString;
 }

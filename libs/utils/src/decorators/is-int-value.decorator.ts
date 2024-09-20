@@ -15,7 +15,7 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {
-          const re = /^[+-]?[1-9][0-9]*$/;
+          const re = /^[+-]?[0-9]+$/;
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
             const numberValue = BigInt(value);
@@ -26,6 +26,12 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
           }
 
           return false;
+        },
+        defaultMessage(args?: ValidationArguments): string {
+          if (validationOptions.maxValue === undefined) {
+            return `${args.property} should be a number equal or higher than ${validationOptions.minValue}!`;
+          }
+          return `${args.property} should be a number between ${validationOptions.minValue} and ${validationOptions.maxValue}!`;
         },
       },
     });

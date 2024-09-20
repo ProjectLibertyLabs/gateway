@@ -193,7 +193,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
-            "description": "Msa Id representing the target of this request",
+            "description": "MSA Id of the user requesting the delegation",
             "example": "3",
             "schema": {
               "type": "string"
@@ -226,7 +226,7 @@
             "name": "msaId",
             "required": true,
             "in": "path",
-            "description": "Msa Id representing the target of this request",
+            "description": "MSA Id of the user requesting the delegation",
             "example": "3",
             "schema": {
               "type": "string"
@@ -236,7 +236,7 @@
             "name": "providerId",
             "required": false,
             "in": "path",
-            "description": "provider MsaId representing the target of this request",
+            "description": "MSA Id of the provider to whom the requesting user wishes to delegate",
             "example": "1",
             "schema": {
               "type": "string"
@@ -531,7 +531,7 @@
             "name": "msaId",
             "required": true,
             "in": "query",
-            "description": "Msa Id representing the target of this request",
+            "description": "MSA Id representing the target of this request",
             "example": "3",
             "schema": {
               "type": "string"
@@ -541,7 +541,7 @@
             "name": "newKey",
             "required": true,
             "in": "query",
-            "description": "Public key should be a 32 bytes value in hex format!",
+            "description": "New public key to be added to the account (32-byte value in hex format)",
             "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
             "schema": {
               "type": "string"
@@ -745,7 +745,7 @@
           },
           "encodedExtrinsic": {
             "type": "string",
-            "description": "Scale encoded extrinsic",
+            "description": "Hex-encoded representation of the extrinsic",
             "example": "0x00112233"
           }
         },
@@ -816,12 +816,12 @@
         "properties": {
           "encodedExtrinsic": {
             "type": "string",
-            "description": "encodedExtrinsic to be added!",
+            "description": "Hex-encoded representation of the \"RetireMsa\" extrinsic",
             "example": "0x1234"
           },
           "payloadToSign": {
             "type": "string",
-            "description": "payload to be signed!",
+            "description": "payload to be signed",
             "example": "0x1234"
           },
           "accountId": {
@@ -841,12 +841,12 @@
         "properties": {
           "encodedExtrinsic": {
             "type": "string",
-            "description": "encodedExtrinsic to be added!",
+            "description": "Hex-encoded representation of the \"RetireMsa\" extrinsic",
             "example": "0x1234"
           },
           "payloadToSign": {
             "type": "string",
-            "description": "payload to be signed!",
+            "description": "payload to be signed",
             "example": "0x1234"
           },
           "accountId": {
@@ -960,17 +960,17 @@
           },
           "providerId": {
             "type": "string",
-            "description": "provider MsaId representing the target of this request",
+            "description": "MSA Id of the provider to whom the requesting user wishes to delegate",
             "example": "3"
           },
           "encodedExtrinsic": {
             "type": "string",
-            "description": "encodedExtrinsic to be added!",
+            "description": "Hex-encoded representation of the \"revokeDelegation\" extrinsic",
             "example": "0x1234"
           },
           "payloadToSign": {
             "type": "string",
-            "description": "payload to be signed!",
+            "description": "payload to be signed",
             "example": "0x1234"
           }
         },
@@ -991,17 +991,17 @@
           },
           "providerId": {
             "type": "string",
-            "description": "provider MsaId representing the target of this request",
+            "description": "MSA Id of the provider to whom the requesting user wishes to delegate",
             "example": "3"
           },
           "encodedExtrinsic": {
             "type": "string",
-            "description": "encodedExtrinsic to be added!",
+            "description": "Hex-encoded representation of the \"revokeDelegation\" extrinsic",
             "example": "0x1234"
           },
           "payloadToSign": {
             "type": "string",
-            "description": "payload to be signed!",
+            "description": "payload to be signed",
             "example": "0x1234"
           },
           "signature": {
@@ -1023,7 +1023,7 @@
         "properties": {
           "baseHandle": {
             "type": "string",
-            "description": "base handle in the request!",
+            "description": "base handle in the request",
             "example": "handle"
           },
           "expiration": {
@@ -1042,7 +1042,7 @@
         "properties": {
           "accountId": {
             "type": "string",
-            "description": "AccountId in hex or SS58 format!",
+            "description": "AccountId in hex or SS58 format",
             "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
           },
           "payload": {
@@ -1065,7 +1065,7 @@
         "properties": {
           "msaId": {
             "type": "string",
-            "description": "Msa Id representing the target of this request",
+            "description": "MSA Id of the user requesting the new key",
             "example": "3"
           },
           "expiration": {

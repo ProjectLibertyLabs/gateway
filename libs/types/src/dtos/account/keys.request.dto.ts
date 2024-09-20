@@ -11,12 +11,12 @@ import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 
 class KeysRequestPayloadDto {
-  @ApiProperty({ description: 'Msa Id representing the target of this request', type: String, example: '3' })
-  @IsMsaId({ message: 'msaId should be a valid positive number' })
+  @ApiProperty({ description: 'MSA Id of the user requesting the new key', type: String, example: '3' })
+  @IsMsaId()
   msaId: string;
 
   @ApiProperty({ type: 'number', description: 'expiration block number for this payload', example: '1' })
-  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296, message: 'expiration should be a positive number!' })
+  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   expiration: number;
 
   @ApiProperty({
@@ -24,7 +24,7 @@ class KeysRequestPayloadDto {
     description: 'newPublicKey in hex format',
     example: '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b',
   })
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'newPublicKey should be a 32 bytes value in hex format!' })
+  @IsHexValue({ minLength: 64, maxLength: 64 })
   newPublicKey: string;
 }
 
@@ -34,7 +34,7 @@ export class KeysRequestDto {
     type: String,
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'msaOwnerAddress should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   msaOwnerAddress: string;
 
   @ApiProperty({
@@ -43,9 +43,7 @@ export class KeysRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsSignature({
-    message: 'msaOwnerSignature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   msaOwnerSignature: HexString;
 
   @ApiProperty({
@@ -54,9 +52,7 @@ export class KeysRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsSignature({
-    message: 'newKeyOwnerSignature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   newKeyOwnerSignature: HexString;
 
   @ApiProperty()

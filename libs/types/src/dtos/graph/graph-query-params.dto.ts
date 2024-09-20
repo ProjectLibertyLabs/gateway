@@ -9,7 +9,7 @@ export class GraphsQueryParamsDto {
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @IsMsaId({ each: true, message: 'dsnpId should be a valid positive number' })
+  @IsMsaId({ each: true })
   @ApiProperty({
     description: 'Array of MSA Ids for which to query graphs',
     example: ['2', '3', '4', '5'],

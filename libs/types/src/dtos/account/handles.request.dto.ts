@@ -12,7 +12,7 @@ import { IsSignature } from '#utils/decorators/is-signature.decorator';
 class HandlePayloadDto {
   @ApiProperty({
     type: 'string',
-    description: 'base handle in the request!',
+    description: 'base handle in the request',
     example: 'handle',
   })
   @MinLength(3)
@@ -20,17 +20,17 @@ class HandlePayloadDto {
   baseHandle: string;
 
   @ApiProperty({ type: 'number', description: 'expiration block number for this payload', example: '1' })
-  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296, message: 'expiration should be a positive number!' })
+  @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   expiration: number;
 }
 
 export class HandleRequestDto {
   @ApiProperty({
     type: String,
-    description: 'AccountId in hex or SS58 format!',
+    description: 'AccountId in hex or SS58 format',
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   accountId: string;
 
   @ApiProperty()
@@ -45,9 +45,7 @@ export class HandleRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsSignature({
-    message: 'Proof should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   proof: HexString;
 }
 
@@ -63,7 +61,7 @@ export class ChangeHandlePayloadRequest {
     type: String,
     example: '0x012345',
   })
-  @IsHexValue({ minLength: 2, message: 'encodedPayload should be in hex format!' })
+  @IsHexValue({ minLength: 2 })
   encodedPayload: HexString;
 }
 

@@ -13,9 +13,7 @@ export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsSignature({
-    message: 'signature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   signature: HexString;
 
   @ApiProperty({
@@ -23,7 +21,7 @@ export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
     description: 'AccountId in hex or SS58 format',
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   accountId: string;
 }
 

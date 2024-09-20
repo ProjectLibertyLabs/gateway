@@ -20,6 +20,9 @@ export function IsAccountIdOrAddress(validationOptions?: ValidationOptions) {
           const isValidHex = hexPattern.test(value) && value.length % 2 === 0;
           return isValidHex || ss58Pattern.test(value);
         },
+        defaultMessage(args?: ValidationArguments): string {
+          return `${args.property} should be a 32 bytes value in Hex or SS58 format!`;
+        },
       },
     });
   };

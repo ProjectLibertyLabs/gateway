@@ -10,7 +10,7 @@ export type ConnectionsDtoWrapper = {
 };
 
 export class ProviderGraphDto {
-  @IsMsaId({ message: 'dsnpId should be a valid positive number' })
+  @IsMsaId()
   @ApiProperty({
     description: 'MSA Id that owns the connections represented in this object',
     example: '2',

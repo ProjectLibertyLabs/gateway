@@ -10,15 +10,18 @@ export function IsSchemaId(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: unknown, _args: ValidationArguments) {
-          const re = /^[1-9][0-9]*$/;
+          const re = /^[0-9]+$/;
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
-            const numberValue = BigInt(value);
+            const numberValue = Number(value);
             // ensure the value is up to u16
-            return numberValue <= 65_536;
+            return 0 < numberValue && numberValue <= 65_536;
           }
 
           return false;
+        },
+        defaultMessage(args?: ValidationArguments): string {
+          return `${args.property} should be a positive number!`;
         },
       },
     });

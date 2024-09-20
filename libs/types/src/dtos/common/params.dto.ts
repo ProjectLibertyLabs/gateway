@@ -6,13 +6,13 @@ import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.de
 
 export class MsaIdDto {
   @ApiProperty({ name: 'msaId', type: String, description: 'Msa Id of requested account', example: '2' })
-  @IsMsaId({ message: 'Msa Id should be a valid positive number' })
+  @IsMsaId()
   msaId: string;
 }
 
 export class ProviderMsaIdDto {
   @ApiProperty({ name: 'providerId', type: String, description: 'Msa Id of provider', example: '1' })
-  @IsMsaId({ message: 'providerId should be a valid positive number' })
+  @IsMsaId()
   providerId: string;
 }
 
@@ -45,6 +45,6 @@ export class AccountIdDto {
     description: 'AccountId in hex or SS58 format',
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   accountId: string;
 }

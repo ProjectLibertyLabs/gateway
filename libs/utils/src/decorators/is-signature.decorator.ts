@@ -19,6 +19,9 @@ export function IsSignature(validationOptions?: ValidationOptions) {
           // ensure the length is always even
           return re.test(value) && value.length % 2 === 0;
         },
+        defaultMessage(args?: ValidationArguments): string {
+          return `${args.property} should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!`;
+        },
       },
     });
   };

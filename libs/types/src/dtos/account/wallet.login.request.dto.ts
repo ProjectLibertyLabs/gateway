@@ -36,9 +36,7 @@ export class SiwsPayloadDto implements SiwsPayload {
     example:
       '0x64f8dd8846ba72cbb1954761ec4b2e44b886abb4b4ef7455b869355f17b4ce4a601ad26eabc57a682244a97bc9a2001b59469ae76fea105b724e988967d4928d',
   })
-  @IsSignature({
-    message: 'signature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
-  })
+  @IsSignature()
   signature: string | HexString;
 }
 export class SignInResponseDto implements SignInResponse {
@@ -68,10 +66,10 @@ export class EncodedExtrinsicDto implements EncodedExtrinsic {
 
   @ApiProperty({
     type: String,
-    description: 'Scale encoded extrinsic',
+    description: 'Hex-encoded representation of the extrinsic',
     example: '0x00112233',
   })
-  @IsHexValue({ minLength: 2, message: 'encodedExtrinsic should be in valid hex format!' })
+  @IsHexValue({ minLength: 2 })
   encodedExtrinsic: string | HexString;
 }
 

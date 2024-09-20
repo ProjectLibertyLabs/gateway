@@ -35,18 +35,18 @@ export class MsaIdResponseDto {
 export class RetireMsaPayloadResponseDto {
   @ApiProperty({
     type: String,
-    description: 'encodedExtrinsic to be added!',
+    description: 'Hex-encoded representation of the "RetireMsa" extrinsic',
     example: '0x1234',
   })
-  @IsHexValue({ minLength: 2, message: 'encodedExtrinsic should be in hex format!' })
+  @IsHexValue({ minLength: 2 })
   encodedExtrinsic: HexString;
 
   @ApiProperty({
     type: String,
-    description: 'payload to be signed!',
+    description: 'payload to be signed',
     example: '0x1234',
   })
-  @IsHexValue({ minLength: 2, message: 'payloadToSign should be in hex format!' })
+  @IsHexValue({ minLength: 2 })
   payloadToSign: HexString;
 
   @ApiProperty({
@@ -54,6 +54,6 @@ export class RetireMsaPayloadResponseDto {
     description: 'AccountId in hex or SS58 format',
     example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
   })
-  @IsAccountIdOrAddress({ message: 'Account id should be a 32 bytes value in hex or SS58 format!' })
+  @IsAccountIdOrAddress()
   accountId: string;
 }

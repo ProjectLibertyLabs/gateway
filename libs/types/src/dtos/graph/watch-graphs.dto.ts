@@ -6,7 +6,7 @@ export class WatchGraphsDto {
   @IsOptional()
   @IsArray()
   @ArrayUnique()
-  @IsMsaId({ each: true, message: 'dsnpId should be a valid positive number' })
+  @IsMsaId({ each: true })
   @ApiProperty({
     required: false,
     description: 'MSA Ids for which to watch for graph updates',

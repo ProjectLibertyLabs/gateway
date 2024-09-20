@@ -25,6 +25,14 @@ export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
           // ensure the length is always even
           return re.test(value) && value.length % 2 === 0;
         },
+        defaultMessage(args?: ValidationArguments): string {
+          if (validationOptions.minLength === validationOptions.maxLength) {
+            return `${args.property} should be in hex format with length of ${validationOptions.minLength / 2} bytes!`;
+          } else if (validationOptions.maxLength === undefined) {
+            return `${args.property} should be in hex format with a minimum length of ${validationOptions.minLength / 2} bytes!`;
+          }
+          return `${args.property} should be be in hex format with a length between ${validationOptions.minLength / 2} and ${validationOptions.maxLength / 2} bytes.`;
+        },
       },
     });
   };

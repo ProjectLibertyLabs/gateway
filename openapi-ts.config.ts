@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { defineConfig, UserConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({

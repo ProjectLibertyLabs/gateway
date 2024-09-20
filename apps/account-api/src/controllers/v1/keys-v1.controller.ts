@@ -1,6 +1,5 @@
 import { KeysService } from '#account-api/services/keys.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { TransactionType } from '#types/enums/account-enums';
 import {
   Controller,
   Get,
@@ -25,6 +24,7 @@ import {
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
 } from '#types/dtos/account/graphs.request.dto';
+import { TransactionType } from '#types/account-webhook';
 
 @Controller('v1/keys')
 @ApiTags('v1/keys')

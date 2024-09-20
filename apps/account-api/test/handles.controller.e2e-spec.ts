@@ -109,7 +109,7 @@ describe('Handles Controller', () => {
 
       await request(HTTP_SERVER)
         .post('/v1/handles')
-        .send({ accountId, payload, proof })
+        .send({ accountId, payload, proof: proof.Sr25519 })
         .expect(200)
         .expect((req) => req.text === 'Handle created successfully');
     });
@@ -121,7 +121,7 @@ describe('Handles Controller', () => {
       const accountId = user.keypair.address;
       await request(HTTP_SERVER)
         .post('/v1/handles/change')
-        .send({ accountId, payload, proof })
+        .send({ accountId, payload, proof: proof.Sr25519 })
         .expect(200)
         .expect((res) => res.text === 'Handle created successfully');
     });

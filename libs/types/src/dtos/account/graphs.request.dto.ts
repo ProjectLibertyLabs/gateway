@@ -9,6 +9,7 @@ import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { Type } from 'class-transformer';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
+import { IsSignature } from '#utils/decorators/is-signature.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {
@@ -103,7 +104,9 @@ export class AddNewPublicKeyAgreementRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsHexValue({ minLength: 128, maxLength: 128, message: 'Proof should be a 64 bytes value in hex format!' })
+  @IsSignature({
+    message: 'Proof should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
+  })
   proof: HexString;
 }
 

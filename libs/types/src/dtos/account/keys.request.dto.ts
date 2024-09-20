@@ -8,6 +8,7 @@ import { IsHexValue } from '#utils/decorators';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { Type } from 'class-transformer';
+import { IsSignature } from '#utils/decorators/is-signature.decorator';
 
 class KeysRequestPayloadDto {
   @ApiProperty({ description: 'Msa Id representing the target of this request', type: String, example: '3' })
@@ -42,10 +43,8 @@ export class KeysRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsHexValue({
-    minLength: 128,
-    maxLength: 128,
-    message: 'msaOwnerSignature should be a 64 bytes value in hex format!',
+  @IsSignature({
+    message: 'msaOwnerSignature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
   })
   msaOwnerSignature: HexString;
 
@@ -55,10 +54,8 @@ export class KeysRequestDto {
     example:
       '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
   })
-  @IsHexValue({
-    minLength: 128,
-    maxLength: 128,
-    message: 'msaOwnerSignature should be a 64 bytes value in hex format!',
+  @IsSignature({
+    message: 'newKeyOwnerSignature should be a 64 (or 65 if it is MultiSignature type) bytes value in hex format!',
   })
   newKeyOwnerSignature: HexString;
 

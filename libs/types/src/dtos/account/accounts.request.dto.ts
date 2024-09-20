@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsHexadecimal, IsNotEmpty } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { RetireMsaPayloadResponseDto } from './accounts.response.dto';
-import { TransactionType } from '#types/enums/account-enums';
+import { TransactionType } from '#types/account-webhook';
 
 export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
   @ApiProperty({ type: String })

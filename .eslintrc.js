@@ -86,7 +86,7 @@ module.exports = {
     },
     // Generated files
     {
-      files: ['**/content-announcement/*'],
+      files: ['**/content-announcement/*', '**/account-webhook/*'],
       rules: {
         'no-use-before-define': 'off',
         'no-shadow': 'off',

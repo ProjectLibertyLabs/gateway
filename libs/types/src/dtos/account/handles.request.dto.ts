@@ -2,7 +2,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
+import { TransactionType } from '#types/account-webhook';
 
 class HandlePayloadDto {
   @ApiProperty()

@@ -11,7 +11,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
+import { TransactionType } from '#types/account-webhook';
 
 export class ErrorResponseDto implements ErrorResponse {
   @ApiProperty()

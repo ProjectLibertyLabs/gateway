@@ -29,7 +29,7 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
         },
         defaultMessage(args?: ValidationArguments): string {
           if (validationOptions.maxValue === undefined) {
-            return `${args.property} should be a number equal or higher than ${validationOptions.minValue}!`;
+            return `${args.property} should be a number greater than or equal to ${validationOptions.minValue}!`;
           }
           return `${args.property} should be a number between ${validationOptions.minValue} and ${validationOptions.maxValue}!`;
         },

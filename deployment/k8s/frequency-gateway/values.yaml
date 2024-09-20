@@ -78,8 +78,11 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Environment variables for the application
+# Environment variables for the gateway applications and workers
 account:
+  image:
+    repository: "projectlibertylabs/gateway"
+    tag: "latest"
   env:
     API_PORT: "3000"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

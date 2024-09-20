@@ -14,7 +14,8 @@ export function IsMsaId(validationOptions?: ValidationOptions) {
 
           if (typeof value === 'string' && re.test(value)) {
             return Number(value) > 0;
-          } else if (typeof value === 'number') {
+          }
+          if (typeof value === 'number') {
             return value > 0;
           }
           return false;

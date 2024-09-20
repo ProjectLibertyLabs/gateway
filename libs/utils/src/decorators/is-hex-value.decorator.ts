@@ -28,7 +28,8 @@ export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
         defaultMessage(args?: ValidationArguments): string {
           if (validationOptions.minLength === validationOptions.maxLength) {
             return `${args.property} should be in hex format with length of ${validationOptions.minLength / 2} bytes!`;
-          } else if (validationOptions.maxLength === undefined) {
+          }
+          if (validationOptions.maxLength === undefined) {
             return `${args.property} should be in hex format with a minimum length of ${validationOptions.minLength / 2} bytes!`;
           }
           return `${args.property} should be be in hex format with a length between ${validationOptions.minLength / 2} and ${validationOptions.maxLength / 2} bytes.`;

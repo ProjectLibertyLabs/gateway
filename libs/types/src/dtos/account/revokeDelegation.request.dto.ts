@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 export class RevokeDelegationPayloadResponseDto {
   @ApiProperty({

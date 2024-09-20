@@ -11,10 +11,10 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
 import { IsHexValue } from '#utils/decorators';
 import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 export class ErrorResponseDto implements ErrorResponse {
   @ApiProperty({

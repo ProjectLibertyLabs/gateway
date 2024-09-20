@@ -2,7 +2,6 @@
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, ValidateIf, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
 import { IsHexValue } from '#utils/decorators';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
@@ -10,6 +9,7 @@ import { Type } from 'class-transformer';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {
@@ -127,8 +127,6 @@ export class AddNewPublicKeyAgreementPayloadRequest {
 export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & {
   type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
 };
-
-export type PublishPublicKeyAgreementRequestDto = PublicKeyAgreementRequestDto;
 
 export class PublicKeyAgreementsKeyPayload {
   @ApiProperty({ description: 'MSA Id representing the target of this request', type: String, example: '3' })

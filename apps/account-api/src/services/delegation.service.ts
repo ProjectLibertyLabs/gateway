@@ -1,13 +1,13 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { ConfigService } from '#account-lib/config/config.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
+import { TransactionType } from '#types/account-webhook';
 import {
   RevokeDelegationPayloadResponseDto,
   RevokeDelegationPayloadRequestDto,
   TransactionResponse,
   PublishRevokeDelegationRequestDto,
 } from '#types/dtos/account';
-import { TransactionType } from '#types/enums';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { isAddress } from '@polkadot/util-crypto';

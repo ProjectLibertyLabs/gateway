@@ -2,13 +2,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsHexValue } from '#utils/decorators';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 class KeysRequestPayloadDto {
   @ApiProperty({ description: 'MSA Id of the user requesting the new key', type: String, example: '3' })

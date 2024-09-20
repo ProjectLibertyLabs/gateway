@@ -2,12 +2,12 @@
 import { IsNotEmpty, IsString, MinLength, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
-import { TransactionType } from '#types/enums/account-enums';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { Type } from 'class-transformer';
 import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 class HandlePayloadDto {
   @ApiProperty({

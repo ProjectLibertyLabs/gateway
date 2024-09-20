@@ -11,7 +11,6 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockchain.service';
 import { createKeys } from '#account-lib/blockchain/create-keys';
 import { NonceService } from '#account-lib/services/nonce.service';
-import { TransactionType } from '#types/enums/account-enums';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#account-worker/BaseConsumer';
 import { RedisUtils } from '#account-lib';
@@ -26,6 +25,7 @@ import {
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { getSignerForRawSignature } from '#account-lib/utils/utility';
+import { TransactionType } from '#types/account-webhook';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';

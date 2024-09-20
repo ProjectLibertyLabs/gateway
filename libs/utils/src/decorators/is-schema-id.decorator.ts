@@ -15,7 +15,7 @@ export function IsSchemaId(validationOptions?: ValidationOptions) {
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
             const numberValue = Number(value);
             // ensure the value is up to u16
-            return 0 < numberValue && numberValue <= 65_536;
+            return numberValue > 0 && numberValue <= 65_536;
           }
 
           return false;

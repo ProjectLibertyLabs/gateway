@@ -16,6 +16,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { AccountId } from '@polkadot/types/interfaces';
 import { cryptoWaitReady, decodeAddress } from '@polkadot/util-crypto';
 import log from 'loglevel';
+import { u8aToHex } from '@polkadot/util';
 
 export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
@@ -74,6 +75,7 @@ export async function generateSignedAddKeyPayload(user: ChainUser, newKeys: Keyr
   const addKeyData = ExtrinsicHelper.api.registry.createType('PalletMsaAddKeyData', payload);
   const ownerProof = signPayloadSr25519(user.keypair, addKeyData);
   const newKeyProof = signPayloadSr25519(newKeys, addKeyData);
+  payload.newPublicKey = u8aToHex(payload.newPublicKey);
 
   return { payload, ownerProof, newKeyProof };
 }

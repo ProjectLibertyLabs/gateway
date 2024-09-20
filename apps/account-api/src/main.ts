@@ -54,7 +54,12 @@ async function bootstrap() {
     const configService = app.get<ConfigService>(ConfigService);
 
     app.enableShutdownHooks();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
     app.useGlobalInterceptors(new TimeoutInterceptor(configService.apiTimeoutMs));
     app.useBodyParser('json', { limit: configService.apiBodyJsonLimit });
 

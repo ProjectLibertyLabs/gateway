@@ -105,11 +105,7 @@ describe('Keys Controller', () => {
         },
       };
 
-      await request(HTTP_SERVER)
-        .post('/v1/keys/add')
-        .send(keysRequest)
-        .expect(200)
-        .expect((req) => req.text === 'Successfully added key.');
+      await request(HTTP_SERVER).post('/v1/keys/add').send(keysRequest).expect(200);
     });
   });
 

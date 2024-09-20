@@ -8,7 +8,7 @@ import { Type } from 'class-transformer';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ConnectionDto {
-  @IsMsaId({ each: true, message: 'dsnpId should be a valid positive number' })
+  @IsMsaId({ each: true })
   @ApiProperty({ description: 'MSA Id representing the target of this connection', type: String, example: '3' })
   dsnpId: string;
 

@@ -1,14 +1,20 @@
 /* eslint-disable max-classes-per-file */
-import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsNumberString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ProviderDelegationRequestDto {
-  @IsNumberString({ no_symbols: true })
-  @ApiProperty({ description: 'Message Source Account Identifier', type: String, format: 'int64' })
+  @ApiProperty({ description: 'MSA Id of the user requesting the delegation', type: String, example: '3' })
+  @IsMsaId()
   msaId: string;
 
-  @IsNumberString({ no_symbols: true })
-  @ApiProperty({ description: 'Provider ID', type: String, format: 'int64' })
+  @ApiPropertyOptional({
+    description: 'MSA Id of the provider to whom the requesting user wishes to delegate',
+    type: String,
+    example: '1',
+  })
+  @IsOptional()
+  @IsMsaId()
   providerId?: string;
 }
 

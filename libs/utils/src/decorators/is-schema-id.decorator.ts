@@ -1,10 +1,10 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
-export function IsMsaId(validationOptions?: ValidationOptions) {
+export function IsSchemaId(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'IsMsaId',
+      name: 'IsSchemaId',
       target: object.constructor,
       propertyName,
       options: validationOptions,
@@ -12,16 +12,16 @@ export function IsMsaId(validationOptions?: ValidationOptions) {
         validate(value: unknown, _args: ValidationArguments) {
           const re = /^[0-9]+$/;
 
-          if (typeof value === 'string' && re.test(value)) {
-            return Number(value) > 0;
+          if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
+            const numberValue = Number(value);
+            // ensure the value is up to u16
+            return numberValue > 0 && numberValue <= 65_536;
           }
-          if (typeof value === 'number') {
-            return value > 0;
-          }
+
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          return `${args.property} should be a valid positive number!`;
+          return `${args.property} should be a positive number!`;
         },
       },
     });

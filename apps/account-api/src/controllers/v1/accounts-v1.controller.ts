@@ -6,8 +6,8 @@ import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.respons
 import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '#account-lib/config';
-import { SignerPayloadRaw } from '@polkadot/types/types';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
+import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -46,7 +46,7 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the account cannot be found.
    */
-  async getAccountForMsa(@Param('msaId') msaId: string): Promise<AccountResponseDto> {
+  async getAccountForMsa(@Param() { msaId }: MsaIdDto): Promise<AccountResponseDto> {
     try {
       this.logger.debug(`Received request to get account with msaId: ${msaId}`);
       const account = await this.accountsService.getAccount(msaId);
@@ -69,7 +69,7 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an Account object => {msaId, handle}.
    * @throws An error if the msaId or account cannot be found.
    */
-  async getAccountForAccountId(@Param('accountId') accountId: string): Promise<AccountResponseDto> {
+  async getAccountForAccountId(@Param() { accountId }: AccountIdDto): Promise<AccountResponseDto> {
     try {
       this.logger.debug(`Received request to get account with accountId: ${accountId}`);
       const response = await this.accountsService.getMsaIdForAccountId(accountId);
@@ -114,7 +114,7 @@ export class AccountsControllerV1 {
    * @returns A promise that resolves to an object consisting of a retire msa encodedExtrinsic hex string and payloadToSign hex string.
    * @throws An error if the payload fails to be created.
    */
-  async getRetireMsaPayload(@Param('accountId') accountId: string): Promise<RetireMsaPayloadResponseDto> {
+  async getRetireMsaPayload(@Param() { accountId }: AccountIdDto): Promise<RetireMsaPayloadResponseDto> {
     try {
       const result = await this.accountsService.getRetireMsaPayload(accountId);
       if (result) return result;

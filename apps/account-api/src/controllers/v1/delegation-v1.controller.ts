@@ -19,6 +19,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 
 @Controller({ version: '1', path: 'delegation' })
 @ApiTags('delegation')
@@ -41,7 +42,7 @@ export class DelegationControllerV1 {
    * @returns A Promise that resolves to a DelegationResponse object representing the delegation.
    * @throws HttpException if the delegation cannot be found.
    */
-  async getDelegation(@Param('msaId') msaId: string): Promise<DelegationResponse> {
+  async getDelegation(@Param() { msaId }: MsaIdDto): Promise<DelegationResponse> {
     try {
       const delegation = await this.delegationService.getDelegation(msaId);
       return delegation;
@@ -70,8 +71,8 @@ export class DelegationControllerV1 {
    * @throws {HttpException} If there is an error generating the RevokeDelegationPayload.
    */
   async getRevokeDelegationPayload(
-    @Param('accountId') accountId: string,
-    @Param('providerId') providerId: string,
+    @Param() { accountId }: AccountIdDto,
+    @Param() { providerId }: ProviderMsaIdDto,
   ): Promise<RevokeDelegationPayloadResponseDto> {
     try {
       this.logger.verbose(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);

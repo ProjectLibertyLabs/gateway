@@ -6,7 +6,7 @@ import { IsHexValue } from '#utils/decorators/is-hex-value.decorator';
 
 // DTO for the graph key pair
 export class GraphKeyPairDto {
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'publicKey should be a 32 bytes value in hex format!' })
+  @IsHexValue({ minLength: 64, maxLength: 64 })
   @ApiProperty({
     description: 'Public graph encryption key as a hex string (prefixed with "0x")',
     type: String,
@@ -14,7 +14,7 @@ export class GraphKeyPairDto {
   })
   publicKey: HexString;
 
-  @IsHexValue({ minLength: 64, maxLength: 64, message: 'privateKey should be a 32 bytes value in hex format!' })
+  @IsHexValue({ minLength: 64, maxLength: 64 })
   @ApiProperty({
     description: 'Private graph encryption key as a hex string (prefixed with "0x")',
     type: String,

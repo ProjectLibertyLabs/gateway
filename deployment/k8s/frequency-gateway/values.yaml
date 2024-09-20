@@ -1,91 +1,58 @@
 # Default values for frequency-gateway.
-# This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+# This will set the replicaset count
 replicaCount: 1
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+# Container image details
 image:
   repository: nginx
-  # This sets the pull policy for images.
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+# Image pull secrets for private registry
 imagePullSecrets: []
-# This is to override the chart name.
+
+# Chart name overrides
 nameOverride: ""
 fullnameOverride: ""
 
-#This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+# Service account configuration
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Automatically mount a ServiceAccount's API credentials?
   automount: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ 
+# Pod annotations and labels
 podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
+# Pod and container security contexts
 podSecurityContext: {}
-  # fsGroup: 2000
-
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+# Service configuration
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+# Ingress configuration
 ingress:
   enabled: false
   className: ""
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
+# Resource limits and requests
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# Liveness and readiness probes
 livenessProbe:
   httpGet:
     path: /
@@ -95,29 +62,46 @@ readinessProbe:
     path: /
     port: http
 
-#This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+# Autoscaling configuration
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
-# Additional volumes on the output Deployment definition.
+# Additional volumes and volume mounts
 volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
 volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
 
+# Node selector, tolerations, and affinity settings
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
+
+# Environment variables for the application
+account:
+  env:
+    API_PORT: "3000"
+    FREQUENCY_URL: "ws://0.0.0.0:9944"
+    FREQUENCY_HTTP_URL: "http://0.0.0.0:9944"
+    PROVIDER_ID: "1"
+    WEBHOOK_BASE_URL: "http://host.docker.internal:3001/webhooks/account-service"
+    REDIS_URL: "redis://0.0.0.0:6379"
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "3"
+    TRUST_UNFINALIZED_BLOCKS: "true"
+    WEBHOOK_FAILURE_THRESHOLD: "3"
+    WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_MAX_RETRIES: "4"
+    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_SUCCESS_THRESHOLD: "10"
+    CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
+    SIWF_URL: "https://ProjectLibertyLabs.github.io/siwf/ui"
+    SIWF_DOMAIN: "localhost"
+    DEBUG: "true"
+    CACHE_KEY_PREFIX: "account:"
+    GRAPH_ENVIRONMENT_TYPE: "TestnetPaseo"
+    API_TIMEOUT_MS: "5000"
+    API_BODY_JSON_LIMIT: "1mb"
+  secret:
+    PROVIDER_ACCESS_TOKEN: "some-token"
+    PROVIDER_ACCOUNT_SEED_PHRASE: "'//Alice'"

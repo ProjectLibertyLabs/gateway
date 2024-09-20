@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: account-configmap
+data:
+  API_PORT: "{{ .Values.account.env.API_PORT }}"
+  FREQUENCY_URL: "{{ .Values.account.env.FREQUENCY_URL }}"
+  FREQUENCY_HTTP_URL: "{{ .Values.account.env.FREQUENCY_HTTP_URL }}"
+  WEBHOOK_BASE_URL: "{{ .Values.account.env.WEBHOOK_BASE_URL }}"
+  REDIS_URL: "{{ .Values.account.env.REDIS_URL }}"
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "{{ .Values.account.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS }}"
+  TRUST_UNFINALIZED_BLOCKS: "{{ .Values.account.env.TRUST_UNFINALIZED_BLOCKS }}"
+  WEBHOOK_FAILURE_THRESHOLD: "{{ .Values.account.env.WEBHOOK_FAILURE_THRESHOLD }}"
+  WEBHOOK_RETRY_INTERVAL_SECONDS: "{{ .Values.account.env.WEBHOOK_RETRY_INTERVAL_SECONDS }}"
+  HEALTH_CHECK_MAX_RETRIES: "{{ .Values.account.env.HEALTH_CHECK_MAX_RETRIES }}"
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "{{ .Values.account.env.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS }}"
+  HEALTH_CHECK_SUCCESS_THRESHOLD: "{{ .Values.account.env.HEALTH_CHECK_SUCCESS_THRESHOLD }}"
+  CAPACITY_LIMIT: "{{ .Values.account.env.CAPACITY_LIMIT }}"
+  SIWF_URL: "{{ .Values.account.env.SIWF_URL }}"
+  SIWF_DOMAIN: "{{ .Values.account.env.SIWF_DOMAIN }}"
+  DEBUG: "{{ .Values.account.env.DEBUG }}"
+  CACHE_KEY_PREFIX: "{{ .Values.account.env.CACHE_KEY_PREFIX }}"
+  GRAPH_ENVIRONMENT_TYPE: "{{ .Values.account.env.GRAPH_ENVIRONMENT_TYPE }}"
+  API_TIMEOUT_MS: "{{ .Values.account.env.API_TIMEOUT_MS }}"
+  API_BODY_JSON_LIMIT: "{{ .Values.account.env.API_BODY_JSON_LIMIT }}"

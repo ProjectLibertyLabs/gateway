@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { ConfigService } from '#account-lib/config/config.service';
 import { TransactionResponse, TransactionData } from '#types/dtos/account';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Injectable()
 export class EnqueueService {
@@ -14,7 +14,7 @@ export class EnqueueService {
   constructor(
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -25,10 +25,10 @@ export class EnqueueService {
   }
 
   async enqueueRequest<RequestType>(request: RequestType): Promise<TransactionResponse> {
-    const { providerId } = this.configService;
+    const { providerId } = this.config;
     const data: TransactionData<RequestType> = {
       ...request,
-      providerId,
+      providerId: providerId.toString(),
       referenceId: this.calculateJobId(request),
     };
 

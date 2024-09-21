@@ -6,7 +6,6 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { ConfigModule } from '#account-lib/config/config.module';
-import { ConfigService } from '#account-lib/config/config.service';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { QueueModule } from '#account-lib/queues';
@@ -21,10 +20,16 @@ import {
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
 import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
+import cacheConfig, { ICacheConfig } from '#account-lib/cache/cache.config';
+import queueConfig from '#account-lib/queues/queue.config';
+import apiConfig from './api.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot(true), // allowReadOnly
+    NestConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
     BlockchainModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -45,14 +50,15 @@ import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controll
       ignoreErrors: false,
     }),
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      imports: [NestConfigModule],
+      useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: cacheConf.cacheKeyPrefix,
           maxRetriesPerRequest: null,
         },
       ],
-      inject: [ConfigService],
+      inject: [cacheConfig.KEY],
     }),
     QueueModule,
     // Bullboard UI

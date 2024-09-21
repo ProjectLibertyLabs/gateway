@@ -2,11 +2,11 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ConfigService } from '#account-lib/config/config.service';
 import { initSwagger } from '#account-lib/config/swagger_config';
 import { ApiModule } from './api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import apiConfig, { IAccountApiConfig } from './api.config';
 
 const logger = new Logger('main');
 
@@ -50,9 +50,8 @@ async function bootstrap() {
     await app.close();
   });
 
+  const config = app.get<IAccountApiConfig>(apiConfig.KEY);
   try {
-    const configService = app.get<ConfigService>(ConfigService);
-
     app.enableShutdownHooks();
     app.useGlobalPipes(
       new ValidationPipe({
@@ -60,12 +59,12 @@ async function bootstrap() {
         transform: true,
       }),
     );
-    app.useGlobalInterceptors(new TimeoutInterceptor(configService.apiTimeoutMs));
-    app.useBodyParser('json', { limit: configService.apiBodyJsonLimit });
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
     await initSwagger(app, '/docs/swagger');
-    logger.log(`Listening on port ${configService.apiPort}`);
-    await app.listen(configService.apiPort);
+    logger.log(`Listening on port ${config.apiPort}`);
+    await app.listen(config.apiPort);
   } catch (e) {
     logger.log('****** MAIN CATCH ********');
     logger.error(e);

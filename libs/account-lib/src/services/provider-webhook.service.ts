@@ -1,9 +1,10 @@
 import { ConfigService } from '#account-lib/config/config.service';
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
 
@@ -29,15 +30,16 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
   constructor(
     private configService: ConfigService,
+    @Inject(accountWorkerConfig.KEY) private config: IAccountWorkerConfig,
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,
   ) {
     this.logger = new Logger(this.constructor.name);
     this.webhook = axios.create({
-      baseURL: this.configService.webhookBaseUrl.toString(),
+      baseURL: this.config.webhookBaseUrl.toString(),
     });
 
-    this.webhook.defaults.headers.common.Authorization = this.configService.providerApiToken;
+    this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
   }
 
   public get providerApi(): AxiosInstance {
@@ -59,9 +61,9 @@ export class ProviderWebhookService implements OnModuleDestroy {
     }
 
     if (this.failedHealthChecks > 0) {
-      if (this.failedHealthChecks >= this.configService.healthCheckMaxRetries) {
+      if (this.failedHealthChecks >= this.config.healthCheckMaxRetries) {
         this.logger.error(
-          `FATAL ERROR: Failed to connect to provider webhook at '${this.configService.webhookBaseUrl}' after ${this.failedHealthChecks} attempts.`,
+          `FATAL ERROR: Failed to connect to provider webhook at '${this.config.webhookBaseUrl}' after ${this.failedHealthChecks} attempts.`,
         );
         this.eventEmitter.emit('shutdown');
         return;
@@ -74,12 +76,12 @@ export class ProviderWebhookService implements OnModuleDestroy {
           () => this.checkProviderWebhook(),
           Math.min(
             2 ** (this.failedHealthChecks - 1) * MILLISECONDS_PER_SECOND,
-            this.configService.healthCheckMaxRetryIntervalSeconds * MILLISECONDS_PER_SECOND,
+            this.config.healthCheckMaxRetryIntervalSeconds * MILLISECONDS_PER_SECOND,
           ),
         ),
       );
     } else if (this.successfulHealthChecks > 0) {
-      if (this.successfulHealthChecks >= this.configService.healthCheckSuccessThreshold) {
+      if (this.successfulHealthChecks >= this.config.healthCheckSuccessThreshold) {
         this.logger.log(`Provider webhook responded to ${this.successfulHealthChecks} health checks; resuming queue`);
         this.eventEmitter.emit('webhook.healthy');
       } else {
@@ -87,7 +89,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
         this.schedulerRegistry.deleteTimeout(HEALTH_CHECK_TIMEOUT_NAME);
         this.schedulerRegistry.addTimeout(
           HEALTH_CHECK_TIMEOUT_NAME,
-          setTimeout(() => this.checkProviderWebhook(), this.configService.webhookRetryIntervalSeconds),
+          setTimeout(() => this.checkProviderWebhook(), this.config.webhookRetryIntervalSeconds),
         );
       }
     }

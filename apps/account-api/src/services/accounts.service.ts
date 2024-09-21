@@ -1,7 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { ConfigService } from '#account-lib/config/config.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#types/dtos/account/wallet.login.request.dto';
 import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
@@ -13,13 +12,16 @@ import {
 import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
 import { RetireMsaRequestDto, TransactionResponse, PublishRetireMsaRequestDto } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Injectable()
 export class AccountsService {
   private readonly logger: Logger;
 
   constructor(
-    private configService: ConfigService,
+    @Inject(apiConfig.KEY) private readonly apiCOnf: IAccountApiConfig,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
     private enqueueService: EnqueueService,
   ) {
@@ -64,7 +66,8 @@ export class AccountsService {
   async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
     let response: WalletLoginConfigResponseDto;
     try {
-      const { providerId, frequencyHttpUrl, siwfUrl } = this.configService;
+      const { frequencyHttpUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
+      const { providerId } = this.blockchainConf;
       response = {
         providerId: providerId.toString(),
         siwfUrl: siwfUrl.toString(),
@@ -80,7 +83,7 @@ export class AccountsService {
   // eslint-disable-next-line class-methods-use-this
   async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
     const api = await this.blockchainService.getApi();
-    const { providerId } = this.configService;
+    const { providerId } = this.blockchainConf;
     if (request.signUp) {
       try {
         const siwfPayload = await validateSignup(api, request.signUp, providerId.toString());

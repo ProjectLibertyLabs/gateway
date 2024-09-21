@@ -1,14 +1,14 @@
-import { ConfigService } from '#account-lib/config';
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Inject } from '@nestjs/common';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Injectable()
 export class ReadOnlyGuard implements CanActivate {
   // eslint-disable-next-line no-useless-constructor, no-empty-function
-  constructor(private configService: ConfigService) {}
+  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const { isReadOnly } = this.configService;
-    if (isReadOnly) {
+    const { isDeployedReadOnly } = this.config;
+    if (isDeployedReadOnly) {
       // If the system is in read-only mode, disable certain routes
       const request = context.switchToHttp().getRequest();
       const { method } = request;

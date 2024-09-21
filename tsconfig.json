@@ -15,32 +15,90 @@
     "noImplicitThis": false,
     "outDir": "./dist",
     "paths": {
-      "#account-api": ["apps/account-api/src"],
-      "#account-api/*": ["apps/account-api/src/*"],
-      "#account-worker": ["apps/account-worker/src"],
-      "#account-worker/*": ["apps/account-worker/src/*"],
-      "#content-publishing-api": ["apps/content-publishing-api/src"],
-      "#content-publishing-api/*": ["apps/content-publishing-api/src/*"],
-      "#content-publishing-worker": ["apps/content-publishing-worker/src"],
-      "#content-publishing-worker/*": ["apps/content-publishing-worker/src/*"],
-      "#content-watcher": ["apps/content-watcher/src"],
-      "#content-watcher/*": ["apps/content-watcher/src/*"],
-      "#graph-api": ["apps/graph-api/src"],
-      "#graph-api/*": ["apps/graph-api/src/*"],
-      "#graph-worker": ["apps/graph-worker/src"],
-      "#graph-worker/*": ["apps/graph-worker/src/*"],
-      "#account-lib": ["libs/account-lib/src"],
-      "#account-lib/*": ["libs/account-lib/src/*"],
-      "#content-publishing-lib": ["libs/content-publishing-lib/src"],
-      "#content-publishing-lib/*": ["libs/content-publishing-lib/src/*"],
-      "#content-watcher-lib": ["libs/content-watcher-lib/src"],
-      "#content-watcher-lib/*": ["libs/content-watcher-lib/src/*"],
-      "#graph-lib": ["libs/graph-lib/src"],
-      "#graph-lib/*": ["libs/graph-lib/src/*"],
-      "#types": ["libs/types/src"],
-      "#types/*": ["libs/types/src/*"],
-      "#utils": ["libs/utils/src"],
-      "#utils/*": ["libs/utils/src/*"]
+      "#account-api": [
+        "apps/account-api/src"
+      ],
+      "#account-api/*": [
+        "apps/account-api/src/*"
+      ],
+      "#account-worker": [
+        "apps/account-worker/src"
+      ],
+      "#account-worker/*": [
+        "apps/account-worker/src/*"
+      ],
+      "#content-publishing-api": [
+        "apps/content-publishing-api/src"
+      ],
+      "#content-publishing-api/*": [
+        "apps/content-publishing-api/src/*"
+      ],
+      "#content-publishing-worker": [
+        "apps/content-publishing-worker/src"
+      ],
+      "#content-publishing-worker/*": [
+        "apps/content-publishing-worker/src/*"
+      ],
+      "#content-watcher": [
+        "apps/content-watcher/src"
+      ],
+      "#content-watcher/*": [
+        "apps/content-watcher/src/*"
+      ],
+      "#graph-api": [
+        "apps/graph-api/src"
+      ],
+      "#graph-api/*": [
+        "apps/graph-api/src/*"
+      ],
+      "#graph-worker": [
+        "apps/graph-worker/src"
+      ],
+      "#graph-worker/*": [
+        "apps/graph-worker/src/*"
+      ],
+      "#account-lib": [
+        "libs/account-lib/src"
+      ],
+      "#account-lib/*": [
+        "libs/account-lib/src/*"
+      ],
+      "#content-publishing-lib": [
+        "libs/content-publishing-lib/src"
+      ],
+      "#content-publishing-lib/*": [
+        "libs/content-publishing-lib/src/*"
+      ],
+      "#content-watcher-lib": [
+        "libs/content-watcher-lib/src"
+      ],
+      "#content-watcher-lib/*": [
+        "libs/content-watcher-lib/src/*"
+      ],
+      "#graph-lib": [
+        "libs/graph-lib/src"
+      ],
+      "#graph-lib/*": [
+        "libs/graph-lib/src/*"
+      ],
+      "#types": [
+        "libs/types/src"
+      ],
+      "#types/*": [
+        "libs/types/src/*"
+      ],
+      "#utils": [
+        "libs/utils/src"
+      ],
+      "#utils/*": [
+        "libs/utils/src/*"
+      ],
+      "#config": [
+        "libs/config/src"
+      ],
+      "#config/*": [
+        "libs/config/src/*"
+      ]
     },
     "removeComments": true,
     "resolveJsonModule": true,

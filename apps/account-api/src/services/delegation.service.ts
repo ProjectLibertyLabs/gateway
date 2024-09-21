@@ -9,15 +9,16 @@ import {
   PublishRevokeDelegationRequestDto,
 } from '#types/dtos/account';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { isAddress } from '@polkadot/util-crypto';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Injectable()
 export class DelegationService {
   private readonly logger: Logger;
 
   constructor(
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
     private enqueueService: EnqueueService,
   ) {
@@ -27,7 +28,7 @@ export class DelegationService {
   async getDelegation(msaId: string): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
-      const { providerId } = this.configService;
+      const { providerId } = this.blockchainConf;
 
       const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(
         msaId,
@@ -36,7 +37,7 @@ export class DelegationService {
 
       if (commonPrimitivesMsaDelegation) {
         const delegationResponse: DelegationResponse = {
-          providerId,
+          providerId: providerId.toString(),
           schemaPermissions: commonPrimitivesMsaDelegation.schemaPermissions,
           revokedAt: commonPrimitivesMsaDelegation.revokedAt,
         };

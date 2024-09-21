@@ -3,11 +3,22 @@ import { AccountResponseDto, RetireMsaPayloadResponseDto } from '#types/dtos/acc
 import { WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
 import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
 import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
-import { Body, Controller, Get, Post, HttpCode, HttpStatus, Logger, Param, HttpException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Param,
+  HttpException,
+  Inject,
+} from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ConfigService } from '#account-lib/config';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')
@@ -16,7 +27,7 @@ export class AccountsControllerV1 {
 
   constructor(
     private accountsService: AccountsService,
-    private readonly configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -91,7 +102,7 @@ export class AccountsControllerV1 {
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
   @ApiBody({ type: WalletLoginRequestDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
-    if (this.configService.isReadOnly && walletLoginRequest.signUp) {
+    if (this.config.isDeployedReadOnly && walletLoginRequest.signUp) {
       throw new HttpException('New account sign-up unavailable in read-only mode', HttpStatus.FORBIDDEN);
     }
     try {

@@ -18,6 +18,7 @@ process.env.PROVIDER_ID = '0';
 process.env.WEBHOOK_BASE_URL = 'http://127.0.0.1';
 process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
 process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
+process.env.CACHE_KEY_PREFIX = 'account:';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';

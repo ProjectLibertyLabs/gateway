@@ -74,6 +74,5 @@ export function validate<T>(config: JoiConfig<T>): T {
     );
   }
 
-  console.log('ENV Values: ', v);
   return v;
 }

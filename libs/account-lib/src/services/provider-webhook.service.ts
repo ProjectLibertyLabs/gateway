@@ -1,4 +1,3 @@
-import { ConfigService } from '#account-lib/config/config.service';
 import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -29,7 +28,6 @@ export class ProviderWebhookService implements OnModuleDestroy {
   }
 
   constructor(
-    private configService: ConfigService,
     @Inject(accountWorkerConfig.KEY) private config: IAccountWorkerConfig,
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,

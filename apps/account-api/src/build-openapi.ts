@@ -22,7 +22,7 @@ process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
 // eslint-disable-next-line
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
-import { apiFile, generateSwaggerDoc } from '#account-lib/config/swagger_config';
+import { apiFile, generateSwaggerDoc } from './swagger_config';
 import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {

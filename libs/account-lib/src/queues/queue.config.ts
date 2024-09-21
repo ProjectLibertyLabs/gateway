@@ -20,13 +20,11 @@ export default registerAs('queue', (): IQueueConfig => {
         .uri()
         .required()
         .custom((value: string) => {
-          // Note: BullMQ doesn't honor a URL for the Redis connection, and
-          // JS URL doesn't parse 'redis://' as a valid protocol, so we fool
-          // it by changing the URL to use 'http://' in order to parse out
+          // Note: BullMQ doesn't honor a URL for the Redis connection, so we parse out
           // the host, port, username, password, etc.
           // We could pass REDIS_HOST, REDIS_PORT, etc, in the environment, but
           // trying to keep the # of environment variables from proliferating
-          const url = new URL(value.replace(/^redis[s]*/, 'http'));
+          const url = new URL(value);
           const { hostname, port, username, password, pathname } = url;
           return {
             host: hostname || undefined,

@@ -1,5 +1,4 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { ConfigService } from '#account-lib/config/config.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {

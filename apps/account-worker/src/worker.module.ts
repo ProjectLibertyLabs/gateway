@@ -9,17 +9,15 @@ import { QueueModule } from '#account-lib/queues';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 import { CacheModule } from '#account-lib/cache/cache.module';
-import { ConfigModule as NestConfigModule, ConfigService } from '@nestjs/config';
-import cacheConfig, { ICacheConfig } from '#account-lib/cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
-import { ConfigModule } from '#account-lib/config';
+import { ConfigModule } from '@nestjs/config';
+import cacheConfig from '#account-lib/cache/cache.config';
+import blockchainConfig, { addressFromSeedPhrase } from '#account-lib/blockchain/blockchain.config';
 import queueConfig from '#account-lib/queues/queue.config';
 import workerConfig from './worker.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    NestConfigModule.forRoot({
+    ConfigModule.forRoot({
       isGlobal: true,
       load: [blockchainConfig, cacheConfig, queueConfig, workerConfig],
     }),
@@ -45,7 +43,7 @@ import workerConfig from './worker.config';
     }),
     QueueModule,
     CacheModule.forRootAsync({
-      imports: [NestConfigModule],
+      imports: [ConfigModule],
       useFactory: (blockchainConf, cacheConf) => [
         {
           url: cacheConf.redisUrl.toString(),
@@ -65,6 +63,6 @@ import workerConfig from './worker.config';
     TxnNotifierModule,
   ],
   providers: [ProviderWebhookService, NonceService],
-  exports: [EventEmitterModule, NestConfigModule],
+  exports: [EventEmitterModule],
 })
 export class WorkerModule {}

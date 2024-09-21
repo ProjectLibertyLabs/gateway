@@ -35,7 +35,9 @@ const capacityLimitsSchema = Joi.object({
 
 const doRegister = (allowReadOnly = false) =>
   registerAs('blockchain', (): IBlockchainConfig => {
-    const seedValidation = allowReadOnly ? Joi.string().allow('') : Joi.string().required();
+    const seedValidation = allowReadOnly
+      ? Joi.string().optional().allow(null).allow('').empty('')
+      : Joi.string().required();
     const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
       frequencyUrl: {
         value: process.env.FREQUENCY_URL,
@@ -64,13 +66,15 @@ const doRegister = (allowReadOnly = false) =>
       },
       isDeployedReadOnly: {
         value: process.env.PROVIDER_ACCOUNT_SEED_PHRASE,
-        joi: Joi.custom((v: string) => {
-          if (!v || (!v.trim() && allowReadOnly)) {
-            return true;
-          }
+        joi: seedValidation
+          .default(() => allowReadOnly)
+          .custom((v) => {
+            if (!v || (!v.trim() && allowReadOnly)) {
+              return true;
+            }
 
-          return false;
-        }),
+            return false;
+          }),
       },
       capacityLimit: {
         value: process.env.CAPACITY_LIMIT,

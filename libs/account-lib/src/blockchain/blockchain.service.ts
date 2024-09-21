@@ -34,7 +34,7 @@ import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 import { TransactionType } from '#types/account-webhook';
-import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -577,11 +577,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   public async validateProviderSeedPhrase() {
     const { providerSeedPhrase, providerId } = this.config;
     if (providerSeedPhrase) {
-      const { address } = new Keyring({ type: 'sr25519' }).createFromUri(providerSeedPhrase);
+      const address = await addressFromSeedPhrase(providerSeedPhrase);
       const resolvedProviderId = await this.publicKeyToMsaId(address);
 
       if (resolvedProviderId !== providerId.toString()) {
         throw new Error('Provided account secret does not match configured Provider ID');
+      }
+
+      const providerInfo = await this.getProviderToRegistryEntry(providerId);
+      if (!providerInfo) {
+        throw new Error(`MSA ID ${providerId.toString()} is not a registered provider`);
       }
     }
   }

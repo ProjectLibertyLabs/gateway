@@ -9,7 +9,7 @@ export interface IAccountWorkerConfig {
   healthCheckSuccessThreshold: number;
   providerApiToken: string;
   trustUnfinalizedBlocks: boolean;
-  webhookBaseUrl: string;
+  webhookBaseUrl: URL;
   webhookFailureThreshold: number;
   webhookRetryIntervalSeconds: number;
 }
@@ -42,7 +42,10 @@ export default registerAs('account-worker', (): IAccountWorkerConfig => {
     },
     webhookBaseUrl: {
       value: process.env.WEBHOOK_BASE_URL,
-      joi: Joi.string().uri().required(),
+      joi: Joi.string()
+        .uri()
+        .required()
+        .custom((v) => new URL(v)),
     },
     webhookFailureThreshold: {
       value: process.env.WEBHOOK_FAILURE_THRESHOLD,

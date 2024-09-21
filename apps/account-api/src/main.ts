@@ -2,7 +2,7 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { initSwagger } from '#account-lib/config/swagger_config';
+import { initSwagger } from './swagger_config';
 import { ApiModule } from './api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';

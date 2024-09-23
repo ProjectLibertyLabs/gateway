@@ -31,11 +31,11 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
     },
     ipfsBasicAuthUser: {
       value: process.env.IPFS_BASIC_AUTH_USER,
-      joi: Joi.string().allow('').default(''),
+      joi: Joi.string().allow('').empty(''),
     },
     ipfsBasicAuthSecret: {
       value: process.env.IPFS_BASIC_AUTH_SECRET,
-      joi: Joi.string().allow('').default(''),
+      joi: Joi.string().allow('').empty(''),
     },
   };
 

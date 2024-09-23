@@ -45,11 +45,12 @@ describe('IPFS config', () => {
     });
 
     it('should get IPFS user', async () => {
-      expect(ipfsConf.ipfsBasicAuthUser).toEqual(ALL_ENV.IPFS_BASIC_AUTH_USER);
+      console.log(ipfsConf);
+      expect(ipfsConf.ipfsBasicAuthUser).toEqual(ALL_ENV.IPFS_BASIC_AUTH_USER || undefined);
     });
 
     it('should get IPFS auth secret', async () => {
-      expect(ipfsConf.ipfsBasicAuthSecret).toEqual(ALL_ENV.IPFS_BASIC_AUTH_SECRET);
+      expect(ipfsConf.ipfsBasicAuthSecret).toEqual(ALL_ENV.IPFS_BASIC_AUTH_SECRET || undefined);
     });
   });
 });

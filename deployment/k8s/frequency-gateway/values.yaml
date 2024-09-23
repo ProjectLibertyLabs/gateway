@@ -63,8 +63,8 @@ account:
   image:
     repository: "projectlibertylabs/account-service"
     tag: "latest"
-    healthCheckPath: "/health"
-    readinessProbePath: "/ready"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
   env:
     API_PORT: "3001"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
@@ -95,8 +95,8 @@ contentPublishing:
   image:
     repository: "projectlibertylabs/content-publishing-service"
     tag: "latest"
-    healthCheckPath: "/health"
-    readinessProbePath: "/ready"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
   env:
     API_PORT: "3001"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
@@ -122,8 +122,8 @@ contentWatcher:
   image:
     repository: "projectlibertylabs/content-watcher-service"
     tag: "latest"
-    healthCheckPath: "/health"
-    readinessProbePath: "/ready"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
   env:
     API_PORT: "3002"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
@@ -143,8 +143,8 @@ graph:
   image:
     repository: "projectlibertylabs/graph-service"
     tag: "latest"
-    healthCheckPath: "/health"
-    readinessProbePath: "/ready"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
   env:
     API_PORT: "3003"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

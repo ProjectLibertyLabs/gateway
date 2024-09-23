@@ -22,7 +22,7 @@ spec:
         - name: account-service
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
           ports:
-            - name: http
+            - name: http-account
               containerPort: {{ .Values.account.env.API_PORT }}
               protocol: TCP
           envFrom:
@@ -51,7 +51,7 @@ spec:
         - name: content-publishing-service
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           ports:
-            - name: http
+            - name: http-content-publishing
               containerPort: {{ .Values.contentPublishing.env.API_PORT }}
               protocol: TCP
           envFrom:
@@ -80,7 +80,7 @@ spec:
         - name: content-watcher-service
           image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
           ports:
-            - name: http
+            - name: http-content-watcher
               containerPort: {{ .Values.contentWatcher.env.API_PORT }}
               protocol: TCP
           envFrom:
@@ -109,7 +109,7 @@ spec:
         - name: graph-service
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
           ports:
-            - name: http
+            - name: http-graph
               containerPort: {{ .Values.graph.env.API_PORT }}
               protocol: TCP
           envFrom:

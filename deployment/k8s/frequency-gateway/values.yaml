@@ -22,11 +22,6 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 
-# Service configuration
-service:
-  type: ClusterIP
-  port: 80
-
 # Ingress configuration
 ingress:
   enabled: false
@@ -58,7 +53,23 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Environment variables for the gateway applications and workers
+# Service configuration
+service:
+  type: ClusterIP
+  account:
+    port: 8080
+    targetPort: http-account
+  contentPublishing:
+    port: 8081
+    targetPort: http-content-publishing
+  contentWatcher:
+    port: 8082
+    targetPort: http-content-watcher
+  graph:
+    port: 8083
+    targetPort: http-graph
+
+# Deployment configuration
 account:
   image:
     repository: "projectlibertylabs/account-service"

@@ -81,7 +81,7 @@ affinity: {}
 # Environment variables for the gateway applications and workers
 account:
   image:
-    repository: "projectlibertylabs/gateway"
+    repository: "projectlibertylabs/account-service"
     tag: "latest"
   env:
     API_PORT: "3001"
@@ -110,6 +110,9 @@ account:
     PROVIDER_ACCOUNT_SEED_PHRASE: "'//Alice'"
 
 contentPublishing:
+  image:
+    repository: "projectlibertylabs/content-publishing-service"
+    tag: "latest"
   env:
     API_PORT: "3001"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
@@ -132,6 +135,9 @@ contentPublishing:
     PROVIDER_ACCOUNT_SEED_PHRASE: "'//Alice'"
 
 contentWatcher:
+  image:
+    repository: "projectlibertylabs/content-watcher-service"
+    tag: "latest"
   env:
     API_PORT: "3002"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
@@ -148,6 +154,9 @@ contentWatcher:
     IPFS_BASIC_AUTH_SECRET: ""
 
 graph:
+  image:
+    repository: "projectlibertylabs/graph-service"
+    tag: "latest"
   env:
     API_PORT: "3003"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

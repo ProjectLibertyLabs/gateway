@@ -1,9 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
 import parquet from '@dsnp/parquetjs';
-import { AppConfigService } from '../config/config.service';
 import { calculateJobId } from '#types/constants';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
@@ -11,6 +10,7 @@ import { BaseConsumer } from '../utils/base-consumer';
 import { IpfsService } from '../utils/ipfs.client';
 import { AnnouncementResponse } from '#types/content-announcement';
 import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isUpdate } from '../utils/type-guards';
+import scannerConfig, { IScannerConfig } from '#content-watcher-lib/scanner/scanner.config';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {
@@ -26,7 +26,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
-    private configService: AppConfigService,
+    @Inject(scannerConfig.KEY) private config: IScannerConfig,
     private ipfsService: IpfsService,
   ) {
     super();
@@ -167,7 +167,7 @@ export class IPFSContentProcessor extends BaseConsumer {
   }
 
   private async isQueueFull(queue: Queue): Promise<boolean> {
-    const highWater = this.configService.queueHighWater;
+    const highWater = this.config.queueHighWater;
     const queueStats = await queue.getJobCounts();
     const queueIsFull = queueStats.waiting + queueStats.active >= highWater;
     if (queueIsFull) {

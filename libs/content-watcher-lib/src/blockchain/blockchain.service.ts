@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, ApiRx, HttpProvider, WsProvider } from '@polkadot/api';
 import { firstValueFrom } from 'rxjs';
 import { options } from '@frequency-chain/api-augment';
@@ -7,8 +7,8 @@ import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
-import { AppConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
+import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -16,12 +16,12 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public apiPromise: ApiPromise;
 
-  private configService: AppConfigService;
+  private config: IBlockchainConfig;
 
   private logger: Logger;
 
   public async onApplicationBootstrap() {
-    const providerUrl = this.configService.frequencyUrl!;
+    const providerUrl = this.config.frequencyUrl!;
     let provider: any;
     if (/^ws/.test(providerUrl.toString())) {
       provider = new WsProvider(providerUrl.toString());
@@ -54,8 +54,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await Promise.all(promises);
   }
 
-  constructor(configService: AppConfigService) {
-    this.configService = configService;
+  constructor(@Inject(blockchainConfig.KEY) config: IBlockchainConfig) {
+    this.config = config;
     this.logger = new Logger(this.constructor.name);
   }
 

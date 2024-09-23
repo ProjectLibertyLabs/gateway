@@ -1,13 +1,13 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { EVENTS_TO_WATCH_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
-import { AppConfigService } from '../config/config.service';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { AnnouncementResponse } from '#types/content-announcement';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
+import pubsubConfig, { IPubSubConfig } from './pubsub.config';
 
 @Injectable()
 export class PubSubService {
@@ -15,7 +15,7 @@ export class PubSubService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    private readonly configService: AppConfigService,
+    @Inject(pubsubConfig.KEY) private readonly config: IPubSubConfig,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -52,7 +52,7 @@ export class PubSubService {
     if (registrationsForMessageType) {
       registrationsForMessageType.urls.forEach(async (webhookUrl) => {
         let retries = 0;
-        while (retries < this.configService.webookMaxRetries) {
+        while (retries < this.config.webhookMaxRetries) {
           try {
             this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
             this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
@@ -66,7 +66,7 @@ export class PubSubService {
             retries += 1;
             // eslint-disable-next-line no-await-in-loop
             await new Promise((r) => {
-              setTimeout(r, this.configService.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
+              setTimeout(r, this.config.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
             });
           }
         }

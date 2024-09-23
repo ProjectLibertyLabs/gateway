@@ -1,14 +1,14 @@
 // ipfs.service.ts
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import FormData from 'form-data';
 import { extension as getExtension } from 'mime-types';
 import { CID } from 'multiformats/cid';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { randomUUID } from 'crypto';
-import { AppConfigService } from '../config/config.service';
 import { base32 } from 'multiformats/bases/base32';
+import ipfsConfig, { IIpfsConfig } from '#content-watcher-lib/ipfs/ipfs.config';
 
 export interface FilePin {
   cid: string;
@@ -22,20 +22,20 @@ export interface FilePin {
 export class IpfsService {
   logger: Logger;
 
-  constructor(private readonly configService: AppConfigService) {
+  constructor(@Inject(ipfsConfig.KEY) private readonly config: IIpfsConfig) {
     this.logger = new Logger(IpfsService.name);
   }
 
   private async ipfsPinBuffer(filename: string, contentType: string, fileBuffer: Buffer): Promise<FilePin> {
-    const ipfsAdd = `${this.configService.ipfsEndpoint}/api/v0/add`;
+    const ipfsAdd = `${this.config.ipfsEndpoint}/api/v0/add`;
     const form = new FormData();
     form.append('file', fileBuffer, {
       filename,
       contentType,
     });
 
-    const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
+    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
+    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
     const ipfsAuth =
       ipfsAuthUser && ipfsAuthSecret
         ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
@@ -89,9 +89,9 @@ export class IpfsService {
     if (checkExistence && !(await this.isPinned(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
-    const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
-    const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
+    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
+    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
+    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
     const ipfsAuth =
       ipfsAuthUser && ipfsAuthSecret
         ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
@@ -112,9 +112,9 @@ export class IpfsService {
   public async isPinned(cid: string): Promise<boolean> {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
-    const ipfsGet = `${this.configService.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
-    const ipfsAuthUser = this.configService.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.configService.ipfsBasicAuthSecret;
+    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
+    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
+    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
     const ipfsAuth =
       ipfsAuthUser && ipfsAuthSecret
         ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
@@ -144,9 +144,9 @@ export class IpfsService {
   }
 
   public ipfsUrl(cid: string): string {
-    if (this.configService.ipfsGatewayUrl.includes('[CID]')) {
-      return this.configService.ipfsGatewayUrl.replace('[CID]', cid);
+    if (this.config.ipfsGatewayUrl.includes('[CID]')) {
+      return this.config.ipfsGatewayUrl.replace('[CID]', cid);
     }
-    return `${this.configService.ipfsGatewayUrl}/ipfs/${cid}`;
+    return `${this.config.ipfsGatewayUrl}/ipfs/${cid}`;
   }
 }

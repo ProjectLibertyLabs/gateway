@@ -170,6 +170,7 @@ export class TxnNotifierService
                   accountId: siwfTxnValues.address,
                   handle: siwfTxnValues.handle,
                 });
+                webhookResponse = response;
 
                 this.logger.log(
                   `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,

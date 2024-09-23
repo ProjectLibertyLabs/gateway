@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "frequency-gateway.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "frequency-gateway.selectorLabels" . | nindent 6 }}
@@ -19,50 +17,149 @@ spec:
       {{- end }}
       labels:
         {{- include "frequency-gateway.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "frequency-gateway.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: account-service
+          image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.account.env.API_PORT }}
               protocol: TCP
-          livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
+          envFrom:
+            - configMapRef:
+                name: account-configmap
+            - secretRef:
+                name: account-secret
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: account-config-volume
+              mountPath: /app/config/account
+            - name: account-secret-volume
+              mountPath: /app/secret/account
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.account.image.healthCheckPath }}
+              port: {{ .Values.account.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.account.image.readinessProbePath }}
+              port: {{ .Values.account.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+        - name: content-publishing-service
+          image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.contentPublishing.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: content-publishing-configmap
+            - secretRef:
+                name: content-publishing-secret
+          volumeMounts:
+            - name: content-publishing-config-volume
+              mountPath: /app/config/content-publishing
+            - name: content-publishing-secret-volume
+              mountPath: /app/secret/content-publishing
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.contentPublishing.image.healthCheckPath }}
+              port: {{ .Values.contentPublishing.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.contentPublishing.image.readinessProbePath }}
+              port: {{ .Values.contentPublishing.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+        - name: content-watcher-service
+          image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.contentWatcher.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: content-watcher-configmap
+            - secretRef:
+                name: content-watcher-secret
+          volumeMounts:
+            - name: content-watcher-config-volume
+              mountPath: /app/config/content-watcher
+            - name: content-watcher-secret-volume
+              mountPath: /app/secret/content-watcher
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.contentWatcher.image.healthCheckPath }}
+              port: {{ .Values.contentWatcher.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.contentWatcher.image.readinessProbePath }}
+              port: {{ .Values.contentWatcher.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+        - name: graph-service
+          image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.graph.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: graph-configmap
+            - secretRef:
+                name: graph-secret
+          volumeMounts:
+            - name: graph-config-volume
+              mountPath: /app/config/graph
+            - name: graph-secret-volume
+              mountPath: /app/secret/graph
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.graph.image.healthCheckPath }}
+              port: {{ .Values.graph.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.graph.image.readinessProbePath }}
+              port: {{ .Values.graph.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: account-config-volume
+          configMap:
+            name: account-configmap
+        - name: account-secret-volume
+          secret:
+            secretName: account-secret
+
+        - name: content-publishing-config-volume
+          configMap:
+            name: content-publishing-configmap
+        - name: content-publishing-secret-volume
+          secret:
+            secretName: content-publishing-secret
+
+        - name: content-watcher-config-volume
+          configMap:
+            name: content-watcher-configmap
+        - name: content-watcher-secret-volume
+          secret:
+            secretName: content-watcher-secret
+
+        - name: graph-config-volume
+          configMap:
+            name: graph-configmap
+        - name: graph-secret-volume
+          secret:
+            secretName: graph-secret

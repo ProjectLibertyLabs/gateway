@@ -3,21 +3,6 @@ kind: ConfigMap
 metadata:
   name: graph-configmap
 data:
-  API_PORT: "{{ .Values.graph.env.API_PORT }}"
-  FREQUENCY_URL: "{{ .Values.graph.env.FREQUENCY_URL }}"
-  PROVIDER_ID: "{{ .Values.graph.env.PROVIDER_ID }}"
-  REDIS_URL: "{{ .Values.graph.env.REDIS_URL }}"
-  QUEUE_HIGH_WATER: "{{ .Values.graph.env.QUEUE_HIGH_WATER }}"
-  DEBOUNCE_SECONDS: "{{ .Values.graph.env.DEBOUNCE_SECONDS }}"
-  CAPACITY_LIMIT: "{{ .Values.graph.env.CAPACITY_LIMIT }}"
-  GRAPH_ENVIRONMENT_TYPE: "{{ .Values.graph.env.GRAPH_ENVIRONMENT_TYPE }}"
-  RECONNECTION_SERVICE_REQUIRED: "{{ .Values.graph.env.RECONNECTION_SERVICE_REQUIRED }}"
-  PROVIDER_BASE_URL: "{{ .Values.graph.env.PROVIDER_BASE_URL }}"
-  CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: "{{ .Values.graph.env.CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE }}"
-  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "{{ .Values.graph.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS }}"
-  WEBHOOK_FAILURE_THRESHOLD: "{{ .Values.graph.env.WEBHOOK_FAILURE_THRESHOLD }}"
-  HEALTH_CHECK_SUCCESS_THRESHOLD: "{{ .Values.graph.env.HEALTH_CHECK_SUCCESS_THRESHOLD }}"
-  WEBHOOK_RETRY_INTERVAL_SECONDS: "{{ .Values.graph.env.WEBHOOK_RETRY_INTERVAL_SECONDS }}"
-  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "{{ .Values.graph.env.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS }}"
-  HEALTH_CHECK_MAX_RETRIES: "{{ .Values.graph.env.HEALTH_CHECK_MAX_RETRIES }}"
-  CACHE_KEY_PREFIX: "{{ .Values.graph.env.CACHE_KEY_PREFIX }}"
+{{- range $key, $value := .Values.graph.env }}
+  {{ $key }}: "{{ $value }}"
+{{- end }}

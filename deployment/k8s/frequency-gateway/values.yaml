@@ -126,7 +126,6 @@ contentPublishing:
     BATCH_MAX_COUNT: "1000"
     ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: "5"
     CACHE_KEY_PREFIX: "content-publishing:"
-
   secret:
     IPFS_BASIC_AUTH_USER: ""
     IPFS_BASIC_AUTH_SECRET: ""
@@ -144,7 +143,6 @@ contentWatcher:
     WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
     API_PORT: "3000"
     CACHE_KEY_PREFIX: "content-watcher:"
-
   secret:
     IPFS_BASIC_AUTH_USER: ""
     IPFS_BASIC_AUTH_SECRET: ""
@@ -169,7 +167,6 @@ graph:
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "10"
     HEALTH_CHECK_MAX_RETRIES: "4"
     CACHE_KEY_PREFIX: "graph:"
-
   secret:
     PROVIDER_ACCOUNT_SEED_PHRASE: "'//Ferdie'"
     PROVIDER_ACCESS_TOKEN: "some-token"

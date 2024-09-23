@@ -1,20 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { Hash } from '@polkadot/types/interfaces';
 import { NonceService } from './nonce.service';
-import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { createKeys } from '#content-publishing-lib/blockchain/create-keys';
 import { IPublisherJob } from '../interfaces';
+import blockchainConfig, { IBlockchainConfig } from '#content-publishing-lib/blockchain/blockchain.config';
 
 @Injectable()
 export class IPFSPublisher {
   private logger: Logger;
 
   constructor(
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
   ) {
@@ -23,7 +23,7 @@ export class IPFSPublisher {
 
   public async publish(message: IPublisherJob): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(JSON.stringify(message));
-    const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
+    const providerKeys = createKeys(this.blockchainConf.providerSeedPhrase);
     const tx = this.blockchainService.createExtrinsicCall(
       { pallet: 'messages', extrinsic: 'addIpfsMessage' },
       message.schemaId,

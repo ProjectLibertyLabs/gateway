@@ -3,7 +3,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PublisherModule } from './publisher/publisher.module';
 import { QueuesModule } from '#content-publishing-lib/queues';
-import { ConfigModule, ConfigService } from '#content-publishing-lib/config';
 import { BlockchainModule } from '#content-publishing-lib/blockchain/blockchain.module';
 import { AssetProcessorModule } from './asset_processor/asset.processor.module';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
@@ -12,23 +11,32 @@ import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from './publisher/nonce.service';
 import { CacheModule } from '#content-publishing-lib/cache/cache.module';
+import { ConfigModule } from '@nestjs/config';
+import blockchainConfig, { addressFromSeedPhrase } from '#content-publishing-lib/blockchain/blockchain.config';
+import cacheConfig from '#content-publishing-lib/cache/cache.config';
+import queueConfig from '#content-publishing-lib/queues/queue.config';
+import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import workerConfig from './worker.config';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [blockchainConfig, cacheConfig, queueConfig, ipfsConfig, workerConfig],
+    }),
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      useFactory: (blockchainConf, cacheConf) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl,
+          keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: configService.redisUrl.toString(),
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+          url: cacheConf.redisUrl,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
-      inject: [ConfigService],
+      inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
     QueuesModule,
     EventEmitterModule.forRoot({

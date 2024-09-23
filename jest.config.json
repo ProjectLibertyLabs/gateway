@@ -16,6 +16,7 @@
   "testEnvironment": "node",
   "roots": ["<rootDir>/apps/", "<rootDir>/libs/"],
   "moduleNameMapper": {
+    "^#testlib(|/.*)$": "<rootDir>/testlib/$1",
     "^#account-api(|/.*)$": "<rootDir>/apps/account-api/src/$1",
     "^#account-lib(|/.*)$": "<rootDir>/libs/account-lib/src/$1",
     "^#content-publishing-api(|/.*)$": "<rootDir>/apps/content-publishing-api/src/$1",

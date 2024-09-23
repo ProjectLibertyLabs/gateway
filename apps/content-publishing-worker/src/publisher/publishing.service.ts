@@ -1,12 +1,11 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, InjectQueue } from '@nestjs/bullmq';
-import { Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import {
   ContentPublishingQueues as QueueConstants,
@@ -19,6 +18,7 @@ import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
 import { IContentTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
+import blockchainConfig, { IBlockchainConfig } from '#content-publishing-lib/blockchain/blockchain.config';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
@@ -28,8 +28,8 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
-    private configService: ConfigService,
     private ipfsPublisher: IPFSPublisher,
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
@@ -89,11 +89,11 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   private async handleCapacityExhausted() {
     this.logger.debug('Received capacity.exhausted event');
     await this.publishQueue.pause();
-    const { capacityLimitObj } = this.configService;
-    const capacity = await this.blockchainService.capacityInfo(this.configService.providerId);
+    const { capacityLimit, providerId } = this.blockchainConf;
+    const capacity = await this.blockchainService.capacityInfo(providerId.toString());
 
     this.logger.debug(`
-    Capacity limit: ${JSON.stringify(capacityLimitObj)}
+    Capacity limit: ${JSON.stringify(capacityLimit)}
     Remaining Capacity: ${JSON.stringify(capacity.remainingCapacity.toString())})}`);
 
     const blocksRemaining = capacity.nextEpochStart - capacity.currentBlockNumber;

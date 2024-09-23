@@ -26,11 +26,12 @@ process.env.ASSET_EXPIRATION_INTERVAL_SECONDS = '100';
 process.env.BATCH_INTERVAL_SECONDS = '100';
 process.env.BATCH_MAX_COUNT = '100';
 process.env.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS = '100';
+process.env.CACHE_KEY_PREFIX = 'content-publishing:';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
-import { apiFile, generateSwaggerDoc } from '#content-publishing-lib/config/swagger_config';
+import { apiFile, generateSwaggerDoc } from './swagger_config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {

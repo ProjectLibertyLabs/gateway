@@ -10,10 +10,9 @@ import {
   ActivityContentAudio,
   ActivityContentProfile,
 } from '@dsnp/activity-content/types';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ConfigService } from '#content-publishing-lib/config';
 import {
   BroadcastDto,
   ReplyDto,
@@ -46,6 +45,7 @@ import { ContentPublishingQueues as QueueConstants } from '#types/constants/queu
 import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
+import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
@@ -58,7 +58,7 @@ export class DsnpAnnouncementProcessor {
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
     @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
-    private configService: ConfigService,
+    @Inject(ipfsConfig.KEY) private config: IIpfsConfig,
     private ipfsService: IpfsService,
   ) {
     this.logger = new Logger(DsnpAnnouncementProcessor.name);
@@ -501,6 +501,6 @@ export class DsnpAnnouncementProcessor {
   }
 
   private formIpfsUrl(cid: string): string {
-    return this.configService.getIpfsCidPlaceholder(cid);
+    return getIpfsCidPlaceholder(cid, this.config.ipfsGatewayUrl);
   }
 }

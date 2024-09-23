@@ -1,33 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
 import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import apiConfig, { IAccountApiConfig } from './api.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any): Promise<IAccountApiConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [apiConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IAccountApiConfig>(apiConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IAccountApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -46,35 +22,19 @@ describe('Account API Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing frequency http url should fail', async () => {
-      const { FREQUENCY_HTTP_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
+    it('missing frequency http url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_HTTP_URL'));
 
-    it('invalid frequency http url should fail', async () => {
-      const { FREQUENCY_HTTP_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ FREQUENCY_HTTP_URL: 'invalid url', ...env })).rejects.toBeDefined();
-    });
+    it('invalid frequency http url should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FREQUENCY_HTTP_URL', ['invalid url']));
 
-    it('invalid api port should fail', async () => {
-      const { API_PORT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
-    });
+    it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
 
-    it('missing graph environment type should fail', async () => {
-      const { GRAPH_ENVIRONMENT_TYPE: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
+    it('missing graph environment type should fail', async () => validateMissing(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE'));
 
-    it('invalid graph environment type should fail', async () => {
-      const { GRAPH_ENVIRONMENT_TYPE: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ GRAPH_ENVIRONMENT_TYPE: 'invalid', ...env })).rejects.toBeDefined();
-    });
+    it('invalid graph environment type should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
 
-    it('invalid api timeout limit should fail', async () => {
-      const { API_TIMEOUT_MS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ API_TIMEOUT_MS: 0, ...env })).rejects.toBeDefined();
-    });
+    it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
   });
 
   describe('valid environment', () => {

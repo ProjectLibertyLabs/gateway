@@ -1,8 +1,7 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import Redis from 'ioredis';
 import fs from 'fs';
-import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { createKeys } from '#content-publishing-lib/blockchain/create-keys';
 import {
@@ -10,6 +9,7 @@ import {
   NONCE_KEY_EXPIRE_SECONDS,
   getNonceKey,
 } from '#content-publishing-lib/utils/redis';
+import blockchainConfig, { IBlockchainConfig } from '#content-publishing-lib/blockchain/blockchain.config';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -22,7 +22,7 @@ export class NonceService implements OnApplicationBootstrap {
   constructor(
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private redis: Redis,
     private blockchainService: BlockchainService,
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
   ) {
     this.logger = new Logger(NonceService.name);
     redis.defineCommand('incrementNonce', {
@@ -32,7 +32,7 @@ export class NonceService implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    this.accountId = createKeys(this.configService.providerAccountSeedPhrase).publicKey;
+    this.accountId = createKeys(this.blockchainConf.providerSeedPhrase).publicKey;
     const nextNonce = await this.getNextNonce();
     this.logger.log(`nonce is set to ${nextNonce}`);
   }

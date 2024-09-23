@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -9,7 +9,7 @@ import { AnyNumber, ISubmittableResult } from '@polkadot/types/types';
 import { u32, Option, Bytes, Vec, u16 } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
 import { Extrinsic } from './extrinsic';
-import { ConfigService } from '#content-publishing-lib/config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 
 export interface ICapacityInfo {
   providerId: string;
@@ -24,8 +24,6 @@ export interface ICapacityInfo {
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
 
-  private configService: ConfigService;
-
   private logger: Logger;
 
   private readyResolve: (boolean) => void;
@@ -39,7 +37,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async onApplicationBootstrap() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const providerUrl = this.configService.frequencyUrl!;
+    const providerUrl = this.config.frequencyUrl;
     let provider: WsProvider | HttpProvider;
     if (/^ws/.test(providerUrl.toString())) {
       provider = new WsProvider(providerUrl.toString());
@@ -59,8 +57,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await this.api?.disconnect();
   }
 
-  constructor(configService: ConfigService) {
-    this.configService = configService;
+  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -198,12 +195,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async validateProviderSeedPhrase() {
-    const { providerPublicKeyAddress, providerId } = this.configService;
-    if (providerPublicKeyAddress) {
-      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+    const { providerId, providerSeedPhrase } = this.config;
+    if (providerSeedPhrase) {
+      const providerPublicKeyAddress = await addressFromSeedPhrase(providerSeedPhrase);
+      if (providerPublicKeyAddress) {
+        const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
 
-      if (resolvedProviderId !== providerId) {
-        throw new Error('Provided account secret does not match configured Provider ID');
+        if (resolvedProviderId !== providerId.toString()) {
+          throw new Error('Provided account secret does not match configured Provider ID');
+        }
       }
     }
   }

@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
 import { ParquetWriter } from '@dsnp/parquetjs';
 import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import { ConfigService } from '#content-publishing-lib/config';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
 import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
+import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
 
 @Injectable()
 export class BatchAnnouncer {
@@ -17,7 +17,7 @@ export class BatchAnnouncer {
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    private configService: ConfigService,
+    @Inject(ipfsConfig.KEY) private readonly config: IIpfsConfig,
     private blockchainService: BlockchainService,
     private ipfsService: IpfsService,
   ) {
@@ -83,6 +83,6 @@ export class BatchAnnouncer {
   }
 
   private async formIpfsUrl(cid: string): Promise<string> {
-    return this.configService.getIpfsCidPlaceholder(cid);
+    return getIpfsCidPlaceholder(cid, this.config.ipfsGatewayUrl);
   }
 }

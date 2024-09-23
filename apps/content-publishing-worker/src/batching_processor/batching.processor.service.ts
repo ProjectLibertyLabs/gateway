@@ -1,5 +1,5 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -14,10 +14,10 @@ import {
   BATCH_LOCK_EXPIRE_SECONDS,
 } from '#content-publishing-lib/utils/redis';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
-import { ConfigService } from '#content-publishing-lib/config';
 import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
 import { IBatchAnnouncerJobData } from '../interfaces';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
 export class BatchingProcessorService {
@@ -27,7 +27,7 @@ export class BatchingProcessorService {
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private outputQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
-    private configService: ConfigService,
+    @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
@@ -45,7 +45,7 @@ export class BatchingProcessorService {
     const metadata = await this.getMetadataFromRedis(queueName);
     if (metadata) {
       const openTimeMs = Math.round(Date.now() - metadata.startTimestamp);
-      const batchTimeoutInMs = this.configService.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
+      const batchTimeoutInMs = this.config.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
       if (openTimeMs >= batchTimeoutInMs) {
         await this.closeBatch(queueName, metadata.batchId, false);
       } else {
@@ -77,13 +77,13 @@ export class BatchingProcessorService {
     this.logger.log(rowCount);
     if (rowCount === 1) {
       this.logger.log(`Processing job ${job.id} with a new batch`);
-      const timeout = this.configService.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
+      const timeout = this.config.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
       this.addBatchTimeout(queueName, batchId, timeout);
-    } else if (rowCount >= this.configService.batchMaxCount) {
+    } else if (rowCount >= this.config.batchMaxCount) {
       await this.closeBatch(queueName, batchId, false);
     } else if (rowCount === -1) {
       throw new Error(
-        `invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.configService.batchMaxCount}`,
+        `invalid result from addingToBatch for job ${job.id} and queue ${queueName} ${this.config.batchMaxCount}`,
       );
     }
   }

@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -9,13 +9,13 @@ import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain
 import { ContentPublishingQueues as QueueConstants, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { IPublisherJob } from '../interfaces';
 import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
-import { ConfigService } from '#content-publishing-lib/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
 import { IContentTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {
@@ -29,7 +29,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     }
     this.schedulerRegistry.addInterval(
       this.intervalName,
-      setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
+      setInterval(() => this.scan(), this.config.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
     );
   }
 
@@ -43,12 +43,12 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     blockchainService: BlockchainService,
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
-    private readonly configService: ConfigService,
+    @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
   ) {
     super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
-    this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
+    this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
     );

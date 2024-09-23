@@ -1,20 +1,20 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DelayedError, Job } from 'bullmq';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { ConfigService } from '#content-publishing-lib/config';
 import { IRequestJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME)
 export class RequestProcessorService extends BaseConsumer {
   constructor(
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
-    private configService: ConfigService,
+    @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private ipfsService: IpfsService,
   ) {
     super();
@@ -46,7 +46,7 @@ export class RequestProcessorService extends BaseConsumer {
     if (data.dependencyAttempt <= 3) {
       // exponential backoff
       const delayedTime =
-        2 ** data.dependencyAttempt * this.configService.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
+        2 ** data.dependencyAttempt * this.config.assetUploadVerificationDelaySeconds * MILLISECONDS_PER_SECOND;
       await job.moveToDelayed(Date.now() + delayedTime, job.token);
       await job.updateData(data);
       throw new DelayedError();

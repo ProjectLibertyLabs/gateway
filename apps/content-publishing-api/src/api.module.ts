@@ -6,7 +6,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
-import { ConfigModule, ConfigService } from '#content-publishing-lib/config';
 import { QueuesModule } from '#content-publishing-lib/queues';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
@@ -14,10 +13,19 @@ import { ApiService } from './api.service';
 import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
 import { CacheModule } from '#content-publishing-lib/cache/cache.module';
+import { ConfigModule } from '@nestjs/config';
+import apiConfig, { IContentPublishingApiConfig } from './api.config';
+import cacheConfig, { ICacheConfig } from '#content-publishing-lib/cache/cache.config';
+import queueConfig from '#content-publishing-lib/queues/queue.config';
+import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
+import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 
 @Module({
   imports: [
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [apiConfig, cacheConfig, queueConfig, blockchainConfig, ipfsConfig],
+    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -37,13 +45,13 @@ import { CacheModule } from '#content-publishing-lib/cache/cache.module';
       ignoreErrors: false,
     }),
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: cacheConf.cacheKeyPrefix,
         },
       ],
-      inject: [ConfigService],
+      inject: [cacheConfig.KEY],
     }),
     QueuesModule,
     // Bullboard UI
@@ -97,12 +105,12 @@ import { CacheModule } from '#content-publishing-lib/cache/cache.module';
     }),
     ScheduleModule.forRoot(),
     MulterModule.registerAsync({
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: async (apiConf: IContentPublishingApiConfig) => ({
         limits: {
-          fileSize: configService.fileUploadMaxSizeInBytes,
+          fileSize: apiConf.fileUploadMaxSizeBytes,
         },
       }),
-      inject: [ConfigService],
+      inject: [apiConfig.KEY],
     }),
   ],
   providers: [ApiService, IpfsService],

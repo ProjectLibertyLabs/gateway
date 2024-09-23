@@ -84,7 +84,7 @@ account:
     repository: "projectlibertylabs/gateway"
     tag: "latest"
   env:
-    API_PORT: "3000"
+    API_PORT: "3001"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
     FREQUENCY_HTTP_URL: "http://0.0.0.0:9944"
     PROVIDER_ID: "1"
@@ -111,6 +111,7 @@ account:
 
 contentPublishing:
   env:
+    API_PORT: "3001"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
     TRUST_UNFINALIZED_BLOCKS: "false"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
@@ -119,7 +120,6 @@ contentPublishing:
     PROVIDER_ID: "1"
     REDIS_URL: "redis://0.0.0.0:6379"
     CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
-    API_PORT: "3000"
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: "2000000000"
     ASSET_EXPIRATION_INTERVAL_SECONDS: "300"
     BATCH_INTERVAL_SECONDS: "12"
@@ -133,6 +133,7 @@ contentPublishing:
 
 contentWatcher:
   env:
+    API_PORT: "3002"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
     IPFS_GATEWAY_URL: "http://127.0.0.1:8080/ipfs/[CID]"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
@@ -141,7 +142,6 @@ contentWatcher:
     QUEUE_HIGH_WATER: "1000"
     WEBHOOK_FAILURE_THRESHOLD: "4"
     WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
-    API_PORT: "3000"
     CACHE_KEY_PREFIX: "content-watcher:"
   secret:
     IPFS_BASIC_AUTH_USER: ""
@@ -149,7 +149,7 @@ contentWatcher:
 
 graph:
   env:
-    API_PORT: "3000"
+    API_PORT: "3003"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
     PROVIDER_ID: "1"
     REDIS_URL: "redis://0.0.0.0:6379"

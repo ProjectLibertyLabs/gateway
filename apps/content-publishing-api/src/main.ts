@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
-import { initSwagger } from '#content-publishing-lib/config/swagger_config';
+import { initSwagger } from './swagger_config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 
 const logger = new Logger('main');

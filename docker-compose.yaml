@@ -28,6 +28,7 @@ x-content-publishing-env: &content-publishing-env
   BATCH_INTERVAL_SECONDS: 12
   BATCH_MAX_COUNT: 1000
   ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 5
+  CACHE_KEY_PREFIX: 'content-publishing:'
 
 x-content-watcher-env: &content-watcher-env
   STARTING_BLOCK: 759882
@@ -45,7 +46,6 @@ x-account-service-env: &account-service-env
   WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
-  DEBUG: true
 
 services:
   redis:

@@ -1,17 +1,7 @@
 # Default values for frequency-gateway.
-# Declare variables to be passed into your templates.
 
 # This will set the replicaset count
 replicaCount: 1
-
-# Container image details
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  tag: ""
-
-# Image pull secrets for private registry
-imagePullSecrets: []
 
 # Chart name overrides
 nameOverride: ""
@@ -51,16 +41,6 @@ ingress:
 
 # Resource limits and requests
 resources: {}
-
-# Liveness and readiness probes
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
 
 # Autoscaling configuration
 autoscaling:

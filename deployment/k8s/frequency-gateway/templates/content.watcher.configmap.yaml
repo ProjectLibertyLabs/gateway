@@ -3,13 +3,6 @@ kind: ConfigMap
 metadata:
   name: content-watcher-configmap
 data:
-  IPFS_ENDPOINT: "{{ .Values.contentWatcher.env.IPFS_ENDPOINT }}"
-  IPFS_GATEWAY_URL: "{{ .Values.contentWatcher.env.IPFS_GATEWAY_URL }}"
-  FREQUENCY_URL: "{{ .Values.contentWatcher.env.FREQUENCY_URL }}"
-  REDIS_URL: "{{ .Values.contentWatcher.env.REDIS_URL }}"
-  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "{{ .Values.contentWatcher.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS }}"
-  QUEUE_HIGH_WATER: "{{ .Values.contentWatcher.env.QUEUE_HIGH_WATER }}"
-  WEBHOOK_FAILURE_THRESHOLD: "{{ .Values.contentWatcher.env.WEBHOOK_FAILURE_THRESHOLD }}"
-  WEBHOOK_RETRY_INTERVAL_SECONDS: "{{ .Values.contentWatcher.env.WEBHOOK_RETRY_INTERVAL_SECONDS }}"
-  API_PORT: "{{ .Values.contentWatcher.env.API_PORT }}"
-  CACHE_KEY_PREFIX: "{{ .Values.contentWatcher.env.CACHE_KEY_PREFIX }}"
+{{- range $key, $value := .Values.contentWatcher.env }}
+  {{ $key }}: "{{ $value }}"
+{{- end }}

@@ -1,21 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IpfsService } from './ipfs.client';
-import { ConfigService } from '#content-publishing-lib/config';
 import { Logger } from '@nestjs/common';
+import ipfsConfig, { IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
 
 jest.mock('axios');
 
 describe('IpfsService Tests', () => {
   let service: IpfsService;
-  let configService: ConfigService;
   let logger: Logger;
+  let config: IIpfsConfig;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IpfsService,
         {
-          provide: ConfigService,
+          provide: ipfsConfig.KEY,
           useValue: {
             ipfsEndpoint: 'http://localhost:5001',
             ipfsBasicAuthUser: '',
@@ -27,7 +27,7 @@ describe('IpfsService Tests', () => {
     }).compile();
 
     service = module.get<IpfsService>(IpfsService);
-    configService = module.get<ConfigService>(ConfigService);
+    config = module.get<IIpfsConfig>(ipfsConfig.KEY);
     logger = new Logger(IpfsService.name);
   });
 

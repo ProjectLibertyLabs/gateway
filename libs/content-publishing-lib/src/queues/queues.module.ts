@@ -1,26 +1,26 @@
-import { ConfigService } from '#content-publishing-lib/config/config.service';
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import Redis from 'ioredis';
 import { redisEventsToEventEmitter, redisReadyMap } from '#content-publishing-lib/utils/redis';
+import cacheConfig, { ICacheConfig } from '#content-publishing-lib/cache/cache.config';
 
 @Global()
 @Module({
   imports: [
     BullModule.forRootAsync({
-      useFactory: (configService: ConfigService, eventEmitter: EventEmitter2) => {
+      useFactory: (cacheConf: ICacheConfig, eventEmitter: EventEmitter2) => {
         // Default map only has 'default' entry; add 'bull' entry
         redisReadyMap.set('bull', false);
-        const connection = new Redis(configService.redisUrl.toString(), { maxRetriesPerRequest: null });
+        const connection = new Redis(cacheConf.redisUrl.toString(), { maxRetriesPerRequest: null });
         redisEventsToEventEmitter(connection, eventEmitter, 'bull');
         return {
           connection,
-          prefix: `${configService.cacheKeyPrefix}:bull`,
+          prefix: `${cacheConf.cacheKeyPrefix}:bull`,
         };
       },
-      inject: [ConfigService, EventEmitter2],
+      inject: [cacheConfig.KEY, EventEmitter2],
     }),
     BullModule.registerQueue(
       {

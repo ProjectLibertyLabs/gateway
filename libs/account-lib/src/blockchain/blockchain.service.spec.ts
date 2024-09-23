@@ -35,32 +35,6 @@ describe('BlockchainService', () => {
   let blockchainService: BlockchainService;
   let mockBlockchainConfig: MockBlockchainConfig;
 
-  // const mockBlockchainConfig = {
-  //   frequencyUrl: jest.fn(() => new URL(process.env.FREQUENCY_URL)),
-  //   isDeployedReadOnly: jest.fn(() => false),
-  //   providerId: jest.fn(() => 1n),
-  //   providerSeedPhrase: jest.fn(() => '//Alice'),
-  //   capacityLimit: jest.fn(() => ({ serviceLimit: { type: 'percentage', value: 80n } })),
-  // };
-
-  // Object.defineProperties(mockBlockchainConfig, {
-  //   frequencyUrl: {
-  //     get: mockBlockchainConfig.frequencyUrl,
-  //   },
-  //   isDeployedReadOnly: {
-  //     get: mockBlockchainConfig.isDeployedReadOnly,
-  //   },
-  //   providerId: {
-  //     get: mockBlockchainConfig.providerId,
-  //   },
-  //   providerSeedPhrase: {
-  //     get: mockBlockchainConfig.providerSeedPhrase,
-  //   },
-  //   capacityLimit: {
-  //     get: mockBlockchainConfig.capacityLimit,
-  //   },
-  // });
-
   beforeAll(async () => {
     mockApi = {
       createType: jest.fn(),
@@ -72,12 +46,7 @@ describe('BlockchainService', () => {
     } as unknown as ApiPromise;
 
     const moduleRef = await Test.createTestingModule({
-      imports: [
-        // ConfigModule.forRoot({
-        //   ignoreEnvFile: true,
-        //   load: [blockchainConfig],
-        // }),
-      ],
+      imports: [],
       controllers: [],
       providers: [
         {

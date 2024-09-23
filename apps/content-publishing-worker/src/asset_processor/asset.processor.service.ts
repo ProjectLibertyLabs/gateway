@@ -1,20 +1,20 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
-import { ConfigService } from '#content-publishing-lib/config';
 import { IAssetJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { BaseConsumer } from '../BaseConsumer';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
 @Processor(QueueConstants.ASSET_QUEUE_NAME)
 export class AssetProcessorService extends BaseConsumer {
   constructor(
     @InjectRedis() private redis: Redis,
-    private configService: ConfigService,
+    @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private ipfsService: IpfsService,
   ) {
     super();
@@ -39,7 +39,7 @@ export class AssetProcessorService extends BaseConsumer {
   async onCompleted(job: Job<IAssetJob, any, string>) {
     this.logger.log(`completed ${job.id}`);
     const secondsPassed = Math.round((Date.now() - job.timestamp) / 1000);
-    const expectedSecondsToExpire = this.configService.assetExpirationIntervalSeconds;
+    const expectedSecondsToExpire = this.config.assetExpirationIntervalSeconds;
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);
     const result = await this.redis
       .pipeline()

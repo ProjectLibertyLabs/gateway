@@ -2,19 +2,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
-import { ConfigService } from '#content-publishing-lib/config';
 import { ModifiableAnnouncementTypeDto, TagTypeDto } from '#types/dtos/content-publishing';
 import { IRequestJob } from '#types/interfaces/content-publishing';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementTypeName } from '#types/enums';
+import { IIpfsConfig } from '#content-publishing-lib/config';
+import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 
 const mockQueue = {
   add: jest.fn(),
 };
 
-// Mock the ConfigService class
-const mockConfigService = {
-  getIpfsCidPlaceholder: jest.fn(),
+// Mock config values
+const mockIpfsConfig: IIpfsConfig = {
+  ipfsBasicAuthSecret: undefined,
+  ipfsBasicAuthUser: undefined,
+  ipfsEndpoint: new URL('http://ipfs.io'),
+  ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
 };
 
 // Mock the IpfsService class
@@ -30,8 +34,7 @@ describe('DsnpAnnouncementProcessor', () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       providers: [
-        DsnpAnnouncementProcessor,
-        { provide: ConfigService, useValue: mockConfigService },
+        { provide: ipfsConfig.KEY, useValue: mockIpfsConfig },
         { provide: IpfsService, useValue: mockIpfsService },
         { provide: Queue, useValue: mockQueue },
         { provide: 'BullQueue_assetQueue', useValue: mockQueue },
@@ -41,6 +44,7 @@ describe('DsnpAnnouncementProcessor', () => {
         { provide: 'BullQueue_updateQueue', useValue: mockQueue },
         { provide: 'BullQueue_profileQueue', useValue: mockQueue },
         { provide: 'BullQueue_tombstoneQueue', useValue: mockQueue },
+        DsnpAnnouncementProcessor,
       ],
     }).compile();
 
@@ -53,7 +57,6 @@ describe('DsnpAnnouncementProcessor', () => {
 
   it('should collect and queue a broadcast announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -73,12 +76,10 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
   it('should collect and queue a reply announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -99,13 +100,11 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a reaction announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -124,12 +123,10 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
   it('should collect and queue an update announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -151,13 +148,11 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a profile announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -182,13 +177,11 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a tombstone announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
 
@@ -206,7 +199,6 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 });

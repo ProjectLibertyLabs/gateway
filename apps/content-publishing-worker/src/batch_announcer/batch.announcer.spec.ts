@@ -4,10 +4,14 @@ import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency'
 import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
 import { BatchAnnouncer } from './batch.announcer';
+import { IIpfsConfig } from '#content-publishing-lib/config';
 
 // Create a mock for the dependencies
-const mockConfigService = {
-  getIpfsCidPlaceholder: jest.fn(),
+const mockIpfsConfig: IIpfsConfig = {
+  ipfsBasicAuthSecret: undefined,
+  ipfsBasicAuthUser: undefined,
+  ipfsEndpoint: new URL('http://ipfs.io'),
+  ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
 };
 
 const mockBlockchainService = {
@@ -63,7 +67,7 @@ describe('BatchAnnouncer', () => {
   beforeEach(async () => {
     ipfsAnnouncer = new BatchAnnouncer(
       mockClient,
-      mockConfigService as any,
+      mockIpfsConfig,
       mockBlockchainService as any,
       mockIpfsService as any,
     );
@@ -75,7 +79,6 @@ describe('BatchAnnouncer', () => {
   // Write your test cases here
   it('should announce a batch to IPFS', async () => {
     // Mock the necessary dependencies' behavior
-    mockConfigService.getIpfsCidPlaceholder.mockReturnValue('mockIpfsUrl');
     mockBlockchainService.getSchemaPayload.mockReturnValue(Buffer.from(stringToHex(JSON.stringify(broadcast))));
     mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
     mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 10, hash: 'mockHash' });
@@ -88,7 +91,6 @@ describe('BatchAnnouncer', () => {
 
     const result = await ipfsAnnouncer.announce(batchJob);
     assert(result);
-    expect(mockConfigService.getIpfsCidPlaceholder).toHaveBeenCalledWith('mockCid');
     expect(mockBlockchainService.getSchemaPayload).toHaveBeenCalledWith(123);
   });
 });

@@ -21,8 +21,6 @@ import workerConfig from './worker.config';
       isGlobal: true,
       load: [blockchainConfig, cacheConfig, queueConfig, workerConfig],
     }),
-    // NestConfigModule.forFeature(cacheConfig),
-    // NestConfigModule.forFeature(blockchainConfig),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

@@ -50,7 +50,7 @@
     "start:graph-worker:debug": "dotenvx run -f .env.graph -- nest start graph-worker --debug --watch",
     "pregenerate:metadata:account": "cp metadata.raw.ts.template apps/account-api/src/metadata.ts",
     "pregenerate:metadata:content-publishing": "cp metadata.raw.ts.template apps/content-publishing-api/src/metadata.ts",
-    "pregenerate:metadata:content-watcher": "cp metadata.raw.ts.template apps/content-watcher-api/src/metadata.ts",
+    "pregenerate:metadata:content-watcher": "cp metadata.raw.ts.template apps/content-watcher/src/metadata.ts",
     "pregenerate:metadata:graph": "cp metadata.raw.ts.template apps/graph-api/src/metadata.ts",
     "generate:metadata:account": "npx ts-node -r tsconfig-paths/register apps/account-api/src/generate-metadata.ts",
     "generate:metadata:content-publishing": "npx ts-node -r tsconfig-paths/register apps/content-publishing-api/src/generate-metadata.ts",

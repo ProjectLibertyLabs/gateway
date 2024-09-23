@@ -17,7 +17,6 @@ import {
 } from '@polkadot/types/lookup';
 import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { ConfigService } from '#account-lib/config/config.service';
-import { TransactionType } from '#types/enums/account-enums';
 import { HexString } from '@polkadot/util/types';
 import {
   Delegation,
@@ -35,6 +34,7 @@ import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
+import { TransactionType } from '#types/account-webhook';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -616,7 +616,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async createRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto> {
     // Get the transaction for retireMsa, will be used to get the raw payload for signing
-    const tx = await this.api.tx.msa.retireMsa();
+    const tx = this.api.tx.msa.retireMsa();
 
     // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
     const signerPayload = await BlockchainService.getRawPayloadForSigning(tx, accountId);

@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { TransactionType } from '#types/enums/account-enums';
 import { HandlesService } from '#account-api/services/handles.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
@@ -24,6 +23,8 @@ import { TransactionResponse } from '#types/dtos/account/transaction.response.dt
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { TransactionType } from '#types/account-webhook';
+import { HandleDto, MsaIdDto } from '#types/dtos/common';
 
 @Controller('v1/handles')
 @ApiTags('v1/handles')
@@ -98,7 +99,7 @@ export class HandlesControllerV1 {
    * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
    * @throws An error if the change handle payload creation fails.
    */
-  async getChangeHandlePayload(@Param('newHandle') newHandle: string): Promise<ChangeHandlePayloadRequest> {
+  async getChangeHandlePayload(@Param() { newHandle }: HandleDto): Promise<ChangeHandlePayloadRequest> {
     try {
       const expiration = await this.handlesService.getExpiration();
       const payload = { baseHandle: newHandle, expiration };
@@ -124,7 +125,7 @@ export class HandlesControllerV1 {
    * @returns A promise that resolves to a Handle object, representing the found handle.
    * @throws An error if the handle cannot be found.
    */
-  async getHandle(@Param('msaId') msaId: string): Promise<HandleResponseDto> {
+  async getHandle(@Param() { msaId }: MsaIdDto): Promise<HandleResponseDto> {
     try {
       const handle = await this.handlesService.getHandle(msaId);
       if (!handle) {

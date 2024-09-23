@@ -88,5 +88,7 @@ export const configModuleOptions = (allowReadOnly: boolean): ConfigModuleOptions
         return value;
       })
       .required(),
+    API_TIMEOUT_MS: Joi.number().min(1).default(5000),
+    API_BODY_JSON_LIMIT: Joi.string().default('1mb'),
   }),
 });

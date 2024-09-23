@@ -38,7 +38,9 @@
       "#graph-lib": ["libs/graph-lib/src"],
       "#graph-lib/*": ["libs/graph-lib/src/*"],
       "#types": ["libs/types/src"],
-      "#types/*": ["libs/types/src/*"]
+      "#types/*": ["libs/types/src/*"],
+      "#utils": ["libs/utils/src"],
+      "#utils/*": ["libs/utils/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

@@ -1,0 +1,180 @@
+---
+#
+# Define webhook API for the Gateway Account Service. The nestjs/swagger package does not
+# support auto-generation of webhooks, or types that are not part of controller
+# endpoints.
+#
+# Also, note we use the 'paths:' component here, not the new 'webhooks:' component supported
+# by OpenAPI >= 3.1. This is because the documentation generators do not yet fully support webhooks.
+openapi: 3.1.0
+info:
+  title: Transaction Notification API
+  version: 1.0.0
+
+paths:
+  /transaction-notify:
+    post:
+      summary: Notify transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TxWebhookRsp'
+      responses:
+        '200':
+          description: Successful notification
+        '400':
+          description: Bad request
+
+components:
+  schemas:
+    TransactionType:
+      type: string
+      enum:
+        - CHANGE_HANDLE
+        - CREATE_HANDLE
+        - SIWF_SIGNUP
+        - SIWF_SIGNIN
+        - ADD_KEY
+        - RETIRE_MSA
+        - ADD_PUBLIC_KEY_AGREEMENT
+        - REVOKE_DELEGATION
+      x-enum-varnames:
+        - CHANGE_HANDLE
+        - CREATE_HANDLE
+        - SIWF_SIGNUP
+        - SIWF_SIGNIN
+        - ADD_KEY
+        - RETIRE_MSA
+        - ADD_PUBLIC_KEY_AGREEMENT
+        - REVOKE_DELEGATION
+
+    TxWebhookRspBase:
+      type: object
+      required:
+        - providerId
+        - referenceId
+        - msaId
+        - type
+      properties:
+        providerId:
+          type: string
+        referenceId:
+          type: string
+        msaId:
+          type: string
+        transactionType:
+          $ref: '#/components/schemas/TransactionType'
+
+    PublishHandleOpts:
+      type: object
+      properties:
+        handle:
+          type: string
+      required:
+        - handle
+
+    SIWFOpts:
+      type: object
+      properties:
+        handle:
+          type: string
+        accountId:
+          type: string
+      required:
+        - handle
+        - accountId
+
+    PublishKeysOpts:
+      type: object
+      properties:
+        newPublicKey:
+          type: string
+      required:
+        - newPublicKey
+
+    PublishGraphKeysOpts:
+      type: object
+      properties:
+        schemaId:
+          type: string
+      required:
+        - schemaId
+
+    TxWebhookOpts:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/PublishHandleOpts'
+        - $ref: '#/components/schemas/SIWFOpts'
+        - $ref: '#/components/schemas/PublishKeysOpts'
+        - $ref: '#/components/schemas/PublishGraphKeysOpts'
+
+    PublishHandleWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/PublishHandleOpts'
+        - type: object
+          properties:
+            transactionType:
+              oneOf:
+                - const: CREATE_HANDLE
+                - const: CHANGE_HANDLE
+
+    SIWFWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/SIWFOpts'
+        - type: object
+          properties:
+            transactionType:
+              const: SIWF_SIGNUP
+
+    PublishKeysWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/PublishKeysOpts'
+        - type: object
+          properties:
+            transactionType:
+              const: ADD_KEY
+
+    PublishGraphKeysWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/PublishGraphKeysOpts'
+        - type: object
+          properties:
+            transactionType:
+              const: ADD_PUBLIC_KEY_AGREEMENT
+
+    RetireMsaWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - type: object
+          properties:
+            transactionType:
+              const: RETIRE_MSA
+
+    RevokeDelegationWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - type: object
+          properties:
+            transactionType:
+              const: REVOKE_DELEGATION
+
+    TxWebhookRsp:
+      oneOf:
+        - $ref: '#/components/schemas/PublishHandleWebhookRsp'
+        - $ref: '#/components/schemas/SIWFWebhookRsp'
+        - $ref: '#/components/schemas/PublishKeysWebhookRsp'
+        - $ref: '#/components/schemas/PublishGraphKeysWebhookRsp'
+        - $ref: '#/components/schemas/RetireMsaWebhookRsp'
+        - $ref: '#/components/schemas/RevokeDelegationWebhookRsp'

@@ -1,18 +1,27 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
-import { IsHexadecimal, IsNotEmpty } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { RetireMsaPayloadResponseDto } from './accounts.response.dto';
-import { TransactionType } from '#types/enums/account-enums';
+import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
+import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
-  @ApiProperty({ type: String })
-  @IsNotEmpty()
-  @IsHexadecimal()
+  @ApiProperty({
+    description: 'signature of the owner',
+    type: String,
+    example:
+      '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
+  })
+  @IsSignature()
   signature: HexString;
 
-  @ApiProperty({ type: String })
-  @IsNotEmpty()
+  @ApiProperty({
+    type: String,
+    description: 'AccountId in hex or SS58 format',
+    example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
+  })
+  @IsAccountIdOrAddress()
   accountId: string;
 }
 

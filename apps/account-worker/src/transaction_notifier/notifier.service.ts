@@ -5,9 +5,7 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { TransactionType } from '#types/enums/account-enums';
 import { RedisUtils } from '#account-lib';
-import { TxWebhookRsp } from '#types/dtos/account';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
@@ -19,6 +17,7 @@ import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ConfigService } from '#account-lib/config/config.service';
 import { ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
+import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 
 @Injectable()
 export class TxnNotifierService
@@ -154,11 +153,12 @@ export class TxnNotifierService
               {
                 const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(successEvent);
 
-                webhookResponse = createWebhookRsp(txStatus, handleTxnValues.msaId, { handle: handleTxnValues.handle });
+                const response = createWebhookRsp(txStatus, handleTxnValues.msaId, { handle: handleTxnValues.handle });
+                webhookResponse = response;
 
                 this.logger.debug(handleTxnValues.debugMsg);
                 this.logger.log(
-                  `Handles: ${webhookResponse.transactionType} finalized handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId}.`,
+                  `Handles: ${response.transactionType} finalized handle ${response.handle} for msaId ${response.msaId}.`,
                 );
               }
               break;
@@ -166,13 +166,13 @@ export class TxnNotifierService
               {
                 const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
 
-                webhookResponse = createWebhookRsp(txStatus, siwfTxnValues.msaId, {
+                const response = createWebhookRsp(txStatus, siwfTxnValues.msaId, {
                   accountId: siwfTxnValues.address,
                   handle: siwfTxnValues.handle,
                 });
 
                 this.logger.log(
-                  `SIWF: ${siwfTxnValues.address} Signed up handle ${webhookResponse.handle} for msaId ${webhookResponse.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
+                  `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
                 );
               }
               break;
@@ -180,13 +180,12 @@ export class TxnNotifierService
               {
                 const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
 
-                webhookResponse = createWebhookRsp(txStatus, publicKeyValues.msaId, {
+                const response = createWebhookRsp(txStatus, publicKeyValues.msaId, {
                   newPublicKey: publicKeyValues.newPublicKey,
                 });
+                webhookResponse = response;
 
-                this.logger.log(
-                  `Keys: Added the key ${webhookResponse.newPublicKey} for msaId ${webhookResponse.msaId}.`,
-                );
+                this.logger.log(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
               }
               break;
             case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
@@ -194,13 +193,12 @@ export class TxnNotifierService
                 const itemizedPageUpdated =
                   this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
 
-                webhookResponse = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
+                const response = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
                   schemaId: itemizedPageUpdated.schemaId,
                 });
+                webhookResponse = response;
 
-                this.logger.log(
-                  `Keys: Added the graph key msaId ${webhookResponse.msaId} and schemaId ${webhookResponse.schemaId}.`,
-                );
+                this.logger.log(`Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`);
               }
               break;
             default:

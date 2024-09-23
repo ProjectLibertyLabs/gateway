@@ -4,8 +4,7 @@ The Content Publishing Service allows users to create, post, and manage content 
 
 ## API Reference
 
-[Open Full API Reference Page](https://projectlibertylabs.github.io/gateway/content-publishing)
-{{#swagger-embed ../openapi-specs/content-publishing.openapi.json}}
+- [REST API](./Api.md) (<a target="_blank" href="https://projectlibertylabs.github.io/gateway/content-publishing">Full docs</a>)
 
 ## Configuration
 

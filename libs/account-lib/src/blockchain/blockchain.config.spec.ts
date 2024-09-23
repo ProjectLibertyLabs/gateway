@@ -1,33 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import blockchainConfig, { allowReadOnly, IBlockchainConfig } from './blockchain.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any, readOnlyOk = false): Promise<IBlockchainConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [readOnlyOk ? allowReadOnly : blockchainConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IBlockchainConfig>(blockchainConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IBlockchainConfig>(blockchainConfig);
+const { setupConfigService: setupConfigServiceReadOnly } = configSetup<IBlockchainConfig>(allowReadOnly);
 
 describe('Blockchain module config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -44,57 +21,38 @@ describe('Blockchain module config', () => {
   });
 
   describe('invalid environment', () => {
-    it('invalid frequency url should fail', async () => {
-      const { FREQUENCY_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ FREQUENCY_URL: 'invalid url', ...env })).rejects.toBeDefined();
-    });
+    it('missing frequency url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_URL'));
+    it('invalid frequency url should fail', async () => shouldFailBadValues(ALL_ENV, 'FREQUENCY_URL', ['invalid url']));
 
-    it('missing capacity limits should fail', async () => {
-      const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ CAPACITY_LIMIT: undefined, ...env })).rejects.toBeDefined();
-    });
+    it('missing capacity limits should fail', async () => validateMissing(ALL_ENV, 'CAPACITY_LIMIT'));
 
-    it('invalid capacity limit should fail', async () => {
-      const { CAPACITY_LIMIT: dummy, ...env } = ALL_ENV;
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "bad type", "value": 0 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(async () =>
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": -1 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "percentage", "value": 101 }', ...env }),
-      ).rejects.toBeDefined();
-      await expect(
-        setupConfigService({ CAPACITY_LIMIT: '{ "type": "amount", "value": -1 }', ...env }),
-      ).rejects.toBeDefined();
-    });
+    it('invalid capacity limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'CAPACITY_LIMIT', [
+        '{ "type": "bad type", "value": 0 }',
+        '{ "type": "percentage", "value": -1 }',
+        '{ "type": "percentage", "value": 101 }',
+        '{ "type": "amount", "value": -1 }',
+      ]));
 
-    it('missing provider ID should fail', async () => {
-      const { PROVIDER_ID: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ PROVIDER_ID: undefined, ...env })).rejects.toBeDefined();
-    });
+    it('missing provider ID should fail', async () => validateMissing(ALL_ENV, 'PROVIDER_ID'));
 
-    it('missing seed phrase should fail', async () => {
-      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing seed phrase should fail', async () => validateMissing(ALL_ENV, 'PROVIDER_ACCOUNT_SEED_PHRASE'));
 
     it('missing seed phrase should activate read-only mode if allowed', async () => {
       const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
-      const accountConfigService = await setupConfigService(env, true);
+      const accountConfigService = await setupConfigServiceReadOnly(env);
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });
 
     it('empty seed phrase should activate read-only mode if allowed', async () => {
       const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
-      const accountConfigService = await setupConfigService({ PROVIDER_ACCOUNT_SEED_PHRASE: '', ...env }, true);
+      const accountConfigService = await setupConfigServiceReadOnly({ PROVIDER_ACCOUNT_SEED_PHRASE: '', ...env });
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });
 
     it('blank seed phrase should activate read-only mode if allowed', async () => {
       const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
-      const accountConfigService = await setupConfigService({ PROVIDER_ACCOUNT_SEED_PHRASE: '    ', ...env }, true);
+      const accountConfigService = await setupConfigServiceReadOnly({ PROVIDER_ACCOUNT_SEED_PHRASE: '    ', ...env });
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });
   });

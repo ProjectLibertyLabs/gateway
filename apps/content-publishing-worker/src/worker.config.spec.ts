@@ -1,33 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any): Promise<IContentPublishingWorkerConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [workerConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IContentPublishingWorkerConfig>(workerConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } =
+  configSetup<IContentPublishingWorkerConfig>(workerConfig);
 
 describe('Content Publishing Worker Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -46,64 +23,33 @@ describe('Content Publishing Worker Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('invalid scan interval should fail', async () => {
-      const { BLOCKCHAIN_SCAN_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 'foo', ...env })).rejects.toBeDefined();
-    });
+    it('invalid scan interval should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS', [-1, 0, 'foo']));
 
-    it('invalid trust unfinalized blocks should fail', async () => {
-      const { TRUST_UNFINALIZED_BLOCKS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ TRUST_UNFINALIZED_BLOCKS: 'some string', ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ TRUST_UNFINALIZED_BLOCKS: 27, ...env })).rejects.toBeDefined();
-    });
+    it('invalid trust unfinalized blocks should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'TRUST_UNFINALIZED_BLOCKS', ['some string', 27]));
 
-    it('missing asset expiration interval should fail', async () => {
-      const { ASSET_EXPIRATION_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing asset expiration interval should fail', async () =>
+      validateMissing(ALL_ENV, 'ASSET_EXPIRATION_INTERVAL_SECONDS'));
 
-    it('invalid asset expiration interval should fail', async () => {
-      const { ASSET_EXPIRATION_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ASSET_EXPIRATION_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ ASSET_EXPIRATION_INTERVAL_SECONDS: 'invalid', ...env })).rejects.toBeDefined();
-    });
+    it('invalid asset expiration interval should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'ASSET_EXPIRATION_INTERVAL_SECONDS', [0, 'invalid']));
 
-    it('missing asset upload verification delay should fail', async () => {
-      const { ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing asset upload verification delay should fail', async () =>
+      validateMissing(ALL_ENV, 'ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS'));
 
-    it('invalid asset upload verification delay should fail', async () => {
-      const { ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 0, ...env })).rejects.toBeDefined();
-      await expect(
-        setupConfigService({ ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 'invalid', ...env }),
-      ).rejects.toBeDefined();
-    });
+    it('invalid asset upload verification delay should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS', [0, 'invalid']));
 
-    it('missing batch interval should fail', async () => {
-      const { BATCH_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing batch interval should fail', async () => validateMissing(ALL_ENV, 'BATCH_INTERVAL_SECONDS'));
 
-    it('invalid batch interval should fail', async () => {
-      const { BATCH_INTERVAL_SECONDS: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ BATCH_INTERVAL_SECONDS: 0, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BATCH_INTERVAL_SECONDS: 'invalid', ...env })).rejects.toBeDefined();
-    });
+    it('invalid batch interval should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'BATCH_INTERVAL_SECONDS', [0, 'invalid']));
 
-    it('missing batch max count should fail', async () => {
-      const { BATCH_MAX_COUNT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing batch max count should fail', async () => validateMissing(ALL_ENV, 'BATCH_MAX_COUNT'));
 
-    it('invalid batch max count should fail', async () => {
-      const { BATCH_MAX_COUNT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ BATCH_MAX_COUNT: -1, ...env })).rejects.toBeDefined();
-      await expect(setupConfigService({ BATCH_MAX_COUNT: 'invalid', ...env })).rejects.toBeDefined();
-    });
+    it('invalid batch max count should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'BATCH_MAX_COUNT', [-1, 'invalid']));
   });
 
   describe('valid environment', () => {

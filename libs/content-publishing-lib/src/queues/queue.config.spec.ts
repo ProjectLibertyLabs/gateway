@@ -1,33 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import queueConfig, { IQueueConfig } from './queue.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any): Promise<IQueueConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [queueConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IQueueConfig>(queueConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IQueueConfig>(queueConfig);
 
 describe('Queue module config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -42,20 +18,11 @@ describe('Queue module config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing redis url should fail', async () => {
-      const { REDIS_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
+    it('missing redis url should fail', async () => validateMissing(ALL_ENV, 'REDIS_URL'));
 
-    it('invalid redis url should fail', async () => {
-      const { REDIS_URL: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ REDIS_URL: 'invalid url', ...env })).rejects.toBeDefined();
-    });
+    it('invalid redis url should fail', async () => shouldFailBadValues(ALL_ENV, 'REDIS_URL', ['invalid url']));
 
-    it('missing cache key prefix should fail', async () => {
-      const { CACHE_KEY_PREFIX: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ ...env })).rejects.toBeDefined();
-    });
+    it('missing cache key prefix should fail', async () => validateMissing(ALL_ENV, 'CACHE_KEY_PREFIX'));
   });
 
   describe('valid environment', () => {

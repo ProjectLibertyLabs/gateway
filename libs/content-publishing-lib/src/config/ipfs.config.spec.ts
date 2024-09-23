@@ -1,33 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import ipfsConfig, { IIpfsConfig } from './ipfs.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any): Promise<IIpfsConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [ipfsConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IIpfsConfig>(ipfsConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IIpfsConfig>(ipfsConfig);
 
 describe('IPFS config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -43,29 +19,11 @@ describe('IPFS config', () => {
     });
   });
 
-  async function validateMissing(key: string) {
-    const obj = { ...ALL_ENV };
-    delete obj[key];
-    await expect(setupConfigService(obj)).rejects.toBeDefined();
-  }
-
-  async function shouldFailBadValues(key: string, values: any[]) {
-    const obj = { ...ALL_ENV };
-    delete obj[key];
-    await Promise.all(
-      values.map((v) => {
-        const badObj = { ...obj };
-        badObj[key] = v;
-        return expect(setupConfigService(badObj)).rejects.toBeDefined();
-      }),
-    );
-  }
-
   describe('invalid environment', () => {
-    it('missing IPFS endpoint should fail', async () => validateMissing('IPFS_ENDPOINT'));
-    it('bad IPFS endpoint should fail', async () => shouldFailBadValues('IPFS_ENDPOINT', ['not-a-url']));
+    it('missing IPFS endpoint should fail', async () => validateMissing(ALL_ENV, 'IPFS_ENDPOINT'));
+    it('bad IPFS endpoint should fail', async () => shouldFailBadValues(ALL_ENV, 'IPFS_ENDPOINT', ['not-a-url']));
 
-    it('missing IPFS gateway should fail', async () => validateMissing('IPFS_GATEWAY_URL'));
+    it('missing IPFS gateway should fail', async () => validateMissing(ALL_ENV, 'IPFS_GATEWAY_URL'));
   });
 
   describe('valid environment', () => {

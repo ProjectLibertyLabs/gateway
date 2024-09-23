@@ -1,33 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Test } from '@nestjs/testing';
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
+import configSetup from '#testlib/utils.config-tests';
 
-const setupConfigService = async (envObj: any): Promise<IContentPublishingApiConfig> => {
-  jest.resetModules();
-  Object.keys(process.env).forEach((key) => {
-    delete process.env[key];
-  });
-  process.env = {
-    ...envObj,
-  };
-  const moduleRef = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        ignoreEnvFile: true,
-        load: [apiConfig],
-      }),
-    ],
-    controllers: [],
-    providers: [ConfigService],
-  }).compile();
-
-  await ConfigModule.envVariablesLoaded;
-
-  const config = moduleRef.get<IContentPublishingApiConfig>(apiConfig.KEY);
-  return config;
-};
+const { setupConfigService, validateMissing, shouldFailBadValues } =
+  configSetup<IContentPublishingApiConfig>(apiConfig);
 
 describe('Content Publishing API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -44,25 +21,15 @@ describe('Content Publishing API Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('invalid api port should fail', async () => {
-      const { API_PORT: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ API_PORT: -1, ...env })).rejects.toBeDefined();
-    });
+    it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
 
-    // it('invalid api timeout limit should fail', async () => {
-    //   const { API_TIMEOUT_MS: dummy, ...env } = ALL_ENV;
-    //   await expect(setupConfigService({ API_TIMEOUT_MS: 0, ...env })).rejects.toBeDefined();
-    // });
+    it.todo('invalid api timeout limit should fail');
+    it.todo('invalid json body size limit should fail');
 
-    it('missing file upload limit should fail', async () => {
-      const { FILE_UPLOAD_MAX_SIZE_IN_BYTES: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService(env)).rejects.toBeDefined();
-    });
+    it('missing file upload limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES'));
 
-    it('invalid file upload limit should fail', async () => {
-      const { FILE_UPLOAD_MAX_SIZE_IN_BYTES: dummy, ...env } = ALL_ENV;
-      await expect(setupConfigService({ FILE_UPLOAD_MAX_SIZE_IN_BYTES: -1, ...env })).rejects.toBeDefined();
-    });
+    it('invalid file upload limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES', [-1]));
   });
 
   describe('valid environment', () => {

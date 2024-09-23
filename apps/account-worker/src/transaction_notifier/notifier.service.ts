@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
@@ -14,10 +14,10 @@ import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { ConfigService } from '#account-lib/config/config.service';
 import { ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
 import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 
 @Injectable()
 export class TxnNotifierService
@@ -34,7 +34,7 @@ export class TxnNotifierService
     }
     this.schedulerRegistry.addInterval(
       this.intervalName,
-      setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
+      setInterval(() => this.scan(), this.config.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
     );
   }
 
@@ -48,11 +48,11 @@ export class TxnNotifierService
     blockchainService: BlockchainService,
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
-    private readonly configService: ConfigService,
+    @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
-    this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
+    this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
     );
@@ -170,6 +170,7 @@ export class TxnNotifierService
                   accountId: siwfTxnValues.address,
                   handle: siwfTxnValues.handle,
                 });
+                webhookResponse = response;
 
                 this.logger.log(
                   `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
@@ -207,7 +208,7 @@ export class TxnNotifierService
           }
 
           let retries = 0;
-          while (retries < this.configService.healthCheckMaxRetries) {
+          while (retries < this.config.healthCheckMaxRetries) {
             try {
               this.logger.debug(`Sending transaction notification to webhook: ${webhook}`);
               this.logger.debug(`Transaction: ${JSON.stringify(webhookResponse)}`);
@@ -257,6 +258,6 @@ export class TxnNotifierService
   }
 
   async getWebhook(): Promise<string> {
-    return this.configService.webhookBaseUrl.toString();
+    return this.config.webhookBaseUrl.toString();
   }
 }

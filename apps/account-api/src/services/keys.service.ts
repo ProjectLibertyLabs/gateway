@@ -1,7 +1,6 @@
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
-import { ConflictException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import { ConfigService } from '#account-lib/config';
+import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
@@ -11,6 +10,7 @@ import {
 } from '#types/dtos/account/graphs.request.dto';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 
 @Injectable()
 export class KeysService {
@@ -19,12 +19,12 @@ export class KeysService {
   private readonly graphKeySchemaId: number;
 
   constructor(
-    private configService: ConfigService,
+    @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
     private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
-    const environmentType = this.configService.graphEnvironmentType;
-    const environment: EnvironmentInterface = { environmentType: EnvironmentType[environmentType] };
+    const { graphEnvironmentType } = this.apiConf;
+    const environment: EnvironmentInterface = { environmentType: EnvironmentType[graphEnvironmentType] };
     const graphState = new Graph(environment);
     // there might be a better way to get this schema id but for now we are stuck to get it from graph-sdk
     this.graphKeySchemaId = graphState.getGraphConfig(environment).graphPublicKeySchemaId;

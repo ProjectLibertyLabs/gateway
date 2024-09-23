@@ -25,6 +25,7 @@
     "^#graph-api(|/.*)$": "<rootDir>/apps/graph-api/src/$1",
     "^#graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1",
     "^#types(|/.*)$": "<rootDir>/libs/types/src/$1",
+    "^#config(|/.*)$": "<rootDir>/libs/config/src/$1",
     "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
   }
 }

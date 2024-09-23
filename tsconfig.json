@@ -40,7 +40,9 @@
       "#types": ["libs/types/src"],
       "#types/*": ["libs/types/src/*"],
       "#utils": ["libs/utils/src"],
-      "#utils/*": ["libs/utils/src/*"]
+      "#utils/*": ["libs/utils/src/*"],
+      "#config": ["libs/config/src"],
+      "#config/*": ["libs/config/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

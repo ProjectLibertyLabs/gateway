@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
+import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
@@ -16,7 +16,6 @@ import {
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
 import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
-import { ConfigService } from '#account-lib/config/config.service';
 import { HexString } from '@polkadot/util/types';
 import {
   Delegation,
@@ -35,6 +34,7 @@ import { decodeAddress } from '@polkadot/util-crypto';
 import { Extrinsic } from './extrinsic';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 import { TransactionType } from '#types/account-webhook';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -77,8 +77,6 @@ export interface ICapacityInfo {
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
 
-  private configService: ConfigService;
-
   private logger: Logger;
 
   private readyResolve: (boolean) => void;
@@ -91,15 +89,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   });
 
   public async onApplicationBootstrap() {
-    const providerUrl = this.configService.frequencyUrl!;
+    const providerUrl = this.config.frequencyUrl.toString();
     let provider: WsProvider | HttpProvider;
     try {
-      if (/^ws/.test(providerUrl.toString())) {
-        provider = new WsProvider(providerUrl.toString());
-      } else if (/^http/.test(providerUrl.toString())) {
-        provider = new HttpProvider(providerUrl.toString());
+      if (/^ws/.test(providerUrl)) {
+        provider = new WsProvider(providerUrl);
+      } else if (/^http/.test(providerUrl)) {
+        provider = new HttpProvider(providerUrl);
       } else {
-        this.logger.error(`Unrecognized chain URL type: ${providerUrl.toString()}`);
+        this.logger.error(`Unrecognized chain URL type: ${providerUrl}`);
         throw new Error('Unrecognized chain URL type');
       }
       this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
@@ -129,8 +127,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await Promise.all(promises);
   }
 
-  constructor(configService: ConfigService) {
-    this.configService = configService;
+  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -208,8 +205,8 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return newApi.query[pallet][extrinsic](...args);
   }
 
-  public async getNonce(account: Uint8Array): Promise<number> {
-    return this.rpc('system', 'accountNextIndex', account);
+  public async getNonce(account: string | Uint8Array): Promise<number> {
+    return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
 
   public async getSchema(schemaId: number): Promise<PalletSchemasSchemaInfo> {
@@ -411,7 +408,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return response.isEmpty ? null : chainDelegationToNative(providerId, response.unwrap());
   }
 
-  public async getDelegationsForMsa(msaId: AnyNumber, providerId?: AnyNumber): Promise<Delegation[]> {
+  public async getDelegationsForMsa(msaId: AnyNumber): Promise<Delegation[]> {
     const response = (await this.api.query.msa.delegatorAndProviderToDelegation.entries(msaId))
       .filter(([_, entry]) => entry.isSome)
       .map(([key, value]) => chainDelegationToNative(key.args[1], value.unwrap()));
@@ -513,7 +510,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       siwfTxnValues.address = keyInfo?.msa_keys[0].toString();
     }
     if (siwfTxnValues.newProvider === '') {
-      siwfTxnValues.newProvider = this.configService.providerId;
+      siwfTxnValues.newProvider = this.config.providerId.toString();
     }
 
     return siwfTxnValues;
@@ -578,12 +575,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async validateProviderSeedPhrase() {
-    const { providerPublicKeyAddress, providerId } = this.configService;
-    if (providerPublicKeyAddress) {
-      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+    const { providerSeedPhrase, providerId } = this.config;
+    if (providerSeedPhrase) {
+      const address = await addressFromSeedPhrase(providerSeedPhrase);
+      const resolvedProviderId = await this.publicKeyToMsaId(address);
 
-      if (resolvedProviderId !== providerId) {
+      if (resolvedProviderId !== providerId.toString()) {
         throw new Error('Provided account secret does not match configured Provider ID');
+      }
+
+      const providerInfo = await this.getProviderToRegistryEntry(providerId);
+      if (!providerInfo) {
+        throw new Error(`MSA ID ${providerId.toString()} is not a registered provider`);
       }
     }
   }

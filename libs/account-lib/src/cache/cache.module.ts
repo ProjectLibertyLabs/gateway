@@ -1,4 +1,4 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, ForwardReference, Global, Module, Type } from '@nestjs/common';
 import { RedisClientOptions, RedisModule } from '@songkeys/nestjs-redis';
 import { CacheMonitorService } from './cache-monitor.service';
 
@@ -6,6 +6,7 @@ import { CacheMonitorService } from './cache-monitor.service';
 @Module({})
 export class CacheModule {
   static forRootAsync(options: {
+    imports?: (DynamicModule | Type<any> | Promise<DynamicModule> | ForwardReference<any>)[];
     useFactory: (
       ...args: any[]
     ) => Promise<RedisClientOptions | RedisClientOptions[]> | RedisClientOptions | RedisClientOptions[];
@@ -17,7 +18,7 @@ export class CacheModule {
       imports: [
         RedisModule.forRootAsync(
           {
-            imports: [CacheModule],
+            imports: [CacheModule, ...options.imports],
             inject: [CacheMonitorService, ...(options.inject || [])],
             useFactory: async (cacheMonitor: CacheMonitorService, ...args: unknown[]) => {
               const clientOptions = await options.useFactory(...args);

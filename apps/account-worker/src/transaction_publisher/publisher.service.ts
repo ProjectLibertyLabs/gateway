@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -15,7 +15,6 @@ import { AccountQueues as QueueConstants } from '#types/constants/queue.constant
 import { BaseConsumer } from '#account-worker/BaseConsumer';
 import { RedisUtils } from '#account-lib';
 import { TransactionData } from '#types/dtos/account';
-import { ConfigService } from '#account-lib/config/config.service';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import {
@@ -26,6 +25,7 @@ import {
 import { OnEvent } from '@nestjs/event-emitter';
 import { getSignerForRawSignature } from '#account-lib/utils/utility';
 import { TransactionType } from '#types/account-webhook';
+import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -52,7 +52,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
     private blockchainService: BlockchainService,
     private nonceService: NonceService,
     private schedulerRegistry: SchedulerRegistry,
@@ -76,7 +76,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
       const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const providerKeys = createKeys(this.configService.providerAccountSeedPhrase!);
+      const providerKeys = createKeys(this.config.providerSeedPhrase);
       let tx: SubmittableExtrinsic<'promise'>;
       let targetEvent: ITxStatus['successEvent'];
       switch (job.data.type) {

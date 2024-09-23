@@ -1,18 +1,65 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, jest, expect } from '@jest/globals';
-import { ApiPromise, Keyring } from '@polkadot/api';
-import { ConfigModule } from '@nestjs/config';
+import { ApiPromise } from '@polkadot/api';
 import { Test } from '@nestjs/testing';
 import { BlockchainService } from './blockchain.service';
-import { ConfigService } from '../config/config.service';
+import blockchainConfig from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { u8aToHex } from '@polkadot/util';
-import { ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
+import { CommonPrimitivesMsaProviderRegistryEntry } from '@polkadot/types/lookup';
+
+class MockBlockchainConfig {
+  public get frequencyUrl() {
+    return process.env.FREQUENCY_URL;
+  }
+
+  public get isDeployedReadOnly() {
+    return false;
+  }
+
+  public get providerId() {
+    return process.env.PROVIDER_ID;
+  }
+
+  public get providerSeedPhrase() {
+    return process.env.PROVIDER_ACCOUNT_SEED_PHRASE;
+  }
+
+  public get capacityLimit() {
+    return { serviceLimit: { type: 'percentage', value: 80n } };
+  }
+}
 
 describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
-  let configService: ConfigService;
+  let mockBlockchainConfig: MockBlockchainConfig;
+
+  // const mockBlockchainConfig = {
+  //   frequencyUrl: jest.fn(() => new URL(process.env.FREQUENCY_URL)),
+  //   isDeployedReadOnly: jest.fn(() => false),
+  //   providerId: jest.fn(() => 1n),
+  //   providerSeedPhrase: jest.fn(() => '//Alice'),
+  //   capacityLimit: jest.fn(() => ({ serviceLimit: { type: 'percentage', value: 80n } })),
+  // };
+
+  // Object.defineProperties(mockBlockchainConfig, {
+  //   frequencyUrl: {
+  //     get: mockBlockchainConfig.frequencyUrl,
+  //   },
+  //   isDeployedReadOnly: {
+  //     get: mockBlockchainConfig.isDeployedReadOnly,
+  //   },
+  //   providerId: {
+  //     get: mockBlockchainConfig.providerId,
+  //   },
+  //   providerSeedPhrase: {
+  //     get: mockBlockchainConfig.providerSeedPhrase,
+  //   },
+  //   capacityLimit: {
+  //     get: mockBlockchainConfig.capacityLimit,
+  //   },
+  // });
 
   beforeAll(async () => {
     mockApi = {
@@ -24,44 +71,28 @@ describe('BlockchainService', () => {
       },
     } as unknown as ApiPromise;
 
-    process.env = {
-      REDIS_URL: undefined,
-      FREQUENCY_URL: undefined,
-      FREQUENCY_HTTP_URL: undefined,
-      API_PORT: undefined,
-      BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
-      TRUST_UNFINALIZED_BLOCKS: undefined,
-      PROVIDER_ACCOUNT_SEED_PHRASE: '//Alice',
-      PROVIDER_ID: '1',
-      SIWF_URL: undefined,
-      SIWF_DOMAIN: undefined,
-      WEBHOOK_BASE_URL: undefined,
-      PROVIDER_ACCESS_TOKEN: undefined,
-      WEBHOOK_FAILURE_THRESHOLD: undefined,
-      HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,
-      WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
-      HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
-      HEALTH_CHECK_MAX_RETRIES: undefined,
-      CAPACITY_LIMIT: undefined,
-      CACHE_KEY_PREFIX: undefined,
-    };
-
     const moduleRef = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          ignoreEnvFile: true,
-          load: [() => process.env],
-        }),
+        // ConfigModule.forRoot({
+        //   ignoreEnvFile: true,
+        //   load: [blockchainConfig],
+        // }),
       ],
       controllers: [],
-      providers: [ConfigService, BlockchainService],
+      providers: [
+        {
+          provide: blockchainConfig.KEY,
+          useClass: MockBlockchainConfig,
+        },
+        BlockchainService,
+      ],
     }).compile();
 
-    await ConfigModule.envVariablesLoaded;
-
-    configService = moduleRef.get<ConfigService>(ConfigService);
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     blockchainService.api = mockApi;
+    mockBlockchainConfig = moduleRef.get(blockchainConfig.KEY);
+
+    await cryptoWaitReady();
   });
 
   describe('getCurrentCapacityEpochStart', () => {
@@ -82,8 +113,10 @@ describe('BlockchainService', () => {
 
   describe('validateProviderSeedPhrase', () => {
     beforeAll(() => {
-      jest.spyOn(configService, 'providerPublicKeyAddress', 'get').mockReturnValue('<public address>');
       jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValue('1');
+      jest
+        .spyOn(blockchainService, 'getProviderToRegistryEntry')
+        .mockResolvedValue({} as CommonPrimitivesMsaProviderRegistryEntry);
     });
 
     afterAll(() => {
@@ -95,12 +128,22 @@ describe('BlockchainService', () => {
     });
 
     it('should not throw if no seed phrase configured (read-only mode)', async () => {
-      jest.spyOn(configService, 'providerPublicKeyAddress', 'get').mockReturnValueOnce('');
+      jest.spyOn(mockBlockchainConfig, 'providerSeedPhrase', 'get').mockReturnValueOnce(undefined);
       await expect(blockchainService.validateProviderSeedPhrase()).resolves.not.toThrow();
     });
 
-    it('should throw if seed phrase is incorrect for provider', async () => {
+    it('should throw if seed phrase if for a different provider', async () => {
+      jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('2');
+      await expect(blockchainService.validateProviderSeedPhrase()).rejects.toThrow();
+    });
+
+    it('should throw if seed phrase does not map to an MSA', async () => {
       jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
+      await expect(blockchainService.validateProviderSeedPhrase()).rejects.toThrow();
+    });
+
+    it('should throw if provided ID and seed phrase do not map to a registered provider', async () => {
+      jest.spyOn(blockchainService, 'getProviderToRegistryEntry').mockResolvedValueOnce(null);
       await expect(blockchainService.validateProviderSeedPhrase()).rejects.toThrow();
     });
   });

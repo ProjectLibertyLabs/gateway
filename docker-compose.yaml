@@ -44,6 +44,8 @@ x-account-service-env: &account-service-env
   TRUST_UNFINALIZED_BLOCKS: true
   WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
+  CACHE_KEY_PREFIX: 'account:'
+  DEBUG: true
 
 services:
   redis:

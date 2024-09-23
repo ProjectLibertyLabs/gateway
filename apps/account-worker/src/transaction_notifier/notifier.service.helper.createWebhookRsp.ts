@@ -88,7 +88,7 @@ export function createWebhookRsp(
   }
 
   if (transactionType === TransactionType.SIWF_SIGNUP && isSiwfOpts(options)) {
-    return response as SIWFWebhookRsp;
+    return { ...response, ...options } as SIWFWebhookRsp;
   }
 
   throw new Error(`Invalid transaction type ${transactionType} for webhook response`);

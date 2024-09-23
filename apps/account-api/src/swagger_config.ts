@@ -1,4 +1,4 @@
-import metadata from '#account-api/metadata';
+import metadata from './metadata';
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';

@@ -37,7 +37,7 @@ describe('IPFS config', () => {
     });
 
     it('should get IPFS endpoint', async () => {
-      expect(ipfsConf.ipfsEndpoint).toStrictEqual(new URL(ALL_ENV.IPFS_ENDPOINT));
+      expect(new URL(ipfsConf.ipfsEndpoint)).toStrictEqual(new URL(ALL_ENV.IPFS_ENDPOINT));
     });
 
     it('should get IPFS gateway', async () => {

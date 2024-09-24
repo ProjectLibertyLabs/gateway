@@ -13,7 +13,7 @@ import cacheConfig, { ICacheConfig } from '#content-publishing-lib/cache/cache.c
       useFactory: (cacheConf: ICacheConfig, eventEmitter: EventEmitter2) => {
         // Default map only has 'default' entry; add 'bull' entry
         redisReadyMap.set('bull', false);
-        const connection = new Redis(cacheConf.redisUrl.toString(), { maxRetriesPerRequest: null });
+        const connection = new Redis(cacheConf.redisUrl, { maxRetriesPerRequest: null });
         redisEventsToEventEmitter(connection, eventEmitter, 'bull');
         return {
           connection,

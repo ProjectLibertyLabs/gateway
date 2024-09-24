@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface IIpfsConfig {
-  ipfsEndpoint: URL;
+  ipfsEndpoint: string;
   ipfsGatewayUrl: string;
   ipfsBasicAuthUser: string;
   ipfsBasicAuthSecret: string;
@@ -20,10 +20,7 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
   const configs: JoiUtils.JoiConfig<IIpfsConfig> = {
     ipfsEndpoint: {
       value: process.env.IPFS_ENDPOINT,
-      joi: Joi.string()
-        .uri()
-        .required()
-        .custom((v) => new URL(v)),
+      joi: Joi.string().uri().required(),
     },
     ipfsGatewayUrl: {
       value: process.env.IPFS_GATEWAY_URL,

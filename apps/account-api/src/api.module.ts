@@ -51,7 +51,7 @@ import apiConfig from './api.config';
       imports: [ConfigModule],
       useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: cacheConf.redisUrl.toString(),
+          url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
           maxRetriesPerRequest: null,
         },

@@ -34,6 +34,7 @@ x-content-watcher-env: &content-watcher-env
   STARTING_BLOCK: 759882
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 6
   WEBHOOK_FAILURE_THRESHOLD: 4
+  CACHE_KEY_PREFIX: 'content-watcher:'
 
 x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10

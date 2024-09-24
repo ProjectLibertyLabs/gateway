@@ -36,7 +36,7 @@ describe('Cache module config', () => {
     });
 
     it('should get redis url', () => {
-      expect(cacheConf.redisUrl).toStrictEqual(ALL_ENV.REDIS_URL);
+      expect(cacheConf.redisUrl).toStrictEqual(new URL(ALL_ENV.REDIS_URL).toString());
     });
 
     it('should get cache key prefix', () => {

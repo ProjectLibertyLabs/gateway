@@ -1,14 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
 import '@frequency-chain/api-augment';
-import { Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
-import { AppConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
@@ -16,6 +15,7 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
+import scannerConfig, { IScannerConfig } from './scanner.config';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 
@@ -30,7 +30,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   private scanResetBlockNumber: number | undefined;
 
   constructor(
-    private readonly configService: AppConfigService,
+    @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
     private readonly blockchainService: BlockchainService,
     @InjectRedis() private readonly cache: Redis,
     @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
@@ -43,7 +43,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   async onApplicationBootstrap() {
     setImmediate(() => this.scan());
 
-    const scanInterval = this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND;
+    const scanInterval = this.config.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND;
     this.schedulerRegistry.addInterval(
       INTERVAL_SCAN_NAME,
       setInterval(() => this.scan(), scanInterval),
@@ -106,7 +106,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         }
 
         const queueSize = await this.ipfsQueue.count();
-        if (queueSize > this.configService.queueHighWater) {
+        if (queueSize > this.config.queueHighWater) {
           this.logger.log('Queue soft limit reached; pausing scan until next interval');
           break;
         }

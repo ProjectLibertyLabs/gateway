@@ -13,11 +13,12 @@ process.env.REDIS_URL = dummyUrl;
 process.env.FREQUENCY_URL = dummyUrl;
 process.env.IPFS_ENDPOINT = dummyUrl;
 process.env.IPFS_GATEWAY_URL = dummyUrl;
+process.env.CACHE_KEY_PREFIX = 'content-watcher:';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
-import { apiFile, generateSwaggerDoc } from '#content-watcher-lib/config/swagger_config';
+import { apiFile, generateSwaggerDoc } from './swagger_config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {

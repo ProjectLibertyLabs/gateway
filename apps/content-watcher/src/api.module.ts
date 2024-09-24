@@ -11,15 +11,24 @@ import { CrawlerModule } from '#content-watcher-lib/crawler/crawler.module';
 import { IPFSProcessorModule } from '#content-watcher-lib/ipfs/ipfs.module';
 import { PubSubModule } from '#content-watcher-lib/pubsub/pubsub.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
-import { AppConfigModule } from '#content-watcher-lib/config/config.module';
-import { AppConfigService } from '#content-watcher-lib/config/config.service';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { QueueModule } from '#content-watcher-lib/queues/queue.module';
 import { CacheModule } from '#content-watcher-lib/cache/cache.module';
+import cacheConfig, { ICacheConfig } from '#content-watcher-lib/cache/cache.config';
+import { ConfigModule } from '@nestjs/config';
+import apiConfig from './api.config';
+import blockchainConfig from '#content-watcher-lib/blockchain/blockchain.config';
+import queueConfig from '#content-watcher-lib/queues/queue.config';
+import ipfsConfig from '#content-watcher-lib/ipfs/ipfs.config';
+import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
+import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
 
 @Module({
   imports: [
-    AppConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [apiConfig, blockchainConfig, cacheConfig, queueConfig, ipfsConfig, scannerConfig, pubsubConfig],
+    }),
     ScheduleModule.forRoot(),
     BlockchainModule,
     ScannerModule,
@@ -27,10 +36,8 @@ import { CacheModule } from '#content-watcher-lib/cache/cache.module';
     IPFSProcessorModule,
     PubSubModule,
     CacheModule.forRootAsync({
-      useFactory: (configService: AppConfigService) => [
-        { url: configService.redisUrl.toString(), keyPrefix: configService.cacheKeyPrefix },
-      ],
-      inject: [AppConfigService],
+      useFactory: (conf: ICacheConfig) => [{ url: conf.redisUrl, keyPrefix: conf.cacheKeyPrefix }],
+      inject: [cacheConfig.KEY],
     }),
     QueueModule,
 

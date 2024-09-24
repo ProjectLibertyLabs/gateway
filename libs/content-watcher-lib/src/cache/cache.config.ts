@@ -3,7 +3,7 @@ import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface ICacheConfig {
-  redisUrl: URL;
+  redisUrl: string;
   cacheKeyPrefix: string;
 }
 
@@ -11,10 +11,7 @@ export default registerAs('cache', (): ICacheConfig => {
   const configs: JoiUtils.JoiConfig<ICacheConfig> = {
     redisUrl: {
       value: process.env.REDIS_URL,
-      joi: Joi.string()
-        .uri()
-        .required()
-        .custom((v) => new URL(v)),
+      joi: Joi.string().uri().required(),
     },
     cacheKeyPrefix: {
       value: process.env.CACHE_KEY_PREFIX,

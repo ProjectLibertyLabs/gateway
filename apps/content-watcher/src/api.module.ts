@@ -36,7 +36,7 @@ import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
     IPFSProcessorModule,
     PubSubModule,
     CacheModule.forRootAsync({
-      useFactory: (conf: ICacheConfig) => [{ url: conf.redisUrl.toString(), keyPrefix: conf.cacheKeyPrefix }],
+      useFactory: (conf: ICacheConfig) => [{ url: conf.redisUrl, keyPrefix: conf.cacheKeyPrefix }],
       inject: [cacheConfig.KEY],
     }),
     QueueModule,

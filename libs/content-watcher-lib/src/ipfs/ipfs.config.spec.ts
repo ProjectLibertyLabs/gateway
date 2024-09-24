@@ -37,7 +37,7 @@ describe('IPFS config', () => {
     });
 
     it('should get IPFS endpoint', async () => {
-      expect(ipfsConf.ipfsEndpoint).toStrictEqual(new URL(ALL_ENV.IPFS_ENDPOINT));
+      expect(ipfsConf.ipfsEndpoint).toStrictEqual(ALL_ENV.IPFS_ENDPOINT);
     });
 
     it('should get IPFS gateway', async () => {
@@ -45,11 +45,11 @@ describe('IPFS config', () => {
     });
 
     it('should get IPFS user', async () => {
-      expect(ipfsConf.ipfsBasicAuthUser || undefined).toStrictEqual(ALL_ENV.IPFS_BASIC_AUTH_USER);
+      expect(ipfsConf.ipfsBasicAuthUser).toStrictEqual(ALL_ENV.IPFS_BASIC_AUTH_USER || undefined);
     });
 
     it('should get IPFS auth secret', async () => {
-      expect(ipfsConf.ipfsBasicAuthSecret || undefined).toStrictEqual(ALL_ENV.IPFS_BASIC_AUTH_SECRET);
+      expect(ipfsConf.ipfsBasicAuthSecret).toStrictEqual(ALL_ENV.IPFS_BASIC_AUTH_SECRET || undefined);
     });
   });
 });

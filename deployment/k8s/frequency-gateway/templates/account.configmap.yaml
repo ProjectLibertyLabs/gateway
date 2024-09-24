@@ -3,6 +3,24 @@ kind: ConfigMap
 metadata:
   name: account-configmap
 data:
-{{- range $key, $value := .Values.account.env }}
-  {{ $key }}: "{{ $value }}"
-{{- end }}
+  API_PORT: {{ .Values.account.env.API_PORT | quote }}
+  PROVIDER_ID: {{ .Values.account.env.PROVIDER_ID | quote }}
+  FREQUENCY_URL: {{ .Values.account.env.FREQUENCY_URL | quote }}
+  FREQUENCY_HTTP_URL: {{ .Values.account.env.FREQUENCY_HTTP_URL | quote }}
+  WEBHOOK_BASE_URL: {{ .Values.account.env.WEBHOOK_BASE_URL | quote }}
+  REDIS_URL: {{ .Values.account.env.REDIS_URL | quote }}
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: {{ .Values.account.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS | quote }}
+  TRUST_UNFINALIZED_BLOCKS: {{ .Values.account.env.TRUST_UNFINALIZED_BLOCKS | quote }}
+  WEBHOOK_FAILURE_THRESHOLD: {{ .Values.account.env.WEBHOOK_FAILURE_THRESHOLD | quote }}
+  WEBHOOK_RETRY_INTERVAL_SECONDS: {{ .Values.account.env.WEBHOOK_RETRY_INTERVAL_SECONDS | quote }}
+  HEALTH_CHECK_MAX_RETRIES: {{ .Values.account.env.HEALTH_CHECK_MAX_RETRIES | quote }}
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: {{ .Values.account.env.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS | quote }}
+  HEALTH_CHECK_SUCCESS_THRESHOLD: {{ .Values.account.env.HEALTH_CHECK_SUCCESS_THRESHOLD | quote }}
+  CAPACITY_LIMIT: {{ .Values.account.env.CAPACITY_LIMIT | quote }}
+  SIWF_URL: {{ .Values.account.env.SIWF_URL | quote }}
+  SIWF_DOMAIN: {{ .Values.account.env.SIWF_DOMAIN | quote }}
+  DEBUG: {{ .Values.account.env.DEBUG | quote }}
+  CACHE_KEY_PREFIX: {{ .Values.account.env.CACHE_KEY_PREFIX | quote }}
+  GRAPH_ENVIRONMENT_TYPE: {{ .Values.account.env.GRAPH_ENVIRONMENT_TYPE | quote }}
+  API_TIMEOUT_MS: {{ .Values.account.env.API_TIMEOUT_MS | quote }}
+  API_BODY_JSON_LIMIT: {{ .Values.account.env.API_BODY_JSON_LIMIT | quote }}

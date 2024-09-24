@@ -61,10 +61,10 @@ service:
     targetPort: http-account
   contentPublishing:
     port: 8081
-    targetPort: http-content-publishing
+    targetPort: http-publishing
   contentWatcher:
     port: 8082
-    targetPort: http-content-watcher
+    targetPort: http-watcher
   graph:
     port: 8083
     targetPort: http-graph

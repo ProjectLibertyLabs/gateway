@@ -3,6 +3,18 @@ kind: ConfigMap
 metadata:
   name: content-publishing-configmap
 data:
-{{- range $key, $value := .Values.contentPublishing.env }}
-  {{ $key }}: "{{ $value }}"
-{{- end }}
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: {{ .Values.contentPublishing.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS | quote }}
+  TRUST_UNFINALIZED_BLOCKS: {{ .Values.contentPublishing.env.TRUST_UNFINALIZED_BLOCKS | quote }}
+  IPFS_ENDPOINT: {{ .Values.contentPublishing.env.IPFS_ENDPOINT | quote }}
+  IPFS_GATEWAY_URL: {{ .Values.contentPublishing.env.IPFS_GATEWAY_URL | quote }}
+  FREQUENCY_URL: {{ .Values.contentPublishing.env.FREQUENCY_URL | quote }}
+  PROVIDER_ID: {{ .Values.contentPublishing.env.PROVIDER_ID | quote }}
+  REDIS_URL: {{ .Values.contentPublishing.env.REDIS_URL | quote }}
+  CAPACITY_LIMIT: {{ .Values.contentPublishing.env.CAPACITY_LIMIT | quote }}
+  API_PORT: {{ .Values.contentPublishing.env.API_PORT | quote }}
+  FILE_UPLOAD_MAX_SIZE_IN_BYTES: {{ .Values.contentPublishing.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES | quote }}
+  ASSET_EXPIRATION_INTERVAL_SECONDS: {{ .Values.contentPublishing.env.ASSET_EXPIRATION_INTERVAL_SECONDS | quote }}
+  BATCH_INTERVAL_SECONDS: {{ .Values.contentPublishing.env.BATCH_INTERVAL_SECONDS | quote }}
+  BATCH_MAX_COUNT: {{ .Values.contentPublishing.env.BATCH_MAX_COUNT | quote }}
+  ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: {{ .Values.contentPublishing.env.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS | quote }}
+  CACHE_KEY_PREFIX: {{ .Values.contentPublishing.env.CACHE_KEY_PREFIX | quote }}

@@ -6,7 +6,7 @@ export interface IContentWatcherApiConfig {
   apiPort: number;
 }
 
-export default registerAs('scanner', (): IContentWatcherApiConfig => {
+export default registerAs('api', (): IContentWatcherApiConfig => {
   const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = {
     apiPort: {
       value: process.env.API_PORT,

@@ -29,8 +29,13 @@ describe('Content Publishing API Config', () => {
 
     it('missing file upload limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES'));
 
+    it('missing file upload count limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT'));
+
     it('invalid file upload limit should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES', [-1]));
+
+    it('invalid file upload count limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT', [-1]));
   });
 
   describe('valid environment', () => {

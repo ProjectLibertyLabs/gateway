@@ -18,3 +18,5 @@ This application recognizes the following environment variables:
 | `STARTING_BLOCK`                   | Block number from which the service will start scanning the chain                                               |          > 0           |           |        1         |
 | `WEBHOOK_FAILURE_THRESHOLD`        | Number of failures allowed in the provider webhook before the service is marked down                            |          > 0           |           |        3         |
 | `WEBHOOK_RETRY_INTERVAL_SECONDS`   | Number of seconds between provider webhook retry attempts when failing                                          |          > 0           |           |        10        |
+| `API_TIMEOUT_MS`                   | Api timeout limit in milliseconds                                                                               |          > 0           |           |       5000       |
+| `API_BODY_JSON_LIMIT`              | Api json body size limit in string (some examples: 100kb or 5mb or etc)                                         |         string         |           |       1mb        |

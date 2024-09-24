@@ -4,6 +4,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import { initSwagger } from './swagger_config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 const logger = new Logger('main');
 
@@ -26,8 +28,9 @@ function startShutdownTimer() {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiModule, {
+  const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    rawBody: true,
   });
   const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
 
@@ -42,7 +45,14 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
     await initSwagger(app, '/docs/swagger');
     logger.log(`Listening on port ${config.apiPort}`);
     await app.listen(config.apiPort);

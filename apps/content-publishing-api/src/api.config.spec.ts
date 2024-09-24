@@ -12,6 +12,7 @@ describe('Content Publishing API Config', () => {
     API_PORT: undefined,
     // API_TIMEOUT_MS: undefined,
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: undefined,
+    FILE_UPLOAD_COUNT_LIMIT: undefined,
   };
 
   beforeAll(() => {
@@ -28,8 +29,13 @@ describe('Content Publishing API Config', () => {
 
     it('missing file upload limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES'));
 
+    it('missing file upload count limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT'));
+
     it('invalid file upload limit should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES', [-1]));
+
+    it('invalid file upload count limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT', [-1]));
   });
 
   describe('valid environment', () => {
@@ -49,6 +55,12 @@ describe('Content Publishing API Config', () => {
     it('should get file upload limit', () => {
       expect(contentPublishingServiceConfig.fileUploadMaxSizeBytes).toStrictEqual(
         parseInt(ALL_ENV.FILE_UPLOAD_MAX_SIZE_IN_BYTES as string, 10),
+      );
+    });
+
+    it('should get file upload count limit', () => {
+      expect(contentPublishingServiceConfig.fileUploadCountLimit).toStrictEqual(
+        parseInt(ALL_ENV.FILE_UPLOAD_COUNT_LIMIT as string, 10),
       );
     });
 

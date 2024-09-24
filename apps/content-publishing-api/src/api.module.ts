@@ -108,6 +108,7 @@ import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
       useFactory: async (apiConf: IContentPublishingApiConfig) => ({
         limits: {
           fileSize: apiConf.fileUploadMaxSizeBytes,
+          files: apiConf.fileUploadCountLimit,
         },
       }),
       inject: [apiConfig.KEY],

@@ -1,13 +1,12 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#graph-lib/blockchain/blockchain.service';
 import { BlockchainScannerService } from '#graph-lib/utils/blockchain-scanner.service';
-import { ConfigService } from '#graph-lib/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord, PalletSchemasSchemaVersionId } from '@polkadot/types/lookup';
@@ -20,6 +19,9 @@ import * as GraphServiceWebhook from '#graph-lib/types/webhook-types';
 import axios from 'axios';
 import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
+import scannerConfig, { IScannerConfig } from './scanner.config';
+import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
@@ -63,7 +65,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     }
     this.schedulerRegistry.addInterval(
       this.intervalName,
-      setInterval(() => this.scan(), this.configService.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
+      setInterval(() => this.scan(), this.config.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
     );
   }
 
@@ -84,11 +86,13 @@ export class GraphMonitorService extends BlockchainScannerService {
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private publishQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private requestQueue: Queue,
-    private readonly configService: ConfigService,
+    @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    @Inject(workerConfig.KEY) private readonly workerConf: IGraphWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
     super(cacheManager, blockchainService, new Logger(GraphMonitorService.prototype.constructor.name));
-    this.scanParameters = { onlyFinalized: this.configService.trustUnfinalizedBlocks };
+    this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
     );
@@ -97,7 +101,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       (block, event) => this.monitorAllGraphUpdates(block, event),
     );
 
-    if (this.configService.reconnectionServiceRequired) {
+    if (this.config.reconnectionServiceRequired) {
       this.registerChainEventHandler(['msa.DelegationGranted'], (block, event) =>
         this.monitorEventsForReconnection(block, event),
       );
@@ -209,7 +213,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     const webhook = statusToReport.referenceJob.webhookUrl;
     if (webhook) {
       let retries = 0;
-      while (retries < this.configService.healthCheckMaxRetries) {
+      while (retries < this.workerConf.healthCheckMaxRetries) {
         try {
           this.logger.debug(
             `Sending graph operation status (${statusToReport.status}) notification for refId ${statusToReport.referenceId} to webhook: ${webhook}`,
@@ -274,7 +278,7 @@ export class GraphMonitorService extends BlockchainScannerService {
   private async monitorEventsForReconnection(_block: SignedBlock, { event }: FrameSystemEventRecord) {
     // Don't need this check logically, but it's a type guard to be able to access the specific event type data
     if (this.blockchainService.api.events.msa.DelegationGranted.is(event)) {
-      if (!event.data.providerId.eq(this.configService.providerId)) {
+      if (!event.data.providerId.eq(this.blockchainConf.providerId.toString())) {
         return;
       }
 
@@ -326,7 +330,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       await Promise.allSettled(
         webhookList.map(async (webhookUrl) => {
           let retries = 0;
-          while (retries < this.configService.healthCheckMaxRetries) {
+          while (retries < this.workerConf.healthCheckMaxRetries) {
             try {
               this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
               this.logger.debug(`Graph Change: ${JSON.stringify(graphUpdateNotification)}`);

@@ -10,6 +10,8 @@ import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.mo
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#graph-lib/cache/cache.module';
+import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 
 @Module({
   imports: [
@@ -34,18 +36,18 @@ import { CacheModule } from '#graph-lib/cache/cache.module';
     }),
     QueueModule,
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      useFactory: (cacheConf: ICacheConfig, blockchainConf: IBlockchainConfig) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: configService.redisUrl.toString(),
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
-      inject: [ConfigService],
+      inject: [cacheConfig.KEY, blockchainConfig.KEY],
     }),
     ScheduleModule.forRoot(),
     BlockchainModule,

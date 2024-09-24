@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Logger, OnApplicationBootstrap, BeforeApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap, BeforeApplicationShutdown, Inject } from '@nestjs/common';
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
 import { options } from '@frequency-chain/api-augment';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -8,8 +8,8 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, ISubmittableResult, RegistryError } from '@polkadot/types/types';
 import { u32, Option } from '@polkadot/types';
 import { PalletCapacityCapacityDetails, PalletCapacityEpochInfo } from '@polkadot/types/lookup';
-import { ConfigService } from '../config/config.service';
 import { Extrinsic } from './extrinsic';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 
 interface ITxMonitorResult {
   found: boolean;
@@ -45,7 +45,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
   });
 
   public async onApplicationBootstrap() {
-    const providerUrl = this.configService.frequencyUrl!;
+    const providerUrl = this.config.frequencyUrl!;
     let provider: any;
     if (/^ws/.test(providerUrl.toString())) {
       provider = new WsProvider(providerUrl.toString());
@@ -69,7 +69,7 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
     await this.api?.disconnect();
   }
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -268,11 +268,12 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
   }
 
   public async validateProviderSeedPhrase() {
-    const { providerPublicKeyAddress, providerId } = this.configService;
+    const { providerSeedPhrase, providerId } = this.config;
+    const providerPublicKeyAddress = await addressFromSeedPhrase(providerSeedPhrase);
     if (providerPublicKeyAddress) {
       const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
 
-      if (resolvedProviderId !== providerId) {
+      if (resolvedProviderId !== providerId.toString()) {
         throw new Error('Provided account secret does not match configured Provider ID');
       }
     }

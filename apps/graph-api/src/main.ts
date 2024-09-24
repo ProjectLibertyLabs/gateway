@@ -3,6 +3,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import { initSwagger } from '#graph-lib/config/swagger_config';
+import apiConfig, { IGraphApiConfig } from './api.config';
 
 const logger = new Logger('main');
 
@@ -27,6 +28,8 @@ async function bootstrap() {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
   });
 
+  const apiConf = app.get<IGraphApiConfig>(apiConfig.KEY);
+
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
@@ -40,9 +43,8 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
 
     await initSwagger(app, '/docs/swagger');
-    const port = process.env.API_PORT || 3000;
-    logger.log(`Listening on port ${port}`);
-    await app.listen(port);
+    logger.log(`Listening on port ${apiConf.apiPort}`);
+    await app.listen(apiConf.apiPort);
   } catch (e) {
     await app.close();
     logger.log('****** MAIN CATCH ********');

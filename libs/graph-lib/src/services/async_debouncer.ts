@@ -1,20 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
 import { PrivacyType } from '@dsnp/graph-sdk';
-import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
-import { ConfigService } from '../config/config.service';
 import { GraphStateManager } from './graph-state-manager';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { DEBOUNCER_CACHE_KEY } from '#types/constants';
+import graphWorker, { IGraphWorkerConfig } from '#graph-worker/worker.config';
+import { InjectRedis } from '@songkeys/nestjs-redis';
 
 @Injectable()
 export class AsyncDebouncerService {
   private readonly logger: Logger;
 
   constructor(
-    private redis: Redis,
-    private readonly configService: ConfigService,
+    @InjectRedis() private redis: Redis,
+    @Inject(graphWorker.KEY) private readonly config: IGraphWorkerConfig,
     private readonly graphStateManager: GraphStateManager,
   ) {
     this.logger = new Logger(this.constructor.name);
@@ -68,7 +68,7 @@ export class AsyncDebouncerService {
       this.logger.error(`Error getting graph edges for ${dsnpId} with privacy type ${privacyType}`, err);
       return graphEdges;
     }
-    const debounceTime = this.configService.debounceSeconds;
+    const debounceTime = this.config.debounceSeconds;
     await this.redis.setex(cacheKey, debounceTime, JSON.stringify(graphEdges));
     // Remove the graph from the graph state after the debounce time
     setTimeout(() => this.graphStateManager.removeUserGraph(dsnpId.toString()), debounceTime * 1000);

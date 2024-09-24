@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '#graph-lib/config';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#graph-lib/cache/cache.module';
+import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
 
 @Module({
   imports: [
@@ -38,13 +39,13 @@ import { CacheModule } from '#graph-lib/cache/cache.module';
     }),
     BlockchainModule,
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl,
+          keyPrefix: cacheConf.cacheKeyPrefix,
         },
       ],
-      inject: [ConfigService, EventEmitter2],
+      inject: [cacheConfig.KEY],
     }),
     QueueModule,
     // Bullboard UI

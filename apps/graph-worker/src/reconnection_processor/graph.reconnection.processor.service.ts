@@ -1,5 +1,5 @@
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MessageSourceId, ProviderId } from '@frequency-chain/api-augment/interfaces';
@@ -9,7 +9,8 @@ import { ConnectionDto, GraphKeyPairDto } from '#types/dtos/graph';
 import { IGraphUpdateJob, ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { ProviderWebhookService } from '#graph-lib/services/provider-webhook.service';
 import { BaseConsumer } from '#graph-lib/utils';
-import { ConfigService } from '#graph-lib/config';
+import graphReconnectionConfig, { IGraphReconnectionConfig } from './graph.reconnection.config';
+import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 @Injectable()
 @Processor(QueueConstants.RECONNECT_REQUEST_QUEUE)
@@ -22,7 +23,8 @@ export class GraphReconnectionService extends BaseConsumer implements OnModuleDe
   constructor(
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectRequestQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueuue: Queue,
-    private configService: ConfigService,
+    @Inject(graphReconnectionConfig.KEY) private readonly reconnectionConfig: IGraphReconnectionConfig,
+    @Inject(workerConfig.KEY) private readonly workerConf: IGraphWorkerConfig,
     private providerWebhookService: ProviderWebhookService,
     private emitter: EventEmitter2,
   ) {
@@ -69,7 +71,7 @@ export class GraphReconnectionService extends BaseConsumer implements OnModuleDe
     providerId: ProviderId | string,
   ): Promise<[ConnectionDto[], GraphKeyPairDto[]]> {
     const providerAPI = this.providerWebhookService.providerApi;
-    const { pageSize } = this.configService;
+    const { pageSize } = this.reconnectionConfig;
     const params = {
       pageNumber: 1,
       pageSize,
@@ -132,13 +134,13 @@ export class GraphReconnectionService extends BaseConsumer implements OnModuleDe
             newError = new Error(`Provider webhook error: ${error.message}`);
           }
 
-          if (webhookFailures >= this.configService.webhookFailureThreshold) {
+          if (webhookFailures >= this.workerConf.webhookFailureThreshold) {
             // eslint-disable-next-line no-await-in-loop
             await this.emitter.emitAsync('webhook.unhealthy');
           } else {
             // eslint-disable-next-line no-await-in-loop
             await new Promise((r) => {
-              setTimeout(r, this.configService.webhookRetryIntervalSeconds);
+              setTimeout(r, this.workerConf.webhookRetryIntervalSeconds);
             });
           }
         }

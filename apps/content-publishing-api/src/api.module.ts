@@ -47,7 +47,7 @@ import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: cacheConf.redisUrl.toString(),
+          url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
       ],

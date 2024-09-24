@@ -27,12 +27,12 @@ import workerConfig from './worker.config';
     CacheModule.forRootAsync({
       useFactory: (blockchainConf, cacheConf) => [
         {
-          url: cacheConf.redisUrl,
+          url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: cacheConf.redisUrl,
+          url: cacheConf.redisUrl.toString(),
           keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
@@ -51,7 +51,7 @@ import workerConfig from './worker.config';
       // set this to `true` if you want to emit the removeListener event
       removeListener: false,
       // the maximum amount of listeners that can be assigned to an event
-      maxListeners: 10,
+      maxListeners: 20,
       // show event name in memory leak message when more than maximum amount of listeners is assigned
       verboseMemoryLeak: false,
       // disable throwing uncaughtException if an error event is emitted and it has no listeners

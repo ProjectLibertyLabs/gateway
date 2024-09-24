@@ -17,7 +17,7 @@ const mockQueue = {
 const mockIpfsConfig: IIpfsConfig = {
   ipfsBasicAuthSecret: undefined,
   ipfsBasicAuthUser: undefined,
-  ipfsEndpoint: new URL('http://ipfs.io'),
+  ipfsEndpoint: 'http://ipfs.io',
   ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
 };
 

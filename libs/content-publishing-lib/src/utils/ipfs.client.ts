@@ -48,6 +48,8 @@ export class IpfsService {
       authorization: ipfsAuth,
     };
 
+    this.logger.log('Making IPFS pinning request: ', ipfsAdd, headers);
+
     const response = await axios.post(ipfsAdd, form, { headers });
 
     const { data } = response;

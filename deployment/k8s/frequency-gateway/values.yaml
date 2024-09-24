@@ -77,7 +77,7 @@ account:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
   env:
-    API_PORT: "3001"
+    API_PORT: "3002"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
     FREQUENCY_HTTP_URL: "http://0.0.0.0:9944"
     PROVIDER_ID: "1"
@@ -100,7 +100,7 @@ account:
     API_BODY_JSON_LIMIT: "1mb"
   secret:
     PROVIDER_ACCESS_TOKEN: "some-token"
-    PROVIDER_ACCOUNT_SEED_PHRASE: "'//Alice'"
+    PROVIDER_ACCOUNT_SEED_PHRASE: "'come finish flower cinnamon blame year glad tank domain hunt release fatigue'"
 
 contentPublishing:
   image:
@@ -109,7 +109,7 @@ contentPublishing:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
   env:
-    API_PORT: "3001"
+    API_PORT: "3003"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
     TRUST_UNFINALIZED_BLOCKS: "false"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
@@ -127,7 +127,7 @@ contentPublishing:
   secret:
     IPFS_BASIC_AUTH_USER: ""
     IPFS_BASIC_AUTH_SECRET: ""
-    PROVIDER_ACCOUNT_SEED_PHRASE: "'//Alice'"
+    PROVIDER_ACCOUNT_SEED_PHRASE: "'come finish flower cinnamon blame year glad tank domain hunt release fatigue'"
 
 contentWatcher:
   image:
@@ -136,7 +136,7 @@ contentWatcher:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
   env:
-    API_PORT: "3002"
+    API_PORT: "3004"
     IPFS_ENDPOINT: "http://127.0.0.1:5001"
     IPFS_GATEWAY_URL: "http://127.0.0.1:8080/ipfs/[CID]"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
@@ -157,7 +157,7 @@ graph:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
   env:
-    API_PORT: "3003"
+    API_PORT: "3005"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
     PROVIDER_ID: "1"
     REDIS_URL: "redis://0.0.0.0:6379"
@@ -176,5 +176,5 @@ graph:
     HEALTH_CHECK_MAX_RETRIES: "4"
     CACHE_KEY_PREFIX: "graph:"
   secret:
-    PROVIDER_ACCOUNT_SEED_PHRASE: "'//Ferdie'"
+    PROVIDER_ACCOUNT_SEED_PHRASE: "'come finish flower cinnamon blame year glad tank domain hunt release fatigue'"
     PROVIDER_ACCESS_TOKEN: "some-token"

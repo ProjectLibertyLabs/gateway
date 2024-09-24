@@ -8,13 +8,14 @@ import { AccountQueues as QueueConstants } from '#types/constants/queue.constant
 import { CacheModule } from '#cache/cache.module';
 import {
   AccountsControllerV1,
+  AccountsControllerV2,
   DelegationControllerV1,
   HandlesControllerV1,
   KeysControllerV1,
+  DelegationsControllerV2,
   HealthController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
-import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';

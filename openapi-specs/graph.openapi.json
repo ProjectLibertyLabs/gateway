@@ -57,7 +57,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GraphChangeRepsonseDto"
+                  "$ref": "#/components/schemas/GraphChangeResponseDto"
                 }
               }
             }
@@ -484,11 +484,12 @@
           "connections"
         ]
       },
-      "GraphChangeRepsonseDto": {
+      "GraphChangeResponseDto": {
         "type": "object",
         "properties": {
           "referenceId": {
             "type": "string",
+            "minLength": 1,
             "description": "Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved"
           }
         },

@@ -241,16 +241,15 @@ export class DsnpAnnouncementProcessor {
     const attachments: ActivityContentAttachment[] = [];
     if (assetData) {
       const promises = assetData.map(async (asset) => {
-        if (asset.references) {
+        if (asset.isLink === true) {
+          attachments.push(this.prepareLinkAttachment(asset));
+        } else if (asset.references) {
           const assetPromises = asset.references.map(async (reference) => {
             if (!assetToMimeType) {
               throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
             }
             const { attachmentType } = assetToMimeType[reference.referenceId];
             switch (attachmentType) {
-              case AttachmentType.LINK:
-                attachments.push(this.prepareLinkAttachment(asset));
-                break;
               case AttachmentType.IMAGE:
                 attachments.push(await this.prepareImageAttachment(asset, assetToMimeType));
                 break;
@@ -260,6 +259,8 @@ export class DsnpAnnouncementProcessor {
               case AttachmentType.AUDIO:
                 attachments.push(await this.prepareAudioAttachment(asset, assetToMimeType));
                 break;
+              case AttachmentType.LINK:
+                throw new Error(`Links should not get included inside references ${JSON.stringify(reference)}`);
               default:
                 throw new Error(`Unsupported attachment type ${attachmentType}`);
             }

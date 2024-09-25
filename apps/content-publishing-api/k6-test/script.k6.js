@@ -22,7 +22,7 @@ import {
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3010';
 
 export const options = {
   vus: 30,
@@ -50,9 +50,16 @@ export default function () {
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.put(url, JSON.stringify(body), params);
 
-      check(request, {
+      let passed = check(request, {
         '': (r) => r.status === 202,
       });
+
+      if (!passed) {
+        console.log(
+          `Request to ${request.request.url} with status ${request.status} failed the checks!`,
+          JSON.stringify(request),
+        );
+      }
     }
     // Request No. 2: ApiController_update with assets
     {

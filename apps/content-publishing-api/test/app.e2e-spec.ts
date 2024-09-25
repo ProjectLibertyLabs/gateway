@@ -74,7 +74,6 @@ describe('AppController E2E request verification!', () => {
           ...validContentNoUploadedAssets,
           assets: [
             {
-              type: 'image',
               name: 'image asset',
               references: [
                 {
@@ -101,7 +100,6 @@ describe('AppController E2E request verification!', () => {
           ...validContentNoUploadedAssets,
           assets: [
             {
-              type: 'image',
               name: 'image asset',
               references: [
                 {
@@ -168,25 +166,6 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('published must match'));
     });
 
-    it('invalid assets type should fail', () => {
-      const body = {
-        content: {
-          content: 'test broadcast message',
-          published: '1970-01-01T00:00:00+00:00',
-          assets: [
-            {
-              type: 'invalid',
-            },
-          ],
-        },
-      };
-      return request(app.getHttpServer())
-        .post(`/v1/content/123/broadcast`)
-        .send(body)
-        .expect(400)
-        .expect((res) => expect(res.text).toContain('type must be one of the following values'));
-    });
-
     it('image asset without references should fail', () => {
       const body = {
         content: {
@@ -194,7 +173,7 @@ describe('AppController E2E request verification!', () => {
           published: '1970-01-01T00:00:00+00:00',
           assets: [
             {
-              type: 'image',
+              isLink: false,
             },
           ],
         },
@@ -213,7 +192,6 @@ describe('AppController E2E request verification!', () => {
           published: '1970-01-01T00:00:00+00:00',
           assets: [
             {
-              type: 'image',
               references: [
                 {
                   referenceId: 'reference-id-1',
@@ -240,7 +218,7 @@ describe('AppController E2E request verification!', () => {
           published: '1970-01-01T00:00:00+00:00',
           assets: [
             {
-              type: 'link',
+              isLink: true,
             },
           ],
         },
@@ -259,7 +237,7 @@ describe('AppController E2E request verification!', () => {
           published: '1970-01-01T00:00:00+00:00',
           assets: [
             {
-              type: 'link',
+              isLink: true,
               href: 'ftp://sgdjas8912yejc.com',
             },
           ],
@@ -386,7 +364,6 @@ describe('AppController E2E request verification!', () => {
           ...validContentNoUploadedAssets,
           assets: [
             {
-              type: 'image',
               name: 'image asset',
               references: [
                 {
@@ -414,7 +391,6 @@ describe('AppController E2E request verification!', () => {
           ...validContentNoUploadedAssets,
           assets: [
             {
-              type: 'image',
               name: 'image asset',
               references: [
                 {
@@ -525,7 +501,6 @@ describe('AppController E2E request verification!', () => {
         ...validContentNoUploadedAssets,
         assets: [
           {
-            type: 'image',
             name: 'image asset',
             references: [
               {
@@ -554,7 +529,6 @@ describe('AppController E2E request verification!', () => {
         ...validContentNoUploadedAssets,
         assets: [
           {
-            type: 'image',
             name: 'image asset',
             references: [
               {

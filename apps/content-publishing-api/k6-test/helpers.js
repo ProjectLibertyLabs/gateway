@@ -40,7 +40,6 @@ export const createContentWithAsset = (baseUrl) => {
   return Object.assign({}, validContentNoUploadedAssets, {
     assets: [
       {
-        type: 'image',
         name: 'file1.jpg',
         references: [
           {

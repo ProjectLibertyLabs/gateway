@@ -34,6 +34,8 @@ describe('Account API Config', () => {
     it('invalid graph environment type should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
 
+    it('invalid api body json limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_BODY_JSON_LIMIT', [0]));
+
     it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
   });
 

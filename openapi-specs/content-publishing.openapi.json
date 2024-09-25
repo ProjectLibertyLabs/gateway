@@ -408,6 +408,11 @@
       "AssetDto": {
         "type": "object",
         "properties": {
+          "isLink": {
+            "type": "boolean",
+            "description": "Determines that if this asset is a link",
+            "example": "false"
+          },
           "name": {
             "type": "string",
             "minLength": 1,

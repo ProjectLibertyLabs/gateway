@@ -6,6 +6,7 @@ import {
   ArrayNotEmpty,
   ArrayUnique,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsISO8601,
   IsLatitude,
@@ -190,7 +191,16 @@ export class TagDto {
 }
 
 export class AssetDto {
-  @ValidateIf((o) => o.type !== AttachmentType.LINK)
+  @ApiPropertyOptional({
+    description: 'Determines if this asset is a link',
+    type: 'boolean',
+    example: 'false',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isLink?: boolean;
+
+  @ValidateIf((o) => o.isLink !== true)
   @ValidateNested({ each: true })
   @IsArray()
   @ArrayNotEmpty()
@@ -213,7 +223,7 @@ export class AssetDto {
     type: String,
     example: 'https://upload.wikimedia.org/wikipedia/commons/d/d9/Wilhelm_Scream.ogg',
   })
-  @ValidateIf((o) => o.type === AttachmentType.LINK)
+  @ValidateIf((o) => o.isLink === true)
   @IsString()
   @MinLength(1)
   @IsUrl({ protocols: ['http', 'https'] })

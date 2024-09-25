@@ -192,7 +192,7 @@ export class TagDto {
 
 export class AssetDto {
   @ApiPropertyOptional({
-    description: 'Determines that if this asset is a link',
+    description: 'Determines if this asset is a link',
     type: 'boolean',
     example: 'false',
   })

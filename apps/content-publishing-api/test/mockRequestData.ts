@@ -25,7 +25,7 @@ export const validContentNoUploadedAssets = {
   name: 'name of note content',
   assets: [
     {
-      type: 'link',
+      isLink: true,
       name: 'link asset',
       href: 'http://example.com',
     },

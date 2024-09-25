@@ -23,7 +23,7 @@ x-common-environment: &common-environment
 
 x-content-publishing-env: &content-publishing-env
   START_PROCESS: content-publishing-api
-  FILE_UPLOAD_MAX_SIZE_IN_BYTES: 2000000000
+  FILE_UPLOAD_MAX_SIZE_IN_BYTES: 500000000
   FILE_UPLOAD_COUNT_LIMIT: 10
   ASSET_EXPIRATION_INTERVAL_SECONDS: 300
   BATCH_INTERVAL_SECONDS: 12

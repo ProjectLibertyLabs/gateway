@@ -8,10 +8,10 @@ import { ProviderWebhookService } from '#account-lib/services/provider-webhook.s
 import { QueueModule } from '#account-lib/queues';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
-import { CacheModule } from '#account-lib/cache/cache.module';
+import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
-import cacheConfig from '#account-lib/cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase } from '#account-lib/blockchain/blockchain.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 import queueConfig from '#account-lib/queues/queue.config';
 import workerConfig from './worker.config';
 
@@ -42,7 +42,7 @@ import workerConfig from './worker.config';
     QueueModule,
     CacheModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (blockchainConf, cacheConf) => [
+      useFactory: (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
           url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,

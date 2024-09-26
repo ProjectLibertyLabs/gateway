@@ -10,7 +10,7 @@ import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { WalletLoginRequestDto, RetireMsaPayloadResponseDto, RetireMsaRequestDto } from '#types/dtos/account';
 
 describe('Account Controller', () => {

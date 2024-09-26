@@ -7,7 +7,7 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { u8aToHex } from '@polkadot/util';
 import Keyring from '@polkadot/keyring';
 import { RevokeDelegationPayloadRequestDto, RevokeDelegationPayloadResponseDto } from '#types/dtos/account';

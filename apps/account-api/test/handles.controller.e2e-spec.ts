@@ -8,7 +8,7 @@ import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectliber
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 
 let HTTP_SERVER: any;
 

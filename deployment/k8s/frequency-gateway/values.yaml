@@ -81,7 +81,6 @@ account:
         args: "account-api"
       worker:
         args: "account-worker"
-
   env:
     API_PORT: "3002"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

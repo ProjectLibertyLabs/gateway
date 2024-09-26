@@ -150,7 +150,6 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     try {
       const ext = this.blockchainService.createExtrinsic(
         { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
-        { eventPallet: 'frequencyTxPayment', event: 'CapacityPaid' },
         providerKeys,
         tx,
       );

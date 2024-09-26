@@ -39,19 +39,19 @@ describe('Blockchain module config', () => {
     it('missing seed phrase should fail', async () => validateMissing(ALL_ENV, 'PROVIDER_ACCOUNT_SEED_PHRASE'));
 
     it('missing seed phrase should activate read-only mode if allowed', async () => {
-      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
+      const { PROVIDER_ACCOUNT_SEED_PHRASE: _dummy, ...env } = ALL_ENV;
       const accountConfigService = await setupConfigServiceReadOnly(env);
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });
 
     it('empty seed phrase should activate read-only mode if allowed', async () => {
-      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
+      const { PROVIDER_ACCOUNT_SEED_PHRASE: _dummy, ...env } = ALL_ENV;
       const accountConfigService = await setupConfigServiceReadOnly({ PROVIDER_ACCOUNT_SEED_PHRASE: '', ...env });
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });
 
     it('blank seed phrase should activate read-only mode if allowed', async () => {
-      const { PROVIDER_ACCOUNT_SEED_PHRASE: dummy, ...env } = ALL_ENV;
+      const { PROVIDER_ACCOUNT_SEED_PHRASE: _dummy, ...env } = ALL_ENV;
       const accountConfigService = await setupConfigServiceReadOnly({ PROVIDER_ACCOUNT_SEED_PHRASE: '    ', ...env });
       expect(accountConfigService.isDeployedReadOnly).toBeTruthy();
     });

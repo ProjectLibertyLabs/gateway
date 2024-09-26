@@ -38,7 +38,7 @@ Object.defineProperty(mockEmptyBlockHash, 'isEmpty', {
   get: jest.fn(() => true),
 });
 const mockBlockchainService = {
-  getBlock: jest.fn((blockHash?: string | Hash) => mockSignedBlock as unknown as SignedBlock),
+  getBlock: jest.fn((_blockHash?: string | Hash) => mockSignedBlock as unknown as SignedBlock),
   getBlockHash: jest.fn((blockNumber: number) => (blockNumber > 1 ? mockEmptyBlockHash : mockBlockHash)),
   getLatestFinalizedBlockNumber: jest.fn(),
 };

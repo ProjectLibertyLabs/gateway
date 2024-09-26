@@ -10,7 +10,7 @@ import { ConfigService } from '#graph-lib/config';
 import { BlockchainService } from '#graph-lib/blockchain';
 import {
   ProviderGraphDto,
-  GraphChangeRepsonseDto,
+  GraphChangeResponseDto,
   WatchGraphsDto,
   GraphsQueryParamsDto,
   UserGraphDto,
@@ -58,7 +58,7 @@ export class ApiService implements BeforeApplicationShutdown {
     }
   }
 
-  async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
+  async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeResponseDto> {
     const { providerId } = this.configService;
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,

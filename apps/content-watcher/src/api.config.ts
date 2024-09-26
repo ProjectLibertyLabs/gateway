@@ -8,7 +8,7 @@ export interface IContentWatcherApiConfig {
   apiTimeoutMs: number;
 }
 
-export default registerAs('api', (): IContentWatcherApiConfig => {
+export default registerAs('content-watcher-api', (): IContentWatcherApiConfig => {
   const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = {
     apiBodyJsonLimit: {
       value: process.env.API_BODY_JSON_LIMIT,

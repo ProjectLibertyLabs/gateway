@@ -27,7 +27,8 @@ import { AnyNumber } from '@polkadot/types/types';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { KeyType } from '#types/dtos/graph/key-type.enum';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
+import { ConfigService } from '@nestjs/config';
+import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 
 @Injectable()
 export class GraphStateManager implements OnApplicationBootstrap {
@@ -80,11 +81,10 @@ export class GraphStateManager implements OnApplicationBootstrap {
   }
 
   constructor(
-    @Inject(workerConfig.KEY) readonly workerConf: IGraphWorkerConfig,
-    // private configService: ConfigService,
+    @Inject(graphCommonConfig.KEY) graphCommonConf: IGraphCommonConfig,
     private blockchainService: BlockchainService,
   ) {
-    const { graphEnvironmentType } = workerConf;
+    const { graphEnvironmentType } = graphCommonConf;
     this.environment = { environmentType: EnvironmentType[graphEnvironmentType] };
     this.graphState = new Graph(this.environment);
 

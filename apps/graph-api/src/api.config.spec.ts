@@ -1,9 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IGraphApiConfig } from './api.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IGraphApiConfig>(apiConfig);
+const { setupConfigService, shouldFailBadValues } = configSetup<IGraphApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -11,7 +11,6 @@ describe('Account API Config', () => {
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,
     FREQUENCY_HTTP_URL: undefined,
-    GRAPH_ENVIRONMENT_TYPE: undefined,
     SIWF_URL: undefined,
   };
 
@@ -24,12 +23,7 @@ describe('Account API Config', () => {
   describe('invalid environment', () => {
     it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
 
-    it('missing graph environment type should fail', async () => validateMissing(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE'));
-
-    it('invalid graph environment type should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
-
-    // it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
+    it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
   });
 
   describe('valid environment', () => {
@@ -46,16 +40,12 @@ describe('Account API Config', () => {
       expect(accountServiceConfig.apiPort).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
     });
 
-    it('should get graph environment type', () => {
-      expect(accountServiceConfig.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
+    it('should get api timeout limit milliseconds', () => {
+      expect(accountServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));
     });
 
-    // it('should get api timeout limit milliseconds', () => {
-    //   expect(accountServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));
-    // });
-
-    // it('should get api json body size limit', () => {
-    //   expect(accountServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
-    // });
+    it('should get api json body size limit', () => {
+      expect(accountServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
+    });
   });
 });

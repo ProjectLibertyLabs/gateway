@@ -18,10 +18,16 @@ import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { allowReadOnly } from '#graph-lib/blockchain/blockchain.config';
 import queueConfig from '#graph-lib/queues/queue.config';
+import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
+import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
+import graphCommonConfig from '#config/graph-common.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [apiConfig, graphCommonConfig, allowReadOnly, cacheConfig, queueConfig, scannerConfig],
+    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -70,7 +76,7 @@ import queueConfig from '#graph-lib/queues/queue.config';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, GraphStateManager],
+  providers: [ApiService, GraphStateManager, AsyncDebouncerService],
   controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
   exports: [],
 })

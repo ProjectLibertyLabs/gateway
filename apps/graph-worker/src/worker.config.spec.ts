@@ -7,7 +7,6 @@ const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup
 
 describe('Graph Worker Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
-    DEBOUNCE_SECONDS: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
@@ -26,11 +25,6 @@ describe('Graph Worker Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing graph environment type should fail', async () => validateMissing(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE'));
-
-    it('invalid graph environment type should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
-
     it('should fail if no provider base URL when reconnection service required', async () => {
       const { PROVIDER_BASE_URL, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env, RECONNECTION_SERVICE_REQUIRED: 'true' })).rejects.toBeDefined();
@@ -50,14 +44,6 @@ describe('Graph Worker Config', () => {
 
     it('should be defined', () => {
       expect(graphWorkerConfig).toBeDefined();
-    });
-
-    it('should get debounce seconds', () => {
-      expect(graphWorkerConfig.debounceSeconds).toStrictEqual(parseInt(ALL_ENV.DEBOUNCE_SECONDS, 10));
-    });
-
-    it('should get graph environment type', () => {
-      expect(graphWorkerConfig.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
     });
 
     it('should get health check max retries', () => {

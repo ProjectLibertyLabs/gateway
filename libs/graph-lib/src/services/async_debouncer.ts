@@ -5,8 +5,8 @@ import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { GraphStateManager } from './graph-state-manager';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { DEBOUNCER_CACHE_KEY } from '#types/constants';
-import graphWorker, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 import { InjectRedis } from '@songkeys/nestjs-redis';
+import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 
 @Injectable()
 export class AsyncDebouncerService {
@@ -14,7 +14,7 @@ export class AsyncDebouncerService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @Inject(graphWorker.KEY) private readonly config: IGraphWorkerConfig,
+    @Inject(graphCommonConfig.KEY) private readonly config: IGraphCommonConfig,
     private readonly graphStateManager: GraphStateManager,
   ) {
     this.logger = new Logger(this.constructor.name);

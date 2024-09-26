@@ -47,11 +47,9 @@ spec:
               port: {{ .Values.account.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
-          command: {{ .Values.account.image.mode.api.command}}
-          args: {{ .Values.account.image.mode.api.args}}
+          args: ["{{ .Values.account.image.mode.api.command}}"]
         - name: account-service-worker
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
-          command: {{ .Values.account.image.mode.worker.command}}
           envFrom:
             - configMapRef:
                 name: account-configmap
@@ -62,8 +60,7 @@ spec:
               mountPath: /app/config/account
             - name: account-secret-volume
               mountPath: /app/secret/account
-          command: {{ .Values.account.image.mode.worker.command}}
-          args: {{ .Values.account.image.mode.worker.args}}
+          args: ["{{ .Values.account.image.mode.worker.command}}"]
         - name: content-publishing-service-api
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           ports:
@@ -92,8 +89,7 @@ spec:
               port: {{ .Values.contentPublishing.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
-          command: {{ .Values.contentPublishing.image.mode.api.command}}
-          args: {{ .Values.contentPublishing.image.mode.api.args}}
+          args: ["{{ .Values.contentPublishing.image.mode.api.command}}"]
         - name: content-publishing-service-worker
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           envFrom:
@@ -106,8 +102,7 @@ spec:
               mountPath: /app/config/content-publishing
             - name: content-publishing-secret-volume
               mountPath: /app/secret/content-publishing
-          command: {{ .Values.contentPublishing.image.mode.worker.command}}
-          args: {{ .Values.contentPublishing.image.mode.worker.args}}
+          args: ["{{ .Values.contentPublishing.image.mode.worker.command}}"]
         - name: content-watcher-service
           image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
           ports:
@@ -136,7 +131,6 @@ spec:
               port: {{ .Values.contentWatcher.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
-
         - name: graph-service-api
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
           ports:
@@ -165,8 +159,7 @@ spec:
               port: {{ .Values.graph.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
-          command: {{ .Values.graph.image.mode.api.command}}
-          args: {{ .Values.graph.image.mode.api.args}}
+          args: ["{{ .Values.graph.image.mode.api.command}}"]
         - name: graph-service-worker
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
           envFrom:
@@ -179,8 +172,7 @@ spec:
               mountPath: /app/config/graph
             - name: graph-secret-volume
               mountPath: /app/secret/graph
-          command: {{ .Values.graph.image.mode.worker.command}}
-          args: {{ .Values.graph.image.mode.worker.args}}
+          args: ["{{ .Values.graph.image.mode.worker.command}}"]
       volumes:
         - name: account-config-volume
           configMap:

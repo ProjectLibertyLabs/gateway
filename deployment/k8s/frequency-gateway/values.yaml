@@ -77,12 +77,11 @@ account:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
     mode:
-      worker:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "worker"]
       api:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "api"]
+        command: "account-api"
+      worker:
+        command: "account-worker"
+
   env:
     API_PORT: "3002"
     FREQUENCY_URL: "ws://0.0.0.0:9944"
@@ -116,12 +115,10 @@ contentPublishing:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
     mode:
-      worker:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "worker"]
       api:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "api"]
+        command: "content-publishing-api"
+      worker:
+        command: "content-publishing-worker"
   env:
     API_PORT: "3003"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
@@ -171,12 +168,10 @@ graph:
     healthCheckPath: "/healthz"
     readinessProbePath: "/readyz"
     mode:
-      worker:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "worker"]
       api:
-        command: ["/usr/bin/tini"]
-        args: ["--", "./docker-entrypoint.sh", "prod", "api"]
+        command: "graph-api"
+      worker:
+        command: "graph-worker"
   env:
     API_PORT: "3005"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

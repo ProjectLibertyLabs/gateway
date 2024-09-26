@@ -27,7 +27,6 @@ import { AnyNumber } from '@polkadot/types/types';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { KeyType } from '#types/dtos/graph/key-type.enum';
 import { BlockchainService } from '../blockchain/blockchain.service';
-import { ConfigService } from '@nestjs/config';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 
 @Injectable()

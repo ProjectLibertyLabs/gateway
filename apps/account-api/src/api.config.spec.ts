@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import configSetup from '#testlib/utils.config-tests';
 

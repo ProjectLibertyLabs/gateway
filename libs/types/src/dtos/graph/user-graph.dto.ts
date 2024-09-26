@@ -1,7 +1,6 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DsnpGraphEdgeDto } from './dsnp-graph-edge.dto';
-import { IsNotEmpty, IsNumberString, IsUrl } from 'class-validator';
 
 export class UserGraphDto {
   @ApiProperty({

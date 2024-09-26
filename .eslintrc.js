@@ -11,7 +11,7 @@ module.exports = {
     sourceType: 'module',
   },
   ignorePatterns: ['**/k6-test'],
-  plugins: ['@typescript-eslint', 'import', 'prettier'],
+  plugins: ['@typescript-eslint', 'import', 'unused-imports', 'prettier'],
   root: true,
   rules: {
     'no-console': 'off',
@@ -39,6 +39,16 @@ module.exports = {
     'import/prefer-default-export': 'off',
     indent: 'off',
     'no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+      },
+    ],
     'prettier/prettier': 2,
     'no-undef': 'off',
     'import/order': 'off',

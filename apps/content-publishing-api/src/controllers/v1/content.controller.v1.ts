@@ -2,7 +2,6 @@ import { Body, Controller, Delete, HttpCode, Logger, Param, Post, Put } from '@n
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import {
-  DsnpUserIdParam,
   BroadcastDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
@@ -12,6 +11,7 @@ import {
   TombstoneDto,
 } from '#types/dtos/content-publishing';
 import { AnnouncementTypeName } from '#types/enums';
+import { MsaIdDto } from '#types/dtos/common';
 
 @Controller('v1/content')
 @ApiTags('v1/content')
@@ -22,60 +22,46 @@ export class ContentControllerV1 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post(':userDsnpId/broadcast')
+  @Post(':msaId/broadcast')
   @ApiOperation({ summary: 'Create DSNP Broadcast for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async broadcast(
-    @Param() userDsnpId: DsnpUserIdParam,
-    @Body() broadcastDto: BroadcastDto,
-  ): Promise<AnnouncementResponseDto> {
+  async broadcast(@Param() { msaId }: MsaIdDto, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(broadcastDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(
-      AnnouncementTypeName.BROADCAST,
-      userDsnpId.userDsnpId,
-      broadcastDto,
-      metadata,
-    );
+    return this.apiService.enqueueRequest(AnnouncementTypeName.BROADCAST, msaId, broadcastDto, metadata);
   }
 
-  @Post(':userDsnpId/reply')
+  @Post(':msaId/reply')
   @ApiOperation({ summary: 'Create DSNP Reply for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async reply(@Param() userDsnpId: DsnpUserIdParam, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
+  async reply(@Param() { msaId }: MsaIdDto, @Body() replyDto: ReplyDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(replyDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeName.REPLY, userDsnpId.userDsnpId, replyDto, metadata);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.REPLY, msaId, replyDto, metadata);
   }
 
-  @Post(':userDsnpId/reaction')
+  @Post(':msaId/reaction')
   @ApiOperation({ summary: 'Create DSNP Reaction for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async reaction(
-    @Param() userDsnpId: DsnpUserIdParam,
-    @Body() reactionDto: ReactionDto,
-  ): Promise<AnnouncementResponseDto> {
-    return this.apiService.enqueueRequest(AnnouncementTypeName.REACTION, userDsnpId.userDsnpId, reactionDto);
+  async reaction(@Param() { msaId }: MsaIdDto, @Body() reactionDto: ReactionDto): Promise<AnnouncementResponseDto> {
+    return this.apiService.enqueueRequest(AnnouncementTypeName.REACTION, msaId, reactionDto);
   }
 
-  @Put(':userDsnpId')
+  @Put(':msaId')
   @ApiOperation({ summary: 'Update DSNP Content for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async update(@Param() userDsnpId: DsnpUserIdParam, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
+  async update(@Param() { msaId }: MsaIdDto, @Body() updateDto: UpdateDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(updateDto as AssetIncludedRequestDto);
-    return this.apiService.enqueueRequest(AnnouncementTypeName.UPDATE, userDsnpId.userDsnpId, updateDto, metadata);
+    return this.apiService.enqueueRequest(AnnouncementTypeName.UPDATE, msaId, updateDto, metadata);
   }
 
-  @Delete(':userDsnpId')
+  @Delete(':msaId')
   @ApiOperation({ summary: 'Delete DSNP Content for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async delete(
-    @Param() userDsnpId: DsnpUserIdParam,
-    @Body() tombstoneDto: TombstoneDto,
-  ): Promise<AnnouncementResponseDto> {
-    return this.apiService.enqueueRequest(AnnouncementTypeName.TOMBSTONE, userDsnpId.userDsnpId, tombstoneDto);
+  async delete(@Param() { msaId }: MsaIdDto, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {
+    return this.apiService.enqueueRequest(AnnouncementTypeName.TOMBSTONE, msaId, tombstoneDto);
   }
 }

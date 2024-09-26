@@ -8,10 +8,11 @@ const { setupConfigService, validateMissing, shouldFailBadValues } =
 
 describe('Content Publishing API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
-    // API_BODY_JSON_LIMIT: undefined,
+    API_BODY_JSON_LIMIT: undefined,
     API_PORT: undefined,
-    // API_TIMEOUT_MS: undefined,
+    API_TIMEOUT_MS: undefined,
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: undefined,
+    FILE_UPLOAD_COUNT_LIMIT: undefined,
   };
 
   beforeAll(() => {
@@ -23,13 +24,20 @@ describe('Content Publishing API Config', () => {
   describe('invalid environment', () => {
     it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
 
-    it.todo('invalid api timeout limit should fail');
-    it.todo('invalid json body size limit should fail');
+    it('invalid json body size limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'API_BODY_JSON_LIMIT', [-1]));
+
+    it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [-1]));
 
     it('missing file upload limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES'));
 
+    it('missing file upload count limit should fail', async () => validateMissing(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT'));
+
     it('invalid file upload limit should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_MAX_SIZE_IN_BYTES', [-1]));
+
+    it('invalid file upload count limit should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT', [-1]));
   });
 
   describe('valid environment', () => {
@@ -52,12 +60,18 @@ describe('Content Publishing API Config', () => {
       );
     });
 
-    // it('should get api timeout limit milliseconds', () => {
-    //   expect(contentPublishingServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));
-    // });
+    it('should get file upload count limit', () => {
+      expect(contentPublishingServiceConfig.fileUploadCountLimit).toStrictEqual(
+        parseInt(ALL_ENV.FILE_UPLOAD_COUNT_LIMIT as string, 10),
+      );
+    });
 
-    // it('should get api json body size limit', () => {
-    //   expect(contentPublishingServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
-    // });
+    it('should get api timeout limit milliseconds', () => {
+      expect(contentPublishingServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));
+    });
+
+    it('should get api json body size limit', () => {
+      expect(contentPublishingServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
+    });
   });
 });

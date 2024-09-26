@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
 interface IsIntValueValidationOption extends ValidationOptions {
-  minValue: number;
+  minValue?: number | undefined;
   maxValue?: number | undefined;
 }
 
@@ -19,17 +19,25 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
             const numberValue = BigInt(value);
+
+            let result = true;
             if (validationOptions.minValue !== undefined) {
-              return validationOptions.minValue <= numberValue && numberValue <= validationOptions.maxValue;
+              result = validationOptions.minValue <= numberValue;
             }
-            return validationOptions.minValue <= numberValue;
+            if (validationOptions.maxValue !== undefined) {
+              result = result && validationOptions.maxValue >= numberValue;
+            }
+            return result;
           }
 
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          if (validationOptions.maxValue === undefined) {
+          if (validationOptions.maxValue === undefined && validationOptions.minValue !== undefined) {
             return `${args.property} should be a number greater than or equal to ${validationOptions.minValue}!`;
+          }
+          if (validationOptions.maxValue !== undefined && validationOptions.minValue === undefined) {
+            return `${args.property} should be a number less than or equal to ${validationOptions.maxValue}!`;
           }
           return `${args.property} should be a number between ${validationOptions.minValue} and ${validationOptions.maxValue}!`;
         },

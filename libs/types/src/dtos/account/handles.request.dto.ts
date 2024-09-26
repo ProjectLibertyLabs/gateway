@@ -57,7 +57,7 @@ export class ChangeHandlePayloadRequest {
   payload: HandlePayloadDto;
 
   @ApiProperty({
-    description: 'Unwrapped encodedPayload is scale encoded of payload in hex format',
+    description: 'Raw encodedPayload is scale encoded of payload in hex format',
     type: String,
     example: '0x012345',
   })

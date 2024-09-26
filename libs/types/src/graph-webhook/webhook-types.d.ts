@@ -1,4 +1,10 @@
-import type { OpenAPIClient } from 'openapi-client-axios';
+import type {
+  OpenAPIClient,
+  Parameters,
+  UnknownParamsObject,
+  OperationResponse,
+  AxiosRequestConfig,
+} from 'openapi-client-axios';
 
 declare namespace Components {
   namespace Schemas {
@@ -50,9 +56,63 @@ declare namespace Components {
     }
   }
 }
+declare namespace Paths {
+  namespace AnnounceGraphUpdateV1 {
+    export type RequestBody = Components.Schemas.GraphChangeNotificationV1;
+    namespace Responses {
+      export interface $200 {}
+      export interface $400 {}
+    }
+  }
+  namespace UpdateOperationStatusV1 {
+    export type RequestBody = Components.Schemas.GraphOperationStatusV1;
+    namespace Responses {
+      export interface $200 {}
+      export interface $400 {}
+    }
+  }
+}
 
-export interface OperationMethods {}
+export interface OperationMethods {
+  /**
+   * announceGraphUpdateV1 - Announce a graph update
+   */
+  'announceGraphUpdateV1'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.AnnounceGraphUpdateV1.RequestBody,
+    config?: AxiosRequestConfig,
+  ): OperationResponse<Paths.AnnounceGraphUpdateV1.Responses.$200>;
+  /**
+   * updateOperationStatusV1 - Send the status of a requested graph update
+   */
+  'updateOperationStatusV1'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.UpdateOperationStatusV1.RequestBody,
+    config?: AxiosRequestConfig,
+  ): OperationResponse<Paths.UpdateOperationStatusV1.Responses.$200>;
+}
 
-export interface PathsDictionary {}
+export interface PathsDictionary {
+  ['graph-update']: {
+    /**
+     * announceGraphUpdateV1 - Announce a graph update
+     */
+    'post'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.AnnounceGraphUpdateV1.RequestBody,
+      config?: AxiosRequestConfig,
+    ): OperationResponse<Paths.AnnounceGraphUpdateV1.Responses.$200>;
+  };
+  ['graph-request-status']: {
+    /**
+     * updateOperationStatusV1 - Send the status of a requested graph update
+     */
+    'post'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.UpdateOperationStatusV1.RequestBody,
+      config?: AxiosRequestConfig,
+    ): OperationResponse<Paths.UpdateOperationStatusV1.Responses.$200>;
+  };
+}
 
 export type Client = OpenAPIClient<OperationMethods, PathsDictionary>;

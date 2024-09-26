@@ -117,7 +117,7 @@ export class AddNewPublicKeyAgreementPayloadRequest {
 
   @ApiProperty({
     type: String,
-    description: 'Unwrapped encodedPayload to be signed',
+    description: 'Raw encodedPayload to be signed',
     example: '0x1234',
   })
   @IsHexValue({ minLength: 2, maxLength: 2048 })

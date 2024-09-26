@@ -128,11 +128,16 @@ describe('Delegation Controller', () => {
       const { keypair } = users[1];
       const invalidAccountId = `${keypair.address.slice(0, -1)}5H`;
       const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
-        statusCode: HttpStatus.BAD_REQUEST,
-        error: 'Bad Request',
-        message: ['accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!'],
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect({
+          statusCode: HttpStatus.BAD_REQUEST,
+          error: 'Bad Request',
+          message: [
+            'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!',
+          ],
+        });
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {

@@ -393,7 +393,7 @@ export class DsnpAnnouncementProcessor {
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<BroadcastAnnouncement> {
     this.logger.debug(`Processing broadcast`);
-    const [cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
+    const [_cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
     return createBroadcast(dsnpUserId, ipfsUrl, hash);
   }
 
@@ -403,7 +403,7 @@ export class DsnpAnnouncementProcessor {
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<ReplyAnnouncement> {
     this.logger.debug(`Processing reply for ${content.inReplyTo}`);
-    const [cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
+    const [_cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
     return createReply(dsnpUserId, ipfsUrl, hash, content.inReplyTo);
   }
 
@@ -420,7 +420,7 @@ export class DsnpAnnouncementProcessor {
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<UpdateAnnouncement> {
     this.logger.debug(`Processing update`);
-    const [cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
+    const [_cid, ipfsUrl, hash] = await this.prepareNote(content, assetToMimeType);
     return createUpdate(dsnpUserId, ipfsUrl, hash, targetAnnouncementType, targetContentHash);
   }
 

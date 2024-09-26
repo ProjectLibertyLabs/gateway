@@ -113,11 +113,9 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
 
   public createExtrinsic(
     { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    { eventPallet, event }: { eventPallet?: string; event?: string },
     keys: KeyringPair,
     ...args: (any | undefined)[]
   ): Extrinsic {
-    const targetEvent = eventPallet && event ? this.api.events[eventPallet][event] : undefined;
     return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
   }
 

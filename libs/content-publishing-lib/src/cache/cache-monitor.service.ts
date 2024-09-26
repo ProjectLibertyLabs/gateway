@@ -26,7 +26,7 @@ export class CacheMonitorService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public handleRedisError(err: unknown, namespace: ClientNamespace) {
+  public handleRedisError(_err: unknown, _namespace: ClientNamespace) {
     // this.logger.error(`REDIS ERROR [${namespace.toString()}]: `, err);
   }
 

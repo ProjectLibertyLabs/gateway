@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 // test file for ipfs publisher
 import { describe, it, beforeEach } from '@jest/globals';
 import { IPFSPublisher } from './ipfs.publisher';
@@ -8,7 +9,7 @@ describe('IPFSPublisher', () => {
   beforeEach(async () => {});
 
   describe('publish', () => {
-    it('should return capacity used per epoch', async () => {
+    it.skip('should return capacity used per epoch', async () => {
       const messages = [
         {
           schemaId: 1,

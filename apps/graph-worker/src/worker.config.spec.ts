@@ -5,9 +5,10 @@ import configSetup from '#testlib/utils.config-tests';
 
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IGraphWorkerConfig>(workerConfig);
 
-describe('Account Worker Config', () => {
+describe('Graph Worker Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     DEBOUNCE_SECONDS: undefined,
+    GRAPH_ENVIRONMENT_TYPE: undefined,
     HEALTH_CHECK_MAX_RETRIES: undefined,
     HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: undefined,
     HEALTH_CHECK_SUCCESS_THRESHOLD: undefined,

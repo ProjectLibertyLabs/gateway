@@ -1,9 +1,6 @@
 import { SignerResult, Signer } from '@polkadot/types/types';
-
-export function isHexString(str: string): boolean {
-  const hexRegex = /^0[xX][0-9a-fA-F]+$/;
-  return hexRegex.test(str);
-}
+import { hexToU8a, isHex } from '@polkadot/util';
+import { signatureVerify } from '@polkadot/util-crypto';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -18,3 +15,34 @@ export const getSignerForRawSignature = (result: SignerResult): Signer => ({
     return Promise.resolve(result);
   },
 });
+
+export class SignatureVerificationResult {
+  /** The validity for this result, false if invalid */
+  isValid: boolean;
+
+  /** Flag to indicate if the passed data was wrapped in <Bytes>...</Bytes> */
+  isWrapped: boolean;
+}
+export function verifySignature(
+  payloadHex: string,
+  signatureHex: string,
+  accountAddressOrPublicKey: string,
+): SignatureVerificationResult {
+  try {
+    const { isValid, isWrapped } = signatureVerify(
+      hexToU8a(payloadHex),
+      hexToU8a(signatureHex),
+      isHex(accountAddressOrPublicKey) ? hexToU8a(accountAddressOrPublicKey) : accountAddressOrPublicKey,
+    );
+    return {
+      isValid,
+      isWrapped,
+    };
+  } catch (error) {
+    console.error('verifySignature:', error);
+    return {
+      isValid: false,
+      isWrapped: false,
+    };
+  }
+}

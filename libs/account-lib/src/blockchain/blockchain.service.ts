@@ -23,6 +23,7 @@ import {
   ItemActionType,
   ItemizedSignaturePayloadDto,
   KeysRequestDto,
+  KeysRequestPayloadDto,
   PublicKeyAgreementRequestDto,
   PublishHandleRequestDto,
   RetireMsaPayloadResponseDto,
@@ -246,13 +247,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
-    const msaIdU64 = this.api.createType('u64', payload.msaId);
-
-    const txPayload = {
-      ...payload,
-      newPublicKey: decodeAddress(payload.newPublicKey),
-      msaId: msaIdU64,
-    };
+    const txPayload = this.createAddPublicKeyToMsaPayload(payload);
 
     const addKeyResponse = this.api.tx.msa.addPublicKeyToMsa(
       msaOwnerAddress,
@@ -333,6 +328,18 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     providerId: string,
   ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
     return this.api.tx.msa.revokeDelegationByDelegator(providerId);
+  }
+
+  public createAddPublicKeyToMsaPayload(payload: KeysRequestPayloadDto): any {
+    const msaIdU64 = this.api.createType('u64', payload.msaId);
+
+    const txPayload = {
+      expiration: payload.expiration,
+      newPublicKey: decodeAddress(payload.newPublicKey),
+      msaId: msaIdU64,
+    };
+
+    return this.api.registry.createType('PalletMsaAddKeyData', txPayload);
   }
 
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {

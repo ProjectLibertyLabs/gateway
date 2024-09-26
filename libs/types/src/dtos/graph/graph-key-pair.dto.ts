@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 import { KeyType } from './key-type.enum';
 import { HexString } from '@polkadot/util/types';
 import { ApiProperty } from '@nestjs/swagger';

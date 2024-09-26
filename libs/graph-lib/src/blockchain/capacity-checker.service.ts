@@ -1,10 +1,10 @@
 import { ICapacityLimit } from '#types/interfaces/graph';
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '#graph-lib/config';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BlockchainService, ICapacityInfo } from './blockchain.service';
+import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -22,7 +22,7 @@ export class CapacityCheckerService {
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private readonly blockchainService: BlockchainService,
-    private readonly configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
     // eslint-disable-next-line no-empty-function
@@ -87,8 +87,8 @@ export class CapacityCheckerService {
     let outOfCapacity = false;
 
     try {
-      const { capacityLimit } = this.configService;
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.providerId);
+      const { capacityLimit } = this.config;
+      const capacityInfo = await this.blockchainService.capacityInfo(this.config.providerId.toString());
 
       // This doesn't really pick up on capacity exhaustion, as usage is unlikely to bring capacity to zero
       // (there will always be some dust). But it will warn in the case where a provider has been completely un-staked

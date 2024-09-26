@@ -11,7 +11,7 @@ export interface IContentPublishingWorkerConfig {
   batchMaxCount: number;
 }
 
-export default registerAs('account-worker', (): IContentPublishingWorkerConfig => {
+export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig => {
   const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = {
     blockchainScanIntervalSeconds: {
       value: process.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS,

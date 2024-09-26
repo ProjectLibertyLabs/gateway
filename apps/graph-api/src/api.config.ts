@@ -2,14 +2,14 @@ import { JoiUtils } from '#config';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
-export interface IContentWatcherApiConfig {
+export interface IGraphApiConfig {
   apiBodyJsonLimit: string;
   apiPort: number;
   apiTimeoutMs: number;
 }
 
-export default registerAs('content-watcher-api', (): IContentWatcherApiConfig => {
-  const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = {
+export default registerAs('graph-api', (): IGraphApiConfig => {
+  const configs: JoiUtils.JoiConfig<IGraphApiConfig> = {
     apiBodyJsonLimit: {
       value: process.env.API_BODY_JSON_LIMIT,
       joi: Joi.string().default('1mb'),
@@ -24,5 +24,5 @@ export default registerAs('content-watcher-api', (): IContentWatcherApiConfig =>
     },
   };
 
-  return JoiUtils.validate<IContentWatcherApiConfig>(configs);
+  return JoiUtils.validate<IGraphApiConfig>(configs);
 });

@@ -17,11 +17,12 @@ process.env.PROVIDER_ID = '0';
 process.env.PROVIDER_BASE_URL = 'http://127.0.0.1';
 process.env.CAPACITY_LIMIT = '{"serviceLimit":{"type":"percentage","value":"80"}}';
 process.env.GRAPH_ENVIRONMENT_TYPE = 'Mainnet';
+process.env.CACHE_KEY_PREFIX = 'graph:';
 
 // eslint-disable-next-line
 import { ApiModule } from './api.module';
 // eslint-disable-next-line
-import { apiFile, generateSwaggerDoc } from '#graph-lib/config/swagger_config';
+import { apiFile, generateSwaggerDoc } from '#graph-api/swagger_config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule, {

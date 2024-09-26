@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ConfigModule, ConfigService } from '#graph-lib/config';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#graph-lib/services/nonce.service';
@@ -10,10 +9,29 @@ import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.mo
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#graph-lib/cache/cache.module';
+import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import { ConfigModule } from '@nestjs/config';
+import workerConfig from './worker.config';
+import queueConfig from '#graph-lib/queues/queue.config';
+import scannerConfig from './graph_notifier/scanner.config';
+import graphReconnectionConfig from './reconnection_processor/graph.reconnection.config';
+import graphCommonConfig from '#config/graph-common.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [
+        workerConfig,
+        graphCommonConfig,
+        blockchainConfig,
+        cacheConfig,
+        queueConfig,
+        scannerConfig,
+        graphReconnectionConfig,
+      ],
+    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -34,18 +52,18 @@ import { CacheModule } from '#graph-lib/cache/cache.module';
     }),
     QueueModule,
     CacheModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
+      useFactory: (cacheConf: ICacheConfig, blockchainConf: IBlockchainConfig) => [
         {
-          url: configService.redisUrl.toString(),
-          keyPrefix: configService.cacheKeyPrefix,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: configService.redisUrl.toString(),
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${configService.providerPublicKeyAddress}:`,
+          url: cacheConf.redisUrl.toString(),
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
-      inject: [ConfigService],
+      inject: [cacheConfig.KEY, blockchainConfig.KEY],
     }),
     ScheduleModule.forRoot(),
     BlockchainModule,

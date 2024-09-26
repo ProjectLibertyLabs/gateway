@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { Hash } from '@polkadot/types/interfaces';
@@ -10,14 +10,15 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { OnEvent } from '@nestjs/event-emitter';
 import { IGraphTxStatus } from '#types/interfaces';
-import { ConfigService } from '#graph-lib/config';
 import { BlockchainService, createKeys, ICapacityInfo } from '#graph-lib/blockchain';
 import { GraphUpdateJob } from '#types/dtos/graph';
 import { NonceService } from '#graph-lib/services/nonce.service';
 import { BaseConsumer } from '#graph-lib/utils';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
+import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
+import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -28,7 +29,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 @Processor(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE)
 export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
   public async onApplicationBootstrap() {
-    await this.checkCapacity();
+    await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -43,11 +44,11 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
-    private configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
+    private capacityCheckerService: CapacityCheckerService,
     private nonceService: NonceService,
     private schedulerRegistry: SchedulerRegistry,
-    private eventEmitter: EventEmitter2,
   ) {
     super();
   }
@@ -72,7 +73,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
             payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
           }
-          const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
+          const providerKeys = createKeys(this.blockchainConf.providerSeedPhrase);
           const tx = this.blockchainService.createExtrinsicCall(
             { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
             job.data.update.ownerDsnpUserId,
@@ -86,7 +87,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         }
         case 'DeletePage': {
           successMethod = 'PaginatedPageDeleted';
-          const providerKeys = createKeys(this.configService.providerAccountSeedPhrase);
+          const providerKeys = createKeys(this.blockchainConf.providerSeedPhrase);
           const tx = this.blockchainService.createExtrinsicCall(
             { pallet: 'statefulStorage', extrinsic: 'deletePage' },
             job.data.update.ownerDsnpUserId,
@@ -105,7 +106,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
       const status: IGraphTxStatus = {
-        providerId: this.configService.providerId,
+        providerId: this.blockchainConf.providerId.toString(),
         referenceId: job.data.originalRequestJob.referenceId,
         txHash: payWithCapacityTxHash.toHex(),
         successEvent: {
@@ -127,7 +128,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       this.logger.error(error);
       throw error;
     } finally {
-      await this.checkCapacity();
+      await this.capacityCheckerService.checkForSufficientCapacity();
     }
   }
 
@@ -183,7 +184,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       // Add the new timeout
       this.schedulerRegistry.addTimeout(
         CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.checkCapacity(), epochTimeout),
+        setTimeout(() => this.capacityCheckerService.checkForSufficientCapacity(), epochTimeout),
       );
     } catch (err) {
       // Ignore non-existent timeout
@@ -215,48 +216,5 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     }
 
     await this.graphChangePublishQueue.resume();
-  }
-
-  /**
-   * Checks the capacity of the graph publisher and takes appropriate actions based on the capacity status.
-   * If the capacity is exhausted, it pauses the graph change publish queue and sets a timeout to check the capacity again.
-   * If the capacity is refilled, it resumes the graph change publish queue and clears the timeout.
-   * If any jobs failed due to low balance/no capacity, it retries them.
-   * If any error occurs during the capacity check, it logs the error.
-   */
-  private async checkCapacity(): Promise<void> {
-    try {
-      const capacityLimit = this.configService.capacityLimit.serviceLimit;
-      const capacityInfo = await this.blockchainService.capacityInfo(this.configService.providerId);
-      const { remainingCapacity } = capacityInfo;
-      const { currentEpoch } = capacityInfo;
-      const epochCapacityKey = `epochCapacity:${currentEpoch}`;
-      const epochUsedCapacity = BigInt((await this.cacheManager.get(epochCapacityKey)) ?? 0); // Fetch capacity used by the service
-      let outOfCapacity = remainingCapacity <= 0n;
-
-      if (!outOfCapacity) {
-        this.logger.debug(`Capacity remaining: ${remainingCapacity}`);
-        if (capacityLimit.type === 'percentage') {
-          const capacityLimitPercentage = BigInt(capacityLimit.value);
-          const capacityLimitThreshold = (capacityInfo.totalCapacityIssued * capacityLimitPercentage) / 100n;
-          this.logger.debug(`Capacity limit threshold: ${capacityLimitThreshold}`);
-          if (epochUsedCapacity >= capacityLimitThreshold) {
-            outOfCapacity = true;
-            this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimitThreshold}`);
-          }
-        } else if (epochUsedCapacity >= capacityLimit.value) {
-          outOfCapacity = true;
-          this.logger.warn(`Capacity threshold reached: used ${epochUsedCapacity} of ${capacityLimit.value}`);
-        }
-      }
-
-      if (outOfCapacity) {
-        this.eventEmitter.emit('capacity.exhausted', capacityInfo);
-      } else {
-        this.eventEmitter.emit('capacity.available');
-      }
-    } catch (err) {
-      this.logger.error('Caught error in checkCapacity', err);
-    }
   }
 }

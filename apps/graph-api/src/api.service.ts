@@ -1,4 +1,4 @@
-import { BeforeApplicationShutdown, Injectable, Logger } from '@nestjs/common';
+import { BeforeApplicationShutdown, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -6,8 +6,6 @@ import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as RedisConstants from '#graph-lib/utils/redis';
-import { ConfigService } from '#graph-lib/config';
-import { BlockchainService } from '#graph-lib/blockchain';
 import {
   ProviderGraphDto,
   GraphChangeResponseDto,
@@ -17,8 +15,9 @@ import {
 } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
-import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { DEBOUNCER_CACHE_KEY, LAST_PROCESSED_DSNP_ID_KEY } from '#types/constants';
+import scannerConfig, { IScannerConfig } from '#graph-worker/graph_notifier/scanner.config';
+import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -35,17 +34,14 @@ async function hscanToObject(keyValues: string[]) {
 export class ApiService implements BeforeApplicationShutdown {
   private readonly logger: Logger;
 
-  private asyncDebouncerService: AsyncDebouncerService;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
-    private graphStateManager: GraphStateManager,
-    private configService: ConfigService,
-    private blockchainService: BlockchainService,
+    @Inject(scannerConfig.KEY) private scannerConf: IScannerConfig,
+    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    private readonly asyncDebouncerService: AsyncDebouncerService,
   ) {
     this.logger = new Logger(this.constructor.name);
-    this.asyncDebouncerService = new AsyncDebouncerService(this.redis, this.configService, this.graphStateManager);
   }
 
   beforeApplicationShutdown(_signal?: string | undefined) {
@@ -59,14 +55,14 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeResponseDto> {
-    const { providerId } = this.configService;
+    const { providerId } = this.blockchainConf;
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,
-      providerId,
+      providerId: providerId.toString(),
       connections: request.connections.data,
       graphKeyPairs: request.graphKeyPairs,
       referenceId: this.calculateJobId(request),
-      updateConnection: this.configService.reconnectionServiceRequired,
+      updateConnection: this.scannerConf.reconnectionServiceRequired,
       webhookUrl: request.webhookUrl,
     };
     const jobOld = await this.graphChangeRequestQueue.getJob(data.referenceId);

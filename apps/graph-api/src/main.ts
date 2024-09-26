@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
-import { initSwagger } from '#graph-lib/config/swagger_config';
+import { initSwagger } from '#graph-api/swagger_config';
+import apiConfig, { IGraphApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -30,6 +31,8 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  const apiConf = app.get<IGraphApiConfig>(apiConfig.KEY);
+
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
@@ -47,13 +50,12 @@ async function bootstrap() {
       }),
     );
     // TODO: should get replaced with the config
-    app.useGlobalInterceptors(new TimeoutInterceptor(5000));
-    app.useBodyParser('json', { limit: '1mb' });
+    app.useGlobalInterceptors(new TimeoutInterceptor(apiConf.apiTimeoutMs));
+    app.useBodyParser('json', { limit: apiConf.apiBodyJsonLimit });
 
     await initSwagger(app, '/docs/swagger');
-    const port = process.env.API_PORT || 3000;
-    logger.log(`Listening on port ${port}`);
-    await app.listen(port);
+    logger.log(`Listening on port ${apiConf.apiPort}`);
+    await app.listen(apiConf.apiPort);
   } catch (e) {
     await app.close();
     logger.log('****** MAIN CATCH ********');

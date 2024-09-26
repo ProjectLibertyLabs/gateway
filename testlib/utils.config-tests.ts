@@ -1,6 +1,24 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { ValueProvider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+
+export function GenerateMockConfigProvider<T>(configName: string, target: T): ValueProvider<T> {
+  const configObj = {};
+  // Create a dynamic class from the plain object
+  Object.keys(target).forEach((key) =>
+    Object.defineProperty(configObj, key, {
+      get: jest.fn(() => target[key]),
+      enumerable: true,
+      configurable: true,
+    }),
+  );
+
+  return {
+    provide: `CONFIGURATION(${configName})`,
+    useValue: configObj,
+  } as ValueProvider<T>;
+}
 
 export default <T>(configObj: any) => {
   const setupConfigService = async (envObj: any): Promise<T> => {

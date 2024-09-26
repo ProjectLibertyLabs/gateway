@@ -1,4 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import {
   Action,
   Graph,
@@ -24,10 +24,10 @@ import {
 } from '@frequency-chain/api-augment/interfaces';
 import { hexToU8a } from '@polkadot/util';
 import { AnyNumber } from '@polkadot/types/types';
-import { ConfigService } from '../config/config.service';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { KeyType } from '#types/dtos/graph/key-type.enum';
 import { BlockchainService } from '../blockchain/blockchain.service';
+import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 
 @Injectable()
 export class GraphStateManager implements OnApplicationBootstrap {
@@ -80,11 +80,11 @@ export class GraphStateManager implements OnApplicationBootstrap {
   }
 
   constructor(
-    private configService: ConfigService,
+    @Inject(graphCommonConfig.KEY) graphCommonConf: IGraphCommonConfig,
     private blockchainService: BlockchainService,
   ) {
-    const environmentType = this.configService.graphEnvironmentType;
-    this.environment = { environmentType: EnvironmentType[environmentType] };
+    const { graphEnvironmentType } = graphCommonConf;
+    this.environment = { environmentType: EnvironmentType[graphEnvironmentType] };
     this.graphState = new Graph(this.environment);
 
     GraphStateManager.graphStateFinalizer.register(this, this.graphState);

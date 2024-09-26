@@ -41,6 +41,7 @@ x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   RECONNECTION_SERVICE_REQUIRED: false
+  CACHE_KEY_PREFIX: 'graph:'
 
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1

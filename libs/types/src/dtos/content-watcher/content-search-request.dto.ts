@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ChainWatchOptionsDto } from './chain.watch.dto';
 import { Type } from 'class-transformer';

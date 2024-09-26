@@ -6,7 +6,6 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { ConfigService } from '../config/config.service';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
@@ -37,7 +36,6 @@ export class ReconnectionScannerService implements OnApplicationBootstrap {
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
-    private readonly configService: ConfigService,
     private schedulerRegistry: SchedulerRegistry,
     private blockchainService: BlockchainService,
   ) {

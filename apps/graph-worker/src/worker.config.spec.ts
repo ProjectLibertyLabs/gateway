@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import workerConfig, { IGraphWorkerConfig } from './worker.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IGraphWorkerConfig>(workerConfig);
+const { setupConfigService } = configSetup<IGraphWorkerConfig>(workerConfig);
 
 describe('Graph Worker Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -26,12 +26,12 @@ describe('Graph Worker Config', () => {
 
   describe('invalid environment', () => {
     it('should fail if no provider base URL when reconnection service required', async () => {
-      const { PROVIDER_BASE_URL, ...env } = ALL_ENV;
+      const { PROVIDER_BASE_URL: _dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env, RECONNECTION_SERVICE_REQUIRED: 'true' })).rejects.toBeDefined();
     });
 
     it('should not fail if no provider base URL when reconnection service not required', async () => {
-      const { PROVIDER_BASE_URL, ...env } = ALL_ENV;
+      const { PROVIDER_BASE_URL: _dummy, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env, RECONNECTION_SERVICE_REQUIRED: 'false' })).resolves.toBeDefined();
     });
   });

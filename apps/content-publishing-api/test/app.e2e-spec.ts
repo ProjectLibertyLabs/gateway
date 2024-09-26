@@ -754,7 +754,7 @@ describe('AppController E2E request verification!', () => {
 
     it('upload asset should be uploaded to IPFS', async () => {
       const buffer = new Uint32Array(100 * 1000);
-      randomFill(buffer, (err, buf) => {
+      randomFill(buffer, (err, _buf) => {
         if (err) throw err;
       });
       const response = await request(app.getHttpServer())

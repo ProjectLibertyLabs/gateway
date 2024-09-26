@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import pubsubConfig, { IPubSubConfig } from './pubsub.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IPubSubConfig>(pubsubConfig);
+const { setupConfigService, shouldFailBadValues } = configSetup<IPubSubConfig>(pubsubConfig);
 
 describe('PubSub config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {

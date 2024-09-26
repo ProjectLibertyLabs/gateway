@@ -42,7 +42,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return true;
   }
 
-  public async onApplicationShutdown(signal?: string | undefined) {
+  public async onApplicationShutdown(_signal?: string | undefined) {
     const promises: Promise<any>[] = [];
     if (this.api) {
       promises.push(this.api.disconnect());

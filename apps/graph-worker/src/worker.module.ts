@@ -11,7 +11,8 @@ import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.pr
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#graph-lib/cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig, { addressFromSeedPhrase } from '#graph-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
 
 @Module({
   imports: [

@@ -1,14 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, expect, beforeAll } from '@jest/globals';
-import scannerConfig, { IScannerConfig } from './scanner.config';
+import reconnectionConfig, { IGraphReconnectionConfig } from './graph.reconnection.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, shouldFailBadValues } = configSetup<IScannerConfig>(scannerConfig);
+const { setupConfigService, shouldFailBadValues } = configSetup<IGraphReconnectionConfig>(reconnectionConfig);
 
 describe('Scanner config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
-    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
-    QUEUE_HIGH_WATER: undefined,
+    CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: undefined,
   };
 
   beforeAll(() => {
@@ -18,15 +17,12 @@ describe('Scanner config', () => {
   });
 
   describe('invalid environment', () => {
-    it('invalid scan interval should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS', [0, 'bad-value']));
-
-    it('invalid queue high water limit should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'QUEUE_HIGH_WATER', [99, 'bad-value']));
+    it('invalid page size should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE', [0, 'bad-value']));
   });
 
   describe('valid environment', () => {
-    let scannerConf: IScannerConfig;
+    let scannerConf: IGraphReconnectionConfig;
     beforeAll(async () => {
       scannerConf = await setupConfigService(ALL_ENV);
     });
@@ -35,14 +31,8 @@ describe('Scanner config', () => {
       expect(scannerConf).toBeDefined();
     });
 
-    it('should get scan interval', async () => {
-      expect(scannerConf.blockchainScanIntervalSeconds).toStrictEqual(
-        parseInt(ALL_ENV.BLOCKCHAIN_SCAN_INTERVAL_SECONDS, 10),
-      );
-    });
-
-    it('should get queue high water limit', async () => {
-      expect(scannerConf.queueHighWater).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER, 10));
+    it('should get page size', async () => {
+      expect(scannerConf.pageSize).toStrictEqual(parseInt(ALL_ENV.CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE, 10));
     });
   });
 });

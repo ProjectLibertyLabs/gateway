@@ -44,5 +44,17 @@ describe('Scanner config', () => {
     it('should get queue high water limit', async () => {
       expect(scannerConf.queueHighWater).toStrictEqual(parseInt(ALL_ENV.QUEUE_HIGH_WATER, 10));
     });
+
+    it('should get trust unfinalized blocks', async () => {
+      expect(scannerConf.trustUnfinalizedBlocks).toStrictEqual(
+        ALL_ENV.TRUST_UNFINALIZED_BLOCKS === 'true' || ALL_ENV.TRUST_UNFINALIZED_BLOCKS === '1',
+      );
+    });
+
+    it('should get reconnection service required', async () => {
+      expect(scannerConf.reconnectionServiceRequired).toStrictEqual(
+        ALL_ENV.RECONNECTION_SERVICE_REQUIRED === 'true' || ALL_ENV.RECONNECTION_SERVICE_REQUIRED === '1',
+      );
+    });
   });
 });

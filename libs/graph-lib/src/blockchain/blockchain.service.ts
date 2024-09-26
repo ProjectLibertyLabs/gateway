@@ -269,9 +269,9 @@ export class BlockchainService implements OnApplicationBootstrap, BeforeApplicat
 
   public async validateProviderSeedPhrase() {
     const { providerSeedPhrase, providerId } = this.config;
-    const providerPublicKeyAddress = await addressFromSeedPhrase(providerSeedPhrase);
-    if (providerPublicKeyAddress) {
-      const resolvedProviderId = await this.publicKeyToMsaId(providerPublicKeyAddress || '');
+    if (providerSeedPhrase) {
+      const address = await addressFromSeedPhrase(providerSeedPhrase);
+      const resolvedProviderId = await this.publicKeyToMsaId(address);
 
       if (resolvedProviderId !== providerId.toString()) {
         throw new Error('Provided account secret does not match configured Provider ID');

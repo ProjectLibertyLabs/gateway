@@ -9,6 +9,7 @@ export interface IGraphWorkerConfig {
   healthCheckSuccessThreshold: number;
   providerApiToken?: string;
   providerBaseUrl?: string;
+  reconnectionServiceRequired: boolean;
   webhookFailureThreshold: number;
   webhookRetryIntervalSeconds: number;
 }
@@ -19,11 +20,15 @@ export default registerAs('graph-worker', (): IGraphWorkerConfig => {
       value: process.env.PROVIDER_ACCESS_TOKEN,
       joi: Joi.string().empty(''),
     },
+    reconnectionServiceRequired: {
+      value: process.env.RECONNECTION_SERVICE_REQUIRED,
+      joi: Joi.boolean().default(false),
+    },
     providerBaseUrl: {
       value: process.env.PROVIDER_BASE_URL,
-      joi: Joi.string().uri().when('RECONNECTION_SERVICE_REQUIRED', {
+      joi: Joi.string().uri().when('reconnectionServiceRequired', {
         is: true,
-        then: Joi.string().required(),
+        then: Joi.required(),
       }),
     },
     healthCheckMaxRetries: {

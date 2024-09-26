@@ -6,7 +6,8 @@ import { createKeys } from '../blockchain/create-keys';
 import * as RedisUtils from '../utils/redis';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ConfigService } from '../config/config.service';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig from '#graph-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 

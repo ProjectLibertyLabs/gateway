@@ -3,36 +3,22 @@ import { describe, it } from '@jest/globals';
 import { BlockchainService } from './blockchain.service';
 import { ApiPromise } from '@polkadot/api';
 import { Test } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { ICapacityLimits } from '#types/interfaces';
+import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 
-class MockBlockchainConfig implements IBlockchainConfig {
-  public get frequencyUrl() {
-    return new URL(process.env.FREQUENCY_URL);
-  }
-
-  public get isDeployedReadOnly() {
-    return false;
-  }
-
-  public get providerId() {
-    return BigInt(process.env.PROVIDER_ID);
-  }
-
-  public get providerSeedPhrase() {
-    return String(process.env.PROVIDER_ACCOUNT_SEED_PHRASE);
-  }
-
-  public get capacityLimit() {
-    return { serviceLimit: { type: 'percentage', value: 80n } } as ICapacityLimits;
-  }
-}
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
+  capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
+  providerId: 1n,
+  providerSeedPhrase: '//Alice',
+  frequencyUrl: new URL('ws://localhost:9944'),
+  isDeployedReadOnly: false,
+});
 
 describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
-  let mockBlockchainConfig: MockBlockchainConfig;
+  let blockchainConfig: IBlockchainConfig;
 
   beforeAll(async () => {
     mockApi = {
@@ -47,18 +33,12 @@ describe('BlockchainService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [],
       controllers: [],
-      providers: [
-        {
-          provide: blockchainConfig.KEY,
-          useClass: MockBlockchainConfig,
-        },
-        BlockchainService,
-      ],
+      providers: [BlockchainService, mockBlockchainConfigProvider],
     }).compile();
 
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     blockchainService.api = mockApi;
-    mockBlockchainConfig = moduleRef.get(blockchainConfig.KEY);
+    blockchainConfig = moduleRef.get<IBlockchainConfig>(mockBlockchainConfigProvider.provide);
   });
 
   describe('validateProviderSeedPhrase', () => {
@@ -75,7 +55,7 @@ describe('BlockchainService', () => {
     });
 
     it('should not throw if no seed phrase configured (read-only mode)', async () => {
-      jest.spyOn(mockBlockchainConfig, 'providerSeedPhrase', 'get').mockReturnValueOnce(undefined);
+      jest.spyOn(blockchainConfig, 'providerSeedPhrase', 'get').mockReturnValueOnce(undefined);
       await expect(blockchainService.validateProviderSeedPhrase()).resolves.not.toThrow();
     });
 

@@ -20,7 +20,8 @@ import axios from 'axios';
 import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import scannerConfig, { IScannerConfig } from './scanner.config';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig from '#graph-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;

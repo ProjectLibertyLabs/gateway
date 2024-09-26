@@ -17,7 +17,8 @@ import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import { DEBOUNCER_CACHE_KEY, LAST_PROCESSED_DSNP_ID_KEY } from '#types/constants';
 import scannerConfig, { IScannerConfig } from '#graph-worker/graph_notifier/scanner.config';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig from '#graph-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};

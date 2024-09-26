@@ -19,7 +19,7 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
   CHAIN_ENVIRONMENT: dev
-  DEBUG: true
+  DEBUG: 'true'
 
 x-content-publishing-env: &content-publishing-env
   START_PROCESS: content-publishing-api
@@ -40,12 +40,12 @@ x-content-watcher-env: &content-watcher-env
 x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
   GRAPH_ENVIRONMENT_TYPE: Mainnet
-  RECONNECTION_SERVICE_REQUIRED: false
+  RECONNECTION_SERVICE_REQUIRED: 'false'
   CACHE_KEY_PREFIX: 'graph:'
 
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
-  TRUST_UNFINALIZED_BLOCKS: true
+  TRUST_UNFINALIZED_BLOCKS: 'true'
   WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'

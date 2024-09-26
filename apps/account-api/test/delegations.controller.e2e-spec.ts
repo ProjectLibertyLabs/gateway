@@ -130,7 +130,8 @@ describe('Delegation Controller', () => {
       const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
       await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Invalid accountId',
+        error: 'Bad Request',
+        message: ['accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!'],
       });
     });
 

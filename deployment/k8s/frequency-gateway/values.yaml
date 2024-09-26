@@ -78,9 +78,9 @@ account:
     readinessProbePath: "/readyz"
     mode:
       api:
-        command: "account-api"
+        args: "account-api"
       worker:
-        command: "account-worker"
+        args: "account-worker"
 
   env:
     API_PORT: "3002"
@@ -116,9 +116,9 @@ contentPublishing:
     readinessProbePath: "/readyz"
     mode:
       api:
-        command: "content-publishing-api"
+        args: "content-publishing-api"
       worker:
-        command: "content-publishing-worker"
+        args: "content-publishing-worker"
   env:
     API_PORT: "3003"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
@@ -169,9 +169,9 @@ graph:
     readinessProbePath: "/readyz"
     mode:
       api:
-        command: "graph-api"
+        args: "graph-api"
       worker:
-        command: "graph-worker"
+        args: "graph-worker"
   env:
     API_PORT: "3005"
     FREQUENCY_URL: "ws://0.0.0.0:9944"

@@ -1,9 +1,11 @@
 import { JoiUtils } from '#config';
+import { EnvironmentType } from '@dsnp/graph-sdk';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface IGraphWorkerConfig {
   debounceSeconds: number;
+  graphEnvironmentType: keyof EnvironmentType;
   healthCheckMaxRetries: number;
   healthCheckMaxRetryIntervalSeconds: number;
   healthCheckSuccessThreshold: number;
@@ -30,6 +32,10 @@ export default registerAs('graph-worker', (): IGraphWorkerConfig => {
         is: true,
         then: Joi.required(),
       }),
+    },
+    graphEnvironmentType: {
+      value: process.env.GRAPH_ENVIRONMENT_TYPE,
+      joi: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
     },
     healthCheckMaxRetries: {
       value: process.env.HEALTH_CHECK_MAX_RETRIES,

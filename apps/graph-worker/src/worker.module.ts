@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ConfigModule, ConfigService } from '#graph-lib/config';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#graph-lib/services/nonce.service';
@@ -11,12 +10,19 @@ import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.pr
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#graph-lib/cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase } from '#graph-lib/blockchain/blockchain.config';
-import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import { ConfigModule } from '@nestjs/config';
+import workerConfig from './worker.config';
+import queueConfig from '#graph-lib/queues/queue.config';
+import scannerConfig from './graph_notifier/scanner.config';
+import graphReconnectionConfig from './reconnection_processor/graph.reconnection.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [workerConfig, blockchainConfig, cacheConfig, queueConfig, scannerConfig, graphReconnectionConfig],
+    }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

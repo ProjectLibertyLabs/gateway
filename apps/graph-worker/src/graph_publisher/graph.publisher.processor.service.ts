@@ -18,8 +18,7 @@ import { NonceService } from '#graph-lib/services/nonce.service';
 import { BaseConsumer } from '#graph-lib/utils';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
-import blockchainConfig from '#graph-lib/blockchain/blockchain.config';
-import { IBlockchainConfig } from '#graph-lib/blockchain/IBlockchainConfig';
+import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 

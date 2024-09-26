@@ -4,7 +4,7 @@ import { describe, it, jest, expect } from '@jest/globals';
 import { ApiPromise } from '@polkadot/api';
 import { Test } from '@nestjs/testing';
 import { BlockchainService } from './blockchain.service';
-import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
+import { IBlockchainConfig } from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CommonPrimitivesMsaProviderRegistryEntry } from '@polkadot/types/lookup';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
@@ -20,7 +20,7 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
 describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
-  let blockchainConfig: IBlockchainConfig;
+  let blockchainConf: IBlockchainConfig;
 
   beforeAll(async () => {
     mockApi = {
@@ -40,7 +40,7 @@ describe('BlockchainService', () => {
 
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     blockchainService.api = mockApi;
-    blockchainConfig = moduleRef.get<IBlockchainConfig>(mockBlockchainConfigProvider.provide);
+    blockchainConf = moduleRef.get<IBlockchainConfig>(mockBlockchainConfigProvider.provide);
 
     await cryptoWaitReady();
   });
@@ -78,7 +78,7 @@ describe('BlockchainService', () => {
     });
 
     it('should not throw if no seed phrase configured (read-only mode)', async () => {
-      jest.spyOn(blockchainConfig, 'providerSeedPhrase', 'get').mockReturnValueOnce(undefined);
+      jest.spyOn(blockchainConf, 'providerSeedPhrase', 'get').mockReturnValueOnce(undefined);
       await expect(blockchainService.validateProviderSeedPhrase()).resolves.not.toThrow();
     });
 

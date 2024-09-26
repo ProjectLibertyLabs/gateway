@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import workerConfig, { IGraphWorkerConfig } from './worker.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService } = configSetup<IGraphWorkerConfig>(workerConfig);
+const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IGraphWorkerConfig>(workerConfig);
 
 describe('Account Worker Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -25,6 +25,11 @@ describe('Account Worker Config', () => {
   });
 
   describe('invalid environment', () => {
+    it('missing graph environment type should fail', async () => validateMissing(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE'));
+
+    it('invalid graph environment type should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
+
     it('should fail if no provider base URL when reconnection service required', async () => {
       const { PROVIDER_BASE_URL, ...env } = ALL_ENV;
       await expect(setupConfigService({ ...env, RECONNECTION_SERVICE_REQUIRED: 'true' })).rejects.toBeDefined();
@@ -48,6 +53,10 @@ describe('Account Worker Config', () => {
 
     it('should get debounce seconds', () => {
       expect(graphWorkerConfig.debounceSeconds).toStrictEqual(parseInt(ALL_ENV.DEBOUNCE_SECONDS, 10));
+    });
+
+    it('should get graph environment type', () => {
+      expect(graphWorkerConfig.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
     });
 
     it('should get health check max retries', () => {

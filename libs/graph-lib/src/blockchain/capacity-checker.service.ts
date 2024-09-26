@@ -4,8 +4,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BlockchainService, ICapacityInfo } from './blockchain.service';
-import blockchainConfig from './blockchain.config';
-import { IBlockchainConfig } from './blockchain.config.interface';
+import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';

@@ -10,15 +10,18 @@ import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { QueueModule } from '#graph-lib/queues/queue.module';
-import { ConfigModule, ConfigService } from '#graph-lib/config';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#graph-lib/cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
+import { ConfigModule } from '@nestjs/config';
+import apiConfig from './api.config';
+import { allowReadOnly } from '#graph-lib/blockchain/blockchain.config';
+import queueConfig from '#graph-lib/queues/queue.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(true), // allowReadOnly
+    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -67,7 +70,7 @@ import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
     }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, GraphStateManager, ConfigService],
+  providers: [ApiService, GraphStateManager],
   controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
   exports: [],
 })

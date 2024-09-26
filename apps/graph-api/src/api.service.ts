@@ -8,7 +8,7 @@ import { GraphQueues as QueueConstants } from '#types/constants/queue.constants'
 import * as RedisConstants from '#graph-lib/utils/redis';
 import {
   ProviderGraphDto,
-  GraphChangeRepsonseDto,
+  GraphChangeResponseDto,
   WatchGraphsDto,
   GraphsQueryParamsDto,
   UserGraphDto,
@@ -54,7 +54,7 @@ export class ApiService implements BeforeApplicationShutdown {
     }
   }
 
-  async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeRepsonseDto> {
+  async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeResponseDto> {
     const { providerId } = this.blockchainConf;
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,

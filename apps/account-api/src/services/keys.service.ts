@@ -5,12 +5,15 @@ import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
+  AddNewPublicKeyAgreementRequestDto,
   ItemActionType,
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import { verifySignature } from '#account-lib/utils/utility';
+import { KeysRequestDto } from '#types/dtos/account';
 
 @Injectable()
 export class KeysService {
@@ -71,9 +74,7 @@ export class KeysService {
         ],
       };
 
-      const encodedPayload = u8aToHex(
-        u8aWrapBytes(this.blockchainService.createItemizedSignaturePayloadV2Type(payload).toU8a()),
-      );
+      const encodedPayload = u8aToHex(this.blockchainService.createItemizedSignaturePayloadV2Type(payload).toU8a());
       return {
         payload,
         encodedPayload,
@@ -91,5 +92,25 @@ export class KeysService {
     const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
     // standard expiration in SIWF is 10 minutes
     return lastFinalizedBlockNumber + 600 / BlockchainConstants.SECONDS_PER_BLOCK;
+  }
+
+  verifyAddKeySignature(request: KeysRequestDto): boolean {
+    const encodedPayload = u8aToHex(
+      u8aWrapBytes(this.blockchainService.createAddPublicKeyToMsaPayload(request.payload).toU8a()),
+    );
+    const msaOwnerVerification = verifySignature(encodedPayload, request.msaOwnerSignature, request.msaOwnerAddress);
+    const keyOwnerVerification = verifySignature(
+      encodedPayload,
+      request.newKeyOwnerSignature,
+      request.payload.newPublicKey,
+    );
+    return msaOwnerVerification.isValid && keyOwnerVerification.isValid;
+  }
+
+  verifyPublicKeyAgreementSignature(request: AddNewPublicKeyAgreementRequestDto): boolean {
+    const encodedPayload = u8aToHex(
+      u8aWrapBytes(this.blockchainService.createItemizedSignaturePayloadV2Type(request.payload).toU8a()),
+    );
+    return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
   }
 }

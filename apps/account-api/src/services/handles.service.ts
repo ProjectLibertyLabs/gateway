@@ -3,6 +3,8 @@ import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
+import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { verifySignature } from '#account-lib/utils/utility';
 
 @Injectable()
 export class HandlesService {
@@ -28,5 +30,10 @@ export class HandlesService {
 
   encodePayload(payload: HandleRequestDto['payload']) {
     return this.blockchainService.createClaimHandPayloadType(payload.baseHandle, payload.expiration);
+  }
+
+  verifyHandleRequestSignature(request: HandleRequestDto): boolean {
+    const encodedPayload = u8aToHex(u8aWrapBytes(this.encodePayload(request.payload).toU8a()));
+    return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
   }
 }

@@ -10,7 +10,7 @@ import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 import { TransactionType } from '#types/account-webhook';
 
-class KeysRequestPayloadDto {
+export class KeysRequestPayloadDto {
   @ApiProperty({ description: 'MSA Id of the user requesting the new key', type: String, example: '3' })
   @IsMsaId()
   msaId: string;

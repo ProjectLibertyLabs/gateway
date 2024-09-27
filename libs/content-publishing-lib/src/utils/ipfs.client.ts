@@ -142,7 +142,12 @@ export class IpfsService {
     // Encode with base32
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
     const hash = await sha256.digest(fileBuffer);
-    return base32.encode(hash.bytes);
+    // add multihash prefix for sha256
+    const hashPrefix = new Uint8Array([18, hash.bytes.length]);
+    const multihash = new Uint8Array(hashPrefix.length + hash.bytes.length);
+    multihash.set(hashPrefix);
+    multihash.set(hash.bytes, hashPrefix.length);
+    return base32.encode(multihash);
   }
 
   public ipfsUrl(cid: string): string {

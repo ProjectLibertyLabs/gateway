@@ -27,8 +27,8 @@ describe('IpfsService Tests', () => {
     expect(service).toBeDefined();
   });
 
-  it('hashes blake2b correctly ABC', async () => {
+  it('hashes sha256 correctly ABC and returns a multihash value', async () => {
     const mb = await service.ipfsHashBuffer(Buffer.from('abc'));
-    expect(mb).toMatch('bciqlu6awx6hqdt7kifaubxs5vyrchmadmgrzmf32ts2bb73b6iablli');
+    expect(mb).toMatch('bciqbeif2pall7dybz7vecqka3zo24irdwabwdi4wc55jznaq75q7eaavvu');
   });
 });

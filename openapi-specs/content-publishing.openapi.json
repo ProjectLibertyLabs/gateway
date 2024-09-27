@@ -334,6 +334,89 @@
           "health"
         ]
       }
+    },
+    "/dev/request/{jobId}": {
+      "get": {
+        "operationId": "DevelopmentControllerV1_requestJob",
+        "summary": "Get a Job given a jobId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/asset/{assetId}": {
+      "get": {
+        "operationId": "DevelopmentControllerV1_getAsset",
+        "summary": "Get an Asset given an assetId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "2XX": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/dummy/announcement/{queueType}/{count}": {
+      "post": {
+        "operationId": "DevelopmentControllerV1_populate",
+        "summary": "Create dummy announcement data",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "count",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
     }
   },
   "info": {
@@ -410,7 +493,7 @@
         "properties": {
           "isLink": {
             "type": "boolean",
-            "description": "Determines that if this asset is a link",
+            "description": "Determines if this asset is a link",
             "example": "false"
           },
           "name": {

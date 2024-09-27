@@ -9,7 +9,6 @@ import {
 } from '#types/dtos/account';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { isAddress } from '@polkadot/util-crypto';
 import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 
 @Injectable()
@@ -47,36 +46,36 @@ export class DelegationService {
     throw new Error('Invalid msaId.');
   }
 
-  async getRevokeDelegationPayload(accountId: string, providerId: string): Promise<RevokeDelegationPayloadResponseDto> {
-    if (!isAddress(accountId)) {
-      throw new HttpException('Invalid accountId', HttpStatus.BAD_REQUEST);
-    }
+  async getRevokeDelegationPayload(
+    accountId: string,
+    providerMsaId: string,
+  ): Promise<RevokeDelegationPayloadResponseDto> {
     const msaId = await this.blockchainService.publicKeyToMsaId(accountId);
     if (!msaId) {
       throw new HttpException('MSA ID for account not found', HttpStatus.NOT_FOUND);
     }
 
-    if (providerId) {
-      const isValidProviderId = await this.blockchainService.isValidMsaId(providerId);
+    if (providerMsaId) {
+      const isValidProviderId = await this.blockchainService.isValidMsaId(providerMsaId);
       if (!isValidProviderId) {
         throw new HttpException('Invalid provider', HttpStatus.BAD_REQUEST);
       }
 
-      const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerId);
+      const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerMsaId);
       if (!providerInfo) {
         throw new HttpException('Supplied ID not a Provider', HttpStatus.BAD_REQUEST);
       }
     }
 
     // Validate that delegations exist for this msaId
-    const delegations = await this.blockchainService.getProviderDelegationForMsa(msaId, providerId);
+    const delegations = await this.blockchainService.getProviderDelegationForMsa(msaId, providerMsaId);
     if (!delegations) {
       throw new HttpException('No delegations found', HttpStatus.NOT_FOUND);
     }
     if (delegations.revokedAtBlock !== 0) {
       throw new HttpException('Delegation already revoked', HttpStatus.NOT_FOUND);
     }
-    return this.blockchainService.createRevokedDelegationPayload(accountId, providerId);
+    return this.blockchainService.createRevokedDelegationPayload(accountId, providerMsaId);
   }
 
   async postRevokeDelegation(revokeDelegationRequest: RevokeDelegationPayloadRequestDto): Promise<TransactionResponse> {

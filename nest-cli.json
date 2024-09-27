@@ -135,6 +135,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/config/tsconfig.lib.json"
       }
+    },
+    "queues": {
+      "type": "library",
+      "root": "libs/queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/queue/tsconfig.lib.json"
+      }
     }
   }
 }

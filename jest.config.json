@@ -28,6 +28,7 @@
     "^#graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1",
     "^#types(|/.*)$": "<rootDir>/libs/types/src/$1",
     "^#config(|/.*)$": "<rootDir>/libs/config/src/$1",
+    "^#queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
     "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
   }
 }

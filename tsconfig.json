@@ -44,7 +44,9 @@
       "#utils": ["libs/utils/src"],
       "#utils/*": ["libs/utils/src/*"],
       "#config": ["libs/config/src"],
-      "#config/*": ["libs/config/src/*"]
+      "#config/*": ["libs/config/src/*"],
+      "#queue": ["libs/queue/src"],
+      "#queue/*": ["libs/queue/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

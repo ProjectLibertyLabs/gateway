@@ -7,6 +7,7 @@
  *        be no reason to construct shared queue names across services.
  */
 
+import { IQueueModuleOptions } from '#queue/queue.interfaces';
 import { AnnouncementTypeName } from '#types/enums/announcement-type.enum';
 
 export namespace AccountQueues {
@@ -77,6 +78,60 @@ export namespace ContentPublishingQueues {
     [PROFILE_QUEUE_NAME, AnnouncementTypeName.PROFILE],
     [UPDATE_QUEUE_NAME, AnnouncementTypeName.UPDATE],
   ]);
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: ASSET_QUEUE_NAME,
+      },
+      {
+        name: REQUEST_QUEUE_NAME,
+      },
+      {
+        name: BROADCAST_QUEUE_NAME,
+      },
+      {
+        name: REPLY_QUEUE_NAME,
+      },
+      {
+        name: REACTION_QUEUE_NAME,
+      },
+      {
+        name: TOMBSTONE_QUEUE_NAME,
+      },
+      {
+        name: UPDATE_QUEUE_NAME,
+      },
+      {
+        name: PROFILE_QUEUE_NAME,
+      },
+      {
+        name: BATCH_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
+        name: PUBLISH_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
+        name: STATUS_QUEUE_NAME,
+      },
+    ],
+  };
 }
 
 export namespace GraphQueues {

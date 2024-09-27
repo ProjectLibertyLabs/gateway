@@ -72,6 +72,9 @@ spec:
                 name: content-publishing-configmap
             - secretRef:
                 name: content-publishing-secret
+          env:
+            - name: START_PROCESS
+              value: "content-publishing-api"
           volumeMounts:
             - name: content-publishing-config-volume
               mountPath: /app/config/content-publishing
@@ -97,6 +100,9 @@ spec:
                 name: content-publishing-configmap
             - secretRef:
                 name: content-publishing-secret
+          env:
+            - name: START_PROCESS
+              value: "content-publishing-worker"
           volumeMounts:
             - name: content-publishing-config-volume
               mountPath: /app/config/content-publishing
@@ -142,6 +148,9 @@ spec:
                 name: graph-configmap
             - secretRef:
                 name: graph-secret
+          env:
+            - name: START_PROCESS
+              value: "graph-api"
           volumeMounts:
             - name: graph-config-volume
               mountPath: /app/config/graph
@@ -167,6 +176,9 @@ spec:
                 name: graph-configmap
             - secretRef:
                 name: graph-secret
+          env:
+            - name: START_PROCESS
+              value: "graph-worker"
           volumeMounts:
             - name: graph-config-volume
               mountPath: /app/config/graph
@@ -180,21 +192,18 @@ spec:
         - name: account-secret-volume
           secret:
             secretName: account-secret
-
         - name: content-publishing-config-volume
           configMap:
             name: content-publishing-configmap
         - name: content-publishing-secret-volume
           secret:
             secretName: content-publishing-secret
-
         - name: content-watcher-config-volume
           configMap:
             name: content-watcher-configmap
         - name: content-watcher-secret-volume
           secret:
             secretName: content-watcher-secret
-
         - name: graph-config-volume
           configMap:
             name: graph-configmap

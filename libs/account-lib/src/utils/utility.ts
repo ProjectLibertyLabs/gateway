@@ -39,7 +39,6 @@ export function verifySignature(
       isWrapped,
     };
   } catch (error) {
-    console.error('verifySignature:', error);
     return {
       isValid: false,
       isWrapped: false,

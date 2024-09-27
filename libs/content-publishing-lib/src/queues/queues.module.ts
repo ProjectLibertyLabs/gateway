@@ -4,7 +4,7 @@ import { ContentPublishingQueues as QueueConstants } from '#types/constants/queu
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import Redis from 'ioredis';
 import { redisEventsToEventEmitter, redisReadyMap } from '#content-publishing-lib/utils/redis';
-import cacheConfig, { ICacheConfig } from '#content-publishing-lib/cache/cache.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 
 @Global()
 @Module({

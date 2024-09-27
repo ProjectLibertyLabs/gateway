@@ -56,6 +56,11 @@ export class DelegationService {
     }
 
     if (providerMsaId) {
+      const isValidProviderId = await this.blockchainService.isValidMsaId(providerMsaId);
+      if (!isValidProviderId) {
+        throw new HttpException('Invalid provider', HttpStatus.BAD_REQUEST);
+      }
+
       const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerMsaId);
       if (!providerInfo) {
         throw new HttpException('Supplied ID not a Provider', HttpStatus.BAD_REQUEST);

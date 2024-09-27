@@ -1,0 +1,212 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frequency-gateway.fullname" . }}
+  labels:
+    {{- include "frequency-gateway.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "frequency-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "frequency-gateway.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: account-service-api
+          image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
+          ports:
+            - name: http-account
+              containerPort: {{ .Values.account.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: account-configmap
+            - secretRef:
+                name: account-secret
+          volumeMounts:
+            - name: account-config-volume
+              mountPath: /app/config/account
+            - name: account-secret-volume
+              mountPath: /app/secret/account
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.account.image.healthCheckPath }}
+              port: {{ .Values.account.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.account.image.readinessProbePath }}
+              port: {{ .Values.account.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          args: ["{{ .Values.account.image.mode.api.args}}"]
+        - name: account-service-worker
+          image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
+          envFrom:
+            - configMapRef:
+                name: account-configmap
+            - secretRef:
+                name: account-secret
+          volumeMounts:
+            - name: account-config-volume
+              mountPath: /app/config/account
+            - name: account-secret-volume
+              mountPath: /app/secret/account
+          args: ["{{ .Values.account.image.mode.worker.args}}"]
+        - name: content-publishing-service-api
+          image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
+          ports:
+            - name: http-publishing
+              containerPort: {{ .Values.contentPublishing.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: content-publishing-configmap
+            - secretRef:
+                name: content-publishing-secret
+          env:
+            - name: START_PROCESS
+              value: "content-publishing-api"
+          volumeMounts:
+            - name: content-publishing-config-volume
+              mountPath: /app/config/content-publishing
+            - name: content-publishing-secret-volume
+              mountPath: /app/secret/content-publishing
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.contentPublishing.image.healthCheckPath }}
+              port: {{ .Values.contentPublishing.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.contentPublishing.image.readinessProbePath }}
+              port: {{ .Values.contentPublishing.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          args: ["{{ .Values.contentPublishing.image.mode.api.args}}"]
+        - name: content-publishing-service-worker
+          image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
+          envFrom:
+            - configMapRef:
+                name: content-publishing-configmap
+            - secretRef:
+                name: content-publishing-secret
+          env:
+            - name: START_PROCESS
+              value: "content-publishing-worker"
+          volumeMounts:
+            - name: content-publishing-config-volume
+              mountPath: /app/config/content-publishing
+            - name: content-publishing-secret-volume
+              mountPath: /app/secret/content-publishing
+          args: ["{{ .Values.contentPublishing.image.mode.worker.args}}"]
+        - name: content-watcher-service
+          image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
+          ports:
+            - name: http-watcher
+              containerPort: {{ .Values.contentWatcher.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: content-watcher-configmap
+            - secretRef:
+                name: content-watcher-secret
+          volumeMounts:
+            - name: content-watcher-config-volume
+              mountPath: /app/config/content-watcher
+            - name: content-watcher-secret-volume
+              mountPath: /app/secret/content-watcher
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.contentWatcher.image.healthCheckPath }}
+              port: {{ .Values.contentWatcher.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.contentWatcher.image.readinessProbePath }}
+              port: {{ .Values.contentWatcher.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        - name: graph-service-api
+          image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
+          ports:
+            - name: http-graph
+              containerPort: {{ .Values.graph.env.API_PORT }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: graph-configmap
+            - secretRef:
+                name: graph-secret
+          env:
+            - name: START_PROCESS
+              value: "graph-api"
+          volumeMounts:
+            - name: graph-config-volume
+              mountPath: /app/config/graph
+            - name: graph-secret-volume
+              mountPath: /app/secret/graph
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.graph.image.healthCheckPath }}
+              port: {{ .Values.graph.env.API_PORT }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.graph.image.readinessProbePath }}
+              port: {{ .Values.graph.env.API_PORT }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          args: ["{{ .Values.graph.image.mode.api.args}}"]
+        - name: graph-service-worker
+          image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
+          envFrom:
+            - configMapRef:
+                name: graph-configmap
+            - secretRef:
+                name: graph-secret
+          env:
+            - name: START_PROCESS
+              value: "graph-worker"
+          volumeMounts:
+            - name: graph-config-volume
+              mountPath: /app/config/graph
+            - name: graph-secret-volume
+              mountPath: /app/secret/graph
+          args: ["{{ .Values.graph.image.mode.worker.args}}"]
+      volumes:
+        - name: account-config-volume
+          configMap:
+            name: account-configmap
+        - name: account-secret-volume
+          secret:
+            secretName: account-secret
+        - name: content-publishing-config-volume
+          configMap:
+            name: content-publishing-configmap
+        - name: content-publishing-secret-volume
+          secret:
+            secretName: content-publishing-secret
+        - name: content-watcher-config-volume
+          configMap:
+            name: content-watcher-configmap
+        - name: content-watcher-secret-volume
+          secret:
+            secretName: content-watcher-secret
+        - name: graph-config-volume
+          configMap:
+            name: graph-configmap
+        - name: graph-secret-volume
+          secret:
+            secretName: graph-secret

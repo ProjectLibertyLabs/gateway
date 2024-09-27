@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: content-watcher-configmap
+data:
+  IPFS_ENDPOINT: {{ .Values.contentWatcher.env.IPFS_ENDPOINT | quote }}
+  IPFS_GATEWAY_URL: {{ .Values.contentWatcher.env.IPFS_GATEWAY_URL | quote }}
+  FREQUENCY_URL: {{ .Values.contentWatcher.env.FREQUENCY_URL | quote }}
+  REDIS_URL: {{ .Values.contentWatcher.env.REDIS_URL | quote }}
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: {{ .Values.contentWatcher.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS | quote }}
+  QUEUE_HIGH_WATER: {{ .Values.contentWatcher.env.QUEUE_HIGH_WATER | quote }}
+  WEBHOOK_FAILURE_THRESHOLD: {{ .Values.contentWatcher.env.WEBHOOK_FAILURE_THRESHOLD | quote }}
+  WEBHOOK_RETRY_INTERVAL_SECONDS: {{ .Values.contentWatcher.env.WEBHOOK_RETRY_INTERVAL_SECONDS | quote }}
+  API_PORT: {{ .Values.contentWatcher.env.API_PORT | quote }}
+  CACHE_KEY_PREFIX: {{ .Values.contentWatcher.env.CACHE_KEY_PREFIX | quote }}

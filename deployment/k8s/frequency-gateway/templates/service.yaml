@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "frequency-gateway.fullname" . }}
+  labels:
+    {{- include "frequency-gateway.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: account-service
+      port: {{ .Values.service.account.port }}
+      targetPort: {{ .Values.service.account.targetPort }}
+      protocol: TCP
+    - name: content-publishing-service
+      port: {{ .Values.service.contentPublishing.port }}
+      targetPort: {{ .Values.service.contentPublishing.targetPort }}
+      protocol: TCP
+    - name: content-watcher-service
+      port: {{ .Values.service.contentWatcher.port }}
+      targetPort: {{ .Values.service.contentWatcher.targetPort }}
+      protocol: TCP
+    - name: graph-service
+      port: {{ .Values.service.graph.port }}
+      targetPort: {{ .Values.service.graph.targetPort }}
+      protocol: TCP
+  selector:
+    {{- include "frequency-gateway.selectorLabels" . | nindent 4 }}

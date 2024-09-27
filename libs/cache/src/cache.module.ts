@@ -18,7 +18,7 @@ export class CacheModule {
       imports: [
         RedisModule.forRootAsync(
           {
-            imports: [CacheModule, ...options.imports],
+            imports: [CacheModule, ...(options?.imports || [])],
             inject: [CacheMonitorService, ...(options.inject || [])],
             useFactory: async (cacheMonitor: CacheMonitorService, ...args: unknown[]) => {
               const clientOptions = await options.useFactory(...args);

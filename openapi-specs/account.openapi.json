@@ -1,6 +1,62 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/v2/accounts/siwf": {
+      "get": {
+        "operationId": "AccountsControllerV2_getRedirectUrl",
+        "summary": "Get the Sign In With Frequency Redirect URL",
+        "parameters": [
+          {
+            "name": "callbackUrl",
+            "required": true,
+            "in": "query",
+            "description": "The URL that will be called when the authentication process is completed.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "credentials",
+            "required": false,
+            "in": "query",
+            "description": "List of credentials using the types: \"VerifiedGraphKeyCredential\", \"VerifiedEmailAddressCredential\", and \"VerifiedPhoneNumberCredential\". Note that Contact related verifiable credentials will be nested into an anyOf request form.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "permissions",
+            "required": false,
+            "in": "query",
+            "description": "The list of permissions using the Frequency Schema names and versions. Pattern: `<namespace>.<name>@v<version integer>` e.g. `dsnp.broadcast@v2`",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SIWF Redirect URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletV2RedirectResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/accounts"
+        ]
+      }
+    },
     "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsControllerV1_getSIWFConfig",
@@ -63,8 +119,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -96,8 +152,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           }
@@ -129,8 +185,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           }
@@ -194,8 +250,8 @@
             "required": true,
             "in": "path",
             "description": "MSA Id of the user requesting the delegation",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           }
@@ -227,8 +283,8 @@
             "required": true,
             "in": "path",
             "description": "MSA Id of the user requesting the delegation",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           },
@@ -237,8 +293,8 @@
             "required": false,
             "in": "path",
             "description": "MSA Id of the provider to whom the requesting user wishes to delegate",
-            "example": "1",
             "schema": {
+              "example": "1",
               "type": "string"
             }
           }
@@ -270,8 +326,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -303,8 +359,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           },
@@ -313,8 +369,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of provider",
-            "example": "1",
             "schema": {
+              "example": "1",
               "type": "string"
             }
           }
@@ -428,9 +484,9 @@
             "required": true,
             "in": "path",
             "description": "newHandle in the request",
-            "example": "handle",
             "schema": {
               "minLength": 3,
+              "example": "handle",
               "type": "string"
             }
           }
@@ -455,8 +511,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -506,8 +562,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -532,8 +588,8 @@
             "required": true,
             "in": "query",
             "description": "MSA Id representing the target of this request",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           },
@@ -542,8 +598,8 @@
             "required": true,
             "in": "query",
             "description": "New public key to be added to the account (32-byte value in hex format)",
-            "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
             "schema": {
+              "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
               "type": "string"
             }
           }
@@ -639,6 +695,28 @@
   "servers": [],
   "components": {
     "schemas": {
+      "WalletV2RedirectResponseDto": {
+        "type": "object",
+        "properties": {
+          "signedRequest": {
+            "type": "string",
+            "description": "The base64url encoded JSON stringified signed request."
+          },
+          "frequencyRpcUrl": {
+            "type": "string",
+            "description": "A publically available Frequency node for SIWF dApps to connect to the correct chain."
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "The compiled redirect url with all the parameters already built in."
+          }
+        },
+        "required": [
+          "signedRequest",
+          "frequencyRpcUrl",
+          "redirectUrl"
+        ]
+      },
       "WalletLoginConfigResponseDto": {
         "type": "object",
         "properties": {

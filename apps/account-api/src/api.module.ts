@@ -15,7 +15,7 @@ import {
   DelegationsControllerV2,
   HealthController,
 } from './controllers';
-import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
+import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
@@ -58,10 +58,11 @@ import apiConfig from './api.config';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
+  providers: [AccountsService, SiwfV2Service, DelegationService, EnqueueService, HandlesService, KeysService],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [
+    AccountsControllerV2,
     AccountsControllerV1,
     DelegationsControllerV2,
     DelegationControllerV1,

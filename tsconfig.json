@@ -46,7 +46,9 @@
       "#config": ["libs/config/src"],
       "#config/*": ["libs/config/src/*"],
       "#queue": ["libs/queue/src"],
-      "#queue/*": ["libs/queue/src/*"]
+      "#queue/*": ["libs/queue/src/*"],
+      "#cache": ["libs/cache/src"],
+      "#cache/*": ["libs/cache/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

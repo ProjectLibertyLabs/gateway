@@ -9,7 +9,7 @@ import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { QueueModule } from '#account-lib/queues';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { CacheModule } from '#account-lib/cache/cache.module';
+import { CacheModule } from '#cache/cache.module';
 import {
   AccountsControllerV1,
   DelegationControllerV1,
@@ -21,7 +21,7 @@ import { AccountsService, HandlesService, DelegationService, KeysService } from 
 import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
-import cacheConfig, { ICacheConfig } from '#account-lib/cache/cache.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import queueConfig from '#account-lib/queues/queue.config';
 import apiConfig from './api.config';
 

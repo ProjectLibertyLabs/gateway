@@ -9,6 +9,7 @@ import {
   HttpException,
   Body,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '#account-api/services/handles.service';
@@ -22,7 +23,7 @@ import {
 import { TransactionResponse } from '#types/dtos/account/transaction.response.dto';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
-import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { u8aToHex } from '@polkadot/util';
 import { TransactionType } from '#types/account-webhook';
 import { HandleDto, MsaIdDto } from '#types/dtos/common';
 
@@ -52,6 +53,9 @@ export class HandlesControllerV1 {
    */
   async createHandle(@Body() createHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
     try {
+      if (!this.handlesService.verifyHandleRequestSignature(createHandleRequest)) {
+        throw new BadRequestException('Provided signature is not valid for the payload!');
+      }
       const response = await this.enqueueService.enqueueRequest<CreateHandleRequest>({
         ...createHandleRequest,
         type: TransactionType.CREATE_HANDLE,
@@ -59,6 +63,9 @@ export class HandlesControllerV1 {
       this.logger.log(`createHandle in progress. referenceId: ${response.referenceId}`);
       return response;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(error);
       throw new Error('Failed to create handle');
     }
@@ -77,6 +84,9 @@ export class HandlesControllerV1 {
    */
   async changeHandle(@Body() changeHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
     try {
+      if (!this.handlesService.verifyHandleRequestSignature(changeHandleRequest)) {
+        throw new BadRequestException('Provided signature is not valid for the payload!');
+      }
       const response = await this.enqueueService.enqueueRequest<ChangeHandleRequest>({
         ...changeHandleRequest,
         type: TransactionType.CHANGE_HANDLE,
@@ -84,6 +94,9 @@ export class HandlesControllerV1 {
       this.logger.log(`changeHandle in progress. referenceId: ${response.referenceId}`);
       return response;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(error);
       throw new Error('Failed to change handle');
     }
@@ -103,7 +116,7 @@ export class HandlesControllerV1 {
     try {
       const expiration = await this.handlesService.getExpiration();
       const payload = { baseHandle: newHandle, expiration };
-      const encodedPayload = u8aToHex(u8aWrapBytes(this.handlesService.encodePayload(payload).toU8a()));
+      const encodedPayload = u8aToHex(this.handlesService.encodePayload(payload).toU8a());
 
       return {
         payload,

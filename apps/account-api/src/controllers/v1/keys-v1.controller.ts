@@ -12,6 +12,7 @@ import {
   Post,
   UseGuards,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysRequestDto, AddKeyRequestDto } from '#types/dtos/account/keys.request.dto';
@@ -53,6 +54,9 @@ export class KeysControllerV1 {
    */
   async addKey(@Body() addKeysRequest: KeysRequestDto): Promise<TransactionResponse> {
     try {
+      if (!this.keysService.verifyAddKeySignature(addKeysRequest)) {
+        throw new BadRequestException('Provided signature is not valid for the payload!');
+      }
       const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
         ...addKeysRequest,
         type: TransactionType.ADD_KEY,
@@ -60,6 +64,9 @@ export class KeysControllerV1 {
       this.logger.log(`AddKey in progress. referenceId: ${response.referenceId}`);
       return response;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(error);
       throw new HttpException('Failed to find public keys for the given MSA Id', HttpStatus.BAD_REQUEST);
     }
@@ -114,6 +121,9 @@ export class KeysControllerV1 {
    */
   async AddNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
     try {
+      if (!this.keysService.verifyPublicKeyAgreementSignature(request)) {
+        throw new BadRequestException('Proof is not valid for the payload!');
+      }
       const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
         ...request,
         type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
@@ -121,6 +131,9 @@ export class KeysControllerV1 {
       this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
       return response;
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       this.logger.error(error);
       throw new Error('Failed to add new key');
     }

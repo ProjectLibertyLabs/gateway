@@ -7,7 +7,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { QueueModule } from '#account-lib/queues';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
 import {
@@ -22,7 +21,7 @@ import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controll
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig from '#account-lib/queues/queue.config';
+import queueConfig, { QueueModule } from '#queue';
 import apiConfig from './api.config';
 
 @Module({
@@ -58,7 +57,7 @@ import apiConfig from './api.config';
       ],
       inject: [cacheConfig.KEY],
     }),
-    QueueModule,
+    QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     // Bullboard UI
     BullBoardModule.forRoot({
       route: '/queues',

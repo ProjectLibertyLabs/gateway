@@ -4,23 +4,18 @@ import { RedisOptions } from 'bullmq';
 import Joi from 'joi';
 
 export interface IQueueConfig {
-  redisUrl: string;
   redisConnectionOptions: RedisOptions;
   cacheKeyPrefix: string;
 }
 
 export default registerAs('queue', (): IQueueConfig => {
   const configs: JoiUtils.JoiConfig<IQueueConfig> = {
-    redisUrl: {
-      value: process.env.BULL_URL,
-      joi: Joi.string().uri().required(),
-    },
     cacheKeyPrefix: {
       value: process.env.CACHE_KEY_PREFIX,
       joi: Joi.string().required(),
     },
     redisConnectionOptions: {
-      value: process.env.BULL_URL || process.env.REDIS_URL,
+      value: process.env.REDIS_URL,
       joi: Joi.string()
         .uri()
         .required()

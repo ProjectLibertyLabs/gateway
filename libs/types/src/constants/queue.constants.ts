@@ -15,6 +15,19 @@ export namespace AccountQueues {
    * Name of the queue that publishes account transactions to Frequency blockchain
    */
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: TRANSACTION_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: 20,
+          removeOnFail: false,
+          attempts: 1,
+        },
+      },
+    ],
+  };
 }
 
 export namespace ContentWatcherQueues {

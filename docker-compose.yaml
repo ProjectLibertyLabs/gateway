@@ -60,6 +60,15 @@ services:
     volumes:
       - redis_data:/data/redis
 
+  bull:
+    image: redis:latest
+    ports:
+      - 6380:6379
+    networks:
+      - gateway-net
+    volumes:
+      - bull_data:/data/redis
+
   frequency:
     # Temporary workaround until Frequency mainnet schemas are properly named and included in the image
     image: dsnp/instant-seal-node-with-deployed-schemas:latest
@@ -245,6 +254,7 @@ volumes:
   chainstorage:
     external: false
   redis_data:
+  bull_data:
   account_api_node_cache:
   account_worker_node_cache:
   graph_api_node_cache:

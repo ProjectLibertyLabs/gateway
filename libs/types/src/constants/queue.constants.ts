@@ -7,6 +7,7 @@
  *        be no reason to construct shared queue names across services.
  */
 
+import { IQueueModuleOptions } from '#queue/queue.interfaces';
 import { AnnouncementTypeName } from '#types/enums/announcement-type.enum';
 
 export namespace AccountQueues {
@@ -14,6 +15,19 @@ export namespace AccountQueues {
    * Name of the queue that publishes account transactions to Frequency blockchain
    */
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: TRANSACTION_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: 20,
+          removeOnFail: false,
+          attempts: 1,
+        },
+      },
+    ],
+  };
 }
 
 export namespace ContentWatcherQueues {
@@ -36,6 +50,45 @@ export namespace ContentWatcherQueues {
    * Name of the queue that has all incoming IPFS messages from the blockchain
    */
   export const IPFS_QUEUE = 'contentIpfsQueue';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    config: {
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    },
+    queues: [
+      {
+        name: REQUEST_QUEUE_NAME,
+      },
+      {
+        name: IPFS_QUEUE,
+      },
+      {
+        name: BROADCAST_QUEUE_NAME,
+      },
+      {
+        name: REPLY_QUEUE_NAME,
+      },
+      {
+        name: REACTION_QUEUE_NAME,
+      },
+      {
+        name: TOMBSTONE_QUEUE_NAME,
+      },
+      {
+        name: PROFILE_QUEUE_NAME,
+      },
+      {
+        name: UPDATE_QUEUE_NAME,
+      },
+    ],
+  };
 }
 
 export namespace ContentPublishingQueues {
@@ -77,6 +130,60 @@ export namespace ContentPublishingQueues {
     [PROFILE_QUEUE_NAME, AnnouncementTypeName.PROFILE],
     [UPDATE_QUEUE_NAME, AnnouncementTypeName.UPDATE],
   ]);
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: ASSET_QUEUE_NAME,
+      },
+      {
+        name: REQUEST_QUEUE_NAME,
+      },
+      {
+        name: BROADCAST_QUEUE_NAME,
+      },
+      {
+        name: REPLY_QUEUE_NAME,
+      },
+      {
+        name: REACTION_QUEUE_NAME,
+      },
+      {
+        name: TOMBSTONE_QUEUE_NAME,
+      },
+      {
+        name: UPDATE_QUEUE_NAME,
+      },
+      {
+        name: PROFILE_QUEUE_NAME,
+      },
+      {
+        name: BATCH_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
+        name: PUBLISH_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1,
+          backoff: {
+            type: 'exponential',
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        },
+      },
+      {
+        name: STATUS_QUEUE_NAME,
+      },
+    ],
+  };
 }
 
 export namespace GraphQueues {
@@ -94,4 +201,33 @@ export namespace GraphQueues {
    * Name of the queue that publishes graph changes to Frequency blockchain
    */
   export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: GRAPH_CHANGE_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: true,
+          removeOnFail: false,
+          attempts: 3,
+        },
+      },
+      {
+        name: GRAPH_CHANGE_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: true,
+          removeOnFail: false,
+          attempts: 1,
+        },
+      },
+      {
+        name: RECONNECT_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: false,
+          removeOnFail: false,
+          attempts: 3,
+        },
+      },
+    ],
+  };
 }

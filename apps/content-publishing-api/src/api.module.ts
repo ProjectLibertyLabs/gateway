@@ -1,12 +1,8 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
-import { QueuesModule } from '#content-publishing-lib/queues';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { ApiService } from './api.service';
@@ -16,9 +12,9 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig from '#content-publishing-lib/queues/queue.config';
 import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import queueConfig, { QueueModule } from '#queue';
 
 @Module({
   imports: [
@@ -38,7 +34,7 @@ import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
       // set this to `true` if you want to emit the removeListener event
       removeListener: false,
       // the maximum amount of listeners that can be assigned to an event
-      maxListeners: 10,
+      maxListeners: 20,
       // show event name in memory leak message when more than maximum amount of listeners is assigned
       verboseMemoryLeak: false,
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
@@ -53,56 +49,7 @@ import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
       ],
       inject: [cacheConfig.KEY],
     }),
-    QueuesModule,
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.ASSET_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REQUEST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.BROADCAST_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REPLY_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.REACTION_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TOMBSTONE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.UPDATE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.PROFILE_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.BATCH_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.PUBLISH_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.STATUS_QUEUE_NAME,
-      adapter: BullMQAdapter,
-    }),
+    QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     MulterModule.registerAsync({
       useFactory: async (apiConf: IContentPublishingApiConfig) => ({

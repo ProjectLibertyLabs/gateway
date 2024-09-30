@@ -1,15 +1,11 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
-import { QueueModule } from '#graph-lib/queues/queue.module';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
@@ -17,7 +13,7 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { allowReadOnly } from '#graph-lib/blockchain/blockchain.config';
-import queueConfig from '#graph-lib/queues/queue.config';
+import queueConfig, { QueueModule } from '#queue';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
@@ -56,24 +52,7 @@ import graphCommonConfig from '#config/graph-common.config';
       ],
       inject: [cacheConfig.KEY],
     }),
-    QueueModule,
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE,
-      adapter: BullMQAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.RECONNECT_REQUEST_QUEUE,
-      adapter: BullMQAdapter,
-    }),
+    QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
   providers: [ApiService, GraphStateManager, AsyncDebouncerService],

@@ -9,6 +9,7 @@ import { sha256 } from 'multiformats/hashes/sha2';
 import { randomUUID } from 'crypto';
 import { base32 } from 'multiformats/bases/base32';
 import ipfsConfig, { IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
+import { encode } from 'multihashes';
 
 export interface FilePin {
   cid: string;
@@ -141,12 +142,9 @@ export class IpfsService {
     // Hash with sha256
     // Encode with base32
     this.logger.debug(`Hashing file buffer with length: ${fileBuffer.length}`);
-    const hash = await sha256.digest(fileBuffer);
+    const hashed = await sha256.digest(fileBuffer);
     // add multihash prefix for sha256
-    const hashPrefix = new Uint8Array([18, hash.bytes.length]);
-    const multihash = new Uint8Array(hashPrefix.length + hash.bytes.length);
-    multihash.set(hashPrefix);
-    multihash.set(hash.bytes, hashPrefix.length);
+    const multihash = encode(hashed.bytes, 'sha2-256');
     return base32.encode(multihash);
   }
 

@@ -4,7 +4,6 @@ import { u8aToHex } from '@polkadot/util';
 
 export function validateContentHash(contentHash: unknown): boolean {
   if (typeof contentHash !== 'string') {
-    console.error('Invalid DSNP Content Hash');
     return false;
   }
   const re = /^[A-Z2-7]+=*$/i;

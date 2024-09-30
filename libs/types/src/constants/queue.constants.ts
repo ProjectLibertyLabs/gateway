@@ -201,4 +201,33 @@ export namespace GraphQueues {
    * Name of the queue that publishes graph changes to Frequency blockchain
    */
   export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    queues: [
+      {
+        name: GRAPH_CHANGE_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: true,
+          removeOnFail: false,
+          attempts: 3,
+        },
+      },
+      {
+        name: GRAPH_CHANGE_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: true,
+          removeOnFail: false,
+          attempts: 1,
+        },
+      },
+      {
+        name: RECONNECT_REQUEST_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: false,
+          removeOnFail: false,
+          attempts: 3,
+        },
+      },
+    ],
+  };
 }

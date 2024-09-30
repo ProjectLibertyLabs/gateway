@@ -50,6 +50,45 @@ export namespace ContentWatcherQueues {
    * Name of the queue that has all incoming IPFS messages from the blockchain
    */
   export const IPFS_QUEUE = 'contentIpfsQueue';
+
+  export const CONFIGURED_QUEUES: IQueueModuleOptions = {
+    config: {
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    },
+    queues: [
+      {
+        name: REQUEST_QUEUE_NAME,
+      },
+      {
+        name: IPFS_QUEUE,
+      },
+      {
+        name: BROADCAST_QUEUE_NAME,
+      },
+      {
+        name: REPLY_QUEUE_NAME,
+      },
+      {
+        name: REACTION_QUEUE_NAME,
+      },
+      {
+        name: TOMBSTONE_QUEUE_NAME,
+      },
+      {
+        name: PROFILE_QUEUE_NAME,
+      },
+      {
+        name: UPDATE_QUEUE_NAME,
+      },
+    ],
+  };
 }
 
 export namespace ContentPublishingQueues {

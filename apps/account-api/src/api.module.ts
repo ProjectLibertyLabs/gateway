@@ -2,9 +2,6 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
@@ -58,15 +55,6 @@ import apiConfig from './api.config';
       inject: [cacheConfig.KEY],
     }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
-      adapter: BullMQAdapter,
-    }),
     ScheduleModule.forRoot(),
   ],
   providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],

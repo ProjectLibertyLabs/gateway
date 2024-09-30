@@ -153,6 +153,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/cache/tsconfig.lib.json"
       }
+    },
+    "openapi": {
+      "type": "library",
+      "root": "libs/openapi",
+      "entryFile": "index",
+      "sourceRoot": "libs/openapi/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/openapi/tsconfig.lib.json"
+      }
     }
   }
 }

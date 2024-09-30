@@ -293,10 +293,10 @@
         "properties": {
           "schemaIds": {
             "type": "array",
-            "minimum": 0,
-            "maximum": 65536,
             "items": {
-              "type": "number"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 65536
             },
             "description": "Specific schema ids to watch for",
             "example": [

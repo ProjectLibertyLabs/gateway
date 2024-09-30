@@ -2,10 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
-import { initSwagger } from './swagger_config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import metadata from '#account-api/metadata';
+import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/swagger_config';
 
 const logger = new Logger('main');
 
@@ -32,6 +33,19 @@ async function bootstrap() {
     logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
     rawBody: true,
   });
+
+  const swaggerDoc = await generateSwaggerDoc(app, metadata, {
+    title: 'Content Publishing Service API',
+    description: 'Content Publishing Service API',
+    version: '1.0',
+  });
+
+  const args = process.argv.slice(2);
+  if (args.find((v) => v === '--writeOpenApi')) {
+    writeOpenApiFile(swaggerDoc, './openapi-specs/content-publishing.openapi.json');
+    process.exit(0);
+  }
+
   const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
 
   // Get event emitter & register a shutdown listener
@@ -53,7 +67,6 @@ async function bootstrap() {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
-    await initSwagger(app, '/docs/swagger');
     logger.log(`Listening on port ${config.apiPort}`);
     await app.listen(config.apiPort);
   } catch (e) {

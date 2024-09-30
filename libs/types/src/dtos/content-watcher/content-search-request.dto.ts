@@ -17,6 +17,8 @@ export class ContentSearchRequestDto {
   @Min(0)
   @Max(4_294_967_296)
   @ApiProperty({
+    minimum: 0,
+    maximum: 4_294_967_296,
     description: 'The block number to search (backward) from',
     required: false,
     example: 100,
@@ -28,6 +30,8 @@ export class ContentSearchRequestDto {
   @Min(0)
   @Max(4_294_967_296)
   @ApiProperty({
+    minimum: 0,
+    maximum: 4_294_967_296,
     description: 'The number of blocks to scan (backwards)',
     required: true,
     example: 101,

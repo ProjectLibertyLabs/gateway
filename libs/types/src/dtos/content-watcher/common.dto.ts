@@ -30,7 +30,14 @@ export class ResetScannerDto implements IScanReset {
   @IsInt()
   @Min(0)
   @Max(4_294_967_296)
-  @ApiProperty({ required: false, type: 'number', description: 'The block number to reset the scanner to', example: 0 })
+  @ApiProperty({
+    required: false,
+    type: 'number',
+    minimum: 0,
+    maximum: 4_294_967_296,
+    description: 'The block number to reset the scanner to',
+    example: 0,
+  })
   blockNumber?: number;
 
   @IsOptional()
@@ -40,6 +47,8 @@ export class ResetScannerDto implements IScanReset {
   @ApiProperty({
     required: false,
     type: 'number',
+    minimum: 0,
+    maximum: 4_294_967_296,
     description: 'Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block)',
     example: 100,
   })

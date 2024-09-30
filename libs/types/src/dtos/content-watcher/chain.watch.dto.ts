@@ -20,6 +20,8 @@ export class ChainWatchOptionsDto {
     type: 'array',
     items: {
       type: 'number',
+      minimum: 0,
+      maximum: 65_536,
     },
     description: 'Specific schema ids to watch for',
     required: false,

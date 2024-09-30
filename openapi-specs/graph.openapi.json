@@ -330,12 +330,12 @@
             }
           },
           "privacyType": {
+            "type": "string",
+            "description": "Graph type to query (public or private)",
             "enum": [
               "private",
               "public"
             ],
-            "type": "string",
-            "description": "Graph type to query (public or private)",
             "example": "public"
           },
           "graphKeyPairs": {

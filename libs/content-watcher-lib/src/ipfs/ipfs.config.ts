@@ -9,13 +9,6 @@ export interface IIpfsConfig {
   ipfsBasicAuthSecret: string;
 }
 
-export function getIpfsCidPlaceholder(cid: string, gatewayUrl: string): string {
-  if (!gatewayUrl || !gatewayUrl.includes('[CID]')) {
-    return `https://ipfs.io/ipfs/${cid}`;
-  }
-  return gatewayUrl.replace('[CID]', cid);
-}
-
 const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
   const configs: JoiUtils.JoiConfig<IIpfsConfig> = {
     ipfsEndpoint: {

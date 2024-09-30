@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
-import { decodeSignedRequest } from '@projectlibertylabs/siwa';
+import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { SiwfV2Service } from './siwfV2.service';
 import apiConfig from '#account-api/api.config';
 import blockchainConfig from '#account-lib/blockchain/blockchain.config';

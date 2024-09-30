@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { decodeSignedRequest } from '@projectlibertylabs/siwa';
+import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { ApiModule } from '../src/api.module';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';

@@ -1,6 +1,6 @@
 import { validate } from 'class-validator';
 import { IsCredentialType } from './is-credential-type.decorator';
-import { KnownCredentialTypes } from '@projectlibertylabs/siwa';
+import { KnownCredentialTypes } from '@projectlibertylabs/siwfv2';
 
 class TestClass {
   @IsCredentialType()

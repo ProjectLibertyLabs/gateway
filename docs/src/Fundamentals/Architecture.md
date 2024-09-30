@@ -15,7 +15,7 @@ Your application still must manage sessions as is best for your custom needs.
 
 #### SIWF/SIWA
 
-[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) and [Sign In With Access (SIWA)](https://frequencyaccess.com/) are methods for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
+[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) v1 and v2 (which supports [Frequency Access](https://frequencyaccess.com/)) are methods for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
 
 - **SIWF Implementation:** Users sign in using their Web3 wallets, which generate cryptographic signatures for authentication. This process eliminates the need for traditional usernames and passwords, enhancing security and user privacy.
 

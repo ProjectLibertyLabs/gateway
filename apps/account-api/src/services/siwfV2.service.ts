@@ -5,8 +5,8 @@ import {
   VerifiedPhoneNumberCredential,
   VerifiedEmailAddressCredential,
   VerifiedGraphKeyCredential,
-  SiwaCredentialRequest,
-} from '@projectlibertylabs/siwa';
+  SiwfCredentialRequest,
+} from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
@@ -22,8 +22,8 @@ export class SiwfV2Service {
     this.logger = new Logger(this.constructor.name);
   }
 
-  private static requestedCredentialTypesToFullRequest(requestCredentials: string[]): SiwaCredentialRequest[] {
-    const credentials: SiwaCredentialRequest[] = [];
+  private static requestedCredentialTypesToFullRequest(requestCredentials: string[]): SiwfCredentialRequest[] {
+    const credentials: SiwfCredentialRequest[] = [];
     if (
       requestCredentials.includes('VerifiedEmailAddressCredential') &&
       requestCredentials.includes('VerifiedPhoneNumberCredential')

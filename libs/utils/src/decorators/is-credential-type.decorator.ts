@@ -1,4 +1,4 @@
-import { KnownCredentialTypes } from '@projectlibertylabs/siwa';
+import { KnownCredentialTypes } from '@projectlibertylabs/siwfv2';
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 
 export function IsCredentialType(validationOptions?: ValidationOptions) {

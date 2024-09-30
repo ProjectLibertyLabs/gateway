@@ -11,7 +11,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 // ## Request GET <URL>/start
 //
 // ### Parameters
-// - `signedRequest`: SIWA Signed Request Payload
+// - `signedRequest`: SIWF Signed Request Payload
 //   - Provider Signed
 //     - `callback`
 //     - `permissions` Schema Id Array
@@ -22,7 +22,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 //
 // ## Callback GET <signedRequest.payload.callback>/api/payload
 //
-// The final retrieved payload will match the SIWA Response data structure.
+// The final retrieved payload will match the SIWF Response data structure.
 //
 // ### Authorization Code -> Frequency Access
 //
@@ -32,7 +32,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 //
 // ### Payload Version
 //
-// - `authorizationPayload`: A base64url encoded, JSON stringification of the SIWA Response data structure.
+// - `authorizationPayload`: A base64url encoded, JSON stringification of the SIWF Response data structure.
 //
 
 @Controller('v2/accounts')

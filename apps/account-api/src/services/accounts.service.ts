@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
+import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { WalletLoginRequestDto, PublishSIWFSignupRequestDto } from '#types/dtos/account/wallet.login.request.dto';

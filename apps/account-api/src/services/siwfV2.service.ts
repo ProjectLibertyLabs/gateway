@@ -9,6 +9,7 @@ import {
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 
 @Injectable()
@@ -16,8 +17,9 @@ export class SiwfV2Service {
   private readonly logger: Logger;
 
   constructor(
-    @Inject(apiConfig.KEY) private readonly apiCOnf: IAccountApiConfig,
+    @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    private blockchainService: BlockchainService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -47,6 +49,18 @@ export class SiwfV2Service {
     return credentials;
   }
 
+  // Default to the default "production" and "staging" endpoints for mainnet and testnet-paseo
+  private swifV2Endpoint(): string {
+    const { siwfV2Url }: IAccountApiConfig = this.apiConf;
+    if (siwfV2Url !== '') return siwfV2Url;
+    const networkType = this.blockchainService.getNetworkType();
+    if (networkType === 'mainnet') return 'production';
+    if (networkType === 'testnet-paseo') return 'staging';
+    throw new Error(
+      'Unable to derive the SIWF V2 Redirect URL endpoint. Unknown networks require setting "SIWF_V2_URL"',
+    );
+  }
+
   async getRedirectUrl(
     callbackUrl: string,
     permissions: number[],
@@ -54,7 +68,7 @@ export class SiwfV2Service {
   ): Promise<WalletV2RedirectResponseDto> {
     let response: WalletV2RedirectResponseDto;
     try {
-      const { frequencyHttpUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
+      const { frequencyHttpUrl }: IAccountApiConfig = this.apiConf;
       const { providerSeedPhrase } = this.blockchainConf;
 
       const signedRequest = await generateEncodedSignedRequest(
@@ -67,12 +81,12 @@ export class SiwfV2Service {
       response = {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {
-          endpoint: siwfUrl,
+          endpoint: this.swifV2Endpoint(),
         }),
         frequencyRpcUrl,
       };
     } catch (e) {
-      this.logger.error(`Error during SIWF config request: ${e}`);
+      this.logger.error(`Error during SIWF V2 Redrect URL request: ${e}`);
       throw new Error('Failed to get SIWF V2 Redirect URL');
     }
     return response;

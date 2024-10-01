@@ -21,6 +21,7 @@ describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
   let blockchainConf: IBlockchainConfig;
+  const mockGenesisHashHex = jest.fn();
 
   beforeAll(async () => {
     mockApi = {
@@ -29,6 +30,9 @@ describe('BlockchainService', () => {
         capacity: {
           currentEpochInfo: jest.fn(),
         },
+      },
+      genesisHash: {
+        toHex: mockGenesisHashHex,
       },
     } as unknown as ApiPromise;
 
@@ -95,6 +99,27 @@ describe('BlockchainService', () => {
     it('should throw if provided ID and seed phrase do not map to a registered provider', async () => {
       jest.spyOn(blockchainService, 'getProviderToRegistryEntry').mockResolvedValueOnce(null);
       await expect(blockchainService.validateProviderSeedPhrase()).rejects.toThrow();
+    });
+  });
+
+  describe('getNetworkType', () => {
+    afterAll(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should return mainnet for the mainnet hash', () => {
+      mockGenesisHashHex.mockReturnValue('0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1');
+      expect(blockchainService.getNetworkType()).toEqual('mainnet');
+    });
+
+    it('should return testnet for the testnet hash', () => {
+      mockGenesisHashHex.mockReturnValue('0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0');
+      expect(blockchainService.getNetworkType()).toEqual('testnet-paseo');
+    });
+
+    it('should return unknown for anything else', () => {
+      mockGenesisHashHex.mockReturnValue('0xabcd');
+      expect(blockchainService.getNetworkType()).toEqual('unknown');
     });
   });
 });

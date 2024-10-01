@@ -15,6 +15,8 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import queueConfig, { QueueModule } from '#queue';
+import {APP_FILTER} from "@nestjs/core";
+import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
 
 @Module({
   imports: [
@@ -61,7 +63,13 @@ import queueConfig, { QueueModule } from '#queue';
       inject: [apiConfig.KEY],
     }),
   ],
-  providers: [ApiService, IpfsService],
+  providers: [ApiService, IpfsService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers:

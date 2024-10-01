@@ -18,6 +18,8 @@ import queueConfig, { QueueModule } from '#queue';
 import ipfsConfig from '#content-watcher-lib/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
 import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
+import {APP_FILTER} from "@nestjs/core";
+import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
 
 @Module({
   imports: [
@@ -55,7 +57,13 @@ import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
       ignoreErrors: false,
     }),
   ],
-  providers: [ApiService],
+  providers: [ApiService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [ScanControllerV1, SearchControllerV1, WebhookControllerV1, HealthController],

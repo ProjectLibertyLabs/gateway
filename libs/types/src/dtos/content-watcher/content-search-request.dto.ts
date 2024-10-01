@@ -4,55 +4,46 @@ import { ChainWatchOptionsDto } from './chain.watch.dto';
 import { Type } from 'class-transformer';
 
 export class ContentSearchRequestDto {
+  /**
+   * An optional client-supplied reference ID by which it can identify the result of this search
+   */
   @IsOptional()
   @IsString()
-  @ApiProperty({
-    description: 'An optional client-supplied reference ID by which it can identify the result of this search',
-    required: false,
-  })
-  clientReferenceId: string;
+  clientReferenceId?: string;
 
+  /**
+   * The block number to search (backward) from
+   * @example 100
+   */
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4_294_967_296)
-  @ApiProperty({
-    minimum: 0,
-    maximum: 4_294_967_296,
-    description: 'The block number to search (backward) from',
-    required: false,
-    example: 100,
-  })
-  startBlock: number;
+  startBlock?: number;
 
+  /**
+   * The number of blocks to scan (backwards)
+   * @example 101
+   */
   @IsNotEmpty()
   @IsInt()
   @Min(0)
   @Max(4_294_967_296)
-  @ApiProperty({
-    minimum: 0,
-    maximum: 4_294_967_296,
-    description: 'The number of blocks to scan (backwards)',
-    required: true,
-    example: 101,
-  })
   blockCount: number;
 
+  /**
+   * The schemaIds/dsnpIds to filter by
+   */
   @IsOptional()
   @ValidateNested()
   @Type(() => ChainWatchOptionsDto)
-  @ApiProperty({
-    description: 'The schemaIds/dsnpIds to filter by',
-    required: false,
-  })
-  filters: ChainWatchOptionsDto;
+  filters?: ChainWatchOptionsDto;
 
+  /**
+   * A webhook URL to be notified of the results of this search
+   * @example 'https://example.com'
+   */
   @IsNotEmpty()
   @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
-  @ApiProperty({
-    description: 'A webhook URL to be notified of the results of this search',
-    required: true,
-    example: 'https://example.com',
-  })
   webhookUrl: string;
 }

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
-import { ModifiableAnnouncementTypeDto, TagTypeDto } from '#types/dtos/content-publishing';
+import { ModifiableAnnouncementType, TagTypeEnum } from '#types/dtos/content-publishing';
 import { IRequestJob } from '#types/interfaces/content-publishing';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementTypeName } from '#types/enums';
@@ -140,7 +140,7 @@ describe('DsnpAnnouncementProcessor', () => {
           content: 'mockUpdateContent',
           published: '2021-01-01T00:00:00.000Z',
         },
-        targetAnnouncementType: ModifiableAnnouncementTypeDto.REPLY,
+        targetAnnouncementType: ModifiableAnnouncementType.REPLY,
         targetContentHash: 'dsnp://123/reply/1',
       },
       assetToMimeType: new Map(),
@@ -167,8 +167,8 @@ describe('DsnpAnnouncementProcessor', () => {
           published: '2021-01-01T00:00:00.000Z',
           summary: 'A brief summary',
           tag: [
-            { type: TagTypeDto.Hashtag, name: 'tag1' },
-            { type: TagTypeDto.Mention, name: 'user1', mentionedId: 'dsnp://123' },
+            { type: TagTypeEnum.Hashtag, name: 'tag1' },
+            { type: TagTypeEnum.Mention, name: 'user1', mentionedId: 'dsnp://123' },
           ],
         },
       },
@@ -191,7 +191,7 @@ describe('DsnpAnnouncementProcessor', () => {
       dsnpUserId: 'dsnp://999',
       dependencyAttempt: 0,
       content: {
-        targetAnnouncementType: ModifiableAnnouncementTypeDto.BROADCAST,
+        targetAnnouncementType: ModifiableAnnouncementType.BROADCAST,
         targetContentHash: 'dsnp://123/broadcast/1',
       },
       assetToMimeType: new Map(),

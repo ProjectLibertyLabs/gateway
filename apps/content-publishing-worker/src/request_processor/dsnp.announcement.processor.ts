@@ -20,8 +20,8 @@ import {
   UpdateDto,
   ProfileDto,
   TombstoneDto,
-  ModifiableAnnouncementTypeDto,
-  TagTypeDto,
+  ModifiableAnnouncementType,
+  TagTypeEnum,
   AttachmentType,
   AssetDto,
   TagDto,
@@ -165,13 +165,13 @@ export class DsnpAnnouncementProcessor {
   }
 
   private async getAnnouncementTypeFromModifiableAnnouncementType(
-    modifiableAnnouncementType: ModifiableAnnouncementTypeDto,
+    modifiableAnnouncementType: ModifiableAnnouncementType,
   ): Promise<AnnouncementType> {
     this.logger.debug(`Getting announcement type from modifiable announcement type`);
     switch (modifiableAnnouncementType) {
-      case ModifiableAnnouncementTypeDto.BROADCAST:
+      case ModifiableAnnouncementType.BROADCAST:
         return AnnouncementType.Broadcast;
-      case ModifiableAnnouncementTypeDto.REPLY:
+      case ModifiableAnnouncementType.REPLY:
         return AnnouncementType.Reply;
       default:
         throw new Error(`Unsupported announcement type ${typeof modifiableAnnouncementType}`);
@@ -210,13 +210,13 @@ export class DsnpAnnouncementProcessor {
     if (tagData) {
       tagData.forEach((tag) => {
         switch (tag.type) {
-          case TagTypeDto.Hashtag:
+          case TagTypeEnum.Hashtag:
             if (!tag.name) {
               throw new Error(`Tag name is required`);
             }
             tags.push({ name: tag.name });
             break;
-          case TagTypeDto.Mention:
+          case TagTypeEnum.Mention:
             if (!tag.mentionedId) {
               throw new Error(`Mentioned ID is required`);
             }

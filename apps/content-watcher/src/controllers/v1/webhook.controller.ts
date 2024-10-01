@@ -1,5 +1,8 @@
 import { ApiService } from '#content-watcher/api.service';
-import { WebhookRegistrationDto } from '#types/dtos/content-watcher/subscription.webhook.dto';
+import {
+  WebhookRegistrationDto,
+  WebhookRegistrationResponseDto,
+} from '#types/dtos/content-watcher/subscription.webhook.dto';
 import { Body, Controller, Delete, Get, HttpStatus, Logger, Put } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -14,10 +17,6 @@ export class WebhookControllerV1 {
 
   @Put()
   @ApiOperation({ summary: 'Register a webhook to be called when new content is encountered on the chain' })
-  @ApiBody({
-    description: 'Register a webhook to be called when a new content is encountered',
-    type: WebhookRegistrationDto,
-  })
   async registerWebhook(@Body() webhookRegistrationDto: WebhookRegistrationDto) {
     this.logger.debug(`Registering webhook ${JSON.stringify(webhookRegistrationDto)}`);
     await this.apiService.setWebhook(webhookRegistrationDto);
@@ -40,11 +39,11 @@ export class WebhookControllerV1 {
   @ApiOperation({ summary: 'Get the list of currently registered webhooks' })
   @ApiOkResponse({
     description: 'Returns a list of registered webhooks',
-    type: [WebhookRegistrationDto],
+    type: WebhookRegistrationResponseDto,
   })
-  async getRegisteredWebhooks() {
+  async getRegisteredWebhooks(): Promise<WebhookRegistrationResponseDto> {
     this.logger.debug('Getting registered webhooks');
-    const registeredWebhooks = await this.apiService.getRegisteredWebhooks();
+    const registeredWebhooks = (await this.apiService.getRegisteredWebhooks()) as WebhookRegistrationDto[];
     return {
       status: HttpStatus.OK,
       registeredWebhooks,

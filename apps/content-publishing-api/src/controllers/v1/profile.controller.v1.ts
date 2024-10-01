@@ -17,7 +17,7 @@ export class ProfileControllerV1 {
   @Put(':msaId')
   @ApiOperation({ summary: "Update a user's Profile" })
   @HttpCode(202)
-  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
+  // @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async profile(@Param() { msaId }: MsaIdDto, @Body() profileDto: ProfileDto): Promise<AnnouncementResponseDto> {
     const metadata = await this.apiService.validateAssetsAndFetchMetadata(profileDto as AssetIncludedRequestDto);
     return this.apiService.enqueueRequest(AnnouncementTypeName.PROFILE, msaId, profileDto, metadata);

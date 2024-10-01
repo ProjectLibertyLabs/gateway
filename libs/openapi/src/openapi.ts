@@ -12,11 +12,7 @@ export interface ISwaggerDocOptions {
 
 const logger = new Logger('Swagger');
 
-export async function generateSwaggerDoc(
-  app: INestApplication,
-  metadata: () => Promise<Record<string, any>>,
-  { title, description, version }: ISwaggerDocOptions,
-) {
+export async function generateSwaggerDoc(app: INestApplication, { title, description, version }: ISwaggerDocOptions) {
   let builder = new DocumentBuilder();
 
   if (title) {
@@ -32,7 +28,6 @@ export async function generateSwaggerDoc(
   }
 
   const config = builder.build();
-  await SwaggerModule.loadPluginMetadata(metadata);
 
   return SwaggerModule.createDocument(app, config, {
     extraModels: [],

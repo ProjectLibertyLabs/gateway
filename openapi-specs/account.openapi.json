@@ -385,7 +385,14 @@
         },
         "responses": {
           "200": {
-            "description": "Handle creation request enqueued"
+            "description": "Handle creation request enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -410,7 +417,14 @@
         },
         "responses": {
           "200": {
-            "description": "Handle change request enqueued"
+            "description": "Handle change request enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -437,7 +451,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Returned an encoded ClaimHandlePayload for signing"
+            "description": "Returned an encoded ClaimHandlePayload for signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangeHandlePayloadRequest"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -463,7 +484,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Found a handle"
+            "description": "Found a handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandleResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -488,7 +516,14 @@
         },
         "responses": {
           "200": {
-            "description": "Found public keys"
+            "description": "Found public keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -514,7 +549,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Found public keys"
+            "description": "Found public keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeysResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -550,7 +592,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing"
+            "description": "Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddNewPublicKeyAgreementPayloadRequest"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -575,7 +624,14 @@
         },
         "responses": {
           "200": {
-            "description": "Add new key request enqueued"
+            "description": "Add new key request enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -931,6 +987,10 @@
           "delegations"
         ]
       },
+      "u32": {
+        "type": "object",
+        "properties": {}
+      },
       "DelegationResponse": {
         "type": "object",
         "properties": {
@@ -941,7 +1001,7 @@
             "type": "object"
           },
           "revokedAt": {
-            "type": "object"
+            "$ref": "#/components/schemas/u32"
           }
         },
         "required": [
@@ -1024,12 +1084,13 @@
           "baseHandle": {
             "type": "string",
             "description": "base handle in the request",
-            "example": "handle"
+            "example": "handle",
+            "minLength": 3
           },
           "expiration": {
             "type": "number",
             "description": "expiration block number for this payload",
-            "example": "1"
+            "example": 1
           }
         },
         "required": [
@@ -1060,6 +1121,23 @@
           "proof"
         ]
       },
+      "ChangeHandlePayloadRequest": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/HandlePayloadDto"
+          },
+          "encodedPayload": {
+            "type": "string",
+            "description": "Raw encodedPayload is scale encoded of payload in hex format",
+            "example": "0x012345"
+          }
+        },
+        "required": [
+          "payload",
+          "encodedPayload"
+        ]
+      },
       "KeysRequestPayloadDto": {
         "type": "object",
         "properties": {
@@ -1071,7 +1149,7 @@
           "expiration": {
             "type": "number",
             "description": "expiration block number for this payload",
-            "example": "1"
+            "example": 1
           },
           "newPublicKey": {
             "type": "string",
@@ -1114,24 +1192,47 @@
           "payload"
         ]
       },
+      "KeysResponse": {
+        "type": "object",
+        "properties": {
+          "msaKeys": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "msaKeys"
+        ]
+      },
+      "ItemActionDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Action Item type",
+            "example": "ADD_ITEM",
+            "enum": [
+              "ADD_ITEM",
+              "DELETE_ITEM"
+            ]
+          },
+          "encodedPayload": {
+            "type": "string",
+            "description": "encodedPayload to be added",
+            "example": "0x1234"
+          },
+          "index": {
+            "type": "number",
+            "description": "index of the item to be deleted",
+            "example": 0
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "ItemizedSignaturePayloadDto": {
         "type": "object",
         "properties": {
-          "schemaId": {
-            "type": "number",
-            "description": "schemaId related to the payload",
-            "example": "1"
-          },
-          "targetHash": {
-            "type": "number",
-            "description": "targetHash related to the stateful storage",
-            "example": "1234"
-          },
-          "expiration": {
-            "type": "number",
-            "description": "expiration block number for this payload",
-            "example": "1"
-          },
           "actions": {
             "example": [
               {
@@ -1141,15 +1242,47 @@
             ],
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/ItemActionDto"
             }
+          },
+          "schemaId": {
+            "type": "number",
+            "description": "schemaId related to the payload",
+            "example": 1
+          },
+          "targetHash": {
+            "type": "number",
+            "description": "targetHash related to the stateful storage",
+            "example": 1234
+          },
+          "expiration": {
+            "type": "number",
+            "description": "expiration block number for this payload",
+            "example": 1
           }
         },
         "required": [
+          "actions",
           "schemaId",
           "targetHash",
-          "expiration",
-          "actions"
+          "expiration"
+        ]
+      },
+      "AddNewPublicKeyAgreementPayloadRequest": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
+          },
+          "encodedPayload": {
+            "type": "string",
+            "description": "Raw encodedPayload to be signed",
+            "example": "0x1234"
+          }
+        },
+        "required": [
+          "payload",
+          "encodedPayload"
         ]
       },
       "AddNewPublicKeyAgreementRequestDto": {

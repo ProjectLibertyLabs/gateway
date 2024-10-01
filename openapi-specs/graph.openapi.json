@@ -147,7 +147,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Retrieved all registered webhooks for the given MSA Id"
+            "description": "Retrieved all registered webhooks for the given MSA Id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -188,8 +198,8 @@
             "name": "url",
             "required": true,
             "in": "query",
-            "example": "http://localhost/webhook",
             "description": "URL related to the request",
+            "example": "http://localhost/webhook",
             "schema": {
               "type": "string"
             }
@@ -197,7 +207,17 @@
         ],
         "responses": {
           "200": {
-            "description": "Retrieved all webhooks registered to the specified URL"
+            "description": "Retrieved all webhooks registered to the specified URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -212,8 +232,8 @@
             "name": "url",
             "required": true,
             "in": "query",
-            "example": "http://localhost/webhook",
             "description": "URL related to the request",
+            "example": "http://localhost/webhook",
             "schema": {
               "type": "string"
             }
@@ -285,9 +305,28 @@
   "servers": [],
   "components": {
     "schemas": {
+      "PrivacyType": {
+        "type": "string",
+        "description": "Indicator connection type (public or private)",
+        "enum": [
+          "private",
+          "public"
+        ]
+      },
+      "KeyType": {
+        "type": "string",
+        "description": "Key type of graph encryption keypair (currently only X25519 supported)",
+        "enum": [
+          "X25519"
+        ]
+      },
       "GraphKeyPairDto": {
         "type": "object",
         "properties": {
+          "keyType": {
+            "example": "X25519",
+            "$ref": "#/components/schemas/KeyType"
+          },
           "publicKey": {
             "type": "string",
             "description": "Public graph encryption key as a hex string (prefixed with \"0x\")",
@@ -297,25 +336,21 @@
             "type": "string",
             "description": "Private graph encryption key as a hex string (prefixed with \"0x\")",
             "example": "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"
-          },
-          "keyType": {
-            "type": "string",
-            "enum": [
-              "X25519"
-            ],
-            "description": "Key type of graph encryption keypair (currently only X25519 supported)",
-            "example": "X25519"
           }
         },
         "required": [
+          "keyType",
           "publicKey",
-          "privateKey",
-          "keyType"
+          "privateKey"
         ]
       },
       "GraphsQueryParamsDto": {
         "type": "object",
         "properties": {
+          "privacyType": {
+            "example": "public",
+            "$ref": "#/components/schemas/PrivacyType"
+          },
           "dsnpIds": {
             "description": "Array of MSA Ids for which to query graphs",
             "example": [
@@ -329,15 +364,6 @@
               "type": "string"
             }
           },
-          "privacyType": {
-            "type": "string",
-            "description": "Graph type to query (public or private)",
-            "enum": [
-              "private",
-              "public"
-            ],
-            "example": "public"
-          },
           "graphKeyPairs": {
             "description": "Graph encryption keypairs for the users requested in `dsnpIds`. (Only for `privacyType` === \"private\"",
             "type": "array",
@@ -347,8 +373,8 @@
           }
         },
         "required": [
-          "dsnpIds",
-          "privacyType"
+          "privacyType",
+          "dsnpIds"
         ]
       },
       "DsnpGraphEdgeDto": {
@@ -390,49 +416,50 @@
           "dsnpId"
         ]
       },
+      "Direction": {
+        "type": "string",
+        "description": "Indicator of the direction of this connection",
+        "enum": [
+          "connectionTo",
+          "connectionFrom",
+          "bidirectional",
+          "disconnect"
+        ]
+      },
+      "ConnectionType": {
+        "type": "string",
+        "description": "Indicator of the type of connection (follow or friendship)",
+        "enum": [
+          "follow",
+          "friendship"
+        ]
+      },
       "ConnectionDto": {
         "type": "object",
         "properties": {
+          "privacyType": {
+            "example": "public",
+            "$ref": "#/components/schemas/PrivacyType"
+          },
+          "direction": {
+            "example": "connectionTo",
+            "$ref": "#/components/schemas/Direction"
+          },
+          "connectionType": {
+            "example": "follow",
+            "$ref": "#/components/schemas/ConnectionType"
+          },
           "dsnpId": {
             "type": "string",
             "description": "MSA Id representing the target of this connection",
             "example": "3"
-          },
-          "privacyType": {
-            "enum": [
-              "private",
-              "public"
-            ],
-            "type": "string",
-            "description": "Indicator connection type (public or private)",
-            "example": "public"
-          },
-          "direction": {
-            "enum": [
-              "connectionTo",
-              "connectionFrom",
-              "bidirectional",
-              "disconnect"
-            ],
-            "type": "string",
-            "description": "Indicator of the direction of this connection",
-            "example": "connectionTo"
-          },
-          "connectionType": {
-            "enum": [
-              "follow",
-              "friendship"
-            ],
-            "type": "string",
-            "description": "Indicator of the type of connection (follow or friendship)",
-            "example": "follow"
           }
         },
         "required": [
-          "dsnpId",
           "privacyType",
           "direction",
-          "connectionType"
+          "connectionType",
+          "dsnpId"
         ]
       },
       "ConnectionDtoWrapper": {
@@ -489,8 +516,9 @@
         "properties": {
           "referenceId": {
             "type": "string",
-            "minLength": 1,
-            "description": "Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved"
+            "description": "Reference ID by which the results/status of a submitted GraphChangeRequest may be retrieved",
+            "example": "bee2d0d2f658126c563088217e106f2fa9e56ed4",
+            "minLength": 1
           }
         },
         "required": [

@@ -7,7 +7,6 @@ import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import metadata from './metadata';
 
 const logger = new Logger('main');
 
@@ -43,7 +42,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  const swaggerDoc = await generateSwaggerDoc(app, metadata, {
+  const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Account Service',
     description: 'Account Service API',
     version: '1.0',

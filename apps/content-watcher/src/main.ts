@@ -5,7 +5,6 @@ import { ApiModule } from './api.module';
 import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import metadata from '#account-api/metadata';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 
 const logger = new Logger('main');
@@ -32,7 +31,7 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  const swaggerDoc = await generateSwaggerDoc(app, metadata, {
+  const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Content Watcher Service API',
     description: 'Content Watcher Service API',
     version: '1.0',

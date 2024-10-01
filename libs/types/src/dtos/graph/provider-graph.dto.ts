@@ -6,39 +6,34 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ProviderGraphDto {
-  @ApiProperty({
-    description: 'MSA Id that owns the connections represented in this object',
-    example: '2',
-    type: String,
-  })
+  /**
+   * MSA Id that owns the connections represented in this object
+   * @example '2'
+   */
   @IsMsaId()
   dsnpId: string;
 
-  @ApiProperty({
-    description: 'Array of connections known to the Provider for ths MSA referenced in this object',
-    type: ConnectionDtoWrapper,
-  })
+  /**
+   * Array of connections known to the Provider for ths MSA referenced in this object
+   */
   @IsNotEmpty()
   @ValidateNested()
   @Type(() => ConnectionDtoWrapper)
   connections: ConnectionDtoWrapper;
 
-  @ApiPropertyOptional({
-    description:
-      'Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph',
-    type: [GraphKeyPairDto],
-  })
+  /**
+   * Optional array of graph encryption keypairs decrypting/encrypting the above-referenced users private graph
+   */
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => GraphKeyPairDto)
   graphKeyPairs?: GraphKeyPairDto[];
 
-  @ApiPropertyOptional({
-    description: 'Optional URL of a webhook to invoke when the request is complete',
-    type: String,
-    example: 'http://localhost/webhook',
-  })
+  /**
+   * Optional URL of a webhook to invoke when the request is complete
+   * @example 'http://localhost/webhook'
+   */
   @IsOptional()
   @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
   webhookUrl?: string;

@@ -18,7 +18,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 
 @Controller({ version: '1', path: 'delegation' })
@@ -91,7 +91,6 @@ export class DelegationControllerV1 {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to revoke a delegation' })
   @ApiCreatedResponse({ description: 'Created and queued request to revoke a delegation', type: TransactionResponse })
-  @ApiBody({ type: RevokeDelegationPayloadRequestDto })
   /**
    * Posts a request to revoke a delegation.
    *

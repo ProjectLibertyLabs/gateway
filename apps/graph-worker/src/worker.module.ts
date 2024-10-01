@@ -15,22 +15,13 @@ import { ConfigModule } from '@nestjs/config';
 import workerConfig from './worker.config';
 import queueConfig, { QueueModule } from '#queue';
 import scannerConfig from './graph_notifier/scanner.config';
-import graphReconnectionConfig from './reconnection_processor/graph.reconnection.config';
 import graphCommonConfig from '#config/graph-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        workerConfig,
-        graphCommonConfig,
-        blockchainConfig,
-        cacheConfig,
-        queueConfig,
-        scannerConfig,
-        graphReconnectionConfig,
-      ],
+      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, queueConfig, scannerConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

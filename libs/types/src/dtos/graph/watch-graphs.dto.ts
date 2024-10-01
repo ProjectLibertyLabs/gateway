@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { ArrayUnique, IsArray, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 

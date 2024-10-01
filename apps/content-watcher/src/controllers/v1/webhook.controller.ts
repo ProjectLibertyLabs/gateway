@@ -4,7 +4,7 @@ import {
   WebhookRegistrationResponseDto,
 } from '#types/dtos/content-watcher/subscription.webhook.dto';
 import { Body, Controller, Delete, Get, HttpStatus, Logger, Put } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/webhooks')
 @ApiTags('v1/webhooks')

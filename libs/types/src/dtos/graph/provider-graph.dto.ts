@@ -2,7 +2,6 @@ import { IsArray, IsNotEmpty, IsOptional, IsUrl, ValidateNested } from 'class-va
 import { Type } from 'class-transformer';
 import { GraphKeyPairDto } from './graph-key-pair.dto';
 import { ConnectionDtoWrapper } from './connection.dto';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 export class ProviderGraphDto {

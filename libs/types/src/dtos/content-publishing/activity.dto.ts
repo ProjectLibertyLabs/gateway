@@ -24,7 +24,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DURATION_REGEX } from './validation';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
 

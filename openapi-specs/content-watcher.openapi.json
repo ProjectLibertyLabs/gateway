@@ -292,17 +292,15 @@
         "type": "object",
         "properties": {
           "schemaIds": {
-            "type": "array",
-            "minimum": 0,
-            "maximum": 65536,
-            "items": {
-              "type": "number"
-            },
             "description": "Specific schema ids to watch for",
             "example": [
               1,
               19
-            ]
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "dsnpIds": {
             "description": "Specific dsnpIds (msa_id) to watch for",

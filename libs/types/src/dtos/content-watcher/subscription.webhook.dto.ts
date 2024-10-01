@@ -8,17 +8,14 @@ export interface IWebhookRegistration {
 }
 
 export class WebhookRegistrationDto implements IWebhookRegistration {
-  @IsNotEmpty()
-  @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
   @ApiProperty({
     description: 'Webhook URL',
     example: 'https://example.com/webhook',
   })
+  @IsNotEmpty()
+  @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
   url: string; // Webhook URL
 
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsEnum(AnnouncementTypeName, { each: true })
   @ApiProperty({
     description: 'Announcement types to send to the webhook',
     isArray: true,
@@ -26,5 +23,8 @@ export class WebhookRegistrationDto implements IWebhookRegistration {
     enum: AnnouncementTypeName,
     enumName: 'AnnouncementTypeName',
   })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsEnum(AnnouncementTypeName, { each: true })
   announcementTypes: string[]; // Announcement types to send to the webhook
 }

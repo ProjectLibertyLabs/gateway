@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
@@ -19,7 +19,7 @@ export class HandlesService {
     if (isValidMsaId) {
       return this.blockchainService.getHandleForMsa(msaId);
     }
-    throw new Error('Invalid msaId.');
+    throw new NotFoundException(`Invalid msaId ${msaId}`);
   }
 
   async getExpiration(): Promise<number> {

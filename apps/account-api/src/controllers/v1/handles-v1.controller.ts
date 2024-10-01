@@ -6,10 +6,10 @@ import {
   HttpStatus,
   Logger,
   Param,
-  HttpException,
   Body,
   UseGuards,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '#account-api/services/handles.service';
@@ -52,23 +52,15 @@ export class HandlesControllerV1 {
    * @throws An error if the handle creation fails.
    */
   async createHandle(@Body() createHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
-    try {
-      if (!this.handlesService.verifyHandleRequestSignature(createHandleRequest)) {
-        throw new BadRequestException('Provided signature is not valid for the payload!');
-      }
-      const response = await this.enqueueService.enqueueRequest<CreateHandleRequest>({
-        ...createHandleRequest,
-        type: TransactionType.CREATE_HANDLE,
-      });
-      this.logger.log(`createHandle in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error(error);
-      throw new Error('Failed to create handle');
+    if (!this.handlesService.verifyHandleRequestSignature(createHandleRequest)) {
+      throw new BadRequestException('Provided signature is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<CreateHandleRequest>({
+      ...createHandleRequest,
+      type: TransactionType.CREATE_HANDLE,
+    });
+    this.logger.log(`createHandle in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 
   @Post('/change')
@@ -83,23 +75,15 @@ export class HandlesControllerV1 {
    * @throws An error if the handle creation fails.
    */
   async changeHandle(@Body() changeHandleRequest: HandleRequestDto): Promise<TransactionResponse> {
-    try {
-      if (!this.handlesService.verifyHandleRequestSignature(changeHandleRequest)) {
-        throw new BadRequestException('Provided signature is not valid for the payload!');
-      }
-      const response = await this.enqueueService.enqueueRequest<ChangeHandleRequest>({
-        ...changeHandleRequest,
-        type: TransactionType.CHANGE_HANDLE,
-      });
-      this.logger.log(`changeHandle in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error(error);
-      throw new Error('Failed to change handle');
+    if (!this.handlesService.verifyHandleRequestSignature(changeHandleRequest)) {
+      throw new BadRequestException('Provided signature is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<ChangeHandleRequest>({
+      ...changeHandleRequest,
+      type: TransactionType.CHANGE_HANDLE,
+    });
+    this.logger.log(`changeHandle in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 
   @Get('change/:newHandle')
@@ -113,19 +97,14 @@ export class HandlesControllerV1 {
    * @throws An error if the change handle payload creation fails.
    */
   async getChangeHandlePayload(@Param() { newHandle }: HandleDto): Promise<ChangeHandlePayloadRequest> {
-    try {
-      const expiration = await this.handlesService.getExpiration();
-      const payload = { baseHandle: newHandle, expiration };
-      const encodedPayload = u8aToHex(this.handlesService.encodePayload(payload).toU8a());
+    const expiration = await this.handlesService.getExpiration();
+    const payload = { baseHandle: newHandle, expiration };
+    const encodedPayload = u8aToHex(this.handlesService.encodePayload(payload).toU8a());
 
-      return {
-        payload,
-        encodedPayload,
-      };
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to create change handle payload.');
-    }
+    return {
+      payload,
+      encodedPayload,
+    };
   }
 
   @Get(':msaId')
@@ -139,22 +118,10 @@ export class HandlesControllerV1 {
    * @throws An error if the handle cannot be found.
    */
   async getHandle(@Param() { msaId }: MsaIdDto): Promise<HandleResponseDto> {
-    try {
-      const handle = await this.handlesService.getHandle(msaId);
-      if (!handle) {
-        throw new HttpException('No handle found for MSA', HttpStatus.NOT_FOUND);
-      }
-      return handle;
-    } catch (error: any) {
-      this.logger.error(error);
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      if (/invalid msa.*/i.test(error?.message)) {
-        throw new HttpException(error.message, HttpStatus.BAD_REQUEST, { cause: error });
-      }
-      throw new HttpException('Internal error', HttpStatus.INTERNAL_SERVER_ERROR);
+    const handle = await this.handlesService.getHandle(msaId);
+    if (!handle) {
+      throw new NotFoundException(`No handle found for MSA Id ${msaId}`);
     }
+    return handle;
   }
 }

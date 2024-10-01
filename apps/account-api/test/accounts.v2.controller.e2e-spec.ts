@@ -19,6 +19,8 @@ describe('Accounts v2 Controller', () => {
   beforeAll(async () => {
     await cryptoWaitReady();
 
+    process.env.SIWF_V2_URL = 'https://custom.frequencyaccess.com/siwa';
+
     module = await Test.createTestingModule({
       imports: [ApiModule],
     }).compile();
@@ -61,7 +63,7 @@ describe('Accounts v2 Controller', () => {
         const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
 
         expect(response.body).toHaveProperty('redirectUrl');
-        expect(response.body.redirectUrl).toContain('https://projectlibertylabs.github.io/siwf/ui/start');
+        expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
 
         const redirectUrl = new URL(response.body.redirectUrl);
         expect(redirectUrl.searchParams.has('signedRequest'));
@@ -80,7 +82,7 @@ describe('Accounts v2 Controller', () => {
         const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
 
         expect(response.body).toHaveProperty('redirectUrl');
-        expect(response.body.redirectUrl).toContain('https://projectlibertylabs.github.io/siwf/ui/start');
+        expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
 
         const redirectUrl = new URL(response.body.redirectUrl);
         expect(redirectUrl.searchParams.has('signedRequest'));
@@ -98,7 +100,7 @@ describe('Accounts v2 Controller', () => {
         const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
 
         expect(response.body).toHaveProperty('redirectUrl');
-        expect(response.body.redirectUrl).toContain('https://projectlibertylabs.github.io/siwf/ui/start');
+        expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
       });
 
       it('should fail with 400 if callbackUrl is missing', async () => {
@@ -150,7 +152,7 @@ describe('Accounts v2 Controller', () => {
         const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
 
         expect(response.body).toHaveProperty('redirectUrl');
-        expect(response.body.redirectUrl).toContain('https://projectlibertylabs.github.io/siwf/ui/start');
+        expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
         const redirectUrl = new URL(response.body.redirectUrl);
         expect(redirectUrl.searchParams.has('signedRequest'));
         const signedRequest = decodeSignedRequest(redirectUrl.searchParams.get('signedRequest'));

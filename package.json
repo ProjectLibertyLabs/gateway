@@ -134,6 +134,8 @@
     "joi": "^17.13.1",
     "mime-types": "^2.1.35",
     "multiformats": "^9.9.0",
+    "multihashes": "^4.0.3",
+    "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "time-constants": "^1.0.3"
   },

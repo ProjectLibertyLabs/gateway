@@ -15,8 +15,8 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import queueConfig, { QueueModule } from '#queue';
-import {APP_FILTER} from "@nestjs/core";
-import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -63,7 +63,9 @@ import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
       inject: [apiConfig.KEY],
     }),
   ],
-  providers: [ApiService, IpfsService,
+  providers: [
+    ApiService,
+    IpfsService,
     // global exception handling
     {
       provide: APP_FILTER,

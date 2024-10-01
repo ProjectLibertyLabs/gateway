@@ -18,8 +18,8 @@ import queueConfig, { QueueModule } from '#queue';
 import ipfsConfig from '#content-watcher-lib/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
 import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
-import {APP_FILTER} from "@nestjs/core";
-import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -57,7 +57,8 @@ import {AllExceptionsFilter} from "#utils/filters/exceptions.filter";
       ignoreErrors: false,
     }),
   ],
-  providers: [ApiService,
+  providers: [
+    ApiService,
     // global exception handling
     {
       provide: APP_FILTER,

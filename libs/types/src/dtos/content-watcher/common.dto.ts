@@ -2,36 +2,18 @@
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
 // eslint-disable-next-line max-classes-per-file
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsNumberString, IsOptional, Max, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { IScanReset } from '#types/interfaces/content-watcher';
 import { HttpStatus } from '@nestjs/common';
 
-export class DsnpUserIdParam {
-  @IsNotEmpty()
-  @IsNumberString({ no_symbols: true })
-  userDsnpId: string;
-}
-
-export class AnnouncementResponseDto {
-  referenceId: string;
-}
-
-export class UploadResponseDto {
-  assetIds: string[];
-}
-
-export class FilesUploadDto {
-  @IsArray()
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
-  files: any[];
-}
-
 export class ResetScannerDto implements IScanReset {
-  /**
-   * The block number to reset the scanner to
-   * @example 0
-   */
+  @ApiPropertyOptional({
+    required: false,
+    type: 'number',
+    description: 'The block number to reset the scanner to',
+    example: 0,
+  })
   @IsOptional()
   @IsInt()
   @Min(0)

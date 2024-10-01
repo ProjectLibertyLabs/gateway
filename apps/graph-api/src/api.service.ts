@@ -16,7 +16,6 @@ import {
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import { DEBOUNCER_CACHE_KEY, LAST_PROCESSED_DSNP_ID_KEY } from '#types/constants';
-import scannerConfig, { IScannerConfig } from '#graph-worker/graph_notifier/scanner.config';
 import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 
 async function hscanToObject(keyValues: string[]) {
@@ -37,7 +36,6 @@ export class ApiService implements BeforeApplicationShutdown {
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
-    @Inject(scannerConfig.KEY) private scannerConf: IScannerConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private readonly asyncDebouncerService: AsyncDebouncerService,
   ) {
@@ -62,7 +60,7 @@ export class ApiService implements BeforeApplicationShutdown {
       connections: request.connections.data,
       graphKeyPairs: request.graphKeyPairs,
       referenceId: this.calculateJobId(request),
-      updateConnection: this.scannerConf.reconnectionServiceRequired,
+      updateConnection: false,
       webhookUrl: request.webhookUrl,
     };
     const jobOld = await this.graphChangeRequestQueue.getJob(data.referenceId);

@@ -1,4 +1,6 @@
-import { ArrayNotEmpty, ArrayUnique, IsArray, IsInt, IsNumberString, IsOptional, Max, Min } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsArray, IsOptional } from 'class-validator';
+import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
+import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 /**
  * Interface for chain filter options
@@ -15,9 +17,7 @@ export class ChainWatchOptionsDto {
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @IsInt({ each: true })
-  @Min(0, { each: true })
-  @Max(65_536, { each: true })
+  @IsSchemaId({ each: true })
   schemaIds?: number[];
 
   /**
@@ -28,6 +28,6 @@ export class ChainWatchOptionsDto {
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @IsNumberString({ no_symbols: true }, { each: true })
+  @IsMsaId({ each: true })
   dsnpIds?: string[];
 }

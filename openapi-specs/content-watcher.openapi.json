@@ -262,10 +262,10 @@
         "properties": {
           "blockNumber": {
             "type": "number",
-            "description": "The block number to reset the scanner to",
-            "example": 0,
             "minimum": 0,
-            "maximum": 4294967296
+            "maximum": 4294967296,
+            "description": "The block number to reset the scanner to",
+            "example": 0
           },
           "rewindOffset": {
             "type": "number",
@@ -292,9 +292,7 @@
             ],
             "type": "array",
             "items": {
-              "type": "number",
-              "maximum": 65536,
-              "minimum": 0
+              "type": "number"
             }
           },
           "dsnpIds": {

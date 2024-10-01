@@ -63,19 +63,14 @@ export class WebhooksControllerV1 {
   @ApiOkResponse({ description: 'Successfully started watching graphs' })
   @ApiBody({ type: WatchGraphsDto })
   async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto, @Res() response: Response) {
-    try {
-      const hooksAdded = await this.apiService.watchGraphs(watchGraphsDto);
-      response
-        .status(hooksAdded ? HttpStatus.CREATED : HttpStatus.OK)
-        .send({
-          status: hooksAdded ? HttpStatus.CREATED : HttpStatus.OK,
-          data: 'Successfully started watching graphs',
-        })
-        .end();
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to watch graphs', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    const hooksAdded = await this.apiService.watchGraphs(watchGraphsDto);
+    response
+      .status(hooksAdded ? HttpStatus.CREATED : HttpStatus.OK)
+      .send({
+        status: hooksAdded ? HttpStatus.CREATED : HttpStatus.OK,
+        data: 'Successfully started watching graphs',
+      })
+      .end();
   }
 
   @Delete()

@@ -13,11 +13,12 @@ Your application still must manage sessions as is best for your custom needs.
 - **Web2 APIs:** Typically use OAuth, API keys, or session tokens for authentication.
 - **Frequency APIs:** Utilize cryptographic signatures for secure authentication, ensuring user identity and data integrity.
 
-#### SIWF/SIWA
+#### Sign In With Frequency (SIWF)
 
-[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) v1 and v2 (which supports [Frequency Access](https://frequencyaccess.com/)) are methods for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
+[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) v1 (deprecated) and v2 (which supports [Frequency Access](https://frequencyaccess.com/)) are methods for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
 
-- **SIWF Implementation:** Users sign in using their Web3 wallets, which generate cryptographic signatures for authentication. This process eliminates the need for traditional usernames and passwords, enhancing security and user privacy.
+- **SIWF v2 Implementation:** Users sign in using an SIWF v2 Authentication Service that uses redirect and callback URLs. The Authentication Service authenticates and generate cryptographic signatures for authentication.
+- **SIWF v1 Implementation:** Users sign in using their Web3 wallets, which generate cryptographic signatures for authentication.
 
 #### Account Service
 

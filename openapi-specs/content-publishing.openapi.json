@@ -44,8 +44,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -87,8 +87,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -130,8 +130,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -173,8 +173,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -214,8 +214,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -257,8 +257,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }

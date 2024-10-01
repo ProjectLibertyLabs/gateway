@@ -63,8 +63,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -96,8 +96,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           }
@@ -129,8 +129,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           }
@@ -194,8 +194,8 @@
             "required": true,
             "in": "path",
             "description": "MSA Id of the user requesting the delegation",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           }
@@ -227,8 +227,8 @@
             "required": true,
             "in": "path",
             "description": "MSA Id of the user requesting the delegation",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           },
@@ -237,8 +237,8 @@
             "required": false,
             "in": "path",
             "description": "MSA Id of the provider to whom the requesting user wishes to delegate",
-            "example": "1",
             "schema": {
+              "example": "1",
               "type": "string"
             }
           }
@@ -270,8 +270,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -303,8 +303,8 @@
             "required": true,
             "in": "path",
             "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
             "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
               "type": "string"
             }
           },
@@ -313,8 +313,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of provider",
-            "example": "1",
             "schema": {
+              "example": "1",
               "type": "string"
             }
           }
@@ -442,9 +442,9 @@
             "required": true,
             "in": "path",
             "description": "newHandle in the request",
-            "example": "handle",
             "schema": {
               "minLength": 3,
+              "example": "handle",
               "type": "string"
             }
           }
@@ -476,8 +476,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -541,8 +541,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -574,8 +574,8 @@
             "required": true,
             "in": "query",
             "description": "MSA Id representing the target of this request",
-            "example": "3",
             "schema": {
+              "example": "3",
               "type": "string"
             }
           },
@@ -584,8 +584,8 @@
             "required": true,
             "in": "query",
             "description": "New public key to be added to the account (32-byte value in hex format)",
-            "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
             "schema": {
+              "example": "0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b",
               "type": "string"
             }
           }

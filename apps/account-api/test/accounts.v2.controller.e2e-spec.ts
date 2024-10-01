@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
@@ -60,7 +60,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['VerifiedPhoneNumberCredential', 'VerifiedGraphKeyCredential'],
         };
 
-        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
+        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.OK);
 
         expect(response.body).toHaveProperty('redirectUrl');
         expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
@@ -79,7 +79,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['VerifiedPhoneNumberCredential'],
         };
 
-        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
+        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.OK);
 
         expect(response.body).toHaveProperty('redirectUrl');
         expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
@@ -97,7 +97,7 @@ describe('Accounts v2 Controller', () => {
           callbackUrl: 'https://example.com/callback',
         };
 
-        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
+        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.OK);
 
         expect(response.body).toHaveProperty('redirectUrl');
         expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');
@@ -109,7 +109,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['VerifiedPhoneNumberCredential'],
         };
 
-        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(400);
+        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.BAD_REQUEST);
       });
 
       it('should fail with 400 if callbackUrl is invalid', async () => {
@@ -119,7 +119,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['VerifiedPhoneNumberCredential'],
         };
 
-        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(400);
+        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.BAD_REQUEST);
       });
 
       it('should fail with 400 if permissions contain invalid schema', async () => {
@@ -129,7 +129,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['VerifiedPhoneNumberCredential'],
         };
 
-        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(400);
+        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.BAD_REQUEST);
       });
 
       it('should fail with 400 if credentials contain invalid type', async () => {
@@ -139,7 +139,7 @@ describe('Accounts v2 Controller', () => {
           credentials: ['InvalidCredentialType'],
         };
 
-        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(400);
+        await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.BAD_REQUEST);
       });
 
       it('should handle empty arrays for permissions and credentials', async () => {
@@ -149,7 +149,7 @@ describe('Accounts v2 Controller', () => {
           credentials: [],
         };
 
-        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(200);
+        const response = await request(httpServer).get('/v2/accounts/siwf').query(siwfRequest).expect(HttpStatus.OK);
 
         expect(response.body).toHaveProperty('redirectUrl');
         expect(response.body.redirectUrl).toContain('https://custom.frequencyaccess.com/siwa/start');

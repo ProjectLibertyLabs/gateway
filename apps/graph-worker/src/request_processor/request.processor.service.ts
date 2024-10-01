@@ -21,7 +21,7 @@ import { GraphQueues as QueueConstants } from '#types/constants/queue.constants'
 import fs from 'fs';
 import { BlockchainService } from '#graph-lib/blockchain';
 import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
-import { ProviderGraphUpdateJob, createReconnectionJob, SkipTransitiveGraphs } from '#types/interfaces/graph';
+import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 
@@ -29,13 +29,11 @@ import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants'
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
 export class RequestProcessorService extends BaseConsumer implements OnModuleDestroy {
   async onModuleDestroy(): Promise<void> {
-    await this.reconnectionQueue.close();
     await this.graphChangePublisherQueue.close();
   }
 
   constructor(
     @InjectRedis() private cacheManager: Redis,
-    @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublisherQueue: Queue,
     private graphStateManager: GraphStateManager,
     private blockchainService: BlockchainService,
@@ -64,12 +62,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
       this.graphStateManager.removeUserGraph(dsnpId);
       await this.graphStateManager.importBundles(dsnpId, job.data.graphKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
-      const actions: Action[] = await this.formConnections(
-        dsnpId,
-        providerId,
-        job.data.updateConnection,
-        job.data.connections,
-      );
+      const actions: Action[] = await this.formConnections(dsnpId, providerId, job.data.connections);
       try {
         if (actions.length === 0) {
           this.logger.debug(`No actions to apply for user ${dsnpId}`);
@@ -140,7 +133,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
   async formConnections(
     dsnpUserId: MessageSourceId | AnyNumber,
     providerId: MessageSourceId | AnyNumber,
-    isTransitive: boolean,
     graphConnections: ConnectionDto[],
   ): Promise<Action[]> {
     const dsnpKeys: DsnpKeys = await this.graphStateManager.formDsnpKeys(dsnpUserId);
@@ -157,7 +149,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
           privacyType as PrivacyType,
         );
         /// make sure user has delegation for schemaId
-        let delegations: Option<Vec<SchemaGrantResponse>> = await this.blockchainService.rpc(
+        const delegations: Option<Vec<SchemaGrantResponse>> = await this.blockchainService.rpc(
           'msa',
           'grantedSchemaIdsByMsaId',
           dsnpUserId,
@@ -174,24 +166,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
 
         if (!isDelegated) {
           return;
-        }
-
-        /// make sure incoming user connection is also delegated for queuing updates non-transitively
-        let isDelegatedConnection = false;
-        if (isTransitive && (connection.direction === 'connectionFrom' || connection.direction === 'bidirectional')) {
-          delegations = await this.blockchainService.rpc(
-            'msa',
-            'grantedSchemaIdsByMsaId',
-            connection.dsnpId,
-            providerId,
-          );
-          if (delegations.isSome) {
-            isDelegatedConnection =
-              delegations
-                .unwrap()
-                .toArray()
-                .findIndex((grant) => grant.schema_id.toNumber() === schemaId) !== -1;
-          }
         }
 
         switch (connection.direction) {
@@ -213,11 +187,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
             break;
           }
           case 'connectionFrom': {
-            if (isDelegatedConnection) {
-              const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
-              this.reconnectionQueue.remove(jobId);
-              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
-            }
             break;
           }
           case 'bidirectional': {
@@ -236,11 +205,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
 
             actions.push(connectionAction);
 
-            if (isDelegatedConnection) {
-              const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
-              this.reconnectionQueue.remove(jobId);
-              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
-            }
             break;
           }
           case 'disconnect': {
@@ -253,11 +217,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
               },
             };
             actions.push(connectionAction);
-            if (isDelegatedConnection) {
-              const { key: jobId, data } = createReconnectionJob(connection.dsnpId, providerId, SkipTransitiveGraphs);
-              this.reconnectionQueue.remove(jobId);
-              this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
-            }
             break;
           }
           default:

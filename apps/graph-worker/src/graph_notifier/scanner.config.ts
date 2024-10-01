@@ -6,7 +6,6 @@ export interface IScannerConfig {
   blockchainScanIntervalSeconds: number;
   queueHighWater: number;
   trustUnfinalizedBlocks: boolean;
-  reconnectionServiceRequired: boolean;
 }
 
 export default registerAs('scanner', (): IScannerConfig => {
@@ -21,10 +20,6 @@ export default registerAs('scanner', (): IScannerConfig => {
     },
     trustUnfinalizedBlocks: {
       value: process.env.TRUST_UNFINALIZED_BLOCKS,
-      joi: Joi.boolean().default(false),
-    },
-    reconnectionServiceRequired: {
-      value: process.env.RECONNECTION_SERVICE_REQUIRED,
       joi: Joi.boolean().default(false),
     },
   };

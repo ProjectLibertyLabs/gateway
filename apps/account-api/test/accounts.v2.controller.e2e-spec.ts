@@ -7,7 +7,7 @@ import request from 'supertest';
 import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { ApiModule } from '../src/api.module';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
 

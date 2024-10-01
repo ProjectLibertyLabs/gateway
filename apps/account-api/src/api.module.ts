@@ -20,6 +20,8 @@ import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import queueConfig, { QueueModule } from '#queue';
 import apiConfig from './api.config';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -57,7 +59,18 @@ import apiConfig from './api.config';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
+  providers: [
+    AccountsService,
+    DelegationService,
+    EnqueueService,
+    HandlesService,
+    KeysService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [

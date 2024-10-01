@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Logger,
   Param,
-  HttpException,
   Body,
   Post,
   UseGuards,
@@ -53,23 +52,15 @@ export class KeysControllerV1 {
    * @throws An error if no public keys can be found.
    */
   async addKey(@Body() addKeysRequest: KeysRequestDto): Promise<TransactionResponse> {
-    try {
-      if (!this.keysService.verifyAddKeySignature(addKeysRequest)) {
-        throw new BadRequestException('Provided signature is not valid for the payload!');
-      }
-      const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
-        ...addKeysRequest,
-        type: TransactionType.ADD_KEY,
-      });
-      this.logger.log(`AddKey in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error(error);
-      throw new HttpException('Failed to find public keys for the given MSA Id', HttpStatus.BAD_REQUEST);
+    if (!this.keysService.verifyAddKeySignature(addKeysRequest)) {
+      throw new BadRequestException('Provided signature is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
+      ...addKeysRequest,
+      type: TransactionType.ADD_KEY,
+    });
+    this.logger.log(`AddKey in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 
   @Get(':msaId')
@@ -83,13 +74,7 @@ export class KeysControllerV1 {
    * @throws An error if no public keys can be found.
    */
   async getKeys(@Param() { msaId }: MsaIdDto): Promise<KeysResponse> {
-    try {
-      const keys = await this.keysService.getKeysByMsa(msaId);
-      return keys;
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to find public keys for the given msaId', HttpStatus.BAD_REQUEST);
-    }
+    return this.keysService.getKeysByMsa(msaId);
   }
 
   @Get('publicKeyAgreements/getAddKeyPayload')
@@ -120,22 +105,14 @@ export class KeysControllerV1 {
    * @throws An error if enqueueing the operation fails.
    */
   async AddNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
-    try {
-      if (!this.keysService.verifyPublicKeyAgreementSignature(request)) {
-        throw new BadRequestException('Proof is not valid for the payload!');
-      }
-      const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
-        ...request,
-        type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
-      });
-      this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      this.logger.error(error);
-      throw new Error('Failed to add new key');
+    if (!this.keysService.verifyPublicKeyAgreementSignature(request)) {
+      throw new BadRequestException('Proof is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
+      ...request,
+      type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
+    });
+    this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 }

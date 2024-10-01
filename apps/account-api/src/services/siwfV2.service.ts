@@ -52,7 +52,7 @@ export class SiwfV2Service {
   // Default to the default "production" and "staging" endpoints for mainnet and testnet-paseo
   private swifV2Endpoint(): string {
     const { siwfV2Url }: IAccountApiConfig = this.apiConf;
-    if (siwfV2Url !== '') return siwfV2Url;
+    if (siwfV2Url) return siwfV2Url;
     const networkType = this.blockchainService.getNetworkType();
     if (networkType === 'mainnet') return 'production';
     if (networkType === 'testnet-paseo') return 'staging';

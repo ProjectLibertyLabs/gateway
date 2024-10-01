@@ -1,11 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
 import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { SiwfV2Service } from './siwfV2.service';
-import apiConfig from '#account-api/api.config';
-import blockchainConfig from '#account-lib/blockchain/blockchain.config';
+import { IAccountApiConfig } from '#account-api/api.config';
+import { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
+
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
+  capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
+  providerId: 1n,
+  providerSeedPhrase: '//Alice',
+  frequencyUrl: new URL('ws://localhost:9944'),
+  isDeployedReadOnly: false,
+});
+
+const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfig>('account-api', {
+  apiBodyJsonLimit: '',
+  apiPort: 0,
+  apiTimeoutMs: 0,
+  frequencyHttpUrl: new URL('http://127.0.0.1:9944'),
+  graphEnvironmentType: 0,
+  siwfUrl: '',
+  siwfV2Url: 'https://www.example.com/siwf',
+});
 
 const exampleCallback = 'https://www.example.com/callback';
 const examplePermissions = [1, 3, 5, 7, 9];
@@ -27,26 +45,15 @@ describe('SiwfV2Service', () => {
     useValue: mockBlockchainService,
   };
 
-  beforeAll(() => {
-    process.env.SIWF_V2_URL = 'https://www.example.com/siwf';
-    process.env.FREQUENCY_URL = 'http://127.0.0.1:9944';
-    process.env.FREQUENCY_HTTP_URL = 'http://127.0.0.1:9944';
-    process.env.PROVIDER_ACCOUNT_SEED_PHRASE =
-      'offer debate skin describe light badge fish turtle actual inject struggle border';
-    process.env.PROVIDER_ID = '1';
-    process.env.WEBHOOK_BASE_URL = 'http://127.0.0.1';
-    process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
-    process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
-  });
-
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          load: [apiConfig, blockchainConfig],
-        }),
+      imports: [],
+      providers: [
+        SiwfV2Service,
+        mockBlockchainServiceProvider,
+        mockAccountApiConfigProvider,
+        mockBlockchainConfigProvider,
       ],
-      providers: [SiwfV2Service, mockBlockchainServiceProvider],
     }).compile();
 
     siwfV2Service = module.get<SiwfV2Service>(SiwfV2Service);
@@ -96,34 +103,11 @@ describe('SiwfV2Service', () => {
   });
 
   describe('swifV2Endpoint', () => {
-    let siwfV2ServiceEndpointTest: SiwfV2Service;
-    beforeAll(() => {
-      process.env.FREQUENCY_URL = 'http://127.0.0.1:9944';
-      process.env.FREQUENCY_HTTP_URL = 'http://127.0.0.1:9944';
-      process.env.PROVIDER_ACCOUNT_SEED_PHRASE =
-        'offer debate skin describe light badge fish turtle actual inject struggle border';
-      process.env.PROVIDER_ID = '1';
-      process.env.WEBHOOK_BASE_URL = 'http://127.0.0.1';
-      process.env.CAPACITY_LIMIT = '{"type":"amount","value":"80"}';
-      process.env.GRAPH_ENVIRONMENT_TYPE = 'TestnetPaseo';
-    });
-
-    beforeEach(async () => {
-      process.env.SIWF_V2_URL = '';
-      const module: TestingModule = await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            load: [apiConfig, blockchainConfig],
-          }),
-        ],
-        providers: [SiwfV2Service, mockBlockchainServiceProvider],
-      }).compile();
-
-      siwfV2ServiceEndpointTest = module.get<SiwfV2Service>(SiwfV2Service);
-    });
-
     it('Should go to the correct redirect url', async () => {
-      const result: WalletV2RedirectResponseDto = await siwfV2ServiceEndpointTest.getRedirectUrl(
+      jest
+        .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2Url', 'get')
+        .mockReturnValueOnce('https://www.frequencyaccess.com/siwa');
+      const result: WalletV2RedirectResponseDto = await siwfV2Service.getRedirectUrl(
         exampleCallback,
         examplePermissions,
         exampleCredentials,

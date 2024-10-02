@@ -2,11 +2,11 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { initSwagger } from './swagger_config';
 import { ApiModule } from './api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
+import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
 
 const logger = new Logger('main');
 
@@ -42,6 +42,18 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  const swaggerDoc = await generateSwaggerDoc(app, {
+    title: 'Account Service',
+    description: 'Account Service API',
+    version: '1.0',
+  });
+
+  const args = process.argv.slice(2);
+  if (args.find((v) => v === '--writeOpenApi')) {
+    writeOpenApiFile(swaggerDoc, './openapi-specs/account.openapi.json');
+    process.exit(0);
+  }
+
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
@@ -63,7 +75,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
-    await initSwagger(app, '/docs/swagger');
+    initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
     logger.debug('****** DEBUGGING ENABLED ********');
     await app.listen(config.apiPort);

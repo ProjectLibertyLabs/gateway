@@ -1,21 +1,8 @@
 import { ApiService } from '#graph-api/api.service';
 import { WatchGraphsDto } from '#types/dtos/graph';
 import { MsaIdDto, UrlDto } from '#types/dtos/common';
-import {
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Body,
-  Put,
-  Res,
-  HttpException,
-  Get,
-  Query,
-  Delete,
-  Param,
-} from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @Controller('v1/webhooks')
@@ -31,14 +18,14 @@ export class WebhooksControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all registered webhooks' })
   @ApiOkResponse({ description: 'Retrieved all registered webhooks' })
-  async getAllWebhooks(): Promise<unknown> {
+  async getAllWebhooks(): Promise<Record<string, string[]>> {
     return this.apiService.getAllWebhooks();
   }
 
   @Get('users/:msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all registered webhooks for a specific MSA Id' })
-  @ApiOkResponse({ description: 'Retrieved all registered webhooks for the given MSA Id' })
+  @ApiOkResponse({ description: 'Retrieved all registered webhooks for the given MSA Id', type: [String] })
   @ApiQuery({
     name: 'includeAll',
     type: Boolean,
@@ -53,7 +40,7 @@ export class WebhooksControllerV1 {
   @Get('urls')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all webhooks registered to the specified URL' })
-  @ApiOkResponse({ description: 'Retrieved all webhooks registered to the specified URL' })
+  @ApiOkResponse({ description: 'Retrieved all watched MSA graphs registered to the specified URL', type: [String] })
   async getWebhooksForUrl(@Query() { url }: UrlDto): Promise<string[]> {
     return this.apiService.getWatchedGraphsForUrl(url);
   }
@@ -61,7 +48,6 @@ export class WebhooksControllerV1 {
   @Put()
   @ApiOperation({ summary: 'Watch graphs for specified dsnpIds and receive updates' })
   @ApiOkResponse({ description: 'Successfully started watching graphs' })
-  @ApiBody({ type: WatchGraphsDto })
   async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto, @Res() response: Response) {
     const hooksAdded = await this.apiService.watchGraphs(watchGraphsDto);
     response

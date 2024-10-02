@@ -83,7 +83,6 @@ export class AccountsControllerV1 {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Request to Sign In With Frequency' })
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
-  @ApiBody({ type: WalletLoginRequestDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
     if (this.config.isDeployedReadOnly && walletLoginRequest.signUp) {
       throw new ForbiddenException('New account sign-up unavailable in read-only mode');

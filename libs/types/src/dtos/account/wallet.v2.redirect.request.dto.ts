@@ -2,16 +2,14 @@ import { EnsureArray } from '#utils/decorators/ensure-array.decorator';
 import { IsCredentialType } from '#utils/decorators/is-credential-type.decorator';
 import { IsSchemaName } from '#utils/decorators/is-schema-name.decorator';
 import { IsSwifV2CallbackUrl } from '#utils/decorators/is-swif-v2-callback-url.decorator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
 export class WalletV2RedirectRequestDto {
-  @ApiProperty({
-    description: 'The URL that will be called when the authentication process is completed.',
-    required: true,
-    type: String,
-    example: 'http://localhost:3000/login/callback',
-  })
+  /**
+   * The URL that will be called when the authentication process is completed
+   * @example 'http://localhost:3000/login/callback'
+   */
   @IsSwifV2CallbackUrl()
   callbackUrl: string;
 

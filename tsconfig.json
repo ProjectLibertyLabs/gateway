@@ -48,7 +48,9 @@
       "#queue": ["libs/queue/src"],
       "#queue/*": ["libs/queue/src/*"],
       "#cache": ["libs/cache/src"],
-      "#cache/*": ["libs/cache/src/*"]
+      "#cache/*": ["libs/cache/src/*"],
+      "#openapi": ["libs/openapi/src"],
+      "#openapi/*": ["libs/openapi/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

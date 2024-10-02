@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Logger, NotFoundException, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '#content-watcher/api.service';
 import { ResetScannerDto } from '#types/dtos/content-watcher';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
@@ -15,10 +15,6 @@ export class ScanControllerV1 {
 
   @Post('reset')
   @ApiOperation({ summary: 'Reset blockchain scan to a specific block number or offset from the current position' })
-  @ApiBody({
-    description: 'blockNumber',
-    type: ResetScannerDto,
-  })
   resetScanner(@Body() resetScannerDto: ResetScannerDto) {
     return this.apiService.resetScanner(resetScannerDto);
   }
@@ -36,10 +32,6 @@ export class ScanControllerV1 {
 
   @Post('options')
   @ApiOperation({ summary: 'Set watch options to filter the blockchain content scanner by schemas or MSA Ids' })
-  @ApiBody({
-    description: 'watchOptions: Filter contents by schemaIds and/or msaIds',
-    type: ChainWatchOptionsDto,
-  })
   setWatchOptions(@Body() watchOptions: ChainWatchOptionsDto) {
     return this.apiService.setWatchOptions(watchOptions);
   }

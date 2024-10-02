@@ -11,7 +11,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HandlesService } from '#account-api/services/handles.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import {
@@ -43,8 +43,7 @@ export class HandlesControllerV1 {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new handle for an account' })
-  @ApiOkResponse({ description: 'Handle creation request enqueued' })
-  @ApiBody({ type: HandleRequestDto })
+  @ApiOkResponse({ description: 'Handle creation request enqueued', type: TransactionResponse })
   /**
    * Creates a handle using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
@@ -66,8 +65,7 @@ export class HandlesControllerV1 {
   @Post('/change')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to change a handle' })
-  @ApiOkResponse({ description: 'Handle change request enqueued' })
-  @ApiBody({ type: HandleRequestDto })
+  @ApiOkResponse({ description: 'Handle change request enqueued', type: TransactionResponse })
   /**
    * Using the provided query parameters, removes the old handle and creates a new one.
    * @param queryParams - The query parameters for changing the handle.
@@ -89,7 +87,10 @@ export class HandlesControllerV1 {
   @Get('change/:newHandle')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a properly encoded ClaimHandlePayload that can be signed.' })
-  @ApiOkResponse({ description: 'Returned an encoded ClaimHandlePayload for signing' })
+  @ApiOkResponse({
+    description: 'Returned an encoded ClaimHandlePayload for signing',
+    type: ChangeHandlePayloadRequest,
+  })
   /**
    * Using the provided query parameters, creates a new payload that can be signed to change handle.
    * @param queryParams - The query parameters for changing the handle.
@@ -110,7 +111,7 @@ export class HandlesControllerV1 {
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Fetch a handle given an MSA Id' })
-  @ApiOkResponse({ description: 'Found a handle' })
+  @ApiOkResponse({ description: 'Found a handle', type: HandleResponseDto })
   /**
    * Gets a handle for msaId.
    * @param queryParams - The msaId for finding the handle.

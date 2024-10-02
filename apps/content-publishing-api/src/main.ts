@@ -5,7 +5,7 @@ import { ApiModule } from './api.module';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
+import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
 
 const logger = new Logger('main');
 
@@ -66,7 +66,7 @@ async function bootstrap() {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
-    
+
     initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
     await app.listen(config.apiPort);

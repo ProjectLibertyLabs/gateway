@@ -5,7 +5,7 @@ import { ApiModule } from './api.module';
 import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
+import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
 
 const logger = new Logger('main');
 

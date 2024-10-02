@@ -18,11 +18,13 @@ export enum ItemActionType {
 }
 
 export class ItemActionDto {
-  /**
-   * Action Item type
-   * @example 'ADD_ITEM'
-   */
   @IsEnum(() => ItemActionType)
+  @ApiProperty({
+    description: 'Action Item type',
+    example: 'ADD_ITEM',
+    enum: ItemActionType,
+    enumName: 'ItemActionType',
+  })
   type: ItemActionType;
 
   /**

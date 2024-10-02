@@ -1299,17 +1299,20 @@
           "msaKeys"
         ]
       },
+      "ItemActionType": {
+        "type": "string",
+        "description": "Action Item type",
+        "enum": [
+          "ADD_ITEM",
+          "DELETE_ITEM"
+        ]
+      },
       "ItemActionDto": {
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "description": "Action Item type",
             "example": "ADD_ITEM",
-            "enum": [
-              "ADD_ITEM",
-              "DELETE_ITEM"
-            ]
+            "$ref": "#/components/schemas/ItemActionType"
           },
           "encodedPayload": {
             "type": "string",

@@ -26,6 +26,7 @@ import { Type } from 'class-transformer';
 import { DURATION_REGEX } from './validation';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow
 export enum UnitTypeEnum {
@@ -105,12 +106,14 @@ export class LocationDto {
   @Min(0)
   radius?: number;
 
-  /**
-   * The units for radius and altitude (defaults to meters)
-   * @example 'm'
-   */
   @IsOptional()
   @IsEnum(UnitTypeEnum)
+  @ApiPropertyOptional({
+    description: 'The units for radius and altitude (defaults to meters)',
+    example: 'm',
+    enum: UnitTypeEnum,
+    enumName: 'UnitTypeEnum',
+  })
   units?: UnitTypeEnum;
 }
 
@@ -150,11 +153,13 @@ export class AssetReferenceDto {
 }
 
 export class TagDto {
-  /**
-   * Identifies the tag type
-   * @example 'mention'
-   */
   @IsEnum(TagTypeEnum)
+  @ApiProperty({
+    description: 'Identifies the tag type',
+    example: 'mention',
+    enum: TagTypeEnum,
+    enumName: 'TagTypeEnum',
+  })
   type: TagTypeEnum;
 
   /**

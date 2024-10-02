@@ -23,6 +23,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from './validation.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow
 export enum UnitTypeDto {
@@ -80,6 +81,10 @@ export class LocationDto {
 
   @IsOptional()
   @IsEnum(UnitTypeDto)
+  @ApiPropertyOptional({
+    enum: UnitTypeDto,
+    enumName: 'UnitTypeDto',
+  })
   units?: UnitTypeDto;
 }
 
@@ -106,6 +111,10 @@ export class AssetReferenceDto {
 
 export class TagDto {
   @IsEnum(TagTypeDto)
+  @ApiProperty({
+    enum: TagTypeDto,
+    enumName: 'TagTypeDto',
+  })
   type: TagTypeDto;
 
   @ValidateIf((o) => o.type === TagTypeDto.Hashtag)
@@ -122,6 +131,10 @@ export class TagDto {
 
 export class AssetDto {
   @IsEnum(AttachmentTypeDto)
+  @ApiProperty({
+    enum: AttachmentTypeDto,
+    enumName: 'AttachmentTypeDto',
+  })
   type: AttachmentTypeDto;
 
   @ValidateIf((o) => o.type !== AttachmentTypeDto.LINK)

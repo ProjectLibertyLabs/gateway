@@ -44,8 +44,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -87,8 +87,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -130,8 +130,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -173,8 +173,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -214,8 +214,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -257,8 +257,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -517,17 +517,20 @@
           }
         }
       },
+      "TagTypeEnum": {
+        "type": "string",
+        "description": "Identifies the tag type",
+        "enum": [
+          "mention",
+          "hashtag"
+        ]
+      },
       "TagDto": {
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "description": "Identifies the tag type",
             "example": "mention",
-            "enum": [
-              "mention",
-              "hashtag"
-            ]
+            "$ref": "#/components/schemas/TagTypeEnum"
           },
           "name": {
             "type": "string",
@@ -545,12 +548,29 @@
           "type"
         ]
       },
+      "UnitTypeEnum": {
+        "type": "string",
+        "description": "The units for radius and altitude (defaults to meters)",
+        "enum": [
+          "cm",
+          "m",
+          "km",
+          "inches",
+          "feet",
+          "miles"
+        ]
+      },
       "LocationDto": {
         "type": "object",
         "properties": {
+          "units": {
+            "example": "m",
+            "$ref": "#/components/schemas/UnitTypeEnum"
+          },
           "name": {
             "type": "string",
             "description": "The display name for the location",
+            "example": "New York, NY",
             "minLength": 1
           },
           "accuracy": {
@@ -580,19 +600,6 @@
             "description": "The area around the given point that comprises the location",
             "example": 100,
             "minimum": 0
-          },
-          "units": {
-            "type": "string",
-            "description": "The units for radius and altitude (defaults to meters)",
-            "example": "m",
-            "enum": [
-              "cm",
-              "m",
-              "km",
-              "inches",
-              "feet",
-              "miles"
-            ]
           }
         },
         "required": [
@@ -705,54 +712,52 @@
           "inReplyTo"
         ]
       },
+      "ModifiableAnnouncementType": {
+        "type": "string",
+        "description": "Target announcement type",
+        "enum": [
+          "broadcast",
+          "reply"
+        ]
+      },
       "UpdateDto": {
         "type": "object",
         "properties": {
+          "targetAnnouncementType": {
+            "example": "broadcast",
+            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+          },
           "targetContentHash": {
             "type": "string",
             "description": "Target DSNP Content Hash",
             "example": "bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna"
-          },
-          "targetAnnouncementType": {
-            "type": "string",
-            "description": "Target announcement type",
-            "example": "broadcast",
-            "enum": [
-              "broadcast",
-              "reply"
-            ]
           },
           "content": {
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
         "required": [
-          "targetContentHash",
           "targetAnnouncementType",
+          "targetContentHash",
           "content"
         ]
       },
       "TombstoneDto": {
         "type": "object",
         "properties": {
+          "targetAnnouncementType": {
+            "example": "broadcast",
+            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+          },
           "targetContentHash": {
             "type": "string",
             "description": "Target DSNP Content Hash",
             "example": "bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna"
-          },
-          "targetAnnouncementType": {
-            "type": "string",
-            "description": "Target announcement type",
-            "example": "broadcast",
-            "enum": [
-              "broadcast",
-              "reply"
-            ]
           }
         },
         "required": [
-          "targetContentHash",
-          "targetAnnouncementType"
+          "targetAnnouncementType",
+          "targetContentHash"
         ]
       },
       "ProfileActivityDto": {

@@ -9,6 +9,7 @@ import { DSNP_EMOJI_REGEX } from './validation';
 import { IsDsnpContentURI } from '#utils/decorators/is-dsnp-content-uri.decorator';
 import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementType {
@@ -46,11 +47,13 @@ export class TombstoneDto {
   @IsNotEmpty()
   targetContentHash: string;
 
-  /**
-   * Target announcement type
-   * @example 'broadcast'
-   */
   @IsEnum(ModifiableAnnouncementType)
+  @ApiProperty({
+    description: 'Target announcement type',
+    example: 'broadcast',
+    enum: ModifiableAnnouncementType,
+    enumName: 'ModifiableAnnouncementType',
+  })
   targetAnnouncementType: ModifiableAnnouncementType;
 }
 
@@ -63,11 +66,13 @@ export class UpdateDto {
   @IsNotEmpty()
   targetContentHash: string;
 
-  /**
-   * Target announcement type
-   * @example 'broadcast'
-   */
   @IsEnum(ModifiableAnnouncementType)
+  @ApiProperty({
+    description: 'Target announcement type',
+    example: 'broadcast',
+    enum: ModifiableAnnouncementType,
+    enumName: 'ModifiableAnnouncementType',
+  })
   targetAnnouncementType: ModifiableAnnouncementType;
 
   @IsNotEmpty()

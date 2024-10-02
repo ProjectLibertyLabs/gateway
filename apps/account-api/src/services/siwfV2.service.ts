@@ -6,11 +6,15 @@ import {
   VerifiedEmailAddressCredential,
   VerifiedGraphKeyCredential,
   SiwfCredentialRequest,
+  SiwfResponse,
+  validateSiwfResponse,
+  getLoginResult,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
+import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
 
 @Injectable()
 export class SiwfV2Service {
@@ -61,6 +65,31 @@ export class SiwfV2Service {
     );
   }
 
+  async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
+    if (request.authorizationPayload) {
+      try {
+        // Await here so the error is caught
+        return await validateSiwfResponse(request.authorizationPayload);
+      } catch (e) {
+        this.logger.warn('Failed to parse "authorizationPayload"', { error: e });
+        throw new BadRequestException('Invalid `authorizationPayload` in request.');
+      }
+    }
+
+    // This is used by Frequency Access
+    if (request.authorizationCode) {
+      try {
+        // Await here so the error is caught
+        return await getLoginResult(request.authorizationCode, { endpoint: this.swifV2Endpoint() });
+      } catch (e) {
+        this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e });
+        throw new BadRequestException('Invalid response from `authorizationCode` payload fetch.');
+      }
+    }
+
+    throw new BadRequestException('No `authorizationPayload` or `authorizationCode` in request.');
+  }
+
   async getRedirectUrl(
     callbackUrl: string,
     permissions: number[],
@@ -86,7 +115,7 @@ export class SiwfV2Service {
         frequencyRpcUrl,
       };
     } catch (e) {
-      this.logger.error(`Error during SIWF V2 Redrect URL request: ${e}`);
+      this.logger.warn('Error during SIWF V2 Redrect URL request', { error: e });
       throw new BadRequestException('Failed to get SIWF V2 Redirect URL');
     }
     return response;

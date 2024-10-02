@@ -20,13 +20,7 @@ export class GraphControllerV1 {
   @ApiOperation({ summary: 'Fetch graphs for specified MSA Ids and Block Number' })
   @ApiOkResponse({ description: 'Graphs retrieved successfully', type: [UserGraphDto] })
   async getGraphs(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
-    try {
-      const graphs = await this.apiService.getGraphs(queryParams);
-      return graphs;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to fetch graphs');
-    }
+    return this.apiService.getGraphs(queryParams);
   }
 
   // Enqueue a request to update a user graph

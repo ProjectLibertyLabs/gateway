@@ -17,6 +17,8 @@ import queueConfig, { QueueModule } from '#queue';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -55,7 +57,16 @@ import graphCommonConfig from '#config/graph-common.config';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, GraphStateManager, AsyncDebouncerService],
+  providers: [
+    ApiService,
+    GraphStateManager,
+    AsyncDebouncerService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
   exports: [],
 })

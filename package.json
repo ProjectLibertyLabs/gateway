@@ -148,6 +148,7 @@
     "multihashes": "^4.0.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "short-unique-id": "^5.2.0",
     "time-constants": "^1.0.3"
   },
   "devDependencies": {

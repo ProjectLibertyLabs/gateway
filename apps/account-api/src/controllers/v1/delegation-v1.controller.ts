@@ -6,18 +6,7 @@ import {
   RevokeDelegationPayloadRequestDto,
 } from '#types/dtos/account';
 import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpException,
-  HttpStatus,
-  Logger,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 
@@ -43,13 +32,7 @@ export class DelegationControllerV1 {
    * @throws HttpException if the delegation cannot be found.
    */
   async getDelegation(@Param() { msaId }: MsaIdDto): Promise<DelegationResponse> {
-    try {
-      const delegation = await this.delegationService.getDelegation(msaId);
-      return delegation;
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to find the delegation', HttpStatus.BAD_REQUEST);
-    }
+    return this.delegationService.getDelegation(msaId);
   }
 
   @Get('revokeDelegation/:accountId/:providerId')
@@ -74,17 +57,8 @@ export class DelegationControllerV1 {
     @Param() { accountId }: AccountIdDto,
     @Param() { providerId }: ProviderMsaIdDto,
   ): Promise<RevokeDelegationPayloadResponseDto> {
-    try {
-      this.logger.verbose(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);
-      return this.delegationService.getRevokeDelegationPayload(accountId, providerId);
-    } catch (error) {
-      this.logger.error('Error generating RevokeDelegationPayload', error);
-      if (error instanceof HttpException) {
-        throw error;
-      } else {
-        throw new HttpException('Failed to generate the RevokeDelegationPayload', HttpStatus.BAD_REQUEST);
-      }
-    }
+    this.logger.verbose(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);
+    return this.delegationService.getRevokeDelegationPayload(accountId, providerId);
   }
 
   @Post('revokeDelegation')
@@ -103,12 +77,7 @@ export class DelegationControllerV1 {
     @Body()
     revokeDelegationRequest: RevokeDelegationPayloadRequestDto,
   ): Promise<TransactionResponse> {
-    try {
-      this.logger.verbose(revokeDelegationRequest, 'Posting RevokeDelegationPayloadRequest');
-      return this.delegationService.postRevokeDelegation(revokeDelegationRequest);
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to revoke the delegation', HttpStatus.BAD_REQUEST);
-    }
+    this.logger.verbose(revokeDelegationRequest, 'Posting RevokeDelegationPayloadRequest');
+    return this.delegationService.postRevokeDelegation(revokeDelegationRequest);
   }
 }

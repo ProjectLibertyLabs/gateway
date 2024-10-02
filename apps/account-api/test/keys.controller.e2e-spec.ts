@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
@@ -136,8 +136,8 @@ describe('Keys Controller', () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
       await request(HTTP_SERVER)
         .get(`/v1/keys/${invalidMsaId.toString()}`)
-        .expect(400)
-        .expect({ statusCode: 400, message: 'Failed to find public keys for the given msaId' });
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('Keys not found for'));
     });
   });
 });

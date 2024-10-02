@@ -37,7 +37,7 @@ describe('Keys Controller', () => {
     // with keys that we generate here.
 
     for (const u of users) {
-      await removeExtraKeysFromMsa(u);
+      if (u.msaId) await removeExtraKeysFromMsa({ msaId: u.msaId.toString(), keypair: u.keypair });
     }
 
     newKey0 = createKeys('new key', `${users[0].uri}//newkey`);
@@ -72,7 +72,7 @@ describe('Keys Controller', () => {
 
   afterAll(async () => {
     for (const u of users) {
-      await removeExtraKeysFromMsa(u);
+      if (u.msaId) await removeExtraKeysFromMsa({ msaId: u.msaId.toString(), keypair: u.keypair });
     }
 
     await ExtrinsicHelper.disconnect();

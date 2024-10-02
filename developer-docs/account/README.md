@@ -183,10 +183,10 @@ In order to run this project you need:
 
 Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](../../env-files/account.template.env).
 
-1. Copy the template values into the .env files.
+1. Copy the template values into the .env.account file.
 
 ```sh
-   cp env-files/account.template.env .env
+   cp env-files/account.template.env .env.account
 ```
 
 2. Replace template values with values appropriate to your environment.
@@ -206,7 +206,7 @@ Note: using [docker compose file](../../docker-compose.yaml) to start the servic
 The following command will start all of the necessary containers for the account service to run in development mode.
 
 ```bash
-./scripts/account/restart-chain-docker
+./scripts/account/restart-chain-docker.sh
 ```
 
 In order to run the `account-service` in development mode without containers, you can use the following commands:
@@ -214,7 +214,7 @@ In order to run the `account-service` in development mode without containers, yo
 #### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
 
 ```bash
-./scripts/account/restart-local-dev
+./scripts/account/restart-local-dev.sh
 ```
 
 Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
@@ -230,13 +230,13 @@ cd rust-webhook-server && cargo run
 **Option 1:** In a new terminal window, start the `account-service` api app. Logs will be displayed in the terminal for easy reference.
 
 ```sh
-npm run start:api:debug
+npm run start:account-api:dev
 ```
 
 In another terminal window, start the `account-service` worker app.
 
 ```sh
-npm run start:worker:debug
+npm run start:account-worker:dev
 ```
 
 -- or -- <br /><br />

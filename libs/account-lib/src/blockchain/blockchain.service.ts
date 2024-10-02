@@ -38,6 +38,7 @@ import { TransactionType } from '#types/account-webhook';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
+export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
 interface SIWFTxnValues {
   msaId: string;
   address: string;
@@ -647,5 +648,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public decodeTransaction(encodedExtrinsic: string) {
     return this.api.tx(encodedExtrinsic);
+  }
+
+  public getNetworkType(): NetworkType {
+    switch (this.api.genesisHash.toHex()) {
+      case '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1':
+        return 'mainnet';
+      case '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0':
+        return 'testnet-paseo';
+      default:
+        return 'unknown';
+    }
   }
 }

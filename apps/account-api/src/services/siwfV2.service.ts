@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import {
   generateEncodedSignedRequest,
   generateAuthenticationUrl,
@@ -87,7 +87,7 @@ export class SiwfV2Service {
       };
     } catch (e) {
       this.logger.error(`Error during SIWF V2 Redrect URL request: ${e}`);
-      throw new Error('Failed to get SIWF V2 Redirect URL');
+      throw new BadRequestException('Failed to get SIWF V2 Redirect URL');
     }
     return response;
   }

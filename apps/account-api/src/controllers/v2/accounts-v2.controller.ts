@@ -2,7 +2,7 @@ import { SiwfV2Service } from '#account-api/services/siwfV2.service';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { Controller, HttpCode, HttpStatus, Logger, HttpException, Query, Get } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Logger, Query, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 // # SIWF Wallet API V2
@@ -50,18 +50,12 @@ export class AccountsControllerV2 {
   @ApiOperation({ summary: 'Get the Sign In With Frequency Redirect URL' })
   @ApiOkResponse({ description: 'SIWF Redirect URL', type: WalletV2RedirectResponseDto })
   async getRedirectUrl(@Query() query: WalletV2RedirectRequestDto): Promise<WalletV2RedirectResponseDto> {
-    try {
-      this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', query);
+    this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', query);
 
-      const { callbackUrl } = query;
-      const permissions = (query.permissions || []).map((p) => SCHEMA_NAME_TO_ID.get(p));
-      const credentials = query.credentials || [];
+    const { callbackUrl } = query;
+    const permissions = (query.permissions || []).map((p) => SCHEMA_NAME_TO_ID.get(p));
+    const credentials = query.credentials || [];
 
-      return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);
-    } catch (error) {
-      const errorMessage = 'Failed to get the Sign In With Frequency v2 Redirect URL';
-      this.logger.error(`${errorMessage}: ${error}`);
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
-    }
+    return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);
   }
 }

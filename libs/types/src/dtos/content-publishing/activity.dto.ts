@@ -54,7 +54,7 @@ export enum AttachmentType {
 export class LocationDto {
   /**
    * The display name for the location
-   * @example New York, NY
+   * @example 'New York, NY'
    */
   @MinLength(1)
   @IsString()

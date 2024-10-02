@@ -64,6 +64,7 @@ async function bootstrap() {
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
+    initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
     await app.listen(config.apiPort);
   } catch (e) {

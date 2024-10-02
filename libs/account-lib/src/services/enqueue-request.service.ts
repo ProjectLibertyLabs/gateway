@@ -5,7 +5,7 @@ import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { TransactionResponse, TransactionData } from '#types/dtos/account';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 export class EnqueueService {

@@ -1,21 +1,21 @@
+/* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
+import fs from 'fs';
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
-import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
+import { AccountId, AccountId32, BlockHash, BlockNumber, Call, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { Bytes, Option, u32 } from '@polkadot/types';
+import { AnyNumber, Codec, DetectCodec, IMethod, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
+import { Bytes, Option, u128, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
-  PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
-import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
+import { ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
 import {
   Delegation,
@@ -32,10 +32,12 @@ import {
 } from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
-import { Extrinsic } from './extrinsic';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 import { TransactionType } from '#types/account-webhook';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
+import Redis from 'ioredis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {
@@ -74,11 +76,39 @@ export interface ICapacityInfo {
   currentEpoch: number;
 }
 
+/**
+ * To be able to provide mostly unique nonces to submit transactions on chain we would need to check a number of
+ * temporarily locked keys on redis side and get the first available one. This number defines the number of keys
+ * we should look into before giving up
+ */
+const NUMBER_OF_NONCE_KEYS_TO_CHECK = 50;
+
+/**
+ * Nonce keys have to get expired shortly so that if any of nonce numbers get skipped we would still have a way to
+ * submit them after expiration
+ */
+const NONCE_KEY_EXPIRE_SECONDS = 2;
+const CHAIN_NONCE_KEY = 'chain:nonce';
+
+function getNonceKey(suffix: string) {
+  return `${CHAIN_NONCE_KEY}:${suffix}`;
+}
+
+function getNextPossibleNonceKeys(currentNonce: number): string[] {
+  const keys: string[] = [];
+  for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
+    const key = currentNonce + i;
+    keys.push(getNonceKey(`${key}`));
+  }
+  return keys;
+}
 @Injectable()
 export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
 
   private logger: Logger;
+
+  private accountId: string;
 
   private readyResolve: (boolean) => void;
 
@@ -105,6 +135,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       this.readyResolve(await this.api.isReady);
       await this.validateProviderSeedPhrase();
       this.logger.log('Blockchain API ready.');
+      this.accountId = await addressFromSeedPhrase(this.config.providerSeedPhrase);
+      const nextNonce = await this.getNextNonce();
+      this.logger.log(`nonce is set to ${nextNonce}`);
     } catch (err) {
       this.readyReject(err);
       throw err;
@@ -128,8 +161,15 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await Promise.all(promises);
   }
 
-  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {
+  constructor(
+    @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
+    @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private nonceRedis: Redis,
+  ) {
     this.logger = new Logger(this.constructor.name);
+    nonceRedis.defineCommand('incrementNonce', {
+      numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,
+      lua: fs.readFileSync('lua/incrementNonce.lua', 'utf8'),
+    });
   }
 
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
@@ -140,14 +180,13 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.rpc.chain.getBlock(block);
   }
 
-  public async getBlockByNumber(blockNumber: number): Promise<SignedBlock> {
+  public async getBlockByNumber(blockNumber: AnyNumber | BlockNumber): Promise<SignedBlock> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
     return this.api.rpc.chain.getBlock(blockHash);
   }
 
-  public async getItemizedStorage(msaId: string, schemaId: number): Promise<ItemizedStoragePageResponse> {
-    const msa = BigInt(msaId);
-    return this.api.rpc.statefulStorage.getItemizedStorage(msa, schemaId);
+  public async getItemizedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<ItemizedStoragePageResponse> {
+    return this.api.rpc.statefulStorage.getItemizedStorage(msaId, schemaId);
   }
 
   public getLatestFinalizedBlockHash(): Promise<BlockHash> {
@@ -156,63 +195,32 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getLatestFinalizedBlockNumber(): Promise<number> {
     const blockHash = await this.getLatestFinalizedBlockHash();
-    return (await this.api.rpc.chain.getBlock(blockHash)).block.header.number.toNumber();
+    return (await this.api.rpc.chain.getHeader(blockHash)).number.toNumber();
   }
 
-  public async getBlockNumberForHash(hash: string): Promise<number | undefined> {
-    const block = await this.api.rpc.chain.getBlock(hash);
-    if (block) {
-      return block.block.header.number.toNumber();
+  public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {
+    const header = await this.api.rpc.chain.getHeader(hash);
+    if (header) {
+      return header.number.toNumber();
     }
 
     this.logger.error(`No block found corresponding to hash ${hash}`);
     return undefined;
   }
 
-  public createType(type: string, ...args: (any | undefined)[]) {
-    return this.api.registry.createType(type, ...args);
+  public createType<T extends Codec = Codec, K extends string = string>(
+    type: K,
+    ...params: unknown[]
+  ): DetectCodec<T, K> {
+    return this.api.createType<T, K>(type, ...params);
   }
 
-  public createExtrinsicCall(
-    { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    ...args: (any | undefined)[]
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    return this.api.tx[pallet][extrinsic](...args);
-  }
-
-  public createExtrinsic(
-    { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    keys: KeyringPair,
-    ...args: (any | undefined)[]
-  ): Extrinsic {
-    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
-  }
-
-  public rpc(pallet: string, rpc: string, ...args: (any | undefined)[]): Promise<any> {
-    return this.api.rpc[pallet][rpc](...args);
-  }
-
-  public query(pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
-  }
-
-  public async queryAt(
-    blockHash: BlockHash,
-    pallet: string,
-    extrinsic: string,
-    ...args: (any | undefined)[]
-  ): Promise<any> {
-    const newApi = await this.api.at(blockHash);
-    return newApi.query[pallet][extrinsic](...args);
-  }
-
-  public async getNonce(account: string | Uint8Array): Promise<number> {
+  public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {
     return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
 
-  public async getSchema(schemaId: number): Promise<PalletSchemasSchemaInfo> {
-    const schema: PalletSchemasSchemaInfo = await this.query('schemas', 'schemas', schemaId);
-    return schema;
+  public async getSchema(schemaId: AnyNumber): Promise<PalletSchemasSchemaInfo | null> {
+    return this.handleOptionResult(this.api.query.schemas.schemaInfos(schemaId));
   }
 
   /**
@@ -226,9 +234,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {bigint} The current maximum MSA Id from the chain
    */
   public async getMsaIdMax(): Promise<bigint> {
-    const count = await this.query('msa', 'currentMsaIdentifierMaximum');
-    // eslint-disable-next-line radix
-    return BigInt(count);
+    return (await this.api.query.msa.currentMsaIdentifierMaximum()).toBigInt();
   }
 
   public async isValidMsaId(msaId: string): Promise<boolean> {
@@ -237,12 +243,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse | null> {
-    const keyInfoResponse = await this.api.rpc.msa.getKeysByMsaId(msaId);
-    if (keyInfoResponse.isSome) {
-      return keyInfoResponse.unwrap();
-    }
-    this.logger.error(`No keys found for msaId: ${msaId}`);
-    return null;
+    return this.handleOptionResult(this.api.rpc.msa.getKeysByMsaId(msaId), `No keys found for msaId: ${msaId}`);
   }
 
   public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
@@ -339,7 +340,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       msaId: msaIdU64,
     };
 
-    return this.api.registry.createType('PalletMsaAddKeyData', txPayload);
+    return this.api.createType('PalletMsaAddKeyData', txPayload);
   }
 
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
@@ -362,7 +363,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
     });
 
-    return this.api.registry.createType('PalletStatefulStorageItemizedSignaturePayloadV2', {
+    return this.api.createType('PalletStatefulStorageItemizedSignaturePayloadV2', {
       schemaId: payload.schemaId,
       targetHash: payload.targetHash,
       expiration: payload.expiration,
@@ -388,31 +389,32 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDto | null> {
-    const handleResponse: Option<HandleResponse> = await this.rpc('handles', 'getHandleForMsa', msaId.toString());
-    if (handleResponse.isSome) {
-      const handle = handleResponse.unwrap();
-      return {
-        base_handle: handle.base_handle.toString(),
-        canonical_base: handle.canonical_base.toString(),
-        suffix: handle.suffix.toNumber(),
-      };
-    }
+    const handleResponse = await this.handleOptionResult(
+      this.api.rpc.handles.getHandleForMsa(msaId),
+      `getHandleForMsa: No handle found for msaId: ${msaId}`,
+    );
 
-    this.logger.error(`getHandleForMsa: No handle found for msaId: ${msaId}`);
-    return null;
+    return handleResponse
+      ? {
+          base_handle: handleResponse.base_handle.toString(),
+          canonical_base: handleResponse.canonical_base.toString(),
+          suffix: handleResponse.suffix.toNumber(),
+        }
+      : null;
   }
 
   public async getCommonPrimitivesMsaDelegation(
     msaId: AnyNumber,
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
-    const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    return delegationResponse.unwrapOr(null);
+    return this.handleOptionResult(this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId));
   }
 
   public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
-    const response = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    return response.isEmpty ? null : chainDelegationToNative(providerId, response.unwrap());
+    const response = await this.handleOptionResult(
+      this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId),
+    );
+    return response ? chainDelegationToNative(providerId, response) : null;
   }
 
   public async getDelegationsForMsa(msaId: AnyNumber): Promise<Delegation[]> {
@@ -431,52 +433,43 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async publicKeyToMsaId(publicKey: string): Promise<string | null> {
-    const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
-    if (handleResponse.isSome) return handleResponse.unwrap().toString();
-    return null;
+  public async publicKeyToMsaId(publicKey: string | Uint8Array | AccountId32): Promise<string | null> {
+    const response = await this.handleOptionResult(this.api.query.msa.publicKeyToMsaId(publicKey));
+    return response ? response.toString() : null;
   }
 
   public async capacityInfo(providerId: AnyNumber): Promise<ICapacityInfo> {
     await this.isReady();
-    const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
-    const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
-    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
-      'capacity',
-      'capacityLedger',
-      providerId,
-    );
+    const epochStart = await this.getCurrentCapacityEpochStart();
+    const epochBlockLength = await this.getCurrentEpochLength();
+    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> =
+      await this.api.query.capacity.capacityLedger(providerId);
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
-      remainingCapacity: 0,
-      totalCapacityIssued: 0,
+      remainingCapacity: new u128(this.api.registry, 0),
+      totalCapacityIssued: new u128(this.api.registry, 0),
     });
-    const currentBlock: u32 = await this.query('system', 'number');
+    const currentBlockNumber = (await this.api.query.system.number()).toNumber();
     const currentEpoch = await this.getCurrentCapacityEpoch();
     return {
       currentEpoch,
       providerId: providerId.toString(),
-      currentBlockNumber: currentBlock.toNumber(),
-      nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
-      remainingCapacity:
-        typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
-      totalCapacityIssued:
-        typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
+      currentBlockNumber,
+      nextEpochStart: epochStart + epochBlockLength,
+      remainingCapacity: remainingCapacity.toBigInt(),
+      totalCapacityIssued: totalCapacityIssued.toBigInt(),
     };
   }
 
   public async getCurrentCapacityEpoch(): Promise<number> {
-    const currentEpoch = await this.api.query.capacity.currentEpoch();
-    return currentEpoch.toNumber();
+    return (await this.api.query.capacity.currentEpoch()).toNumber();
   }
 
   public async getCurrentCapacityEpochStart(): Promise<number> {
-    const currentEpochInfo: PalletCapacityEpochInfo = await this.api.query.capacity.currentEpochInfo();
-    return currentEpochInfo.epochStart.toNumber();
+    return (await this.api.query.capacity.currentEpochInfo()).epochStart.toNumber();
   }
 
   public async getCurrentEpochLength(): Promise<number> {
-    const epochLength: u32 = await this.api.query.capacity.epochLength();
-    return epochLength.toNumber();
+    return (await this.api.query.capacity.epochLength()).toNumber();
   }
 
   /**
@@ -529,18 +522,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns An object containing the extracted handle, msaId, and debug message.
    */
   public handlePublishHandleTxResult(event: Event): HandleTxnValues {
-    const handleTxnValues: Partial<HandleTxnValues> = {};
-
     if (this.api.events.handles.HandleClaimed.is(event)) {
-      const handleHex = event.data.handle.toString();
       // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
-      const handleData = handleHex.slice(2);
-      handleTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-      handleTxnValues.msaId = event.data.msaId.toString();
-      handleTxnValues.debugMsg = `Handle created: ${handleTxnValues.handle} for msaId: ${handleTxnValues.msaId}`;
+      const handle = Buffer.from(event.data.handle.toString().slice(2), 'hex').toString('utf-8');
+      const msaId = event.data.msaId.toString();
+
+      return {
+        handle,
+        msaId,
+        debugMsg: `Handle created: ${handle} for msaId: ${msaId}`,
+      };
     }
 
-    return handleTxnValues as HandleTxnValues;
+    return {} as HandleTxnValues;
   }
 
   /**
@@ -549,16 +543,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {PublicKeyValues} An object containing the MSA Id & new public key
    */
   public handlePublishKeyTxResult(event: Event): PublicKeyValues {
-    const publicKeyValues: Partial<PublicKeyValues> = {};
-
     // Grab the event data
     if (event && this.api.events.msa.PublicKeyAdded.is(event)) {
-      publicKeyValues.msaId = event.data.msaId.toString();
-      publicKeyValues.newPublicKey = event.data.key.toString();
-      publicKeyValues.debugMsg = `Public Key: ${publicKeyValues.newPublicKey} Added for msaId: ${publicKeyValues.msaId}`;
+      const msaId = event.data.msaId.toString();
+      const newPublicKey = event.data.key.toString();
+
+      return {
+        msaId,
+        newPublicKey,
+        debugMsg: `Public Key: ${newPublicKey} Added for msaId: ${msaId}`,
+      };
     }
 
-    return publicKeyValues as PublicKeyValues;
+    return {} as PublicKeyValues;
   }
 
   /**
@@ -567,18 +564,23 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {ItemizedPageUpdated} An object containing the MSA Id & new public key
    */
   public handlePublishPublicKeyAgreementTxResult(event: Event): ItemizedPageUpdated {
-    const itemizedKeyValues: Partial<ItemizedPageUpdated> = {};
-
     // Grab the event data
     if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
-      itemizedKeyValues.msaId = event.data.msaId.toString();
-      itemizedKeyValues.schemaId = event.data.schemaId.toString();
-      itemizedKeyValues.prevContentHash = event.data.prevContentHash.toString();
-      itemizedKeyValues.currContentHash = event.data.currContentHash.toString();
-      itemizedKeyValues.debugMsg = `Itemized Page updated for msaId: ${itemizedKeyValues.msaId} and schemaId: ${itemizedKeyValues.schemaId}`;
+      const msaId = event.data.msaId.toString();
+      const schemaId = event.data.schemaId.toString();
+      const prevContentHash = event.data.prevContentHash.toString();
+      const currContentHash = event.data.currContentHash.toString();
+
+      return {
+        msaId,
+        schemaId,
+        prevContentHash,
+        currContentHash,
+        debugMsg: `Itemized Page updated for msaId: ${msaId} and schemaId: ${schemaId}`,
+      };
     }
 
-    return itemizedKeyValues as ItemizedPageUpdated;
+    return {} as ItemizedPageUpdated;
   }
 
   public async validateProviderSeedPhrase() {
@@ -588,7 +590,9 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       const resolvedProviderId = await this.publicKeyToMsaId(address);
 
       if (resolvedProviderId !== providerId.toString()) {
-        throw new Error('Provided account secret does not match configured Provider ID');
+        throw new Error(
+          `Provided account secret maps to public key ${address}, which does not match configured Provider ID (${providerId.toString()})`,
+        );
       }
 
       const providerInfo = await this.getProviderToRegistryEntry(providerId);
@@ -641,11 +645,64 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     };
   }
 
+  public async payWithCapacity(
+    tx: Call | IMethod | string | Uint8Array,
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
+    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
+    const nonce = await this.getNextNonce();
+    this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
+    const txHash = await extrinsic.signAndSend(keys.address, { nonce });
+    if (!txHash) {
+      throw new Error('Tx hash is undefined');
+    }
+    this.logger.debug(`Tx hash: ${txHash}`);
+    return [extrinsic, txHash.toHex()];
+  }
+
+  public async payWithCapacityBatchAll(
+    tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
+    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
+    const nonce = await this.getNextNonce();
+    this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
+    const txHash = await extrinsic.signAndSend(keys.address, { nonce });
+    if (!txHash) {
+      throw new Error('Tx hash is undefined');
+    }
+    this.logger.debug(`Tx hash: ${txHash}`);
+    return [extrinsic, txHash.toHex()];
+  }
+
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
   }
 
   public decodeTransaction(encodedExtrinsic: string) {
     return this.api.tx(encodedExtrinsic);
+  }
+
+  public async handleOptionResult<T extends Codec>(rpc: Promise<Option<T>>, msg?: string): Promise<T | null> {
+    const result: T | null = (await rpc).unwrapOr(null);
+    if (!result && msg) {
+      this.logger.error(msg);
+    }
+
+    return result;
+  }
+
+  public async getNextNonce(): Promise<number> {
+    const nonce = await this.getNonce(this.accountId);
+    const keys = getNextPossibleNonceKeys(nonce);
+    // @ts-ignore
+    const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
+    if (nextNonceIndex === -1) {
+      this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
+      return nonce + NUMBER_OF_NONCE_KEYS_TO_CHECK;
+    }
+    const nextNonce = Number(nonce) + nextNonceIndex - 1;
+    this.logger.debug(`nextNonce ${nextNonce}`);
+    return nextNonce;
   }
 }

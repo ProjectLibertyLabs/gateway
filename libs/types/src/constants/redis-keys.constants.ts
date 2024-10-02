@@ -44,3 +44,9 @@ export const DEBOUNCER_CACHE_KEY = 'service-debouncer';
  * @type {string}
  */
 export const LAST_PROCESSED_DSNP_ID_KEY: string = 'lastProcessedMsaId';
+
+/**
+ * Redis cache key prefix for nonce-related keys (so all services share
+ * the same key namespace for nonces)
+ */
+export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';

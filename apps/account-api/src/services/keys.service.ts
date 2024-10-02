@@ -1,4 +1,4 @@
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
@@ -10,7 +10,7 @@ import {
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
+import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { verifySignature } from '#account-lib/utils/utility';
 import { KeysRequestDto } from '#types/dtos/account';

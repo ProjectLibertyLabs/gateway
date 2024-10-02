@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
-import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
+import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { verifySignature } from '#account-lib/utils/utility';

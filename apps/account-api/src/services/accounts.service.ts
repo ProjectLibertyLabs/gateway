@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwf';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { PublishSIWFSignupRequestDto, WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
 import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
@@ -13,7 +13,7 @@ import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.c
 import { PublishRetireMsaRequestDto, RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 export class AccountsService {

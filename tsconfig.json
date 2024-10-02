@@ -48,7 +48,9 @@
       "#queue": ["libs/queue/src"],
       "#queue/*": ["libs/queue/src/*"],
       "#cache": ["libs/cache/src"],
-      "#cache/*": ["libs/cache/src/*"]
+      "#cache/*": ["libs/cache/src/*"],
+      "#blockchain": ["libs/blockchain/src"],
+      "#blockchain/*": ["libs/blockchain/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

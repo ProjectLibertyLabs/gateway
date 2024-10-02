@@ -2,7 +2,7 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
@@ -16,7 +16,7 @@ import {
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
 import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 import { ConfigModule } from '@nestjs/config';
-import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
+import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import queueConfig, { QueueModule } from '#queue';
 import apiConfig from './api.config';

@@ -4,7 +4,7 @@ import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdo
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { RedisUtils } from '#account-lib';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
@@ -15,7 +15,7 @@ import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
-import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 

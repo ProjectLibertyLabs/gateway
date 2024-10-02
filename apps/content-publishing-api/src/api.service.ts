@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -105,7 +105,7 @@ export class ApiService {
       }
     });
     if (errors.length > 0) {
-      throw new HttpErrorByCode[400](errors);
+      throw new HttpErrorByCode[HttpStatus.BAD_REQUEST](errors);
     }
     return map;
   }

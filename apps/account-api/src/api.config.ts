@@ -10,6 +10,7 @@ export interface IAccountApiConfig {
   frequencyHttpUrl: URL;
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
+  siwfV2Url?: string;
 }
 
 export default registerAs('account-api', (): IAccountApiConfig => {
@@ -36,7 +37,11 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     },
     siwfUrl: {
       value: process.env.SIWF_URL,
-      joi: Joi.string().uri().default('https://ProjectLibertyLabs.github.io/siwf/ui'),
+      joi: Joi.string().uri().default('https://ProjectLibertyLabs.github.io/siwf/v1/ui'),
+    },
+    siwfV2Url: {
+      value: process.env.SIWF_V2_URL,
+      joi: Joi.string().optional().allow(null).allow('').empty('').uri(),
     },
   };
 

@@ -8,13 +8,14 @@ import { AccountQueues as QueueConstants } from '#types/constants/queue.constant
 import { CacheModule } from '#cache/cache.module';
 import {
   AccountsControllerV1,
+  AccountsControllerV2,
   DelegationControllerV1,
   HandlesControllerV1,
   KeysControllerV1,
+  DelegationsControllerV2,
   HealthController,
 } from './controllers';
-import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
-import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
+import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
@@ -65,6 +66,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
     EnqueueService,
     HandlesService,
     KeysService,
+    SiwfV2Service,
     // global exception handling
     {
       provide: APP_FILTER,
@@ -74,6 +76,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [
+    AccountsControllerV2,
     AccountsControllerV1,
     DelegationsControllerV2,
     DelegationControllerV1,

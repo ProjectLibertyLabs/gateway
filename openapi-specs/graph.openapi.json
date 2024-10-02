@@ -129,8 +129,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
-              "example": "2",
               "type": "string"
             }
           },
@@ -138,9 +138,9 @@
             "name": "includeAll",
             "required": false,
             "in": "query",
+            "example": true,
             "description": "Boolean whether to include webhooks registered for 'all' MSA Ids (default: true)",
             "schema": {
-              "example": true,
               "type": "boolean"
             }
           }
@@ -173,8 +173,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
+            "example": "2",
             "schema": {
-              "example": "2",
               "type": "string"
             }
           }
@@ -199,8 +199,8 @@
             "required": true,
             "in": "query",
             "description": "URL related to the request",
+            "example": "http://localhost/webhook",
             "schema": {
-              "example": "http://localhost/webhook",
               "type": "string"
             }
           }
@@ -233,8 +233,8 @@
             "required": true,
             "in": "query",
             "description": "URL related to the request",
+            "example": "http://localhost/webhook",
             "schema": {
-              "example": "http://localhost/webhook",
               "type": "string"
             }
           }

@@ -262,10 +262,10 @@
         "properties": {
           "blockNumber": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 4294967296,
             "description": "The block number to reset the scanner to",
-            "example": 0
+            "example": 0,
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "rewindOffset": {
             "type": "number",

@@ -66,8 +66,10 @@ describe('SiwfV2Service', () => {
   describe('getRedirectUrl', () => {
     let result: WalletV2RedirectResponseDto;
 
-    beforeAll(async () => {
+    it('Should build the result', async () => {
+      expect.assertions(1);
       result = await siwfV2Service.getRedirectUrl(exampleCallback, examplePermissions, exampleCredentials);
+      expect(result).toBeDefined();
     });
 
     it('Should return a valid signedRequest', () => {

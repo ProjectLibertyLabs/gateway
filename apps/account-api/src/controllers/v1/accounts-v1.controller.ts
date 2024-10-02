@@ -12,8 +12,9 @@ import {
   HttpStatus,
   Logger,
   Param,
-  HttpException,
   Inject,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
@@ -37,14 +38,8 @@ export class AccountsControllerV1 {
   @ApiOperation({ summary: 'Get the Sign In With Frequency configuration' })
   @ApiOkResponse({ description: 'Returned SIWF Configuration data', type: WalletLoginConfigResponseDto })
   async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
-    try {
-      this.logger.debug('Received request for Sign In With Frequency Configuration');
-      return this.accountsService.getSIWFConfig();
-    } catch (error) {
-      const errorMessage = 'Failed to get the Sign In With Frequency configuration';
-      this.logger.error(`${errorMessage}: ${error}`);
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
-    }
+    this.logger.debug('Received request for Sign In With Frequency Configuration');
+    return this.accountsService.getSIWFConfig();
   }
 
   @Get(':msaId')
@@ -58,16 +53,10 @@ export class AccountsControllerV1 {
    * @throws An error if the account cannot be found.
    */
   async getAccountForMsa(@Param() { msaId }: MsaIdDto): Promise<AccountResponseDto> {
-    try {
-      this.logger.debug(`Received request to get account with msaId: ${msaId}`);
-      const account = await this.accountsService.getAccount(msaId);
-      if (account) return account;
-      throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
-    } catch (error) {
-      this.logger.error(error);
-      if (error instanceof HttpException) throw error;
-      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
-    }
+    this.logger.debug(`Received request to get account with msaId: ${msaId}`);
+    const account = await this.accountsService.getAccount(msaId);
+    if (account) return account;
+    throw new NotFoundException(`Failed to find the account ${msaId}`);
   }
 
   @Get('account/:accountId')
@@ -81,19 +70,13 @@ export class AccountsControllerV1 {
    * @throws An error if the msaId or account cannot be found.
    */
   async getAccountForAccountId(@Param() { accountId }: AccountIdDto): Promise<AccountResponseDto> {
-    try {
-      this.logger.debug(`Received request to get account with accountId: ${accountId}`);
-      const response = await this.accountsService.getMsaIdForAccountId(accountId);
-      if (response?.msaId) {
-        const account = await this.accountsService.getAccount(response.msaId);
-        if (account) return account;
-      }
-      throw new HttpException('Failed to find the account', HttpStatus.NOT_FOUND);
-    } catch (error) {
-      this.logger.error(error);
-      if (error instanceof HttpException) throw error;
-      throw new HttpException('Failed to find the account', HttpStatus.BAD_REQUEST);
+    this.logger.debug(`Received request to get account with accountId: ${accountId}`);
+    const response = await this.accountsService.getMsaIdForAccountId(accountId);
+    if (response?.msaId) {
+      const account = await this.accountsService.getAccount(response.msaId);
+      if (account) return account;
     }
+    throw new NotFoundException(`Failed to find the account ${accountId}`);
   }
 
   @Post('siwf')
@@ -102,16 +85,10 @@ export class AccountsControllerV1 {
   @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
   async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
     if (this.config.isDeployedReadOnly && walletLoginRequest.signUp) {
-      throw new HttpException('New account sign-up unavailable in read-only mode', HttpStatus.FORBIDDEN);
+      throw new ForbiddenException('New account sign-up unavailable in read-only mode');
     }
-    try {
-      this.logger.debug(`Received Sign In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
-      return this.accountsService.signInWithFrequency(walletLoginRequest);
-    } catch (error: any) {
-      const errorMessage = 'Failed to Sign In With Frequency';
-      this.logger.error(errorMessage, error, error?.stack);
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
-    }
+    this.logger.debug(`Received Sign In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
+    return this.accountsService.signInWithFrequency(walletLoginRequest);
   }
 
   @Get('retireMsa/:accountId')
@@ -125,14 +102,9 @@ export class AccountsControllerV1 {
    * @throws An error if the payload fails to be created.
    */
   async getRetireMsaPayload(@Param() { accountId }: AccountIdDto): Promise<RetireMsaPayloadResponseDto> {
-    try {
-      const result = await this.accountsService.getRetireMsaPayload(accountId);
-      if (result) return result;
-      throw new HttpException('MSA ID requested to retire was not found.', HttpStatus.NOT_FOUND);
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to create a retireMsa unsigned, encoded extrinsic.', HttpStatus.BAD_REQUEST);
-    }
+    const result = await this.accountsService.getRetireMsaPayload(accountId);
+    if (result) return result;
+    throw new NotFoundException(`MSA Id for requested account '${accountId}' was not found.`);
   }
 
   @Post('retireMsa')
@@ -146,12 +118,6 @@ export class AccountsControllerV1 {
    * @throws An error if the signed extrinsic fails to be created.
    */
   async postRetireMsa(@Body() retireMsaRequest: RetireMsaRequestDto): Promise<TransactionResponse> {
-    try {
-      return this.accountsService.retireMsa(retireMsaRequest);
-    } catch (error) {
-      const errorMessage = 'Failed to retire MSA ID.';
-      this.logger.error(`${errorMessage}: ${error}`);
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
-    }
+    return this.accountsService.retireMsa(retireMsaRequest);
   }
 }

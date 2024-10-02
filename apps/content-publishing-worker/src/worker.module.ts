@@ -2,21 +2,20 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PublisherModule } from './publisher/publisher.module';
-import { BlockchainModule } from '#content-publishing-lib/blockchain/blockchain.module';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { AssetProcessorModule } from './asset_processor/asset.processor.module';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
 import { BatchingProcessorModule } from './batching_processor/batching.processor.module';
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { NONCE_SERVICE_REDIS_NAMESPACE } from './publisher/nonce.service';
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
-import blockchainConfig, { addressFromSeedPhrase } from '#content-publishing-lib/blockchain/blockchain.config';
+import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
 import queueConfig, { QueueModule } from '#queue';
 import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import workerConfig from './worker.config';
-import { ContentPublishingQueues as QueueConstants } from '#types/constants';
+import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstants } from '#types/constants';
 
 @Module({
   imports: [

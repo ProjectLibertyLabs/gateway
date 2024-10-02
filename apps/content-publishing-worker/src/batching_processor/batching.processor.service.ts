@@ -16,7 +16,7 @@ import {
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()

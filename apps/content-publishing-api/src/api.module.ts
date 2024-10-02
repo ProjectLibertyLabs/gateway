@@ -12,7 +12,7 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
+import blockchainConfig from '#blockchain/blockchain.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import queueConfig, { QueueModule } from '#queue';
 

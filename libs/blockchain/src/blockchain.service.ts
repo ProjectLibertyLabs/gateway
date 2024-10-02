@@ -7,7 +7,7 @@ import { ApiPromise, HttpProvider, Keyring, WsProvider } from '@polkadot/api';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Call, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, IMethod, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { Bytes, Option, u128, Vec } from '@polkadot/types';
+import { Bytes, Option, u128, u16, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
@@ -221,6 +221,20 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getSchema(schemaId: AnyNumber): Promise<PalletSchemasSchemaInfo | null> {
     return this.handleOptionResult(this.api.query.schemas.schemaInfos(schemaId));
+  }
+
+  public async getSchemaIdByName(schemaNamespace: string, schemaDescriptor: string): Promise<number> {
+    const { ids }: { ids: Vec<u16> } = await this.api.query.schemas.schemaNameToIds(schemaNamespace, schemaDescriptor);
+    const schemaId = ids.toArray().pop()?.toNumber();
+    if (!schemaId) {
+      throw new Error(`Unable to determine schema ID for "${schemaNamespace}.${schemaDescriptor}"`);
+    }
+
+    return schemaId;
+  }
+
+  public async getSchemaPayload(schemaId: AnyNumber): Promise<Bytes | null> {
+    return this.handleOptionResult(this.api.query.schemas.schemaPayloads(schemaId));
   }
 
   /**
@@ -677,6 +691,14 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
+  }
+
+  public addIpfsMessage(
+    schemaId: AnyNumber,
+    cid: string,
+    payloadLength: number,
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    return this.api.tx.messages.addIpfsMessage(schemaId, cid, payloadLength);
   }
 
   public decodeTransaction(encodedExtrinsic: string) {

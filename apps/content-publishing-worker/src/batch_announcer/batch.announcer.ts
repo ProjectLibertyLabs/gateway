@@ -5,7 +5,7 @@ import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
 import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
@@ -32,6 +32,9 @@ export class BatchAnnouncer {
     let cachedSchema: string | null = await this.cacheManager.get(schemaCacheKey);
     if (!cachedSchema) {
       const schemaResponse = await this.blockchainService.getSchemaPayload(schemaId);
+      if (!schemaResponse) {
+        throw new Error(`Unable to retrieve schema for Schema ID ${schemaId}`);
+      }
       cachedSchema = JSON.stringify(schemaResponse);
       await this.cacheManager.setex(schemaCacheKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
     }

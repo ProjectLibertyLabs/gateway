@@ -1,7 +1,8 @@
+import { CommonConsumer } from '#types/constants/queue.constants';
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
-import * as ProcessingUtils from './processing';
+import { delayMS } from '#utils/common/common.utils';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
   protected logger: Logger;
@@ -24,11 +25,11 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
 
   async onModuleDestroy(): Promise<any> {
     await this.worker?.close(false);
-    let maxWaitMs = ProcessingUtils.MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS;
+    let maxWaitMs = CommonConsumer.MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS;
     while (this.actives.size > 0 && maxWaitMs > 0) {
       // eslint-disable-next-line no-await-in-loop
-      await ProcessingUtils.delay(ProcessingUtils.DELAY_TO_CHECK_FOR_SHUTDOWN_MS);
-      maxWaitMs -= ProcessingUtils.DELAY_TO_CHECK_FOR_SHUTDOWN_MS;
+      await delayMS(CommonConsumer.DELAY_TO_CHECK_FOR_SHUTDOWN_MS);
+      maxWaitMs -= CommonConsumer.DELAY_TO_CHECK_FOR_SHUTDOWN_MS;
     }
   }
 

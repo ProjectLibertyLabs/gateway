@@ -49,6 +49,8 @@
       "#queue/*": ["libs/queue/src/*"],
       "#cache": ["libs/cache/src"],
       "#cache/*": ["libs/cache/src/*"],
+      "#consumer": ["libs/consumer/src"],
+      "#consumer/*": ["libs/consumer/src/*"],
       "#openapi": ["libs/openapi/src"],
       "#openapi/*": ["libs/openapi/src/*"]
     },

@@ -15,7 +15,7 @@ import { IGraphTxStatus } from '#types/interfaces';
 import { BlockchainService, createKeys, ICapacityInfo } from '#graph-lib/blockchain';
 import { GraphUpdateJob } from '#types/dtos/graph';
 import { NonceService } from '#graph-lib/services/nonce.service';
-import { BaseConsumer } from '#graph-lib/utils';
+import { BaseConsumer } from '#consumer';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';

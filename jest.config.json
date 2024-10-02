@@ -30,6 +30,7 @@
     "^#config(|/.*)$": "<rootDir>/libs/config/src/$1",
     "^#queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
     "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
-    "^#cache(|/.*)$": "<rootDir>/libs/cache/src/$1"
+    "^#cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
+    "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1"
   }
 }

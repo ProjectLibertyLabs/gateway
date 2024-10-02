@@ -6,7 +6,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { DelayedError, Job, Queue } from 'bullmq';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
-import { BaseConsumer } from '../utils/base-consumer';
+import { BaseConsumer } from '#consumer';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-search-request.dto';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
 import { BlockchainService } from '../blockchain/blockchain.service';

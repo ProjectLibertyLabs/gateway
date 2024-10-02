@@ -3,7 +3,7 @@ import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BatchAnnouncer } from './batch.announcer';
-import { BaseConsumer } from '../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { ContentPublishingQueues as QueueConstants, CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
 import { IBatchAnnouncerJobData } from '../interfaces';
 

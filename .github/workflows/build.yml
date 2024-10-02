@@ -30,6 +30,9 @@ jobs:
               - 'Docker/**'
               - '.github/**'
               - 'docker-compose.yaml'
+              - 'libs/types'
+              - 'libs/utils'
+              - 'libs/consumer'
             account:
               - 'apps/account-api/**'
               - 'apps/account-worker/**'

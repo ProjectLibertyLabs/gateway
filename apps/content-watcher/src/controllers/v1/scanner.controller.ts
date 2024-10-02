@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Logger, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, NotFoundException, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '#content-watcher/api.service';
 import { ResetScannerDto } from '#types/dtos/content-watcher';
@@ -24,7 +24,7 @@ export class ScanControllerV1 {
   async getWatchOptions(): Promise<ChainWatchOptionsDto> {
     const options = await this.apiService.getWatchOptions();
     if (!options) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Not found');
     }
 
     return options;

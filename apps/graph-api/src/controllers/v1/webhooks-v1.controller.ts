@@ -1,20 +1,7 @@
 import { ApiService } from '#graph-api/api.service';
 import { WatchGraphsDto } from '#types/dtos/graph';
 import { MsaIdDto, UrlDto } from '#types/dtos/common';
-import {
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Logger,
-  Body,
-  Put,
-  Res,
-  HttpException,
-  Get,
-  Query,
-  Delete,
-  Param,
-} from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -61,20 +48,15 @@ export class WebhooksControllerV1 {
   @Put()
   @ApiOperation({ summary: 'Watch graphs for specified dsnpIds and receive updates' })
   @ApiOkResponse({ description: 'Successfully started watching graphs' })
-  async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto, @Res() response: Response): Promise<void> {
-    try {
-      const hooksAdded = await this.apiService.watchGraphs(watchGraphsDto);
-      response
-        .status(hooksAdded ? HttpStatus.CREATED : HttpStatus.OK)
-        .send({
-          status: hooksAdded ? HttpStatus.CREATED : HttpStatus.OK,
-          data: 'Successfully started watching graphs',
-        })
-        .end();
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to watch graphs', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async watchGraphs(@Body() watchGraphsDto: WatchGraphsDto, @Res() response: Response) {
+    const hooksAdded = await this.apiService.watchGraphs(watchGraphsDto);
+    response
+      .status(hooksAdded ? HttpStatus.CREATED : HttpStatus.OK)
+      .send({
+        status: hooksAdded ? HttpStatus.CREATED : HttpStatus.OK,
+        data: 'Successfully started watching graphs',
+      })
+      .end();
   }
 
   @Delete()

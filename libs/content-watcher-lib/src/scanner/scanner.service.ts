@@ -8,12 +8,12 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
-import { BlockchainService } from '../blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import * as RedisUtils from '#content-watcher-lib/utils/redis';
-import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
+import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
 

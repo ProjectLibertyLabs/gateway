@@ -38,6 +38,7 @@ const doRegister = (allowReadOnly = false) =>
     const seedValidation = allowReadOnly
       ? Joi.string().optional().allow(null).allow('').empty('')
       : Joi.string().required();
+
     const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
       frequencyUrl: {
         value: process.env.FREQUENCY_URL,
@@ -78,8 +79,10 @@ const doRegister = (allowReadOnly = false) =>
       },
       capacityLimit: {
         value: process.env.CAPACITY_LIMIT,
-        joi: Joi.string()
-          .custom((value: string, helpers) => {
+        joi: Joi.alternatives().conditional('isDeployedReadOnly', {
+          is: true,
+          then: Joi.any().strip(),
+          otherwise: Joi.string().custom((value: string, helpers) => {
             try {
               const obj = JSON.parse(value);
 
@@ -121,8 +124,8 @@ const doRegister = (allowReadOnly = false) =>
               };
             }
             return obj;
-          })
-          .required(),
+          }),
+        }),
       },
     };
 

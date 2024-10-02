@@ -69,6 +69,7 @@ async function bootstrap() {
       new ValidationPipe({
         whitelist: true,
         transform: true,
+        enableDebugMessages: !!process.env.DEBUG,
       }),
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
@@ -76,6 +77,7 @@ async function bootstrap() {
 
     initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
+    logger.debug('****** DEBUGGING ENABLED ********');
     await app.listen(config.apiPort);
   } catch (e) {
     logger.log('****** MAIN CATCH ********');

@@ -1,6 +1,77 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/v2/accounts/siwf": {
+      "get": {
+        "operationId": "AccountsControllerV2_getRedirectUrl",
+        "summary": "Get the Sign In With Frequency Redirect URL",
+        "parameters": [
+          {
+            "name": "callbackUrl",
+            "required": true,
+            "in": "query",
+            "description": "The URL that will be called when the authentication process is completed.",
+            "schema": {
+              "example": "http://localhost:3000/login/callback",
+              "type": "string"
+            }
+          },
+          {
+            "name": "credentials",
+            "required": false,
+            "in": "query",
+            "description": "List of credentials using the types: \"VerifiedGraphKeyCredential\", \"VerifiedEmailAddressCredential\", and \"VerifiedPhoneNumberCredential\". Note that Contact related verifiable credentials will be nested into an anyOf request form.",
+            "schema": {
+              "example": [
+                "VerifiedGraphKeyCredential",
+                "VerifiedEmailAddressCredential",
+                "VerifiedPhoneNumberCredential"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "permissions",
+            "required": false,
+            "in": "query",
+            "description": "The list of permissions using the Frequency Schema names and versions. Pattern: `<namespace>.<name>@v<version integer>` e.g. `dsnp.broadcast@v2`",
+            "schema": {
+              "example": [
+                "dsnp.broadcast@v2",
+                "dsnp.private-follows@v1",
+                "dsnp.reply@v2",
+                "dsnp.reaction@v1",
+                "dsnp.tombstone@v2",
+                "dsnp.update@v2",
+                "frequency.default-token-address@v1"
+              ],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SIWF Redirect URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletV2RedirectResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/accounts"
+        ]
+      }
+    },
     "/v1/accounts/siwf": {
       "get": {
         "operationId": "AccountsControllerV1_getSIWFConfig",
@@ -695,6 +766,31 @@
   "servers": [],
   "components": {
     "schemas": {
+      "WalletV2RedirectResponseDto": {
+        "type": "object",
+        "properties": {
+          "signedRequest": {
+            "type": "string",
+            "description": "The base64url encoded JSON stringified signed request.",
+            "example": "eyJyZXF1ZXN0ZWRTaWduYXR1cmVzIjp7InB1YmxpY0tleSI6eyJlbmNvZGVkVmFsdWUiOiJmNmNMNHdxMUhVTngxMVRjdmRBQk5mOVVOWFhveUg0N21WVXdUNTl0elNGUlc4eURIIiwiZW5jb2RpbmciOiJiYXNlNTgiLCJmb3JtYXQiOiJzczU4IiwidHlwZSI6IlNyMjU1MTkifSwic2lnbmF0dXJlIjp7ImFsZ28iOiJTcjI1NTE5IiwiZW5jb2RpbmciOiJiYXNlMTYiLCJlbmNvZGVkVmFsdWUiOiIweDA0MDdjZTgxNGI3Nzg2MWRmOTRkMTZiM2ZjYjMxN2QzN2EwN2FiYzJhN2Y5Y2Q3YzAyY2MyMjUyOWVlN2IzMmQ1Njc5NWY4OGJkNmI0YWQxMDZiNzJiOTFiNjI0NmE3ODM2NzFiY2QyNGNiMDFhYWYwZTkzMTZkYjVlMGNkMDg1In0sInBheWxvYWQiOnsiY2FsbGJhY2siOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJwZXJtaXNzaW9ucyI6WzUsNyw4LDksMTBdfX0sInJlcXVlc3RlZENyZWRlbnRpYWxzIjpbeyJ0eXBlIjoiVmVyaWZpZWRHcmFwaEtleUNyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFtZHZteGQ1NHp2ZTVraWZ5Y2dzZHRvYWhzNWVjZjRoYWwydHMzZWV4a2dvY3ljNW9jYTJ5Il19LHsiYW55T2YiOlt7InR5cGUiOiJWZXJpZmllZEVtYWlsQWRkcmVzc0NyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFlNHFvY3poZnRpY2k0ZHpmdmZiZWw3Zm80aDRzcjVncmNvM29vdnd5azZ5NHluZjQ0dHNpIl19LHsidHlwZSI6IlZlcmlmaWVkUGhvbmVOdW1iZXJDcmVkZW50aWFsIiwiaGFzaCI6WyJiY2lxanNwbmJ3cGMzd2p4NGZld2NlazVkYXlzZGpwYmY1eGppbXo1d251NXVqN2UzdnUydXducSJdfV19XX0"
+          },
+          "frequencyRpcUrl": {
+            "type": "string",
+            "description": "A publically available Frequency node for SIWF dApps to connect to the correct chain.",
+            "example": "wss://1.rpc.frequency.xyz"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "The compiled redirect url with all the parameters already built in.",
+            "example": "https://testnet.frequencyaccess.com/siwa/start?signedRequest=eyJyZXF1ZXN0ZWRTaWduYXR1cmVzIjp7InB1YmxpY0tleSI6eyJlbmNvZGVkVmFsdWUiOiJmNmNMNHdxMUhVTngxMVRjdmRBQk5mOVVOWFhveUg0N21WVXdUNTl0elNGUlc4eURIIiwiZW5jb2RpbmciOiJiYXNlNTgiLCJmb3JtYXQiOiJzczU4IiwidHlwZSI6IlNyMjU1MTkifSwic2lnbmF0dXJlIjp7ImFsZ28iOiJTcjI1NTE5IiwiZW5jb2RpbmciOiJiYXNlMTYiLCJlbmNvZGVkVmFsdWUiOiIweDA0MDdjZTgxNGI3Nzg2MWRmOTRkMTZiM2ZjYjMxN2QzN2EwN2FiYzJhN2Y5Y2Q3YzAyY2MyMjUyOWVlN2IzMmQ1Njc5NWY4OGJkNmI0YWQxMDZiNzJiOTFiNjI0NmE3ODM2NzFiY2QyNGNiMDFhYWYwZTkzMTZkYjVlMGNkMDg1In0sInBheWxvYWQiOnsiY2FsbGJhY2siOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJwZXJtaXNzaW9ucyI6WzUsNyw4LDksMTBdfX0sInJlcXVlc3RlZENyZWRlbnRpYWxzIjpbeyJ0eXBlIjoiVmVyaWZpZWRHcmFwaEtleUNyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFtZHZteGQ1NHp2ZTVraWZ5Y2dzZHRvYWhzNWVjZjRoYWwydHMzZWV4a2dvY3ljNW9jYTJ5Il19LHsiYW55T2YiOlt7InR5cGUiOiJWZXJpZmllZEVtYWlsQWRkcmVzc0NyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFlNHFvY3poZnRpY2k0ZHpmdmZiZWw3Zm80aDRzcjVncmNvM29vdnd5azZ5NHluZjQ0dHNpIl19LHsidHlwZSI6IlZlcmlmaWVkUGhvbmVOdW1iZXJDcmVkZW50aWFsIiwiaGFzaCI6WyJiY2lxanNwbmJ3cGMzd2p4NGZld2NlazVkYXlzZGpwYmY1eGppbXo1d251NXVqN2UzdnUydXducSJdfV19XX0"
+          }
+        },
+        "required": [
+          "signedRequest",
+          "frequencyRpcUrl",
+          "redirectUrl"
+        ]
+      },
       "WalletLoginConfigResponseDto": {
         "type": "object",
         "properties": {

@@ -39,4 +39,4 @@ RUN apk add libc6-compat
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/sbin/tini", "--", "./docker-entrypoint.sh", "prod" ]
+ENTRYPOINT [ "/sbin/tini", "--", "node", "dist/apps/content-watcher/main.js" ]

@@ -131,3 +131,15 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .idea/
+
+# Terraform
+
+# Ignore SSH keys
+*.pem
+
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Ignore Terraform variables files
+*.tfvars

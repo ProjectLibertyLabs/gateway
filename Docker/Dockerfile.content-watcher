@@ -35,6 +35,7 @@ RUN mkdir ./openapi-specs
 # We want jq and curl in the final image, but we don't need the support files
 # Install jq, curl, and tini using apk
 RUN apk add --no-cache jq curl tini
+RUN apk add libc6-compat
 
 EXPOSE 3000
 

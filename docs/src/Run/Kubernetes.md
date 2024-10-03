@@ -212,6 +212,8 @@ Replace `<host-ip>` with the external IP of your host machine.
 
 Access Swagger UI at `http://<host-ip>:3013/docs/swagger`
 
+- ![alt text](image.png)
+
 ---
 
 ## 7. Finding the Host Machine's IP Address

@@ -12,7 +12,7 @@ This guide will help you set up, configure, and test your Kubernetes services on
   - [1. Installing MicroK8s](#1-installing-microk8s)
   - [2. Setting Up MicroK8s](#2-setting-up-microk8s)
   - [3. Enable Kubernetes Add-ons in MicroK8s](#3-enable-kubernetes-add-ons-in-microk8s)
-  - [4. Installing `kubectl`](#4-installing-kubectl)
+  - [4. (Optional) Installing `kubectl`](#4-optional-installing-kubectl)
   - [5. Deploying Your Kubernetes Application](#5-deploying-your-kubernetes-application)
     - [5.1. Prepare Helm Chart](#51-prepare-helm-chart)
     - [5.2. Deploy with Helm](#52-deploy-with-helm)
@@ -96,7 +96,7 @@ sudo microk8s enable dns ingress storage helm3
 
 ---
 
-## 4. Installing `kubectl`
+## 4. (Optional) Installing `kubectl`
 
 If `kubectl` isn't already installed, you can use the following command to install it:
 
@@ -178,9 +178,7 @@ The services are accessible via:
 - **Port 8082**: `http://<node-ip>:31250`
 - **Port 8083**: `http://<node-ip>:31807`
 
-Replace `<node-ip>` with the IP address of the host machine
-
-Access Swagger UI at `http://<node-ip>:8080/docs/swagger`
+Note: `node-ip` is internal to the Kubernetes cluster. To access the services externally, you need to find the host machine's IP address.
 
 ---
 
@@ -189,13 +187,17 @@ Access Swagger UI at `http://<node-ip>:8080/docs/swagger`
 If you just need to expose ports for local testing, you can use `kubectl port-forward`:
 
 ```bash
-sudo microk8s kubectl port-forward svc/frequency-gateway 8080:8080
-sudo microk8s kubectl port-forward svc/frequency-gateway 8081:8081
-sudo microk8s kubectl port-forward svc/frequency-gateway 8082:8082
-sudo microk8s kubectl port-forward svc/frequency-gateway 8083:8083
+sudo microk8s kubectl port-forward svc/frequency-gateway 8080:3013
+sudo microk8s kubectl port-forward svc/frequency-gateway 8081:3014
+sudo microk8s kubectl port-forward svc/frequency-gateway 8082:3015
+sudo microk8s kubectl port-forward svc/frequency-gateway 8083:3016
 ```
 
 This will forward traffic from your localhost to the Kubernetes services.
+
+Replace `<host-ip>` with the external IP of your host machine.
+
+Access Swagger UI at `http://<host-ip>:3013/docs/swagger`
 
 ---
 

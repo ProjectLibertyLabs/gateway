@@ -8,6 +8,7 @@ import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { validSiwfResponsePayload } from './siwfV2.mock.spec';
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
@@ -40,6 +41,7 @@ describe('SiwfV2Service', () => {
 
   const mockBlockchainService = {
     getNetworkType: jest.fn(),
+    publicKeyToMsaId: jest.fn(),
   };
 
   const mockBlockchainServiceProvider = {
@@ -124,85 +126,6 @@ describe('SiwfV2Service', () => {
   });
 
   describe('getPayload', () => {
-    const validSiwfResponsePayload = {
-      userPublicKey: {
-        encodedValue: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
-        encoding: 'base58',
-        format: 'ss58',
-        type: 'Sr25519',
-      },
-      payloads: [
-        {
-          signature: {
-            algo: 'Sr25519',
-            encoding: 'base16',
-            encodedValue:
-              '0xbac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e',
-          },
-          endpoint: {
-            pallet: 'msa',
-            extrinsic: 'grantDelegation',
-          },
-          type: 'addProvider',
-          payload: {
-            authorizedMsaId: 1,
-            schemaIds: [5, 7, 8, 9, 10],
-            expiration: 24,
-          },
-        },
-      ],
-      credentials: [
-        {
-          '@context': ['https://www.w3.org/ns/credentials/v2', 'https://www.w3.org/ns/credentials/undefined-terms/v2'],
-          type: ['VerifiedEmailAddressCredential', 'VerifiableCredential'],
-          issuer: 'did:web:frequencyaccess.com',
-          validFrom: '2024-08-21T21:28:08.289+0000',
-          credentialSchema: {
-            type: 'JsonSchema',
-            id: 'https://schemas.frequencyaccess.com/VerifiedEmailAddressCredential/bciqe4qoczhftici4dzfvfbel7fo4h4sr5grco3oovwyk6y4ynf44tsi.json',
-          },
-          credentialSubject: {
-            id: 'did:key:z6QNucQV4AF1XMQV4kngbmnBHwYa6mVswPEGrkFrUayhttT1',
-            emailAddress: 'john.doe@example.com',
-            lastVerified: '2024-08-21T21:27:59.309+0000',
-          },
-          proof: {
-            type: 'DataIntegrityProof',
-            verificationMethod: 'did:web:frequencyaccess.com#z6MkofWExWkUvTZeXb9TmLta5mBT6Qtj58es5Fqg1L5BCWQD',
-            cryptosuite: 'eddsa-rdfc-2022',
-            proofPurpose: 'assertionMethod',
-            proofValue: 'z4jArnPwuwYxLnbBirLanpkcyBpmQwmyn5f3PdTYnxhpy48qpgvHHav6warjizjvtLMg6j3FK3BqbR2nuyT2UTSWC',
-          },
-        },
-        {
-          '@context': ['https://www.w3.org/ns/credentials/v2', 'https://www.w3.org/ns/credentials/undefined-terms/v2'],
-          type: ['VerifiedGraphKeyCredential', 'VerifiableCredential'],
-          issuer: 'did:key:z6QNucQV4AF1XMQV4kngbmnBHwYa6mVswPEGrkFrUayhttT1',
-          validFrom: '2024-08-21T21:28:08.289+0000',
-          credentialSchema: {
-            type: 'JsonSchema',
-            id: 'https://schemas.frequencyaccess.com/VerifiedGraphKeyCredential/bciqmdvmxd54zve5kifycgsdtoahs5ecf4hal2ts3eexkgocyc5oca2y.json',
-          },
-          credentialSubject: {
-            id: 'did:key:z6QNucQV4AF1XMQV4kngbmnBHwYa6mVswPEGrkFrUayhttT1',
-            encodedPublicKeyValue: '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17',
-            encodedPrivateKeyValue: '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87',
-            encoding: 'base16',
-            format: 'bare',
-            type: 'X25519',
-            keyType: 'dsnp.public-key-key-agreement',
-          },
-          proof: {
-            type: 'DataIntegrityProof',
-            verificationMethod: 'did:key:z6MktZ15TNtrJCW2gDLFjtjmxEdhCadNCaDizWABYfneMqhA',
-            cryptosuite: 'eddsa-rdfc-2022',
-            proofPurpose: 'assertionMethod',
-            proofValue: 'z2HHWwtWggZfvGqNUk4S5AAbDGqZRFXjpMYAsXXmEksGxTk4DnnkN3upCiL1mhgwHNLkxY3s8YqNyYnmpuvUke7jF',
-          },
-        },
-      ],
-    };
-
     it('Should call the siwfV2Url if there is an authorizationCode', async () => {
       // This test requires an actual authorization code and endpoint
       // You may need to set up a test environment or mock server for this
@@ -266,6 +189,72 @@ describe('SiwfV2Service', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         new URL('https://siwf.example.com/api/payload?authorizationCode=invalid-auth-code'),
       );
+    });
+  });
+
+  describe('getSiwfV2LoginResponse', () => {
+    it('Should parse the control key', async () => {
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.controlKey).toEqual('f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ');
+    });
+
+    it('Should parse the email', async () => {
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.email).toEqual('john.doe@example.com');
+    });
+
+    it('Should parse the phone number', async () => {
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.phoneNumber).toEqual('+01-234-867-5309');
+    });
+
+    it('Should parse the graph key', async () => {
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.graphKey).toBeDefined();
+      expect(result.graphKey.encodedPrivateKeyValue).toEqual(
+        '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87',
+      );
+      expect(result.graphKey.encodedPublicKeyValue).toEqual(
+        '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17',
+      );
+    });
+
+    it('Should parse MSA Id', async () => {
+      mockBlockchainService.publicKeyToMsaId.mockReturnValueOnce('123456');
+
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.msaId).toEqual('123456');
+      expect(mockBlockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
+        'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+      );
+    });
+
+    it('Should NOT return an MSA Id if there is none', async () => {
+      mockBlockchainService.publicKeyToMsaId.mockReturnValueOnce(null);
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.msaId).toBeUndefined();
+      expect(mockBlockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
+        'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+      );
+    });
+
+    it('Should copy the credentials', async () => {
+      const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfResponsePayload);
+
+      expect(result).toBeDefined();
+      expect(result.rawCredentials).toHaveLength(3);
     });
   });
 });

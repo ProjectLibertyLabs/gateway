@@ -37,6 +37,8 @@ Before starting, ensure the following:
 - **MicroK8s** installed
 - **Helm** installed
 - **kubectl** command-line tool
+- **Redis** installed and running
+- **Frequency Chain** running
 
 Check this [guide](https://ubuntu.com/tutorials/install-a-local-kubernetes-with-microk8s#1-overview), for more details on [installing MicroK8s](https://microk8s.io/docs) and [installing Helm](https://helm.sh/docs/intro/install/)
 

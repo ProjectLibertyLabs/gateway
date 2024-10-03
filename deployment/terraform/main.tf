@@ -16,8 +16,6 @@ module "aws_infrastructure" {
   count         = var.cloud_provider == "aws" ? 1 : 0
   swarm_manager_node_count = var.swarm_manager_node_count
   swarm_worker_node_count = var.swarm_worker_node_count
-  aws_access_key_id = var.aws_access_key_id
-  aws_secret_access_key = var.aws_secret_access_key
 }
 
 module "local_infrastructure" {

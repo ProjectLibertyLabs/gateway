@@ -5,7 +5,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IRequestJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
-import { BaseConsumer } from '../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 

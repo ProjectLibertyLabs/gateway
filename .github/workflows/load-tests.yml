@@ -31,6 +31,9 @@ jobs:
               - 'tools/ci-k6/**'
               - '.github/**'
               - 'docker-compose.yaml'
+              - 'libs/types'
+              - 'libs/utils'
+              - 'libs/consumer'
             account-api:
               - 'apps/account-api/**'
               - 'libs/account-lib/**'

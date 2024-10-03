@@ -12,7 +12,7 @@ import { BlockchainService, ICapacityInfo } from '#account-lib/blockchain/blockc
 import { createKeys } from '#account-lib/blockchain/create-keys';
 import { NonceService } from '#account-lib/services/nonce.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { BaseConsumer } from '#account-worker/BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { RedisUtils } from '#account-lib';
 import { TransactionData } from '#types/dtos/account';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';

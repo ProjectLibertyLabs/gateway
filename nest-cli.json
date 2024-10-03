@@ -144,6 +144,15 @@
         "tsConfigPath": "libs/config/tsconfig.lib.json"
       }
     },
+    "consumer": {
+      "type": "library",
+      "root": "libs/consumer",
+      "entryFile": "index",
+      "sourceRoot": "libs/consumer/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/consumer/tsconfig.lib.json"
+      }
+    },
     "queues": {
       "type": "library",
       "root": "libs/queue",

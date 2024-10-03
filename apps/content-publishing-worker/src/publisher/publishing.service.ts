@@ -13,7 +13,7 @@ import {
   SECONDS_PER_BLOCK,
   TXN_WATCH_LIST_KEY,
 } from '#types/constants';
-import { BaseConsumer } from '../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
 import { IContentTxStatus } from '#types/interfaces';

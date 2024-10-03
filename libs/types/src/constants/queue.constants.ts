@@ -231,3 +231,15 @@ export namespace GraphQueues {
     ],
   };
 }
+
+export namespace CommonConsumer {
+  /**
+   * Maximum waiting time in MS for graceful shutdown
+   */
+  export const MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS = 6 * 1000;
+
+  /**
+   * Time period between checks for graceful shutdown
+   */
+  export const DELAY_TO_CHECK_FOR_SHUTDOWN_MS = 300;
+}

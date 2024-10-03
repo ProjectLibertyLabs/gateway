@@ -9,12 +9,16 @@ import {
   SiwfResponse,
   validateSiwfResponse,
   getLoginResult,
+  isCredentialEmail,
+  isCredentialPhone,
+  isCredentialGraph,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
+import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.response.dto';
 
 @Injectable()
 export class SiwfV2Service {
@@ -88,6 +92,32 @@ export class SiwfV2Service {
     }
 
     throw new BadRequestException('No `authorizationPayload` or `authorizationCode` in request.');
+  }
+
+  async getSiwfV2LoginResponse(payload: SiwfResponse): Promise<WalletV2LoginResponseDto> {
+    const response = new WalletV2LoginResponseDto();
+
+    response.controlKey = payload.userPublicKey.encodedValue;
+
+    // Try to look up the MSA id, if there is no createSponsoredAccountWithDelegation request
+    if (payload.payloads.every((x) => x.endpoint.extrinsic !== 'createSponsoredAccountWithDelegation')) {
+      // Get the MSA Id from the chain
+      const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
+      if (msaId) response.msaId = msaId;
+    }
+
+    // Parse out the email, phone, and graph
+    const email = payload.credentials.find(isCredentialEmail)?.credentialSubject.emailAddress;
+    if (email) response.email = email;
+
+    const phoneNumber = payload.credentials.find(isCredentialPhone)?.credentialSubject.phoneNumber;
+    if (phoneNumber) response.phoneNumber = phoneNumber;
+
+    const graphKey = payload.credentials.find(isCredentialGraph)?.credentialSubject;
+    if (graphKey) response.graphKey = graphKey;
+
+    response.rawCredentials = payload.credentials;
+    return response;
   }
 
   async getRedirectUrl(

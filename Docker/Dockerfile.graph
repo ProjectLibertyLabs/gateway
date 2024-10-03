@@ -40,10 +40,8 @@ RUN chmod +x ./docker-entrypoint.sh
 RUN mkdir ./openapi-specs
 
 # We want jq and curl in the final image, but we don't need the support files
-RUN apt-get update && \
-	apt-get install -y jq curl tini && \
-	apt-get clean && \
-	rm -rf /usr/share/doc /usr/share/man /usr/share/zsh
+# Install jq, curl, and tini using apk
+RUN apk add --no-cache jq curl tini
 
 EXPOSE 3000
 

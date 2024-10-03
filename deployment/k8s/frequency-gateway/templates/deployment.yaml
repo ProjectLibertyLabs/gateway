@@ -19,6 +19,7 @@ spec:
         {{- include "frequency-gateway.labels" . | nindent 8 }}
     spec:
       containers:
+        {{- if .Values.service.account.deploy }}
         - name: account-service-api
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
           ports:
@@ -61,6 +62,9 @@ spec:
             - name: account-secret-volume
               mountPath: /app/secret/account
           args: ["{{ .Values.account.image.mode.worker.args}}"]
+        {{- end }}
+        
+        {{- if .Values.service.contentPublishing.deploy }}
         - name: content-publishing-service-api
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           ports:
@@ -109,6 +113,9 @@ spec:
             - name: content-publishing-secret-volume
               mountPath: /app/secret/content-publishing
           args: ["{{ .Values.contentPublishing.image.mode.worker.args}}"]
+        {{- end }}
+
+        {{- if .Values.service.contentWatcher.deploy }}
         - name: content-watcher-service
           image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
           ports:
@@ -137,6 +144,9 @@ spec:
               port: {{ .Values.contentWatcher.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
+        {{- end }}
+
+        {{- if .Values.service.graph.deploy }}
         - name: graph-service-api
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
           ports:
@@ -185,6 +195,7 @@ spec:
             - name: graph-secret-volume
               mountPath: /app/secret/graph
           args: ["{{ .Values.graph.image.mode.worker.args}}"]
+        {{- end }}
       volumes:
         - name: account-config-volume
           configMap:

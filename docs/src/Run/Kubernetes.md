@@ -116,7 +116,14 @@ An example Helm chart (for example, `frequency-gateway` in /deployment/k8s/frequ
 
 Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
 
-**Sample `values.yaml` Excerpt:**
+**Sample [`values.yaml`](/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
+
+Things to consider:
+
+- `FREQUENCY_URL` - URL of the Frequency Chain API
+- `REDIS_URL` - URL of the Redis server
+- `PROVIDER_SEED_PHRASE` - Seed phrase for the provider account
+- `PROVIDER_ID` - MSA ID of the provider account
 
 ```yaml
 service:
@@ -124,15 +131,19 @@ service:
   account:
     port: 8080
     targetPort: http-account
+    deploy: true <--- Set to true to deploy
   contentPublishing:
     port: 8081
     targetPort: http-publishing
+    deploy: true
   contentWatcher:
     port: 8082
     targetPort: http-watcher
+    deploy: true
   graph:
     port: 8083
     targetPort: http-graph
+    deploy: true
 ```
 
 ---

@@ -7,21 +7,29 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
+    {{- if .Values.service.account.deploy }}
     - name: account-service
       port: {{ .Values.service.account.port }}
       targetPort: {{ .Values.service.account.targetPort }}
       protocol: TCP
+    {{- end }}
+    {{- if .Values.service.contentPublishing.deploy }}
     - name: content-publishing-service
       port: {{ .Values.service.contentPublishing.port }}
       targetPort: {{ .Values.service.contentPublishing.targetPort }}
       protocol: TCP
+    {{- end }}
+    {{- if .Values.service.contentWatcher.deploy }}
     - name: content-watcher-service
       port: {{ .Values.service.contentWatcher.port }}
       targetPort: {{ .Values.service.contentWatcher.targetPort }}
       protocol: TCP
+    {{- end }}
+    {{- if .Values.service.graph.deploy }}
     - name: graph-service
       port: {{ .Values.service.graph.port }}
       targetPort: {{ .Values.service.graph.targetPort }}
       protocol: TCP
+    {{- end }}
   selector:
     {{- include "frequency-gateway.selectorLabels" . | nindent 4 }}

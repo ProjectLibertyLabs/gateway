@@ -13,7 +13,7 @@ This guide will help you set up, configure, and test your Kubernetes services on
   - [2. Setting Up MicroK8s](#2-setting-up-microk8s)
   - [3. Enable Kubernetes Add-ons in MicroK8s](#3-enable-kubernetes-add-ons-in-microk8s)
   - [4. (Optional) Installing `kubectl`](#4-optional-installing-kubectl)
-  - [5. Deploying Your Kubernetes Application](#5-deploying-your-kubernetes-application)
+  - [5. Deploying Frequency Gateway](#5-deploying-frequency-gateway)
     - [5.1. Prepare Helm Chart](#51-prepare-helm-chart)
     - [5.2. Deploy with Helm](#52-deploy-with-helm)
   - [6. Accessing Kubernetes Services](#6-accessing-kubernetes-services)
@@ -108,7 +108,7 @@ sudo snap install kubectl --classic
 
 ---
 
-## 5. Deploying Your Kubernetes Application
+## 5. Deploying Frequency Gateway
 
 ### 5.1. Prepare Helm Chart
 
@@ -139,7 +139,7 @@ service:
 
 ### 5.2. Deploy with Helm
 
-Deploy the application with Helm:
+Deploy gateway with Helm:
 
 ```bash
 sudo microk8s helm3 install frequency-gateway deployment/k8s/frequency-gateway/
@@ -270,4 +270,4 @@ sudo microk8s kubectl delete all --all
 
 ## Conclusion
 
-You've successfully deployed your application on Kubernetes and Helm, exposing the services via NodePorts for local access. You can also expand this setup by using Ingress for broader network access or by setting up a cloud-based Kubernetes environment for production deployments.
+You've successfully deployed `Frequency Gateway` on Kubernetes and Helm, exposing the services via NodePorts for local access. You can also expand this setup by using Ingress for broader network access or by setting up a cloud-based Kubernetes environment for production deployments.

@@ -122,7 +122,9 @@ Things to consider:
 
 - `FREQUENCY_URL` - URL of the Frequency Chain API
 - `REDIS_URL` - URL of the Redis server
-- `PROVIDER_SEED_PHRASE` - Seed phrase for the provider account
+- `IPFS_ENDPOINT`: IPFS endpoint for pinning content
+- `IPFS_GATEWAY_URL`: IPFS gateway URL for fetching content
+- `PROVIDER_ACCOUNT_SEED_PHRASE` - Seed phrase for the provider account
 - `PROVIDER_ID` - MSA ID of the provider account
 
 ```yaml

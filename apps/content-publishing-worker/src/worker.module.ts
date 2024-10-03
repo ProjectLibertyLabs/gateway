@@ -14,9 +14,10 @@ import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#content-publishing-lib/blockchain/blockchain.config';
 import queueConfig, { QueueModule } from '#queue';
 import cacheConfig from '#cache/cache.config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
+import { IPFSStorageModule } from '#storage';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { ContentPublishingQueues as QueueConstants } from '#types/constants';
       ignoreErrors: false,
     }),
     ScheduleModule.forRoot(),
+    IPFSStorageModule,
     PublisherModule,
     BlockchainModule,
     BatchAnnouncerModule,

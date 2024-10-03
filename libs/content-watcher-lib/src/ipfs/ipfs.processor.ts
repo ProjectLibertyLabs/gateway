@@ -7,10 +7,10 @@ import { calculateJobId } from '#types/constants';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { BaseConsumer } from '#consumer';
-import { IpfsService } from '../utils/ipfs.client';
 import { AnnouncementResponse } from '#types/content-announcement';
 import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isUpdate } from '../utils/type-guards';
 import scannerConfig, { IScannerConfig } from '#content-watcher-lib/scanner/scanner.config';
+import { IpfsService } from '#storage/ipfs/ipfs.service';
 
 @Injectable()
 @Processor(QueueConstants.IPFS_QUEUE, {

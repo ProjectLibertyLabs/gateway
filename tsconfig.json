@@ -51,6 +51,8 @@
       "#cache/*": ["libs/cache/src/*"],
       "#consumer": ["libs/consumer/src"],
       "#consumer/*": ["libs/consumer/src/*"],
+      "#storage": ["libs/storage/src"],
+      "#storage/*": ["libs/storage/src/*"],
       "#openapi": ["libs/openapi/src"],
       "#openapi/*": ["libs/openapi/src/*"]
     },

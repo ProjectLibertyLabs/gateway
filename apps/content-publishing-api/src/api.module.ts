@@ -4,7 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { ApiService } from './api.service';
 import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
@@ -13,7 +12,6 @@ import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import queueConfig, { QueueModule } from '#queue';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
@@ -22,7 +20,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, cacheConfig, queueConfig, blockchainConfig, ipfsConfig],
+      load: [apiConfig, cacheConfig, queueConfig, blockchainConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -65,7 +63,6 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   ],
   providers: [
     ApiService,
-    IpfsService,
     // global exception handling
     {
       provide: APP_FILTER,

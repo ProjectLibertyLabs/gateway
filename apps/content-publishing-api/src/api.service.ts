@@ -16,7 +16,7 @@ import {
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
+import { calculateIpfsCID } from '#utils/common/common.utils';
 import {
   getAssetMetadataKey,
   getAssetDataKey,

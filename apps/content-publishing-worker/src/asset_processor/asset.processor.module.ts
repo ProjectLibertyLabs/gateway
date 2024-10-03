@@ -1,10 +1,10 @@
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { Module } from '@nestjs/common';
 import { AssetProcessorService } from './asset.processor.service';
+import { IPFSStorageModule } from '#storage';
 
 @Module({
-  imports: [],
-  providers: [AssetProcessorService, IpfsService],
-  exports: [AssetProcessorService, IpfsService],
+  imports: [IPFSStorageModule],
+  providers: [AssetProcessorService],
+  exports: [AssetProcessorService],
 })
 export class AssetProcessorModule {}

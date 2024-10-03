@@ -112,7 +112,7 @@ sudo snap install kubectl --classic
 
 ### 5.1. Prepare Helm Chart
 
-An example Helm chart (for example, `frequency-gateway` in /deployment/k8s/frequency-gateway);
+An example Helm chart (for example, [`frequency-gateway`](/deployment/k8s/frequency-gateway/));
 
 Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
 

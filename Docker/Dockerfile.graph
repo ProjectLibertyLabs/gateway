@@ -45,4 +45,4 @@ RUN apk add --no-cache jq curl tini
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/usr/bin/tini", "--", "./docker-entrypoint.sh", "prod" ]
+ENTRYPOINT [ "/sbin/tini", "--", "./docker-entrypoint.sh", "prod" ]

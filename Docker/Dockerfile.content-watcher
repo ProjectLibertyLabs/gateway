@@ -38,4 +38,4 @@ RUN apk add --no-cache jq curl tini
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/usr/bin/tini", "--", "node", "dist/apps/content-watcher/main.js" ]
+ENTRYPOINT [ "/sbin/tini", "--", "./docker-entrypoint.sh", "prod" ]

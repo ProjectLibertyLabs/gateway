@@ -200,10 +200,10 @@ Note: `node-ip` is internal to the Kubernetes cluster. To access the services ex
 If you just need to expose ports for local testing, you can use `kubectl port-forward`:
 
 ```bash
-sudo microk8s kubectl port-forward svc/frequency-gateway 8080:3013
-sudo microk8s kubectl port-forward svc/frequency-gateway 8081:3014
-sudo microk8s kubectl port-forward svc/frequency-gateway 8082:3015
-sudo microk8s kubectl port-forward svc/frequency-gateway 8083:3016
+sudo microk8s kubectl port-forward svc/frequency-gateway 3013:8080 &
+sudo microk8s kubectl port-forward svc/frequency-gateway 3014:8081 &
+sudo microk8s kubectl port-forward svc/frequency-gateway 3015:8082 &
+sudo microk8s kubectl port-forward svc/frequency-gateway 3016:8083 &
 ```
 
 This will forward traffic from your localhost to the Kubernetes services.

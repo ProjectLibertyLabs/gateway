@@ -25,7 +25,8 @@ describe('Content Watcher E2E request verification!', () => {
     });
   }, 15000);
 
-  it('(GET) /healthz', () => request(WATCHER_URI).get('/healthz').expect(200).expect({ status: 200 }));
+  it('(GET) /healthz', () =>
+    request(WATCHER_URI).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
   it('(Post) /api/resetScanner', async () => {
     const resetScannerDto: ResetScannerDto = {

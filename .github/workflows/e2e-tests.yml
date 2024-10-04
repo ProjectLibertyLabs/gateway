@@ -48,9 +48,11 @@ jobs:
               - 'apps/content-publishing-api/**'
               - 'apps/content-publishing-worker/**'
               - 'libs/content-publishing-lib/**'
+              - 'libs/storage/**'
             content-watcher:
               - 'apps/content-watcher/**'
               - 'libs/content-watcher-lib/**'
+              - 'libs/storage/**'
 
   build:
     name: '[${{ matrix.service }}] E2E Tests'

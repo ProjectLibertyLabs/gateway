@@ -31,6 +31,7 @@
     "^#queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
     "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
     "^#cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
-    "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1"
+    "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1",
+    "^#storage(|/.*)$": "<rootDir>/libs/storage/src/$1"
   }
 }

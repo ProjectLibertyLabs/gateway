@@ -4,10 +4,9 @@ import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import { ModifiableAnnouncementType, TagTypeEnum } from '#types/dtos/content-publishing';
 import { IRequestJob } from '#types/interfaces/content-publishing';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementTypeName } from '#types/enums';
-import { IIpfsConfig } from '#content-publishing-lib/config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import { IIpfsConfig, IpfsService } from '#storage';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
 
 const mockQueue = {
   add: jest.fn(),

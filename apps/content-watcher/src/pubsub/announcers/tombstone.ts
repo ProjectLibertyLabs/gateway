@@ -7,19 +7,19 @@ import { PubSubService } from '../pubsub.service';
 import { AnnouncementResponse } from '#types/content-announcement';
 
 @Injectable()
-@Processor(QueueConstants.UPDATE_QUEUE_NAME, { concurrency: 2 })
-export class UpdateSubscriber extends BaseConsumer {
+@Processor(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME, { concurrency: 2 })
+export class TomstoneSubscriber extends BaseConsumer {
   constructor(private readonly pubsubService: PubSubService) {
     super();
   }
 
   async process(job: Job<AnnouncementResponse, any, string>): Promise<any> {
-    this.logger.debug(`Sending ⏫ update to registered webhooks`);
+    this.logger.debug(`Sending 💀 tombstone to registered webhooks`);
     try {
-      await this.pubsubService.process(job.data, 'update');
-      this.logger.debug(`Update sent to registered webhooks`);
+      await this.pubsubService.process(job.data, 'tombstone');
+      this.logger.debug(`Tombstone sent to registered webhooks`);
     } catch (error) {
-      this.logger.error(`Failed to send update to registered webhooks`);
+      this.logger.error(`Failed to send tombstone to registered webhooks`);
       throw error;
     }
   }

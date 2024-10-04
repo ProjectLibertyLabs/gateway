@@ -23,7 +23,7 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
     this.logger = new Logger(this.constructor.name);

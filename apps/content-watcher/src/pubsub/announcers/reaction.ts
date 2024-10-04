@@ -7,19 +7,19 @@ import { PubSubService } from '../pubsub.service';
 import { AnnouncementResponse } from '#types/content-announcement';
 
 @Injectable()
-@Processor(QueueConstants.REPLY_QUEUE_NAME, { concurrency: 2 })
-export class ReplySubscriber extends BaseConsumer {
+@Processor(QueueConstants.WATCHER_REACTION_QUEUE_NAME, { concurrency: 2 })
+export class ReactionSubscriber extends BaseConsumer {
   constructor(private readonly pubsubService: PubSubService) {
     super();
   }
 
   async process(job: Job<AnnouncementResponse, any, string>): Promise<any> {
-    this.logger.debug(`Sending 📩 reply to registered webhooks`);
+    this.logger.debug(`Sending 🧪 reactions to registered webhooks`);
     try {
-      await this.pubsubService.process(job.data, 'reply');
-      this.logger.debug(`Reply sent to registered webhooks`);
+      await this.pubsubService.process(job.data, 'reaction');
+      this.logger.debug(`Reaction sent to registered webhooks`);
     } catch (error) {
-      this.logger.error(`Failed to send reply to registered webhooks`);
+      this.logger.error(`Failed to send reaction to registered webhooks`);
       throw error;
     }
   }

@@ -17,7 +17,7 @@ import {
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
-import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
+import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import queueConfig from '#queue';
 import apiConfig from './api.config';
@@ -27,7 +27,7 @@ import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, noProviderBlockchainConfig, cacheConfig, queueConfig] }),
+    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

@@ -12,7 +12,7 @@ import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
-import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
+import { allowReadOnly } from '#blockchain/blockchain.config';
 import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
@@ -25,7 +25,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, graphCommonConfig, noProviderBlockchainConfig, cacheConfig, queueConfig, scannerConfig],
+      load: [apiConfig, graphCommonConfig, allowReadOnly, cacheConfig, queueConfig, scannerConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

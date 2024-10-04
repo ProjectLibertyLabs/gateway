@@ -4,7 +4,7 @@ import { IPFSContentProcessor } from './ipfs.dsnp';
 import { IpfsService } from '../utils/ipfs.client';
 
 @Module({
-  imports: [BlockchainModule],
+  imports: [],
   controllers: [],
   providers: [IPFSContentProcessor, IpfsService],
   exports: [IPFSContentProcessor, IpfsService],

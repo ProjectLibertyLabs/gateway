@@ -5,7 +5,7 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
 import { ChainEventProcessorModule } from '#content-watcher-lib/utils/chain-event-process.module';
 
 @Module({
-  imports: [BlockchainModule, ScheduleModule, ChainEventProcessorModule],
+  imports: [ScheduleModule, ChainEventProcessorModule],
   controllers: [],
   providers: [CrawlerService],
   exports: [CrawlerService],

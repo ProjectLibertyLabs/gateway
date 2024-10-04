@@ -12,15 +12,15 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import blockchainConfig from '#blockchain/blockchain.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, cacheConfig, queueConfig, blockchainConfig, ipfsConfig],
+      load: [apiConfig, cacheConfig, queueConfig, ipfsConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

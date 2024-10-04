@@ -6,9 +6,12 @@ import { ICapacityLimits } from '#types/interfaces';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
 
-export interface IBlockchainConfig {
+export interface IBlockchainNonProviderConfig {
   frequencyUrl: URL;
   isDeployedReadOnly: boolean;
+}
+
+export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
   providerId: bigint;
   providerSeedPhrase: string;
   capacityLimit: ICapacityLimits;
@@ -33,11 +36,44 @@ const capacityLimitsSchema = Joi.object({
   totalLimit: capacityLimitSchema,
 });
 
-const doRegister = (allowReadOnly = false) =>
+// eslint-disable-next-line no-shadow
+enum ChainMode {
+  PROVIDER_SEED_REQUIRED,
+  PROVIDER_SEED_OPTIONAL,
+  NO_PROVIDER,
+}
+
+const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
   registerAs('blockchain', (): IBlockchainConfig => {
-    const seedValidation = allowReadOnly
-      ? Joi.string().optional().allow(null).allow('').empty('')
-      : Joi.string().required();
+    let seedValidation: Joi.Schema;
+    let providerIdValidation: Joi.Schema;
+    let readOnlyValidation: Joi.Schema;
+
+    switch (mode) {
+      case ChainMode.NO_PROVIDER:
+        seedValidation = Joi.any().strip();
+        providerIdValidation = Joi.any().strip();
+        readOnlyValidation = Joi.boolean().optional().default(true);
+        break;
+
+      case ChainMode.PROVIDER_SEED_OPTIONAL:
+        seedValidation = Joi.string().trim().optional().allow(null).allow('').empty('');
+        providerIdValidation = JoiUtil.bigintSchema().required();
+        readOnlyValidation = Joi.boolean().default(
+          Joi.ref('providerSeedPhrase', {
+            adjust: (value: string | undefined) => !value || value.trim().length === 0, // Check if providerSeedPhrase is non-empty
+          }),
+        );
+
+        break;
+
+      case ChainMode.PROVIDER_SEED_REQUIRED:
+      default:
+        seedValidation = Joi.string().trim().min(1);
+        providerIdValidation = JoiUtil.bigintSchema().required();
+        readOnlyValidation = Joi.boolean().optional().default(false);
+        break;
+    }
 
     const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
       frequencyUrl: {
@@ -49,37 +85,19 @@ const doRegister = (allowReadOnly = false) =>
       },
       providerId: {
         value: process.env.PROVIDER_ID,
-        joi: Joi.required().custom((value: string, helpers) => {
-          try {
-            const id = BigInt(value);
-            if (id < 0n) {
-              throw new Error('Provider ID must be > 0');
-            }
-          } catch (e) {
-            return helpers.error('any.invalid');
-          }
-          return value;
-        }),
+        joi: providerIdValidation,
       },
       providerSeedPhrase: {
         value: process.env.PROVIDER_ACCOUNT_SEED_PHRASE,
         joi: seedValidation,
       },
       isDeployedReadOnly: {
-        value: process.env.PROVIDER_ACCOUNT_SEED_PHRASE,
-        joi: seedValidation
-          .default(() => allowReadOnly)
-          .custom((v) => {
-            if (!v || (!v.trim() && allowReadOnly)) {
-              return true;
-            }
-
-            return false;
-          }),
+        value: undefined,
+        joi: readOnlyValidation,
       },
       capacityLimit: {
         value: process.env.CAPACITY_LIMIT,
-        joi: Joi.alternatives().conditional('isDeployedReadOnly', {
+        joi: Joi.when('isDeployedReadOnly', {
           is: true,
           then: Joi.any().strip(),
           otherwise: Joi.string().custom((value: string, helpers) => {
@@ -129,9 +147,10 @@ const doRegister = (allowReadOnly = false) =>
       },
     };
 
-    return JoiUtil.validate<IBlockchainConfig>(configs);
+    return JoiUtil.validate(configs);
   });
 
-export const allowReadOnly = doRegister(true);
+export const allowReadOnly = doRegister(ChainMode.PROVIDER_SEED_OPTIONAL);
+export const noProviderBlockchainConfig = doRegister(ChainMode.NO_PROVIDER);
 
 export default doRegister();

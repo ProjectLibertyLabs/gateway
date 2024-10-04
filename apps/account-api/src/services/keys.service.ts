@@ -1,4 +1,3 @@
-import { BlockchainService } from '#blockchain/blockchain.service';
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
@@ -14,6 +13,7 @@ import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { verifySignature } from '#account-lib/utils/utility';
 import { KeysRequestDto } from '#types/dtos/account';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Injectable()
 export class KeysService {
@@ -23,7 +23,7 @@ export class KeysService {
 
   constructor(
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
   ) {
     this.logger = new Logger(this.constructor.name);
     const { graphEnvironmentType } = this.apiConf;

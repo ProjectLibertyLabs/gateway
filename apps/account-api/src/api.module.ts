@@ -16,17 +16,18 @@ import {
 import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
 import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
 import { ConfigModule } from '@nestjs/config';
-import { allowReadOnly } from '#blockchain/blockchain.config';
+import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
 import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
-    BlockchainModule,
+    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, noProviderBlockchainConfig, cacheConfig, queueConfig] }),
+    BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

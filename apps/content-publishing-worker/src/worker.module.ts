@@ -11,11 +11,12 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
 import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstants } from '#types/constants';
+import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstant
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
+    BlockchainModule.forRootAsync(),
     QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -58,7 +60,6 @@ import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstant
     }),
     ScheduleModule.forRoot(),
     PublisherModule,
-    BlockchainModule,
     BatchAnnouncerModule,
     StatusMonitorModule,
     AssetProcessorModule,

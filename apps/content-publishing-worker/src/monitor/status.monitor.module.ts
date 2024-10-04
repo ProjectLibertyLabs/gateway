@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TxStatusMonitoringService } from './tx.status.monitor.service';
-import { BlockchainModule } from '#blockchain/blockchain.module';
 
 @Module({
-  imports: [BlockchainModule],
+  imports: [],
   controllers: [],
   providers: [TxStatusMonitoringService],
   exports: [TxStatusMonitoringService],

@@ -11,7 +11,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
 
@@ -41,8 +42,7 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
     }),
     QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     CacheModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
+      useFactory: async (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
           url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,
@@ -50,13 +50,13 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
         {
           url: cacheConf.redisUrl.toString(),
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
     ScheduleModule.forRoot(),
-    BlockchainModule,
+    BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
     TxnNotifierModule,
   ],

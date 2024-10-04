@@ -3,9 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BlockchainService, ICapacityInfo } from './blockchain.service';
+import { ICapacityInfo } from './blockchain.service';
 import { ConfigService } from '@nestjs/config';
 import { IBlockchainConfig } from './blockchain.config';
+import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -22,7 +23,7 @@ export class CapacityCheckerService {
 
   // eslint-disable-next-line no-useless-constructor
   constructor(
-    private readonly blockchainService: BlockchainService,
+    private readonly blockchainService: BlockchainRpcQueryService,
     private readonly configService: ConfigService,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,

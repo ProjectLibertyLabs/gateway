@@ -1,4 +1,4 @@
-import { BlockchainService } from '#blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {
@@ -17,7 +17,7 @@ export class DelegationService {
 
   constructor(
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);

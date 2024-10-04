@@ -13,20 +13,23 @@ import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
-import blockchainConfig from '#blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
+import queueConfig from '#queue';
 import ipfsConfig from '#content-watcher-lib/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
 import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
+import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, blockchainConfig, cacheConfig, queueConfig, ipfsConfig, scannerConfig, pubsubConfig],
+      load: [apiConfig, noProviderBlockchainConfig, cacheConfig, queueConfig, ipfsConfig, scannerConfig, pubsubConfig],
     }),
     ScheduleModule.forRoot(),
-    BlockchainModule,
+    BlockchainModule.forRootAsync({
+      readOnly: true,
+    }),
     ScannerModule,
     CrawlerModule,
     IPFSProcessorModule,

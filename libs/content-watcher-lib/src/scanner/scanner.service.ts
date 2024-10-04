@@ -16,6 +16,7 @@ import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 
@@ -31,7 +32,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   constructor(
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
-    private readonly blockchainService: BlockchainService,
+    private readonly blockchainService: BlockchainRpcQueryService,
     @InjectRedis() private readonly cache: Redis,
     @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,

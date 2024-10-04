@@ -3,8 +3,6 @@ import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
-import { Hash } from '@polkadot/types/interfaces';
-import { KeyringPair } from '@polkadot/keyring/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -12,13 +10,13 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { OnEvent } from '@nestjs/event-emitter';
 import { IGraphTxStatus } from '#types/interfaces';
-import { BlockchainService, createKeys, ICapacityInfo } from '#graph-lib/blockchain';
 import { GraphUpdateJob } from '#types/dtos/graph';
-import { NonceService } from '#graph-lib/services/nonce.service';
 import { BaseConsumer } from '#graph-lib/utils';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
-import { CapacityCheckerService } from '#graph-lib/blockchain/capacity-checker.service';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { BlockchainService, ICapacityInfo } from '#blockchain/blockchain.service';
+import { HexString } from '@polkadot/util/types';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -47,7 +45,6 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
     private capacityCheckerService: CapacityCheckerService,
-    private nonceService: NonceService,
     private schedulerRegistry: SchedulerRegistry,
   ) {
     super();
@@ -59,7 +56,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @returns A promise that resolves when the job is processed.
    */
   async process(job: Job<GraphUpdateJob, any, string>): Promise<void> {
-    let payWithCapacityTxHash: Hash = {} as Hash;
+    let payWithCapacityTxHash: HexString;
     let payWithCapacityTx: SubmittableExtrinsic<'promise', ISubmittableResult>;
     const successSection = 'statefulStorage';
     let successMethod: string;
@@ -73,29 +70,25 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
             payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
           }
-          const providerKeys = createKeys(this.blockchainConf.providerSeedPhrase);
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'upsertPage' },
+          const tx = this.blockchainService.upsertPage(
             job.data.update.ownerDsnpUserId,
             job.data.update.schemaId,
             job.data.update.pageId,
             job.data.update.prevHash,
             payloadData,
           );
-          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(providerKeys, tx);
+          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(tx);
           break;
         }
         case 'DeletePage': {
           successMethod = 'PaginatedPageDeleted';
-          const providerKeys = createKeys(this.blockchainConf.providerSeedPhrase);
-          const tx = this.blockchainService.createExtrinsicCall(
-            { pallet: 'statefulStorage', extrinsic: 'deletePage' },
+          const tx = this.blockchainService.deletePage(
             job.data.update.ownerDsnpUserId,
             job.data.update.schemaId,
             job.data.update.pageId,
             job.data.update.prevHash,
           );
-          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(providerKeys, tx);
+          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(tx);
           break;
         }
         default:
@@ -108,7 +101,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       const status: IGraphTxStatus = {
         providerId: this.blockchainConf.providerId.toString(),
         referenceId: job.data.originalRequestJob.referenceId,
-        txHash: payWithCapacityTxHash.toHex(),
+        txHash: payWithCapacityTxHash,
         successEvent: {
           section: successSection,
           method: successMethod,
@@ -119,11 +112,11 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
       };
 
       const obj = {};
-      obj[payWithCapacityTxHash.toHex()] = JSON.stringify(status);
+      obj[payWithCapacityTxHash] = JSON.stringify(status);
 
       await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
 
-      this.logger.debug('Cached extrinsic to monitor: ', payWithCapacityTxHash.toHex());
+      this.logger.debug('Cached extrinsic to monitor: ', payWithCapacityTxHash);
     } catch (error: unknown) {
       this.logger.error(error);
       throw error;
@@ -141,26 +134,14 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
   async processSingleBatch(
-    providerKeys: KeyringPair,
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<[Hash, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
+  ): Promise<[HexString, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
     try {
-      const ext = this.blockchainService.createExtrinsic(
-        { pallet: 'frequencyTxPayment', extrinsic: 'payWithCapacity' },
-        providerKeys,
-        tx,
-      );
-      const nonce = await this.nonceService.getNextNonce();
-      this.logger.debug(`Capacity Wrapped Extrinsic: ${ext}, nonce:${nonce}`);
-      const txHash = await ext.signAndSend(nonce);
-      if (!txHash) {
-        throw new Error('Tx hash is undefined');
-      }
-      this.logger.debug(`Tx hash: ${txHash}`);
-      return [txHash, ext.extrinsic];
+      const [ext, txHash] = await this.blockchainService.payWithCapacity(tx);
+      return [txHash, ext];
     } catch (error: unknown) {
       this.logger.error(`Error processing batch: ${error}`);
       throw error;

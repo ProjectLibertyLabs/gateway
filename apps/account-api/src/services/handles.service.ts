@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { BlockchainService } from '#blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
@@ -10,7 +10,7 @@ import { verifySignature } from '#account-lib/utils/utility';
 export class HandlesService {
   private readonly logger: Logger;
 
-  constructor(private blockchainService: BlockchainService) {
+  constructor(private blockchainService: BlockchainRpcQueryService) {
     this.logger = new Logger(this.constructor.name);
   }
 

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BlockchainService } from '#blockchain/blockchain.service';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { ApiDecoration } from '@polkadot/api/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
@@ -8,11 +7,12 @@ import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chai
 import { MessageResponseWithSchemaId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
 import { createIPFSQueueJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { Queue } from 'bullmq';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Injectable()
 export class ChainEventProcessorService {
   // eslint-disable-next-line no-empty-function
-  constructor(private readonly blockchainService: BlockchainService) {}
+  constructor(private readonly blockchainService: BlockchainRpcQueryService) {}
 
   public async getMessagesInBlock(
     blockNumber: number,

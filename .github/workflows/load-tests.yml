@@ -45,10 +45,12 @@ jobs:
             content-publishing-api:
               - 'apps/content-publishing-api/**'
               - 'libs/content-publishing-lib/**'
+              - 'libs/storage/**'
               - 'docker-compose-k6.content-publishing-api.yaml'
             content-watcher:
               - 'apps/content-watcher/**'
               - 'libs/content-watcher-lib/**'
+              - 'libs/storage/**'
               - 'docker-compose-k6.content-watcher.yaml'
 
   build:

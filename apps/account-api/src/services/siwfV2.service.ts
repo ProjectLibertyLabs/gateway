@@ -8,8 +8,8 @@ import {
   SiwfCredentialRequest,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 
 @Injectable()

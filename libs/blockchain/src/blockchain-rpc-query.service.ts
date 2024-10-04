@@ -39,17 +39,7 @@ import { TransactionType } from '#types/account-webhook';
 import blockchainConfig, { IBlockchainNonProviderConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
-<<<<<<< HEAD:libs/blockchain/src/blockchain-rpc-query.service.ts
-=======
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
-interface SIWFTxnValues {
-  msaId: string;
-  address: string;
-  handle: string;
-  newProvider: string;
-}
-
->>>>>>> main:libs/account-lib/src/blockchain/blockchain.service.ts
 interface HandleTxnValues {
   msaId: string;
   handle: string;

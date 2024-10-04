@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { SiwfV2Service } from './siwfV2.service';
 import { IAccountApiConfig } from '#account-api/api.config';
-import { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {

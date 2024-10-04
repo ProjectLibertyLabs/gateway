@@ -1,4 +1,3 @@
-import { BlockchainModule } from '#blockchain/blockchain.module';
 import { Module } from '@nestjs/common';
 import { ChainEventProcessorService } from './chain-event-processor.service';
 

@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { BlockchainModule } from '#blockchain/blockchain.module';
 import { IPFSContentProcessor } from './ipfs.dsnp';
 import { IpfsService } from '../utils/ipfs.client';
 

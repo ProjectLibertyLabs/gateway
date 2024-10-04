@@ -25,7 +25,7 @@ RUN npm run build:account && \
 	npm ci --omit=dev
 
 # Production stage
-FROM node:20
+FROM node:20-alpine
 
 ENV NODE_ENV=production
 
@@ -40,11 +40,10 @@ RUN chmod +x ./docker-entrypoint.sh
 RUN mkdir ./openapi-specs
 
 # We want jq and curl in the final image, but we don't need the support files
-RUN apt-get update && \
-	apt-get install -y jq curl tini && \
-	apt-get clean && \
-	rm -rf /usr/share/doc /usr/share/man /usr/share/zsh
+# Install jq, curl, and tini using apk
+RUN apk add --no-cache jq curl tini
+RUN apk add libc6-compat
 
 EXPOSE 3000
 
-ENTRYPOINT [ "/usr/bin/tini", "--", "./docker-entrypoint.sh", "prod" ]
+ENTRYPOINT [ "/sbin/tini", "--", "./docker-entrypoint.sh", "prod" ]

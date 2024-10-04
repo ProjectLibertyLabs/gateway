@@ -4,12 +4,11 @@ import Redis from 'ioredis';
 import fs from 'fs';
 import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
 import { createKeys } from '#content-publishing-lib/blockchain/create-keys';
-import {
-  NUMBER_OF_NONCE_KEYS_TO_CHECK,
-  NONCE_KEY_EXPIRE_SECONDS,
-  getNonceKey,
-} from '#content-publishing-lib/utils/redis';
+import { NonceConstants } from '#types/constants/redis-keys.constants';
 import blockchainConfig, { IBlockchainConfig } from '#content-publishing-lib/blockchain/blockchain.config';
+import NUMBER_OF_NONCE_KEYS_TO_CHECK = NonceConstants.NUMBER_OF_NONCE_KEYS_TO_CHECK;
+import NONCE_KEY_EXPIRE_SECONDS = NonceConstants.NONCE_KEY_EXPIRE_SECONDS;
+import getNonceKey = NonceConstants.getNonceKey;
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 

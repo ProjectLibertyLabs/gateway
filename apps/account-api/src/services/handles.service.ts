@@ -4,7 +4,7 @@ import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import { verifySignature } from '#account-lib/utils/utility';
+import { verifySignature } from '#utils/common/signature.util';
 
 @Injectable()
 export class HandlesService {

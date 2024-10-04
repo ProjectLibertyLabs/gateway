@@ -5,7 +5,6 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { RedisUtils } from '#account-lib';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
@@ -14,7 +13,7 @@ import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { ACCOUNT_SERVICE_WATCHER_PREFIX } from '#types/constants';
+import { ACCOUNT_SERVICE_WATCHER_PREFIX, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#account-lib/blockchain/capacity-checker.service';
 import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
@@ -26,7 +25,7 @@ export class TxnNotifierService
 {
   async onApplicationBootstrap() {
     await this.blockchainService.isReady();
-    const pendingTxns = await this.cacheManager.hkeys(RedisUtils.TXN_WATCH_LIST_KEY);
+    const pendingTxns = await this.cacheManager.hkeys(TXN_WATCH_LIST_KEY);
     // If no transactions pending, skip to end of chain at startup
     if (pendingTxns.length === 0) {
       const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
@@ -80,7 +79,7 @@ export class TxnNotifierService
 
   public async getLastSeenBlockNumber(): Promise<number> {
     let blockNumber = await super.getLastSeenBlockNumber();
-    const pendingTxns = await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY);
+    const pendingTxns = await this.cacheManager.hvals(TXN_WATCH_LIST_KEY);
     if (pendingTxns.length > 0) {
       const startingBlock = Math.min(
         ...pendingTxns.map((valStr) => {
@@ -98,9 +97,7 @@ export class TxnNotifierService
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
 
     // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(RedisUtils.TXN_WATCH_LIST_KEY)).map(
-      (val) => JSON.parse(val) as ITxStatus,
-    );
+    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {
@@ -127,7 +124,7 @@ export class TxnNotifierService
         const extrinsicEvents = events.filter(
           ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
         );
-        const txStatusStr = await this.cacheManager.hget(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
+        const txStatusStr = await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash);
         const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
         const successEvent = extrinsicEvents.find(
           ({ event }) =>
@@ -225,7 +222,7 @@ export class TxnNotifierService
           this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }
 
-        pipeline = pipeline.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
+        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
         const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
         pendingTxns.slice(idx, 1);
       }
@@ -240,7 +237,7 @@ export class TxnNotifierService
         this.logger.verbose(
           `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`,
         );
-        pipeline = pipeline.hdel(RedisUtils.TXN_WATCH_LIST_KEY, txHash);
+        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
         const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
         pendingTxns.slice(idx, 1);
       }

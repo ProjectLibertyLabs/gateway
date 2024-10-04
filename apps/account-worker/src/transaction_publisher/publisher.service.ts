@@ -13,7 +13,6 @@ import { createKeys } from '#account-lib/blockchain/create-keys';
 import { NonceService } from '#account-lib/services/nonce.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#consumer';
-import { RedisUtils } from '#account-lib';
 import { TransactionData } from '#types/dtos/account';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
@@ -23,9 +22,10 @@ import {
   CapacityCheckerService,
 } from '#account-lib/blockchain/capacity-checker.service';
 import { OnEvent } from '@nestjs/event-emitter';
-import { getSignerForRawSignature } from '#account-lib/utils/utility';
 import { TransactionType } from '#types/account-webhook';
 import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import { getSignerForRawSignature } from '#utils/common/signature.util';
+import { TXN_WATCH_LIST_KEY } from '#types/constants';
 
 export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -141,7 +141,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       };
       const obj: Record<string, string> = {};
       obj[txHash] = JSON.stringify(status);
-      this.cacheManager.hset(RedisUtils.TXN_WATCH_LIST_KEY, obj);
+      this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
     } catch (error: any) {
       if (!(error instanceof DelayedError)) {
         this.logger.error('Unknown error encountered: ', error, error?.stack);

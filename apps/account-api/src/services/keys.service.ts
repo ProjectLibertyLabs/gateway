@@ -12,8 +12,8 @@ import {
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { BlockchainConstants } from '#account-lib/blockchain/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import { verifySignature } from '#account-lib/utils/utility';
 import { KeysRequestDto } from '#types/dtos/account';
+import { verifySignature } from '#utils/common/signature.util';
 
 @Injectable()
 export class KeysService {

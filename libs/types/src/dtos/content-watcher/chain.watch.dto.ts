@@ -1,4 +1,3 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsOptional } from 'class-validator';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
@@ -10,29 +9,25 @@ import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
  * @property {string[]} msa_ids - The msa ids for which content should be watched for
  */
 export class ChainWatchOptionsDto {
-  @ApiPropertyOptional({
-    description: 'Specific schema ids to watch for',
-    required: false,
-    type: [String],
-    example: [1, 19],
-  })
+  /**
+   * Specific schema ids to watch for
+   * @example [1, 19]
+   */
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
   @IsSchemaId({ each: true })
-  schemaIds: number[];
+  schemaIds?: number[];
 
-  @ApiPropertyOptional({
-    description: 'Specific dsnpIds (msa_id) to watch for',
-    required: false,
-    type: [String],
-    example: ['10074', '100001'],
-  })
+  /**
+   * Specific dsnpIds (msa_id) to watch for
+   * @example ['10074', '100001']
+   */
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
   @IsMsaId({ each: true })
-  dsnpIds: string[];
+  dsnpIds?: string[];
 }

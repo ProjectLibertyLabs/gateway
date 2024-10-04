@@ -1,20 +1,16 @@
 /* eslint-disable max-classes-per-file */
 import { IsNotEmpty } from 'class-validator';
 import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IDelegation, IDelegationResponseV2, ISchemaDelegation } from '#types/interfaces/account/delegations.interface';
 
 // V1 to be deprecated
 export class DelegationResponse {
-  @ApiProperty()
   @IsNotEmpty()
   providerId: string;
 
-  @ApiProperty()
   @IsNotEmpty()
   schemaPermissions: CommonPrimitivesMsaDelegation['schemaPermissions'];
 
-  @ApiProperty()
   @IsNotEmpty()
   revokedAt: CommonPrimitivesMsaDelegation['revokedAt'];
 }
@@ -29,28 +25,21 @@ export class DelegationResponse {
  *       the interface actually being returned.
  */
 export class SchemaDelegation implements ISchemaDelegation {
-  @ApiProperty()
   schemaId: number;
 
-  @ApiPropertyOptional()
   revokedAtBlock?: number;
 }
 
 export class Delegation implements IDelegation {
-  @ApiProperty()
   providerId: string;
 
-  @ApiProperty({ type: [SchemaDelegation] })
   schemaDelegations: SchemaDelegation[];
 
-  @ApiPropertyOptional()
   revokedAtBlock?: number;
 }
 
 export class DelegationResponseV2 implements IDelegationResponseV2 {
-  @ApiProperty()
   msaId: string;
 
-  @ApiProperty({ type: [Delegation] })
   delegations: Delegation[];
 }

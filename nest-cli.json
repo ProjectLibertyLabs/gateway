@@ -5,7 +5,15 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/account-api/tsconfig.app.json"
+    "tsConfigPath": "apps/account-api/tsconfig.app.json",
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "introspectComments": true
+        }
+      }
+    ]
   },
   "monorepo": true,
   "root": "apps/account-api",
@@ -136,6 +144,24 @@
         "tsConfigPath": "libs/config/tsconfig.lib.json"
       }
     },
+    "consumer": {
+      "type": "library",
+      "root": "libs/consumer",
+      "entryFile": "index",
+      "sourceRoot": "libs/consumer/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/consumer/tsconfig.lib.json"
+      }
+    },
+    "storage": {
+      "type": "library",
+      "root": "libs/storage",
+      "entryFile": "index",
+      "sourceRoot": "libs/storage/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/storage/tsconfig.lib.json"
+      }
+    },
     "queues": {
       "type": "library",
       "root": "libs/queue",
@@ -161,6 +187,15 @@
       "sourceRoot": "libs/blockchain/src",
       "compilerOptions": {
         "tsConfigPath": "libs/blockchain/tsconfig.lib.json"
+      }
+    },
+    "openapi": {
+      "type": "library",
+      "root": "libs/openapi",
+      "entryFile": "index",
+      "sourceRoot": "libs/openapi/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/openapi/tsconfig.lib.json"
       }
     }
   }

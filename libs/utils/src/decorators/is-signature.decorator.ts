@@ -39,7 +39,7 @@ export function IsSignature(validationOptions?: ValidationOptions) {
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          return `${args.property} should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex! )`;
+          return `${args.property} should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex!`;
         },
       },
     });

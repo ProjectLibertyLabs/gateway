@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { BatchAnnouncementService } from './batch.announcer.service';
 import { BatchAnnouncer } from './batch.announcer';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
+import { IPFSStorageModule } from '#storage';
 
 @Module({
-  imports: [],
+  imports: [IPFSStorageModule],
   controllers: [],
-  providers: [BatchAnnouncementService, BatchAnnouncer, IpfsService],
-  exports: [BatchAnnouncementService, BatchAnnouncer, IpfsService],
+  providers: [BatchAnnouncementService, BatchAnnouncer],
+  exports: [BatchAnnouncementService, BatchAnnouncer],
 })
 export class BatchAnnouncerModule {}

@@ -14,10 +14,12 @@ import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
 import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
-import { QueueModule } from '#queue/queue.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -56,7 +58,16 @@ import { QueueModule } from '#queue/queue.module';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
-  providers: [ApiService, GraphStateManager, AsyncDebouncerService],
+  providers: [
+    ApiService,
+    GraphStateManager,
+    AsyncDebouncerService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
   exports: [],
 })

@@ -39,6 +39,17 @@ import { TransactionType } from '#types/account-webhook';
 import blockchainConfig, { IBlockchainNonProviderConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
+<<<<<<< HEAD:libs/blockchain/src/blockchain-rpc-query.service.ts
+=======
+export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
+interface SIWFTxnValues {
+  msaId: string;
+  address: string;
+  handle: string;
+  newProvider: string;
+}
+
+>>>>>>> main:libs/account-lib/src/blockchain/blockchain.service.ts
 interface HandleTxnValues {
   msaId: string;
   handle: string;
@@ -601,5 +612,16 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
     }
 
     return result;
+  }
+
+  public getNetworkType(): NetworkType {
+    switch (this.api.genesisHash.toHex()) {
+      case '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1':
+        return 'mainnet';
+      case '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0':
+        return 'testnet-paseo';
+      default:
+        return 'unknown';
+    }
   }
 }

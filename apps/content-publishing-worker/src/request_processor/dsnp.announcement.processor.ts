@@ -20,8 +20,8 @@ import {
   UpdateDto,
   ProfileDto,
   TombstoneDto,
-  ModifiableAnnouncementTypeDto,
-  TagTypeDto,
+  ModifiableAnnouncementType,
+  TagTypeEnum,
   AttachmentType,
   AssetDto,
   TagDto,
@@ -42,10 +42,10 @@ import {
   createProfile,
 } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
-import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
+import { getIpfsCidPlaceholder, IIpfsConfig, IpfsService } from '#storage';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
+import { calculateDsnpMultiHash } from '#utils/common/common.utils';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
@@ -165,13 +165,13 @@ export class DsnpAnnouncementProcessor {
   }
 
   private async getAnnouncementTypeFromModifiableAnnouncementType(
-    modifiableAnnouncementType: ModifiableAnnouncementTypeDto,
+    modifiableAnnouncementType: ModifiableAnnouncementType,
   ): Promise<AnnouncementType> {
     this.logger.debug(`Getting announcement type from modifiable announcement type`);
     switch (modifiableAnnouncementType) {
-      case ModifiableAnnouncementTypeDto.BROADCAST:
+      case ModifiableAnnouncementType.BROADCAST:
         return AnnouncementType.Broadcast;
-      case ModifiableAnnouncementTypeDto.REPLY:
+      case ModifiableAnnouncementType.REPLY:
         return AnnouncementType.Reply;
       default:
         throw new Error(`Unsupported announcement type ${typeof modifiableAnnouncementType}`);
@@ -210,13 +210,13 @@ export class DsnpAnnouncementProcessor {
     if (tagData) {
       tagData.forEach((tag) => {
         switch (tag.type) {
-          case TagTypeDto.Hashtag:
+          case TagTypeEnum.Hashtag:
             if (!tag.name) {
               throw new Error(`Tag name is required`);
             }
             tags.push({ name: tag.name });
             break;
-          case TagTypeDto.Mention:
+          case TagTypeEnum.Mention:
             if (!tag.mentionedId) {
               throw new Error(`Mentioned ID is required`);
             }
@@ -294,7 +294,7 @@ export class DsnpAnnouncementProcessor {
         }
         const mediaType = assetToMimeType[reference.referenceId];
         const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpHash(contentBuffer);
+        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         const image: ActivityContentImageLink = {
           mediaType,
           hash: [hashedContent],
@@ -329,7 +329,7 @@ export class DsnpAnnouncementProcessor {
         }
         const mediaType = assetToMimeType[reference.referenceId];
         const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpHash(contentBuffer);
+        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         const video: ActivityContentVideoLink = {
           mediaType,
           hash: [hashedContent],
@@ -365,7 +365,7 @@ export class DsnpAnnouncementProcessor {
         }
         const mediaType = assetToMimeType[reference.referenceId];
         const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpHash(contentBuffer);
+        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         duration = duration ?? reference.duration ?? '';
         const audio: ActivityContentAudioLink = {
           mediaType,
@@ -465,7 +465,7 @@ export class DsnpAnnouncementProcessor {
       }
       const mediaType = assetToMimeType[icon.referenceId];
       const contentBuffer = await this.ipfsService.getPinned(icon.referenceId);
-      const hashedContent = await calculateDsnpHash(contentBuffer);
+      const hashedContent = await calculateDsnpMultiHash(contentBuffer);
       const image: ActivityContentImageLink = {
         mediaType,
         hash: [hashedContent],

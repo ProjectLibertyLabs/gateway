@@ -13,7 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
 import queueConfig from '#queue';
 import cacheConfig from '#cache/cache.config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { QueueModule } from '#queue/queue.module';

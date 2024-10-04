@@ -4,7 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { ApiService } from './api.service';
 import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
@@ -12,15 +11,16 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
 import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, cacheConfig, queueConfig, ipfsConfig],
+      load: [apiConfig, cacheConfig, queueConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -61,7 +61,14 @@ import { QueueModule } from '#queue/queue.module';
       inject: [apiConfig.KEY],
     }),
   ],
-  providers: [ApiService, IpfsService],
+  providers: [
+    ApiService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers:

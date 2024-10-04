@@ -13,7 +13,7 @@ import {
   Query,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysRequestDto, AddKeyRequestDto } from '#types/dtos/account/keys.request.dto';
 import { TransactionResponse } from '#types/dtos/account/transaction.response.dto';
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
@@ -43,8 +43,7 @@ export class KeysControllerV1 {
   @Post('add')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add new control keys for an MSA Id' })
-  @ApiOkResponse({ description: 'Found public keys' })
-  @ApiBody({ type: KeysRequestDto })
+  @ApiOkResponse({ description: 'Found public keys', type: TransactionResponse })
   /**
    * Add new control keys for an MSA Id.
    * @param queryParams - The query parameters for adding the public keys.
@@ -66,7 +65,7 @@ export class KeysControllerV1 {
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Fetch public keys given an MSA Id' })
-  @ApiOkResponse({ description: 'Found public keys' })
+  @ApiOkResponse({ description: 'Found public keys', type: KeysResponse })
   /**
    * Gets public keys.
    * @param queryParams - The query parameters for getting the public keys.
@@ -80,7 +79,10 @@ export class KeysControllerV1 {
   @Get('publicKeyAgreements/getAddKeyPayload')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.' })
-  @ApiOkResponse({ description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing' })
+  @ApiOkResponse({
+    description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing',
+    type: AddNewPublicKeyAgreementPayloadRequest,
+  })
   /**
    * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
    * @param queryParams - The query parameters for adding a new key
@@ -96,8 +98,7 @@ export class KeysControllerV1 {
   @Post('publicKeyAgreements')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to add a new public Key' })
-  @ApiOkResponse({ description: 'Add new key request enqueued' })
-  @ApiBody({ type: AddNewPublicKeyAgreementRequestDto })
+  @ApiOkResponse({ description: 'Add new key request enqueued', type: TransactionResponse })
   /**
    * Using the provided query parameters, adds a new public key for the account
    * @param queryParams - The query parameters for adding a new graph key

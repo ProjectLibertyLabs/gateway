@@ -3,7 +3,7 @@ import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { BaseConsumer } from '../../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { BatchingProcessorService } from '../batching.processor.service';
 
 @Injectable()

@@ -6,10 +6,10 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
 import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
-import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#content-publishing-lib/config/ipfs.config';
+import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#storage/ipfs/ipfs.config';
+import { IpfsService } from '#storage';
 
 @Injectable()
 export class BatchAnnouncer {

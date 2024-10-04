@@ -9,7 +9,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService, ICapacityInfo } from '#blockchain/blockchain.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { BaseConsumer } from '#account-worker/BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { RedisUtils } from '#account-lib';
 import { TransactionData } from '#types/dtos/account';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';

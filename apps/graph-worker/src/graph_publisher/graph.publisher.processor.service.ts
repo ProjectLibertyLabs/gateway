@@ -11,7 +11,7 @@ import { GraphQueues as QueueConstants } from '#types/constants/queue.constants'
 import { OnEvent } from '@nestjs/event-emitter';
 import { IGraphTxStatus } from '#types/interfaces';
 import { GraphUpdateJob } from '#types/dtos/graph';
-import { BaseConsumer } from '#graph-lib/utils';
+import { BaseConsumer } from '#consumer';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';

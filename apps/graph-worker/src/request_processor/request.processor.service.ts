@@ -15,7 +15,7 @@ import {
 import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { BaseConsumer } from '../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import fs from 'fs';
 import { BlockchainService } from '#blockchain/blockchain.service';

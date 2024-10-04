@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
 import { HealthController, ScanControllerV1, SearchControllerV1, WebhookControllerV1 } from './controllers';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { CrawlerModule } from '#content-watcher-lib/crawler/crawler.module';
-import { IPFSProcessorModule } from '#content-watcher-lib/ipfs/ipfs.module';
+import { IPFSProcessorModule } from '#content-watcher-lib/ipfs/ipfs.processor.module';
 import { PubSubModule } from '#content-watcher-lib/pubsub/pubsub.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
@@ -15,10 +15,12 @@ import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
 import queueConfig from '#queue';
-import ipfsConfig from '#content-watcher-lib/ipfs/ipfs.config';
+import { QueueModule } from '#queue/queue.module';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
 import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
-import { QueueModule } from '#queue/queue.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -58,7 +60,14 @@ import { QueueModule } from '#queue/queue.module';
       ignoreErrors: false,
     }),
   ],
-  providers: [ApiService],
+  providers: [
+    ApiService,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [ScanControllerV1, SearchControllerV1, WebhookControllerV1, HealthController],

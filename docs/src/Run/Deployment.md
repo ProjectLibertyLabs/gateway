@@ -68,12 +68,15 @@ We will create three Ubuntu Server VMs to serve as Docker Swarm nodes.
     Create a configuration file for each VM (`vm1.conf`, `vm2.conf`, `vm3.conf`). Here is an example for `vm1.conf`:
 
     ```ini
-    [quickemu]
-    iso = ubuntu-server.iso
-    disk = vm1.qcow2
-    cpu = 2
-    memory = 2048
-    display = none
+    #!./quickemu --vm
+    guest_os="linux"
+    iso="ubuntu-server-22.04/ubuntu-22.04.5-live-server-amd64.iso"
+    disk_img="ubuntu-server-22.04/vm2.qcow2"
+    disk_size="10G"
+    ram="4G"
+    tpm="on"
+    cpu_cores="2"
+    ssh_port="22230"
     ```
 
     Repeat this step for `vm2.conf` and `vm3.conf`, changing the `disk` parameter accordingly (`vm2.qcow2`, `vm3.qcow2`).
@@ -104,7 +107,7 @@ We will create three Ubuntu Server VMs to serve as Docker Swarm nodes.
     - Sound:    intel-hda (hda-micro)
     - ssh:      On host:  ssh user@localhost -p 22221
     - WebDAV:   On guest: dav://localhost:9843/
-    - 9P:       On guest: sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 Public-mattheworris ~/Public
+    - 9P:       On guest: sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=104857600 Public-username ~/Public
     - smbd:     On guest: smb://10.0.2.4/qemu
     - TPM:      ubuntu-server-22.04/manager0-vm.swtpm-sock (97349)
     - Network:  User (virtio-net)
@@ -133,35 +136,6 @@ We will create three Ubuntu Server VMs to serve as Docker Swarm nodes.
     ```
 
     Replace `user` with your Ubuntu username and `vm1_ip_address` with the VM's IP.
-
-2. **Update Packages:**
-
-    ```bash
-    sudo apt-get update
-    ```
-
-3. **Install Docker:**
-
-    ```bash
-    sudo apt-get install -y docker.io
-    ```
-
-4. **Enable and Start Docker Service:**
-
-    ```bash
-    sudo systemctl enable docker
-    sudo systemctl start docker
-    ```
-
-5. **Add User to Docker Group:**
-
-    ```bash
-    sudo usermod -aG docker $USER
-    ```
-
-6. **Repeat for All VMs:**
-
-    Perform these steps on `vm2` and `vm3`.
 
 ## Initialize Docker Swarm
 
@@ -254,8 +228,8 @@ We'll use modules to abstract away cloud-provider-specific configurations.
 
 1. **Directory Structure:**
 
-    ```
-    terraform-project/
+    ```bash
+    terraform-gateway/
     ├── main.tf
     ├── variables.tf
     └── modules/

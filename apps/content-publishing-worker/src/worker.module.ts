@@ -17,7 +17,6 @@ import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
-import { IPFSStorageModule } from '#storage';
 
 @Module({
   imports: [
@@ -59,7 +58,6 @@ import { IPFSStorageModule } from '#storage';
       ignoreErrors: false,
     }),
     ScheduleModule.forRoot(),
-    IPFSStorageModule,
     PublisherModule,
     BlockchainModule,
     BatchAnnouncerModule,

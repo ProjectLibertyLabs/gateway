@@ -20,7 +20,6 @@ import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
 import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
-import { IPFSStorageModule } from '#storage/ipfs/ipfs.module';
 
 @Module({
   imports: [
@@ -32,7 +31,6 @@ import { IPFSStorageModule } from '#storage/ipfs/ipfs.module';
     BlockchainModule,
     ScannerModule,
     CrawlerModule,
-    IPFSStorageModule,
     IPFSProcessorModule,
     PubSubModule,
     CacheModule.forRootAsync({

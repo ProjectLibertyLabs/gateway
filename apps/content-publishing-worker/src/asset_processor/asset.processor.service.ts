@@ -5,9 +5,9 @@ import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { IAssetJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
-import { BaseConsumer } from '../BaseConsumer';
+import { BaseConsumer } from '#consumer';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { IpfsService } from '#storage';
 
 @Injectable()
 @Processor(QueueConstants.ASSET_QUEUE_NAME)

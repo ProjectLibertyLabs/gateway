@@ -44,8 +44,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -87,8 +87,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -130,8 +130,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -173,8 +173,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -214,8 +214,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -257,8 +257,8 @@
             "required": true,
             "in": "path",
             "description": "Msa Id of requested account",
-            "example": "2",
             "schema": {
+              "example": "2",
               "type": "string"
             }
           }
@@ -274,15 +274,8 @@
           }
         },
         "responses": {
-          "2XX": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementResponseDto"
-                }
-              }
-            }
+          "202": {
+            "description": ""
           }
         },
         "tags": [
@@ -334,6 +327,97 @@
           "health"
         ]
       }
+    },
+    "/dev/request/{jobId}": {
+      "get": {
+        "operationId": "DevelopmentControllerV1_requestJob",
+        "summary": "Get a Job given a jobId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/asset/{assetId}": {
+      "get": {
+        "operationId": "DevelopmentControllerV1_getAsset",
+        "summary": "Get an Asset given an assetId",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "2XX": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
+    },
+    "/dev/dummy/announcement/{queueType}/{count}": {
+      "post": {
+        "operationId": "DevelopmentControllerV1_populate",
+        "summary": "Create dummy announcement data",
+        "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "parameters": [
+          {
+            "name": "queueType",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "count",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "dev"
+        ]
+      }
     }
   },
   "info": {
@@ -380,25 +464,25 @@
         "properties": {
           "referenceId": {
             "type": "string",
-            "minLength": 1,
-            "description": "The unique Id for the uploaded asset.",
-            "example": "bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu"
+            "description": "The unique Id for the uploaded asset",
+            "example": "bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu",
+            "minLength": 1
           },
           "height": {
             "type": "number",
-            "description": "A hint as to the rendering height in device-independent pixels for image or video assets.",
-            "example": "228"
+            "description": "A hint as to the rendering height in device-independent pixels for image or video assets",
+            "example": 228
           },
           "width": {
             "type": "number",
             "description": "A hint as to the rendering width in device-independent pixels for image or video asset",
-            "example": "350"
+            "example": 350
           },
           "duration": {
             "type": "string",
-            "pattern": "DURATION_REGEX",
             "description": "Approximate duration of the video or audio asset",
-            "example": "PT10M32S"
+            "example": "PT10M32S",
+            "pattern": "DURATION_REGEX"
           }
         },
         "required": [
@@ -410,46 +494,49 @@
         "properties": {
           "isLink": {
             "type": "boolean",
-            "description": "Determines that if this asset is a link",
-            "example": "false"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The display name for the file",
-            "example": "TheScream"
-          },
-          "href": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The URL for the given content",
-            "example": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Wilhelm_Scream.ogg"
+            "description": "Determines if this asset is a link",
+            "example": false
           },
           "references": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AssetReferenceDto"
             }
+          },
+          "name": {
+            "type": "string",
+            "description": "The display name for the file",
+            "example": "TheScream",
+            "minLength": 1
+          },
+          "href": {
+            "type": "string",
+            "description": "The URL for the given content",
+            "example": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Wilhelm_Scream.ogg",
+            "minLength": 1
           }
         }
+      },
+      "TagTypeEnum": {
+        "type": "string",
+        "description": "Identifies the tag type",
+        "enum": [
+          "mention",
+          "hashtag"
+        ]
       },
       "TagDto": {
         "type": "object",
         "properties": {
           "type": {
-            "enum": [
-              "mention",
-              "hashtag"
-            ],
-            "type": "string",
-            "description": "Identifies the tag type",
-            "example": "mention"
+            "example": "mention",
+            "$ref": "#/components/schemas/TagTypeEnum"
           },
           "name": {
             "type": "string",
-            "minLength": 1,
             "description": "The text of the tag",
-            "example": "@sally"
+            "example": "@sally",
+            "minLength": 1
           },
           "mentionedId": {
             "type": "string",
@@ -461,55 +548,58 @@
           "type"
         ]
       },
+      "UnitTypeEnum": {
+        "type": "string",
+        "description": "The units for radius and altitude (defaults to meters)",
+        "enum": [
+          "cm",
+          "m",
+          "km",
+          "inches",
+          "feet",
+          "miles"
+        ]
+      },
       "LocationDto": {
         "type": "object",
         "properties": {
+          "units": {
+            "example": "m",
+            "$ref": "#/components/schemas/UnitTypeEnum"
+          },
           "name": {
             "type": "string",
-            "minLength": 1,
             "description": "The display name for the location",
-            "example": "New York City, NY"
+            "example": "New York, NY",
+            "minLength": 1
           },
           "accuracy": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 100,
             "description": "The accuracy of the coordinates as a percentage.  (e.g. 94.0 means 94.0% accurate)",
-            "example": "94.0"
+            "example": 94,
+            "minimum": 0,
+            "maximum": 100
           },
           "altitude": {
             "type": "number",
             "description": "The altitude of the location",
-            "example": "10"
+            "example": 10
           },
           "latitude": {
             "type": "number",
             "description": "The latitude of the location",
-            "example": "40.73"
+            "example": 40.73
           },
           "longitude": {
             "type": "number",
             "description": "The longitude of the location",
-            "example": "-73.93"
+            "example": -73.93
           },
           "radius": {
             "type": "number",
-            "minimum": 0,
             "description": "The area around the given point that comprises the location",
-            "example": "100"
-          },
-          "units": {
-            "enum": [
-              "cm",
-              "m",
-              "km",
-              "inches",
-              "feet",
-              "miles"
-            ],
-            "type": "string",
-            "description": "The units for radius and altitude (defaults to meters)",
-            "example": "m"
+            "example": 100,
+            "minimum": 0
           }
         },
         "required": [
@@ -519,16 +609,11 @@
       "NoteActivityDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "description": "The display name for the activity type",
-            "example": "A simple activity"
-          },
           "content": {
             "type": "string",
-            "minLength": 1,
             "description": "Text content of the note",
-            "example": "Hello world!"
+            "example": "Hello world!",
+            "minLength": 1
           },
           "published": {
             "type": "string",
@@ -540,6 +625,11 @@
             "items": {
               "$ref": "#/components/schemas/AssetDto"
             }
+          },
+          "name": {
+            "type": "string",
+            "description": "The display name for the activity type",
+            "example": "A simple activity"
           },
           "tag": {
             "type": "array",
@@ -600,15 +690,15 @@
         "properties": {
           "emoji": {
             "type": "string",
-            "minLength": 1,
-            "pattern": "DSNP_EMOJI_REGEX",
             "description": "the encoded reaction emoji",
-            "example": "😀"
+            "example": "😀",
+            "minLength": 1,
+            "pattern": "DSNP_EMOJI_REGEX"
           },
           "apply": {
             "type": "number",
             "description": "Indicates whether the emoji should be applied and if so, at what strength",
-            "example": "1"
+            "example": 1
           },
           "inReplyTo": {
             "type": "string",
@@ -622,63 +712,62 @@
           "inReplyTo"
         ]
       },
+      "ModifiableAnnouncementType": {
+        "type": "string",
+        "description": "Target announcement type",
+        "enum": [
+          "broadcast",
+          "reply"
+        ]
+      },
       "UpdateDto": {
         "type": "object",
         "properties": {
+          "targetAnnouncementType": {
+            "example": "broadcast",
+            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+          },
           "targetContentHash": {
             "type": "string",
             "description": "Target DSNP Content Hash",
             "example": "bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna"
-          },
-          "targetAnnouncementType": {
-            "enum": [
-              "broadcast",
-              "reply"
-            ],
-            "type": "string",
-            "description": "Target announcement type",
-            "example": "broadcast"
           },
           "content": {
             "$ref": "#/components/schemas/NoteActivityDto"
           }
         },
         "required": [
-          "targetContentHash",
           "targetAnnouncementType",
+          "targetContentHash",
           "content"
         ]
       },
       "TombstoneDto": {
         "type": "object",
         "properties": {
+          "targetAnnouncementType": {
+            "example": "broadcast",
+            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+          },
           "targetContentHash": {
             "type": "string",
             "description": "Target DSNP Content Hash",
             "example": "bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna"
-          },
-          "targetAnnouncementType": {
-            "enum": [
-              "broadcast",
-              "reply"
-            ],
-            "type": "string",
-            "description": "Target announcement type",
-            "example": "broadcast"
           }
         },
         "required": [
-          "targetContentHash",
-          "targetAnnouncementType"
+          "targetAnnouncementType",
+          "targetContentHash"
         ]
       },
       "ProfileActivityDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "description": "The display name for the activity type",
-            "example": "A simple activity"
+          "icon": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetReferenceDto"
+            }
           },
           "summary": {
             "type": "string",
@@ -690,11 +779,10 @@
             "description": "The time of publishing ISO8601",
             "example": "1970-01-01T00:00:00+00:00"
           },
-          "icon": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssetReferenceDto"
-            }
+          "name": {
+            "type": "string",
+            "description": "The display name for the activity type",
+            "example": "A simple activity"
           },
           "tag": {
             "type": "array",

@@ -8,7 +8,6 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "blockNumber",
           "content": {
             "application/json": {
               "schema": {
@@ -54,7 +53,6 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "watchOptions: Filter contents by schemaIds and/or msaIds",
           "content": {
             "application/json": {
               "schema": {
@@ -120,7 +118,6 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "Search for DSNP content by id, startBlock, endBlock, and filters",
           "content": {
             "application/json": {
               "schema": {
@@ -135,7 +132,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/SearchResponseDto"
                 }
               }
             }
@@ -153,7 +150,6 @@
         "parameters": [],
         "requestBody": {
           "required": true,
-          "description": "Register a webhook to be called when a new content is encountered",
           "content": {
             "application/json": {
               "schema": {
@@ -194,10 +190,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WebhookRegistrationDto"
-                  }
+                  "$ref": "#/components/schemas/WebhookRegistrationResponseDto"
                 }
               }
             }
@@ -269,17 +262,17 @@
         "properties": {
           "blockNumber": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 4294967296,
             "description": "The block number to reset the scanner to",
-            "example": 0
+            "example": 0,
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "rewindOffset": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 4294967296,
             "description": "Number of blocks to rewind the scanner to (from `blockNumber` if supplied; else from latest block)",
-            "example": 100
+            "example": 100,
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "immediate": {
             "type": "boolean",
@@ -292,17 +285,15 @@
         "type": "object",
         "properties": {
           "schemaIds": {
-            "type": "array",
-            "minimum": 0,
-            "maximum": 65536,
-            "items": {
-              "type": "number"
-            },
             "description": "Specific schema ids to watch for",
             "example": [
               1,
               19
-            ]
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "dsnpIds": {
             "description": "Specific dsnpIds (msa_id) to watch for",
@@ -326,17 +317,17 @@
           },
           "startBlock": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 4294967296,
             "description": "The block number to search (backward) from",
-            "example": 100
+            "example": 100,
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "blockCount": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 4294967296,
             "description": "The number of blocks to scan (backwards)",
-            "example": 101
+            "example": 101,
+            "minimum": 0,
+            "maximum": 4294967296
           },
           "filters": {
             "description": "The schemaIds/dsnpIds to filter by",
@@ -357,6 +348,78 @@
           "webhookUrl"
         ]
       },
+      "HttpStatus": {
+        "type": "number",
+        "description": "Status of webhook registration response",
+        "enum": [
+          100,
+          101,
+          102,
+          103,
+          200,
+          201,
+          202,
+          203,
+          204,
+          205,
+          206,
+          300,
+          301,
+          302,
+          303,
+          304,
+          307,
+          308,
+          400,
+          401,
+          402,
+          403,
+          404,
+          405,
+          406,
+          407,
+          408,
+          409,
+          410,
+          411,
+          412,
+          413,
+          414,
+          415,
+          416,
+          417,
+          418,
+          421,
+          422,
+          424,
+          428,
+          429,
+          500,
+          501,
+          502,
+          503,
+          504,
+          505
+        ]
+      },
+      "SearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "example": 200,
+            "$ref": "#/components/schemas/HttpStatus"
+          },
+          "jobId": {
+            "type": "string",
+            "description": "Job id of search job",
+            "example": "7b02edd742a653a3cf63bb0c84e43d3678aa045f"
+          }
+        },
+        "required": [
+          "status",
+          "jobId"
+        ]
+      },
       "AnnouncementTypeName": {
         "type": "string",
         "description": "Announcement types to send to the webhook",
@@ -372,28 +435,48 @@
       "WebhookRegistrationDto": {
         "type": "object",
         "properties": {
-          "url": {
-            "type": "string",
-            "description": "Webhook URL",
-            "example": "https://example.com/webhook"
-          },
           "announcementTypes": {
             "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnnouncementTypeName"
+            },
             "example": [
               "broadcast",
               "reaction",
               "tombstone",
               "reply",
               "update"
-            ],
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "Webhook URL",
+            "example": "https://example.com/webhook"
+          }
+        },
+        "required": [
+          "announcementTypes",
+          "url"
+        ]
+      },
+      "WebhookRegistrationResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "example": 200,
+            "$ref": "#/components/schemas/HttpStatus"
+          },
+          "registeredWebhooks": {
+            "description": "List of registered webhooks",
+            "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AnnouncementTypeName"
+              "$ref": "#/components/schemas/WebhookRegistrationDto"
             }
           }
         },
         "required": [
-          "url",
-          "announcementTypes"
+          "status",
+          "registeredWebhooks"
         ]
       }
     }

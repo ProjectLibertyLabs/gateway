@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDto } from '#types/dtos/content-publishing';
-import { DSNP_VALID_MIME_TYPES } from '#types/dtos/content-publishing/validation.dto';
+import { DSNP_VALID_MIME_TYPES } from '#types/dtos/content-publishing/validation';
 import {
   Controller,
   HttpCode,
@@ -39,7 +39,6 @@ export class AssetControllerV1 {
         .addFileTypeValidator({
           fileType: DSNP_VALID_MIME_TYPES,
         })
-        // TODO: add a validator to check overall uploaded size
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),

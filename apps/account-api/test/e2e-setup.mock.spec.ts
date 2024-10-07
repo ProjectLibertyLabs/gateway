@@ -47,7 +47,7 @@ export async function removeExtraKeysFromMsa({
   msaId,
   keypair,
 }: {
-  msaId?: MessageSourceId | undefined;
+  msaId?: MessageSourceId | string | undefined;
   keypair: KeyringPair;
 }): Promise<void> {
   if (!msaId) {

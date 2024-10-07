@@ -4,33 +4,24 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BlockchainModule } from '#graph-lib/blockchain';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#graph-lib/services/nonce.service';
-import { QueueModule } from '#graph-lib/queues/queue.module';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { CacheModule } from '#graph-lib/cache/cache.module';
-import cacheConfig, { ICacheConfig } from '#graph-lib/cache/cache.config';
+import { GraphQueues as QueueConstants } from '#types/constants';
+import { CacheModule } from '#cache/cache.module';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 import { ConfigModule } from '@nestjs/config';
 import workerConfig from './worker.config';
-import queueConfig from '#graph-lib/queues/queue.config';
+import queueConfig, { QueueModule } from '#queue';
 import scannerConfig from './graph_notifier/scanner.config';
-import graphReconnectionConfig from './reconnection_processor/graph.reconnection.config';
 import graphCommonConfig from '#config/graph-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        workerConfig,
-        graphCommonConfig,
-        blockchainConfig,
-        cacheConfig,
-        queueConfig,
-        scannerConfig,
-        graphReconnectionConfig,
-      ],
+      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, queueConfig, scannerConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -50,7 +41,7 @@ import graphCommonConfig from '#config/graph-common.config';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    QueueModule,
+    QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig, blockchainConf: IBlockchainConfig) => [
         {

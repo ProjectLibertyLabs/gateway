@@ -6,6 +6,7 @@ import { IsEnum, IsInt, IsNotEmpty, IsString, Matches, Max, Min, MinLength, Vali
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
 import { DSNP_CONTENT_HASH_REGEX, DSNP_CONTENT_URI_REGEX, DSNP_EMOJI_REGEX } from './validation.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementTypeDto {
@@ -38,6 +39,10 @@ export class TombstoneDto {
   targetContentHash: string;
 
   @IsEnum(ModifiableAnnouncementTypeDto)
+  @ApiProperty({
+    enum: ModifiableAnnouncementTypeDto,
+    enumName: 'ModifiableAnnouncementTypeDto',
+  })
   targetAnnouncementType: ModifiableAnnouncementTypeDto;
 }
 
@@ -48,6 +53,10 @@ export class UpdateDto {
   targetContentHash: string;
 
   @IsEnum(ModifiableAnnouncementTypeDto)
+  @ApiProperty({
+    enum: ModifiableAnnouncementTypeDto,
+    enumName: 'ModifiableAnnouncementTypeDto',
+  })
   targetAnnouncementType: ModifiableAnnouncementTypeDto;
 
   @IsNotEmpty()

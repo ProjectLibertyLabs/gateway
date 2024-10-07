@@ -2,7 +2,7 @@ import { ApiService } from '#graph-api/api.service';
 import { ReadOnlyDeploymentGuard } from '#graph-api/guards/read-only-deployment-guard.service';
 import { UserGraphDto, GraphsQueryParamsDto, GraphChangeResponseDto, ProviderGraphDto } from '#types/dtos/graph';
 import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/graphs')
 @ApiTags('v1/graphs')
@@ -20,13 +20,7 @@ export class GraphControllerV1 {
   @ApiOperation({ summary: 'Fetch graphs for specified MSA Ids and Block Number' })
   @ApiOkResponse({ description: 'Graphs retrieved successfully', type: [UserGraphDto] })
   async getGraphs(@Body() queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
-    try {
-      const graphs = await this.apiService.getGraphs(queryParams);
-      return graphs;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to fetch graphs');
-    }
+    return this.apiService.getGraphs(queryParams);
   }
 
   // Enqueue a request to update a user graph
@@ -35,7 +29,6 @@ export class GraphControllerV1 {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Request an update to a given user's graph" })
   @ApiCreatedResponse({ description: 'Graph update request created successfully', type: GraphChangeResponseDto })
-  @ApiBody({ type: ProviderGraphDto })
   async updateGraph(@Body() providerGraphDto: ProviderGraphDto): Promise<GraphChangeResponseDto> {
     try {
       return await this.apiService.enqueueRequest(providerGraphDto);

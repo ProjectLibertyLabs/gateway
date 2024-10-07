@@ -44,7 +44,17 @@
       "#utils": ["libs/utils/src"],
       "#utils/*": ["libs/utils/src/*"],
       "#config": ["libs/config/src"],
-      "#config/*": ["libs/config/src/*"]
+      "#config/*": ["libs/config/src/*"],
+      "#queue": ["libs/queue/src"],
+      "#queue/*": ["libs/queue/src/*"],
+      "#cache": ["libs/cache/src"],
+      "#cache/*": ["libs/cache/src/*"],
+      "#consumer": ["libs/consumer/src"],
+      "#consumer/*": ["libs/consumer/src/*"],
+      "#storage": ["libs/storage/src"],
+      "#storage/*": ["libs/storage/src/*"],
+      "#openapi": ["libs/openapi/src"],
+      "#openapi/*": ["libs/openapi/src/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

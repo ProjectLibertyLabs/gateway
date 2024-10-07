@@ -1,6 +1,8 @@
+/* eslint-disable max-classes-per-file */
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { AnnouncementTypeName } from '#types/enums';
+import { HttpStatus } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 
 export interface IWebhookRegistration {
   url: string;
@@ -8,23 +10,37 @@ export interface IWebhookRegistration {
 }
 
 export class WebhookRegistrationDto implements IWebhookRegistration {
+  /**
+   * Webhook URL
+   * @example 'https://example.com/webhook'
+   */
   @IsNotEmpty()
   @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
-  @ApiProperty({
-    description: 'Webhook URL',
-    example: 'https://example.com/webhook',
-  })
-  url: string; // Webhook URL
+  url: string;
 
   @IsArray()
   @ArrayNotEmpty()
   @IsEnum(AnnouncementTypeName, { each: true })
   @ApiProperty({
     description: 'Announcement types to send to the webhook',
-    isArray: true,
     example: ['broadcast', 'reaction', 'tombstone', 'reply', 'update'],
     enum: AnnouncementTypeName,
-    enumName: 'AnnouncementTypeName',
+    enumName: 'AnnouncementTypeName', // necessary because the @nestjs/swagger CLI plugin does not generate the 'enumName' property
   })
-  announcementTypes: string[]; // Announcement types to send to the webhook
+  announcementTypes: AnnouncementTypeName[]; // Announcement types to send to the webhook
+}
+
+export class WebhookRegistrationResponseDto {
+  @ApiProperty({
+    description: 'Status of webhook registration response',
+    example: 200,
+    enum: HttpStatus,
+    enumName: 'HttpStatus',
+  })
+  status: HttpStatus;
+
+  /**
+   * List of registered webhooks
+   */
+  registeredWebhooks: WebhookRegistrationDto[];
 }

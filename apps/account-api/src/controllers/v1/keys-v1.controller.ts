@@ -7,13 +7,13 @@ import {
   HttpStatus,
   Logger,
   Param,
-  HttpException,
   Body,
   Post,
   UseGuards,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KeysRequestDto, AddKeyRequestDto } from '#types/dtos/account/keys.request.dto';
 import { TransactionResponse } from '#types/dtos/account/transaction.response.dto';
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
@@ -43,8 +43,7 @@ export class KeysControllerV1 {
   @Post('add')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add new control keys for an MSA Id' })
-  @ApiOkResponse({ description: 'Found public keys' })
-  @ApiBody({ type: KeysRequestDto })
+  @ApiOkResponse({ description: 'Found public keys', type: TransactionResponse })
   /**
    * Add new control keys for an MSA Id.
    * @param queryParams - The query parameters for adding the public keys.
@@ -52,23 +51,21 @@ export class KeysControllerV1 {
    * @throws An error if no public keys can be found.
    */
   async addKey(@Body() addKeysRequest: KeysRequestDto): Promise<TransactionResponse> {
-    try {
-      const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
-        ...addKeysRequest,
-        type: TransactionType.ADD_KEY,
-      });
-      this.logger.log(`AddKey in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to find public keys for the given MSA Id', HttpStatus.BAD_REQUEST);
+    if (!this.keysService.verifyAddKeySignature(addKeysRequest)) {
+      throw new BadRequestException('Provided signature is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({
+      ...addKeysRequest,
+      type: TransactionType.ADD_KEY,
+    });
+    this.logger.log(`AddKey in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Fetch public keys given an MSA Id' })
-  @ApiOkResponse({ description: 'Found public keys' })
+  @ApiOkResponse({ description: 'Found public keys', type: KeysResponse })
   /**
    * Gets public keys.
    * @param queryParams - The query parameters for getting the public keys.
@@ -76,19 +73,16 @@ export class KeysControllerV1 {
    * @throws An error if no public keys can be found.
    */
   async getKeys(@Param() { msaId }: MsaIdDto): Promise<KeysResponse> {
-    try {
-      const keys = await this.keysService.getKeysByMsa(msaId);
-      return keys;
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException('Failed to find public keys for the given msaId', HttpStatus.BAD_REQUEST);
-    }
+    return this.keysService.getKeysByMsa(msaId);
   }
 
   @Get('publicKeyAgreements/getAddKeyPayload')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.' })
-  @ApiOkResponse({ description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing' })
+  @ApiOkResponse({
+    description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing',
+    type: AddNewPublicKeyAgreementPayloadRequest,
+  })
   /**
    * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
    * @param queryParams - The query parameters for adding a new key
@@ -104,8 +98,7 @@ export class KeysControllerV1 {
   @Post('publicKeyAgreements')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to add a new public Key' })
-  @ApiOkResponse({ description: 'Add new key request enqueued' })
-  @ApiBody({ type: AddNewPublicKeyAgreementRequestDto })
+  @ApiOkResponse({ description: 'Add new key request enqueued', type: TransactionResponse })
   /**
    * Using the provided query parameters, adds a new public key for the account
    * @param queryParams - The query parameters for adding a new graph key
@@ -113,16 +106,14 @@ export class KeysControllerV1 {
    * @throws An error if enqueueing the operation fails.
    */
   async AddNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
-    try {
-      const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
-        ...request,
-        type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
-      });
-      this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
-      return response;
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error('Failed to add new key');
+    if (!this.keysService.verifyPublicKeyAgreementSignature(request)) {
+      throw new BadRequestException('Proof is not valid for the payload!');
     }
+    const response = await this.enqueueService.enqueueRequest<PublicKeyAgreementRequestDto>({
+      ...request,
+      type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT,
+    });
+    this.logger.log(`Add graph key in progress. referenceId: ${response.referenceId}`);
+    return response;
   }
 }

@@ -18,51 +18,51 @@ export enum ItemActionType {
 }
 
 export class ItemActionDto {
+  @IsEnum(() => ItemActionType)
   @ApiProperty({
-    type: ItemActionType,
     description: 'Action Item type',
     example: 'ADD_ITEM',
+    enum: ItemActionType,
+    enumName: 'ItemActionType',
   })
-  @IsEnum(ItemActionType)
   type: ItemActionType;
 
-  @ApiProperty({
-    type: String,
-    description: 'encodedPayload to be added',
-    example: '0x1234',
-  })
+  /**
+   * encodedPayload to be added
+   * @example '0x1234'
+   */
   @ValidateIf((o) => o.type === ItemActionType.ADD_ITEM)
   @IsHexValue({ minLength: 2, maxLength: 2048 })
   encodedPayload?: string;
 
-  @ApiProperty({
-    type: 'number',
-    description: 'index of the item to be deleted',
-    example: '0',
-  })
+  /**
+   * index of the item to be deleted
+   * @example 0
+   */
   @ValidateIf((o) => o.type === ItemActionType.DELETE_ITEM)
   @IsIntValue({ minValue: 0 })
   index?: number;
 }
 
 export class ItemizedSignaturePayloadDto {
-  @ApiProperty({
-    type: 'number',
-    description: 'schemaId related to the payload',
-    example: '1',
-  })
+  /**
+   * schemaId related to the payload
+   * @example 1
+   */
   @IsSchemaId()
   schemaId: number;
 
-  @ApiProperty({
-    type: 'number',
-    description: 'targetHash related to the stateful storage',
-    example: '1234',
-  })
+  /**
+   * targetHash related to the stateful storage
+   * @example 1234
+   */
   @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   targetHash: number;
 
-  @ApiProperty({ type: 'number', description: 'expiration block number for this payload', example: '1' })
+  /**
+   * expiration block number for this payload
+   * @example 1
+   */
   @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })
   expiration: number;
 
@@ -82,44 +82,36 @@ export class ItemizedSignaturePayloadDto {
 }
 
 export class AddNewPublicKeyAgreementRequestDto {
-  @ApiProperty({
-    type: String,
-    description: 'AccountId in hex or SS58 format',
-    example: '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N',
-  })
+  /**
+   * AccountId in hex or SS58 format
+   * @example '1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N'
+   */
   @IsAccountIdOrAddress()
   accountId: string;
 
-  @ApiProperty({
-    type: ItemizedSignaturePayloadDto,
-  })
   @ValidateNested()
   @IsNotEmpty()
   @Type(() => ItemizedSignaturePayloadDto)
   payload: ItemizedSignaturePayloadDto;
 
-  @ApiProperty({
-    description: 'proof is the signature for the payload',
-    type: String,
-    example:
-      '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85',
-  })
+  /**
+   * proof is the signature for the payload
+   * @example '0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85'
+   */
   @IsSignature()
   proof: HexString;
 }
 
 export class AddNewPublicKeyAgreementPayloadRequest {
-  @ApiProperty()
   @ValidateNested()
   @IsNotEmpty()
   @Type(() => ItemizedSignaturePayloadDto)
   payload: ItemizedSignaturePayloadDto;
 
-  @ApiProperty({
-    type: String,
-    description: 'encodedPayload to be added',
-    example: '0x1234',
-  })
+  /**
+   * Raw encodedPayload to be signed
+   * @example '0x1234'
+   */
   @IsHexValue({ minLength: 2, maxLength: 2048 })
   encodedPayload: HexString;
 }
@@ -129,15 +121,17 @@ export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & 
 };
 
 export class PublicKeyAgreementsKeyPayload {
-  @ApiProperty({ description: 'MSA Id representing the target of this request', type: String, example: '3' })
+  /**
+   * MSA Id representing the target of this request
+   * @example '3'
+   */
   @IsMsaId()
   msaId: string;
 
-  @ApiProperty({
-    type: String,
-    description: 'New public key to be added to the account (32-byte value in hex format)',
-    example: '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b',
-  })
+  /**
+   * New public key to be added to the account (32-byte value in hex format)
+   * @example '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b'
+   */
   @IsHexValue({ minLength: 64, maxLength: 64 })
   newKey: HexString;
 }

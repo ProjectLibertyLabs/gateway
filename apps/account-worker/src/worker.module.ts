@@ -5,14 +5,14 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE, NonceService } from '#account-lib/services/nonce.service';
 import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
-import { QueueModule } from '#account-lib/queues';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
-import { CacheModule } from '#account-lib/cache/cache.module';
+import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
-import cacheConfig from '#account-lib/cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase } from '#account-lib/blockchain/blockchain.config';
-import queueConfig from '#account-lib/queues/queue.config';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import queueConfig, { QueueModule } from '#queue';
 import workerConfig from './worker.config';
 
 @Module({
@@ -39,10 +39,10 @@ import workerConfig from './worker.config';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    QueueModule,
+    QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     CacheModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (blockchainConf, cacheConf) => [
+      useFactory: (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
           url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,

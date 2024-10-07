@@ -17,10 +17,9 @@ import * as RedisConstants from '#graph-lib/utils/redis';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as GraphServiceWebhook from '#graph-lib/types/webhook-types';
 import axios from 'axios';
-import { ProviderGraphUpdateJob, createReconnectionJob, UpdateTransitiveGraphs } from '#types/interfaces/graph';
+import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import scannerConfig, { IScannerConfig } from './scanner.config';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
@@ -74,7 +73,6 @@ export class GraphMonitorService extends BlockchainScannerService {
       this.schedulerRegistry.deleteInterval(this.intervalName);
     }
 
-    await this.reconnectionQueue.close();
     await this.publishQueue.close();
     await this.requestQueue.close();
   }
@@ -83,11 +81,9 @@ export class GraphMonitorService extends BlockchainScannerService {
     blockchainService: BlockchainService,
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
-    @InjectQueue(QueueConstants.RECONNECT_REQUEST_QUEUE) private reconnectionQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private publishQueue: Queue,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private requestQueue: Queue,
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
-    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     @Inject(workerConfig.KEY) private readonly workerConf: IGraphWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
@@ -100,12 +96,6 @@ export class GraphMonitorService extends BlockchainScannerService {
       ['statefulStorage.PaginatedPageUpdated', 'statefulStorage.PaginatedPageDeleted'],
       (block, event) => this.monitorAllGraphUpdates(block, event),
     );
-
-    if (this.config.reconnectionServiceRequired) {
-      this.registerChainEventHandler(['msa.DelegationGranted'], (block, event) =>
-        this.monitorEventsForReconnection(block, event),
-      );
-    }
   }
 
   public get intervalName() {
@@ -213,7 +203,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     const webhook = statusToReport.referenceJob.webhookUrl;
     if (webhook) {
       let retries = 0;
-      while (retries < this.workerConf.healthCheckMaxRetries) {
+      while (retries < this.workerConf.webhookFailureThreshold) {
         try {
           this.logger.debug(
             `Sending graph operation status (${statusToReport.status}) notification for refId ${statusToReport.referenceId} to webhook: ${webhook}`,
@@ -223,6 +213,10 @@ export class GraphMonitorService extends BlockchainScannerService {
         } catch (error: any) {
           this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);
           retries += 1;
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => {
+            setTimeout(r, this.workerConf.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
+          });
         }
       }
     }
@@ -275,27 +269,6 @@ export class GraphMonitorService extends BlockchainScannerService {
     });
   }
 
-  private async monitorEventsForReconnection(_block: SignedBlock, { event }: FrameSystemEventRecord) {
-    // Don't need this check logically, but it's a type guard to be able to access the specific event type data
-    if (this.blockchainService.api.events.msa.DelegationGranted.is(event)) {
-      if (!event.data.providerId.eq(this.blockchainConf.providerId.toString())) {
-        return;
-      }
-
-      const { key: jobId, data } = createReconnectionJob(
-        event.data.delegatorId,
-        event.data.providerId,
-        UpdateTransitiveGraphs,
-      );
-      const job = await this.reconnectionQueue.getJob(jobId);
-      if (job && ((await job.isCompleted()) || (await job.isFailed()))) {
-        await job.retry();
-      } else {
-        await this.reconnectionQueue.add(`graphUpdate:${data.dsnpId}`, data, { jobId });
-      }
-    }
-  }
-
   public async monitorAllGraphUpdates(block: SignedBlock, { event }: FrameSystemEventRecord) {
     // Don't need this check logically, but it's a type guard to be able to access the specific event type data
     if (
@@ -330,7 +303,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       await Promise.allSettled(
         webhookList.map(async (webhookUrl) => {
           let retries = 0;
-          while (retries < this.workerConf.healthCheckMaxRetries) {
+          while (retries < this.workerConf.webhookFailureThreshold) {
             try {
               this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
               this.logger.debug(`Graph Change: ${JSON.stringify(graphUpdateNotification)}`);
@@ -342,6 +315,10 @@ export class GraphMonitorService extends BlockchainScannerService {
               this.logger.error(`Failed to send notification to webhook: ${webhookUrl}`);
               this.logger.error(error);
               retries += 1;
+              // eslint-disable-next-line no-await-in-loop
+              await new Promise((r) => {
+                setTimeout(r, this.workerConf.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
+              });
             }
           }
         }),

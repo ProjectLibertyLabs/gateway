@@ -13,12 +13,11 @@ import { FrameSystemEventRecord, PalletSchemasSchemaVersionId } from '@polkadot/
 import { HexString } from '@polkadot/util/types';
 import { IGraphTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import * as RedisConstants from '#graph-lib/utils/redis';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import * as GraphServiceWebhook from '#graph-lib/types/webhook-types';
 import axios from 'axios';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
-import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
+import { REDIS_WEBHOOK_ALL, REDIS_WEBHOOK_PREFIX, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
@@ -334,11 +333,11 @@ export class GraphMonitorService extends BlockchainScannerService {
    * @returns {string[]} Array of URLs
    */
   public async getWebhookList(msaId: string, includeAll = true): Promise<string[]> {
-    const value = await this.cacheManager.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
+    const value = await this.cacheManager.hget(REDIS_WEBHOOK_PREFIX, msaId);
     let webhooks = value ? (JSON.parse(value) as string[]) : [];
 
     if (includeAll) {
-      const all = await this.cacheManager.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, RedisConstants.REDIS_WEBHOOK_ALL);
+      const all = await this.cacheManager.hget(REDIS_WEBHOOK_PREFIX, REDIS_WEBHOOK_ALL);
       const allHooks = all ? (JSON.parse(all) as string[]) : [];
       webhooks.push(...allHooks);
       webhooks = [...new Set(webhooks)];

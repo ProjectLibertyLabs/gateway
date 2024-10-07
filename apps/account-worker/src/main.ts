@@ -2,7 +2,7 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { KeepAliveStrategy } from '#account-lib/utils/keepalive-strategy';
+import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { WorkerModule } from './worker.module';
 
 // Monkey-patch BigInt so that JSON.stringify will work

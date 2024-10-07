@@ -7,17 +7,16 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import {
-  getBatchMetadataKey,
-  getBatchDataKey,
-  getLockKey as getBatchLockKey,
-  BATCH_LOCK_EXPIRE_SECONDS,
-} from '#content-publishing-lib/utils/redis';
+import { ContentPublisherRedisConstants } from '#types/constants/redis-keys.constants';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
 import { IBatchAnnouncerJobData } from '../interfaces';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import BATCH_LOCK_EXPIRE_SECONDS = ContentPublisherRedisConstants.BATCH_LOCK_EXPIRE_SECONDS;
+import getBatchMetadataKey = ContentPublisherRedisConstants.getBatchMetadataKey;
+import getBatchDataKey = ContentPublisherRedisConstants.getBatchDataKey;
+import getBatchLockKey = ContentPublisherRedisConstants.getLockKey;
 
 @Injectable()
 export class BatchingProcessorService {

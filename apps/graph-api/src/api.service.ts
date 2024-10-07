@@ -5,7 +5,6 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
-import * as RedisConstants from '#graph-lib/utils/redis';
 import {
   ProviderGraphDto,
   GraphChangeResponseDto,
@@ -15,7 +14,12 @@ import {
 } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
-import { DEBOUNCER_CACHE_KEY, LAST_PROCESSED_DSNP_ID_KEY } from '#types/constants';
+import {
+  DEBOUNCER_CACHE_KEY,
+  LAST_PROCESSED_DSNP_ID_KEY,
+  REDIS_WEBHOOK_ALL,
+  REDIS_WEBHOOK_PREFIX,
+} from '#types/constants';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 async function hscanToObject(keyValues: string[]) {
@@ -85,7 +89,7 @@ export class ApiService implements BeforeApplicationShutdown {
    */
   async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<boolean> {
     let itemsAdded = false;
-    const ids = watchGraphsDto?.dsnpIds || [RedisConstants.REDIS_WEBHOOK_ALL];
+    const ids = watchGraphsDto?.dsnpIds || [REDIS_WEBHOOK_ALL];
     // eslint-disable-next-line no-restricted-syntax
     for (const dsnpId of ids) {
       // eslint-disable-next-line no-await-in-loop
@@ -102,7 +106,7 @@ export class ApiService implements BeforeApplicationShutdown {
       const url = new URL(webhook).toString();
       const existingWebhooks = new Set(
         await this.redis
-          .hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId)
+          .hget(REDIS_WEBHOOK_PREFIX, msaId)
           .then((webhooksStr) => (webhooksStr ? (JSON.parse(webhooksStr) as string[]) : [])),
       );
       if (existingWebhooks.size === 0 || !existingWebhooks.has(url)) {
@@ -110,7 +114,7 @@ export class ApiService implements BeforeApplicationShutdown {
         this.logger.verbose(`Registering webhook for MSA ${msaId}: ${url}`);
       }
       existingWebhooks.add(url);
-      await this.redis.hset(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
+      await this.redis.hset(REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
       return webhookAdded;
     } catch (err: any) {
       this.logger.error('Error adding webhook', err);
@@ -123,7 +127,7 @@ export class ApiService implements BeforeApplicationShutdown {
     let value: string[];
     const result = {};
     do {
-      [cursor, value] = await this.redis.hscan(RedisConstants.REDIS_WEBHOOK_PREFIX, cursor);
+      [cursor, value] = await this.redis.hscan(REDIS_WEBHOOK_PREFIX, cursor);
       Object.assign(result, await hscanToObject(value));
     } while (cursor !== '0');
     return result;
@@ -136,11 +140,11 @@ export class ApiService implements BeforeApplicationShutdown {
    * @returns {string[]} Array of URLs
    */
   async getWebhooksForMsa(msaId: string, includeAll = true): Promise<string[]> {
-    const value = await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
+    const value = await this.redis.hget(REDIS_WEBHOOK_PREFIX, msaId);
     let webhooks = value ? (JSON.parse(value) as string[]) : [];
 
     if (includeAll) {
-      const all = await this.redis.hget(RedisConstants.REDIS_WEBHOOK_PREFIX, RedisConstants.REDIS_WEBHOOK_ALL);
+      const all = await this.redis.hget(REDIS_WEBHOOK_PREFIX, REDIS_WEBHOOK_ALL);
       const allHooks = all ? (JSON.parse(all) as string[]) : [];
       webhooks.push(...allHooks);
       webhooks = [...new Set(webhooks)];
@@ -162,11 +166,11 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   async deleteAllWebhooks(): Promise<void> {
-    await this.redis.del(RedisConstants.REDIS_WEBHOOK_PREFIX);
+    await this.redis.del(REDIS_WEBHOOK_PREFIX);
   }
 
   async deleteWebhooksForUser(msaId: string): Promise<void> {
-    await this.redis.hdel(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId);
+    await this.redis.hdel(REDIS_WEBHOOK_PREFIX, msaId);
   }
 
   async removeWebhookFromUser(msaId: string, url: string): Promise<void> {
@@ -175,7 +179,7 @@ export class ApiService implements BeforeApplicationShutdown {
       if (webhooksForUser.size === 0) {
         await this.deleteWebhooksForUser(msaId);
       } else {
-        await this.redis.hset(RedisConstants.REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...webhooksForUser]));
+        await this.redis.hset(REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...webhooksForUser]));
       }
     }
   }

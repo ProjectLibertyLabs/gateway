@@ -11,9 +11,9 @@ import {
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import { verifySignature } from '#account-lib/utils/utility';
 import { KeysRequestDto } from '#types/dtos/account';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { verifySignature } from '#utils/common/signature.util';
 
 @Injectable()
 export class KeysService {

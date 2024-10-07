@@ -11,17 +11,17 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@projectlibertylabs/frequency-scenario-template": "^1.1.4",
-    "@dsnp/graph-sdk": "^1.1.3",
-    "@frequency-chain/api-augment": "^1.10.0",
-    "@polkadot/api": "^10.9.1",
-    "@polkadot/keyring": "^12.4.2",
-    "@polkadot/types": "^10.11.2",
-    "@polkadot/util": "^12.4.2",
-    "@polkadot/util-crypto": "^12.6.2",
-    "loglevel": "^1.9.1"
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.8",
+    "@dsnp/graph-sdk": "^1.1.4",
+    "@frequency-chain/api-augment": "^1.13.2",
+    "@polkadot/api": "^13.2.1",
+    "@polkadot/keyring": "^13.2.1",
+    "@polkadot/types": "^13.2.1",
+    "@polkadot/util": "^13.1.1",
+    "@polkadot/util-crypto": "^13.1.1",
+    "loglevel": "^1.9.2"
   },
   "devDependencies": {
-    "tsx": "^4.15.7"
+    "tsx": "^4.19.1"
   }
 }

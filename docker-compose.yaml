@@ -11,8 +11,7 @@ x-common-environment: &common-environment
   HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
   HEALTH_CHECK_SUCCESS_THRESHOLD: 10
   CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
-  SIWF_URL: 'https://projectlibertylabs.github.io/siwf/ui'
-  SIWF_DOMAIN: 'localhost'
+  SIWF_URL: 'https://projectlibertylabs.github.io/siwf/v1/ui'
   IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001}
   IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
@@ -40,7 +39,6 @@ x-content-watcher-env: &content-watcher-env
 x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
   GRAPH_ENVIRONMENT_TYPE: Mainnet
-  RECONNECTION_SERVICE_REQUIRED: false
   CACHE_KEY_PREFIX: 'graph:'
 
 x-account-service-env: &account-service-env
@@ -59,6 +57,15 @@ services:
       - gateway-net
     volumes:
       - redis_data:/data/redis
+
+  bull:
+    image: redis:latest
+    ports:
+      - 6380:6379
+    networks:
+      - gateway-net
+    volumes:
+      - bull_data:/data/redis
 
   frequency:
     # Temporary workaround until Frequency mainnet schemas are properly named and included in the image
@@ -245,6 +252,7 @@ volumes:
   chainstorage:
     external: false
   redis_data:
+  bull_data:
   account_api_node_cache:
   account_worker_node_cache:
   graph_api_node_cache:

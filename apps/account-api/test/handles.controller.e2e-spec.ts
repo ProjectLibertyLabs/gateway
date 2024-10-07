@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
@@ -8,7 +8,7 @@ import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectliber
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 
 let HTTP_SERVER: any;
 
@@ -143,16 +143,16 @@ describe('Handles Controller', () => {
       const msaIdWithNoHandle = user.msaId?.toString();
       await request(HTTP_SERVER)
         .get(`/v1/handles/${msaIdWithNoHandle}`)
-        .expect(404)
-        .expect({ statusCode: 404, message: 'No handle found for MSA' });
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('No handle found'));
     });
 
     it('(GET) /handles/:msaId with invalid msaId', async () => {
       const invalidMsaId = BigInt(maxMsaId) + 1000n;
       await request(HTTP_SERVER)
         .get(`/v1/handles/${invalidMsaId.toString()}`)
-        .expect(400)
-        .expect({ statusCode: 400, message: 'Invalid msaId.' });
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('Invalid msaId'));
     });
   });
 });

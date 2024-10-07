@@ -3,17 +3,18 @@
  */
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
+import { IsArray } from 'class-validator';
 
 export class AnnouncementResponseDto {
   referenceId: string;
 }
 
 export class UploadResponseDto {
-  @ApiProperty()
   assetIds: string[];
 }
 
 export class FilesUploadDto {
+  @IsArray()
   @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
   files: any[];
 }

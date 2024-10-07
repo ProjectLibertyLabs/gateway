@@ -143,3 +143,5 @@ dist
 
 # Ignore Terraform variables files
 *.tfvars
+
+.DS_Store

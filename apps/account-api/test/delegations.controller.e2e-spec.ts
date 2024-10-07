@@ -7,7 +7,7 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
-import { CacheMonitorService } from '#account-lib/cache/cache-monitor.service';
+import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { u8aToHex } from '@polkadot/util';
 import Keyring from '@polkadot/keyring';
 import { RevokeDelegationPayloadRequestDto, RevokeDelegationPayloadResponseDto } from '#types/dtos/account';
@@ -87,18 +87,18 @@ describe('Delegation Controller', () => {
 
   describe('(GET) /v1/delegation/:msaId', () => {
     it('(GET) /v1/delegation/:msaId with invalid msaId', async () => {
-      await request(httpServer).get(`/v1/delegation/${invalidMsaId}`).expect(HttpStatus.BAD_REQUEST).expect({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Failed to find the delegation',
-      });
+      await request(httpServer)
+        .get(`/v1/delegation/${invalidMsaId}`)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('Invalid msaId'));
     });
 
     it('(GET) /v1/delegation/:msaId with a valid MSA that has no delegations', async () => {
       const validMsaId = provider.msaId?.toString(); // use provider's MSA; will have no delegations
-      await request(httpServer).get(`/v1/delegation/${validMsaId}`).expect(HttpStatus.BAD_REQUEST).expect({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Failed to find the delegation',
-      });
+      await request(httpServer)
+        .get(`/v1/delegation/${validMsaId}`)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('Failed to find the delegations for'));
     });
 
     it('(GET) /v1/delegation/:msaId with valid msaId that has delegations', async () => {
@@ -128,19 +128,23 @@ describe('Delegation Controller', () => {
       const { keypair } = users[1];
       const invalidAccountId = `${keypair.address.slice(0, -1)}5H`;
       const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Invalid accountId',
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) =>
+          expect(res.text).toContain(
+            'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format',
+          ),
+        );
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
       const providerId = provider.msaId?.toString();
       const getPath: string = `/v1/delegation/revokeDelegation/${nonMsaKeypair.address}/${providerId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'MSA ID for account not found',
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('not found'));
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid providerId', async () => {
@@ -148,28 +152,28 @@ describe('Delegation Controller', () => {
       const { keypair, msaId } = users[1];
       const accountId = keypair.address;
       const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${msaId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.BAD_REQUEST).expect({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Supplied ID not a Provider',
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => expect(res.text).toContain('Supplied ID not a Provider'));
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
       const providerId = provider.msaId?.toString();
       const getPath: string = `/v1/delegation/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Delegation already revoked',
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => expect(res.text).toContain('Delegation already revoked'));
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
       const providerId = provider.msaId?.toString();
       const getPath: string = `/v1/delegation/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
-      await request(httpServer).get(getPath).expect(HttpStatus.NOT_FOUND).expect({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'No delegations found',
-      });
+      await request(httpServer)
+        .get(getPath)
+        .expect(HttpStatus.NOT_FOUND)
+        .expect((res) => expect(res.text).toContain('No delegations found'));
     });
 
     it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {

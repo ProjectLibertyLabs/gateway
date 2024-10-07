@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -16,7 +16,7 @@ import {
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateIpfsCID } from '#content-publishing-lib/utils/ipfs';
+import { calculateIpfsCID } from '#utils/common/common.utils';
 import {
   getAssetMetadataKey,
   getAssetDataKey,
@@ -105,7 +105,7 @@ export class ApiService {
       }
     });
     if (errors.length > 0) {
-      throw new HttpErrorByCode[400](errors);
+      throw new HttpErrorByCode[HttpStatus.BAD_REQUEST](errors);
     }
     return map;
   }

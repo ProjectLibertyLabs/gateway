@@ -1,4 +1,6 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import { encodeAddress } from '@polkadot/keyring';
+import { hexToU8a } from '@polkadot/util';
 
 export function IsAccountIdOrAddress(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line func-names
@@ -17,11 +19,23 @@ export function IsAccountIdOrAddress(validationOptions?: ValidationOptions) {
             return false;
           }
 
-          const isValidHex = hexPattern.test(value) && value.length % 2 === 0;
-          return isValidHex || ss58Pattern.test(value);
+          try {
+            if (hexPattern.test(value) && value.length % 2 === 0) {
+              // we need the lower case '0x' since hexToU8a only checks for the lowercase match
+              encodeAddress(hexToU8a(value.toLowerCase()));
+              return true;
+            }
+            if (ss58Pattern.test(value)) {
+              encodeAddress(value);
+              return true;
+            }
+          } catch (error) {
+            // invalid account throws error
+          }
+          return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          return `${args.property} should be a 32 bytes value in Hex or SS58 format!`;
+          return `${args.property} should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!`;
         },
       },
     });

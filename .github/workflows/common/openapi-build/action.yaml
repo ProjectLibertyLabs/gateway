@@ -22,10 +22,6 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: Generate Swagger Metadata
-      run: npm run generate:metadata:${{ inputs.service }}
-      shell: bash
-
     - name: Generate OpenAPI/Swagger JSON
       run: npm run generate:openapi:${{ inputs.service }}
       shell: bash

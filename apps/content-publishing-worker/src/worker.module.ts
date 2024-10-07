@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PublisherModule } from './publisher/publisher.module';
-import { QueuesModule } from '#content-publishing-lib/queues';
 import { BlockchainModule } from '#content-publishing-lib/blockchain/blockchain.module';
 import { AssetProcessorModule } from './asset_processor/asset.processor.module';
 import { BatchAnnouncerModule } from './batch_announcer/batch.announcer.module';
@@ -10,13 +9,14 @@ import { BatchingProcessorModule } from './batching_processor/batching.processor
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from './publisher/nonce.service';
-import { CacheModule } from '#content-publishing-lib/cache/cache.module';
+import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#content-publishing-lib/blockchain/blockchain.config';
-import cacheConfig from '#content-publishing-lib/cache/cache.config';
-import queueConfig from '#content-publishing-lib/queues/queue.config';
-import ipfsConfig from '#content-publishing-lib/config/ipfs.config';
+import queueConfig, { QueueModule } from '#queue';
+import cacheConfig from '#cache/cache.config';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 
 @Module({
   imports: [
@@ -38,7 +38,7 @@ import workerConfig from './worker.config';
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
-    QueuesModule,
+    QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

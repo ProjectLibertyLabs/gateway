@@ -2,28 +2,27 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
 import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { QueueModule } from '#account-lib/queues';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { CacheModule } from '#account-lib/cache/cache.module';
+import { CacheModule } from '#cache/cache.module';
 import {
   AccountsControllerV1,
+  AccountsControllerV2,
   DelegationControllerV1,
   HandlesControllerV1,
   KeysControllerV1,
+  DelegationsControllerV2,
   HealthController,
 } from './controllers';
-import { AccountsService, HandlesService, DelegationService, KeysService } from './services';
-import { DelegationsControllerV2 } from './controllers/v2/delegation-v2.controller';
+import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
-import cacheConfig, { ICacheConfig } from '#account-lib/cache/cache.config';
-import queueConfig from '#account-lib/queues/queue.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
+import queueConfig, { QueueModule } from '#queue';
 import apiConfig from './api.config';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
 @Module({
   imports: [
@@ -58,22 +57,26 @@ import apiConfig from './api.config';
       ],
       inject: [cacheConfig.KEY],
     }),
-    QueueModule,
-    // Bullboard UI
-    BullBoardModule.forRoot({
-      route: '/queues',
-      adapter: ExpressAdapter,
-    }),
-    BullBoardModule.forFeature({
-      name: QueueConstants.TRANSACTION_PUBLISH_QUEUE,
-      adapter: BullMQAdapter,
-    }),
+    QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
-  providers: [AccountsService, DelegationService, EnqueueService, HandlesService, KeysService],
+  providers: [
+    AccountsService,
+    DelegationService,
+    EnqueueService,
+    HandlesService,
+    KeysService,
+    SiwfV2Service,
+    // global exception handling
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   // Controller order determines the order of display for docs
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers: [
+    AccountsControllerV2,
     AccountsControllerV1,
     DelegationsControllerV2,
     DelegationControllerV1,

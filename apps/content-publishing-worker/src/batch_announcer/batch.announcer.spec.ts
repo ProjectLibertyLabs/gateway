@@ -4,7 +4,7 @@ import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency'
 import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
 import { BatchAnnouncer } from './batch.announcer';
-import { IIpfsConfig } from '#content-publishing-lib/config';
+import { IIpfsConfig } from '#storage';
 
 // Create a mock for the dependencies
 const mockIpfsConfig: IIpfsConfig = {

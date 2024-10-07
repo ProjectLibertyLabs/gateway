@@ -1,29 +1,30 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import { base32 } from 'multiformats/bases/base32';
+import { u8aToHex } from '@polkadot/util';
 
 export function validateContentHash(contentHash: unknown): boolean {
   if (typeof contentHash !== 'string') {
-    console.error('Invalid DSNP Content Hash');
     return false;
   }
   const re = /^[A-Z2-7]+=*$/i;
-  return re.test(contentHash) && contentHash.length % 8 === 0;
+  // check multihash size hash identifier 2 bytes + hash value 32 bytes
+  if (!(re.test(contentHash) && contentHash.length !== 34)) {
+    return false;
+  }
 
-  // TODO: add semantic check in another PR
-  // try {
-  //   const decoded = base32.decode(contentHash.toLowerCase());
-  //
-  //   const hexMatch = hexRe.exec(contentHash);
-  //   if (hexMatch && hexMatch?.groups) {
-  //     const { hexString } = hexMatch.groups;
-  //     CID.decode(decoded);
-  //   } else {
-  //     CID.parse(contentHash);
-  //   }
-  // } catch (err: any) {
-  //   console.error(`Invalid multiformat content hash: ${err.message}`);
-  //   return false;
-  // }
-  // return true;
+  try {
+    const decoded = base32.decode(contentHash.toLowerCase());
+    const hex = u8aToHex(decoded).toLowerCase();
+
+    // check blake3   hash 0x1e20 -> 0x1e for (blake3)   and hash length (0x20 for 32 bytes)
+    // check sha2-256 hash 0x1220 -> 0x12 for (sha2-256) and hash length (0x20 for 32 bytes)
+    if (!(hex.startsWith('0x1e20') || hex.startsWith('0x1220'))) {
+      return false;
+    }
+  } catch (err: any) {
+    return false;
+  }
+  return true;
 }
 
 export function IsDsnpContentHash(validationOptions?: ValidationOptions) {

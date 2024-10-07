@@ -1,5 +1,5 @@
 {
-  "verbose": true,
+  "verbose": false,
   "silent": true,
   "moduleFileExtensions": ["js", "json", "ts"],
   "workerThreads": true,
@@ -28,6 +28,10 @@
     "^#graph-lib(|/.*)$": "<rootDir>/libs/graph-lib/src/$1",
     "^#types(|/.*)$": "<rootDir>/libs/types/src/$1",
     "^#config(|/.*)$": "<rootDir>/libs/config/src/$1",
-    "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
+    "^#queue(|/.*)$": "<rootDir>/libs/queue/src/$1",
+    "^#utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
+    "^#cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
+    "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1",
+    "^#storage(|/.*)$": "<rootDir>/libs/storage/src/$1"
   }
 }

@@ -3,11 +3,11 @@ This is a controller providing some endpoints useful for development and testing
 */
 
 // eslint-disable-next-line max-classes-per-file
-import { Controller, Get, Logger, NotFoundException, Param, Post } from '@nestjs/common';
+import { Controller, Get, Logger, Param, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   createBroadcast,
   createProfile,
@@ -23,9 +23,8 @@ import {
   TombstoneAnnouncement,
 } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateDsnpHash } from '#content-publishing-lib/utils/ipfs';
-import { IpfsService } from '#content-publishing-lib/utils/ipfs.client';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
+import { calculateDsnpMultiHash } from '#utils/common/common.utils';
 
 @Controller('dev')
 @ApiTags('dev')
@@ -42,7 +41,6 @@ export class DevelopmentControllerV1 {
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) updateQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) profileQueue: Queue,
     @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) tombstoneQueue: Queue,
-    private ipfsService: IpfsService,
   ) {
     this.logger = new Logger(this.constructor.name);
     this.queueMapper = new Map([
@@ -62,20 +60,6 @@ export class DevelopmentControllerV1 {
     const job = await this.requestQueue.getJob(jobId);
     this.logger.log(job);
     return job;
-  }
-
-  @Get('/asset/:assetId')
-  @ApiOperation({ summary: 'Get an Asset given an assetId', description: 'ONLY enabled when ENVIRONMENT="dev".' })
-  @ApiResponse({
-    status: '2XX',
-    content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
-  })
-  // eslint-disable-next-line consistent-return
-  async getAsset(@Param('assetId') assetId: string) {
-    if (await this.ipfsService.isPinned(assetId)) {
-      return this.ipfsService.getPinned(assetId, false);
-    }
-    throw new NotFoundException(`${assetId} does not exist`);
   }
 
   @Post('/dummy/announcement/:queueType/:count')
@@ -133,7 +117,7 @@ export class DevelopmentControllerV1 {
           throw new Error('Announcement type not supported');
       }
       // eslint-disable-next-line no-await-in-loop
-      const jobId = await calculateDsnpHash(Buffer.from(JSON.stringify(data)));
+      const jobId = await calculateDsnpMultiHash(Buffer.from(JSON.stringify(data)));
       const queue = this.queueMapper.get(queueType);
       if (queue) {
         promises.push(

@@ -5,14 +5,14 @@
 import { IsEnum, IsNotEmpty, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
-import { DSNP_EMOJI_REGEX } from './validation.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { DSNP_EMOJI_REGEX } from './validation';
 import { IsDsnpContentURI } from '#utils/decorators/is-dsnp-content-uri.decorator';
 import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow
-export enum ModifiableAnnouncementTypeDto {
+export enum ModifiableAnnouncementType {
   BROADCAST = 'broadcast',
   REPLY = 'reply',
 }
@@ -25,11 +25,10 @@ export class BroadcastDto {
 }
 
 export class ReplyDto {
-  @ApiProperty({
-    description: 'Target DSNP Content URI',
-    type: String,
-    example: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
-  })
+  /**
+   * Target DSNP Content URI
+   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   */
   @IsDsnpContentURI()
   inReplyTo: string;
 
@@ -40,41 +39,41 @@ export class ReplyDto {
 }
 
 export class TombstoneDto {
-  @ApiProperty({
-    description: 'Target DSNP Content Hash',
-    type: String,
-    example: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
-  })
+  /**
+   * Target DSNP Content Hash
+   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   */
   @IsDsnpContentHash()
   @IsNotEmpty()
   targetContentHash: string;
 
+  @IsEnum(ModifiableAnnouncementType)
   @ApiProperty({
     description: 'Target announcement type',
-    type: String,
     example: 'broadcast',
+    enum: ModifiableAnnouncementType,
+    enumName: 'ModifiableAnnouncementType',
   })
-  @IsEnum(ModifiableAnnouncementTypeDto)
-  targetAnnouncementType: ModifiableAnnouncementTypeDto;
+  targetAnnouncementType: ModifiableAnnouncementType;
 }
 
 export class UpdateDto {
-  @ApiProperty({
-    description: 'Target DSNP Content Hash',
-    type: String,
-    example: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
-  })
+  /**
+   * Target DSNP Content Hash
+   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   */
   @IsDsnpContentHash()
   @IsNotEmpty()
   targetContentHash: string;
 
+  @IsEnum(ModifiableAnnouncementType)
   @ApiProperty({
     description: 'Target announcement type',
-    type: String,
     example: 'broadcast',
+    enum: ModifiableAnnouncementType,
+    enumName: 'ModifiableAnnouncementType',
   })
-  @IsEnum(ModifiableAnnouncementTypeDto)
-  targetAnnouncementType: ModifiableAnnouncementTypeDto;
+  targetAnnouncementType: ModifiableAnnouncementType;
 
   @IsNotEmpty()
   @ValidateNested()
@@ -83,29 +82,26 @@ export class UpdateDto {
 }
 
 export class ReactionDto {
-  @ApiProperty({
-    description: 'the encoded reaction emoji',
-    type: String,
-    example: '😀',
-  })
+  /**
+   * the encoded reaction emoji
+   * @example '😀'
+   */
   @MinLength(1)
   @IsString()
   @Matches(DSNP_EMOJI_REGEX)
   emoji: string;
 
-  @ApiProperty({
-    description: 'Indicates whether the emoji should be applied and if so, at what strength',
-    type: 'number',
-    example: '1',
-  })
+  /**
+   * Indicates whether the emoji should be applied and if so, at what strength
+   * @example 1
+   */
   @IsIntValue({ minValue: 0, maxValue: 255 })
   apply: number;
 
-  @ApiProperty({
-    description: 'Target DSNP Content URI',
-    type: String,
-    example: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
-  })
+  /**
+   * Target DSNP Content URI
+   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   */
   @IsDsnpContentURI()
   inReplyTo: string;
 }

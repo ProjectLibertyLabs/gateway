@@ -12,7 +12,6 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@dsnp/frequency-schemas": "^1.2.0",
     "@frequency-chain/api-augment": "~1.13.1",
     "@polkadot/api": "^13.2.1",
     "@polkadot/keyring": "^13.1.1",

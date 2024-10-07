@@ -14,7 +14,7 @@
   "dependencies": {
     "@frequency-chain/api-augment": "~1.13.2",
     "@polkadot/api": "^13.2.1",
-    "@polkadot/keyring": "^13.2.1",
+    "@polkadot/keyring": "^13.1.1",
     "@polkadot/types": "^13.2.1",
     "@polkadot/util": "^13.1.1",
     "@polkadot/util-crypto": "^13.1.1",

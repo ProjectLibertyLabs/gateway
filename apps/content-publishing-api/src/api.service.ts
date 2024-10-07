@@ -18,11 +18,12 @@ import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/conten
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateIpfsCID } from '#utils/common/common.utils';
 import {
-  getAssetMetadataKey,
-  getAssetDataKey,
+  ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
-} from '#content-publishing-lib/utils/redis';
+} from '#types/constants/redis-keys.constants';
 import { AnnouncementTypeName } from '#types/enums';
+import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
+import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 
 @Injectable()
 export class ApiService {

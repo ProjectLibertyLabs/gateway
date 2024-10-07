@@ -3,8 +3,11 @@ import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/comm
 import Redis from 'ioredis';
 import fs from 'fs';
 import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
-import { RedisUtils } from '#account-lib/utils/redis';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import { NonceConstants } from '#types/constants';
+import NUMBER_OF_NONCE_KEYS_TO_CHECK = NonceConstants.NUMBER_OF_NONCE_KEYS_TO_CHECK;
+import getNonceKey = NonceConstants.getNonceKey;
+import NONCE_KEY_EXPIRE_SECONDS = NonceConstants.NONCE_KEY_EXPIRE_SECONDS;
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -21,7 +24,7 @@ export class NonceService implements OnApplicationBootstrap {
   ) {
     this.logger = new Logger(NonceService.name);
     redis.defineCommand('incrementNonce', {
-      numberOfKeys: RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK,
+      numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,
       lua: fs.readFileSync('lua/incrementNonce.lua', 'utf8'),
     });
   }
@@ -36,10 +39,10 @@ export class NonceService implements OnApplicationBootstrap {
     const nonce = await this.blockchainService.getNonce(this.accountId);
     const keys = this.getNextPossibleKeys(nonce);
     // @ts-ignore
-    const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, RedisUtils.NONCE_KEY_EXPIRE_SECONDS);
+    const nextNonceIndex = await this.redis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
-      this.logger.warn(`nextNonce was full even with ${RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
-      return Number(nonce) + RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK;
+      this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
+      return Number(nonce) + NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);
@@ -49,9 +52,9 @@ export class NonceService implements OnApplicationBootstrap {
   // eslint-disable-next-line class-methods-use-this
   getNextPossibleKeys(currentNonce: number): string[] {
     const keys: string[] = [];
-    for (let i = 0; i < RedisUtils.NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
+    for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
       const key = currentNonce + i;
-      keys.push(RedisUtils.getNonceKey(`${key}`));
+      keys.push(getNonceKey(`${key}`));
     }
     return keys;
   }

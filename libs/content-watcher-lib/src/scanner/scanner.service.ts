@@ -10,9 +10,13 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
+import {
+  EVENTS_TO_WATCH_KEY,
+  LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY,
+  REGISTERED_WEBHOOK_KEY,
+  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+} from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
-import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
@@ -163,6 +167,6 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   }
 
   private async setLastSeenBlockNumber(b: number): Promise<void> {
-    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b);
+    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b);
   }
 }

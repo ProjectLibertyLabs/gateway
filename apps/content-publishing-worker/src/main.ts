@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
-import { KeepAliveStrategy } from '#content-publishing-lib/utils/keepalive-strategy';
+import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line

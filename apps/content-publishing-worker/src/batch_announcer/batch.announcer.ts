@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
-import { ParquetWriter } from '@dsnp/parquetjs';
-import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
+import { ParquetWriter, ParquetSchema } from '@dsnp/parquetjs';
+import { fromDSNPSchema } from '@dsnp/schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
@@ -43,10 +43,14 @@ export class BatchAnnouncer {
       throw new Error(`Unable to parse schema for schemaId ${schemaId}`);
     }
 
-    const [parquetSchema, writerOptions] = fromFrequencySchema(schema);
+    const [parquetSchema, writerOptions] = fromDSNPSchema(schema);
     const publishStream = new PassThrough();
     const parquetBufferAwait = this.bufferPublishStream(publishStream);
-    const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
+    const writer = await ParquetWriter.openStream(
+      new ParquetSchema(parquetSchema),
+      publishStream as any,
+      writerOptions,
+    );
     // eslint-disable-next-line no-restricted-syntax
     for await (const announcement of announcements) {
       await writer.appendRow(announcement);

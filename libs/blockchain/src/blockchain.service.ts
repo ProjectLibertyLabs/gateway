@@ -13,6 +13,7 @@ import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './bl
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
+import { NonceConstants } from '#types/constants';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -33,23 +34,7 @@ export interface ICapacityInfo {
   currentEpoch: number;
 }
 
-/**
- * To be able to provide mostly unique nonces to submit transactions on chain we would need to check a number of
- * temporarily locked keys on redis side and get the first available one. This number defines the number of keys
- * we should look into before giving up
- */
-const NUMBER_OF_NONCE_KEYS_TO_CHECK = 50;
-
-/**
- * Nonce keys have to get expired shortly so that if any of nonce numbers get skipped we would still have a way to
- * submit them after expiration
- */
-const NONCE_KEY_EXPIRE_SECONDS = 2;
-const CHAIN_NONCE_KEY = 'chain:nonce';
-
-function getNonceKey(suffix: string) {
-  return `${CHAIN_NONCE_KEY}:${suffix}`;
-}
+const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
 function getNextPossibleNonceKeys(currentNonce: number): string[] {
   const keys: string[] = [];
@@ -90,18 +75,11 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     return (await this.baseIsReadyPromise) && (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
-  // private nonceRedis: Redis;
-
   constructor(
     @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
-    // NOTE: This is a little bit hokey, but we're unable to use the @InjectRedis(namespace)
-    //       decorator here, due to strange behavior with NestJS Dynamic Modules. This worked
-    //       fine when BlockchainModule was a static module.
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private readonly nonceRedis: Redis,
-    // redisManager: RedisManager,
   ) {
     super(config);
-    // this.nonceRedis = redisManager.getClient(NONCE_SERVICE_REDIS_NAMESPACE);
     if (!this.nonceRedis) throw new Error('Unable to get NonceRedis');
     this.nonceRedis.defineCommand('incrementNonce', {
       numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,

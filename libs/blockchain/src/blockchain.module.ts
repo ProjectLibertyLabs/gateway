@@ -35,16 +35,4 @@ export class BlockchainModule {
       exports: BlockchainModule.services,
     };
   }
-
-  // static forFeature(): DynamicModule {
-  //   // if (!BlockchainModule.isConfigured) {
-  //   //   throw new Error('Must call forRootAsync() before forFeature()');
-  //   // }
-
-  //   return {
-  //     module: BlockchainModule,
-  //     providers: BlockchainModule.services,
-  //     exports: BlockchainModule.services,
-  //   };
-  // }
 }

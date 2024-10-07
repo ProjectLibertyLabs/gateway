@@ -14,7 +14,7 @@ import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blo
 import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
-import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 
 @Module({
   imports: [

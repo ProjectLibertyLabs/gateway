@@ -12,8 +12,9 @@ import { HexString } from '@polkadot/util/types';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { NONCE_SERVICE_REDIS_NAMESPACE } from '#types/constants';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
+
+export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
 interface SIWFTxnValues {

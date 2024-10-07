@@ -6,7 +6,7 @@ import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
-import { NONCE_SERVICE_REDIS_NAMESPACE, GraphQueues as QueueConstants } from '#types/constants';
+import { GraphQueues as QueueConstants } from '#types/constants';
 import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -16,6 +16,7 @@ import queueConfig from '#queue';
 import scannerConfig from './graph_notifier/scanner.config';
 import graphCommonConfig from '#config/graph-common.config';
 import { QueueModule } from '#queue/queue.module';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 
 @Module({
   imports: [

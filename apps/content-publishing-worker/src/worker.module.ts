@@ -15,8 +15,9 @@ import queueConfig from '#queue';
 import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
-import { NONCE_SERVICE_REDIS_NAMESPACE, ContentPublishingQueues as QueueConstants } from '#types/constants';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { QueueModule } from '#queue/queue.module';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 
 @Module({
   imports: [

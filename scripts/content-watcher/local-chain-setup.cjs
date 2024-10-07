@@ -1,6 +1,5 @@
 const { options } = require('@frequency-chain/api-augment');
 const { WsProvider, ApiPromise, Keyring } = require('@polkadot/api');
-const { deploy } = require('@dsnp/frequency-schemas/cli/deploy');
 
 // Given a list of events, a section and a method,
 // returns the first event with matching section and method.
@@ -87,9 +86,6 @@ const main = async () => {
       }
     });
   });
-
-  // Deploy Schemas
-  await deploy();
 
   console.log('Setup Complete!');
 };

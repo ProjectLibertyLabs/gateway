@@ -4,9 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ApiService } from './api.service';
 import { HealthController, ScanControllerV1, SearchControllerV1, WebhookControllerV1 } from './controllers';
 import { BlockchainModule } from '#blockchain/blockchain.module';
-import { CrawlerModule } from '#content-watcher-lib/crawler/crawler.module';
-import { IPFSProcessorModule } from '#content-watcher-lib/ipfs/ipfs.processor.module';
-import { PubSubModule } from '#content-watcher-lib/pubsub/pubsub.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
@@ -18,9 +15,12 @@ import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
-import pubsubConfig from '#content-watcher-lib/pubsub/pubsub.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import pubsubConfig from '#content-watcher/pubsub/pubsub.config';
+import { PubSubModule } from '#content-watcher/pubsub/pubsub.module';
+import { CrawlerModule } from '#content-watcher/crawler/crawler.module';
+import { IPFSProcessorModule } from '#content-watcher/ipfs/ipfs.processor.module';
 
 @Module({
   imports: [

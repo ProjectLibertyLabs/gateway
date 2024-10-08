@@ -37,7 +37,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
     private readonly blockchainService: BlockchainRpcQueryService,
     @InjectRedis() private readonly cache: Redis,
-    @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private chainEventProcessor: ChainEventProcessorService,
   ) {

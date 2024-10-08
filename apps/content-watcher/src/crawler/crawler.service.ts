@@ -8,19 +8,19 @@ import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.c
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { BaseConsumer } from '#consumer';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-search-request.dto';
-import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { ChainEventProcessorService } from '#content-watcher-lib/utils/chain-event-processor.service';
 
 const CRAWLER_BLOCK_CHUNK_SIZE = 500;
 
 @Injectable()
-@Processor(QueueConstants.REQUEST_QUEUE_NAME, {
+@Processor(QueueConstants.WATCHER_REQUEST_QUEUE_NAME, {
   concurrency: 2,
 })
 export class CrawlerService extends BaseConsumer {
   constructor(
     @InjectRedis() private readonly cache: Redis,
-    @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private readonly chainEventService: ChainEventProcessorService,
     private readonly blockchainService: BlockchainRpcQueryService,
   ) {

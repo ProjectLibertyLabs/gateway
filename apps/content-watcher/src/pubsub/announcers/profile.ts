@@ -7,7 +7,7 @@ import { PubSubService } from '../pubsub.service';
 import { AnnouncementResponse } from '#types/content-announcement';
 
 @Injectable()
-@Processor(QueueConstants.PROFILE_QUEUE_NAME, { concurrency: 2 })
+@Processor(QueueConstants.WATCHER_PROFILE_QUEUE_NAME, { concurrency: 2 })
 export class ProfileSubscriber extends BaseConsumer {
   constructor(private readonly pubsubService: PubSubService) {
     super();

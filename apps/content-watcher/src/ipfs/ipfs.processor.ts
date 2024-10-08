@@ -8,24 +8,31 @@ import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.c
 import { IIPFSJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { BaseConsumer } from '#consumer';
 import { AnnouncementResponse } from '#types/content-announcement';
-import { isBroadcast, isProfile, isReaction, isReply, isTombstone, isUpdate } from '../utils/type-guards';
+import {
+  isBroadcast,
+  isProfile,
+  isReaction,
+  isReply,
+  isTombstone,
+  isUpdate,
+} from '#content-watcher-lib/utils/type-guards';
 import scannerConfig, { IScannerConfig } from '#content-watcher-lib/scanner/scanner.config';
 import { IpfsService } from '#storage/ipfs/ipfs.service';
 
 @Injectable()
-@Processor(QueueConstants.IPFS_QUEUE, {
+@Processor(QueueConstants.WATCHER_IPFS_QUEUE, {
   concurrency: 2,
 })
 export class IPFSContentProcessor extends BaseConsumer {
   public logger: Logger;
 
   constructor(
-    @InjectQueue(QueueConstants.BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
-    @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
-    @InjectQueue(QueueConstants.REACTION_QUEUE_NAME) private reactionQueue: Queue,
-    @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
-    @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
-    @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_REACTION_QUEUE_NAME) private reactionQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_REPLY_QUEUE_NAME) private replyQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_PROFILE_QUEUE_NAME) private profileQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_UPDATE_QUEUE_NAME) private updateQueue: Queue,
     @Inject(scannerConfig.KEY) private config: IScannerConfig,
     private ipfsService: IpfsService,
   ) {

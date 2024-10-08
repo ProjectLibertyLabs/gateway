@@ -53,6 +53,13 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
+# Support vault integration
+vault:
+  enabled: false  # Set to true to enable Vault integration
+  address: "http://vault.default.svc.cluster.local:8200"
+  role: "frequency-gateway-role"
+  secretsPath: "secret/data/frequency-gateway"
+
 # Service configuration
 service:
   type: NodePort

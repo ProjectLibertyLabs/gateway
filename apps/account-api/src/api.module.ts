@@ -2,7 +2,7 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
@@ -17,17 +17,18 @@ import {
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
-import { allowReadOnly } from '#account-lib/blockchain/blockchain.config';
+import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
 import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
-    BlockchainModule,
+    BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

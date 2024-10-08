@@ -3,11 +3,13 @@
 import { describe, it, jest, expect } from '@jest/globals';
 import { ApiPromise } from '@polkadot/api';
 import { Test } from '@nestjs/testing';
-import { BlockchainService } from './blockchain.service';
+import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from './blockchain.service';
 import { IBlockchainConfig } from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CommonPrimitivesMsaProviderRegistryEntry } from '@polkadot/types/lookup';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
+import { getRedisToken } from '@songkeys/nestjs-redis';
+import { Provider } from '@nestjs/common';
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
@@ -16,6 +18,13 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   frequencyUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
+
+const mockNonceRedisProvider: Provider = {
+  provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
+  useValue: {
+    defineCommand: jest.fn(),
+  },
+};
 
 describe('BlockchainService', () => {
   let mockApi: any;
@@ -39,7 +48,7 @@ describe('BlockchainService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [],
       controllers: [],
-      providers: [BlockchainService, mockBlockchainConfigProvider],
+      providers: [BlockchainService, mockBlockchainConfigProvider, mockNonceRedisProvider],
     }).compile();
 
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);

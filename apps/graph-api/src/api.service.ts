@@ -20,7 +20,7 @@ import {
   REDIS_WEBHOOK_ALL,
   REDIS_WEBHOOK_PREFIX,
 } from '#types/constants';
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BlockchainService } from './blockchain.service';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { ApiDecoration } from '@polkadot/api/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
@@ -8,11 +7,12 @@ import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chai
 import { MessageResponseWithSchemaId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
 import { createIPFSQueueJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { Queue } from 'bullmq';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Injectable()
 export class ChainEventProcessorService {
   // eslint-disable-next-line no-empty-function
-  constructor(private readonly blockchainService: BlockchainService) {}
+  constructor(private readonly blockchainService: BlockchainRpcQueryService) {}
 
   public async getMessagesInBlock(
     blockNumber: number,
@@ -22,7 +22,7 @@ export class ChainEventProcessorService {
     if (blockHash.isEmpty) {
       return [];
     }
-    const apiAt = await this.blockchainService.apiPromise.at(blockHash);
+    const apiAt = await this.blockchainService.api.at(blockHash);
     const events = await apiAt.query.system.events();
     return this.getMessagesFromEvents(apiAt, blockNumber, events, filter);
   }
@@ -54,7 +54,7 @@ export class ChainEventProcessorService {
         };
 
         let messageResponse: BlockPaginationResponseMessage =
-          await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+          await this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest);
         const messages: Vec<MessageResponse> = messageResponse.content;
         while (messageResponse.has_next.toHuman()) {
           paginationRequest = {
@@ -64,10 +64,7 @@ export class ChainEventProcessorService {
             to_block: blockNumber + 1,
           };
           // eslint-disable-next-line no-await-in-loop
-          messageResponse = await this.blockchainService.apiPromise.rpc.messages.getBySchemaId(
-            schemaId,
-            paginationRequest,
-          );
+          messageResponse = await this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest);
           if (messageResponse.content.length > 0) {
             messages.push(...messageResponse.content);
           }

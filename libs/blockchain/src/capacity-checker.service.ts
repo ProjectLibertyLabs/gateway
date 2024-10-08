@@ -1,10 +1,12 @@
-import { ICapacityLimit } from '#types/interfaces/graph';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ICapacityLimit } from '#types/interfaces/capacity-limit.interface';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BlockchainService, ICapacityInfo } from './blockchain.service';
-import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
+import { ICapacityInfo } from './blockchain.service';
+import { ConfigService } from '@nestjs/config';
+import { IBlockchainConfig } from './blockchain.config';
+import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -21,8 +23,8 @@ export class CapacityCheckerService {
 
   // eslint-disable-next-line no-useless-constructor
   constructor(
-    private readonly blockchainService: BlockchainService,
-    @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
+    private readonly blockchainService: BlockchainRpcQueryService,
+    private readonly configService: ConfigService,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
     // eslint-disable-next-line no-empty-function
@@ -87,8 +89,8 @@ export class CapacityCheckerService {
     let outOfCapacity = false;
 
     try {
-      const { capacityLimit } = this.config;
-      const capacityInfo = await this.blockchainService.capacityInfo(this.config.providerId.toString());
+      const { capacityLimit, providerId }: IBlockchainConfig = this.configService.get('blockchain');
+      const capacityInfo = await this.blockchainService.capacityInfo(providerId);
 
       // This doesn't really pick up on capacity exhaustion, as usage is unlikely to bring capacity to zero
       // (there will always be some dust). But it will warn in the case where a provider has been completely un-staked
@@ -109,7 +111,6 @@ export class CapacityCheckerService {
       } else {
         await this.eventEmitter.emitAsync(CAPACITY_AVAILABLE_EVENT);
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       this.logger.error('Caught error in checkCapacity', err?.stack);
     }

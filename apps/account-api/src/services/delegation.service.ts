@@ -1,4 +1,4 @@
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {
@@ -9,7 +9,7 @@ import {
 } from '#types/dtos/account';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 export class DelegationService {
@@ -17,7 +17,7 @@ export class DelegationService {
 
   constructor(
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);

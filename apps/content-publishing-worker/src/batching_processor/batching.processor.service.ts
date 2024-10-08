@@ -11,7 +11,7 @@ import { ContentPublisherRedisConstants } from '#types/constants/redis-keys.cons
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { Announcement, IBatchMetadata } from '#types/interfaces/content-publishing';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import BATCH_LOCK_EXPIRE_SECONDS = ContentPublisherRedisConstants.BATCH_LOCK_EXPIRE_SECONDS;
 import getBatchMetadataKey = ContentPublisherRedisConstants.getBatchMetadataKey;

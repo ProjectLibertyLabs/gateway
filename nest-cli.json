@@ -180,6 +180,15 @@
         "tsConfigPath": "libs/cache/tsconfig.lib.json"
       }
     },
+    "blockchain": {
+      "type": "library",
+      "root": "libs/blockchain",
+      "entryFile": "index",
+      "sourceRoot": "libs/blockchain/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/blockchain/tsconfig.lib.json"
+      }
+    },
     "openapi": {
       "type": "library",
       "root": "libs/openapi",

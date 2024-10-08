@@ -1,5 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext, Inject } from '@nestjs/common';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 export class ReadOnlyGuard implements CanActivate {

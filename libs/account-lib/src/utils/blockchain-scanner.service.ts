@@ -3,7 +3,7 @@
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 

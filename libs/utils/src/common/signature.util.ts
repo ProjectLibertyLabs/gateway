@@ -45,3 +45,61 @@ export function verifySignature(
     };
   }
 }
+
+// Take a SIWF signature and convert it to one for Polkadotjs API
+export const chainSignature = (signature: {
+  encodedValue: string;
+  algo: string;
+}):
+  | {
+      Ed25519: any;
+    }
+  | {
+      Sr25519: any;
+    }
+  | {
+      Ecdsa: any;
+    } => {
+  switch (signature.algo.toLowerCase()) {
+    case 'sr25519':
+      return { Sr25519: signature.encodedValue };
+    case 'ed25519':
+      return { Ed25519: signature.encodedValue };
+    case 'ecdsa':
+      return { Ecdsa: signature.encodedValue };
+    default:
+      throw new Error(`Unknown signature algorithm: ${signature.algo}`);
+  }
+};
+
+interface StatefulStoragePayloadCommon {
+  schemaId: number;
+  targetHash: number;
+  expiration: number;
+}
+
+interface StatefulStoragePayloadIn extends StatefulStoragePayloadCommon {
+  actions: { type: 'addItem' | 'updateItem'; payloadHex: string }[];
+}
+
+interface StatefulStoragePayloadOut extends StatefulStoragePayloadCommon {
+  actions: ({ Update: string } | { Add: string })[];
+}
+
+export const statefulStoragePayload = (payload: StatefulStoragePayloadIn): StatefulStoragePayloadOut => {
+  const actions = payload.actions.map((act) => {
+    switch (act.type) {
+      case 'addItem':
+        return { Add: act.payloadHex };
+      case 'updateItem':
+        return { Update: act.payloadHex };
+      default:
+        throw new Error(`Unknown statefulStorage action: ${act.type}`);
+    }
+  });
+
+  return {
+    ...payload,
+    actions,
+  };
+};

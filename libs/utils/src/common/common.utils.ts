@@ -19,3 +19,7 @@ export const calculateDsnpMultiHash = async (fileBuffer: Buffer): Promise<string
   // Encode with base32
   return base32.encode(hashed.bytes);
 };
+
+export function isNotNull<T>(x: T | null): x is T {
+  return x !== null;
+}

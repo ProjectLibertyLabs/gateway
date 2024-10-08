@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { BlockchainModule } from '#graph-lib/blockchain';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
-import { NONCE_SERVICE_REDIS_NAMESPACE } from '#graph-lib/services/nonce.service';
 import { GraphNotifierModule } from './graph_notifier/graph.monitor.processor.module';
 import { GraphUpdatePublisherModule } from './graph_publisher/graph.publisher.processor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { GraphQueues as QueueConstants } from '#types/constants';
 import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ConfigModule } from '@nestjs/config';
 import workerConfig from './worker.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
 import scannerConfig from './graph_notifier/scanner.config';
 import graphCommonConfig from '#config/graph-common.config';
+import { QueueModule } from '#queue/queue.module';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 
 @Module({
   imports: [
@@ -57,7 +58,7 @@ import graphCommonConfig from '#config/graph-common.config';
       inject: [cacheConfig.KEY, blockchainConfig.KEY],
     }),
     ScheduleModule.forRoot(),
-    BlockchainModule,
+    BlockchainModule.forRootAsync(),
     RequestProcessorModule,
     GraphUpdatePublisherModule,
     GraphNotifierModule,

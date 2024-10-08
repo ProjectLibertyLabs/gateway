@@ -19,7 +19,7 @@ import {
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Controller('v1/accounts')
 @ApiTags('v1/accounts')

@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { PublishSIWFSignupRequestDto, WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
 import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
@@ -13,7 +13,7 @@ import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.c
 import { PublishRetireMsaRequestDto, RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 export class AccountsService {
@@ -22,7 +22,7 @@ export class AccountsService {
   constructor(
     @Inject(apiConfig.KEY) private readonly apiCOnf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
     this.logger = new Logger(this.constructor.name);

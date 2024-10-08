@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import {
   ContentPublishingQueues as QueueConstants,
   CAPACITY_EPOCH_TIMEOUT_NAME,
@@ -17,8 +17,8 @@ import { BaseConsumer } from '#consumer';
 import { IPublisherJob } from '../interfaces';
 import { IPFSPublisher } from './ipfs.publisher';
 import { IContentTxStatus } from '#types/interfaces';
-import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
-import blockchainConfig, { IBlockchainConfig } from '#content-publishing-lib/blockchain/blockchain.config';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
@@ -61,10 +61,10 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
       const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const [txHash, tx] = await this.ipfsPublisher.publish(job.data);
+      const [tx, txHash] = await this.ipfsPublisher.publish(job.data);
 
       const status: IContentTxStatus = {
-        txHash: txHash.toHex(),
+        txHash,
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),
         death: tx.era.asMortalEra.death(currentBlockNumber),

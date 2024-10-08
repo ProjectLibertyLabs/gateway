@@ -1,21 +1,23 @@
+/* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { options } from '@frequency-chain/api-augment';
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api';
-import { KeyringPair } from '@polkadot/keyring/types';
-import { BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { Bytes, Option, u32 } from '@polkadot/types';
+import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
+import { Bytes, Option, u128, u16, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
-  FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
-  PalletCapacityEpochInfo,
   PalletSchemasSchemaInfo,
 } from '@polkadot/types/lookup';
-import { HandleResponse, ItemizedStoragePageResponse, KeyInfoResponse } from '@frequency-chain/api-augment/interfaces';
+import {
+  ItemizedStoragePageResponse,
+  KeyInfoResponse,
+  PaginatedStorageResponse,
+} from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
 import {
   Delegation,
@@ -32,20 +34,12 @@ import {
 } from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
-import { Extrinsic } from './extrinsic';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 import { TransactionType } from '#types/account-webhook';
-import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
+import blockchainConfig, { IBlockchainNonProviderConfig } from './blockchain.config';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
-interface SIWFTxnValues {
-  msaId: string;
-  address: string;
-  handle: string;
-  newProvider: string;
-}
-
 interface HandleTxnValues {
   msaId: string;
   handle: string;
@@ -76,22 +70,22 @@ export interface ICapacityInfo {
 }
 
 @Injectable()
-export class BlockchainService implements OnApplicationBootstrap, OnApplicationShutdown {
+export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnApplicationShutdown {
   public api: ApiPromise;
 
-  private logger: Logger;
+  protected readonly logger: Logger;
 
-  private readyResolve: (boolean) => void;
+  private baseReadyResolve: (arg: boolean) => void;
 
-  private readyReject: (reason: any) => void;
+  private baseReadyReject: (reason: any) => void;
 
-  private isReadyPromise = new Promise<boolean>((resolve, reject) => {
-    this.readyResolve = resolve;
-    this.readyReject = reject;
+  protected readonly baseIsReadyPromise = new Promise<boolean>((resolve, reject) => {
+    this.baseReadyResolve = resolve;
+    this.baseReadyReject = reject;
   });
 
   public async onApplicationBootstrap() {
-    const providerUrl = this.config.frequencyUrl.toString();
+    const providerUrl = this.baseConfig.frequencyUrl.toString();
     let provider: WsProvider | HttpProvider;
     try {
       if (/^ws/.test(providerUrl)) {
@@ -103,17 +97,16 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
         throw new Error('Unrecognized chain URL type');
       }
       this.api = await ApiPromise.create({ provider, ...options }).then((api) => api.isReady);
-      this.readyResolve(await this.api.isReady);
-      await this.validateProviderSeedPhrase();
+      this.baseReadyResolve(!!(await this.api.isReady));
       this.logger.log('Blockchain API ready.');
     } catch (err) {
-      this.readyReject(err);
+      this.baseReadyReject(err);
       throw err;
     }
   }
 
   public async isReady(): Promise<boolean> {
-    return (await this.isReadyPromise) && !!(await this.api.isReady);
+    return (await this.baseIsReadyPromise) && !!(await this.api.isReady);
   }
 
   public async getApi(): Promise<ApiPromise> {
@@ -129,7 +122,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     await Promise.all(promises);
   }
 
-  constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {
+  constructor(@Inject(blockchainConfig.KEY) private readonly baseConfig: IBlockchainNonProviderConfig) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -141,14 +134,22 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.rpc.chain.getBlock(block);
   }
 
-  public async getBlockByNumber(blockNumber: number): Promise<SignedBlock> {
+  public async getBlockByNumber(blockNumber: AnyNumber | BlockNumber): Promise<SignedBlock> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
     return this.api.rpc.chain.getBlock(blockHash);
   }
 
-  public async getItemizedStorage(msaId: string, schemaId: number): Promise<ItemizedStoragePageResponse> {
-    const msa = BigInt(msaId);
-    return this.api.rpc.statefulStorage.getItemizedStorage(msa, schemaId);
+  public async getItemizedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<ItemizedStoragePageResponse> {
+    return this.api.rpc.statefulStorage.getItemizedStorage(msaId, schemaId);
+  }
+
+  public async getPaginatedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<PaginatedStorageResponse[]> {
+    const response: Vec<PaginatedStorageResponse> = await this.api.rpc.statefulStorage.getPaginatedStorage(
+      msaId,
+      schemaId,
+    );
+
+    return response.toArray();
   }
 
   public getLatestFinalizedBlockHash(): Promise<BlockHash> {
@@ -157,63 +158,46 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
 
   public async getLatestFinalizedBlockNumber(): Promise<number> {
     const blockHash = await this.getLatestFinalizedBlockHash();
-    return (await this.api.rpc.chain.getBlock(blockHash)).block.header.number.toNumber();
+    return (await this.api.rpc.chain.getHeader(blockHash)).number.toNumber();
   }
 
-  public async getBlockNumberForHash(hash: string): Promise<number | undefined> {
-    const block = await this.api.rpc.chain.getBlock(hash);
-    if (block) {
-      return block.block.header.number.toNumber();
+  public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {
+    const header = await this.api.rpc.chain.getHeader(hash);
+    if (header) {
+      return header.number.toNumber();
     }
 
     this.logger.error(`No block found corresponding to hash ${hash}`);
     return undefined;
   }
 
-  public createType(type: string, ...args: (any | undefined)[]) {
-    return this.api.registry.createType(type, ...args);
+  public createType<T extends Codec = Codec, K extends string = string>(
+    type: K,
+    ...params: unknown[]
+  ): DetectCodec<T, K> {
+    return this.api.createType<T, K>(type, ...params);
   }
 
-  public createExtrinsicCall(
-    { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    ...args: (any | undefined)[]
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    return this.api.tx[pallet][extrinsic](...args);
-  }
-
-  public createExtrinsic(
-    { pallet, extrinsic }: { pallet: string; extrinsic: string },
-    keys: KeyringPair,
-    ...args: (any | undefined)[]
-  ): Extrinsic {
-    return new Extrinsic(this.api, this.api.tx[pallet][extrinsic](...args), keys);
-  }
-
-  public rpc(pallet: string, rpc: string, ...args: (any | undefined)[]): Promise<any> {
-    return this.api.rpc[pallet][rpc](...args);
-  }
-
-  public query(pallet: string, extrinsic: string, ...args: (any | undefined)[]): Promise<any> {
-    return args ? this.api.query[pallet][extrinsic](...args) : this.api.query[pallet][extrinsic]();
-  }
-
-  public async queryAt(
-    blockHash: BlockHash,
-    pallet: string,
-    extrinsic: string,
-    ...args: (any | undefined)[]
-  ): Promise<any> {
-    const newApi = await this.api.at(blockHash);
-    return newApi.query[pallet][extrinsic](...args);
-  }
-
-  public async getNonce(account: string | Uint8Array): Promise<number> {
+  public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {
     return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
 
-  public async getSchema(schemaId: number): Promise<PalletSchemasSchemaInfo> {
-    const schema: PalletSchemasSchemaInfo = await this.query('schemas', 'schemas', schemaId);
-    return schema;
+  public async getSchema(schemaId: AnyNumber): Promise<PalletSchemasSchemaInfo | null> {
+    return this.handleOptionResult(this.api.query.schemas.schemaInfos(schemaId));
+  }
+
+  public async getSchemaIdByName(schemaNamespace: string, schemaDescriptor: string): Promise<number> {
+    const { ids }: { ids: Vec<u16> } = await this.api.query.schemas.schemaNameToIds(schemaNamespace, schemaDescriptor);
+    const schemaId = ids.toArray().pop()?.toNumber();
+    if (!schemaId) {
+      throw new Error(`Unable to determine schema ID for "${schemaNamespace}.${schemaDescriptor}"`);
+    }
+
+    return schemaId;
+  }
+
+  public async getSchemaPayload(schemaId: AnyNumber): Promise<Bytes | null> {
+    return this.handleOptionResult(this.api.query.schemas.schemaPayloads(schemaId));
   }
 
   /**
@@ -227,9 +211,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {bigint} The current maximum MSA Id from the chain
    */
   public async getMsaIdMax(): Promise<bigint> {
-    const count = await this.query('msa', 'currentMsaIdentifierMaximum');
-    // eslint-disable-next-line radix
-    return BigInt(count);
+    return (await this.api.query.msa.currentMsaIdentifierMaximum()).toBigInt();
   }
 
   public async isValidMsaId(msaId: string): Promise<boolean> {
@@ -238,12 +220,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse | null> {
-    const keyInfoResponse = await this.api.rpc.msa.getKeysByMsaId(msaId);
-    if (keyInfoResponse.isSome) {
-      return keyInfoResponse.unwrap();
-    }
-    this.logger.error(`No keys found for msaId: ${msaId}`);
-    return null;
+    return this.handleOptionResult(this.api.rpc.msa.getKeysByMsaId(msaId), `No keys found for msaId: ${msaId}`);
   }
 
   public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
@@ -340,7 +317,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       msaId: msaIdU64,
     };
 
-    return this.api.registry.createType('PalletMsaAddKeyData', txPayload);
+    return this.api.createType('PalletMsaAddKeyData', txPayload);
   }
 
   public createItemizedSignaturePayloadV2Type(payload: ItemizedSignaturePayloadDto): any {
@@ -363,7 +340,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
       }
     });
 
-    return this.api.registry.createType('PalletStatefulStorageItemizedSignaturePayloadV2', {
+    return this.api.createType('PalletStatefulStorageItemizedSignaturePayloadV2', {
       schemaId: payload.schemaId,
       targetHash: payload.targetHash,
       expiration: payload.expiration,
@@ -389,31 +366,32 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
   }
 
   public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDto | null> {
-    const handleResponse: Option<HandleResponse> = await this.rpc('handles', 'getHandleForMsa', msaId.toString());
-    if (handleResponse.isSome) {
-      const handle = handleResponse.unwrap();
-      return {
-        base_handle: handle.base_handle.toString(),
-        canonical_base: handle.canonical_base.toString(),
-        suffix: handle.suffix.toNumber(),
-      };
-    }
+    const handleResponse = await this.handleOptionResult(
+      this.api.rpc.handles.getHandleForMsa(msaId),
+      `getHandleForMsa: No handle found for msaId: ${msaId}`,
+    );
 
-    this.logger.error(`getHandleForMsa: No handle found for msaId: ${msaId}`);
-    return null;
+    return handleResponse
+      ? {
+          base_handle: handleResponse.base_handle.toString(),
+          canonical_base: handleResponse.canonical_base.toString(),
+          suffix: handleResponse.suffix.toNumber(),
+        }
+      : null;
   }
 
   public async getCommonPrimitivesMsaDelegation(
     msaId: AnyNumber,
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaDelegation | null> {
-    const delegationResponse = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    return delegationResponse.unwrapOr(null);
+    return this.handleOptionResult(this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId));
   }
 
   public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
-    const response = await this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId);
-    return response.isEmpty ? null : chainDelegationToNative(providerId, response.unwrap());
+    const response = await this.handleOptionResult(
+      this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId),
+    );
+    return response ? chainDelegationToNative(providerId, response) : null;
   }
 
   public async getDelegationsForMsa(msaId: AnyNumber): Promise<Delegation[]> {
@@ -432,96 +410,43 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return null;
   }
 
-  public async publicKeyToMsaId(publicKey: string): Promise<string | null> {
-    const handleResponse = await this.query('msa', 'publicKeyToMsaId', publicKey);
-    if (handleResponse.isSome) return handleResponse.unwrap().toString();
-    return null;
+  public async publicKeyToMsaId(publicKey: string | Uint8Array | AccountId32): Promise<string | null> {
+    const response = await this.handleOptionResult(this.api.query.msa.publicKeyToMsaId(publicKey));
+    return response ? response.toString() : null;
   }
 
   public async capacityInfo(providerId: AnyNumber): Promise<ICapacityInfo> {
     await this.isReady();
-    const { epochStart }: PalletCapacityEpochInfo = await this.query('capacity', 'currentEpochInfo');
-    const epochBlockLength: u32 = await this.query('capacity', 'epochLength');
-    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> = await this.query(
-      'capacity',
-      'capacityLedger',
-      providerId,
-    );
+    const epochStart = await this.getCurrentCapacityEpochStart();
+    const epochBlockLength = await this.getCurrentEpochLength();
+    const capacityDetailsOption: Option<PalletCapacityCapacityDetails> =
+      await this.api.query.capacity.capacityLedger(providerId);
     const { remainingCapacity, totalCapacityIssued } = capacityDetailsOption.unwrapOr({
-      remainingCapacity: 0,
-      totalCapacityIssued: 0,
+      remainingCapacity: new u128(this.api.registry, 0),
+      totalCapacityIssued: new u128(this.api.registry, 0),
     });
-    const currentBlock: u32 = await this.query('system', 'number');
+    const currentBlockNumber = (await this.api.query.system.number()).toNumber();
     const currentEpoch = await this.getCurrentCapacityEpoch();
     return {
       currentEpoch,
       providerId: providerId.toString(),
-      currentBlockNumber: currentBlock.toNumber(),
-      nextEpochStart: epochStart.add(epochBlockLength).toNumber(),
-      remainingCapacity:
-        typeof remainingCapacity === 'number' ? BigInt(remainingCapacity) : remainingCapacity.toBigInt(),
-      totalCapacityIssued:
-        typeof totalCapacityIssued === 'number' ? BigInt(totalCapacityIssued) : totalCapacityIssued.toBigInt(),
+      currentBlockNumber,
+      nextEpochStart: epochStart + epochBlockLength,
+      remainingCapacity: remainingCapacity.toBigInt(),
+      totalCapacityIssued: totalCapacityIssued.toBigInt(),
     };
   }
 
   public async getCurrentCapacityEpoch(): Promise<number> {
-    const currentEpoch = await this.api.query.capacity.currentEpoch();
-    return currentEpoch.toNumber();
+    return (await this.api.query.capacity.currentEpoch()).toNumber();
   }
 
   public async getCurrentCapacityEpochStart(): Promise<number> {
-    const currentEpochInfo: PalletCapacityEpochInfo = await this.api.query.capacity.currentEpochInfo();
-    return currentEpochInfo.epochStart.toNumber();
+    return (await this.api.query.capacity.currentEpochInfo()).epochStart.toNumber();
   }
 
   public async getCurrentEpochLength(): Promise<number> {
-    const epochLength: u32 = await this.api.query.capacity.epochLength();
-    return epochLength.toNumber();
-  }
-
-  /**
-   * Handles the result of a SIWF transaction by extracting relevant values from the transaction events.
-   * @param txResultEvents - The transaction result events to process.
-   * @returns An object containing the extracted SIWF transaction values.
-   */
-  public async handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): Promise<SIWFTxnValues> {
-    const siwfTxnValues: SIWFTxnValues = { msaId: '', handle: '', address: '', newProvider: '' };
-
-    txResultEvents.forEach((record) => {
-      // In the sign up flow, but when msa is already created, we do not have an MsaCreated event
-      // We only have the DelegationGranted event, therefore check for events individually.
-      if (record.event && this.api.events.msa.MsaCreated.is(record.event)) {
-        siwfTxnValues.msaId = record.event.data.msaId.toString();
-        siwfTxnValues.address = record.event.data.key.toString();
-      }
-      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
-        const handleHex = record.event.data.handle.toString();
-        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
-        const handleData = handleHex.slice(2);
-        siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.msaId.toString();
-      }
-      if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
-        siwfTxnValues.newProvider = record.event.data.providerId.toString();
-        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.delegatorId.toString();
-      }
-    });
-
-    // If one of the above events has previously occurred, we still need to set those values.
-    if (siwfTxnValues.handle === '') {
-      const handle = await this.getHandleForMsa(siwfTxnValues.msaId);
-      siwfTxnValues.handle = `${handle?.base_handle}.${handle?.suffix}`;
-    }
-    if (siwfTxnValues.address === '') {
-      const keyInfo = await this.getKeysByMsa(siwfTxnValues.msaId);
-      siwfTxnValues.address = keyInfo?.msa_keys[0].toString();
-    }
-    if (siwfTxnValues.newProvider === '') {
-      siwfTxnValues.newProvider = this.config.providerId.toString();
-    }
-
-    return siwfTxnValues;
+    return (await this.api.query.capacity.epochLength()).toNumber();
   }
 
   /**
@@ -530,18 +455,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns An object containing the extracted handle, msaId, and debug message.
    */
   public handlePublishHandleTxResult(event: Event): HandleTxnValues {
-    const handleTxnValues: Partial<HandleTxnValues> = {};
-
     if (this.api.events.handles.HandleClaimed.is(event)) {
-      const handleHex = event.data.handle.toString();
       // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
-      const handleData = handleHex.slice(2);
-      handleTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-      handleTxnValues.msaId = event.data.msaId.toString();
-      handleTxnValues.debugMsg = `Handle created: ${handleTxnValues.handle} for msaId: ${handleTxnValues.msaId}`;
+      const handle = Buffer.from(event.data.handle.toString().slice(2), 'hex').toString('utf-8');
+      const msaId = event.data.msaId.toString();
+
+      return {
+        handle,
+        msaId,
+        debugMsg: `Handle created: ${handle} for msaId: ${msaId}`,
+      };
     }
 
-    return handleTxnValues as HandleTxnValues;
+    return {} as HandleTxnValues;
   }
 
   /**
@@ -550,16 +476,19 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {PublicKeyValues} An object containing the MSA Id & new public key
    */
   public handlePublishKeyTxResult(event: Event): PublicKeyValues {
-    const publicKeyValues: Partial<PublicKeyValues> = {};
-
     // Grab the event data
     if (event && this.api.events.msa.PublicKeyAdded.is(event)) {
-      publicKeyValues.msaId = event.data.msaId.toString();
-      publicKeyValues.newPublicKey = event.data.key.toString();
-      publicKeyValues.debugMsg = `Public Key: ${publicKeyValues.newPublicKey} Added for msaId: ${publicKeyValues.msaId}`;
+      const msaId = event.data.msaId.toString();
+      const newPublicKey = event.data.key.toString();
+
+      return {
+        msaId,
+        newPublicKey,
+        debugMsg: `Public Key: ${newPublicKey} Added for msaId: ${msaId}`,
+      };
     }
 
-    return publicKeyValues as PublicKeyValues;
+    return {} as PublicKeyValues;
   }
 
   /**
@@ -568,35 +497,23 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
    * @returns {ItemizedPageUpdated} An object containing the MSA Id & new public key
    */
   public handlePublishPublicKeyAgreementTxResult(event: Event): ItemizedPageUpdated {
-    const itemizedKeyValues: Partial<ItemizedPageUpdated> = {};
-
     // Grab the event data
     if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
-      itemizedKeyValues.msaId = event.data.msaId.toString();
-      itemizedKeyValues.schemaId = event.data.schemaId.toString();
-      itemizedKeyValues.prevContentHash = event.data.prevContentHash.toString();
-      itemizedKeyValues.currContentHash = event.data.currContentHash.toString();
-      itemizedKeyValues.debugMsg = `Itemized Page updated for msaId: ${itemizedKeyValues.msaId} and schemaId: ${itemizedKeyValues.schemaId}`;
+      const msaId = event.data.msaId.toString();
+      const schemaId = event.data.schemaId.toString();
+      const prevContentHash = event.data.prevContentHash.toString();
+      const currContentHash = event.data.currContentHash.toString();
+
+      return {
+        msaId,
+        schemaId,
+        prevContentHash,
+        currContentHash,
+        debugMsg: `Itemized Page updated for msaId: ${msaId} and schemaId: ${schemaId}`,
+      };
     }
 
-    return itemizedKeyValues as ItemizedPageUpdated;
-  }
-
-  public async validateProviderSeedPhrase() {
-    const { providerSeedPhrase, providerId } = this.config;
-    if (providerSeedPhrase) {
-      const address = await addressFromSeedPhrase(providerSeedPhrase);
-      const resolvedProviderId = await this.publicKeyToMsaId(address);
-
-      if (resolvedProviderId !== providerId.toString()) {
-        throw new Error('Provided account secret does not match configured Provider ID');
-      }
-
-      const providerInfo = await this.getProviderToRegistryEntry(providerId);
-      if (!providerInfo) {
-        throw new Error(`MSA ID ${providerId.toString()} is not a registered provider`);
-      }
-    }
+    return {} as ItemizedPageUpdated;
   }
 
   public static async getRawPayloadForSigning(
@@ -630,7 +547,7 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     const tx = this.api.tx.msa.retireMsa();
 
     // payload contains the signer address, the encoded data/payload for retireMsa, and the type of the payload
-    const signerPayload = await BlockchainService.getRawPayloadForSigning(tx, accountId);
+    const signerPayload = await BlockchainRpcQueryService.getRawPayloadForSigning(tx, accountId);
     this.logger.debug('payload: SignerPayloadRaw: ', signerPayload);
     // encoded payload
     const { data } = signerPayload;
@@ -646,8 +563,45 @@ export class BlockchainService implements OnApplicationBootstrap, OnApplicationS
     return this.api.tx.msa.retireMsa();
   }
 
+  public upsertPage(
+    msaId: AnyNumber,
+    schemaId: AnyNumber,
+    pageId: AnyNumber,
+    targetHash: AnyNumber,
+    payload: number[],
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    // TODO: Investigate why 'payload' is passed as number[] instead of Uint8Array
+    return this.api.tx.statefulStorage.upsertPage(msaId, schemaId, pageId, targetHash, payload as any);
+  }
+
+  public deletePage(
+    msaId: AnyNumber,
+    schemaId: AnyNumber,
+    pageId: AnyNumber,
+    targetHash: AnyNumber,
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    return this.api.tx.statefulStorage.deletePage(msaId, schemaId, pageId, targetHash);
+  }
+
+  public addIpfsMessage(
+    schemaId: AnyNumber,
+    cid: string,
+    payloadLength: number,
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    return this.api.tx.messages.addIpfsMessage(schemaId, cid, payloadLength);
+  }
+
   public decodeTransaction(encodedExtrinsic: string) {
     return this.api.tx(encodedExtrinsic);
+  }
+
+  public async handleOptionResult<T extends Codec>(rpc: Promise<Option<T>>, msg?: string): Promise<T | null> {
+    const result: T | null = (await rpc).unwrapOr(null);
+    if (!result && msg) {
+      this.logger.error(msg);
+    }
+
+    return result;
   }
 
   public getNetworkType(): NetworkType {

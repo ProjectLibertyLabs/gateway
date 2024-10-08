@@ -12,14 +12,13 @@ import {
   Action,
   PrivacyType,
 } from '@dsnp/graph-sdk';
-import { MessageSourceId, SchemaGrantResponse } from '@frequency-chain/api-augment/interfaces';
-import { Option, Vec } from '@polkadot/types';
+import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '#consumer';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import fs from 'fs';
-import { BlockchainService } from '#graph-lib/blockchain';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
@@ -149,19 +148,10 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
           privacyType as PrivacyType,
         );
         /// make sure user has delegation for schemaId
-        const delegations: Option<Vec<SchemaGrantResponse>> = await this.blockchainService.rpc(
-          'msa',
-          'grantedSchemaIdsByMsaId',
-          dsnpUserId,
-          providerId,
-        );
+        const delegations = await this.blockchainService.getProviderDelegationForMsa(dsnpUserId, providerId);
         let isDelegated = false;
-        if (delegations.isSome) {
-          isDelegated =
-            delegations
-              .unwrap()
-              .toArray()
-              .findIndex((grant) => grant.schema_id.toNumber() === schemaId) !== -1;
+        if (delegations) {
+          isDelegated = delegations.schemaDelegations.findIndex((grant) => grant.schemaId === schemaId) !== -1;
         }
 
         if (!isDelegated) {

@@ -1,4 +1,4 @@
-import blockchainConfig, { IBlockchainConfig } from '#graph-lib/blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { Injectable, CanActivate, ExecutionContext, Inject } from '@nestjs/common';
 
 @Injectable()

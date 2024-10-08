@@ -9,7 +9,7 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { BaseConsumer } from '#consumer';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-search-request.dto';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { ChainEventProcessorService } from "#content-watcher-lib/utils/chain-event-processor.service";
+import { ChainEventProcessorService } from '#content-watcher-lib/utils/chain-event-processor.service';
 
 const CRAWLER_BLOCK_CHUNK_SIZE = 500;
 

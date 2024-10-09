@@ -349,7 +349,7 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
   }
 
   public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
-    this.logger.debug(`claimHandlePayload: ${jobData.payload}`);
+    this.logger.debug(`claimHandlePayload: ${JSON.stringify(jobData.payload)}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
     const claimHandleProof: Sr25519Signature = { Sr25519: jobData.proof };

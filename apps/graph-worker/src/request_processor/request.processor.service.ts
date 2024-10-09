@@ -49,7 +49,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
 
   async process(job: Job<ProviderGraphUpdateJob, any, string>): Promise<void> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-    this.logger.log(JSON.stringify(job.data));
     const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     try {
       const lastProcessedDsnpId = await this.cacheManager.get(LAST_PROCESSED_DSNP_ID_KEY);
@@ -65,7 +64,6 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
         job.data.encryptionSenderContext,
         job.data.graphKeyPairs,
       );
-      this.logger.log(JSON.stringify(decryptedKeyPairs));
       const { dsnpId, providerId } = job.data;
       this.graphStateManager.removeUserGraph(dsnpId);
       await this.graphStateManager.importBundles(dsnpId, decryptedKeyPairs ?? []);

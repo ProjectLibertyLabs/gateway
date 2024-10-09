@@ -70,7 +70,7 @@ export class AccountsControllerV2 {
   @ApiOperation({ summary: 'Get the Sign In With Frequency Redirect URL' })
   @ApiOkResponse({ description: 'SIWF Redirect URL', type: WalletV2RedirectResponseDto })
   async getRedirectUrl(@Query() query: WalletV2RedirectRequestDto): Promise<WalletV2RedirectResponseDto> {
-    this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', query);
+    this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', JSON.stringify(query));
 
     const { callbackUrl } = query;
     const permissions = (query.permissions || []).map((p) => SCHEMA_NAME_TO_ID.get(p));
@@ -84,7 +84,7 @@ export class AccountsControllerV2 {
   @ApiOperation({ summary: 'Process the result of a Sign In With Frequency v2 callback' })
   @ApiOkResponse({ description: 'Signed in successfully', type: WalletV2LoginResponseDto })
   async postSignInWithFrequency(@Body() callbackRequest: WalletV2LoginRequestDto): Promise<WalletV2LoginResponseDto> {
-    this.logger.debug('Received Sign In With Frequency v2 callback', callbackRequest);
+    this.logger.debug('Received Sign In With Frequency v2 callback', JSON.stringify(callbackRequest));
 
     if (!this.accountConfig.siwfV2Domain) {
       this.logger.error('"SIWF_V2_DOMAIN" required to use SIWF v2');

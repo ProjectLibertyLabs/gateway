@@ -32,6 +32,7 @@ describe('EncryptionService', () => {
       imports: [],
       providers: [EncryptionService, mockGraphCommonConfigProvider],
     }).compile();
+    await module.init();
 
     encryptionService = module.get<EncryptionService>(EncryptionService);
   });

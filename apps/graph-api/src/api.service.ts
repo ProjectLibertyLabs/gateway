@@ -79,7 +79,7 @@ export class ApiService implements BeforeApplicationShutdown {
     const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, {
       jobId: data.referenceId,
     });
-    this.logger.debug(job);
+    this.logger.debug(JSON.stringify(job));
     return {
       referenceId: data.referenceId,
     };

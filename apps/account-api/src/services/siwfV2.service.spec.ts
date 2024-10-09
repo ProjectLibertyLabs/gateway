@@ -31,6 +31,7 @@ const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfi
   graphEnvironmentType: 0,
   siwfUrl: '',
   siwfV2Url: 'https://www.example.com/siwf',
+  siwfV2Domain: 'localhost',
 });
 
 const exampleCallback = 'https://www.example.com/callback';
@@ -142,10 +143,11 @@ describe('SiwfV2Service', () => {
   });
 
   describe('getPayload', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it('Should call the siwfV2Url if there is an authorizationCode', async () => {
-      // This test requires an actual authorization code and endpoint
-      // You may need to set up a test environment or mock server for this
-      const validAuthCode = 'valid-auth-code'; // Replace with a real test auth code
+      const validAuthCode = 'valid-auth-code';
       jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');
 
       // Mock the global fetch function
@@ -205,6 +207,31 @@ describe('SiwfV2Service', () => {
       expect(global.fetch).toHaveBeenCalledWith(
         new URL('https://siwf.example.com/api/payload?authorizationCode=invalid-auth-code'),
       );
+    });
+
+    it('Should throw BadRequest if the payload is for a different domain', async () => {
+      jest.spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2Domain', 'get').mockReturnValue('bad.example.com');
+      await expect(
+        siwfV2Service.getPayload({
+          authorizationPayload: base64url(JSON.stringify(validSiwfLoginResponsePayload)),
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('Should throw BadRequest if the response is for a different domain', async () => {
+      jest.spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2Domain', 'get').mockReturnValue('bad.example.com');
+
+      const validAuthCode = 'valid-auth-code';
+      jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');
+
+      // Mock the global fetch function
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => validSiwfLoginResponsePayload,
+      } as Response);
+
+      await expect(siwfV2Service.getPayload({ authorizationCode: validAuthCode })).rejects.toThrow(BadRequestException);
     });
 
     it('Should throw BadRequest if the payload is for a different provider id', async () => {

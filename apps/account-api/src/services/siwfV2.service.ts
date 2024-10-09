@@ -123,9 +123,7 @@ export class SiwfV2Service {
 
   async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
     let payload: SiwfResponse;
-    // TODO: Replace this with... an environment variable?
-    // Get the domain for the validation
-    const loginMsgDomain = 'localhost';
+    const loginMsgDomain = this.apiConf.siwfV2Domain;
     if (request.authorizationPayload) {
       try {
         // Await here so the error is caught
@@ -215,7 +213,6 @@ export class SiwfV2Service {
         type: TransactionType.SIWF_SIGNUP,
       });
     } catch (e) {
-      console.error(e);
       this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e });
       throw new BadRequestException('Failed to process payloads');
     }

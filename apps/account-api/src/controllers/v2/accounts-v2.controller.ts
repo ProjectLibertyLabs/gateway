@@ -1,3 +1,4 @@
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { SiwfV2Service } from '#account-api/services/siwfV2.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
@@ -57,7 +58,8 @@ export class AccountsControllerV2 {
 
   constructor(
     private siwfV2Service: SiwfV2Service,
-    @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
+    @Inject(blockchainConfig.KEY) private chainConfig: IBlockchainConfig,
+    @Inject(apiConfig.KEY) private accountConfig: IAccountApiConfig,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -84,12 +86,17 @@ export class AccountsControllerV2 {
   async postSignInWithFrequency(@Body() callbackRequest: WalletV2LoginRequestDto): Promise<WalletV2LoginResponseDto> {
     this.logger.debug('Received Sign In With Frequency v2 callback', callbackRequest);
 
+    if (!this.accountConfig.siwfV2Domain) {
+      this.logger.error('"SIWF_V2_DOMAIN" required to use SIWF v2');
+      throw new ForbiddenException('SIWF v2 processing unavailable');
+    }
+
     // Extract a valid payload from the request
     // This inludes the validation of the login payload if any
     // Also makes sure it is either a login or a delegation
     const payload = await this.siwfV2Service.getPayload(callbackRequest);
 
-    if (hasChainSubmissions(payload) && this.config.isDeployedReadOnly) {
+    if (hasChainSubmissions(payload) && this.chainConfig.isDeployedReadOnly) {
       throw new ForbiddenException('New account sign-up unavailable in read-only mode');
     }
 

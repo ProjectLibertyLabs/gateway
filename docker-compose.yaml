@@ -40,6 +40,7 @@ x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'graph:'
+  AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
 
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1

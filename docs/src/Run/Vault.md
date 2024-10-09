@@ -146,7 +146,40 @@ helm upgrade --install frequency-gateway ./helm/frequency-gateway -f values.yaml
 
 To securely connect Kubernetes resources with Vault, you need to use the **External Secrets** and **Secret Store**. This allows Kubernetes services to dynamically fetch secrets from Vault.
 
-1. **Create the External Secret:**
+1. **Create a Secret Store:**
+
+   If you are using the **External Secrets Operator (ESO)**, you will need to create a `SecretStore` resource to configure how Kubernetes connects to Vault.
+
+   Here’s an example configuration for the Vault backend:
+   Note: this example uses basic auth for Vault. You can also use other authentication methods like AppRole, Kubernetes, etc.
+
+   ```yaml
+   apiVersion: external-secrets.io/v1beta1
+   kind: SecretStore
+   metadata:
+     name: vault-secret-store
+     namespace: default
+   spec:
+     provider:
+       vault:
+         server: "{{ .Values.vault.address }}"
+         path: "secret" <- Path to the secrets in Vault
+         version: "v2" <- Vault KV version
+         auth:
+           tokenSecretRef:
+             name: vault-token <- Name of the secret containing the Vault token
+             key: root <- Key in the secret containing the Vault token
+   ```
+
+   The `SecretStore` defines how Kubernetes communicates with Vault and how it retrieves secrets dynamically based on the configurations in `ExternalSecret` resources.
+
+   Apply the `SecretStore` configuration:
+
+   ```bash
+    kubectl apply -f secret-store.yaml
+    ```
+
+2. **Create the External Secret:**
 
    External Secrets map secrets stored in Vault to Kubernetes secrets, allowing services to access them.
 
@@ -224,32 +257,6 @@ To securely connect Kubernetes resources with Vault, you need to use the **Exter
 
    {{- end }}
    ```
-
-2. **Create a Secret Store:**
-
-   If you are using the **External Secrets Operator (ESO)**, you will need to create a `SecretStore` resource to configure how Kubernetes connects to Vault.
-
-   Here’s an example configuration for the Vault backend:
-
-   ```yaml
-   apiVersion: external-secrets.io/v1beta1
-   kind: SecretStore
-   metadata:
-     name: vault-secret-store
-     namespace: default
-   spec:
-     provider:
-       vault:
-         server: "{{ .Values.vault.address }}"
-         path: "{{ .Values.vault.secretsPath }}"
-         version: "v2"
-         auth:
-           tokenSecretRef:
-             name: "{{ .Values.vault.tokenSecretName }}"
-             key: "{{ .Values.vault.tokenSecret }}"
-   ```
-
-   The `SecretStore` defines how Kubernetes communicates with Vault and how it retrieves secrets dynamically based on the configurations in `ExternalSecret` resources.
 
 ### Handling Single-Value Secrets
 

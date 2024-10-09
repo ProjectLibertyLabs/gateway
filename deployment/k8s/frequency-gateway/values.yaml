@@ -55,12 +55,10 @@ affinity: {}
 
 # Support vault integration
 vault:
-  enabled: false  # Set to true to enable Vault integration
-  address: "http://vault.vault.svc.cluster.local:8200"  # Address of the Vault server
-  role: "frequency-gateway-role"  # Role for the Vault integration
-  secretsPath: "secret/data/frequency-gateway"  # Path where your secrets are stored
-  tokenSecretName: "vault-token"  # Name of the secret containing the Vault token
-  tokenSecretKey: "token"  # Key in the secret containing the Vault token
+  enabled: true 
+  secretsPath: "secret/frequency-gateway"
+  role: "frequency-gateway-role"
+
 # Service configuration
 service:
   type: NodePort

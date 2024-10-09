@@ -11,6 +11,7 @@ export interface IAccountApiConfig {
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
+  siwfV2Domain?: string;
 }
 
 export default registerAs('account-api', (): IAccountApiConfig => {
@@ -42,6 +43,11 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     siwfV2Url: {
       value: process.env.SIWF_V2_URL,
       joi: Joi.string().optional().allow(null).allow('').empty('').uri(),
+    },
+    siwfV2Domain: {
+      value: process.env.SIWF_V2_DOMAIN,
+      // Allow localhost specifically
+      joi: Joi.string().optional().allow(null).allow('localhost').allow('').empty('').domain(),
     },
   };
 

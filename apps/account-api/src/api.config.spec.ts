@@ -13,6 +13,8 @@ describe('Account API Config', () => {
     FREQUENCY_HTTP_URL: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
     SIWF_URL: undefined,
+    SIWF_V2_URL: undefined,
+    SIWF_V2_DOMAIN: undefined,
   };
 
   beforeAll(() => {
@@ -37,6 +39,14 @@ describe('Account API Config', () => {
     it('invalid api body json limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_BODY_JSON_LIMIT', [0]));
 
     it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
+
+    it('invalid url for SIWF_V2_URL', async () => shouldFailBadValues(ALL_ENV, 'SIWF_V2_URL', ['sdfdsf']));
+
+    it('invalid url SIWF_V2_DOMAIN', async () =>
+      shouldFailBadValues(ALL_ENV, 'SIWF_V2_DOMAIN', ['https://www.example.com']));
+
+    it('invalid with port SIWF_V2_DOMAIN', async () =>
+      shouldFailBadValues(ALL_ENV, 'SIWF_V2_DOMAIN', ['localhost:3000']));
   });
 
   describe('valid environment', () => {

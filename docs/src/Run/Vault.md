@@ -21,9 +21,12 @@ This guide describes how to set up and integrate HashiCorp Vault for managing an
     - [Set Up Kubernetes Authentication](#set-up-kubernetes-authentication)
   - [Integrating Vault with Frequency Gateway](#integrating-vault-with-frequency-gateway)
     - [Helm Configuration](#helm-configuration)
+    - [Creating External Secret and Secret Store](#creating-external-secret-and-secret-store)
+    - [Handling Single-Value Secrets](#handling-single-value-secrets)
   - [Accessing Secrets](#accessing-secrets)
     - [Using CLI](#using-cli)
   - [Troubleshooting](#troubleshooting)
+  - [References](#references)
 
 ---
 
@@ -109,36 +112,172 @@ To allow your Kubernetes cluster to access secrets in Vault, you need to configu
      ttl=24h
    ```
 
+Great suggestion! Here's the extended section that includes details about creating the External Secret and Secret Store, and how to handle single-value secrets as discussed earlier.
+
+---
+
 ## Integrating Vault with Frequency Gateway
 
 ### Helm Configuration
 
-Update your `values.yaml` file to enable Vault integration for your Frequency Gateway deployment.
+Update your `values.yaml` file to enable Vault integration for Frequency Gateway deployment. Here’s an example configuration:
 
 ```yaml
 vault:
   enabled: true  # Enable Vault integration
   address: "http://vault.default.svc.cluster.local:8200"
   role: "frequency-gateway-role"
+  tokenSecretName: "vault-token"
+  tokenSecret: "root"
   secretsPath: "secret/data/frequency-gateway"
 ```
 
-The `values.yaml` file will also need to include the `vault` configuration for each service to allow them to retrieve secrets from Vault. Example for the `account-service`:
+For each service (e.g., `account-service`, `content-publishing-service`) in the Frequency Gateway, add a similar configuration to the `values.yaml` file.
 
-```yaml
-account:
-  secret:
-    PROVIDER_ACCESS_TOKEN: {{ .Values.vault.enabled | ternary "'vault:/frequency-gateway/account/PROVIDER_ACCESS_TOKEN'" (.Values.account.secret.PROVIDER_ACCESS_TOKEN | b64enc | quote) }}
-    PROVIDER_ACCOUNT_SEED_PHRASE: {{ .Values.vault.enabled | ternary "'vault:/frequency-gateway/account/PROVIDER_ACCOUNT_SEED_PHRASE'" (.Values.account.secret.PROVIDER_ACCOUNT_SEED_PHRASE | b64enc | quote) }}
-```
+Ensure similar configurations are added for other services such as `content-publishing`, `content-watcher`, and `graph`.
 
-Ensure similar configurations are added for other services like `content-publishing`, `content-watcher`, and `graph`.
-
-Deploy or upgrade the Frequency Gateway Helm chart:
+Deploy or upgrade the Frequency Gateway Helm chart with:
 
 ```bash
 helm upgrade --install frequency-gateway ./helm/frequency-gateway -f values.yaml
 ```
+
+### Creating External Secret and Secret Store
+
+To securely connect Kubernetes resources with Vault, you need to use the **External Secrets** and **Secret Store**. This allows Kubernetes services to dynamically fetch secrets from Vault.
+
+1. **Create the External Secret:**
+
+   External Secrets map secrets stored in Vault to Kubernetes secrets, allowing services to access them.
+
+   Here's a Helm template for creating multiple `ExternalSecret` resources for different services (e.g., `account-service`, `content-publishing-service`, etc.):
+
+   ```yaml
+   {{- if .Values.vault.enabled }}
+
+   apiVersion: external-secrets.io/v1beta1
+   kind: ExternalSecret
+   metadata:
+     name: account-secret
+   spec:
+     backendType: vault
+     vault:
+       server: "{{ .Values.vault.address }}"
+       path: "{{ .Values.vault.secretsPath }}/account"
+       version: "v2"
+       auth:
+         tokenSecretRef:
+           name: "{{ .Values.vault.tokenSecretName }}"
+           key: "{{ .Values.vault.tokenSecret }}"
+
+     data:
+       - key: PROVIDER_ACCESS_TOKEN
+         name: PROVIDER_ACCESS_TOKEN
+       - key: PROVIDER_ACCOUNT_SEED_PHRASE
+         name: PROVIDER_ACCOUNT_SEED_PHRASE
+
+   ---
+   apiVersion: external-secrets.io/v1beta1
+   kind: ExternalSecret
+   metadata:
+     name: content-publishing-secret
+   spec:
+     backendType: vault
+     vault:
+       server: "{{ .Values.vault.address }}"
+       path: "{{ .Values.vault.secretsPath }}/content-publishing"
+       version: "v2"
+       auth:
+         tokenSecretRef:
+           name: "{{ .Values.vault.tokenSecretName }}"
+           key: "{{ .Values.vault.tokenSecret }}"
+
+     data:
+       - key: IPFS_BASIC_AUTH_USER
+         name: IPFS_BASIC_AUTH_USER
+       - key: IPFS_BASIC_AUTH_SECRET
+         name: IPFS_BASIC_AUTH_SECRET
+       - key: PROVIDER_ACCOUNT_SEED_PHRASE
+         name: PROVIDER_ACCOUNT_SEED_PHRASE
+
+   ---
+   apiVersion: external-secrets.io/v1beta1
+   kind: ExternalSecret
+   metadata:
+     name: graph-secret
+   spec:
+     backendType: vault
+     vault:
+       server: "{{ .Values.vault.address }}"
+       path: "{{ .Values.vault.secretsPath }}/graph"
+       version: "v2"
+       auth:
+         tokenSecretRef:
+           name: "{{ .Values.vault.tokenSecretName }}"
+           key: "{{ .Values.vault.tokenSecret }}"
+
+     data:
+       - key: PROVIDER_ACCESS_TOKEN
+         name: PROVIDER_ACCESS_TOKEN
+       - key: PROVIDER_ACCOUNT_SEED_PHRASE
+         name: PROVIDER_ACCOUNT_SEED_PHRASE
+
+   {{- end }}
+   ```
+
+2. **Create a Secret Store:**
+
+   If you are using the **External Secrets Operator (ESO)**, you will need to create a `SecretStore` resource to configure how Kubernetes connects to Vault.
+
+   Here’s an example configuration for the Vault backend:
+
+   ```yaml
+   apiVersion: external-secrets.io/v1beta1
+   kind: SecretStore
+   metadata:
+     name: vault-secret-store
+     namespace: default
+   spec:
+     provider:
+       vault:
+         server: "{{ .Values.vault.address }}"
+         path: "{{ .Values.vault.secretsPath }}"
+         version: "v2"
+         auth:
+           tokenSecretRef:
+             name: "{{ .Values.vault.tokenSecretName }}"
+             key: "{{ .Values.vault.tokenSecret }}"
+   ```
+
+   The `SecretStore` defines how Kubernetes communicates with Vault and how it retrieves secrets dynamically based on the configurations in `ExternalSecret` resources.
+
+### Handling Single-Value Secrets
+
+If you only need to retrieve a single value from Vault, you can adjust the ExternalSecret configuration to point to a specific key directly.
+
+For example, if you only want to retrieve `PROVIDER_ACCESS_TOKEN` for the `account-service`, the ExternalSecret can be simplified as follows:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: account-secret
+spec:
+  backendType: vault
+  vault:
+    server: "{{ .Values.vault.address }}"
+    path: "{{ .Values.vault.secretsPath }}/account"
+    version: "v2"
+    auth:
+      tokenSecretRef:
+        name: "{{ .Values.vault.tokenSecretName }}"
+        key: "{{ .Values.vault.tokenSecret }}"
+  data:
+    - key: PROVIDER_ACCESS_TOKEN
+      name: PROVIDER_ACCESS_TOKEN
+```
+
+In this example, only `PROVIDER_ACCESS_TOKEN` will be fetched from Vault and made available as a Kubernetes secret.
 
 ## Accessing Secrets
 
@@ -169,3 +308,8 @@ vault kv get -field=PROVIDER_ACCESS_TOKEN secret/frequency-gateway/account
 - **Secrets Not Being Retrieved:** Double-check your `values.yaml` file for correct Vault paths and the service’s configuration for secret access.
 
 For more information, refer to the [Vault documentation](https://www.vaultproject.io/docs).
+
+## References
+
+- [Accessing Secrets](https://www.digitalocean.com/community/tutorials/how-to-access-vault-secrets-inside-of-kubernetes-using-external-secrets-operator-eso#prerequisites)
+- [Best Practices for Vault](https://www.digitalocean.com/community/tutorials/how-to-securely-manage-secrets-with-hashicorp-vault-on-ubuntu-20-04)

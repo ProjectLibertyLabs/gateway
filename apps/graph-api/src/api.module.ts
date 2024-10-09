@@ -20,6 +20,7 @@ import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import { EncryptionService } from '#graph-lib/services/encryption.service';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
     ApiService,
     GraphStateManager,
     AsyncDebouncerService,
+    EncryptionService,
     // global exception handling
     {
       provide: APP_FILTER,

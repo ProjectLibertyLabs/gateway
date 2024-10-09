@@ -15,4 +15,8 @@ export class ProviderGraphUpdateJob {
   updateConnection: boolean;
 
   webhookUrl?: string;
+
+  encryptionPublicKey?: string;
+
+  encryptionSenderContext?: string;
 }

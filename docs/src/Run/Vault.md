@@ -112,10 +112,6 @@ To allow your Kubernetes cluster to access secrets in Vault, you need to configu
      ttl=24h
    ```
 
-Great suggestion! Here's the extended section that includes details about creating the External Secret and Secret Store, and how to handle single-value secrets as discussed earlier.
-
----
-
 ## Integrating Vault with Frequency Gateway
 
 ### Helm Configuration

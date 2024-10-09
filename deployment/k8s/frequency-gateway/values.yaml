@@ -55,7 +55,7 @@ affinity: {}
 
 # Support vault integration
 vault:
-  enabled: true 
+  enabled: false 
   secretsPath: "secret/frequency-gateway"
   role: "frequency-gateway-role"
 

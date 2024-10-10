@@ -197,3 +197,5 @@ graph:
   secret:
     PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
     PROVIDER_ACCESS_TOKEN: "some-token"
+    AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
+

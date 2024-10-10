@@ -64,7 +64,7 @@ The following is a list of environment variables that may be set to control the 
 
 | Variable                           | required? | Description                                                                                                 | Default                                                                   |
 | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `FREQUENCY_WS_URL`                 | **yes**   | Blockchain URL                                                                                              | _none_                                                                    |
+| `FREQUENCY_API_WS_URL`             | **yes**   | Blockchain API Websocket URL                                                                                | _none_                                                                    |
 | `PROVIDER_ID`                      | **yes**   | MSA Id of provider                                                                                          | _none_                                                                    |
 | `PROVIDER_ACCOUNT_SEED_PHRASE`     | **yes**   | Seed phrase for provider control keypair                                                                    | _none_                                                                    |
 | `REDIS_URL`                        | **yes**   | URL used to connect to Redis instance                                                                       | _none_<br/>\*preset to the internal Redis URL in the standalone container |

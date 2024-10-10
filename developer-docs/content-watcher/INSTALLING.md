@@ -64,7 +64,7 @@ The following is a list of environment variables that may be set to control the 
 
 | Variable                           | required? | Description                                                                                      | Default                                                                   |
 | ---------------------------------- | --------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `FREQUENCY_WS_URL`                 | **yes**   | Blockchain URL                                                                                   | _none_                                                                    |
+| `FREQUENCY_API_WS_URL`             | **yes**   | Blockchain API Websocket URL                                                                     | _none_                                                                    |
 | `STARTING_BLOCK`                   | **maybe** | Starting block for scanner to scan from                                                          | _none_                                                                    |
 | `REDIS_URL`                        | **yes**   | URL used to connect to Redis instance                                                            | _none_<br/>\*preset to the internal Redis URL in the standalone container |
 | `BLOCKCHAIN_SCAN_INTERVAL_SECONDS` | no        | # of seconds to wait in between scans of the blockchain                                          | 12                                                                        |

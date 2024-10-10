@@ -7,7 +7,7 @@ export interface IAccountApiConfig {
   apiBodyJsonLimit: string;
   apiPort: number;
   apiTimeoutMs: number;
-  frequencyHttpUrl: URL;
+  siwfNodeRpcUrl: URL;
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
@@ -27,8 +27,8 @@ export default registerAs('account-api', (): IAccountApiConfig => {
       value: process.env.API_TIMEOUT_MS,
       joi: Joi.number().min(1).default(5000),
     },
-    frequencyHttpUrl: {
-      value: process.env.FREQUENCY_HTTP_URL,
+    siwfNodeRpcUrl: {
+      value: process.env.SIWF_NODE_RPC_URL,
       joi: Joi.string().uri().required(),
     },
     graphEnvironmentType: {

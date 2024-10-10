@@ -17,7 +17,7 @@ import {
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { EnvironmentType, Graph } from '@dsnp/graph-sdk';
 
-const FREQUENCY_WS_URL = process.env.FREQUENCY_WS_URL || 'ws://127.0.0.1:9944';
+const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://127.0.0.1:9944';
 
 const CAPACITY_AMOUNT_TO_STAKE = 2000000000000000n;
 
@@ -26,7 +26,7 @@ const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 async function main() {
   await cryptoWaitReady();
   console.log('Connecting...');
-  await initialize(FREQUENCY_WS_URL);
+  await initialize(FREQUENCY_API_WS_URL);
   log.setLevel('trace');
 
   // Create provider

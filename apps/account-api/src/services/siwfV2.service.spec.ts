@@ -11,7 +11,7 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
   providerId: 1n,
   providerSeedPhrase: '//Alice',
-  frequencyUrl: new URL('ws://localhost:9944'),
+  frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
 
@@ -19,7 +19,7 @@ const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfi
   apiBodyJsonLimit: '',
   apiPort: 0,
   apiTimeoutMs: 0,
-  frequencyHttpUrl: new URL('http://127.0.0.1:9944'),
+  siwfNodeRpcUrl: new URL('http://127.0.0.1:9944'),
   graphEnvironmentType: 0,
   siwfUrl: '',
   siwfV2Url: 'https://www.example.com/siwf',

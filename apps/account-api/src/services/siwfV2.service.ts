@@ -177,7 +177,7 @@ export class SiwfV2Service {
     response.controlKey = payload.userPublicKey.encodedValue;
 
     // Try to look up the MSA id, if there is no createSponsoredAccountWithDelegation request
-    if (payload.payloads.every((x) => x.endpoint.extrinsic !== 'createSponsoredAccountWithDelegation')) {
+    if (payload.payloads.every((x) => x.endpoint?.extrinsic !== 'createSponsoredAccountWithDelegation')) {
       // Get the MSA Id from the chain
       const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
       if (msaId) response.msaId = msaId;

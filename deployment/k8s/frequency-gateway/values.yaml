@@ -23,16 +23,10 @@ podSecurityContext: {}
 securityContext: {}
 
 # Ingress configuration
+# Using nginx ingress controller, 
+# ensure nginx ingress controller is installed
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
 
 # Resource limits and requests
 resources: {}

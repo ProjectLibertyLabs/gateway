@@ -27,7 +27,7 @@ Gateway is a collection of services designed to simplify interactions with the F
 Key features:
 - Modular architecture: Use each service independently to fit your specific needs
 - Simplified blockchain interactions: Abstract away complex blockchain operations
-- Web2-like experience: Familiar API patterns for Web2 developers
+- Web2-like experience: Familiar REST API patterns for Web2 developers
 
 For a practical implementation example, check out our Social App Template [here](https://github.com/ProjectLibertyLabs/social-app-template), which demonstrates how to integrate these services into a full-fledged application.
 

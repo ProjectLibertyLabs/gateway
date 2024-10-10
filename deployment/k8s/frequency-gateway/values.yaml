@@ -23,9 +23,10 @@ podSecurityContext: {}
 securityContext: {}
 
 # Ingress configuration
-# Using nginx ingress controller
+# Using nginx ingress controller, 
+# ensure nginx ingress controller is installed
 ingress:
-  enabled: true
+  enabled: false
 
 # Resource limits and requests
 resources: {}

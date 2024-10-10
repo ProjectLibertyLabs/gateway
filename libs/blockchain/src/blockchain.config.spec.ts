@@ -8,7 +8,7 @@ const { setupConfigService: setupConfigServiceReadOnly } = configSetup<IBlockcha
 
 describe('Blockchain module config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
-    FREQUENCY_URL: undefined,
+    FREQUENCY_WS_URL: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
     CAPACITY_LIMIT: undefined,
@@ -21,8 +21,9 @@ describe('Blockchain module config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing frequency url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_URL'));
-    it('invalid frequency url should fail', async () => shouldFailBadValues(ALL_ENV, 'FREQUENCY_URL', ['invalid url']));
+    it('missing frequency url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_WS_URL'));
+    it('invalid frequency url should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'FREQUENCY_WS_URL', ['invalid url']));
 
     it('missing capacity limits should fail', async () => validateMissing(ALL_ENV, 'CAPACITY_LIMIT'));
 
@@ -68,7 +69,7 @@ describe('Blockchain module config', () => {
     });
 
     it('should get frequency url', () => {
-      const expectedUrl = new URL(ALL_ENV.FREQUENCY_URL).toString();
+      const expectedUrl = new URL(ALL_ENV.FREQUENCY_WS_URL).toString();
       expect(blockchainConf.frequencyUrl?.toString()).toStrictEqual(expectedUrl);
     });
 

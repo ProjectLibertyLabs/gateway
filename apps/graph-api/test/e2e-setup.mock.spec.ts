@@ -10,12 +10,12 @@ import {
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import log from 'loglevel';
 
-export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
+export const FREQUENCY_WS_URL = process.env.FREQUENCY_WS_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 
 export async function setupProviderAndUsers() {
   await cryptoWaitReady();
-  await initialize(FREQUENCY_URL);
+  await initialize(FREQUENCY_WS_URL);
   log.setLevel('trace');
 
   const currentBlockNumber = await getCurrentBlockNumber();

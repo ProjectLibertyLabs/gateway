@@ -77,7 +77,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
 
     const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
       frequencyUrl: {
-        value: process.env.FREQUENCY_URL,
+        value: process.env.FREQUENCY_WS_URL,
         joi: Joi.string()
           .uri({ scheme: ['http', 'https', 'ws', 'wss'] })
           .required()

@@ -8,7 +8,7 @@ This application recognizes the following environment variables:
 | `API_PORT`                         | HTTP port that the application listens on                                                                       |      1025 - 65535      |           |       3000       |
 | `BLOCKCHAIN_SCAN_INTERVAL_SECONDS` | How many seconds to delay between successive scans of the chain for new content (after end of chain is reached) |          > 0           |           |        12        |
 | `CACHE_KEY_PREFIX`                 | Prefix to use for Redis cache keys                                                                              |         string         |           | content-watcher: |
-| `FREQUENCY_URL`                    | Blockchain node address                                                                                         | http(s): or ws(s): URL |     Y     |                  |
+| `FREQUENCY_WS_URL`                 | Blockchain node address                                                                                         | http(s): or ws(s): URL |     Y     |                  |
 | `IPFS_BASIC_AUTH_SECRET`           | If required for read requests, put Infura auth token here, or leave blank for default Kubo RPC                  |         string         |     N     |      blank       |
 | `IPFS_BASIC_AUTH_USER`             | If required for read requests, put Infura Project ID here, or leave blank for default Kubo RPC                  |         string         |     N     |      blank       |
 | `IPFS_ENDPOINT`                    | URL to IPFS endpoint                                                                                            |          URL           |     Y     |                  |

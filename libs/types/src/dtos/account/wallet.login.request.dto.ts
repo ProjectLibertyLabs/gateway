@@ -5,7 +5,6 @@ import {
   SignInResponse,
   SignUpResponse,
   SiwsPayload,
-  ValidSignUpPayloads,
   type WalletProxyResponse,
 } from '@projectlibertylabs/siwfv1';
 import { ApiPropertyOptional } from '@nestjs/swagger';
@@ -14,7 +13,6 @@ import { HexString } from '@polkadot/util/types';
 import { IsHexValue } from '#utils/decorators';
 import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
-import { TransactionType } from '#types/account-webhook';
 
 export class ErrorResponseDto implements ErrorResponse {
   /**
@@ -101,7 +99,3 @@ export class WalletLoginRequestDto implements WalletProxyResponse {
   @Type(() => SignUpResponseDto)
   signUp?: SignUpResponseDto;
 }
-
-export type PublishSIWFSignupRequestDto = ValidSignUpPayloads & {
-  type: TransactionType.SIWF_SIGNUP;
-};

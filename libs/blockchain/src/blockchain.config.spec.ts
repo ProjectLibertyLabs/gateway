@@ -21,8 +21,9 @@ describe('Blockchain module config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing frequency url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_API_WS_URL'));
-    it('invalid frequency url should fail', async () =>
+    it('missing frequency API web socket url should fail', async () =>
+      validateMissing(ALL_ENV, 'FREQUENCY_API_WS_URL'));
+    it('invalid frequency API web socket url should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'FREQUENCY_API_WS_URL', ['invalid url']));
 
     it('missing capacity limits should fail', async () => validateMissing(ALL_ENV, 'CAPACITY_LIMIT'));
@@ -68,7 +69,7 @@ describe('Blockchain module config', () => {
       expect(blockchainConf).toBeDefined();
     });
 
-    it('should get frequency url', () => {
+    it('should get frequency API web socket url', () => {
       const expectedUrl = new URL(ALL_ENV.FREQUENCY_API_WS_URL).toString();
       expect(blockchainConf.frequencyApiWsUrl?.toString()).toStrictEqual(expectedUrl);
     });

@@ -18,12 +18,12 @@ import { cryptoWaitReady, decodeAddress } from '@polkadot/util-crypto';
 import log from 'loglevel';
 import { u8aToHex } from '@polkadot/util';
 
-export const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://0.0.0.0:9944';
+export const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 
 export async function setupProviderAndUsers(numUsers = 4) {
   await cryptoWaitReady();
-  await initialize(FREQUENCY_URL);
+  await initialize(FREQUENCY_API_WS_URL);
   log.setLevel('trace');
 
   const currentBlockNumber = await getCurrentBlockNumber();

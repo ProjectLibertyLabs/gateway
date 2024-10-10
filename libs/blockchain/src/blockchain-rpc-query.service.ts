@@ -85,7 +85,7 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
   });
 
   public async onApplicationBootstrap() {
-    const providerUrl = this.baseConfig.frequencyUrl.toString();
+    const providerUrl = this.baseConfig.frequencyApiWsUrl.toString();
     let provider: WsProvider | HttpProvider;
     try {
       if (/^ws/.test(providerUrl)) {

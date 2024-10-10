@@ -7,13 +7,13 @@ import axios from 'axios';
 // eslint-disable-next-line import/no-relative-packages
 import { setupProviderAndUsers } from '../e2e-setup.mock.spec';
 
-const FREQUENCY_URL = process.env.FREQUENCY_URL || 'ws://127.0.0.1:9944';
+const FREQUENCY_WS_URL = process.env.FREQUENCY_WS_URL || 'ws://127.0.0.1:9944';
 
 async function main() {
   await cryptoWaitReady();
   log.setLevel('trace');
   console.log('Connecting...');
-  await initialize(FREQUENCY_URL);
+  await initialize(FREQUENCY_WS_URL);
 
   // eslint-disable-next-line no-use-before-define
   await revokeDelegation();

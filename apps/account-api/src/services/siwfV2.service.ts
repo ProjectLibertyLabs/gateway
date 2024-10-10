@@ -112,7 +112,7 @@ export class SiwfV2Service {
               userPublicKey,
               chainSignature(payload.signature),
               // TS is not smart enough to figure it out from the case
-              statefulStoragePayload(payload.payload as any),
+              statefulStoragePayload(api.registry, payload.payload as any),
             )
             .toHex(),
         };
@@ -129,7 +129,7 @@ export class SiwfV2Service {
         // Await here so the error is caught
         payload = await validateSiwfResponse(request.authorizationPayload, loginMsgDomain);
       } catch (e) {
-        this.logger.warn('Failed to parse "authorizationPayload"', { error: e });
+        this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
       }
     } else if (request.authorizationCode) {
@@ -140,7 +140,7 @@ export class SiwfV2Service {
           loginMsgDomain,
         });
       } catch (e) {
-        this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e });
+        this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e.toString() });
         throw new BadRequestException('Invalid response from `authorizationCode` payload fetch.');
       }
     } else {
@@ -213,7 +213,7 @@ export class SiwfV2Service {
         type: TransactionType.SIWF_SIGNUP,
       });
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e });
+      this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e.toString() });
       throw new BadRequestException('Failed to process payloads');
     }
   }
@@ -243,7 +243,7 @@ export class SiwfV2Service {
         frequencyRpcUrl,
       };
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Redrect URL request', { error: e });
+      this.logger.warn('Error during SIWF V2 Redrect URL request', { error: e.toString() });
       throw new BadRequestException('Failed to get SIWF V2 Redirect URL');
     }
     return response;

@@ -11,8 +11,8 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import blockchainConfig from '#content-publishing-lib/blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 
@@ -20,7 +20,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, cacheConfig, queueConfig, blockchainConfig],
+      load: [apiConfig, cacheConfig, queueConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

@@ -8,8 +8,8 @@ import {
   SiwfCredentialRequest,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import blockchainConfig, { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class SiwfV2Service {
   constructor(
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }

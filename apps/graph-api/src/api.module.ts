@@ -6,19 +6,21 @@ import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
-import { BlockchainModule } from '#graph-lib/blockchain';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
-import { allowReadOnly } from '#graph-lib/blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import { allowReadOnly } from '#blockchain/blockchain.config';
+import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import { EncryptionService } from '#graph-lib/services/encryption.service';
 
 @Module({
   imports: [
@@ -44,7 +46,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    BlockchainModule,
+    BlockchainModule.forRootAsync({ readOnly: true }),
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig) => [
         {
@@ -61,6 +63,7 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
     ApiService,
     GraphStateManager,
     AsyncDebouncerService,
+    EncryptionService,
     // global exception handling
     {
       provide: APP_FILTER,

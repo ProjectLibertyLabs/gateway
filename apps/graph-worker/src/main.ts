@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { KeepAliveStrategy } from '#graph-lib/utils/keepalive-strategy';
+import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 
 const logger = new Logger('main');
 

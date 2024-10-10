@@ -1,6 +1,5 @@
 import * as ipfsHash from 'ipfs-only-hash';
 import { CID } from 'multiformats';
-import { encode } from 'multihashes';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { base32 } from 'multiformats/bases/base32';
 
@@ -15,10 +14,8 @@ export async function calculateIpfsCID(buffer: Buffer): Promise<string> {
 }
 
 export const calculateDsnpMultiHash = async (fileBuffer: Buffer): Promise<string> => {
-  // Hash with sha256
-  // Encode with base32
+  // Hash with sha256 which prefixes with multihash
   const hashed = await sha256.digest(fileBuffer);
-  // add multihash prefix for sha256
-  const multihash = encode(hashed.bytes, 'sha2-256');
-  return base32.encode(multihash);
+  // Encode with base32
+  return base32.encode(hashed.bytes);
 };

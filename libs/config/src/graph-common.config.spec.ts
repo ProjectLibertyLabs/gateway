@@ -9,6 +9,7 @@ describe('Graph Common Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     DEBOUNCE_SECONDS: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
+    AT_REST_ENCRYPTION_KEY_SEED: undefined,
   };
 
   beforeAll(() => {
@@ -25,6 +26,9 @@ describe('Graph Common Config', () => {
 
     it('invalid graph environment type should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
+
+    it('missing at rest encryption key seed should fail', async () =>
+      validateMissing(ALL_ENV, 'AT_REST_ENCRYPTION_KEY_SEED'));
   });
 
   describe('valid environment', () => {
@@ -43,6 +47,10 @@ describe('Graph Common Config', () => {
 
     it('should get graph environment type', () => {
       expect(graphCommonConf.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
+    });
+
+    it('should get at rest encryption key seed', () => {
+      expect(graphCommonConf.atRestEncryptionKeySeed).toStrictEqual(ALL_ENV.AT_REST_ENCRYPTION_KEY_SEED);
     });
   });
 });

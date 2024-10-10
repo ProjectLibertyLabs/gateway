@@ -5,7 +5,7 @@ import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { ContentPublishingQueues as QueueConstants, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { IPublisherJob } from '../interfaces';
 import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
@@ -14,7 +14,7 @@ import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
 import { IContentTxStatus } from '#types/interfaces';
-import { CapacityCheckerService } from '#content-publishing-lib/blockchain/capacity-checker.service';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()

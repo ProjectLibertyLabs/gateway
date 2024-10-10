@@ -34,22 +34,22 @@ export namespace ContentWatcherQueues {
   /**
    * Name of the queue that has all incoming requests
    */
-  export const REQUEST_QUEUE_NAME = 'requestQueue';
+  export const WATCHER_REQUEST_QUEUE_NAME = 'watcherRequestQueue';
 
   /**
    * All of the announcement type queues
    */
-  export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
-  export const REPLY_QUEUE_NAME = 'replyQueue';
-  export const REACTION_QUEUE_NAME = 'reactionQueue';
-  export const UPDATE_QUEUE_NAME = 'updateQueue';
-  export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
-  export const PROFILE_QUEUE_NAME = 'profileQueue';
+  export const WATCHER_BROADCAST_QUEUE_NAME = 'watcherBroadcastQueue';
+  export const WATCHER_REPLY_QUEUE_NAME = 'watcherReplyQueue';
+  export const WATCHER_REACTION_QUEUE_NAME = 'watcherReactionQueue';
+  export const WATCHER_UPDATE_QUEUE_NAME = 'watcherUpdateQueue';
+  export const WATCHER_TOMBSTONE_QUEUE_NAME = 'watcherTombstoneQueue';
+  export const WATCHER_PROFILE_QUEUE_NAME = 'watcherProfileQueue';
 
   /**
    * Name of the queue that has all incoming IPFS messages from the blockchain
    */
-  export const IPFS_QUEUE = 'contentIpfsQueue';
+  export const WATCHER_IPFS_QUEUE = 'watcherContentIpfsQueue';
 
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     config: {
@@ -64,28 +64,28 @@ export namespace ContentWatcherQueues {
     },
     queues: [
       {
-        name: REQUEST_QUEUE_NAME,
+        name: WATCHER_REQUEST_QUEUE_NAME,
       },
       {
-        name: IPFS_QUEUE,
+        name: WATCHER_IPFS_QUEUE,
       },
       {
-        name: BROADCAST_QUEUE_NAME,
+        name: WATCHER_BROADCAST_QUEUE_NAME,
       },
       {
-        name: REPLY_QUEUE_NAME,
+        name: WATCHER_REPLY_QUEUE_NAME,
       },
       {
-        name: REACTION_QUEUE_NAME,
+        name: WATCHER_REACTION_QUEUE_NAME,
       },
       {
-        name: TOMBSTONE_QUEUE_NAME,
+        name: WATCHER_TOMBSTONE_QUEUE_NAME,
       },
       {
-        name: PROFILE_QUEUE_NAME,
+        name: WATCHER_PROFILE_QUEUE_NAME,
       },
       {
-        name: UPDATE_QUEUE_NAME,
+        name: WATCHER_UPDATE_QUEUE_NAME,
       },
     ],
   };
@@ -109,15 +109,20 @@ export namespace ContentPublishingQueues {
    */
   export const STATUS_QUEUE_NAME = 'statusQueue';
 
-  export const {
-    REQUEST_QUEUE_NAME,
-    BROADCAST_QUEUE_NAME,
-    REPLY_QUEUE_NAME,
-    REACTION_QUEUE_NAME,
-    UPDATE_QUEUE_NAME,
-    TOMBSTONE_QUEUE_NAME,
-    PROFILE_QUEUE_NAME,
-  } = ContentWatcherQueues;
+  /**
+   * Name of the queue that has all incoming requests
+   */
+  export const REQUEST_QUEUE_NAME = 'requestQueue';
+
+  /**
+   * All the announcement type queues
+   */
+  export const BROADCAST_QUEUE_NAME = 'broadcastQueue';
+  export const REPLY_QUEUE_NAME = 'replyQueue';
+  export const REACTION_QUEUE_NAME = 'reactionQueue';
+  export const UPDATE_QUEUE_NAME = 'updateQueue';
+  export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
+  export const PROFILE_QUEUE_NAME = 'profileQueue';
 
   /**
    * Map between queue name and its announcement type

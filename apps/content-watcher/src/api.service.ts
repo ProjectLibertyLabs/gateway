@@ -9,10 +9,10 @@ import {
   EVENTS_TO_WATCH_KEY,
   REGISTERED_WEBHOOK_KEY,
   ContentWatcherQueues as QueueConstants,
+  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 import { IWebhookRegistration } from '#types/dtos/content-watcher/subscription.webhook.dto';
-import * as RedisUtils from '#content-watcher-lib/utils/redis';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
@@ -23,7 +23,7 @@ export class ApiService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
     this.logger = new Logger(this.constructor.name);
@@ -38,11 +38,7 @@ export class ApiService {
     this.logger.warn(`Setting watch options to ${JSON.stringify(watchOptions)}`);
     const currentWatchOptions = await this.redis.get(EVENTS_TO_WATCH_KEY);
     this.logger.warn(`Current watch options are ${currentWatchOptions}`);
-    await this.redis.setex(
-      EVENTS_TO_WATCH_KEY,
-      RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
-      JSON.stringify(watchOptions),
-    );
+    await this.redis.setex(EVENTS_TO_WATCH_KEY, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, JSON.stringify(watchOptions));
   }
 
   public pauseScanner() {
@@ -75,7 +71,7 @@ export class ApiService {
     const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;
     await this.redis.setex(
       JOB_REQUEST_WATCH_KEY,
-      RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+      STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
       JSON.stringify(contentSearchRequestDto.filters),
     );
     return jobPromise;

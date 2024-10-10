@@ -1,4 +1,4 @@
-SERVICES=account content-publishing content-watcher graph
+SERVICES=account content-publishing content-watcher graph libs
 
 BUILD_TARGETS=$(SERVICES:%=build-%)
 TEST_TARGETS=$(SERVICES:%=test-%)

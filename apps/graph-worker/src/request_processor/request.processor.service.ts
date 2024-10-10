@@ -12,18 +12,18 @@ import {
   Action,
   PrivacyType,
 } from '@dsnp/graph-sdk';
-import { MessageSourceId, SchemaGrantResponse } from '@frequency-chain/api-augment/interfaces';
-import { Option, Vec } from '@polkadot/types';
+import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BaseConsumer } from '#consumer';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import fs from 'fs';
-import { BlockchainService } from '#graph-lib/blockchain';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { GraphUpdateJob, ConnectionDto, Direction } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
+import { EncryptionService } from '#graph-lib/services/encryption.service';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
@@ -37,6 +37,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublisherQueue: Queue,
     private graphStateManager: GraphStateManager,
     private blockchainService: BlockchainService,
+    private encryptionService: EncryptionService,
   ) {
     super();
     cacheManager.defineCommand('updateLastProcessed', {
@@ -58,9 +59,14 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
           setTimeout(r, blockDelay);
         });
       }
+      const decryptedKeyPairs = await this.encryptionService.decryptPrivateKeys(
+        job.data.encryptionPublicKey,
+        job.data.encryptionSenderContext,
+        job.data.graphKeyPairs,
+      );
       const { dsnpId, providerId } = job.data;
       this.graphStateManager.removeUserGraph(dsnpId);
-      await this.graphStateManager.importBundles(dsnpId, job.data.graphKeyPairs ?? []);
+      await this.graphStateManager.importBundles(dsnpId, decryptedKeyPairs ?? []);
       // using graphConnections form Action[] and update the user's DSNP Graph
       const actions: Action[] = await this.formConnections(dsnpId, providerId, job.data.connections);
       try {
@@ -92,7 +98,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
         );
       });
 
-      const reImported = await this.graphStateManager.importBundles(dsnpId, job.data.graphKeyPairs ?? []);
+      const reImported = await this.graphStateManager.importBundles(dsnpId, decryptedKeyPairs ?? []);
       if (reImported) {
         // Use lua script to update last processed dsnpId
         // @ts-expect-error updateLastProcessed is defined in the constructor
@@ -149,19 +155,10 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
           privacyType as PrivacyType,
         );
         /// make sure user has delegation for schemaId
-        const delegations: Option<Vec<SchemaGrantResponse>> = await this.blockchainService.rpc(
-          'msa',
-          'grantedSchemaIdsByMsaId',
-          dsnpUserId,
-          providerId,
-        );
+        const delegations = await this.blockchainService.getProviderDelegationForMsa(dsnpUserId, providerId);
         let isDelegated = false;
-        if (delegations.isSome) {
-          isDelegated =
-            delegations
-              .unwrap()
-              .toArray()
-              .findIndex((grant) => grant.schema_id.toNumber() === schemaId) !== -1;
+        if (delegations) {
+          isDelegated = delegations.schemaDelegations.findIndex((grant) => grant.schemaId === schemaId) !== -1;
         }
 
         if (!isDelegated) {

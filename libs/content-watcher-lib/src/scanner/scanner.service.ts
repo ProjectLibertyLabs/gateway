@@ -8,12 +8,16 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { Queue } from 'bullmq';
-import { BlockchainService } from '../blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
-import { EVENTS_TO_WATCH_KEY, LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, REGISTERED_WEBHOOK_KEY } from '#types/constants';
+import {
+  EVENTS_TO_WATCH_KEY,
+  LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY,
+  REGISTERED_WEBHOOK_KEY,
+  STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+} from '#types/constants';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
-import * as RedisUtils from '#content-watcher-lib/utils/redis';
-import { ChainEventProcessorService } from '../blockchain/chain-event-processor.service';
+import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
 
@@ -31,9 +35,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   constructor(
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
-    private readonly blockchainService: BlockchainService,
+    private readonly blockchainService: BlockchainRpcQueryService,
     @InjectRedis() private readonly cache: Redis,
-    @InjectQueue(QueueConstants.IPFS_QUEUE) private readonly ipfsQueue: Queue,
+    @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private chainEventProcessor: ChainEventProcessorService,
   ) {
@@ -163,6 +167,6 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
   }
 
   private async setLastSeenBlockNumber(b: number): Promise<void> {
-    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, RedisUtils.STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b);
+    await this.cache.setex(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, b);
   }
 }

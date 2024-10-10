@@ -26,7 +26,7 @@ import { hexToU8a } from '@polkadot/util';
 import { AnyNumber } from '@polkadot/types/types';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { KeyType } from '#types/dtos/graph/key-type.enum';
-import { BlockchainService } from '../blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 
 @Injectable()
@@ -81,7 +81,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
   constructor(
     @Inject(graphCommonConfig.KEY) graphCommonConf: IGraphCommonConfig,
-    private blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
   ) {
     const { graphEnvironmentType } = graphCommonConf;
     this.environment = { environmentType: EnvironmentType[graphEnvironmentType] };
@@ -245,21 +245,15 @@ export class GraphStateManager implements OnApplicationBootstrap {
     const privateFollowSchemaId = this.getSchemaIdFromConfig(ConnectionType.Follow, PrivacyType.Private);
     const privateFriendshipSchemaId = this.getSchemaIdFromConfig(ConnectionType.Friendship, PrivacyType.Private);
 
-    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc(
-      'statefulStorage',
-      'getPaginatedStorage',
+    const publicFollows: PaginatedStorageResponse[] = await this.blockchainService.getPaginatedStorage(
       dsnpUserId,
       publicFollowSchemaId,
     );
-    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.rpc(
-      'statefulStorage',
-      'getPaginatedStorage',
+    const privateFollows: PaginatedStorageResponse[] = await this.blockchainService.getPaginatedStorage(
       dsnpUserId,
       privateFollowSchemaId,
     );
-    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.rpc(
-      'statefulStorage',
-      'getPaginatedStorage',
+    const privateFriendships: PaginatedStorageResponse[] = await this.blockchainService.getPaginatedStorage(
       dsnpUserId,
       privateFriendshipSchemaId,
     );
@@ -326,9 +320,7 @@ export class GraphStateManager implements OnApplicationBootstrap {
 
   async formDsnpKeys(dsnpUserId: MessageSourceId | AnyNumber): Promise<DsnpKeys> {
     const publicKeySchemaId = this.getGraphKeySchemaId();
-    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.rpc(
-      'statefulStorage',
-      'getItemizedStorage',
+    const publicKeys: ItemizedStoragePageResponse = await this.blockchainService.getItemizedStorage(
       dsnpUserId,
       publicKeySchemaId,
     );

@@ -1,11 +1,15 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
+interface IsSignatureValidationOption extends ValidationOptions {
+  shouldHaveSignatureType?: boolean | undefined;
+}
+
 /**
  * Validating a singular SR25519 signature or a valid MultiSignature of Sr25519, Ed25519 or Ecdsa
  * @param validationOptions
  * @constructor
  */
-export function IsSignature(validationOptions?: ValidationOptions) {
+export function IsSignature(validationOptions?: IsSignatureValidationOption) {
   // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {
     registerDecorator({
@@ -23,6 +27,10 @@ export function IsSignature(validationOptions?: ValidationOptions) {
 
           // ensure the length is always even
           if (re.test(value) && value.length % 2 === 0) {
+            if (validationOptions.shouldHaveSignatureType && value.length - 2 < 130) {
+              return false;
+            }
+
             // check if valid MultiSignature of Ecdsa
             if (value.length - 2 === 132 && !value.startsWith('02', 2)) {
               return false;
@@ -39,6 +47,9 @@ export function IsSignature(validationOptions?: ValidationOptions) {
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
+          if (validationOptions.shouldHaveSignatureType) {
+            return `${args.property} should be a valid 65-66 bytes MultiSignature value in hex!`;
+          }
           return `${args.property} should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex!`;
         },
       },

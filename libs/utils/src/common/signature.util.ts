@@ -1,4 +1,5 @@
-import { SignerResult, Signer } from '@polkadot/types/types';
+import { Bytes } from '@polkadot/types';
+import { SignerResult, Signer, Registry } from '@polkadot/types/types';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
 
@@ -83,16 +84,21 @@ interface StatefulStoragePayloadIn extends StatefulStoragePayloadCommon {
 }
 
 interface StatefulStoragePayloadOut extends StatefulStoragePayloadCommon {
-  actions: ({ Update: string } | { Add: string })[];
+  actions: ({ Update: Uint8Array } | { Add: Uint8Array })[];
 }
 
-export const statefulStoragePayload = (payload: StatefulStoragePayloadIn): StatefulStoragePayloadOut => {
+export const statefulStoragePayload = (
+  registry: Registry,
+  payload: StatefulStoragePayloadIn,
+): StatefulStoragePayloadOut => {
   const actions = payload.actions.map((act) => {
+    // Make sure that the length and other parameters are properly encoded by using Bytes and toU8a(withLength)
+    const bytes = new Bytes(registry, act.payloadHex);
     switch (act.type) {
       case 'addItem':
-        return { Add: act.payloadHex };
+        return { Add: bytes.toU8a(false) };
       case 'updateItem':
-        return { Update: act.payloadHex };
+        return { Update: bytes.toU8a(false) };
       default:
         throw new Error(`Unknown statefulStorage action: ${act.type}`);
     }

@@ -2,6 +2,8 @@
 
 In this section, we will discuss best practices for securing API access, focusing on using NGINX as a reverse proxy, handling CORS configurations, and using load balancers to enhance security and scalability.
 
+Note: refer to this [guide](./Nginx.md) for setting up NGINX Ingress in Kubernetes.
+
 ## 1. **Using NGINX as a Reverse Proxy**
 
 NGINX can act as an entry point for your APIs, providing a layer of security by:

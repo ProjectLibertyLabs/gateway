@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
 
 interface IsSignatureValidationOption extends ValidationOptions {
-  shouldHaveSignatureType?: boolean | undefined;
+  requiresSignatureType?: boolean | undefined;
 }
 
 /**
@@ -27,7 +27,7 @@ export function IsSignature(validationOptions?: IsSignatureValidationOption) {
 
           // ensure the length is always even
           if (re.test(value) && value.length % 2 === 0) {
-            if (validationOptions.shouldHaveSignatureType && value.length - 2 < 130) {
+            if (validationOptions.requiresSignatureType && value.length - 2 < 130) {
               return false;
             }
 
@@ -47,7 +47,7 @@ export function IsSignature(validationOptions?: IsSignatureValidationOption) {
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          if (validationOptions.shouldHaveSignatureType) {
+          if (validationOptions.requiresSignatureType) {
             return `${args.property} should be a valid 65-66 bytes MultiSignature value in hex!`;
           }
           return `${args.property} should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex!`;

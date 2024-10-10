@@ -15,7 +15,7 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
   providerId: 1n,
   providerSeedPhrase: '//Alice',
-  frequencyUrl: new URL('ws://localhost:9944'),
+  frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
 

@@ -308,6 +308,22 @@ kubectl get services
 
 ### 3.1 Terraform Configuration
 
+Terraform can automate the provisioning of cloud compute resources. This repo includes example Terraform configurations for deploying EC2 instances on AWS, using Docker Swarm or Kubernetes for orchestration.
+
+```bash
+terraform/examples/
+├── aws-docker-swarm
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── user-data.sh
+│   └── outputs.tf
+└── aws-k8s-cluster
+    ├── main.tf
+    ├── variables.tf
+    ├── user-data.tftpl
+    └── outputs.tf
+```
+
 #### Step 1: Create Directory Structure
 
 ```bash

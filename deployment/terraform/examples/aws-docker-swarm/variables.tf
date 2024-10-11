@@ -10,12 +10,6 @@ variable "swarm_worker_node_count" {
   default     = 0
 }
 
-variable "cluster_name" {
-  description = "Name of the Kubernetes cluster"
-  type        = string
-  default     = "gateway-k8s-cluster"
-}
-
 variable "node_count" {
   description = "Number of Kubernetes nodes to create"
   type        = number

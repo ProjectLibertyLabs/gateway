@@ -68,7 +68,7 @@ export class SiwfV2Service {
   ): Promise<WalletV2RedirectResponseDto> {
     let response: WalletV2RedirectResponseDto;
     try {
-      const { frequencyHttpUrl }: IAccountApiConfig = this.apiConf;
+      const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
       const { providerSeedPhrase } = this.blockchainConf;
 
       const signedRequest = await generateEncodedSignedRequest(
@@ -77,7 +77,7 @@ export class SiwfV2Service {
         permissions,
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),
       );
-      const frequencyRpcUrl = frequencyHttpUrl.toString();
+      const frequencyRpcUrl = siwfNodeRpcUrl.toString();
       response = {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {

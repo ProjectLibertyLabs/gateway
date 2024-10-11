@@ -10,7 +10,7 @@ describe('Account API Config', () => {
     API_BODY_JSON_LIMIT: undefined,
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,
-    FREQUENCY_HTTP_URL: undefined,
+    SIWF_NODE_RPC_URL: undefined,
     SIWF_URL: undefined,
   };
 

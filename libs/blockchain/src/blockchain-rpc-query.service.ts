@@ -467,6 +467,7 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
       };
     }
 
+    this.logger.error(`Expected HandleClaimed event but found ${event}`);
     return {} as HandleTxnValues;
   }
 
@@ -488,6 +489,7 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
       };
     }
 
+    this.logger.error(`Expected PublicKeyAdded event but found ${event}`);
     return {} as PublicKeyValues;
   }
 
@@ -513,6 +515,7 @@ export class BlockchainRpcQueryService implements OnApplicationBootstrap, OnAppl
       };
     }
 
+    this.logger.error(`Expected ItemizedPageUpdated event but found ${event}`);
     return {} as ItemizedPageUpdated;
   }
 

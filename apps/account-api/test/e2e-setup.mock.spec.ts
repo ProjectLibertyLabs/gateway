@@ -90,7 +90,6 @@ export async function generateAddPublicKeyExtrinsic(
     ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);
 }
 
-
 export const validSiwfV2Create = {
   userPublicKey: {
     encodedValue: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
@@ -161,10 +160,7 @@ export const validSiwfV2Create = {
   ],
   credentials: [
     {
-      '@context': [
-        'https://www.w3.org/ns/credentials/v2',
-        'https://www.w3.org/ns/credentials/undefined-terms/v2',
-      ],
+      '@context': ['https://www.w3.org/ns/credentials/v2', 'https://www.w3.org/ns/credentials/undefined-terms/v2'],
       type: ['VerifiedEmailAddressCredential', 'VerifiableCredential'],
       issuer: 'did:web:frequencyaccess.com',
       validFrom: '2024-08-21T21:28:08.289+0000',
@@ -182,15 +178,11 @@ export const validSiwfV2Create = {
         verificationMethod: 'did:web:frequencyaccess.com#z6MkofWExWkUvTZeXb9TmLta5mBT6Qtj58es5Fqg1L5BCWQD',
         cryptosuite: 'eddsa-rdfc-2022',
         proofPurpose: 'assertionMethod',
-        proofValue:
-          'z4jArnPwuwYxLnbBirLanpkcyBpmQwmyn5f3PdTYnxhpy48qpgvHHav6warjizjvtLMg6j3FK3BqbR2nuyT2UTSWC',
+        proofValue: 'z4jArnPwuwYxLnbBirLanpkcyBpmQwmyn5f3PdTYnxhpy48qpgvHHav6warjizjvtLMg6j3FK3BqbR2nuyT2UTSWC',
       },
     },
     {
-      '@context': [
-        'https://www.w3.org/ns/credentials/v2',
-        'https://www.w3.org/ns/credentials/undefined-terms/v2',
-      ],
+      '@context': ['https://www.w3.org/ns/credentials/v2', 'https://www.w3.org/ns/credentials/undefined-terms/v2'],
       type: ['VerifiedGraphKeyCredential', 'VerifiableCredential'],
       issuer: 'did:key:z6QNucQV4AF1XMQV4kngbmnBHwYa6mVswPEGrkFrUayhttT1',
       validFrom: '2024-08-21T21:28:08.289+0000',
@@ -212,9 +204,8 @@ export const validSiwfV2Create = {
         verificationMethod: 'did:key:z6MktZ15TNtrJCW2gDLFjtjmxEdhCadNCaDizWABYfneMqhA',
         cryptosuite: 'eddsa-rdfc-2022',
         proofPurpose: 'assertionMethod',
-        proofValue:
-          'z2HHWwtWggZfvGqNUk4S5AAbDGqZRFXjpMYAsXXmEksGxTk4DnnkN3upCiL1mhgwHNLkxY3s8YqNyYnmpuvUke7jF',
+        proofValue: 'z2HHWwtWggZfvGqNUk4S5AAbDGqZRFXjpMYAsXXmEksGxTk4DnnkN3upCiL1mhgwHNLkxY3s8YqNyYnmpuvUke7jF',
       },
     },
   ],
-}
+};

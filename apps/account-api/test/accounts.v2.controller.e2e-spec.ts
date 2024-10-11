@@ -166,9 +166,7 @@ describe('Accounts v2 Controller', () => {
   describe('(POST) /v2/accounts/siwf', () => {
     it('should process a valid SIWF v2 callback with authorizationPayload', async () => {
       const mockPayload = {
-        authorizationPayload: base64url(
-          JSON.stringify(validSiwfV2Create),
-        ),
+        authorizationPayload: base64url(JSON.stringify(validSiwfV2Create)),
       };
 
       const response = await request(httpServer).post('/v2/accounts/siwf').send(mockPayload).expect(HttpStatus.OK);

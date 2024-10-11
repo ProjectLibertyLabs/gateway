@@ -97,8 +97,8 @@ EOI
     DEFAULT_CONTENT_DB_VOLUME="content_db"
 
 
-    ask_and_save FREQUENCY_API_WS_URL "Enter the Frequency Testnet RPC URL" "$DEFAULT_FREQUENCY_API_WS_URL"
-    ask_and_save SIWF_NODE_RPC_URL "Enter the Frequency HTTP Testnet RPC URL" "$DEFAULT_SIWF_NODE_RPC_URL"
+    ask_and_save FREQUENCY_API_WS_URL "Enter the Frequency API Websocket URL" "$DEFAULT_FREQUENCY_API_WS_URL"
+    ask_and_save SIWF_NODE_RPC_URL "Enter the SIWF Node RPC URL" "$DEFAULT_SIWF_NODE_RPC_URL"
 cat << EOI
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓

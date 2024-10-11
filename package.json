@@ -103,7 +103,7 @@
     "@bull-board/ui": "^5.21.4",
     "@dsnp/activity-content": "^1.1.0",
     "@dsnp/graph-sdk": "^1.1.4",
-    "@dsnp/parquetjs": "^1.8.4",
+    "@dsnp/parquetjs": "^1.8.5",
     "@dsnp/schemas": "^1.3.2",
     "@frequency-chain/api-augment": "~1.13.2",
     "@hpke/core": "^1.4.3",

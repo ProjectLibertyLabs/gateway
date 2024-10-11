@@ -1,0 +1,201 @@
+# Default values for frequency-gateway.
+
+# This will set the replicaset count
+replicaCount: 1
+
+# Chart name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+# Pod and container security contexts
+podSecurityContext: {}
+securityContext: {}
+
+# Ingress configuration
+# Using nginx ingress controller, 
+# ensure nginx ingress controller is installed
+ingress:
+  enabled: false
+
+# Resource limits and requests
+resources: {}
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Additional volumes and volume mounts
+volumes: []
+volumeMounts: []
+
+# Node selector, tolerations, and affinity settings
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Support vault integration
+vault:
+  enabled: false 
+  secretsPath: "secret/frequency-gateway"
+  role: "frequency-gateway-role"
+
+# Service configuration
+service:
+  type: NodePort
+  account:
+    port: 8080
+    targetPort: http-account
+    deploy: true
+  contentPublishing:
+    port: 8081
+    targetPort: http-publishing
+    deploy: false
+  contentWatcher:
+    port: 8082
+    targetPort: http-watcher
+    deploy: false
+  graph:
+    port: 8083
+    targetPort: http-graph
+    deploy: false
+
+# Deployment configuration
+account:
+  image:
+    repository: "projectlibertylabs/account-service"
+    tag: "latest"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
+    mode:
+      api:
+        args: "account-api"
+      worker:
+        args: "account-worker"
+  env:
+    API_PORT: "3002"
+    FREQUENCY_URL: "ws://<host-ip>:9944"
+    FREQUENCY_HTTP_URL: "http://<host-ip>:9944"
+    PROVIDER_ID: "1"
+    WEBHOOK_BASE_URL: "http://host.docker.internal:3001/webhooks/account-service"
+    REDIS_URL: "redis://<host-ip>:6379"
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "3"
+    TRUST_UNFINALIZED_BLOCKS: "true"
+    WEBHOOK_FAILURE_THRESHOLD: "3"
+    WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_MAX_RETRIES: "4"
+    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_SUCCESS_THRESHOLD: "10"
+    CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
+    SIWF_URL: "https://ProjectLibertyLabs.github.io/siwf/ui"
+    SIWF_DOMAIN: "localhost"
+    DEBUG: "true"
+    CACHE_KEY_PREFIX: "account:"
+    GRAPH_ENVIRONMENT_TYPE: "TestnetPaseo"
+    API_TIMEOUT_MS: "5000"
+    API_BODY_JSON_LIMIT: "1mb"
+  secret:
+    PROVIDER_ACCESS_TOKEN: "some-token"
+    PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
+
+contentPublishing:
+  image:
+    repository: "projectlibertylabs/content-publishing-service"
+    tag: "latest"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
+    mode:
+      api:
+        args: "content-publishing-api"
+      worker:
+        args: "content-publishing-worker"
+  env:
+    API_PORT: "3003"
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
+    TRUST_UNFINALIZED_BLOCKS: "false"
+    IPFS_ENDPOINT: "http://<host-ip>:5001"
+    IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
+    FREQUENCY_URL: "ws://<host-ip>:9944"
+    PROVIDER_ID: "1"
+    REDIS_URL: "redis://<host-ip>:6379"
+    CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
+    FILE_UPLOAD_MAX_SIZE_IN_BYTES: "2000000000"
+    ASSET_EXPIRATION_INTERVAL_SECONDS: "300"
+    BATCH_INTERVAL_SECONDS: "12"
+    BATCH_MAX_COUNT: "1000"
+    ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: "5"
+    CACHE_KEY_PREFIX: "content-publishing:"
+  secret:
+    IPFS_BASIC_AUTH_USER: ""
+    IPFS_BASIC_AUTH_SECRET: ""
+    PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
+
+contentWatcher:
+  image:
+    repository: "projectlibertylabs/content-watcher-service"
+    tag: "latest"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
+  env:
+    API_PORT: "3004"
+    IPFS_ENDPOINT: "http://<host-ip>:5001"
+    IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
+    FREQUENCY_URL: "ws://<host-ip>:9944"
+    REDIS_URL: "redis://<host-ip>:6379"
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
+    QUEUE_HIGH_WATER: "1000"
+    WEBHOOK_FAILURE_THRESHOLD: "4"
+    WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
+    CACHE_KEY_PREFIX: "content-watcher:"
+  secret:
+    IPFS_BASIC_AUTH_USER: ""
+    IPFS_BASIC_AUTH_SECRET: ""
+
+graph:
+  image:
+    repository: "projectlibertylabs/graph-service"
+    tag: "latest"
+    healthCheckPath: "/healthz"
+    readinessProbePath: "/readyz"
+    mode:
+      api:
+        args: "graph-api"
+      worker:
+        args: "graph-worker"
+  env:
+    API_PORT: "3005"
+    FREQUENCY_URL: "ws://<host-ip>:9944"
+    PROVIDER_ID: "1"
+    REDIS_URL: "redis://<host-ip>:6379"
+    QUEUE_HIGH_WATER: "1000"
+    DEBOUNCE_SECONDS: "10"
+    CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
+    GRAPH_ENVIRONMENT_TYPE: "Mainnet"
+    RECONNECTION_SERVICE_REQUIRED: "true"
+    PROVIDER_BASE_URL: "https://some-provider/api/v1.0.0"
+    CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: "100"
+    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "6"
+    WEBHOOK_FAILURE_THRESHOLD: "3"
+    HEALTH_CHECK_SUCCESS_THRESHOLD: "10"
+    WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "10"
+    HEALTH_CHECK_MAX_RETRIES: "4"
+    CACHE_KEY_PREFIX: "graph:"
+  secret:
+    PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
+    PROVIDER_ACCESS_TOKEN: "some-token"
+    AT_REST_ENCRYPTION_KEY_SEED: 'egg angry govern region tuition hawk solid rotate heart upgrade coral van'
+

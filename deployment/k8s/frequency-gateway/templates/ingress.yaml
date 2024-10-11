@@ -1,0 +1,48 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "frequency-gateway.fullname" . }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-max-age: "1728000"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /account/(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.account.port }} 
+          - path: /content-publishing
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.contentPublishing.port }}
+          - path: /content-watcher
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.contentWatcher.port }}
+          - path: /graph
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.graph.port }}
+{{- end }}

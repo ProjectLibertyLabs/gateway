@@ -10,7 +10,7 @@ describe('Account API Config', () => {
     API_BODY_JSON_LIMIT: undefined,
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,
-    FREQUENCY_HTTP_URL: undefined,
+    SIWF_NODE_RPC_URL: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
     SIWF_URL: undefined,
     SIWF_V2_URL: undefined,
@@ -24,10 +24,10 @@ describe('Account API Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing frequency http url should fail', async () => validateMissing(ALL_ENV, 'FREQUENCY_HTTP_URL'));
+    it('missing SIWF Node RPC url should fail', async () => validateMissing(ALL_ENV, 'SIWF_NODE_RPC_URL'));
 
-    it('invalid frequency http url should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'FREQUENCY_HTTP_URL', ['invalid url']));
+    it('invalid SIWF Node RPC url should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'SIWF_NODE_RPC_URL', ['invalid url']));
 
     it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
 
@@ -59,8 +59,8 @@ describe('Account API Config', () => {
       expect(accountServiceConfig).toBeDefined();
     });
 
-    it('should get frequency http url', () => {
-      expect(accountServiceConfig.frequencyHttpUrl?.toString()).toStrictEqual(ALL_ENV.FREQUENCY_HTTP_URL?.toString());
+    it('should get SIWF Node RPC url', () => {
+      expect(accountServiceConfig.siwfNodeRpcUrl?.toString()).toStrictEqual(ALL_ENV.SIWF_NODE_RPC_URL?.toString());
     });
 
     it('should get api port', () => {

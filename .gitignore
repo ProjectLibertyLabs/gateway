@@ -132,4 +132,17 @@ dist
 .pnp.*
 .idea/
 
+# Terraform
+.terraform/
+
+# Ignore SSH keys
+*.pem
+
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Ignore Terraform variables files
+*.tfvars
+
 .DS_Store

@@ -59,12 +59,12 @@ export class AccountsService {
   }
 
   async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
-    const { frequencyHttpUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
+    const { siwfNodeRpcUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
     const { providerId } = this.blockchainConf;
     return {
       providerId: providerId.toString(),
       siwfUrl: siwfUrl.toString(),
-      frequencyRpcUrl: frequencyHttpUrl.toString(),
+      frequencyRpcUrl: siwfNodeRpcUrl.toString(),
     };
   }
 

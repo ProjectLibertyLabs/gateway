@@ -23,16 +23,10 @@ podSecurityContext: {}
 securityContext: {}
 
 # Ingress configuration
+# Using nginx ingress controller, 
+# ensure nginx ingress controller is installed
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
 
 # Resource limits and requests
 resources: {}
@@ -52,6 +46,12 @@ volumeMounts: []
 nodeSelector: {}
 tolerations: []
 affinity: {}
+
+# Support vault integration
+vault:
+  enabled: false 
+  secretsPath: "secret/frequency-gateway"
+  role: "frequency-gateway-role"
 
 # Service configuration
 service:
@@ -197,3 +197,5 @@ graph:
   secret:
     PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
     PROVIDER_ACCESS_TOKEN: "some-token"
+    AT_REST_ENCRYPTION_KEY_SEED: 'egg angry govern region tuition hawk solid rotate heart upgrade coral van'
+

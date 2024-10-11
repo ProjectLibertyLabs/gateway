@@ -1,43 +1,48 @@
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "frequency-gateway.fullname" . }}
-  labels:
-    {{- include "frequency-gateway.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-max-age: "1728000"
 spec:
-  {{- with .Values.ingress.className }}
-  ingressClassName: {{ . }}
-  {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
-  {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host | quote }}
-      http:
+    - http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            {{- with .pathType }}
-            pathType: {{ . }}
-            {{- end }}
+          - path: /account/(.*)
+            pathType: Prefix
             backend:
               service:
-                name: {{ include "frequency-gateway.fullname" $ }}
+                name: {{ include "frequency-gateway.fullname" . }} 
                 port:
-                  number: {{ $.Values.service.port }}
-          {{- end }}
-    {{- end }}
+                  number: {{ .Values.service.account.port }} 
+          - path: /content-publishing
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.contentPublishing.port }}
+          - path: /content-watcher
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.contentWatcher.port }}
+          - path: /graph
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "frequency-gateway.fullname" . }} 
+                port:
+                  number: {{ .Values.service.graph.port }}
 {{- end }}

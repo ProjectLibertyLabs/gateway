@@ -1,6 +1,6 @@
 import { expect, describe, jest, it, beforeEach } from '@jest/globals';
 import assert from 'assert';
-import { FrequencyParquetSchema } from '@dsnp/frequency-schemas/types/frequency';
+import { DSNPParquetSchema } from '@dsnp/schemas';
 import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
 import { BatchAnnouncer } from './batch.announcer';
@@ -26,7 +26,7 @@ const mockIpfsService = {
 describe('BatchAnnouncer', () => {
   let ipfsAnnouncer: BatchAnnouncer;
 
-  const broadcast: FrequencyParquetSchema = [
+  const broadcast: DSNPParquetSchema = [
     {
       name: 'announcementType',
       column_type: {

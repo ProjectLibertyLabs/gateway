@@ -73,6 +73,5 @@ export function validate<T>(config: JoiConfig<T>): T {
         ${error.message}`,
     );
   }
-
   return v;
 }

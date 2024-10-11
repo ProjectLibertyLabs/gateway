@@ -7,15 +7,17 @@ export function validateContentHash(contentHash: unknown): boolean {
     return false;
   }
   const re = /^[A-Z2-7]+=*$/i;
-  // check multihash size hash identifier 2 bytes + hash value 32 bytes
-  if (!(re.test(contentHash) && contentHash.length !== 34)) {
+  if (!re.test(contentHash)) {
     return false;
   }
 
   try {
     const decoded = base32.decode(contentHash.toLowerCase());
+    // check multihash size hash identifier 2 bytes + hash value 32 bytes
+    if (decoded.length !== 34) {
+      return false;
+    }
     const hex = u8aToHex(decoded).toLowerCase();
-
     // check blake3   hash 0x1e20 -> 0x1e for (blake3)   and hash length (0x20 for 32 bytes)
     // check sha2-256 hash 0x1220 -> 0x12 for (sha2-256) and hash length (0x20 for 32 bytes)
     if (!(hex.startsWith('0x1e20') || hex.startsWith('0x1220'))) {

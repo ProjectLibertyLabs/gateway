@@ -49,6 +49,8 @@
       "#queue/*": ["libs/queue/src/*"],
       "#cache": ["libs/cache/src"],
       "#cache/*": ["libs/cache/src/*"],
+      "#blockchain": ["libs/blockchain/src"],
+      "#blockchain/*": ["libs/blockchain/src/*"],
       "#consumer": ["libs/consumer/src"],
       "#consumer/*": ["libs/consumer/src/*"],
       "#storage": ["libs/storage/src"],

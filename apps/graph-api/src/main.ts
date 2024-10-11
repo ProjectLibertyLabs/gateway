@@ -61,7 +61,7 @@ async function bootstrap() {
         transform: true,
       }),
     );
-    // TODO: should get replaced with the config
+
     app.useGlobalInterceptors(new TimeoutInterceptor(apiConf.apiTimeoutMs));
     app.useBodyParser('json', { limit: apiConf.apiBodyJsonLimit });
 

@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
-import { ParquetWriter } from '@dsnp/parquetjs';
-import { fromFrequencySchema } from '@dsnp/frequency-schemas/parquet';
+import { ParquetWriter, ParquetSchema } from '@dsnp/parquetjs';
+import { fromDSNPSchema } from '@dsnp/schemas/parquet';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
-import { BlockchainService } from '#content-publishing-lib/blockchain/blockchain.service';
-import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#content-publishing-lib/utils/redis';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import { IBatchAnnouncerJobData, IPublisherJob } from '../interfaces';
 import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#storage/ipfs/ipfs.config';
 import { IpfsService } from '#storage';
+import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 
 @Injectable()
 export class BatchAnnouncer {
@@ -32,6 +32,9 @@ export class BatchAnnouncer {
     let cachedSchema: string | null = await this.cacheManager.get(schemaCacheKey);
     if (!cachedSchema) {
       const schemaResponse = await this.blockchainService.getSchemaPayload(schemaId);
+      if (!schemaResponse) {
+        throw new Error(`Unable to retrieve schema for Schema ID ${schemaId}`);
+      }
       cachedSchema = JSON.stringify(schemaResponse);
       await this.cacheManager.setex(schemaCacheKey, STORAGE_EXPIRE_UPPER_LIMIT_SECONDS, cachedSchema);
     }
@@ -43,10 +46,14 @@ export class BatchAnnouncer {
       throw new Error(`Unable to parse schema for schemaId ${schemaId}`);
     }
 
-    const [parquetSchema, writerOptions] = fromFrequencySchema(schema);
+    const [parquetSchema, writerOptions] = fromDSNPSchema(schema);
     const publishStream = new PassThrough();
     const parquetBufferAwait = this.bufferPublishStream(publishStream);
-    const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
+    const writer = await ParquetWriter.openStream(
+      new ParquetSchema(parquetSchema),
+      publishStream as any,
+      writerOptions,
+    );
     // eslint-disable-next-line no-restricted-syntax
     for await (const announcement of announcements) {
       await writer.appendRow(announcement);

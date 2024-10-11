@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import { SiwfV2Service } from './siwfV2.service';
 import { IAccountApiConfig } from '#account-api/api.config';
-import { IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
+import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { BlockchainService } from '#account-lib/blockchain/blockchain.service';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
@@ -41,7 +41,7 @@ describe('SiwfV2Service', () => {
   };
 
   const mockBlockchainServiceProvider = {
-    provide: BlockchainService,
+    provide: BlockchainRpcQueryService,
     useValue: mockBlockchainService,
   };
 

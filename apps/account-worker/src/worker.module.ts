@@ -2,8 +2,7 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { BlockchainModule } from '#account-lib/blockchain/blockchain.module';
-import { NONCE_SERVICE_REDIS_NAMESPACE, NonceService } from '#account-lib/services/nonce.service';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
@@ -11,9 +10,11 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#account-lib/blockchain/blockchain.config';
-import queueConfig, { QueueModule } from '#queue';
+import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
+import queueConfig from '#queue';
+import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 
 @Module({
   imports: [
@@ -41,8 +42,7 @@ import workerConfig from './worker.config';
     }),
     QueueModule.forRoot(QueueConstants.CONFIGURED_QUEUES),
     CacheModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
+      useFactory: async (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
           url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,
@@ -50,17 +50,17 @@ import workerConfig from './worker.config';
         {
           url: cacheConf.redisUrl.toString(),
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
     ScheduleModule.forRoot(),
-    BlockchainModule,
+    BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
     TxnNotifierModule,
   ],
-  providers: [ProviderWebhookService, NonceService],
+  providers: [ProviderWebhookService],
   exports: [EventEmitterModule],
 })
 export class WorkerModule {}

@@ -133,6 +133,7 @@ dist
 .idea/
 
 # Terraform
+.terraform/
 
 # Ignore SSH keys
 *.pem

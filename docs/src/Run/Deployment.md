@@ -1,6 +1,6 @@
 # Deploying Gateway Services on AWS EC2
 
-This guide provides step-by-step instructions to deploy the Gateway services on AWS EC2 instances using Docker Swarm and Kubernetes. It also includes Terraform examples to automate the deployments in a cloud-agnostic manner.
+This guide provides example step-by-step instructions to deploy the Gateway services on AWS EC2 instances using Docker Swarm and Kubernetes. You may have to modify these instructions based on your actual AWS configuration. These instructions are provided as a general guide and may also be adapted for other cloud providers. Part 3 also includes Terraform examples to automate the deployments in a cloud-agnostic manner.
 
 ## Table of Contents
 
@@ -103,7 +103,7 @@ cd gateway
 #### Step 2: Deploy the Stack
 
 ```bash
-sudo docker stack deploy -c docker-compose.yml gateway
+sudo docker stack deploy -c docker-compose.yaml gateway
 ```
 
 #### Step 3: Verify the Deployment
@@ -228,57 +228,71 @@ git clone https://github.com/ProjectLibertyLabs/gateway.git
 cd gateway
 ```
 
-#### Step 2: Create Kubernetes Deployment and Service Files
+#### Step 2: Kubernetes Deployment and Service Files
 
-Create a `deployment.yaml` and `service.yaml` based on the Docker images specified in the `docker-compose.yml` from the repository.
+Here we will follow [modified instructions from the Kubernetes documentation](kubernetes.md) to deploy the Frequency Gateway using Helm.
 
-Example `deployment.yaml`:
+Refer to the section "5. Deploying Frequency Gateway" in `kubernetes.md` for detailed steps on a local Kubernetes cluster.
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gateway
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: gateway
-  template:
-    metadata:
-      labels:
-        app: gateway
-    spec:
-      containers:
-      - name: gateway
-        image: projectlibertylabs/gateway:latest
-        ports:
-        - containerPort: 80
-```
+---
 
-Example `service.yaml`:
+#### Step 2.1: Prepare Helm Chart
+
+An example Helm chart (for example, [`frequency-gateway`](/deployment/k8s/frequency-gateway/));
+
+Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
+
+**Sample [`values.yaml`](/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
+
+Things to consider:
+
+- `FREQUENCY_URL` - URL of the Frequency Chain API
+- `REDIS_URL` - URL of the Redis server
+- `IPFS_ENDPOINT`: IPFS endpoint for pinning content
+- `IPFS_GATEWAY_URL`: IPFS gateway URL for fetching content
+- `PROVIDER_ACCOUNT_SEED_PHRASE` - Seed phrase for the provider account
+- `PROVIDER_ID` - MSA ID of the provider account
 
 ```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: gateway-service
-spec:
+service:
   type: NodePort
-  selector:
-    app: gateway
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
+  account:
+    port: 8080
+    targetPort: http-account
+    deploy: true <--- Set to true to deploy
+  contentPublishing:
+    port: 8081
+    targetPort: http-publishing
+    deploy: true
+  contentWatcher:
+    port: 8082
+    targetPort: http-watcher
+    deploy: true
+  graph:
+    port: 8083
+    targetPort: http-graph
+    deploy: true
 ```
 
-#### Step 3: Deploy to Kubernetes
+---
+
+#### Step 3: Deploy with Helm
+
+Deploy gateway with Helm:
 
 ```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
+helm install frequency-gateway deployment/k8s/frequency-gateway/
 ```
+
+Once deployed, verify that your Helm release is deployed:
+
+```bash
+helm list
+```
+
+You should see the status as `deployed`.
+
+---
 
 #### Step 4: Verify the Deployment
 

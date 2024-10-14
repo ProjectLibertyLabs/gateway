@@ -1,4 +1,5 @@
-import { SignerResult, Signer } from '@polkadot/types/types';
+import { Bytes } from '@polkadot/types';
+import { SignerResult, Signer, Registry } from '@polkadot/types/types';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
 
@@ -45,3 +46,66 @@ export function verifySignature(
     };
   }
 }
+
+// Take a SIWF signature and convert it to one for Polkadotjs API
+export const chainSignature = (signature: {
+  encodedValue: string;
+  algo: string;
+}):
+  | {
+      Ed25519: any;
+    }
+  | {
+      Sr25519: any;
+    }
+  | {
+      Ecdsa: any;
+    } => {
+  switch (signature.algo.toLowerCase()) {
+    case 'sr25519':
+      return { Sr25519: signature.encodedValue };
+    case 'ed25519':
+      return { Ed25519: signature.encodedValue };
+    case 'ecdsa':
+      return { Ecdsa: signature.encodedValue };
+    default:
+      throw new Error(`Unknown signature algorithm: ${signature.algo}`);
+  }
+};
+
+interface StatefulStoragePayloadCommon {
+  schemaId: number;
+  targetHash: number;
+  expiration: number;
+}
+
+interface StatefulStoragePayloadIn extends StatefulStoragePayloadCommon {
+  actions: { type: 'addItem' | 'updateItem'; payloadHex: string }[];
+}
+
+interface StatefulStoragePayloadOut extends StatefulStoragePayloadCommon {
+  actions: ({ Update: Uint8Array } | { Add: Uint8Array })[];
+}
+
+export const statefulStoragePayload = (
+  registry: Registry,
+  payload: StatefulStoragePayloadIn,
+): StatefulStoragePayloadOut => {
+  const actions = payload.actions.map((act) => {
+    // Make sure that the length and other parameters are properly encoded by using Bytes and toU8a(withLength)
+    const bytes = new Bytes(registry, act.payloadHex);
+    switch (act.type) {
+      case 'addItem':
+        return { Add: bytes.toU8a(false) };
+      case 'updateItem':
+        return { Update: bytes.toU8a(false) };
+      default:
+        throw new Error(`Unknown statefulStorage action: ${act.type}`);
+    }
+  });
+
+  return {
+    ...payload,
+    actions,
+  };
+};

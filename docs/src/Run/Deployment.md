@@ -23,9 +23,9 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
 ## Prerequisites
 
 - **AWS Account**: Access to create EC2 instances.
-- **AWS CLI**: [Installed and configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) with appropriate permissions.
-- **Terraform**: [Installed](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) on your local machine.
-- **SSH Key Pair**: [For accessing EC2 instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html).
+- [**AWS CLI**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) configured with your AWS credentials and appropriate permissions.
+- [**Terraform**](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) installed on your local machine.
+- [**SSH Key Pair**](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) for accessing EC2 instances.
 - **Basic Knowledge**: Familiarity with [Docker](https://docs.docker.com/get-started/), [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/), and [Terraform](https://www.terraform.io/intro/index.html).
 
 ---

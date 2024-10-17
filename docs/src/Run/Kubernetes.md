@@ -20,12 +20,12 @@ This guide will help you set up, configure, and test your Kubernetes services on
     - [6.1. Accessing via NodePort](#61-accessing-via-nodeport)
     - [6.2. Port-Forward for Local Testing](#62-port-forward-for-local-testing)
   - [7. Finding the Host Machine's IP Address](#7-finding-the-host-machines-ip-address)
-  - [9. Verifying and Troubleshooting](#9-verifying-and-troubleshooting)
+  - [8. Verifying and Troubleshooting](#8-verifying-and-troubleshooting)
     - [Check Pods and Services](#check-pods-and-services)
     - [Inspect Pod Logs](#inspect-pod-logs)
     - [Checking Resources](#checking-resources)
-  - [10. Tearing Down the Deployment](#10-tearing-down-the-deployment)
-  - [Conclusion](#conclusion)
+  - [9. Tearing Down the Deployment](#9-tearing-down-the-deployment)
+  - [10. Conclusion](#10-conclusion)
 
 ---
 
@@ -33,12 +33,12 @@ This guide will help you set up, configure, and test your Kubernetes services on
 
 Before starting, ensure the following:
 
-- **Ubuntu 20.04+**
-- **MicroK8s** installed
-- **Helm** installed
-- **kubectl** command-line tool
-- **Redis** installed and running
-- **Frequency Chain** running
+- **Ubuntu 20.04+**.
+- [**MicroK8s**](https://microk8s.io/docs) installed and configured.
+- [**Helm**](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
+- [**kubectl**](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed for interacting with Kubernetes clusters. This is optional if you're using `microk8s kubectl`.
+- [**Redis**](https://redis.io/docs/getting-started/installation/) installed and running.
+- [**Frequency Chain**](https://docs.frequency.xyz/) running and accessible from the Kubernetes cluster.
 
 Check this [guide](https://ubuntu.com/tutorials/install-a-local-kubernetes-with-microk8s#1-overview), for more details on [installing MicroK8s](https://microk8s.io/docs) and [installing Helm](https://helm.sh/docs/intro/install/)
 
@@ -112,11 +112,11 @@ sudo snap install kubectl --classic
 
 ### 5.1. Prepare Helm Chart
 
-An example Helm chart (for example, [`frequency-gateway`](/deployment/k8s/frequency-gateway/));
+An example Helm chart, for example, [`frequency-gateway`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s);
 
 Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
 
-**Sample [`values.yaml`](/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
+**Sample [`values.yaml`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
 
 Things to consider:
 
@@ -125,7 +125,7 @@ Things to consider:
 - `IPFS_ENDPOINT`: IPFS endpoint for pinning content
 - `IPFS_GATEWAY_URL`: IPFS gateway URL for fetching content
 - `PROVIDER_ACCOUNT_SEED_PHRASE` - Seed phrase for the provider account
-- `PROVIDER_ID` - MSA ID of the provider account
+- `PROVIDER_ID` - MSA Id of the provider account
 
 ```yaml
 service:
@@ -241,7 +241,7 @@ http://<host-ip>:8083
 
 ---
 
-## 9. Verifying and Troubleshooting
+## 8. Verifying and Troubleshooting
 
 ### Check Pods and Services
 
@@ -267,7 +267,7 @@ sudo microk8s kubectl describe service <service-name>
 
 ---
 
-## 10. Tearing Down the Deployment
+## 9. Tearing Down the Deployment
 
 To delete the Helm release and clean up:
 
@@ -283,6 +283,6 @@ sudo microk8s kubectl delete all --all
 
 ---
 
-## Conclusion
+## 10. Conclusion
 
 You've successfully deployed `Frequency Gateway` on Kubernetes and Helm, exposing the services via NodePorts for local access. You can also expand this setup by using Ingress for broader network access or by setting up a cloud-based Kubernetes environment for production deployments.

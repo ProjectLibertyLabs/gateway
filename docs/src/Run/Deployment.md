@@ -23,10 +23,10 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
 ## Prerequisites
 
 - **AWS Account**: Access to create EC2 instances.
-- **AWS CLI**: Installed and configured with appropriate permissions.
-- **Terraform**: Installed on your local machine.
-- **SSH Key Pair**: For accessing EC2 instances.
-- **Basic Knowledge**: Familiarity with Docker, Kubernetes, and Terraform.
+- [**AWS CLI**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) configured with your AWS credentials and appropriate permissions.
+- [**Terraform**](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) installed on your local machine.
+- [**SSH Key Pair**](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) for accessing EC2 instances.
+- **Basic Knowledge**: Familiarity with [Docker](https://docs.docker.com/get-started/), [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/), and [Terraform](https://www.terraform.io/intro/index.html).
 
 ---
 
@@ -238,11 +238,11 @@ Refer to the section "5. Deploying Frequency Gateway" in `kubernetes.md` for det
 
 #### Step 2.1: Prepare Helm Chart
 
-An example Helm chart (for example, [`frequency-gateway`](/deployment/k8s/frequency-gateway/));
+An example Helm chart (for example, [`frequency-gateway`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s);
 
 Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
 
-**Sample [`values.yaml`](/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
+**Sample [`values.yaml`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
 
 Things to consider:
 

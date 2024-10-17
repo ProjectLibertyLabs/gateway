@@ -1,4 +1,22 @@
-# Nginx Ingress for Frequency Gateway
+# NGINX Ingress for Frequency Gateway
+
+## Table of Contents
+
+- [NGINX Ingress for Frequency Gateway](#nginx-ingress-for-frequency-gateway)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Prerequisites](#prerequisites)
+  - [Setting Up NGINX Ingress](#setting-up-nginx-ingress)
+    - [Step 1: Enable NGINX Ingress Controller](#step-1-enable-nginx-ingress-controller)
+    - [Step 2: Configure the Ingress Resource](#step-2-configure-the-ingress-resource)
+    - [Example Configuration](#example-configuration)
+    - [Step 3: Implement CORS Configurations](#step-3-implement-cors-configurations)
+    - [Example Annotations](#example-annotations)
+    - [Step 4: Deploy the Ingress Resource](#step-4-deploy-the-ingress-resource)
+  - [Testing the Ingress Configuration](#testing-the-ingress-configuration)
+    - [Expected Responses](#expected-responses)
+  - [Best Practices for CORS and Security](#best-practices-for-cors-and-security)
+  - [Conclusion](#conclusion)
 
 ## Introduction
 
@@ -6,9 +24,9 @@ In this guide, we will walk through the process of setting up NGINX Ingress for 
 
 ## Prerequisites
 
-- MicroK8s installed and configured
-- Helm installed for managing Kubernetes applications
-- Basic understanding of Kubernetes and Helm concepts
+- [MicroK8s](https://microk8s.io/docs) installed and configured.
+- [Helm](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
+- Basic understanding of Kubernetes and Helm concepts.
 
 ## Setting Up NGINX Ingress
 

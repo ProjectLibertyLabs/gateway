@@ -25,7 +25,7 @@ This guide will help you set up, configure, and test your Kubernetes services on
     - [Inspect Pod Logs](#inspect-pod-logs)
     - [Checking Resources](#checking-resources)
   - [9. Tearing Down the Deployment](#9-tearing-down-the-deployment)
-  - [Conclusion](#conclusion)
+  - [10. Conclusion](#10-conclusion)
 
 ---
 
@@ -33,7 +33,7 @@ This guide will help you set up, configure, and test your Kubernetes services on
 
 Before starting, ensure the following:
 
-- **Ubuntu 20.04+**
+- **Ubuntu 20.04+**.
 - [**MicroK8s**](https://microk8s.io/docs) installed and configured.
 - [**Helm**](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
 - [**kubectl**](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed for interacting with Kubernetes clusters. This is optional if you're using `microk8s kubectl`.
@@ -283,6 +283,6 @@ sudo microk8s kubectl delete all --all
 
 ---
 
-## Conclusion
+## 10. Conclusion
 
 You've successfully deployed `Frequency Gateway` on Kubernetes and Helm, exposing the services via NodePorts for local access. You can also expand this setup by using Ingress for broader network access or by setting up a cloud-based Kubernetes environment for production deployments.

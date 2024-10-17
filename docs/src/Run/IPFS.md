@@ -30,11 +30,11 @@ This guide will walk you through the steps required to set up and configure an I
 
 ## Prerequisites
 
-Before setting up IPFS, make sure you have the following:
+Make sure you have installed the following:
 
 - **Ubuntu 20.04+** (or any other Linux distribution)
-- **Go** installed (for building IPFS from source)
-- **npm** (for installing IPFS packages if needed)
+- **Go** installed (for building IPFS from source) – [Go installation guide](https://go.dev/doc/install)
+- **npm** (for installing IPFS packages if needed) – [npm installation guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
 You can also run IPFS on **Windows** or **MacOS**. Refer to the [official IPFS installation guide](https://docs.ipfs.io/install/) for details.
 
@@ -113,6 +113,8 @@ server {
 }
 ```
 
+You can find more details about reverse proxy configuration in [Nginx documentation](https://nginx.org/en/docs/) or [Traefik documentation](https://doc.traefik.io/traefik/).
+
 ### 3.2. Managing Egress Traffic
 
 Egress refers to outgoing traffic, including requests your node makes to the IPFS network for files it doesn’t have locally. You can limit this traffic by adjusting your node's **bandwidth profile**:
@@ -169,7 +171,7 @@ To ensure your IPFS node is running correctly, check the status of your node:
 ipfs id
 ```
 
-This command returns your node's Peer ID, which you can share for others to access your content.
+This command returns your node's Peer ID, which you can share so others may access your content.
 
 You can also monitor your node's performance:
 

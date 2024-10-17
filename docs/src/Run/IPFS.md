@@ -33,8 +33,8 @@ This guide will walk you through the steps required to set up and configure an I
 Make sure you have installed the following:
 
 - **Ubuntu 20.04+** (or any other Linux distribution)
-- **Go** installed (for building IPFS from source) – [Go installation guide](https://go.dev/doc/install)
-- **npm** (for installing IPFS packages if needed) – [npm installation guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- [**Go**](https://go.dev/doc/install) installed for building IPFS from source.
+- [**npm**](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed for installing IPFS packages.
 
 You can also run IPFS on **Windows** or **MacOS**. Refer to the [official IPFS installation guide](https://docs.ipfs.io/install/) for details.
 

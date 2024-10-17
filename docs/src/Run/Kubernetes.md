@@ -34,11 +34,11 @@ This guide will help you set up, configure, and test your Kubernetes services on
 Before starting, ensure the following:
 
 - **Ubuntu 20.04+**
-- **MicroK8s** installed ([Installation Guide](https://microk8s.io/docs))
-- **Helm** installed ([Installation Guide](https://helm.sh/docs/intro/install/))
-- **kubectl** command-line tool ([kubectl Installation Guide](https://kubernetes.io/docs/tasks/tools/install-kubectl/))
-- **Redis** installed and running ([Redis Documentation](https://redis.io/docs/getting-started/installation/))
-- **Frequency Chain** running ([Frequency Chain Docs](https://docs.frequency.xyz/))
+- **MicroK8s** installed [Installation Guide](https://microk8s.io/docs)
+- **Helm** installed [Installation Guide](https://helm.sh/docs/intro/install/)
+- **kubectl** command-line tool [kubectl Installation Guide](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- **Redis** installed and running [Redis Documentation](https://redis.io/docs/getting-started/installation/)
+- **Frequency Chain** running [Frequency Chain Docs](https://docs.frequency.xyz/)
 
 Check this [guide](https://ubuntu.com/tutorials/install-a-local-kubernetes-with-microk8s#1-overview), for more details on [installing MicroK8s](https://microk8s.io/docs) and [installing Helm](https://helm.sh/docs/intro/install/)
 

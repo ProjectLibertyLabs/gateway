@@ -3,11 +3,11 @@ FROM node:20-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the echo.js file to the working directory
-COPY rust-webhook-server/echo.js .
+# Copy the loggerServer.js file to the working directory
+COPY rust-webhook-server/loggerServer.js .
 
 # Expose port 3030
 EXPOSE 3030
 
-# Run the echo.js file when the container launches
-CMD [ "node", "echo.js" ]
+# Run the loggerServer.js file when the container launches
+CMD [ "node", "loggerServer.js" ]

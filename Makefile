@@ -1,10 +1,11 @@
 SERVICES=account content-publishing content-watcher graph libs
+DOCKER_SERVICES=account content-publishing content-watcher graph
 
 BUILD_TARGETS=$(SERVICES:%=build-%)
 TEST_TARGETS=$(SERVICES:%=test-%)
 E2E_TARGETS=$(SERVICES:%=test-e2e-%)
 K6_TARGETS=$(SERVICES:%=test-k6-%)
-DOCKER_BUILD_TARGETS=$(SERVICES:%=docker-build-%)
+DOCKER_BUILD_TARGETS=$(DOCKER_SERVICES:%=docker-build-%)
 
 
 .PHONY: build test test-e2e lint format docker-build $(TEST_TARGETS) $(E2E_TARGETS) $(DOCKER_BUILD_TARGETS)

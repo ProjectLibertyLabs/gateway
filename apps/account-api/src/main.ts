@@ -1,4 +1,3 @@
-import whyIsNodeRunning from 'why-is-node-running';
 import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
@@ -26,7 +25,6 @@ BigInt.prototype['toJSON'] = function () {
 function startShutdownTimer() {
   setTimeout(() => {
     logger.log('Shutdown timer expired');
-    setImmediate(() => whyIsNodeRunning());
     process.exit(0);
   }, 10_000);
 }

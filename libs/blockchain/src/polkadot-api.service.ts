@@ -50,11 +50,11 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     this.logger = new Logger(this.constructor.name);
 
     try {
-      const providerUrl = this.baseConfig.frequencyUrl;
+      const providerUrl = this.baseConfig.frequencyApiWsUrl;
       if (/^ws[s]?:/.test(providerUrl.toString())) {
-        this.provider = new WsProvider(this.baseConfig.frequencyUrl.toString());
+        this.provider = new WsProvider(this.baseConfig.frequencyApiWsUrl.toString());
       } else if (/^http[s]?:/.test(providerUrl.toString())) {
-        this.provider = new HttpProvider(this.baseConfig.frequencyUrl.toString());
+        this.provider = new HttpProvider(this.baseConfig.frequencyApiWsUrl.toString());
       } else {
         throw new Error('Unrecognized chain URL type', { cause: providerUrl.toJSON() });
       }

@@ -9,7 +9,7 @@ import { BlockchainService } from '#blockchain/blockchain.service';
 import { BlockchainScannerService } from '#graph-lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
-import { FrameSystemEventRecord, PalletSchemasSchemaVersionId } from '@polkadot/types/lookup';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
 import { IGraphTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';

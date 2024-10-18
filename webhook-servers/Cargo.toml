@@ -1,5 +1,5 @@
 [package]
-name = "rust-webhook-server"
+name = "webhook-servers"
 version = "0.1.0"
 edition = "2021"
 

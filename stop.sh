@@ -8,7 +8,7 @@ fi
 
 # Shutting down any running services
 echo "Shutting down any running services..."
-docker compose --profile local-node --profile backend --profile frontend down
+docker compose --profile local-node --profile backend --profile frontend --profile webhook down
 
 # Ask the user if they want to remove specified volumes
 read -p "Do you want to remove specified volumes to remove all state and start fresh? [y/N]: " REMOVE_VOLUMES

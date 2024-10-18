@@ -222,7 +222,7 @@ Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/
 #### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
 
 ```sh
-cd rust-webhook-server && cargo run
+cd webhook-servers && cargo run
 ```
 
 #### 3. Start the Api and Worker.<br /><br />

@@ -31,13 +31,13 @@ export class GraphMonitorService extends BlockchainScannerService {
 
   async onApplicationBootstrap() {
     await this.blockchainService.isReady();
-    const schemaResponse: PalletSchemasSchemaVersionId[] =
-      await this.blockchainService.api.query.schemas.schemaNameToIds.multi([
+    const schemaResponse: { name: [string, string]; ids: number[] }[] =
+      await this.blockchainService.getSchemaNamesToIds([
         ['dsnp', 'public-follows'],
         ['dsnp', 'private-follows'],
         ['dsnp', 'private-connections'],
       ]);
-    this.graphSchemaIds = schemaResponse.flatMap(({ ids }) => ids.map((id) => id.toNumber()));
+    this.graphSchemaIds = schemaResponse.flatMap(({ ids }) => ids);
     this.logger.log('Monitoring schemas for graph updates: ', this.graphSchemaIds);
     const pendingTxns = await this.cacheManager.hgetall(TXN_WATCH_LIST_KEY);
     // If no transactions pending, skip to end of chain at startup, else, skip to earliest
@@ -121,14 +121,13 @@ export class GraphMonitorService extends BlockchainScannerService {
     const statusesToReport: StatusUpdate[] = [];
 
     if (extrinsicIndices.length > 0) {
-      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
-      const epoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const epoch = await this.blockchainService.getCurrentCapacityEpoch(currentBlock.block.header.hash);
       const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
       );
 
       const totalCapacityWithdrawn: bigint = events.reduce((sum, { event }) => {
-        if (at.events.capacity.CapacityWithdrawn.is(event)) {
+        if (this.blockchainService.events.capacity.CapacityWithdrawn.is(event)) {
           return sum + event.data.amount.toBigInt();
         }
         return sum;
@@ -146,10 +145,12 @@ export class GraphMonitorService extends BlockchainScannerService {
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
         )?.event;
-        const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
+        const failureEvent = extrinsicEvents.find(({ event }) =>
+          this.blockchainService.events.system.ExtrinsicFailed.is(event),
+        )?.event;
 
         // TODO: Should the webhook provide for reporting failure?
-        if (failureEvent && at.events.system.ExtrinsicFailed.is(failureEvent)) {
+        if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
           const { dispatchError } = failureEvent.data;
           const moduleThatErrored = dispatchError.asModule;
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
@@ -271,8 +272,8 @@ export class GraphMonitorService extends BlockchainScannerService {
   public async monitorAllGraphUpdates(block: SignedBlock, { event }: FrameSystemEventRecord) {
     // Don't need this check logically, but it's a type guard to be able to access the specific event type data
     if (
-      this.blockchainService.api.events.statefulStorage.PaginatedPageUpdated.is(event) ||
-      this.blockchainService.api.events.statefulStorage.PaginatedPageDeleted.is(event)
+      this.blockchainService.events.statefulStorage.PaginatedPageUpdated.is(event) ||
+      this.blockchainService.events.statefulStorage.PaginatedPageDeleted.is(event)
     ) {
       const schemaId = event.data.schemaId.toNumber();
       if (!this.graphSchemaIds.some((id) => id === schemaId)) {
@@ -287,7 +288,7 @@ export class GraphMonitorService extends BlockchainScannerService {
         updateType: 'GraphPageDeleted',
       };
 
-      if (this.blockchainService.api.events.statefulStorage.PaginatedPageUpdated.is(event)) {
+      if (this.blockchainService.events.statefulStorage.PaginatedPageUpdated.is(event)) {
         graphUpdateNotification.currContentHash = event.data.currContentHash.toNumber();
         graphUpdateNotification.updateType = 'GraphPageUpdated';
       }

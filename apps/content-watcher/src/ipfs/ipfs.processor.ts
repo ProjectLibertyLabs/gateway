@@ -24,8 +24,6 @@ import { IpfsService } from '#storage/ipfs/ipfs.service';
   concurrency: 2,
 })
 export class IPFSContentProcessor extends BaseConsumer {
-  public logger: Logger;
-
   constructor(
     @InjectQueue(QueueConstants.WATCHER_BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
     @InjectQueue(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,

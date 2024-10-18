@@ -7,6 +7,7 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
 
 export interface IBlockchainNonProviderConfig {
+  frequencyTimeoutSecs: number;
   frequencyUrl: URL;
   isDeployedReadOnly: boolean;
 }
@@ -76,6 +77,10 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
     }
 
     const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
+      frequencyTimeoutSecs: {
+        value: process.env.FREQUENCY_TIMEOUT_SECS,
+        joi: Joi.number().positive().default(60),
+      },
       frequencyUrl: {
         value: process.env.FREQUENCY_URL,
         joi: Joi.string()

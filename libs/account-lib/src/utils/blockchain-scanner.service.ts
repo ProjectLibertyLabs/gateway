@@ -80,8 +80,7 @@ export abstract class BlockchainScannerService {
       while (true) {
         await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
         const block = await this.blockchainService.getBlock(currentBlockHash);
-        const at = await this.blockchainService.api.at(currentBlockHash);
-        const blockEvents = (await at.query.system.events()).toArray();
+        const blockEvents = await this.blockchainService.getEvents(currentBlockHash);
         await this.handleChainEvents(block, blockEvents);
         await this.processCurrentBlock(block, blockEvents);
         await this.setLastSeenBlockNumber(currentBlockNumber);

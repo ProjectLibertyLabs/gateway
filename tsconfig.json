@@ -66,6 +66,6 @@
     "strictBindCallApply": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "target": "ES2021"
+    "target": "ES2023"
   }
 }

@@ -3,9 +3,9 @@
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainService } from '#blockchain/blockchain.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -22,6 +22,8 @@ function eventName({ event: { section, method } }: FrameSystemEventRecord) {
 }
 
 export abstract class BlockchainScannerService {
+  private scanIsPaused = false;
+
   protected scanInProgress = false;
 
   protected chainEventHandlers = new Map<
@@ -35,10 +37,24 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainService,
+    protected readonly blockchainService: BlockchainRpcQueryService,
     protected readonly logger: Logger,
   ) {
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
+    blockchainService.on('chain.connected', () => {
+      this.paused = false;
+    });
+    blockchainService.on('chain.disconnected', () => {
+      this.paused = true;
+    });
+  }
+
+  protected get paused() {
+    return this.scanIsPaused;
+  }
+
+  private set paused(p: boolean) {
+    this.scanIsPaused = p;
   }
 
   public get scanParameters() {
@@ -77,12 +93,11 @@ export abstract class BlockchainScannerService {
       this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
-      while (true) {
+      while (!this.paused) {
         try {
           await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
           const block = await this.blockchainService.getBlock(currentBlockHash);
-          const at = await this.blockchainService.api.at(currentBlockHash);
-          const blockEvents = (await at.query.system.events()).toArray();
+          const blockEvents = await this.blockchainService.getEvents(currentBlockHash);
           await this.handleChainEvents(block, blockEvents);
           await this.processCurrentBlock(block, blockEvents);
         } catch (err) {
@@ -99,7 +114,7 @@ export abstract class BlockchainScannerService {
       }
     } catch (e) {
       if (e instanceof EndOfChainError) {
-        this.logger.error(e.message);
+        this.logger.verbose(e.message);
         return;
       }
 
@@ -109,6 +124,10 @@ export abstract class BlockchainScannerService {
       }
 
       this.logger.error(JSON.stringify(e));
+      // Don't propagate the error if scan is paused; it's WHY the scan is paused
+      if (this.paused) {
+        return;
+      }
       throw e;
     } finally {
       this.scanInProgress = false;

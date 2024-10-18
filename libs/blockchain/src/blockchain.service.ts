@@ -5,7 +5,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Keyring } from '@polkadot/api';
 import { Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { IMethod } from '@polkadot/types/types';
+import { IMethod, ISubmittableResult } from '@polkadot/types/types';
 import { Vec } from '@polkadot/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
@@ -14,6 +14,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -59,7 +60,6 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
 
   public async onApplicationBootstrap() {
     try {
-      await super.onApplicationBootstrap();
       await this.baseIsReadyPromise;
       await this.validateProviderSeedPhrase();
       this.accountId = await addressFromSeedPhrase(this.config.providerSeedPhrase);
@@ -78,8 +78,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   constructor(
     @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private readonly nonceRedis: Redis,
+    eventEmitter: EventEmitter2,
   ) {
-    super(config);
+    super(config, eventEmitter);
     if (!this.nonceRedis) throw new Error('Unable to get NonceRedis');
     this.nonceRedis.defineCommand('incrementNonce', {
       numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,
@@ -192,5 +193,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);
     return nextNonce;
+  }
+
+  public createTxFromEncoded(encodedTx: any): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    return this.api.tx(encodedTx);
   }
 }

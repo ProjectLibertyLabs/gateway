@@ -158,7 +158,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys.address, { nonce });
+    const txHash = await extrinsic.signAndSend(keys, { nonce });
     if (!txHash) {
       throw new Error('Tx hash is undefined');
     }
@@ -173,7 +173,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys.address, { nonce });
+    const txHash = await extrinsic.signAndSend(keys, { nonce });
     if (!txHash) {
       throw new Error('Tx hash is undefined');
     }

@@ -6,6 +6,7 @@ import Joi from 'joi';
 export interface IGraphCommonConfig {
   debounceSeconds: number;
   graphEnvironmentType: EnvironmentType;
+  atRestEncryptionKeySeed: string;
 }
 
 export default registerAs('graph-common', (): IGraphCommonConfig => {
@@ -17,6 +18,10 @@ export default registerAs('graph-common', (): IGraphCommonConfig => {
     graphEnvironmentType: {
       value: process.env.GRAPH_ENVIRONMENT_TYPE,
       joi: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
+    },
+    atRestEncryptionKeySeed: {
+      value: process.env.AT_REST_ENCRYPTION_KEY_SEED,
+      joi: Joi.string().required(),
     },
   };
 

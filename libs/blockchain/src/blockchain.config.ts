@@ -8,7 +8,7 @@ import Keyring from '@polkadot/keyring';
 
 export interface IBlockchainNonProviderConfig {
   frequencyTimeoutSecs: number;
-  frequencyUrl: URL;
+  frequencyApiWsUrl: URL;
   isDeployedReadOnly: boolean;
 }
 
@@ -81,8 +81,8 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         value: process.env.FREQUENCY_TIMEOUT_SECS,
         joi: Joi.number().positive().default(60),
       },
-      frequencyUrl: {
-        value: process.env.FREQUENCY_URL,
+      frequencyApiWsUrl: {
+        value: process.env.FREQUENCY_API_WS_URL,
         joi: Joi.string()
           .uri({ scheme: ['http', 'https', 'ws', 'wss'] })
           .required()

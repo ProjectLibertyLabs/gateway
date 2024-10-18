@@ -7,10 +7,11 @@ export interface IAccountApiConfig {
   apiBodyJsonLimit: string;
   apiPort: number;
   apiTimeoutMs: number;
-  frequencyHttpUrl: URL;
+  siwfNodeRpcUrl: URL;
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
+  siwfV2Domain?: string;
 }
 
 export default registerAs('account-api', (): IAccountApiConfig => {
@@ -27,8 +28,8 @@ export default registerAs('account-api', (): IAccountApiConfig => {
       value: process.env.API_TIMEOUT_MS,
       joi: Joi.number().min(1).default(5000),
     },
-    frequencyHttpUrl: {
-      value: process.env.FREQUENCY_HTTP_URL,
+    siwfNodeRpcUrl: {
+      value: process.env.SIWF_NODE_RPC_URL,
       joi: Joi.string().uri().required(),
     },
     graphEnvironmentType: {
@@ -42,6 +43,11 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     siwfV2Url: {
       value: process.env.SIWF_V2_URL,
       joi: Joi.string().optional().allow(null).allow('').empty('').uri(),
+    },
+    siwfV2Domain: {
+      value: process.env.SIWF_V2_DOMAIN,
+      // Allow localhost specifically
+      joi: Joi.string().optional().allow(null).allow('localhost').allow('').empty('').domain(),
     },
   };
 

@@ -21,6 +21,7 @@ import {
   REDIS_WEBHOOK_PREFIX,
 } from '#types/constants';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { EncryptionService } from '#graph-lib/services/encryption.service';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -42,6 +43,7 @@ export class ApiService implements BeforeApplicationShutdown {
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private readonly asyncDebouncerService: AsyncDebouncerService,
+    private readonly encryptionService: EncryptionService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -58,14 +60,17 @@ export class ApiService implements BeforeApplicationShutdown {
 
   async enqueueRequest(request: ProviderGraphDto): Promise<GraphChangeResponseDto> {
     const { providerId } = this.blockchainConf;
+    const encryptionResult = await this.encryptionService.encryptPrivateKeys(request.graphKeyPairs);
     const data: ProviderGraphUpdateJob = {
       dsnpId: request.dsnpId,
       providerId: providerId.toString(),
       connections: request.connections.data,
-      graphKeyPairs: request.graphKeyPairs,
+      graphKeyPairs: encryptionResult?.result ?? request.graphKeyPairs,
       referenceId: this.calculateJobId(request),
       updateConnection: false,
       webhookUrl: request.webhookUrl,
+      encryptionPublicKey: encryptionResult?.encryptionPublicKey ?? null,
+      encryptionSenderContext: encryptionResult?.senderContext ?? null,
     };
     const jobOld = await this.graphChangeRequestQueue.getJob(data.referenceId);
     if (jobOld && (await jobOld.isCompleted())) {
@@ -74,7 +79,7 @@ export class ApiService implements BeforeApplicationShutdown {
     const job = await this.graphChangeRequestQueue.add(`Request Job - ${data.referenceId}`, data, {
       jobId: data.referenceId,
     });
-    this.logger.debug(job);
+    this.logger.debug(JSON.stringify(job));
     return {
       referenceId: data.referenceId,
     };

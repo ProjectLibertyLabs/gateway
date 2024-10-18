@@ -76,15 +76,15 @@ EOI
 
 EOI
         DEFAULT_TESTNET_ENV="testnet"
-        DEFAULT_FREQUENCY_URL="wss://0.rpc.testnet.amplica.io"
-        DEFAULT_FREQUENCY_HTTP_URL="https://0.rpc.testnet.amplica.io"
+        DEFAULT_FREQUENCY_API_WS_URL="wss://0.rpc.testnet.amplica.io"
+        DEFAULT_SIWF_NODE_RPC_URL="https://0.rpc.testnet.amplica.io"
         DEFAULT_PROVIDER_ID="INPUT REQUIRED"
         DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE="INPUT REQUIRED"
     else
         echo -e "\nStarting on local..."
         DEFAULT_TESTNET_ENV="local"
-        DEFAULT_FREQUENCY_URL="ws://frequency:9944"
-        DEFAULT_FREQUENCY_HTTP_URL="http://localhost:9944"
+        DEFAULT_FREQUENCY_API_WS_URL="ws://frequency:9944"
+        DEFAULT_SIWF_NODE_RPC_URL="http://localhost:9944"
         DEFAULT_PROVIDER_ID="1"
         DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE="//Alice"
     fi
@@ -97,8 +97,8 @@ EOI
     DEFAULT_CONTENT_DB_VOLUME="content_db"
 
 
-    ask_and_save FREQUENCY_URL "Enter the Frequency Testnet RPC URL" "$DEFAULT_FREQUENCY_URL"
-    ask_and_save FREQUENCY_HTTP_URL "Enter the Frequency HTTP Testnet RPC URL" "$DEFAULT_FREQUENCY_HTTP_URL"
+    ask_and_save FREQUENCY_API_WS_URL "Enter the Frequency API Websocket URL" "$DEFAULT_FREQUENCY_API_WS_URL"
+    ask_and_save SIWF_NODE_RPC_URL "Enter the SIWF Node RPC URL" "$DEFAULT_SIWF_NODE_RPC_URL"
 cat << EOI
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓

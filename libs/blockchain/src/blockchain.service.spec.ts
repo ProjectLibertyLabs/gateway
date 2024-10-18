@@ -16,7 +16,7 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   providerId: 1n,
   providerSeedPhrase: '//Alice',
   frequencyTimeoutSecs: 10,
-  frequencyUrl: new URL('ws://localhost:9944'),
+  frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
 

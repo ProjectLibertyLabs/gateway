@@ -14,7 +14,6 @@ import {
   PalletSchemasSchemaVersionId,
 } from '@polkadot/types/lookup';
 import {
-  BlockPaginationRequest,
   ItemizedStoragePageResponse,
   KeyInfoResponse,
   PaginatedStorageResponse,
@@ -443,7 +442,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
-    this.logger.debug(`claimHandlePayload: ${jobData.payload}`);
+    this.logger.debug(`claimHandlePayload: ${JSON.stringify(jobData.payload)}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
     const claimHandleProof: Sr25519Signature = { Sr25519: jobData.proof };
@@ -477,6 +476,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       };
     }
 
+    this.logger.error(`Expected HandleClaimed event but found ${event}`);
     return {} as HandleTxnValues;
   }
 
@@ -498,6 +498,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       };
     }
 
+    this.logger.error(`Expected PublicKeyAdded event but found ${event}`);
     return {} as PublicKeyValues;
   }
 
@@ -523,6 +524,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       };
     }
 
+    this.logger.error(`Expected ItemizedPageUpdated event but found ${event}`);
     return {} as ItemizedPageUpdated;
   }
 

@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityExc
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { PublishSIWFSignupRequestDto, WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
+import { WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
 import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
 import {
   AccountResponseDto,
@@ -10,7 +10,12 @@ import {
   RetireMsaPayloadResponseDto,
 } from '#types/dtos/account/accounts.response.dto';
 import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
-import { PublishRetireMsaRequestDto, RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
+import {
+  PublishRetireMsaRequestDto,
+  PublishSIWFSignupRequestDto,
+  RetireMsaRequestDto,
+  TransactionResponse,
+} from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -55,12 +60,12 @@ export class AccountsService {
   }
 
   async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
-    const { frequencyHttpUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
+    const { siwfNodeRpcUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
     const { providerId } = this.blockchainConf;
     return {
       providerId: providerId.toString(),
       siwfUrl: siwfUrl.toString(),
-      frequencyRpcUrl: frequencyHttpUrl.toString(),
+      frequencyRpcUrl: siwfNodeRpcUrl.toString(),
     };
   }
 

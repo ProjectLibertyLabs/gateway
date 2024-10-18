@@ -117,3 +117,10 @@ jobs:
           push: ${{ needs.set_variables.outputs.test_run != 'true'}}
           file: Docker/Dockerfile.${{ matrix.service }}
           tags: ${{ steps.cp-tags.outputs.tags }}
+      - name: Update DockerHub Description
+        uses: peter-evans/dockerhub-description@e98e4d1628a5f3be2be7c231e50981aee98723ae
+        with:
+          username: ${{secrets.DOCKERHUB_USERNAME}}
+          password: ${{secrets.DOCKERHUB_TOKEN}}
+          repository: ${{env.DOCKER_HUB_PROFILE}}/${{matrix.service}}-service
+          readme-filepath: Docker/${{env.IMAGE_NAME}}-${{matrix.network}}.overview.md

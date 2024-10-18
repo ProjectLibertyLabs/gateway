@@ -4,7 +4,7 @@
 **/*.yaml
 **/*.yml
 # Ignore rust build files
-services/account/rust-webhook-server/target
+services/account/webhook-servers/target
 # Ignore generated content
 services/*/apps/api/src/metadata.ts
 **/swagger.json

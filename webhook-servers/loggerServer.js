@@ -16,7 +16,11 @@ server
         console.log(request.headers);
 
         console.log('> Body');
-        console.log(body);
+        try {
+            console.log(JSON.stringify(JSON.parse(body), null, 2));
+        } catch (e) {
+            console.error(body);
+        }
         response.end();
       });
   })

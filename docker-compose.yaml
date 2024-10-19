@@ -45,7 +45,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  WEBHOOK_BASE_URL: 'http://mock-webhook-server:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
+  WEBHOOK_BASE_URL: 'http://mock-webhook-logger:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
 
@@ -234,18 +234,20 @@ services:
     networks:
       - gateway-net
 
-  mock-webhook-server:
+  mock-webhook-logger:
     pull_policy: never
-    image: mock-webhook-server:latest
+    image: mock-webhook-logger:latest
     build:
       context: .
-      dockerfile: Docker/Dockerfile.mock-webhook-server
+      dockerfile: Docker/Dockerfile.mock-webhook-logger
       tags:
-        - mock-webhook-server:latest
+        - mock-webhook-logger:latest
     ports:
       - ${ACCOUNT_WEBHOOK_PORT:-3001}:3001
     profiles:
       - webhook
+    networks:
+      - gateway-net
 
 
 volumes:

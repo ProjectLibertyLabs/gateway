@@ -1,9 +1,25 @@
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { SiwfV2Service } from '#account-api/services/siwfV2.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
+import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
+import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.response.dto';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { Controller, HttpCode, HttpStatus, Logger, Query, Get } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Query,
+  Get,
+  Post,
+  Body,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { hasChainSubmissions } from '@projectlibertylabs/siwfv2';
 
 // # SIWF Wallet API V2
 // Goal: Generic Interface that supports FA and dApp 3rd-party wallets
@@ -40,7 +56,11 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 export class AccountsControllerV2 {
   private readonly logger: Logger;
 
-  constructor(private siwfV2Service: SiwfV2Service) {
+  constructor(
+    private siwfV2Service: SiwfV2Service,
+    @Inject(blockchainConfig.KEY) private chainConfig: IBlockchainConfig,
+    @Inject(apiConfig.KEY) private accountConfig: IAccountApiConfig,
+  ) {
     this.logger = new Logger(this.constructor.name);
   }
 
@@ -50,12 +70,41 @@ export class AccountsControllerV2 {
   @ApiOperation({ summary: 'Get the Sign In With Frequency Redirect URL' })
   @ApiOkResponse({ description: 'SIWF Redirect URL', type: WalletV2RedirectResponseDto })
   async getRedirectUrl(@Query() query: WalletV2RedirectRequestDto): Promise<WalletV2RedirectResponseDto> {
-    this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', query);
+    this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', JSON.stringify(query));
 
     const { callbackUrl } = query;
     const permissions = (query.permissions || []).map((p) => SCHEMA_NAME_TO_ID.get(p));
     const credentials = query.credentials || [];
 
     return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);
+  }
+
+  @Post('siwf')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Process the result of a Sign In With Frequency v2 callback' })
+  @ApiOkResponse({ description: 'Signed in successfully', type: WalletV2LoginResponseDto })
+  async postSignInWithFrequency(@Body() callbackRequest: WalletV2LoginRequestDto): Promise<WalletV2LoginResponseDto> {
+    this.logger.debug('Received Sign In With Frequency v2 callback', JSON.stringify(callbackRequest));
+
+    if (!this.accountConfig.siwfV2Domain) {
+      this.logger.error('"SIWF_V2_DOMAIN" required to use SIWF v2');
+      throw new ForbiddenException('SIWF v2 processing unavailable');
+    }
+
+    // Extract a valid payload from the request
+    // This inludes the validation of the login payload if any
+    // Also makes sure it is either a login or a delegation
+    const payload = await this.siwfV2Service.getPayload(callbackRequest);
+
+    if (hasChainSubmissions(payload) && this.chainConfig.isDeployedReadOnly) {
+      throw new ForbiddenException('New account sign-up unavailable in read-only mode');
+    }
+
+    // Trigger chain submissions, if any
+    await this.siwfV2Service.queueChainActions(payload);
+
+    const response = this.siwfV2Service.getSiwfV2LoginResponse(payload);
+
+    return response;
   }
 }

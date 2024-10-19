@@ -155,7 +155,7 @@ fi
 
 # Start all services in detached mode
 echo -e "\nStarting all services..."
-docker compose  --profile backend up -d
+docker compose  --profile webhook --profile backend up -d
 
 cat << EOI
 

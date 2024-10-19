@@ -123,4 +123,4 @@ jobs:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
           repository: ${{env.DOCKER_HUB_PROFILE}}/${{matrix.service}}-service
-          readme-filepath: Docker/${{env.IMAGE_NAME}}-${{matrix.network}}.overview.md
+          readme-filepath: Docker/${{matrix.service}}-service.overview.md

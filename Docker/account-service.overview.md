@@ -20,8 +20,6 @@ Account Service is a service enabling easy interaction with [DSNP](https://dsnp.
 
 For more detailed information about the Account Service, including setup, configuration, and API documentation, please refer to the [Account Service Documentation](https://projectlibertylabs.github.io/gateway/Build/AccountService/AccountService.html).
 
-This documentation provides comprehensive details on how to build, deploy, and use the Account Service within the Project Liberty Gateway.
-
 ## 🚀 REST API Docs
 
 - [REST API](https://projectlibertylabs.github.io/account-service)

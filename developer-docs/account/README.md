@@ -1,306 +1,169 @@
 # Account Service
 
-<!-- TABLE OF CONTENTS -->
+The Account Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP accounts on Frequency. This document provides an overview of the service, its architecture, and guides for setup and usage.
 
-# 📗 Table of Contents
+## 📗 Table of Contents
 
-- [📖 About the Project](#account-service)
-- [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#built-with)
-  - [Tech Stack](#tech-stack)
-  - [Key Features](#key-features)
-- [🚀 Live OpenAPI Docs](#-live-docs)
-- [💻 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Environment Variables](#environment-variables)
-  - [Install](#install)
-  - [Usage](#usage)
-- [📋 Testing](#testing)
-  - [Swagger UI](#swagger-ui)
-  - [Queue Management](#queue-management)
-  - [Linting](#linting)
-  - [Auto-format](#auto-format)
-  - [Debugging](#debugging)
-  - [Debugging with VSCode](#using-the-debugger-with-vscode)
-- [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#show-your-support)
-- [❓FAQ](#faq)
-- [📝 License](#-license)
+- [📖 About the Project](#about-project)
+- [🔍 Architecture Overview](#architecture-overview)
+- [🔑 Key Features](#key-features)
+- [💻 Getting Started](#getting-started)
+- [🚀 API Documentation](#api-documentation)
+- [🛠 Development](#development)
+- [🤝 Contributing](#contributing)
+- [❓ FAQ](#faq)
+- [📝 License](#license)
 
-<!-- PROJECT DESCRIPTION -->
+## 📖 About the Project <a name="about-project"></a>
 
-# 📖 `account-service` <a name="about-project"></a>
+The Account Service simplifies the management of user accounts, defined by a user's handle and MSA Id (Message Source Account Identifier) on the [Frequency](https://docs.frequency.xyz/) blockchain using [DSNP](https://dsnp.org/) protocols.
 
-Account Service is a service enabling easy interaction with [DSNP](https://dsnp.org/) accounts on [Frequency](https://docs.frequency.xyz/). Accounts can be defined as a user's handle and MSA Id.
+## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
-Visit [Key Features](#key-features) for more details on what Account Services does.
+The Account Service is built using NestJS and is divided into two main components:
 
-<!-- Mermaid Arch maps -->
+1. **API**: Handles incoming HTTP requests
+2. **Worker**: Processes jobs that require blockchain interaction
 
-## 🔭 Arch Maps
+![Gateway Account Service Architecture](./account_service_arch.drawio.png)
 
-The account-service is a NestJS application that is split into two main parts: the API and the Worker.
+## 🔑 Key Features <a name="key-features"></a>
 
-The API is responsible for handling incoming HTTP requests and the Worker is responsible for processing jobs that require blockchain interaction.
+- Account creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf) (Sign-In With Frequency)
+- User and Provider Account management
+- Handle (username) claiming and management
+- Key management (adding and retrieving keys)
+- Delegation info retrieval for MSA Id
+- Seamless integration with Web3 wallets
 
-![Gateway Account Service](./account_service_arch.drawio.png)
+## 💻 Getting Started <a name="getting-started"></a>
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-## 🛠 Built With <a name="built-with"></a>
-
-### Tech Stack <a name="tech-stack"></a>
-
-<details>
-  <summary>Framework</summary>
-  <ul>
-    <li><a href="https://nestjs.com/">NestJS</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Language</summary>
-  <ul>
-    <li><a href="https://www.typescriptlang.org/">Typescript</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Testing Libraries</summary>
-  <ul>
-    <li><a href="https://jestjs.io/">Jest</a></li>
-    <li><a href="https://www.npmjs.com/package/supertest">Supertest</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Linting</summary>
-  <ul>
-    <li><a href="https://eslint.org/">ESLint</a></li>
-    <li><a href="https://prettier.io/">Prettier</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Data Store</summary>
-  <ul>
-    <li><a href="https://github.com/luin/ioredis">ioredis</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Request Library</summary>
-  <ul>
-    <li><a href="https://axios-http.com/">Axios</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Scheduling</summary>
-  <ul>
-    <li><a href="https://docs.nestjs.com/techniques/task-scheduling">NestJS Schedule</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Validation</summary>
-  <ul>
-    <li><a href="https://github.com/typestack/class-validator">class-validator</a></li>
-    <li><a href="https://joi.dev/">Joi</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Environment Configuration</summary>
-  <ul>
-    <li><a href="https://github.com/motdotla/dotenv">dotenv</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Code Quality</summary>
-  <ul>
-    <li><a href="https://github.com/pahen/madge">Madge</a></li>
-    <li><a href="https://github.com/davidmarkclements/trace-unhandled">trace-unhandled</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Containerization</summary>
-  <ul>
-    <li><a href="https://www.docker.com/">Docker</a></li>
-    <li><a href="https://docs.docker.com/compose/">Docker Compose</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>API Documentation</summary>
-  <ul>
-    <li><a href="https://swagger.io/">Swagger</a></li>
-  </ul>
-</details>
-
-<!-- Features -->
-
-### Key Features
-
-- **Account creation using [SIWF](https://github.com/ProjectLibertyLabs/siwf)**
-  - Includes behind the scenes delegation to the provider
-- **Get User and Provider Account(s)**
-- **Handle (aka username) claiming**
-  - Create
-  - Change
-- **Keys Handling**
-  - Add keys to an account
-  - Get keys
-- **Get delegation info for an MSA Id**
-- **Easy integration with Web3 wallets**
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LIVE Docs -->
-
-## 🚀 Live Docs
-
-- [Live Docs](https://projectlibertylabs.github.io/account-service)
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-
-## 💻 Getting Started
-
-To get a local copy up and running, follow these steps.
+This section will guide you through setting up the Account Service for both quick start and local development.
 
 ### Prerequisites
 
-In order to run this project you need:
-
+Ensure you have the following installed:
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
-### Environment Variables
+### Quick Start
 
-Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](../../env-files/account.template.env).
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone https://github.com/ProjectLibertyLabs/gateway.git
+   cd gateway
+   ```
 
-1. Copy the template values into the .env.account file.
-
-```sh
+2. Copy the environment template:
+   ```bash
    cp env-files/account.template.env .env.account
-```
+   ```
 
-2. Replace template values with values appropriate to your environment.
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### Install
+4. Start supporting services using Docker:
+   ```bash
+   ./scripts/account/restart-chain-docker.sh
+   ```
 
-Install NPM Dependencies:
+5. Start account service api and worker applications using Docker:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile account up -d
+   ```
 
-```sh
-  npm install
-```
+### Local Development (without containers)
 
-### Usage
+If you prefer to run services locally for development:
 
-Note: using [docker compose file](../../docker-compose.yaml) to start the services. This will start the services in development mode.
+1. Start Redis and Frequency:
+   ```bash
+   ./scripts/account/restart-local-dev.sh
+   ```
 
-The following command will start all of the necessary containers for the account service to run in development mode.
+2. Start the mock webhook server (in a new terminal):
+   ```bash
+   cd webhook-servers && cargo run
+   ```
 
-```bash
-./scripts/account/restart-chain-docker.sh
-```
+3. Start the API (in a new terminal):
+   ```bash
+   npm run start:account-api:dev
+   ```
 
-In order to run the `account-service` in development mode without containers, you can use the following commands:
+4. Start the Worker (in another new terminal):
+   ```bash
+   npm run start:account-worker:dev
+   ```
 
-#### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup
+### Verification
 
-```bash
-./scripts/account/restart-local-dev.sh
-```
+- Access Swagger UI: [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger)
+- View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 
-Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
+### Next Steps
 
-#### 2. Follow the instructions in the terminal to start the local apps. Start the mock webhook server by running the following command in another terminal or in the background
+After setting up the Account Service, you can:
+- Explore the API using the Swagger UI
+- Run the test suite to ensure everything is working correctly
+- Start integrating the Account Service into your application
 
-```sh
-cd webhook-servers && cargo run
-```
+For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to our [comprehensive documentation](#).
 
-#### 3. Start the Api and Worker.<br /><br />
+## 🚀 API Documentation <a name="api-documentation"></a>
 
-**Option 1:** In a new terminal window, start the `account-service` api app. Logs will be displayed in the terminal for easy reference.
+### Live OpenAPI Docs
 
-```sh
-npm run start:account-api:dev
-```
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/account-service) for detailed information on endpoints and usage.
 
-In another terminal window, start the `account-service` worker app.
+## 🛠 Development <a name="development"></a>
 
-```sh
-npm run start:account-worker:dev
-```
+This section covers testing, debugging, linting, and information about the technologies used in the Account Service.
 
--- or -- <br /><br />
+### Testing
 
-**Option 2:**
-Run the following command to start the account service api and worker containers. This will start the account service api and worker in development mode.
-
-```sh
-docker compose up -d account-service-api account-service-worker
-```
-
-#### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests
-
-## 📋 Testing <a name="testing"></a>
-
-### Run the tests
-
-Make sure to follow the steps above and use `restart-chain-docker.sh` to start the services. This will ensure that the local node is running and is properly configured. Then run the following command to run the tests. **NOTE:** The tests are not idempotent. When re-running the e2e tests, use the `restart-chain-docker.sh` script to reset the chain.
-
+Run E2E tests:
 ```bash
 make test-e2e-account
 ```
 
-This will run the tests in `apps/account-api/test` folder.
+Access Swagger UI: [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger)
 
-#### Check e2e test file for more details on the test
-
-### Swagger UI
-
-Check out the Swagger UI hosted on the app instance at [http://localhost:3000/api/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
-
-### Queue Management
-
-You may also view and manage the application's queue at [http://localhost:3000/queues](http://localhost:3000/queues).
+Manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 
 ### Linting
 
-```sh
-  npm run lint
+To run the linter:
+```bash
+npm run lint
 ```
 
-### Auto-format
-
-```sh
-  npm run format
+To automatically fix linting issues:
+```bash
+npm run format
 ```
 
 ### Debugging
 
-- Docker to stop containers, networks, volumes, and images created by `docker compose up` run...
+#### Using Docker
 
-  ```sh
-    docker compose down
-  ```
+To stop containers, networks, volumes, and images created by `docker compose up`, run:
 
-- You may have to go to your Docker Desktop app and manually remove containers.
+```bash
+docker compose down
+```
 
-### Using the Debugger with VSCode
+Note: You may need to manually remove containers using the Docker Desktop app.
 
-1. Follow step 1 from the Development Environment section above to set up the redis and frequency containers.
+#### Using the Debugger with VSCode
 
-2. Use the debug panel and start the `Debug Api (NestJS via ts-node)` configuration, if you wish to debug the api.
+1. Follow step 1 from the Development Environment section above to set up the Redis and Frequency containers.
 
-   Use the debug panel and start the `Debug Worker (NestJS via ts-node)` configuration, if you wish to debug the worker.
+2. Use the debug panel and start the `Debug Api (NestJS via ts-node)` configuration to debug the API.
+
+   Use the debug panel and start the `Debug Worker (NestJS via ts-node)` configuration to debug the worker.
 
 3. Set breakpoints in the code and debug your code.
 
@@ -308,51 +171,39 @@ You may also view and manage the application's queue at [http://localhost:3000/q
 
    Any API functions that require an extrinsic to be submitted to the blockchain will be queued here. The queue will manage the amount of `capacity` this service is allowed to use.
 
-   Reference the [Frequency Docs](https://docs.frequency.xyz/) for more information about extrinsics and capacity.
-
 5. Use [Swagger](http://0.0.0.0:3000/api/docs/swagger) to test the API.
+
+Reference the [Frequency Docs](https://docs.frequency.xyz/) for more information about extrinsics and capacity.
 
 **Note:** Reference `.vscode/launch.json` for more details on the debug configurations and apply the concepts to your preferred debugger.
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+### Built With
 
-<!-- CONTRIBUTING -->
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Testing**: Jest, Supertest
+- **Data Store**: ioredis
+- **API Documentation**: Swagger
+- **Containerization**: Docker, Docker Compose
 
-## 🤝 Contributing
+For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full documentation.
 
-Contributions, issues, and feature requests are welcome!
+## 🤝 Contributing <a name="contributing"></a>
 
-- [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+## ❓ FAQ <a name="faq"></a>
 
-<!-- SUPPORT -->
+**Q: Can I use this service in my production social app?**
 
-## ⭐️ Show your support <a name="show-your-support"></a>
+*Yes, Gateway Services are designed to be ready-to-use out of the box for social media apps using DSNP on Frequency.*
 
-If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
+**Q: Will the Account Service scale for large applications?**
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+*The service is designed to support small-to-medium-sized social apps. For larger use cases, custom solutions may be necessary.*
 
-<!-- FAQ (optional) -->
+## 📝 License <a name="license"></a>
 
-## ❓FAQ
-
-- **Can I use this service in my production social app?**
-
-  - Yes. All the Gateway Services are intended to be ready-to-use out of the box as part of the fabric of your own social media app using DSNP on Frequency.
-
-- **I'm building the next Facebook, it's going to be huge! Will `account-service` scale?**
-
-  - Gateway Services are designed to support the scale of a small-to-medium-sized social app. For larger use cases, you would probably want to build your own services.
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LICENSE -->
-
-## 📝 License
-
-This project is [Apache 2.0](./LICENSE) licensed.
+This project is licensed under the [Apache 2.0 License](./LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

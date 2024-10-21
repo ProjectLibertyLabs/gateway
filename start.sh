@@ -2,16 +2,6 @@
 . ./bash_functions.sh
 # Script to start all Gateway services on the Frequency Paseo Testnet
 
-# Function to ask for input with a default value and write to .env-saved
-#ask_and_save() {
-#    local var_name=${1}
-#    local prompt=${2}
-#    local default_value=${3}
-#    read -rp $'\n'"${prompt} [${default_value}]: " input
-#    local value=${input:-$default_value}
-#    echo "${var_name}=\"${value}\"" >> .env-saved
-#}
-
 # Check for Docker and Docker Compose
 if ! command -v docker &> /dev/null || ! command -v docker compose &> /dev/null; then
     echo -e "Docker and Docker Compose are required but not installed. Please install them and try again.\n"

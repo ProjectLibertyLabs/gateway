@@ -4,32 +4,31 @@
 
 # Check for Docker and Docker Compose
 if ! command -v docker &> /dev/null || ! command -v docker compose &> /dev/null; then
-    echo -e "Docker and Docker Compose are required but not installed. Please install them and try again.\n"
+    ${OUTPUT} "Docker and Docker Compose are required but not installed. Please install them and try again.\n"
     exit 1
 fi
 
 BASE_DIR=./
 ENV_FILE=${BASE_DIR}/.env-saved
 COMPOSE_PROJECT_NAME=${BASE_NAME}
-BOX_WIDTH=96
 
 if [[ -n $ENV_FILE ]]; then
-    echo -e "Using environment file: $ENV_FILE\n"
+    ${OUTPUT} "Using environment file: $ENV_FILE\n"
 fi
 
 
 # Load existing .env-saved file if it exists
 if [ -f .env-saved ]; then
-    echo -e "Found saved environment from a previous run:\n"
+    ${OUTPUT} "Found saved environment from a previous run:\n"
     redact_sensitive_values .env-saved
     echo
-    read -p  "Do you want to re-use the saved paramters? [Y/n]: " REUSE_SAVED
+    read -p  "Do you want to re-use the saved parameters? [Y/n]: " REUSE_SAVED
     REUSE_SAVED=${REUSE_SAVED:-y}
 
     if [[ ${REUSE_SAVED} =~ ^[Yy] ]]; then
-      box_text -w ${BOX_WIDTH} 'Loading existing .env-saved file environment values...'
+      ${OUTPUT} 'Loading existing .env-saved file environment values...'
     else
-      box_text -w ${BOX_WIDTH} 'Removing previous saved environment...'
+      ${OUTPUT} 'Removing previous saved environment...'
     rm .env-saved
     fi
 fi
@@ -44,7 +43,7 @@ if [ ! -f .env-saved ]; then
     done
 
     # Create .env-saved file to store environment variables
-    box_text -w ${BOX_WIDTH} 'Creating .env-saved file to store environment variables... '
+   ${OUTPUT} 'Creating .env-saved file to store environment variables... '
     echo "COMPOSE_PROJECT_NAME='gateway-dev'" >> .env-saved
 
     # Ask the user if they want to start on testnet or local
@@ -80,20 +79,19 @@ EOI
     DEFAULT_IPFS_UA_GATEWAY_URL="http://localhost:8080"
     DEFAULT_CONTENT_DB_VOLUME="content_db"
 
-
     ask_and_save FREQUENCY_API_WS_URL "Enter the Frequency API Websocket URL" "$DEFAULT_FREQUENCY_API_WS_URL"
     ask_and_save SIWF_NODE_RPC_URL "Enter the SIWF Node RPC URL" "$DEFAULT_SIWF_NODE_RPC_URL"
     box_text_attention -w ${BOX_WIDTH} << EOI
 A Provider is required to start the services.
 
 If you need to become a provider, visit
-https://provider.frequency.xyz/ to get a Provider ID."
+https://provider.frequency.xyz/ to get a Provider ID.
 EOI
 
     ask_and_save PROVIDER_ID "Enter Provider ID" "$DEFAULT_PROVIDER_ID"
     ask_and_save PROVIDER_ACCOUNT_SEED_PHRASE "Enter Provider Seed Phrase" "$DEFAULT_PROVIDER_ACCOUNT_SEED_PHRASE"
 
-    box_text -w ${BOX_WIDTH} "Suggestion: Change to an IPFS Pinning Service for better persistence and availability."
+   ${OUTPUT} "Suggestion: Change to an IPFS Pinning Service for better persistence and availability."
 
     if yesno "===> Given this suggestion, would you like to change the IPFS settings?";  then
         ask_and_save IPFS_VOLUME "Enter the IPFS volume" "$DEFAULT_IPFS_VOLUME"

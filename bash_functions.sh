@@ -1,5 +1,7 @@
 #!/bin/bash
 
+BOX_WIDTH=96
+
 ###################################################################################
 #  Wrangle grep because MacOS doesn't come with a PCRE-enabled grep by default.
 #  If we don't find one, disable our "pretty" output function.
@@ -24,11 +26,11 @@ If you're on a Mac, try installing GNU grep:
     brew install grep
 
 EOI
-  read -p 'Press any key to continue: '
+  read -p 'Press any key to continue... '
 
-  OUTPUT=echo
+  OUTPUT='echo -e'
 else
-  OUTPUT='box_text -w 96'
+  OUTPUT="box_text -w ${BOX_WIDTH}"
 fi
 
 ###################################################################################

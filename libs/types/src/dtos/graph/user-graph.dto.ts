@@ -1,6 +1,6 @@
 import { DsnpGraphEdgeDto } from './dsnp-graph-edge.dto';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
-import { IsArray, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UserGraphDto {
@@ -19,4 +19,11 @@ export class UserGraphDto {
   @ValidateNested({ each: true })
   @Type(() => DsnpGraphEdgeDto)
   dsnpGraphEdges?: DsnpGraphEdgeDto[];
+
+  /**
+   * Optional error message if the request failed
+   */
+  @IsOptional()
+  @IsString()
+  errorMessage?: string;
 }

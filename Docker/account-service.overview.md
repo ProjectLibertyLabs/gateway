@@ -16,6 +16,10 @@ Account Service is a service enabling easy interaction with [DSNP](https://dsnp.
 - **Get delegation info for an MSA Id**
 - **Easy integration with Web3 wallets**
 
+## Running the Account Service
+
+For information on running the Account Service, please refer to the [Account Service Documentation](https://projectlibertylabs.github.io/gateway/Run/AccountService/RunAccountService.html).
+
 ## Detailed Documentation
 
 For more detailed information about the Account Service, including setup, configuration, and API documentation, please refer to the [Account Service Documentation](https://projectlibertylabs.github.io/gateway/Build/AccountService/AccountService.html).

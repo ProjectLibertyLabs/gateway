@@ -20,6 +20,10 @@ The Content Publishing Service is part of the [Gateway](https://projectlibertyla
 - **Get asset**
 - **Populate a queue with dummy announcement data**
 
+## Running the Content Publishing Service
+
+For information on running the Content Publishing Service, please refer to the [Content Publishing Service Documentation](https://projectlibertylabs.github.io/gateway/Run/ContentPublishing/RunContentPublishing.html).
+
 ## Detailed Documentation
 
 For more detailed information about the Content Publishing Service, including setup, configuration, and API documentation, please refer to the [Content Publishing Service Documentation](https://projectlibertylabs.github.io/gateway/Build/ContentPublishing/ContentPublishing.html).

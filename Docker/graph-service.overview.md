@@ -8,6 +8,10 @@ The Graph Service is a service enabling easy interaction with [DSNP](https://dsn
 - **Update Graph**
 - **Watch Graphs**
 
+## Running the Graph Service
+
+For information on running the Graph Service, please refer to the [Graph Service Documentation](https://projectlibertylabs.github.io/gateway/Run/GraphService/RunGraphService.html).
+
 ## Detailed Documentation
 
 For more detailed information about the Graph Service, including setup, configuration, and API documentation, please refer to the [Graph Service Documentation](https://projectlibertylabs.github.io/gateway/Build/GraphService/GraphService.html).

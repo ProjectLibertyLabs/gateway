@@ -14,6 +14,10 @@ The Content Watcher Service is part of the [Gateway](https://projectlibertylabs.
 
 - **Start, Stop, and restart scanning**
 
+## Running the Content Watcher Service
+
+For information on running the Content Watcher Service, please refer to the [Content Watcher Service Documentation](https://projectlibertylabs.github.io/gateway/Run/ContentWatcher/RunContentWatcher.html).
+
 ## Detailed Documentation
 
 For more detailed information about the Content Watcher Service, including setup, configuration, and API documentation, please refer to the [Content Watcher Service Documentation](https://projectlibertylabs.github.io/gateway/Build/ContentWatcher/ContentWatcher.html).

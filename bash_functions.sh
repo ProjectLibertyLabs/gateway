@@ -5,22 +5,18 @@
 #  If we don't find one, disable our "pretty" output function.
 ###################################################################################
 PCRE_GREP=
-if grep -q -P "foo" 2>/dev/null
-then
+if 2>/dev/null 1>/dev/null grep -q -P "foo"; then
     PCRE_GREP=grep
 else
     # Grep is not PCRE compatible, check for other greps
-    if command -v ggrep >/dev/null # MacOS Homebrew might have ggrep
-    then
+    if command -v ggrep >/dev/null; then # MacOS Homebrew might have ggrep
         PCRE_GREP=ggrep
-    elif command -v prce2grep > /dev/null # MacOS Homebrew could also have pcre2grep
-    then
+    elif command -v prce2grep > /dev/null; then # MacOS Homebrew could also have pcre2grep
         PCRE_GREP=pcre2grep
     fi
 fi
 
-if [ -z "${PCRE_GREP}" ]
-then
+if [ -z "${PCRE_GREP}" ]; then
     cat << EOI
 WARNING: No PCRE-capable 'grep' utility found; pretty terminal output disabled.
 
@@ -28,9 +24,11 @@ If you're on a Mac, try installing GNU grep:
     brew install grep
 
 EOI
-    OUTPUT=cat
+  read -p 'Press any key to continue: '
+
+  OUTPUT=echo
 else
-    OUTPUT=box_text
+  OUTPUT='box_text -w 96'
 fi
 
 ###################################################################################
@@ -55,8 +53,7 @@ function yesno() {
     echo
     read -n 1 -p "${1}? [${DEFAULT_STR}]: "
     echo
-    if [[ ${REPLY} =~ ^[Yy]$ ]]
-    then
+    if [[ ${REPLY} =~ ^[Yy]$ ]] ; then
         return 0
     elif [ -z "${REPLY}" -a ${DEFAULT} = Y ]; then
         return 0
@@ -73,12 +70,16 @@ function display_width() {
 
     for (( i=0; i<${#str}; i++ )); do
         char="${str:i:1}"
-        if echo "$char" | ${PCRE_GREP} -P -q '[^\x{00}-\x{7F}]'; then
-            # Emoji or symbol, assume it takes two columns
-            width=$((width + 2))
+        if [ -z ${PCRE_GREP} ]; then
+          # Regular character, assume it takes one column
+          width=$((width + 1))
         else
+          if echo "$char" | ${PCRE_GREP} -P -q '[^\x{00}-\x{7F}]' ; then
+            width=$((width + 2))
+          else
             # Regular character, assume it takes one column
             width=$((width + 1))
+          fi
         fi
     done
 

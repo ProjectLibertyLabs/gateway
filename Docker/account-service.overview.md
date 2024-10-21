@@ -1,6 +1,6 @@
 # Account Service Overview
 
-Account Service is a service enabling easy interaction with [DSNP](https://dsnp.org/) accounts on [Frequency](https://docs.frequency.xyz/). Accounts can be defined as a user's handle and MSA Id.
+Account Service is a service enabling easy interaction with [DSNP](https://dsnp.org/) accounts on [Frequency](https://docs.frequency.xyz/). Accounts are identified by the Frequency MSA Id.
 
 ## Key Features
 

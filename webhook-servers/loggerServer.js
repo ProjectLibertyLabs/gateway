@@ -17,9 +17,9 @@ server
 
         console.log('> Body');
         try {
-            console.log(JSON.stringify(JSON.parse(body), null, 2));
+          console.log(JSON.stringify(JSON.parse(body), null, 2));
         } catch (e) {
-            console.error(body);
+          console.error(body);
         }
         response.end();
       });

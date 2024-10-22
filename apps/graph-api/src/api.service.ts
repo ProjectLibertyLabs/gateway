@@ -195,17 +195,29 @@ export class ApiService implements BeforeApplicationShutdown {
   }
 
   async getGraphs(queryParams: GraphsQueryParamsDto): Promise<UserGraphDto[]> {
-    const { dsnpIds, privacyType } = queryParams;
+    const { dsnpIds, privacyType, connectionType } = queryParams;
     const graphKeyPairs = queryParams.graphKeyPairs || [];
     const graphs: UserGraphDto[] = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const dsnpId of dsnpIds) {
       // eslint-disable-next-line no-await-in-loop
-      const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(dsnpId, privacyType, graphKeyPairs);
-      graphs.push({
-        dsnpId,
-        dsnpGraphEdges: graphEdges,
-      });
+      try {
+        const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(
+          dsnpId,
+          privacyType,
+          connectionType,
+          graphKeyPairs,
+        );
+        graphs.push({
+          dsnpId,
+          dsnpGraphEdges: graphEdges,
+        });
+      } catch (e: any) {
+        graphs.push({
+          dsnpId,
+          errorMessage: e.message,
+        });
+      }
     }
     return graphs;
   }

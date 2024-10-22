@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
-import { PrivacyType } from '@dsnp/graph-sdk';
+import { ConnectionType, PrivacyType } from '@dsnp/graph-sdk';
 import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { GraphStateManager } from './graph-state-manager';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
@@ -23,9 +23,10 @@ export class AsyncDebouncerService {
   public getGraphForDsnpId(
     dsnpId: string,
     privacyType: PrivacyType,
+    connectionType: ConnectionType,
     graphKeyPairs?: GraphKeyPairDto[],
   ): Promise<DsnpGraphEdgeDto[]> {
-    return this.debounceAsyncOperation(dsnpId, privacyType, graphKeyPairs);
+    return this.debounceAsyncOperation(dsnpId, privacyType, connectionType, graphKeyPairs);
   }
 
   public setGraphForSchemaId(
@@ -37,15 +38,17 @@ export class AsyncDebouncerService {
       throw new Error('Schema ID is required');
     }
     const privacyType = this.graphStateManager.getPrivacyForSchema(schemaId);
-    return this.debounceAsyncOperation(dsnpId, privacyType, graphKeyPairs);
+    const connectionType = this.graphStateManager.getConnectionTypeForSchema(schemaId);
+    return this.debounceAsyncOperation(dsnpId, privacyType, connectionType, graphKeyPairs);
   }
 
   public async debounceAsyncOperation(
     dsnpId: string,
     privacyType: PrivacyType,
+    connectionType: ConnectionType,
     graphKeyPairs?: GraphKeyPairDto[],
   ): Promise<DsnpGraphEdgeDto[]> {
-    const cacheKey = this.getCacheKey(dsnpId, privacyType);
+    const cacheKey = this.getCacheKey(dsnpId, privacyType, connectionType);
 
     const cachedFuture = await this.redis.get(cacheKey);
     if (cachedFuture) {
@@ -61,13 +64,13 @@ export class AsyncDebouncerService {
         throw new Error('Graph key pairs are required for private graph');
       }
     }
-    let graphEdges: DsnpGraphEdgeDto[] = [];
-    try {
-      graphEdges = await this.graphStateManager.getConnectionsWithPrivacyType(dsnpId, privacyType, graphKeyPairs);
-    } catch (err) {
-      this.logger.error(`Error getting graph edges for ${dsnpId} with privacy type ${privacyType}`, err);
-      return graphEdges;
-    }
+    const graphEdges: DsnpGraphEdgeDto[] = await this.graphStateManager.getConnectionsWithPrivacyTypeAndConnectionType(
+      dsnpId,
+      privacyType,
+      connectionType,
+      // this would ensure that we will get public data regardless of invalid key pairs in request
+      privacyType === PrivacyType.Public ? [] : graphKeyPairs,
+    );
     const debounceTime = this.config.debounceSeconds;
     await this.redis.setex(cacheKey, debounceTime, JSON.stringify(graphEdges));
     // Remove the graph from the graph state after the debounce time
@@ -75,8 +78,8 @@ export class AsyncDebouncerService {
     return graphEdges;
   }
 
-  private getCacheKey(key: string, privacyType: string): string {
-    this.logger.debug(`Async operation for key ${key}:${privacyType}`);
-    return `${DEBOUNCER_CACHE_KEY}:${key}:${privacyType}`;
+  private getCacheKey(key: string, privacyType: string, connectionType: string): string {
+    this.logger.debug(`Async operation for key ${key}:${privacyType}:${connectionType}`);
+    return `${DEBOUNCER_CACHE_KEY}:${key}:${privacyType}:${connectionType}`;
   }
 }

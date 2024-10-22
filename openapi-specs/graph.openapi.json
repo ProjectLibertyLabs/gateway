@@ -313,6 +313,14 @@
           "public"
         ]
       },
+      "ConnectionType": {
+        "type": "string",
+        "description": "Indicator of the type of connection (follow or friendship)",
+        "enum": [
+          "follow",
+          "friendship"
+        ]
+      },
       "KeyType": {
         "type": "string",
         "description": "Key type of graph encryption keypair (currently only X25519 supported)",
@@ -351,6 +359,10 @@
             "example": "public",
             "$ref": "#/components/schemas/PrivacyType"
           },
+          "connectionType": {
+            "example": "follow",
+            "$ref": "#/components/schemas/ConnectionType"
+          },
           "dsnpIds": {
             "description": "Array of MSA Ids for which to query graphs",
             "example": [
@@ -374,6 +386,7 @@
         },
         "required": [
           "privacyType",
+          "connectionType",
           "dsnpIds"
         ]
       },
@@ -410,6 +423,10 @@
             "items": {
               "$ref": "#/components/schemas/DsnpGraphEdgeDto"
             }
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Optional error message if the request failed"
           }
         },
         "required": [
@@ -424,14 +441,6 @@
           "connectionFrom",
           "bidirectional",
           "disconnect"
-        ]
-      },
-      "ConnectionType": {
-        "type": "string",
-        "description": "Indicator of the type of connection (follow or friendship)",
-        "enum": [
-          "follow",
-          "friendship"
         ]
       },
       "ConnectionDto": {

@@ -1,285 +1,163 @@
 # Graph Service
 
-<!-- TABLE OF CONTENTS -->
+The Graph Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP private and public graphs on the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
 
-# 📗 Table of Contents
+## 📗 Table of Contents
 
 - [📖 About the Project](#about-project)
-- [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#-built-with)
-  - [Tech Stack](#tech-stack)
-  - [Key Features](#key-features)
-- [🚀 Live OpenAPI Docs](#-live-docs)
-- [💻 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
-  - [Install](#install)
-  - [Usage](#usage)
-  - [Run tests](#run-tests)
-  - [Deployment](#deployment)
-- [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#-support)
-- [🙏 Acknowledgements](#-acknowledgements)
-- [❓FAQ](#faq)
-- [📝 License](#-license)
+- [🔍 Architecture Overview](#architecture-overview)
+- [🔑 Key Features](#key-features)
+- [💻 Getting Started](#getting-started)
+- [🚀 API Documentation](#api-documentation)
+- [🛠 Development](#development)
+- [🤝 Contributing](#contributing)
+- [❓ FAQ](#faq)
+- [📝 License](#license)
 
-<!-- PROJECT DESCRIPTION -->
+## 📖 About the Project <a name="about-project"></a>
 
-# 📖 `graph-service` <a name="about-project"></a>
+The Graph Service simplifies the management and interaction with DSNP (Decentralized Social Networking Protocol) private and public graphs on the Frequency blockchain. It provides an easy-to-use interface for fetching, updating, and watching graphs.
 
-The Graph Service is a service enabling easy interaction with DSNP private and public graphs on Frequency.
+## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
-<!-- Arch maps -->
+The Graph Service is built using NestJS and is divided into two main components:
 
-## 🔭 Arch Maps
+1. **API**: Handles incoming HTTP requests
+2. **Worker**: Processes jobs that require blockchain interaction
 
-The account-service is a NestJS application that is split into two main parts: the API and the Worker.
+![Gateway Graph Service Architecture](./graph_service_arch.drawio.png)
 
-The API is responsible for handling incoming HTTP requests and the Worker is responsible for processing jobs that require blockchain interaction.
+## 🔑 Key Features <a name="key-features"></a>
 
-![Gateway Graph Service](./docs/graph_service_arch.drawio.png)
+- **Fetch Graphs**: Retrieve social connection data
+- **Update Graph**: Modify social connections
+- **Watch Graphs**: Monitor changes in social graphs
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+## 💻 Getting Started <a name="getting-started"></a>
 
-## 🛠 Built With <a name="built-with"></a>
-
-### Tech Stack <a name="tech-stack"></a>
-
-<details>
-  <summary>Framework</summary>
-  <ul>
-    <li><a href="https://nestjs.com/">NestJS</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Language</summary>
-  <ul>
-    <li><a href="https://www.typescriptlang.org/">Typescript</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Testing Libraries</summary>
-  <ul>
-    <li><a href="https://jestjs.io/">Jest</a></li>
-    <li><a href="https://www.npmjs.com/package/supertest">Supertest</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Linting</summary>
-  <ul>
-    <li><a href="https://eslint.org/">ESLint</a></li>
-    <li><a href="https://prettier.io/">Prettier</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Data Store</summary>
-  <ul>
-    <li><a href="https://redis.io/">Redis</a></li>
-    <ul>
-      <li><a href="https://github.com/luin/ioredis">ioredis</a></li>
-    </ul>
-  </ul>
-</details>
-
-<details>
-  <summary>Request Library</summary>
-  <ul>
-    <li><a href="https://axios-http.com/">Axios</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Scheduling</summary>
-  <ul>
-    <li><a href="https://docs.nestjs.com/techniques/task-scheduling">NestJS Schedule</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Validation</summary>
-  <ul>
-    <li><a href="https://github.com/typestack/class-validator">class-validator</a></li>
-    <li><a href="https://joi.dev/">Joi</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Environment Configuration</summary>
-  <ul>
-    <li><a href="https://github.com/motdotla/dotenv">dotenv</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Containerization</summary>
-  <ul>
-    <li><a href="https://www.docker.com/">Docker</a></li>
-    <li><a href="https://docs.docker.com/compose/">Docker Compose</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>API Documentation</summary>
-  <ul>
-    <li><a href="https://swagger.io/">Swagger</a></li>
-  </ul>
-</details>
-
-<!-- Features -->
-
-### Key Features
-
-- **Fetch Graphs**
-- **Update Graph**
-- **Watch Graphs**
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LIVE Docs -->
-
-## 🚀 Live Docs
-
-- [Live Docs](https://projectlibertylabs.github.io/graph-service)
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-
-## 💻 Getting Started
-
-To get a local copy up and running, follow these steps.
+This section will guide you through setting up the Graph Service using either Docker or local development.
 
 ### Prerequisites
 
-In order to run this project you need:
-
+Ensure you have the following installed:
+- [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
-- [Nodejs](https://nodejs.org)
 
-### Setup
+### Quick Start with Docker
 
-Clone this repository to your desired folder:
-
-Example commands:
-
-```sh
-  git clone git@github.com:ProjectLibertyLabs/graph-service.git
-  cd graph-service
-```
-
-### Install
-
-Install NPM Dependencies:
-
-```sh
-  npm install
-```
-
-### Environment Variables
-
-The application receives its configuration from the environment. Each method of launching the app has its own source for the environment. If you run a container image using Kubernetes, it is likely your environment injection will be configured in a Helm chart. For local Docker-based development, you may specifiy the environment or point to an environment file (the included [docker-compose.yaml](./docker-compose.yaml) can has a self-contained environment which may be edited to suit your purposes). If running natively using the script included in `package.json`, the app will use a local `.env` file.
-
-Environment files are documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](./env.template).
-
-1. Copy the template values into the .env file.
-   ```sh
-   cp env.template .env
+1. Clone the repository and navigate to the project directory:
+   ```bash
+   git clone https://github.com/ProjectLibertyLabs/gateway.git
+   cd gateway
    ```
-2. Replace template values with values appropriate to your environment.
 
-### Usage
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Note: using [docker compose file](docker-compose.yaml) to start the services. This will start the services in development mode.
+3. Set up environment variables:
+   ```bash
+   cp env-files/graph.template.env .env
+   ```
+   Edit the `.env` file with appropriate values for your environment.
 
-#### 1. Start the Redis server container and the Frequency container. You can view the logs with your Docker setup.
+4. Start all services using Docker Compose:
+   ```bash
+   docker compose up -d redis frequency graph-service-api graph-service-worker
+   ```
 
-```sh
-docker compose up -d redis frequency
+5. Set up with account data:
+   ```bash
+   make setup-account
+   ```
+
+### Local Development (without containers)
+
+If you prefer to run services locally for development:
+
+1. Start Redis and Frequency:
+   ```bash
+   docker compose up -d redis frequency
+   ```
+
+2. Set up with account data:
+   ```bash
+   make setup-account
+   ```
+
+3. Start the Graph Service API:
+   ```bash
+   make start-graph-api
+   ```
+
+4. Start the Graph Service Worker:
+   ```bash
+   make start-graph-worker
+   ```
+
+### Verification
+
+#### Docker Setup
+- Access Swagger UI: [http://localhost:3012/docs/swagger](http://localhost:3012/docs/swagger)
+- View and manage queues: [http://localhost:3012/queues](http://localhost:3012/queues)
+
+#### Local Development Setup
+- Access Swagger UI: [http://localhost:3000/docs/swagger](http://localhost:3000/docs/swagger)
+- View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
+
+For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to our [comprehensive documentation](#).
+
+## 🚀 API Documentation <a name="api-documentation"></a>
+
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway) for detailed information on endpoints and usage.
+
+## 🛠 Development <a name="development"></a>
+
+This section covers testing, debugging, linting, and information about the technologies used in the Graph Service.
+
+### Testing
+
+Run E2E tests:
+```bash
+npm run test:e2e:graph
 ```
-
-#### 2. Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up. Run a graph setup with Alice as provider 1 and 2,3,4,5,6 as users.
-
-```sh
-make setup
-```
-
-#### 3. Run the following command to start the graph service api and worker containers. This will start the account service api and worker in development mode.
-
-```sh
-docker compose up -d api worker
-```
-
-#### 4. Check the job in [BullUI](http://0.0.0.0:3000/queues/), to monitor job progress based on defined tests.
-
-## 📋 Testing
-
-### Run the tests
-
-```sh
-make test-e2e
-```
-
-This will run the tests in `apps/api/test` folder.
-
-#### Check e2e test file for more details on the test.
-
-### Swagger UI
-
-Check out the Swagger UI hosted on the app instance at [\<base url>/docs/swagger](http://localhost:3000/docs/swagger) to view the API documentation and submit requests to the service.
-
-### Queue Management
-
-You may also view and manage the application's queue at [\<base url>/queues](http://localhost:3000/queues).
 
 ### Linting
 
-```sh
+To run the linter:
+```bash
 npm run lint
 ```
 
-### Auto-format
-
-```sh
+To automatically fix linting issues:
+```bash
 npm run format
 ```
 
-<!-- CONTRIBUTING -->
+### Built With
 
-## 🤝 Contributing
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Testing**: Jest, Supertest
+- **Data Store**: Redis (ioredis)
+- **API Documentation**: Swagger
+- **Containerization**: Docker, Docker Compose
 
-Contributions, issues, and feature requests are welcome!
+For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full documentation.
 
-- [Contributing Guidelines](./CONTRIBUTING.md)
-- [Open Issues](https://github.com/ProjectLibertyLabs/graph-service/issues)
+## 🤝 Contributing <a name="contributing"></a>
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/graph-service/issues).
 
-<!-- SUPPORT -->
+## ❓ FAQ <a name="faq"></a>
 
-## ⭐️ Show your support
+**Q: What is the difference between Reconnection Service and Graph Service?**
 
-If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
+*The Reconnection Service is designed for providers who have users migrating to DSNP, whereas the Graph Service is for users who are already on DSNP or don't need to migrate pre-DSNP users.*
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+## 📝 License <a name="license"></a>
 
-<!-- FAQ (optional) -->
-
-## ❓FAQ
-
-- **What is the difference between [Reconnection Service]() and `Graph Service`?**
-
-  - The `Reconnection Service` is designed for providers who have users who are migrating to [DSNP](https://www.dsnp.org), whereas `Graph Service` is for users who are already on DSNP or don't need to migrate pre-DSNP users.
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LICENSE -->
-
-## 📝 License
-
-This project is [Apache 2.0](./LICENSE) licensed.
+This project is licensed under the [Apache 2.0 License](./LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

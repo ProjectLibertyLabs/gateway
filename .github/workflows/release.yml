@@ -113,7 +113,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64, linux/arm64, darwin/arm64
           push: ${{ needs.set_variables.outputs.test_run != 'true'}}
           file: Docker/Dockerfile.${{ matrix.service }}
           tags: ${{ steps.cp-tags.outputs.tags }}

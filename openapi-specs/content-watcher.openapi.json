@@ -114,7 +114,7 @@
     "/v1/search": {
       "post": {
         "operationId": "SearchControllerV1_search",
-        "summary": "Search for DSNP content by id, start/end block, and filters",
+        "summary": "Search for DSNP content by id and filters, starting from `upperBound` block and going back for `blockCount` number of blocks",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -144,7 +144,7 @@
       }
     },
     "/v1/webhooks": {
-      "put": {
+      "post": {
         "operationId": "WebhookControllerV1_registerWebhook",
         "summary": "Register a webhook to be called when new content is encountered on the chain",
         "parameters": [],
@@ -159,7 +159,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": ""
           }
         },
@@ -315,9 +315,9 @@
             "type": "string",
             "description": "An optional client-supplied reference ID by which it can identify the result of this search"
           },
-          "startBlock": {
+          "upperBoundBlock": {
             "type": "number",
-            "description": "The block number to search (backward) from",
+            "description": "The highest block number to start the backward search from",
             "example": 100,
             "minimum": 0,
             "maximum": 4294967296

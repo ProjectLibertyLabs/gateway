@@ -3,7 +3,7 @@ import {
   WebhookRegistrationDto,
   WebhookRegistrationResponseDto,
 } from '#types/dtos/content-watcher/subscription.webhook.dto';
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Logger, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('v1/webhooks')
@@ -15,7 +15,7 @@ export class WebhookControllerV1 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Put()
+  @Post()
   @ApiOperation({ summary: 'Register a webhook to be called when new content is encountered on the chain' })
   async registerWebhook(@Body() webhookRegistrationDto: WebhookRegistrationDto) {
     this.logger.debug(`Registering webhook ${JSON.stringify(webhookRegistrationDto)}`);

@@ -5,7 +5,7 @@ The Graph Service is a service enabling easy interaction with [DSNP](https://dsn
 ## Key Features
 
 - **Fetch Graphs**
-- **Update Graph**
+- **Update Graphs**
 - **Watch Graphs**
 
 ## Running the Graph Service

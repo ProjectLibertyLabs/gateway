@@ -8,7 +8,7 @@ The Content Watcher Service is part of the [Gateway](https://projectlibertylabs.
 
 - **Parse DSNP Messages on Frequency**
 - **Send content to registered webhooks**
-- **Simple Schema and MSA Id based filtering**
+- **Filter via Simple Schema and MSA Id**
 
 ### Scanner API
 

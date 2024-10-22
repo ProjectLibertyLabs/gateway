@@ -40,7 +40,7 @@ Note: using [docker compose file](docker-compose.yaml) to start the services. Th
 docker compose up -d redis frequency
 ```
 
-Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain
+Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
 
 ### 2. Start the application services
 

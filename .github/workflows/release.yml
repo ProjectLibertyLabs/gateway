@@ -35,7 +35,7 @@ jobs:
           test_run=false
           ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ env.FULL_TAG }}"
           echo "Running with tag: ${TAG}"
           if [[ "$TAG" =~ ${ENTIRE_TAG_RE} ]] ; then
             SERVICE=${BASH_REMATCH[2]}

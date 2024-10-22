@@ -16,9 +16,9 @@ The Content Watcher Service is a crucial component of the Gateway suite, providi
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Content Watcher Service is part of the [Gateway](https://github.com/ProjectLibertyLabs/gateway) suite that provides a Web2-friendly interface for monitoring and retrieving blockchain content through a webhook system.
+The Content Watcher Service is part of the [Gateway](https://github.com/ProjectLibertyLabs/gateway) suite that provides a Web2-friendly interface for monitoring and retrieving blockchain announcements through a webhook system.
 
-In decentralized social networks, all content (posts, replies, reactions) is stored as blockchain events that need to be continuously monitored and processed. Without a content watcher, applications would need to constantly query the blockchain and process complex data structures to stay updated with new content. The Content Watcher Service simplifies this by automatically monitoring the blockchain, processing new content as it appears, and delivering it to your application in a familiar format through webhooks.
+On Frequency, announcements about content (posts, replies, reactions) are stored on-chain, while the content itself is stored off-chain. The Content Watcher Service simplifies the process of monitoring these announcements by automatically watching the blockchain, processing new announcements as they appear, and delivering them to your application in a familiar format through webhooks.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 

@@ -32,6 +32,11 @@ export const mockApiPromise = {
       applyItemActionsV2: jest.fn(),
     },
   },
+  rpc: {
+    chain: {
+      getBlockHash: jest.fn(),
+    },
+  },
   genesisHash: {
     toHex: jest.fn(),
   },

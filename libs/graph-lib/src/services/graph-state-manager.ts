@@ -115,6 +115,17 @@ export class GraphStateManager implements OnApplicationBootstrap {
     return privacyType;
   }
 
+  public getConnectionTypeForSchema(schemaId: number): ConnectionType {
+    let connectionType = ConnectionType.Friendship;
+    if (
+      this.schemaIds[ConnectionType.Follow][PrivacyType.Private] === schemaId ||
+      this.schemaIds[ConnectionType.Follow][PrivacyType.Public] === schemaId
+    ) {
+      connectionType = ConnectionType.Follow;
+    }
+    return connectionType;
+  }
+
   public getSchemaIdFromConfig(connectionType: ConnectionType, privacyType: PrivacyType): number {
     return this.schemaIds[connectionType][privacyType] ?? 0;
   }
@@ -174,65 +185,28 @@ export class GraphStateManager implements OnApplicationBootstrap {
     return false;
   }
 
-  public async getConnectionsWithPrivacyType(
+  public async getConnectionsWithPrivacyTypeAndConnectionType(
     dsnpUserId: string,
     privacyType: PrivacyType,
+    connectionType: ConnectionType,
     graphKeyPairs?: GraphKeyPairDto[],
   ): Promise<DsnpGraphEdge[]> {
-    const privateFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Private];
-    const privateFriendSchemaId = this.schemaIds[ConnectionType.Friendship][PrivacyType.Private];
-    const publicFollowSchemaId = this.schemaIds[ConnectionType.Follow][PrivacyType.Public];
+    const requestedSchemaId = this.getSchemaIdFromConfig(connectionType, privacyType);
+    if (requestedSchemaId === 0) {
+      throw new Error(`No schema is configured for combination of ${privacyType} and ${connectionType}`);
+    }
 
     if (this.graphState && this.graphState.containsUserGraph(dsnpUserId.toString())) {
-      if (privacyType === PrivacyType.Private) {
-        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          privateFollowSchemaId,
-          false,
-        );
-        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          privateFriendSchemaId,
-          false,
-        );
-        if (privateFollowConnections.length > 0 || privateFriendConnections.length > 0) {
-          return privateFollowConnections.concat(privateFriendConnections);
-        }
-      }
-      if (privacyType === PrivacyType.Public) {
-        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          publicFollowSchemaId,
-          false,
-        );
-        return publicFollowConnections;
+      const connections = this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), requestedSchemaId, false);
+      if (connections.length > 0) {
+        return connections;
       }
     }
     const bundlesImported = await this.importBundles(dsnpUserId, graphKeyPairs ?? []);
     if (bundlesImported) {
-      if (privacyType === PrivacyType.Private) {
-        const privateFollowConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          privateFollowSchemaId,
-          false,
-        );
-        const privateFriendConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          privateFriendSchemaId,
-          false,
-        );
-        return privateFollowConnections.concat(privateFriendConnections);
-      }
-      if (privacyType === PrivacyType.Public) {
-        const publicFollowConnections = this.graphState.getConnectionsForUserGraph(
-          dsnpUserId.toString(),
-          publicFollowSchemaId,
-          false,
-        );
-        return publicFollowConnections;
-      }
+      return this.graphState.getConnectionsForUserGraph(dsnpUserId.toString(), requestedSchemaId, false);
     }
-    return [];
+    throw new Error(`Failed to get connections for user ${dsnpUserId} and ${privacyType} ${connectionType} graph`);
   }
 
   async importBundles(dsnpUserId: string, graphKeyPairs: GraphKeyPairDto[]): Promise<boolean> {

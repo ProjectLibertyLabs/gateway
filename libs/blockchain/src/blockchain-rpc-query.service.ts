@@ -333,13 +333,10 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     keysRequest: PublicKeyAgreementRequestDto,
   ): Promise<SubmittableExtrinsic<any>> {
     const { accountId, payload, proof } = keysRequest;
+    const decodedAccount = decodeAddress(accountId);
     const txPayload = this.createItemizedSignaturePayloadV2Type(payload);
 
-    return this.api.tx.statefulStorage.applyItemActionsWithSignatureV2(
-      hexToU8a(accountId),
-      { Sr25519: proof },
-      txPayload,
-    );
+    return this.api.tx.statefulStorage.applyItemActionsWithSignatureV2(decodedAccount, { Sr25519: proof }, txPayload);
   }
 
   public createClaimHandPayloadType(baseHandle: string, expiration: number) {

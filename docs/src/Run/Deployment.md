@@ -4,29 +4,61 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Part 1: Deploying with Docker Swarm](#part-1-deploying-with-docker-swarm)
-   - [1.1 Setting Up AWS EC2 Instances](#11-setting-up-aws-ec2-instances)
-   - [1.2 Installing Docker Swarm](#12-installing-docker-swarm)
-   - [1.3 Deploying Gateway Services](#13-deploying-gateway-services)
-3. [Part 2: Deploying with Kubernetes](#part-2-deploying-with-kubernetes)
-   - [2.1 Setting Up AWS EC2 Instances](#21-setting-up-aws-ec2-instances)
-   - [2.2 Installing Kubernetes Cluster](#22-installing-kubernetes-cluster)
-   - [2.3 Deploying Gateway Services](#23-deploying-gateway-services)
-4. [Part 3: Automating with Terraform](#part-3-automating-with-terraform)
-   - [3.1 Terraform Configuration](#31-terraform-configuration)
-   - [3.2 Provisioning Resources](#32-provisioning-resources)
-   - [3.3 Deploying with Terraform](#33-deploying-with-terraform)
+- [Deploying Gateway Services on AWS EC2](#deploying-gateway-services-on-aws-ec2)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Part 1: Deploying with Docker Swarm](#part-1-deploying-with-docker-swarm)
+    - [1.1 Setting Up AWS EC2 Instances](#11-setting-up-aws-ec2-instances)
+      - [Step 1: Launch EC2 Instances](#step-1-launch-ec2-instances)
+      - [Step 2: Configure SSH Access](#step-2-configure-ssh-access)
+    - [1.2 Installing Docker Swarm](#12-installing-docker-swarm)
+      - [Step 1: Update Packages](#step-1-update-packages)
+      - [Step 2: Install Docker Engine](#step-2-install-docker-engine)
+      - [Step 3: Initialize Swarm on Manager Node](#step-3-initialize-swarm-on-manager-node)
+      - [Step 4: Join Worker Nodes to Swarm](#step-4-join-worker-nodes-to-swarm)
+    - [1.3 Deploying Gateway Services](#13-deploying-gateway-services)
+      - [Step 1: Clone the Gateway Repository](#step-1-clone-the-gateway-repository)
+      - [Step 2: Deploy the Stack](#step-2-deploy-the-stack)
+      - [Step 3: Verify the Deployment](#step-3-verify-the-deployment)
+  - [Part 2: Deploying with Kubernetes](#part-2-deploying-with-kubernetes)
+    - [2.1 Setting Up AWS EC2 Instances](#21-setting-up-aws-ec2-instances)
+      - [Step 1: Launch EC2 Instances](#step-1-launch-ec2-instances-1)
+    - [2.2 Installing Kubernetes Cluster](#22-installing-kubernetes-cluster)
+      - [Step 1: Update Packages](#step-1-update-packages-1)
+      - [Step 2: Disable Swap](#step-2-disable-swap)
+      - [Step 3: Install Docker](#step-3-install-docker)
+      - [Step 4: Install Kubernetes Components](#step-4-install-kubernetes-components)
+      - [Step 5: Initialize Kubernetes Master](#step-5-initialize-kubernetes-master)
+      - [Step 6: Install a Pod Network (Weave Net)](#step-6-install-a-pod-network-weave-net)
+      - [Step 7: Join Worker Nodes](#step-7-join-worker-nodes)
+    - [2.3 Deploying Gateway Services](#23-deploying-gateway-services)
+      - [Step 1: Clone the Gateway Repository](#step-1-clone-the-gateway-repository-1)
+      - [Step 2: Kubernetes Deployment and Service Files](#step-2-kubernetes-deployment-and-service-files)
+      - [Step 2.1: Prepare Helm Chart](#step-21-prepare-helm-chart)
+      - [Step 3: Deploy with Helm](#step-3-deploy-with-helm)
+      - [Step 4: Verify the Deployment](#step-4-verify-the-deployment)
+  - [Part 3: Automating with Terraform](#part-3-automating-with-terraform)
+    - [3.1 Terraform Configuration](#31-terraform-configuration)
+      - [Step 1: Create Directory Structure](#step-1-create-directory-structure)
+      - [Step 2: Initialize Terraform Configuration](#step-2-initialize-terraform-configuration)
+    - [3.2 Provisioning Resources](#32-provisioning-resources)
+      - [Step 1: Initialize Terraform](#step-1-initialize-terraform)
+      - [Step 2: Plan the Deployment](#step-2-plan-the-deployment)
+      - [Step 3: Apply the Deployment](#step-3-apply-the-deployment)
+    - [3.3 Deploying with Terraform](#33-deploying-with-terraform)
+      - [Option 1: Use Provisioners (Not Recommended for Complex Configurations)](#option-1-use-provisioners-not-recommended-for-complex-configurations)
+      - [Option 2: Use Configuration Management Tools](#option-2-use-configuration-management-tools)
+  - [Conclusion](#conclusion)
 
 ---
 
 ## Prerequisites
 
 - **AWS Account**: Access to create EC2 instances.
-- **AWS CLI**: Installed and configured with appropriate permissions.
-- **Terraform**: Installed on your local machine.
-- **SSH Key Pair**: For accessing EC2 instances.
-- **Basic Knowledge**: Familiarity with Docker, Kubernetes, and Terraform.
+- [**AWS CLI**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) configured with your AWS credentials and appropriate permissions.
+- [**Terraform**](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) installed on your local machine.
+- [**SSH Key Pair**](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) for accessing EC2 instances.
+- **Basic Knowledge**: Familiarity with [Docker](https://docs.docker.com/get-started/), [Kubernetes](https://kubernetes.io/docs/tutorials/kubernetes-basics/), and [Terraform](https://www.terraform.io/intro/index.html).
 
 ---
 
@@ -238,11 +270,11 @@ Refer to the section "5. Deploying Frequency Gateway" in `kubernetes.md` for det
 
 #### Step 2.1: Prepare Helm Chart
 
-An example Helm chart (for example, [`frequency-gateway`](/deployment/k8s/frequency-gateway/));
+An example Helm chart (for example, [`frequency-gateway`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s);
 
 Make sure your `values.yaml` contains the correct configuration for NodePorts and services.
 
-**Sample [`values.yaml`](/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
+**Sample [`values.yaml`](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s/frequency-gateway/values.yaml) Excerpt:**
 
 Things to consider:
 
@@ -429,6 +461,6 @@ For more complex setups, consider using tools like Ansible, Chef, or Puppet in c
 
 ---
 
-# Conclusion
+## Conclusion
 
 This guide walked you through deploying the Gateway services using Docker Swarm and Kubernetes on AWS EC2 instances. It also provided Terraform examples to automate the infrastructure provisioning in a cloud-agnostic way. By following these steps, you can set up and manage your microservices deployment efficiently.

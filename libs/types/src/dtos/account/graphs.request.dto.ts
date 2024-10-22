@@ -18,7 +18,7 @@ export enum ItemActionType {
 }
 
 export class ItemActionDto {
-  @IsEnum(() => ItemActionType)
+  @IsEnum(ItemActionType)
   @ApiProperty({
     description: 'Action Item type',
     example: 'ADD_ITEM',

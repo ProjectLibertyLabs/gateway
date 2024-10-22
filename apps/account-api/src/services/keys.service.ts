@@ -5,9 +5,9 @@ import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
-  ItemActionType,
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
+import { ItemActionType } from '#types/enums/item-action-type.enum';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';

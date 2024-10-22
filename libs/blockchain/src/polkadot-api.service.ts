@@ -74,7 +74,6 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     } catch (err: any) {
       this.logger.error({ err, msg: err?.message });
       this.baseReadyReject(err);
-      // this.startDisconnectedTimeout('caught exception in constructor');
     }
   }
 

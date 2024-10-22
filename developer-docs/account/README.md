@@ -43,28 +43,33 @@ This section will guide you through setting up the Account Service for both quic
 ### Prerequisites
 
 Ensure you have the following installed:
+
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
 ### Quick Start
 
 1. Clone the repository and navigate to the project directory:
+
    ```bash
    git clone https://github.com/ProjectLibertyLabs/gateway.git
    cd gateway
    ```
 
 2. Copy the environment template:
+
    ```bash
    cp env-files/account.template.env .env.account
    ```
 
 3. Install dependencies:
+
    ```bash
    npm install
    ```
 
 4. Start supporting services using Docker:
+
    ```bash
    ./scripts/account/restart-chain-docker.sh
    ```
@@ -79,16 +84,19 @@ Ensure you have the following installed:
 If you prefer to run services locally for development:
 
 1. Start Redis and Frequency:
+
    ```bash
    ./scripts/account/restart-local-dev.sh
    ```
 
 2. Start the mock webhook server (in a new terminal):
+
    ```bash
    cd webhook-servers && cargo run
    ```
 
 3. Start the API (in a new terminal):
+
    ```bash
    npm run start:account-api:dev
    ```
@@ -106,6 +114,7 @@ If you prefer to run services locally for development:
 ### Next Steps
 
 After setting up the Account Service, you can:
+
 - Explore the API using the Swagger UI
 - Run the test suite to ensure everything is working correctly
 - Start integrating the Account Service into your application
@@ -125,6 +134,7 @@ This section covers testing, debugging, linting, and information about the techn
 ### Testing
 
 Run E2E tests:
+
 ```bash
 make test-e2e-account
 ```
@@ -136,11 +146,13 @@ Manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 ### Linting
 
 To run the linter:
+
 ```bash
 npm run lint
 ```
 
 To automatically fix linting issues:
+
 ```bash
 npm run format
 ```
@@ -196,11 +208,11 @@ We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUT
 
 **Q: Can I use this service in my production social app?**
 
-*Yes, Gateway Services are designed to be ready-to-use out of the box for social media apps using DSNP on Frequency.*
+_Yes, Gateway Services are designed to be ready-to-use out of the box for social media apps using DSNP on Frequency._
 
 **Q: Will the Account Service scale for large applications?**
 
-*The service is designed to support small-to-medium-sized social apps. For larger use cases, custom solutions may be necessary.*
+_The service is designed to support small-to-medium-sized social apps. For larger use cases, custom solutions may be necessary._
 
 ## 📝 License <a name="license"></a>
 

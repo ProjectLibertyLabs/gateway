@@ -32,6 +32,7 @@ The API and Worker processes communicate via a shared BullMQ message queue.
 ## 🔑 Key Features <a name="key-features"></a>
 
 ### Content Management
+
 - **Upload asset files**: Handle file uploads to the system
 - **Create broadcasts**: Publish new posts to the network
 - **Create replies**: Respond to existing content
@@ -41,6 +42,7 @@ The API and Worker processes communicate via a shared BullMQ message queue.
 - **Update profiles**: Manage user profile information
 
 ### Development Features
+
 - **Job management**: Monitor and manage publishing jobs
 - **Asset retrieval**: Access stored assets
 - **Test data**: Generate sample announcement data
@@ -52,29 +54,35 @@ This section guides you through setting up the Content Publisher Service for bot
 ### Prerequisites
 
 Ensure you have the following installed:
+
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
 ### Quick Start
 
 1. Clone the repository and navigate to the project directory:
+
    ```bash
    git clone https://github.com/ProjectLibertyLabs/gateway.git
    cd gateway
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp env-files/content-publishing.template.env .env
    ```
+
    Configure the environment variables according to your needs.
 
 4. Start auxiliary services:
+
    ```bash
    docker compose up -d frequency redis ipfs
    ```
@@ -82,11 +90,13 @@ Ensure you have the following installed:
 5. Start the application services:
 
    API Service:
+
    ```bash
    npm run start:content-publishing-api:dev
    ```
 
    Worker Service:
+
    ```bash
    npm run start:content-publishing-worker:dev
    ```
@@ -99,9 +109,10 @@ Ensure you have the following installed:
 ### Alternative: Docker Setup
 
 1. Run services using Docker:
-    ```bash
-    docker compose up -d frequency content-publishing-service-api content-publishing-service-worker
-    ```
+
+   ```bash
+   docker compose up -d frequency content-publishing-service-api content-publishing-service-worker
+   ```
 
 2. Set up with account data:
    ```bash
@@ -113,10 +124,12 @@ Ensure you have the following installed:
 ### Verification
 
 #### Docker Setup
+
 - Access Swagger UI: [http://localhost:3012/docs/swagger](http://localhost:3012/docs/swagger)
 - View and manage queues: [http://localhost:3012/queues](http://localhost:3012/queues)
 
 #### Local Development Setup
+
 - Access Swagger UI: [http://localhost:3000/docs/swagger](http://localhost:3000/docs/swagger)
 - View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 
@@ -129,6 +142,7 @@ Ensure you have the following installed:
 ### Testing
 
 Run the test suite:
+
 ```bash
 npm test:content-publising
 ```
@@ -136,11 +150,13 @@ npm test:content-publising
 ### Linting and Formatting
 
 Run linter:
+
 ```bash
 npm run lint
 ```
 
 Auto-format code:
+
 ```bash
 npm run format
 ```
@@ -163,7 +179,7 @@ We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUT
 
 **Q: Can I use this service in my production social app?**
 
-*Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on Frequency.*
+_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on Frequency._
 
 ## 📝 License <a name="license"></a>
 

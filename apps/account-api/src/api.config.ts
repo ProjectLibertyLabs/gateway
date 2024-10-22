@@ -47,7 +47,7 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     siwfV2Domain: {
       value: process.env.SIWF_V2_DOMAIN,
       // Allow localhost specifically
-      joi: Joi.string().optional().allow(null).allow('localhost').allow('').empty('').domain(),
+      joi: Joi.string().optional().allow(null).allow('').empty(''),
     },
   };
 

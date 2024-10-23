@@ -11,7 +11,7 @@ import {
   DisconnectAction,
   Action,
   PrivacyType,
-} from '@dsnp/graph-sdk';
+} from '@projectlibertylabs/graph-sdk';
 import { MessageSourceId } from '@frequency-chain/api-augment/interfaces';
 import { AnyNumber } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';

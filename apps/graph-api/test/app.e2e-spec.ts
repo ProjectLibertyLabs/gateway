@@ -7,7 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
-import { PrivacyType, ConnectionType } from '@dsnp/graph-sdk';
+import { PrivacyType, ConnectionType } from '@projectlibertylabs/graph-sdk';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { ApiModule } from '#graph-api/api.module';
 import {

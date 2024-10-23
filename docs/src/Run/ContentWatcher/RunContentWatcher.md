@@ -6,22 +6,19 @@
 In order to run this project you need:
 
 - [Nodejs](https://nodejs.org)
-- [Docker](https://www.docker.com) or Docker-compatible container system for running Gateway Services
+- [Docker](https://www.docker.com/get-docker/)
 
 ## Environment Variables
 
-Use the provided [env.template](./env.template) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
+Use the provided [content-watcher.template.env](https://github.com/ProjectLibertyLabs/gateway/blob/main/env-files/content-watcher.template.env) file to create an initial environment for the application and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/content-watcher/ENVIRONMENT.md) file.
 
-1. For running locally, copy to the template file to `.env` and update as needed.
+1. For running locally, copy to the template file to `.env.content-watcher` and update as needed.
 
 ```sh
-cp env.template .env
+cp env-files/content-watcher.template.env .env.content-watcher
 ```
 
-2. Configure the environment variable values according to your environment.
-
-   - Docker: `.env.docker.dev`
-   - Local: `.env`
+2. Replace template values with values appropriate to your environment.
 
 ## Install
 
@@ -43,17 +40,15 @@ Frequency node, Redis, IPFS
 docker compose up -d frequency redis ipfs
 ```
 
-### 2. [Optional] Start the publishing services
+Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
 
-Run the following command to start the content publishing service api and worker containers. This will start the content publishing service api and worker in development mode.
+### 2. [Optional] Start the publishing services
 
 ```sh
 docker compose up -d content-publishing-service-api content-publishing-service-worker
 ```
 
 ### 3. Start the application services
-
-Run the following command to start the content watcher service container. This will start the content watcher service in development mode.
 
 ```sh
 docker compose up [-d] content-watcher-service

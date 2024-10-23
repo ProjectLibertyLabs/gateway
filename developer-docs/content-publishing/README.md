@@ -140,11 +140,13 @@ Ensure you have the following installed:
 ### Testing
 
 Run the test:
+
 ```bash
 npm test:content-publising
 ```
 
 Run E2E tests:
+
 ```bash
 npm run test:e2e:content-publishing
 ```

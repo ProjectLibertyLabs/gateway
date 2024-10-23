@@ -10,7 +10,8 @@ In order to run this project you need:
 
 ## Environment Variables
 
-Modify any environment variables in the `.env` file as needed. The complete set of environment variables is documented [here](./ENVIRONMENT.md), and a sample environment file is provided [here](../../env-files/account.template.env).
+Use the provided [account.template.env](https://github.com/ProjectLibertyLabs/gateway/blob/main/env-files/account.template.env) file to create an initial environment for the application and edit as desired.
+Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md) file.
 
 1. Copy the template values into the .env.account file.
 
@@ -30,7 +31,7 @@ Install NPM Dependencies:
 
 ## Usage
 
-Note: using [docker compose file](../../docker-compose.yaml) to start the services. This will start the services in development mode.
+Note: using `docker-compose.yaml` to start the services. This will start the services in development mode.
 
 The following command will start all of the necessary containers for the account service to run in development mode.
 

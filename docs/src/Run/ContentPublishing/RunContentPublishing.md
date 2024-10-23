@@ -6,19 +6,19 @@
 In order to run this project you need:
 
 - [Nodejs](https://nodejs.org)
-- [Docker](https://www.docker.com) or Docker-compatible container system for running Gateway Services
+- [Docker](https://www.docker.com/get-docker/)
 
 ## Environment Variables
 
-Use the provided [env.template](../../env-files/content-publishing.template.env) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
+Use the provided [content-publishing.template.env](https://github.com/ProjectLibertyLabs/gateway/blob/main/env-files/content-publishing.template.env) file to create an initial environment for the application and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/content-publishing/ENVIRONMENT.md) file.
 
-1. For running the application under Docker, copy the environment template to `.env.docker.dev`; for running bare-metal, copy to `.env`.
+1. For running locally, copy the template file to `.env.content-publishing` and update as needed.
 
 ```sh
-cp env-files/content-publishing.template.env .env
+cp env-files/content-publishing.template.env .env.content-publishing
 ```
 
-2. Configure the environment variable values according to your environment.
+2. Replace template values with values appropriate to your environment.
 
 ## Install
 
@@ -39,6 +39,8 @@ Frequency node, Redis, IPFS
 ```sh
 docker compose up -d frequency redis ipfs
 ```
+
+Once [Frequency](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer) is up, you can monitor the transactions on the blockchain.
 
 ### 2. Start the application services
 

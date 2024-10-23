@@ -34,7 +34,7 @@ jobs:
       - name: Extract and Validate Version Tag
         id: set_version_tag
         run: |
-          valid=false
+          valid=true
           test_run=true
           ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"

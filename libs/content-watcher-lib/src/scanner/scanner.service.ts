@@ -118,7 +118,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         const currentBlockNumber = await this.getNextBlockNumber();
         const currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
         if (currentBlockHash.isEmpty) {
-          this.logger.log(
+          this.logger.debug(
             `No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`,
           );
           break;

@@ -219,7 +219,9 @@ export class TxnNotifierService
             }
           }
         } else {
-          this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
+          this.logger.error(
+            `Watched transaction ${txHash} found in block ${currentBlockNumber}, but did not find event '${txStatus.successEvent.section}.${txStatus.successEvent.method}' in block`,
+          );
         }
 
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list

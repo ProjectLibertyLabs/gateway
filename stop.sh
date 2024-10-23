@@ -1,4 +1,7 @@
 #!/bin/bash
+
+. ./bash_functions.sh
+
 # Stop all services and optionally remove specified volumes to remove all state and start fresh
 
 # Export the variables that are used in the docker-compose.yaml file
@@ -7,13 +10,11 @@ if [ -f .env-saved ]; then
 fi
 
 # Shutting down any running services
-echo "Shutting down any running services..."
+${OUTPUT} "Shutting down any running services..."
 docker compose --profile local-node --profile backend --profile frontend --profile webhook down
 
 # Ask the user if they want to remove specified volumes
-read -p "Do you want to remove specified volumes to remove all state and start fresh? [y/N]: " REMOVE_VOLUMES
-
-if [[ $REMOVE_VOLUMES =~ ^[Yy]$ ]]
+if yesno "Do you want to remove specified volumes to remove all state and start fresh" N
 then
     echo "Removing specified volumes..."
     # Docker volume names are lowercase versions of the directory name
@@ -32,5 +33,5 @@ then
         docker volume rm ${COMPOSE_PROJECT_NAME}_chainstorage
     fi
 else
-    echo "Leaving Docker volumes alone."
+    ${OUTPUT} "Leaving Docker volumes alone."
 fi

@@ -89,6 +89,7 @@ export class ChainEventProcessorService {
     messages: MessageResponseWithSchemaId[],
     queue: Queue,
     requestId?: string,
+    webhookUrl?: string,
   ): Promise<void> {
     const jobs = messages.flatMap((messageResponse) =>
       messageResponse.messages
@@ -102,6 +103,7 @@ export class ChainEventProcessorService {
             message.cid.unwrap().toString(),
             message.index.toNumber(),
             requestId,
+            webhookUrl,
           );
 
           return {

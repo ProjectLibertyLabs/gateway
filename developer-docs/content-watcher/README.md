@@ -1,356 +1,206 @@
-# Content Watcher
+# Content Watcher Service
 
-<!-- TABLE OF CONTENTS -->
+The Content Watcher Service is a crucial component of the Gateway suite, providing a familiar callback API to retrieve content and publishing announcements from the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
 
-# 📗 Table of Contents
+## 📗 Table of Contents
 
 - [📖 About the Project](#about-project)
-- [🔍 Arch Map](#-arch-maps)
-- [🛠 Built With](#-built-with)
-  - [Tech Stack](#tech-stack)
-  - [Key Features](#key-features)
-- [🚀 Live OpenAPI Docs](#-live-docs)
-- [💻 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Environment Variables](#environment-variables)
-  - [Setup](#setup)
-  - [Install](#install)
-  - [Usage](#usage)
-  - [Swagger](#swagger-ui)
-  - [Queue Management](#queue-management)
-  - [Run tests](#run-tests)
-  - [Linting](#linting)
-  - [Formatting](#auto-format)
-- [🤝 Contributing](#-contributing)
-- [⭐️ Show your support](#-support)
-- [🙏 Acknowledgements](#-acknowledgements)
-- [❓FAQ](#faq)
-- [📝 License](#-license)
+- [🔍 Architecture Overview](#architecture-overview)
+- [🔑 Key Features](#key-features)
+- [💻 Getting Started](#getting-started)
+- [🚀 API Documentation](#api-documentation)
+- [🛠 Development](#development)
+- [🤝 Contributing](#contributing)
+- [❓ FAQ](#faq)
+- [📝 License](#license)
 
-<!-- PROJECT DESCRIPTION -->
+## 📖 About the Project <a name="about-project"></a>
 
-# 📖 Content Watcher Service <a name="about-project"></a>
+The Content Watcher Service is part of the [Gateway](https://github.com/ProjectLibertyLabs/gateway) suite that provides a Web2-friendly interface for monitoring and retrieving blockchain announcements through a webhook system.
 
-The Content Watcher Service is part of the "Social Gateway" collection of services that provides a familiar callback API to retrieve content and publishing announcements from the Frequency chain. The service handles all of the necessary blockchain interaction and allows clients to interact using a familiar, Web2-friendly interface.
+On Frequency, announcements about content (posts, replies, reactions) are stored on-chain, while the content itself is stored off-chain. The Content Watcher Service simplifies the process of monitoring these announcements by automatically watching the blockchain, processing new announcements as they appear, and delivering them to your application in a familiar format through webhooks.
 
-<!-- Arch maps -->
+## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
-## 🔭 Arch Maps
+The Content Watcher Service provides a webhook-based system for receiving notifications about new content.
 
-The Content Watcher Service provides a webhook system for receiving notice of new content.
-Even with a crawl request, the results are not retreived, but pushed to the webhook.
+![Content Watcher Service Architecture](./content_watcher_service_arch.drawio.png)
 
-![Content Watcher Service Arch](./docs/content_watcher_service_arch.drawio.png)
+## 🔑 Key Features <a name="key-features"></a>
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+### Content Monitoring
 
-## 🛠 Built With <a name="built-with"></a>
+- **Parse DSNP Messages**: Monitor and parse messages on Frequency
+- **Webhook Integration**: Send content to registered webhooks
+- **Flexible Filtering**: Simple Schema and MSA Id based filtering
 
-### Tech Stack <a name="tech-stack"></a>
+### Scanner Operations
 
-<details>
-  <summary>Server</summary>
-  <ul>
-    <li><a href="https://nestjs.com/">NestJS</a></li>
-    <li><a href="https://nodejs.org/">Node.js</a></li>
-    <li><a href="https://www.typescriptlang.org/">TypeScript</a></li>
-  </ul>
-</details>
+- **Start/Stop Control**: Manage scanning operations
+- **Restart Capability**: Reset and restart scanning processes
+- **Block Range Scanning**: Specify custom block ranges for content retrieval
 
-<details>
-  <summary>Data store</summary>
-  <ul>
-    <li><a href="https://redis.io/">Redis (ioredis)</a></li>
-  </ul>
-</details>
+## 💻 Getting Started <a name="getting-started"></a>
 
-<details>
-  <summary>Frameworks and Libraries</summary>
-  <ul>
-    <li><a href="https://docs.nestjs.com/techniques/queues">BullMQ (NestJS BullMQ Integration)</a></li>
-    <li><a href="https://github.com/hapijs/joi">Joi</a></li>
-    <li><a href="https://axios-http.com/">Axios</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Polkadot and DSNP Integration</summary>
-  <ul>
-    <li><a href="https://polkadot.js.org/">Polkadot API (@polkadot/api)</a></li>
-    <li><a href="https://github.com/LibertyDSNP/spec">DSNP (Activity Content, Frequency Schemas, ParquetJS)</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Testing</summary>
-  <ul>
-    <li><a href="https://jestjs.io/">Jest</a>
-        <ul>
-          <li><a href="https://kulshekhar.github.io/ts-jest/">ts-jest</a></li>
-          <li><a href="https://github.com/visionmedia/supertest">Supertest</a></li>
-          <li><a href="https://github.com/stipsan/ioredis-mock">ioredis-mock</a></li>
-        </ul>
-      </li>
-  </ul>
-</details>
-
-<details>
-  <summary>Formatting</summary>
-  <ul>
-    <li><a href="https://prettier.io/">Prettier</a></li>
-    <li><a href="https://typescript-eslint.io/">TypeScript ESLint</a></li>
-  </ul>
-</details>
-
-<details>
-  <summary>Build and Deployment</summary>
-  <ul>
-    <li><a href="https://github.com/motdotla/dotenv">Dotenv</a></li>
-    <li><a href="https://www.docker.com/">Docker</a></li>
-    <li><a href="https://docs.docker.com/compose/">Docker Compose</a></li>
-    <li><a href="https://docs.nestjs.com/cli/overview">Nest CLI</a></li>
-  </ul>
-</details>
-
-<!-- Features -->
-
-### Key Features
-
-#### API
-
-- **Parse DSNP Messages on Frequency**
-- **Send content to registered webhooks**
-- **Simple Schema and MSA Id based filtering**
-
-#### Scanner API
-
-- **Start, Stop, and restart scanning**
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LIVE Docs -->
-
-## 🚀 Live Docs
-
-- [Live Docs](https://projectlibertylabs.github.io/content-watcher-service/)
-- [API Documentation](https://projectlibertylabs.github.io/content-watcher-service/)
-- [GitHub](https://github.com/ProjectLibertyLabs/content-watcher-service)
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-
-## 💻 Getting Started
-
-This guide is tailored for developers working in the code base for the Content Watcher Service itself. For a more tutorial tailored more for developers wanting to deploy the Content Watcher Service as part of the broader Social Gateway in order to develop their own Social Gateway app, visit [Live Docs](https://projectlibertylabs.github.io/gateway/).
-
-To prepare and run a local instance of the Content Watcher Service for local development, follow the guide below.
+This section guides you through setting up the Content Watcher Service for both development and deployment.
 
 ### Prerequisites
 
-In order to run this project you need:
+Ensure you have the following installed:
 
-- [Nodejs](https://nodejs.org)
-- [Docker](https://www.docker.com) or Docker-compatible container system for running Gateway Services
-  - (note, Docker is not strictly required; all of the services described below may be installed or built & run locally, but that is outside the scope of this guide)
+- [Node.js](https://nodejs.org)
+- [Docker](https://docs.docker.com/get-docker/)
 
-### Environment Variables
+### Quick Start with Docker
 
-Use the provided [env.template](./env.template) file to create an initial environment for the application, and edit as desired. Additional documentation on the complete set of environment variables is provided in the [ENVIRONMENT.md](./ENVIRONMENT.md) file.
-
-1.  For running locally, copy to the template file to `.env` and update as needed.
-
-```sh
-cp env.template .env
-```
-
-2. Configure the environment variable values according to your environment.
-
-   - Docker: `.env.docker.dev`
-   - Local: `.env`
-
-### Setup
-
-Clone this repository to your desired folder:
-
-Example commands:
-
-```sh
-  git clone git@github.com:ProjectLibertyLabs/content-watcher-service.git
-  cd content-watcher-service
-```
-
-### Install
-
-Install NPM Dependencies:
-
-```sh
-  npm install
-```
-
-### Usage
-
-To run the project, execute the following command:
-
-#### 1. Start the required auxiliary services
-
-Frequency node, Redis, IPFS
-
-```sh
-docker compose up -d frequency redis ipfs
-```
-
-#### 2. [Optional] Start the publishing services
-
-Content Publishing Service
-
-```sh
-docker compose up -d content-publishing-service-api content-publishing-service-worker
-```
-
-#### 3. Start the application services
-
-Each of the application services may be run either under Docker or bare-metal, depending on your preferred development workflow.
-
-#### Running locally
-
-```sh
-npm run start:api:dev
-```
-
--- or --
-
-#### Running under Docker
-
-```sh
-docker compose up [-d] content-watcher-service
-```
-
-#### 4. [Optional] Setup a basic publisher
-
-Setup provider and users for the publishing service.
-
-```sh
-npm run local:init
-```
-
-#### 5. [Optional] Webhook registration
-
-Start a simple webhook that will just echo out responses to the console.
-
-```sh
-npm run local:webhook
-```
-
-#### 5. [Optional] Trigger Content
-
-Publishes some random content through the Content Publishing Service in Docker.
-Can be run more than once.
-
-```sh
-npm run local:publish
-```
-
-#### 5. Check the job in BullUI, to monitor job progress based on defined tests.
-
-### Swagger UI
-
-Check out the Swagger UI hosted on the app instance at http://localhost:3000/api/docs/swagger to view the API documentation and submit requests to the service.
-
-### Queue Management
-
-You may also view and manage the application's queue at http://localhost:3000/queues.
-
-For the Content Publishing Service Queue go to http://localhost:3001/queues.
-
-### Run unit tests
-
-To run unit tests, run the following command:
-
-```sh
-  npm test
-```
-
-### Run e2e tests:
-
-1. Execute the following `make` command to deploy the entire stack:
+1. Clone the repository and navigate to the project directory:
 
    ```bash
-   make test-services-start
+   git clone https://github.com/ProjectLibertyLabs/gateway
+   cd gateway
    ```
 
-2. Run the following `make` command to execute the content watcher tests:
+2. Install dependencies:
 
    ```bash
-   make test-e2e
+   npm install
    ```
 
-3. Alternatively, create a `.env` file, run `npm run start:api` to start the content watcher as a standalone service, register a webhook with the content watcher using [swagger](http://0.0.0.0:3000/api/docs/swagger#), and try the following scenarios:
+3. Start auxiliary services:
 
-- **Reset Scanner:** This action will reset the scanner to start from the beginning of the chain or whichever block is chosen to start with. Upon successful parsing, a respective announcement will be made to the webhook.
-- **Put a Search Request:** This action will put a search request on the queue. The request requires a start block and end block. Upon successful parsing, a respective announcement will be made to the webhook.
+   ```bash
+   docker compose up -d frequency redis ipfs
+   ```
 
-### Linting:
+4. Start the Content Watcher Service:
+   ```bash
+   docker compose up -d content-watcher-service
+   ```
 
-```sh
-  npm run lint
+### Local Development Setup
+
+1. Start required services:
+
+   ```bash
+   docker compose up -d frequency redis ipfs
+   ```
+
+2. Set up environment variables:
+
+   ```bash
+   cp env-files/content-watcher.template .env.content-watcher
+   ```
+
+   Configure the environment variables according to your needs.
+
+3. Start Content-Watcher
+   ```bash
+   npm run start:content-watcher:dev
+   ```
+
+### Optional Setup Steps
+
+1. Set up publishing services:
+
+   ```bash
+   docker compose up -d content-publishing-service-api content-publishing-service-worker
+   ```
+
+2. Initialize basic publisher:
+
+   ```bash
+   npm run setup:content-publishing:chain
+   ```
+
+3. Start test webhook:
+
+   ```bash
+   npm run setup:content-watcher:webhook
+   ```
+
+4. Generate test content:
+   ```bash
+   npm run setup:content-watcher:publish
+   ```
+
+### Verification
+
+#### Docker Setup
+
+- Access Swagger UI: [http://localhost:3011/api/docs/swagger](http://localhost:3014/api/docs/swagger)
+- View and manage queues: [http://localhost:3011/queues](http://localhost:3014/queues)
+
+#### Local Development Setup
+
+- Access Swagger UI: [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger)
+- View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
+
+## 🚀 API Documentation <a name="api-documentation"></a>
+
+- [Live API Documentation](https://projectlibertylabs.github.io/gateway/)
+
+## 🛠 Development <a name="development"></a>
+
+### Testing
+
+Run unit tests:
+
+```bash
+npm run test:content-watcher
 ```
 
-### Auto-format:
+Run E2E tests:
 
-```sh
-  npm run format
+```bash
+make test-content-watcher-services-start
+
+npm run test:e2e:content-watcher
 ```
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+### Linting and Formatting
 
-<!-- CONTRIBUTING -->
+Run linter:
 
-## 🤝 Contributing
+```bash
+npm run lint
+```
 
-Contributions, issues, and feature requests are welcome!
+Auto-format code:
 
-- [Contributing Guidelines](https://github.com/ProjectLibertyLabs/gateway/blob/main/CONTRIBUTING.md)
-- [Open Issues](https://github.com/ProjectLibertyLabs/content-watcher-service/issues)
+```bash
+npm run format
+```
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+### Built With
 
-<!-- SUPPORT -->
+- **Server Framework**: NestJS, Node.js, TypeScript
+- **Data Store**: Redis (ioredis)
+- **Queue System**: BullMQ
+- **Blockchain Integration**: Polkadot API, DSNP
+- **Testing**: Jest, Supertest
+- **Documentation**: Swagger
+- **Containerization**: Docker, Docker Compose
 
-## ⭐️ Show your support
+## 🤝 Contributing <a name="contributing"></a>
 
-If you would like to explore contributing bug fixes or enhancements, issues with the label `good-first-issue` can be a good place to start.
+We welcome contributions! Please check our [Contributing Guidelines](https://github.com/ProjectLibertyLabs/gateway/blob/main/CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
+## ❓ FAQ <a name="faq"></a>
 
-<!-- ACKNOWLEDGEMENTS -->
+**Q: Can I use this service in my production social app?**
 
-## 🙏 Acknowledgements
+_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your social media app using DSNP on Frequency._
 
-Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
+**Q: Does this service index content?**
 
-<!-- FAQ (optional) -->
+_No. This can be used by your own indexing service to get access to the content, but the service is intentionally limited to getting the content and further customization is open to you._
 
-## ❓FAQ
+**Q: Does this service filter content?**
 
-- **Can I use this service in my production social app?**
+_No. This can be used by your own content filtering service to get new content and then have your custom service process them._
 
-  - Yes. All the Gateway Services are intended to be ready-to-use out of the box as part of the fabric of your own social media app using DSNP on Frequency.
+## 📝 License <a name="license"></a>
 
-- **Does this service index content?**
-
-  - No. This can be used by your own indexing service to get access to the content, but the service is intentially limited to getting the content and further customization is open to you.
-
-- **Does this service filter content?**
-
-  - No. This can be used by your own content filtering service to get new content and then have your custom service process them.
-
-<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
-
-<!-- LICENSE -->
-
-## 📝 License
-
-This project is [Apache 2.0](./LICENSE) licensed.
+This project is licensed under the [Apache 2.0 License](./LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

@@ -11,14 +11,14 @@ export class ContentSearchRequestDto {
   clientReferenceId?: string;
 
   /**
-   * The block number to search (backward) from
+   * The highest block number to start the backward search from
    * @example 100
    */
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4_294_967_296)
-  startBlock?: number;
+  upperBoundBlock?: number;
 
   /**
    * The number of blocks to scan (backwards)
@@ -43,6 +43,7 @@ export class ContentSearchRequestDto {
    * @example 'https://example.com'
    */
   @IsNotEmpty()
+  @IsString()
   @IsUrl({ require_tld: false, require_protocol: true, require_valid_protocol: true })
   webhookUrl: string;
 }

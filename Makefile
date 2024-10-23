@@ -90,3 +90,12 @@ start-graph-worker: update-packages
 .PHONY: setup-account
 setup-account:
 	@cd apps/account-api/test/setup && npm install && npm run main
+
+
+.PHONY: test-content-watcher-services-start
+test-content-watcher-services-start:
+	@scripts/content-watcher/local-setup.sh -n cw-e2e -i
+
+.PHONY: test-content-watcher-services-stop
+test-content-watcher-services-stop:
+	@scripts/content-watcher/local-setup.sh -n cw-e2e -d

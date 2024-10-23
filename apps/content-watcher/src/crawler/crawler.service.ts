@@ -30,20 +30,25 @@ export class CrawlerService extends BaseConsumer {
   async process(job: Job<ContentSearchRequestDto, any, string>): Promise<void> {
     this.logger.log(`Processing crawler job ${job.id}: ${JSON.stringify(job.data)}`);
 
+    // we crawl the blocks in reverse because we can not determine how many blocks back
+    // we can access from the node
     try {
-      let { startBlock } = job.data;
-      if (!startBlock) {
-        startBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
-        // eslint-disable-next-line no-param-reassign
-        job.data.startBlock = startBlock;
-        this.logger.debug(`No starting block specified; starting from end of chain at block ${startBlock}`);
+      let { upperBoundBlock } = job.data;
+      const latestBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+      if (!upperBoundBlock) {
+        upperBoundBlock = latestBlock;
+        this.logger.debug(`No starting block specified; starting from end of chain at block ${upperBoundBlock}`);
       }
+      upperBoundBlock = Math.min(upperBoundBlock, latestBlock);
+      // eslint-disable-next-line no-param-reassign
+      job.data.upperBoundBlock = upperBoundBlock;
       // Make sure blockCount is not longer than the current chain length
-      if (job.data.blockCount >= startBlock) {
+      if (job.data.blockCount >= upperBoundBlock) {
         // eslint-disable-next-line no-param-reassign
-        job.data.blockCount = startBlock;
+        job.data.blockCount = upperBoundBlock;
       }
-      let blockList = new Array(job.data.blockCount).fill(0).map((_v, index) => startBlock - index);
+      this.logger.debug(`Searching backwards from ${upperBoundBlock} for ${job.data.blockCount} blocks!`);
+      let blockList = new Array(job.data.blockCount).fill(0).map((_v, index) => upperBoundBlock - index);
       blockList.reverse();
 
       // Process block list in chunks so as not to overload the async queue
@@ -51,6 +56,7 @@ export class CrawlerService extends BaseConsumer {
         job.data.clientReferenceId,
         blockList.slice(0, CRAWLER_BLOCK_CHUNK_SIZE),
         job.data.filters,
+        job.data.webhookUrl,
       );
       blockList = blockList.slice(CRAWLER_BLOCK_CHUNK_SIZE);
 
@@ -73,7 +79,12 @@ export class CrawlerService extends BaseConsumer {
     }
   }
 
-  private async processBlockList(clientReferenceId: string, blockList: number[], filters: ChainWatchOptionsDto) {
+  private async processBlockList(
+    clientReferenceId: string,
+    blockList: number[],
+    filters: ChainWatchOptionsDto,
+    webHookUrl: string,
+  ) {
     this.logger.debug(`Processing block list ${Math.min(...blockList)}...${Math.max(...blockList)}`);
     await Promise.all(
       blockList.map(async (blockNumber) => {
@@ -82,7 +93,7 @@ export class CrawlerService extends BaseConsumer {
           this.logger.debug(`Found ${messages.length} messages for block ${blockNumber}`);
         }
         // eslint-disable-next-line no-await-in-loop
-        await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId);
+        await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId, webHookUrl);
       }),
     );
   }

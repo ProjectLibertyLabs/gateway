@@ -33,7 +33,6 @@
   - [Ingress](./Run/Nginx.md)
   - [Secret Management](./Run/Vault.md)
   - [Security](./Run/Security.md)
-  - [Performance](./Run/Performance.md)
   - [Scalability](./Run/Scalability.md)
 
 ---

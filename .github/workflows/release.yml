@@ -78,7 +78,6 @@ jobs:
     name: Build and publish container image
     needs: set_variables
     runs-on: ubuntu-latest
-    if: needs.set_variables.outputs.valid_semver == 'true'
     strategy:
       matrix:
         service: ${{ fromJson(needs.set_variables.outputs.service_matrix) }}

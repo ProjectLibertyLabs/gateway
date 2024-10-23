@@ -29,11 +29,13 @@ The Content Watcher Service provides a webhook-based system for receiving notifi
 ## 🔑 Key Features <a name="key-features"></a>
 
 ### Content Monitoring
+
 - **Parse DSNP Messages**: Monitor and parse messages on Frequency
 - **Webhook Integration**: Send content to registered webhooks
 - **Flexible Filtering**: Simple Schema and MSA Id based filtering
 
 ### Scanner Operations
+
 - **Start/Stop Control**: Manage scanning operations
 - **Restart Capability**: Reset and restart scanning processes
 - **Block Range Scanning**: Specify custom block ranges for content retrieval
@@ -45,23 +47,27 @@ This section guides you through setting up the Content Watcher Service for both 
 ### Prerequisites
 
 Ensure you have the following installed:
+
 - [Node.js](https://nodejs.org)
 - [Docker](https://docs.docker.com/get-docker/)
 
 ### Quick Start with Docker
 
 1. Clone the repository and navigate to the project directory:
+
    ```bash
    git clone https://github.com/ProjectLibertyLabs/gateway
    cd gateway
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Start auxiliary services:
+
    ```bash
    docker compose up -d frequency redis ipfs
    ```
@@ -74,17 +80,20 @@ Ensure you have the following installed:
 ### Local Development Setup
 
 1. Start required services:
+
    ```bash
    docker compose up -d frequency redis ipfs
    ```
 
 2. Set up environment variables:
+
    ```bash
    cp env-files/content-watcher.template .env.content-watcher
    ```
+
    Configure the environment variables according to your needs.
 
-2. Start Content-Watcher
+3. Start Content-Watcher
    ```bash
    npm run start:content-watcher:dev
    ```
@@ -92,16 +101,19 @@ Ensure you have the following installed:
 ### Optional Setup Steps
 
 1. Set up publishing services:
+
    ```bash
    docker compose up -d content-publishing-service-api content-publishing-service-worker
    ```
 
 2. Initialize basic publisher:
+
    ```bash
    npm run setup:content-publishing:chain
    ```
 
 3. Start test webhook:
+
    ```bash
    npm run setup:content-watcher:webhook
    ```
@@ -114,10 +126,12 @@ Ensure you have the following installed:
 ### Verification
 
 #### Docker Setup
+
 - Access Swagger UI: [http://localhost:3011/api/docs/swagger](http://localhost:3014/api/docs/swagger)
 - View and manage queues: [http://localhost:3011/queues](http://localhost:3014/queues)
 
 #### Local Development Setup
+
 - Access Swagger UI: [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger)
 - View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 
@@ -125,17 +139,18 @@ Ensure you have the following installed:
 
 - [Live API Documentation](https://projectlibertylabs.github.io/gateway/)
 
-
 ## 🛠 Development <a name="development"></a>
 
 ### Testing
 
 Run unit tests:
+
 ```bash
 npm run test:content-watcher
 ```
 
 Run E2E tests:
+
 ```bash
 make test-content-watcher-services-start
 
@@ -145,11 +160,13 @@ npm run test:e2e:content-watcher
 ### Linting and Formatting
 
 Run linter:
+
 ```bash
 npm run lint
 ```
 
 Auto-format code:
+
 ```bash
 npm run format
 ```

@@ -11,33 +11,99 @@ on:
       release-tag:
         description: 'Release tag ([servicename-]v#.#.#[-rc#])'
         required: true
-  pull_request:
-    branches:
-      - main
 
 env:
-  FULL_TAG: v0.0.1
+  FULL_TAG: ${{ github.event.release.tag_name || github.event.inputs.release-tag}}
   DOCKER_HUB_PROFILE: projectlibertylabs
   ALL_SERVICES: '["account", "content-publishing", "content-watcher", "graph"]'
 
 jobs:
+  set_variables:
+    runs-on: ubuntu-latest
+    outputs:
+      full_tag: ${{ steps.set_version_tag.outputs.TAG }}
+      version_tag: ${{ steps.set_version_tag.outputs.VERSION }}
+      service_name: ${{ steps.set_version_tag.outputs.SERVICE }}
+      service_matrix: ${{ steps.set_version_tag.outputs.SERVICE_MATRIX }}
+      valid_semver: ${{ steps.set_version_tag.outputs.valid }}
+      test_run: ${{ steps.set_version_tag.outputs.test_run }}
+    steps:
+      - name: Extract and Validate Version Tag
+        id: set_version_tag
+        run: |
+          valid=false
+          test_run=false
+          ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
+          VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
+          TAG="${{ github.event.release.tag_name }}"
+          echo "Running with tag: ${TAG}"
+          if [[ "$TAG" =~ ${ENTIRE_TAG_RE} ]] ; then
+            SERVICE=${BASH_REMATCH[2]}
+            VERSION_TAG=${BASH_REMATCH[3]}
+            if [[ ${VERSION_TAG} =~ ${VERSION_TAG_RE} ]] ; then
+              version=${BASH_REMATCH[1]}
+              valid=true
+              if [[ ${version} = "0.0.1" ]] ; then
+                test_run=true
+              fi
+
+              if [[ -z "${SERVICE}" ]] ; then
+                SERVICE_MATRIX="${ALL_SERVICES}"
+              else
+                SERVICE_MATRIX="[\"${SERVICE}\"]"
+              fi
+
+              echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+              echo "VERSION=${VERSION_TAG}" >> $GITHUB_OUTPUT
+              echo "SERVICE=${SERVICE}" >> $GITHUB_OUTPUT
+              echo "SERVICE_MATRIX=${SERVICE_MATRIX}" >> $GITHUB_OUTPUT
+              echo "valid=${valid}" >> $GITHUB_OUTPUT
+              echo "test_run=${test_run}" >> $GITHUB_OUTPUT
+            fi
+          fi
+          if [[ "${valid}" = false ]]
+          then
+            echo "SERVICE_MATRIX=[]" >> $GITHUB_OUTPUT
+            echo "valid=${valid}" >> $GITHUB_OUTPUT
+            echo "Release tag '${TAG}' is not valid for deployment."
+            echo "ERROR: Entered tag ${TAG} is not valid."
+            echo "Please use [service-]v#.#.#[-rc#] format."
+            exit 1
+          fi
+
   build-and-publish-container-image:
     name: Build and publish container image
+    needs: set_variables
     runs-on: ubuntu-latest
+    if: needs.set_variables.outputs.valid_semver == 'true'
     strategy:
       matrix:
-        service: [account]
+        service: ${{ fromJson(needs.set_variables.outputs.service_matrix) }}
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.set_variables.outputs.full_tag }}
       - name: Deploy Service
         run: |
           echo "Deploying service: ${{ matrix.service }}"
+      - name: Set up tags for cp image
+        id: cp-tags
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            latest=auto
+          images: |
+            ${{env.DOCKER_HUB_PROFILE}}/${{matrix.service}}-service
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.set_variables.outputs.version_tag }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: |
             linux/amd64
+            linux/arm64
+            darwin/arm64
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
@@ -50,6 +116,6 @@ jobs:
         with:
           context: .
           platforms: linux/amd64, linux/arm64, darwin/arm64
-          push: false
+          push: ${{ needs.set_variables.outputs.test_run != 'true'}}
           file: Docker/Dockerfile.${{ matrix.service }}
-          tags: "test"
+          tags: ${{ steps.cp-tags.outputs.tags }}

@@ -11,9 +11,12 @@ on:
       release-tag:
         description: 'Release tag ([servicename-]v#.#.#[-rc#])'
         required: true
+  pull_request:
+    branches:
+      - main
 
 env:
-  FULL_TAG: ${{ github.event.release.tag_name || github.event.inputs.release-tag}}
+  FULL_TAG: v0.0.1
   DOCKER_HUB_PROFILE: projectlibertylabs
   ALL_SERVICES: '["account", "content-publishing", "content-watcher", "graph"]'
 
@@ -32,7 +35,7 @@ jobs:
         id: set_version_tag
         run: |
           valid=false
-          test_run=false
+          test_run=true
           ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
           TAG="${{ github.event.release.tag_name }}"

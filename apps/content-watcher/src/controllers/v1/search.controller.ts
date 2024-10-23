@@ -12,7 +12,10 @@ export class SearchControllerV1 {
 
   @Post()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Search for DSNP content by id, start/end block, and filters' })
+  @ApiOperation({
+    summary:
+      'Search for DSNP content by id and filters, starting from `upperBound` block and going back for `blockCount` number of blocks',
+  })
   @ApiOkResponse({
     description: 'Returns a jobId to be used to retrieve the results',
     type: SearchResponseDto,

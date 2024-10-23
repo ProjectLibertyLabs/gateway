@@ -76,7 +76,7 @@ Ensure you have the following installed:
 3. Set up environment variables:
 
    ```bash
-   cp env-files/content-publishing.template.env .env
+   cp env-files/content-publishing.template.env .env.content-publishing
    ```
 
    Configure the environment variables according to your needs.
@@ -121,8 +121,6 @@ Ensure you have the following installed:
 
 ### Verification
 
-### Verification
-
 #### Docker Setup
 
 - Access Swagger UI: [http://localhost:3012/docs/swagger](http://localhost:3012/docs/swagger)
@@ -141,10 +139,16 @@ Ensure you have the following installed:
 
 ### Testing
 
-Run the test suite:
+Run the test:
 
 ```bash
-npm test:content-publising
+npm test:content-publishing
+```
+
+Run E2E tests:
+
+```bash
+npm run test:e2e:content-publishing
 ```
 
 ### Linting and Formatting

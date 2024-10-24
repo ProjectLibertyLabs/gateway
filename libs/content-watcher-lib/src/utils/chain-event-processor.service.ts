@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
-import { ApiDecoration } from '@polkadot/api/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { Vec } from '@polkadot/types';
 import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
 import { MessageResponseWithSchemaId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
 import { createIPFSQueueJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { Queue } from 'bullmq';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { BlockchainRpcQueryService, IBlockPaginationRequest } from '#blockchain/blockchain-rpc-query.service';
 
 @Injectable()
 export class ChainEventProcessorService {
@@ -22,39 +21,38 @@ export class ChainEventProcessorService {
     if (blockHash.isEmpty) {
       return [];
     }
-    const apiAt = await this.blockchainService.api.at(blockHash);
-    const events = await apiAt.query.system.events();
-    return this.getMessagesFromEvents(apiAt, blockNumber, events, filter);
+    const events = await this.blockchainService.getEvents(blockHash);
+    return this.getMessagesFromEvents(blockNumber, events, filter);
   }
 
   private async getMessagesFromEvents(
-    apiAt: ApiDecoration<'promise'>,
     blockNumber: number,
-    events: Vec<FrameSystemEventRecord>,
+    events: FrameSystemEventRecord[],
     filter?: ChainWatchOptionsDto,
   ): Promise<MessageResponseWithSchemaId[]> {
-    const hasMessages = events.some(({ event }) => apiAt.events.messages.MessagesInBlock.is(event));
+    const hasMessages = events.some(({ event }) => this.blockchainService.events.messages.MessagesInBlock.is(event));
     if (!hasMessages) {
       return [];
     }
 
-    const keys = await apiAt.query.messages.messagesV2.keys(blockNumber);
-    let schemaIds = keys.map((key) => key.args[1].toNumber());
+    let schemaIds = (await this.blockchainService.getMessageKeysInBlock(blockNumber)).map(([schemaId, _]) => schemaId);
     schemaIds = Array.from(new Set<number>(schemaIds));
     const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
       schemaIds.map(async (schemaId) => {
         if (filter && filter?.schemaIds?.length > 0 && !filter.schemaIds.includes(schemaId)) {
           return null;
         }
-        let paginationRequest = {
+        let paginationRequest: IBlockPaginationRequest = {
           from_block: blockNumber,
           from_index: 0,
           page_size: 1000,
           to_block: blockNumber + 1,
         };
 
-        let messageResponse: BlockPaginationResponseMessage =
-          await this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+        let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.getMessagesBySchemaId(
+          schemaId,
+          paginationRequest,
+        );
         const messages: Vec<MessageResponse> = messageResponse.content;
         while (messageResponse.has_next.toHuman()) {
           paginationRequest = {
@@ -64,7 +62,7 @@ export class ChainEventProcessorService {
             to_block: blockNumber + 1,
           };
           // eslint-disable-next-line no-await-in-loop
-          messageResponse = await this.blockchainService.api.rpc.messages.getBySchemaId(schemaId, paginationRequest);
+          messageResponse = await this.blockchainService.getMessagesBySchemaId(schemaId, paginationRequest);
           if (messageResponse.content.length > 0) {
             messages.push(...messageResponse.content);
           }

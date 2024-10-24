@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
@@ -17,11 +17,15 @@ import {
   setupProviderAndUsers,
 } from './e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 let HTTP_SERVER: any;
 
 describe('Keys Controller', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let module: TestingModule;
   let users: ChainUser[];
   let provider: ChainUser;
@@ -55,14 +59,29 @@ describe('Keys Controller', () => {
       imports: [ApiModule],
     }).compile();
 
-    app = module.createNestApplication();
+    app = module.createNestApplication({ logger: ['error', 'warn', 'log', 'verbose', 'debug'], rawBody: true });
+
+    // Uncomment below to see logs when debugging tests
+    // module.useLogger(new Logger());
+
+    const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    app.enableVersioning({ type: VersioningType.URI });
+    app.enableShutdownHooks();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
       await app.close();
     });
-    app.useGlobalPipes(new ValidationPipe());
-    app.enableShutdownHooks();
+
     await app.init();
+
+    // Make sure we're connected to the chain before running tests
+    const blockchainService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    await blockchainService.isReady();
+
     HTTP_SERVER = app.getHttpServer();
 
     // Redis timeout keeping test suite alive for too long; disable

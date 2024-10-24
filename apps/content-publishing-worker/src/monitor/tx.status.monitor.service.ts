@@ -76,14 +76,13 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
     if (extrinsicIndices.length > 0) {
-      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
-      const epoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const epoch = await this.blockchainService.getCurrentCapacityEpoch(currentBlock.block.header.hash);
       const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
       );
 
       const totalCapacityWithdrawn: bigint = events.reduce((sum, { event }) => {
-        if (at.events.capacity.CapacityWithdrawn.is(event)) {
+        if (this.blockchainService.events.capacity.CapacityWithdrawn.is(event)) {
           return sum + event.data.amount.toBigInt();
         }
         return sum;
@@ -101,10 +100,12 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
         )?.event;
-        const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
+        const failureEvent = extrinsicEvents.find(({ event }) =>
+          this.blockchainService.events.system.ExtrinsicFailed.is(event),
+        )?.event;
 
         // TODO: Should the webhook provide for reporting failure?
-        if (failureEvent && at.events.system.ExtrinsicFailed.is(failureEvent)) {
+        if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
           const { dispatchError } = failureEvent.data;
           const moduleThatErrored = dispatchError.asModule;
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);

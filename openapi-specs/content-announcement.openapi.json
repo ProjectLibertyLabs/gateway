@@ -7,7 +7,7 @@
   "paths": {
     "/content-announcements": {
       "post": {
-        "summary": "Create a new content announcement",
+        "summary": "Notify a webhook client of a content announcement found on the blockchain",
         "operationId": "createAnnouncementResponse",
         "requestBody": {
           "required": true,
@@ -21,7 +21,7 @@
         },
         "responses": {
           "201": {
-            "description": "Content announcement created successfully"
+            "description": "Content announcement notification received"
           },
           "400": {
             "description": "Bad request"

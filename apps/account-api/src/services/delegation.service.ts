@@ -104,8 +104,8 @@ export class DelegationService {
         throw new NotFoundException(`Invalid MSA Id ${providerId}`);
       }
 
-      const providerInfo = await this.blockchainService.api.query.msa.providerToRegistryEntry(providerId);
-      if (providerInfo.isNone) {
+      const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerId);
+      if (!providerInfo) {
         throw new BadRequestException(`Supplied ID not a Provider ${providerId}`);
       }
 

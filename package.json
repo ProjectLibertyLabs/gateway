@@ -97,12 +97,12 @@
     "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts"
   },
   "dependencies": {
-    "@bull-board/api": "^5.21.4",
-    "@bull-board/express": "^5.21.4",
-    "@bull-board/nestjs": "^5.21.4",
-    "@bull-board/ui": "^5.21.4",
+    "@bull-board/api": "^6.3.0",
+    "@bull-board/express": "^6.3.0",
+    "@bull-board/nestjs": "^6.3.0",
+    "@bull-board/ui": "^6.3.0",
     "@dsnp/activity-content": "^1.1.0",
-    "@dsnp/graph-sdk": "^1.1.4",
+    "@projectlibertylabs/graph-sdk": "^2.0.1",
     "@dsnp/parquetjs": "^1.8.5",
     "@dsnp/schemas": "^1.3.2",
     "@frequency-chain/api-augment": "~1.13.2",

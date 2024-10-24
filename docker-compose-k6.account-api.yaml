@@ -34,7 +34,7 @@ services:
       WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
 
   account-service-webhook:
-    image: rust:1.80.0
+    image: rust:1.81.0
     volumes:
       - ./webhook-servers:/app
     ports:

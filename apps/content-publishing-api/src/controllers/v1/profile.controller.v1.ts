@@ -5,7 +5,7 @@ import { ProfileDto, AnnouncementResponseDto, AssetIncludedRequestDto } from '#t
 import { AnnouncementTypeName } from '#types/enums';
 import { MsaIdDto } from '#types/dtos/common';
 
-@Controller('v1/profile')
+@Controller({ version: '1', path: 'profile' })
 @ApiTags('v1/profile')
 export class ProfileControllerV1 {
   private readonly logger: Logger;

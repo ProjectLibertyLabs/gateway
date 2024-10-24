@@ -11,7 +11,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestj
 import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 
 @Controller({ version: '1', path: 'delegation' })
-@ApiTags('delegation')
+@ApiTags('v1/delegation')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
   private readonly logger: Logger;

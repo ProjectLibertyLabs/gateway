@@ -480,5 +480,31 @@
         ]
       }
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "name": "health",
+      "tags": [
+        "health"
+      ]
+    },
+    {
+      "name": "scanner",
+      "tags": [
+        "v1/scanner"
+      ]
+    },
+    {
+      "name": "search",
+      "tags": [
+        "v1/search"
+      ]
+    },
+    {
+      "name": "webhooks",
+      "tags": [
+        "v1/webhooks"
+      ]
+    }
+  ]
 }

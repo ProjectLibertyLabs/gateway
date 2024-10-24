@@ -314,7 +314,7 @@
           }
         },
         "tags": [
-          "delegations"
+          "v2/delegations"
         ]
       }
     },
@@ -357,7 +357,7 @@
           }
         },
         "tags": [
-          "delegations"
+          "v2/delegations"
         ]
       }
     },
@@ -390,7 +390,7 @@
           }
         },
         "tags": [
-          "delegation"
+          "v1/delegation"
         ]
       }
     },
@@ -433,7 +433,7 @@
           }
         },
         "tags": [
-          "delegation"
+          "v1/delegation"
         ]
       }
     },
@@ -465,7 +465,7 @@
           }
         },
         "tags": [
-          "delegation"
+          "v1/delegation"
         ]
       }
     },
@@ -789,7 +789,7 @@
   "info": {
     "title": "Account Service",
     "description": "Account Service API",
-    "version": "1.0",
+    "version": "2.0",
     "contact": {}
   },
   "tags": [],
@@ -1608,5 +1608,39 @@
         ]
       }
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "name": "accounts",
+      "tags": [
+        "v1/accounts",
+        "v2/accounts"
+      ]
+    },
+    {
+      "name": "delegations",
+      "tags": [
+        "v1/delegation",
+        "v2/delegations"
+      ]
+    },
+    {
+      "name": "handles",
+      "tags": [
+        "v1/handles"
+      ]
+    },
+    {
+      "name": "health",
+      "tags": [
+        "health"
+      ]
+    },
+    {
+      "name": "keys",
+      "tags": [
+        "v1/keys"
+      ]
+    }
+  ]
 }

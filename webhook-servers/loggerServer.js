@@ -1,4 +1,5 @@
 const http = require('http');
+
 const server = http.createServer();
 
 server
@@ -26,4 +27,4 @@ server
   })
   .listen(process.env.WEBHOOK_PORT ?? 3001);
 
-console.log('Mock server started! on ' + (process.env.WEBHOOK_PORT ?? 3001));
+console.log(`Mock server started! on ${process.env.WEBHOOK_PORT ?? 3001}`);

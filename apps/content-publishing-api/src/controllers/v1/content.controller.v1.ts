@@ -13,7 +13,7 @@ import {
 import { AnnouncementTypeName } from '#types/enums';
 import { MsaIdDto } from '#types/dtos/common';
 
-@Controller('v1/content')
+@Controller({ version: '1', path: 'content' })
 @ApiTags('v1/content')
 export class ContentControllerV1 {
   private readonly logger: Logger;

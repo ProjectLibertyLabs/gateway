@@ -5,8 +5,8 @@ import { IDelegationResponseV2 } from '#types/interfaces/account/delegations.int
 import { Controller, Get, HttpCode, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller({ version: ['2'], path: '/delegations' })
-@ApiTags('delegations')
+@Controller({ version: '2', path: 'delegations' })
+@ApiTags('v2/delegations')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationsControllerV2 {
   private readonly logger: Logger;

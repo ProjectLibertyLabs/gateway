@@ -14,7 +14,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 
-@Controller('v1/asset')
+@Controller({ version: '1', path: 'asset' })
 @ApiTags('v1/asset')
 export class AssetControllerV1 {
   private readonly logger: Logger;

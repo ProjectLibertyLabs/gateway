@@ -4,7 +4,7 @@ import { ApiService } from '#content-watcher/api.service';
 import { ResetScannerDto } from '#types/dtos/content-watcher';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
 
-@Controller('v1/scanner')
+@Controller({ version: '1', path: 'scanner' })
 @ApiTags('v1/scanner')
 export class ScanControllerV1 {
   private readonly logger: Logger;

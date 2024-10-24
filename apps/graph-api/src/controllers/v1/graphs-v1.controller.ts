@@ -4,7 +4,7 @@ import { UserGraphDto, GraphsQueryParamsDto, GraphChangeResponseDto, ProviderGra
 import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('v1/graphs')
+@Controller({ version: '1', path: 'graphs' })
 @ApiTags('v1/graphs')
 export class GraphControllerV1 {
   private readonly logger: Logger;

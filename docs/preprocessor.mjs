@@ -8,7 +8,8 @@
 // - Replaces `{{#svg-embed ../image.svg title}}` with the contents of the svg wrapped in <div class="svg-embed" title="[title]">[contents]</div>
 
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import assert from 'node:assert';
 
 function runNpxCommand(script, args) {
   try {
@@ -51,6 +52,7 @@ function swaggerEmbed(chapter) {
   const matches = [...chapter.content.matchAll(regex)];
   matches.forEach((match) => {
     const swaggerFile = match[1];
+    assert(existsSync(swaggerFile), `Unable to find ${swaggerFile}`);
     const output = runNpxCommand('openapi-to-md', [swaggerFile]);
     const replaceWith = output
       .split('\n')

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
-import { GraphControllerV1 } from './controllers/v1/graph-v1.controller';
+import { GraphControllerV1 } from './controllers/v1/graphs-v1.controller';
 import { HealthController } from './controllers/health.controller';
 import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';

@@ -1,12 +1,16 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from '../src/api.module';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 describe('Account Service E2E request verification!', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let module: TestingModule;
   let httpServer: any;
 
@@ -16,13 +20,26 @@ describe('Account Service E2E request verification!', () => {
     }).compile();
 
     app = module.createNestApplication();
+
+    // Uncomment below to see logs when debugging tests
+    // module.useLogger(new Logger());
+
+    const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    app.enableVersioning({ type: VersioningType.URI });
+    app.enableShutdownHooks();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
       await app.close();
     });
-    app.useGlobalPipes(new ValidationPipe());
-    app.enableShutdownHooks();
     await app.init();
+
+    // Make sure we're connected to the chain before running tests
+    const blockchainService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    await blockchainService.isReady();
 
     httpServer = app.getHttpServer();
 

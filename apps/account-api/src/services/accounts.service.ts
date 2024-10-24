@@ -19,6 +19,7 @@ import {
 import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { ApiPromise } from '@polkadot/api';
 
 @Injectable()
 export class AccountsService {
@@ -70,7 +71,7 @@ export class AccountsService {
 
   // eslint-disable-next-line class-methods-use-this
   async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
-    const api = await this.blockchainService.getApi();
+    const api = (await this.blockchainService.getApi()) as ApiPromise;
     const { providerId } = this.blockchainConf;
     if (request.signUp) {
       try {

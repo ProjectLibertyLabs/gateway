@@ -8,6 +8,7 @@ const { setupConfigService: setupConfigServiceReadOnly } = configSetup<IBlockcha
 
 describe('Blockchain module config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
+    FREQUENCY_TIMEOUT_SECS: undefined,
     FREQUENCY_API_WS_URL: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,
     PROVIDER_ID: undefined,
@@ -67,6 +68,10 @@ describe('Blockchain module config', () => {
 
     it('should be defined', () => {
       expect(blockchainConf).toBeDefined();
+    });
+
+    it('should get frequency timeout', () => {
+      expect(blockchainConf.frequencyTimeoutSecs).toStrictEqual(parseInt(ALL_ENV.FREQUENCY_TIMEOUT_SECS, 10));
     });
 
     it('should get frequency API web socket url', () => {

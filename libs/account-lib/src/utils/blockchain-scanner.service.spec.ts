@@ -42,20 +42,8 @@ const mockBlockchainService = {
   getBlock: jest.fn((_blockHash?: string | Hash) => mockSignedBlock as unknown as SignedBlock),
   getBlockHash: jest.fn((blockNumber: number) => (blockNumber > 1 ? mockEmptyBlockHash : mockBlockHash)),
   getLatestFinalizedBlockNumber: jest.fn(),
+  getEvents: jest.fn(() => []),
 };
-Object.defineProperty(mockBlockchainService, 'api', {
-  get: jest.fn(() => ({
-    at: jest.fn(() => ({
-      query: {
-        system: {
-          events: jest.fn(() => ({
-            toArray: jest.fn(() => []),
-          })),
-        },
-      },
-    })),
-  })),
-});
 
 const mockBlockchainServiceProvider = {
   provide: BlockchainService,

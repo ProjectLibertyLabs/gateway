@@ -28,6 +28,7 @@ import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse 
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
 import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
+import { ApiPromise } from '@polkadot/api';
 
 @Injectable()
 export class SiwfV2Service {
@@ -107,7 +108,7 @@ export class SiwfV2Service {
         return {
           pallet,
           extrinsicName,
-          encodedExtrinsic: api.tx.statefulStorage
+          encodedExtrinsic: (api as ApiPromise).tx.statefulStorage
             .applyItemActionsWithSignatureV2(
               userPublicKey,
               chainSignature(payload.signature),

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
@@ -24,8 +24,6 @@ import { IpfsService } from '#storage/ipfs/ipfs.service';
   concurrency: 2,
 })
 export class IPFSContentProcessor extends BaseConsumer {
-  public logger: Logger;
-
   constructor(
     @InjectQueue(QueueConstants.WATCHER_BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
     @InjectQueue(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,

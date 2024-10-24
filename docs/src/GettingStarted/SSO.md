@@ -6,7 +6,7 @@ Coupled with the Account Service, this provides fast and secure SSO across appli
 
 Key benefits:
 - Decentralized authentication
-- Integration with Frequency’s Account Service
+- Integration with the identity system on Frequency
 - Support for multiple credentials (e.g., email, phone)
 - Secure and fast user onboarding
 
@@ -16,7 +16,7 @@ Resources:
 
 ## Setup Tutorial
 
-In this tutorial, you will setup a Sign In With Frequency button for use with Testnet and acquire onboarded, authenticated users with minimal steps.
+In this tutorial, you will set up a Sign In With Frequency button for use with Testnet, which will enable you to acquire onboarded, authenticated users with minimal steps.
 
 ## Prerequisites
 Ensure you have:
@@ -61,8 +61,8 @@ The Account Service provides an API to generate the Signed Request URL:
 - [GET `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_getRedirectUrl)
 
 <div class="warning">
-Remember that the Account Service is NOT an external service.
-Your Application backend will need to make the call securely.
+Remember that the Account Service is NOT meant to be an externally exposed service.
+It should be configured in an appropriately isolated network environment, and your Application backend will need to make the call securely.
 </div>
 
 ```bash
@@ -100,8 +100,8 @@ The Account Service provides an API to validate and process the SIWF v2 authoriz
 - [POST `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_postSignInWithFrequency)
 
 <div class="warning">
-Remember that the Account Service is NOT an external service.
-Your Application backend will need to make the call securely.
+Remember that the Account Service is NOT meant to be an externally exposed service.
+It should be configured in an appropriately isolated network environment, and your Application backend will need to make the call securely.
 </div>
 
 ```bash

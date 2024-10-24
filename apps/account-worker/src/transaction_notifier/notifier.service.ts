@@ -109,14 +109,13 @@ export class TxnNotifierService
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
     if (extrinsicIndices.length > 0) {
-      const at = await this.blockchainService.api.at(currentBlock.block.header.hash);
-      const epoch = (await at.query.capacity.currentEpoch()).toNumber();
+      const epoch = await this.blockchainService.getCurrentCapacityEpoch();
       const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
       );
 
       const totalCapacityWithdrawn: bigint = events
-        .filter(({ event }) => at.events.capacity.CapacityWithdrawn.is(event))
+        .filter(({ event }) => this.blockchainService.events.capacity.CapacityWithdrawn.is(event))
         .reduce((sum, { event }) => (event as unknown as any).data.amount.toBigInt() + sum, 0n);
 
       // eslint-disable-next-line no-restricted-syntax
@@ -130,10 +129,12 @@ export class TxnNotifierService
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
         )?.event;
-        const failureEvent = extrinsicEvents.find(({ event }) => at.events.system.ExtrinsicFailed.is(event))?.event;
+        const failureEvent = extrinsicEvents.find(({ event }) =>
+          this.blockchainService.events.system.ExtrinsicFailed.is(event),
+        )?.event;
 
         // TODO: Should the webhook provide for reporting failure?
-        if (failureEvent && at.events.system.ExtrinsicFailed.is(failureEvent)) {
+        if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
           const { dispatchError } = failureEvent.data;
           const moduleThatErrored = dispatchError.asModule;
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
@@ -219,7 +220,9 @@ export class TxnNotifierService
             }
           }
         } else {
-          this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
+          this.logger.error(
+            `Watched transaction ${txHash} found in block ${currentBlockNumber}, but did not find event '${txStatus.successEvent.section}.${txStatus.successEvent.method}' in block`,
+          );
         }
 
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list

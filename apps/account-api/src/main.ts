@@ -23,7 +23,10 @@ BigInt.prototype['toJSON'] = function () {
  * can't connect to Redis at startup)
  */
 function startShutdownTimer() {
-  setTimeout(() => process.exit(1), 10_000);
+  setTimeout(() => {
+    logger.log('Shutdown timer expired');
+    process.exit(0);
+  }, 10_000);
 }
 
 async function bootstrap() {
@@ -60,6 +63,7 @@ async function bootstrap() {
     logger.warn('Received shutdown event');
     startShutdownTimer();
     await app.close();
+    logger.warn('app closed');
   });
 
   const config = app.get<IAccountApiConfig>(apiConfig.KEY);

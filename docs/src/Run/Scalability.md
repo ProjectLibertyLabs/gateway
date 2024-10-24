@@ -1,6 +1,6 @@
 # **Scalability Guide for Frequency Gateway**
 
-This guide explains how to configure and manage scalability using Kubernetes Horizontal Pod Autoscaler (HPA) for Frequency Gateway, ensuring your services scale dynamically based on resource usage.
+This guide explains how to configure and manage scalability using Kubernetes Horizontal Pod Autoscaler (HPA) for Frequency Gateway to ensure services scale dynamically based on resource usage.
 
 ---
 
@@ -17,14 +17,14 @@ This guide explains how to configure and manage scalability using Kubernetes Hor
   - [**Resource Limits**](#resource-limits)
   - [**Verifying and Monitoring Autoscaling**](#verifying-and-monitoring-autoscaling)
   - [**Troubleshooting**](#troubleshooting)
-    - [HPA Not Scaling Pods](#hpa-not-scaling-pods)
+    - [HPA is Not Scaling Pods](#hpa-is-not-scaling-pods)
     - [Scaling Too Slowly or Too Aggressively](#scaling-too-slowly-or-too-aggressively)
 
 ---
 
 ## **Introduction**
 
-Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Gateway, you ensure your services remain available and responsive under varying loads, scaling out when demand increases and scaling down when resources aren't needed.
+Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Gateway, you ensure your services remain available and responsive under varying loads--scaling out when demand increases and scaling down when resources aren't needed.
 
 ---
 
@@ -32,7 +32,7 @@ Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on 
 
 Before implementing autoscaling, ensure that:
 
-- Kubernetes metrics server is enabled and running (or another resource metrics provider).
+- Kubernetes metrics server (or another resource metrics provider) is enabled and running.
 - [**Helm**](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
 - The deployment for [**Frequency Gateway**](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s) is running in your Kubernetes cluster.
 
@@ -140,7 +140,7 @@ kubectl top pods
 
 ## **Troubleshooting**
 
-### HPA Not Scaling Pods
+### HPA is Not Scaling Pods
 
 If the HPA doesn't seem to be scaling as expected, check the following:
 

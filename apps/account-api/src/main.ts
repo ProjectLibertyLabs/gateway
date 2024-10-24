@@ -57,7 +57,7 @@ async function bootstrap() {
           { name: 'delegation', tags: ['v1/delegation'] },
           { name: 'delegations', tags: ['v2/delegations'] },
           { name: 'handles', tags: ['v1/handles'] },
-          { name: 'health', tags: ['v1/health'] },
+          { name: 'health', tags: ['health'] },
           { name: 'keys', tags: ['v1/keys'] },
         ],
       ],

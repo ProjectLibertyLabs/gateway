@@ -44,9 +44,10 @@ async function bootstrap() {
       [
         'x-tagGroups',
         [
+          { name: 'health', tags: ['health'] },
           { name: 'scanner', tags: ['v1/scanner'] },
           { name: 'search', tags: ['v1/search'] },
-          { name: 'webhook', tags: ['v1/webhook'] },
+          { name: 'webhooks', tags: ['v1/webhooks'] },
         ],
       ],
     ]),

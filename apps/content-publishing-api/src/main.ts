@@ -48,6 +48,7 @@ async function bootstrap() {
         [
           { name: 'asset', tags: ['v1/asset'] },
           { name: 'content', tags: ['v1/content'] },
+          { name: 'health', tags: ['health'] },
           { name: 'profile', tags: ['v1/profile'] },
         ],
       ],

@@ -1638,7 +1638,7 @@
     {
       "name": "health",
       "tags": [
-        "v1/health"
+        "health"
       ]
     },
     {

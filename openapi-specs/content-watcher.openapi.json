@@ -483,6 +483,12 @@
   },
   "x-tagGroups": [
     {
+      "name": "health",
+      "tags": [
+        "health"
+      ]
+    },
+    {
       "name": "scanner",
       "tags": [
         "v1/scanner"
@@ -495,9 +501,9 @@
       ]
     },
     {
-      "name": "webhook",
+      "name": "webhooks",
       "tags": [
-        "v1/webhook"
+        "v1/webhooks"
       ]
     }
   ]

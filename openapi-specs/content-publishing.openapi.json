@@ -789,6 +789,12 @@
       ]
     },
     {
+      "name": "health",
+      "tags": [
+        "health"
+      ]
+    },
+    {
       "name": "profile",
       "tags": [
         "v1/profile"

@@ -1,7 +1,7 @@
 # Become a Provider
 
-A Provider is the on-chain representation of an application.
-Any application that will interact with users must first register as a Provider.
+A Provider is a special kind of user account on Frequency, capable of executing certain operations on behalf of other users (delegators).
+Any organization wishing to deploy an application that will act on behalf of users must first register as a Provider.
 This guide will walk you through the steps to becoming a Provider on the Frequency Testnet. See [How to Become a Provider on Mainnet](#mainnet), if you are ready to move to production.
 
 ## Step 1: Generate Your Keys

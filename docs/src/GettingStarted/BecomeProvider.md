@@ -1,20 +1,18 @@
 # Become a Provider
 
 A Provider is the on-chain representation of an application.
-Those who which to interact with users as an application must register as a Provider.
+Any application that will interact with users must first register as a Provider.
 This guide will walk you through the steps to becoming a Provider on the Frequency Testnet. See [How to Become a Provider on Mainnet](#mainnet), if you are ready to move to production.
 
 ## Step 1: Generate Your Keys
 
-There are various wallets that can generate and secure Frequency compatible keys.
+There are various wallets that can generate and secure Frequency compatible keys, including:
 
 - [Polkadot Extension](https://polkadot.js.org/extension/)
 - [Talisman](https://www.talisman.xyz)
 - [See more](https://polkadot.com/get-started/wallets)
 
-The wallet onboarding process will guide you through the creation of the account.
-
-This will be a Control Key for the registered Provider and will be required for many different interactions.
+This onboarding process will guide you through the creation of an account and the creation of a Provider Control Key which will be required for many different transactions.
 
 ## Step 2: Acquire Testnet Tokens
 

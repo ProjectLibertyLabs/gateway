@@ -7,7 +7,7 @@ Coupled with the Account Service, this provides fast and secure SSO across appli
 Key benefits:
 - Decentralized authentication
 - Integration with Frequency’s Account Service
-- Supports multiple credentials (e.g., email, phone)
+- Support for multiple credentials (e.g., email, phone)
 - Secure and fast user onboarding
 
 Resources:
@@ -16,12 +16,12 @@ Resources:
 
 ## Setup Tutorial
 
-In this tutorial, you will setup a Sign In With Frequency button for use with Testnet and have onboarded, authenticated users with minimal steps.
+In this tutorial, you will setup a Sign In With Frequency button for use with Testnet and acquire onboarded, authenticated users with minimal steps.
 
 ## Prerequisites
 Ensure you have:
 - Registered your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
-- A backend only accessable [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
+- A backend-only-accessable [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
 - Access to a Frequency RPC Node.
     - Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 
@@ -53,7 +53,7 @@ If a static callback and permissions are all that is required, a static Signed R
 
 ### Option B: Dynamic Callback or Permissions
 
-A dynamic signed request allows for user specific callbacks.
+A dynamic signed request allows for user-specific callbacks.
 While this is not needed for most applications, some situations require it.
 
 The Account Service provides an API to generate the Signed Request URL:
@@ -71,8 +71,8 @@ curl -X GET "https://account-service.internal/v2/accounts/siwf?callbackUrl=https
 
 ### Selecting Permissions for Delegation
 
-Permissions are the actions that you as the Application can do on behalf of the user, with just the one-time delegation of the permission.
-These are determined by Frequency.
+Permissions are the actions that you as the Application can do on behalf of the user.
+They are based on Schemas published to Frequency.
 
 See list of [SIWF v2 Available Delegations](https://projectlibertylabs.github.io/siwf/v2/docs/Delegations.html#available-delegations).
 

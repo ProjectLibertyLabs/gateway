@@ -107,8 +107,6 @@ resources:
     cpu: "500m"
 ```
 
- Miscellaneous configurations for resource limits:
-
 - **requests**: The minimum CPU and memory a pod needs.
 - **limits**: The maximum CPU and memory a pod can use.
 

@@ -1618,14 +1618,9 @@
       ]
     },
     {
-      "name": "delegation",
-      "tags": [
-        "v1/delegation"
-      ]
-    },
-    {
       "name": "delegations",
       "tags": [
+        "v1/delegation",
         "v2/delegations"
       ]
     },

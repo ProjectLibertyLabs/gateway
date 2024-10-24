@@ -21,7 +21,7 @@ import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
-@Controller('v1/accounts')
+@Controller({ version: '1', path: 'accounts' })
 @ApiTags('v1/accounts')
 export class AccountsControllerV1 {
   private readonly logger: Logger;

@@ -1,13 +1,13 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
+import { EnvironmentInterface, EnvironmentType, Graph } from '@projectlibertylabs/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
-  ItemActionType,
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
+import { ItemActionType } from '#types/enums/item-action-type.enum';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';

@@ -48,6 +48,8 @@ spec:
               port: {{ .Values.account.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.account.image.mode.api.args}}"]
         - name: account-service-worker
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
@@ -96,6 +98,8 @@ spec:
               port: {{ .Values.contentPublishing.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.contentPublishing.image.mode.api.args}}"]
         - name: content-publishing-service-worker
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
@@ -144,6 +148,8 @@ spec:
               port: {{ .Values.contentWatcher.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
 
         {{- if .Values.service.graph.deploy }}
@@ -178,6 +184,8 @@ spec:
               port: {{ .Values.graph.env.API_PORT }}
             initialDelaySeconds: 5
             periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.graph.image.mode.api.args}}"]
         - name: graph-service-worker
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"

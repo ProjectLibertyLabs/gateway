@@ -1,3 +1,4 @@
+import { expect, it, jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
@@ -14,12 +15,31 @@ import {
   validSiwfNewUserResponse,
 } from './siwfV2.mock.spec';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
+import { ApiPromise } from '@polkadot/api';
+import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
+
+jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
+jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
+  '#account-lib/services/enqueue-request.service',
+);
+jest.mock('@polkadot/api', () => {
+  const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
+  return {
+    __esModules: true,
+    WsProvider: jest.fn().mockImplementation(() => originalModule.WsProvider),
+    ApiPromise: jest.fn().mockImplementation(() => ({
+      ...originalModule.ApiPromise,
+      ...mockApiPromise,
+    })),
+  };
+});
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
   providerId: 1n,
   providerSeedPhrase: '//Alice',
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
+  frequencyTimeoutSecs: 10,
   isDeployedReadOnly: false,
 });
 
@@ -44,40 +64,24 @@ const exampleCredentials = [
 
 describe('SiwfV2Service', () => {
   let siwfV2Service: SiwfV2Service;
-
-  const mockBlockchainService = {
-    getNetworkType: jest.fn(),
-    publicKeyToMsaId: jest.fn(),
-    getApi: jest.fn(),
-  };
-
-  const mockBlockchainServiceProvider = {
-    provide: BlockchainRpcQueryService,
-    useValue: mockBlockchainService,
-  };
-
-  const mockEnqueueService = {
-    enqueueRequest: jest.fn(),
-  };
-
-  const mockEnqueueServiceProvider = {
-    provide: EnqueueService,
-    useValue: mockEnqueueService,
-  };
+  let blockchainService: BlockchainRpcQueryService;
+  let enqueueService: EnqueueService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [],
       providers: [
         SiwfV2Service,
-        mockBlockchainServiceProvider,
+        BlockchainRpcQueryService,
         mockAccountApiConfigProvider,
         mockBlockchainConfigProvider,
-        mockEnqueueServiceProvider,
+        EnqueueService,
       ],
     }).compile();
 
     siwfV2Service = module.get<SiwfV2Service>(SiwfV2Service);
+    blockchainService = module.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    enqueueService = module.get<EnqueueService>(EnqueueService);
   });
 
   it('should be defined', () => {
@@ -151,7 +155,7 @@ describe('SiwfV2Service', () => {
       jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');
 
       // Mock the global fetch function
-      global.fetch = jest.fn().mockResolvedValue({
+      jest.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         status: 200,
         json: async () => validSiwfAddDelegationResponsePayload,
@@ -193,7 +197,7 @@ describe('SiwfV2Service', () => {
       jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');
 
       // Mock the global fetch function
-      global.fetch = jest.fn().mockResolvedValue({
+      jest.spyOn(global, 'fetch').mockResolvedValue({
         ok: false,
         status: 400,
         json: async () => ({ error: 'Invalid authorization code' }),
@@ -225,7 +229,7 @@ describe('SiwfV2Service', () => {
       jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');
 
       // Mock the global fetch function
-      global.fetch = jest.fn().mockResolvedValue({
+      jest.spyOn(global, 'fetch').mockResolvedValue({
         ok: true,
         status: 200,
         json: async () => validSiwfLoginResponsePayload,
@@ -280,24 +284,24 @@ describe('SiwfV2Service', () => {
     });
 
     it('Should parse MSA Id', async () => {
-      mockBlockchainService.publicKeyToMsaId.mockReturnValueOnce('123456');
+      jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
 
       const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
 
       expect(result).toBeDefined();
       expect(result.msaId).toEqual('123456');
-      expect(mockBlockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
+      expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
         'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
       );
     });
 
     it('Should NOT return an MSA Id if there is none', async () => {
-      mockBlockchainService.publicKeyToMsaId.mockReturnValueOnce(null);
+      jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
       const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
 
       expect(result).toBeDefined();
       expect(result.msaId).toBeUndefined();
-      expect(mockBlockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
+      expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
         'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
       );
     });
@@ -340,21 +344,27 @@ describe('SiwfV2Service', () => {
       );
 
     it('should do nothing if there are no chain submissions', async () => {
+      const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
       const result = await siwfV2Service.queueChainActions(validSiwfLoginResponsePayload);
 
       expect(result).toBeNull();
-      expect(mockEnqueueService.enqueueRequest).not.toHaveBeenCalled();
+      expect(enqueueSpy).not.toHaveBeenCalled();
     });
 
     it('should return correctly for the add delegation setup', async () => {
+      const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
       const correctGrantDelegationHash =
         '0xed01043c038eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801bac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e01000000000000001405000700080009000a0018000000';
-      mockBlockchainService.getApi.mockReturnValue(
-        mockApiTxHashes([{ pallet: 'msa', extrinsic: 'grantDelegation', hash: correctGrantDelegationHash }]),
-      );
+      jest
+        .spyOn(blockchainService, 'getApi')
+        .mockResolvedValue(
+          mockApiTxHashes([
+            { pallet: 'msa', extrinsic: 'grantDelegation', hash: correctGrantDelegationHash },
+          ]) as ApiPromise,
+        );
 
       await expect(siwfV2Service.queueChainActions(validSiwfAddDelegationResponsePayload)).resolves.not.toThrow();
-      expect(mockEnqueueService.enqueueRequest).toHaveBeenCalledWith({
+      expect(enqueueSpy).toHaveBeenCalledWith({
         calls: [
           {
             encodedExtrinsic: correctGrantDelegationHash,
@@ -367,22 +377,30 @@ describe('SiwfV2Service', () => {
     });
 
     it('should return correctly for the new user setup', async () => {
+      const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
       const correctGrantDelegationHash =
         '0xed01043c018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48011a27cb6d79b508e1ffc8d6ae70af78d5b3561cdc426124a06f230d7ce70e757e1947dd1bac8f9e817c30676a5fa6b06510bae1201b698b044ff0660c60f18c8a01000000000000001405000700080009000a0018000000';
       const correctStatefulStorageHash =
         '0xf501043f068eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48019eb338773b386ded2e3731ba68ba734c80408b3ad24f92ed3c60342d374a32293851fa8e41d722c72a5a4e765a9e401c68570a8c666ab678e4e5d94aa6825d851c0014000000040040eea1e39d2f154584c4b1ca8f228bb49a';
       const correctClaimHandleHash =
         '0xd9010442008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801b004140fd8ba3395cf5fcef49df8765d90023c293fde4eaf2e932cc24f74fc51b006c0bebcf31d85565648b4881fa22115e0051a3bdb95ab5bf7f37ac66f798f344578616d706c6548616e646c6518000000';
-      mockBlockchainService.getApi.mockReturnValue(
+      jest.spyOn(blockchainService, 'getApi').mockResolvedValue(
         mockApiTxHashes([
           { pallet: 'msa', extrinsic: 'createSponsoredAccountWithDelegation', hash: correctGrantDelegationHash },
           { pallet: 'statefulStorage', extrinsic: 'applyItemActionsWithSignatureV2', hash: correctStatefulStorageHash },
           { pallet: 'handles', extrinsic: 'claimHandle', hash: correctClaimHandleHash },
-        ]),
+        ]) as ApiPromise,
       );
 
-      await expect(siwfV2Service.queueChainActions(validSiwfNewUserResponse)).resolves.not.toThrow();
-      expect(mockEnqueueService.enqueueRequest).toHaveBeenCalledWith({
+      try {
+        await siwfV2Service.queueChainActions(validSiwfNewUserResponse);
+      } catch (err: any) {
+        console.error(err);
+        throw err;
+      }
+
+      // await expect(siwfV2Service.queueChainActions(validSiwfNewUserResponse)).resolves.not.toThrow();
+      expect(enqueueSpy).toHaveBeenCalledWith({
         calls: [
           {
             encodedExtrinsic: correctGrantDelegationHash,

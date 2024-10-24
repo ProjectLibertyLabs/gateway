@@ -27,7 +27,7 @@ import { u8aToHex } from '@polkadot/util';
 import { TransactionType } from '#types/account-webhook';
 import { HandleDto, MsaIdDto } from '#types/dtos/common';
 
-@Controller('v1/handles')
+@Controller({ version: '1', path: 'handles' })
 @ApiTags('v1/handles')
 @UseGuards(ReadOnlyGuard)
 export class HandlesControllerV1 {

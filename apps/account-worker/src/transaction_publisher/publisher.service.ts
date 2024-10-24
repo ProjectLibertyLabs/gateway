@@ -85,7 +85,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         }
         case TransactionType.SIWF_SIGNUP: {
           // eslint-disable-next-line prettier/prettier
-          const txns = job.data.calls?.map((x) => this.blockchainService.api.tx(x.encodedExtrinsic));
+          const txns = job.data.calls?.map((x) => this.blockchainService.createTxFromEncoded(x.encodedExtrinsic));
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
           [tx, txHash] = await this.processBatchTxn(callVec);
           targetEvent = { section: 'utility', method: 'BatchCompleted' };
@@ -108,12 +108,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         }
         case TransactionType.RETIRE_MSA: {
           const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
-          targetEvent = { section: 'msa', method: 'retireMsa' };
+          targetEvent = { section: 'msa', method: 'MsaRetired' };
           [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;
         }
         case TransactionType.REVOKE_DELEGATION: {
-          const trx = await this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
+          const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
           targetEvent = { section: 'msa', method: 'DelegationRevoked' };
           [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           this.logger.debug(`tx: ${tx}`);
@@ -188,7 +188,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     try {
       const prefixedSignature: SignerResult = { id: 1, signature };
       const signer: Signer = getSignerForRawSignature(prefixedSignature);
-      const { nonce } = await this.blockchainService.api.query.system.account(accountId);
+      const nonce = await this.blockchainService.getNonce(accountId);
       const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
       const txHash = (await submittableExtrinsic.send()).toHex();
 

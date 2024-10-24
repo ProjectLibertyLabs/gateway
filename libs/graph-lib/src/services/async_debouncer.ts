@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
-import { ConnectionType, PrivacyType } from '@dsnp/graph-sdk';
+import { ConnectionType, PrivacyType } from '@projectlibertylabs/graph-sdk';
 import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
 import { GraphStateManager } from './graph-state-manager';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';

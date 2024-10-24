@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-undef */
-import { HttpStatus, INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
+import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
@@ -12,6 +12,10 @@ import { u8aToHex } from '@polkadot/util';
 import Keyring from '@polkadot/keyring';
 import { RevokeDelegationPayloadRequestDto, RevokeDelegationPayloadResponseDto } from '#types/dtos/account';
 import { KeyringPair } from '@polkadot/keyring/types';
+import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 let users: ChainUser[];
 let revokedUser: ChainUser;
@@ -29,7 +33,7 @@ let msaNonProviderId: string;
 let nonMsaKeypair: KeyringPair;
 
 describe('Delegation Controller', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let module: TestingModule;
 
   beforeAll(async () => {
@@ -50,17 +54,26 @@ describe('Delegation Controller', () => {
     }).compile();
 
     app = module.createNestApplication();
+
+    // Uncomment below to see logs when debugging tests
+    // module.useLogger(new Logger());
+
+    const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    app.enableVersioning({ type: VersioningType.URI });
+    app.enableShutdownHooks();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
       await app.close();
     });
-    app.useGlobalPipes(new ValidationPipe());
-    app.enableShutdownHooks();
-    // Enable URL-based API versioning
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
     await app.init();
+
+    // Make sure we're connected to the chain before running tests
+    const blockchainService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    await blockchainService.isReady();
 
     httpServer = app.getHttpServer();
 

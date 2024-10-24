@@ -23,7 +23,10 @@ BigInt.prototype['toJSON'] = function () {
  * can't connect to Redis at startup)
  */
 function startShutdownTimer() {
-  setTimeout(() => process.exit(1), 10_000);
+  setTimeout(() => {
+    logger.log('Shutdown timer expired');
+    process.exit(0);
+  }, 10_000);
 }
 
 async function bootstrap() {
@@ -45,7 +48,19 @@ async function bootstrap() {
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Account Service',
     description: 'Account Service API',
-    version: '1.0',
+    version: '2.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'accounts', tags: ['v1/accounts', 'v2/accounts'] },
+          { name: 'delegations', tags: ['v1/delegation', 'v2/delegations'] },
+          { name: 'handles', tags: ['v1/handles'] },
+          { name: 'health', tags: ['health'] },
+          { name: 'keys', tags: ['v1/keys'] },
+        ],
+      ],
+    ]),
   });
 
   const args = process.argv.slice(2);
@@ -60,6 +75,7 @@ async function bootstrap() {
     logger.warn('Received shutdown event');
     startShutdownTimer();
     await app.close();
+    logger.warn('app closed');
   });
 
   const config = app.get<IAccountApiConfig>(apiConfig.KEY);

@@ -16,7 +16,7 @@ import {
   PrivacyType,
   ImportBundleBuilder,
   KeyData,
-} from '@dsnp/graph-sdk';
+} from '@projectlibertylabs/graph-sdk';
 import {
   ItemizedStoragePageResponse,
   MessageSourceId,

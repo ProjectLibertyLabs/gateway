@@ -1,7 +1,7 @@
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { IGraphCommonConfig } from '#config/graph-common.config';
-import { EnvironmentType } from '@dsnp/graph-sdk';
+import { EnvironmentType } from '@projectlibertylabs/graph-sdk';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GraphKeyPairDto, KeyType } from '#types/dtos/graph';
 

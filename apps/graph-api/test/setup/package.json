@@ -12,7 +12,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@projectlibertylabs/frequency-scenario-template": "^1.1.8",
-    "@dsnp/graph-sdk": "^1.1.4",
+    "@projectlibertylabs/graph-sdk": "^2.0.1",
     "@frequency-chain/api-augment": "^1.13.2",
     "@polkadot/api": "^13.2.1",
     "@polkadot/keyring": "^13.1.1",

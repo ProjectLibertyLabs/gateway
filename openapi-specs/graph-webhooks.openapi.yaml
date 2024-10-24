@@ -3,7 +3,7 @@
 # Define webhook API for Graph Service. The nestjs/swagger package does not
 # support auto-generation of webhooks, or types that are not part of controller
 # endpoints.
-# These interface types at inception match the interfaces exported by @dsnp/graph-sdk
+# These interface types at inception match the interfaces exported by @projectlibertylabs/graph-sdk
 openapi: 3.1.0
 info:
   title: Graph Service Webhooks API

@@ -1,5 +1,5 @@
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
-import { Update } from '@dsnp/graph-sdk';
+import { Update } from '@projectlibertylabs/graph-sdk';
 
 export class GraphUpdateJob {
   update: Update;

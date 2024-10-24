@@ -177,6 +177,7 @@ Contributions, issues, and feature requests are welcome!
 
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Open Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
+- [Contributor Notes](./developer-docs/CONTRIBUTOR-NOTES.md)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 

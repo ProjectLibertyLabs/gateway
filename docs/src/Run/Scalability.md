@@ -107,7 +107,9 @@ resources:
     cpu: "500m"
 ```
 
-- **requests**: The amount of CPU and memory a pod is guaranteed.
+ Miscellaneous configurations for resource limits:
+
+- **requests**: The minimum CPU and memory a pod needs.
 - **limits**: The maximum CPU and memory a pod can use.
 
 Setting these values ensures that the HPA scales the pods without overloading the system.

@@ -71,7 +71,7 @@ curl -X GET "https://account-service.internal/v2/accounts/siwf?callbackUrl=https
 
 ### Selecting Permissions for Delegation
 
-Permissions are the actions that you as the Application can do on behalf of the user.
+Permissions define the actions that you as the Application can perform on behalf of the user.
 They are based on Schemas published to Frequency.
 
 See list of [SIWF v2 Available Delegations](https://projectlibertylabs.github.io/siwf/v2/docs/Delegations.html#available-delegations).

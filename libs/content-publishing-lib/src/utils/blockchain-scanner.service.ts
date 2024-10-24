@@ -14,7 +14,6 @@ export interface IBlockchainScanParameters {
 }
 
 export class EndOfChainError extends Error {}
-export class NullScanError extends Error {}
 export class SkipBlockError extends Error {}
 
 function eventName({ event: { section, method } }: FrameSystemEventRecord) {
@@ -114,12 +113,7 @@ export abstract class BlockchainScannerService {
       }
     } catch (e) {
       if (e instanceof EndOfChainError) {
-        this.logger.verbose(e.message);
-        return;
-      }
-
-      if (e instanceof NullScanError) {
-        this.logger.verbose(e.message);
+        this.logger.debug(e.message);
         return;
       }
 

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import apiConfig, { IContentWatcherApiConfig } from './api.config';
@@ -31,10 +31,25 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  // Enable URL-based API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Content Watcher Service API',
     description: 'Content Watcher Service API',
     version: '1.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'scanner', tags: ['v1/scanner'] },
+          { name: 'search', tags: ['v1/search'] },
+          { name: 'webhook', tags: ['v1/webhook'] },
+        ],
+      ],
+    ]),
   });
 
   const args = process.argv.slice(2);

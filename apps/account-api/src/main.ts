@@ -48,7 +48,20 @@ async function bootstrap() {
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Account Service',
     description: 'Account Service API',
-    version: '1.0',
+    version: '2.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'accounts', tags: ['v1/accounts', 'v2/accounts'] },
+          { name: 'delegation', tags: ['v1/delegation'] },
+          { name: 'delegations', tags: ['v2/delegations'] },
+          { name: 'handles', tags: ['v1/handles'] },
+          { name: 'health', tags: ['v1/health'] },
+          { name: 'keys', tags: ['v1/keys'] },
+        ],
+      ],
+    ]),
   });
 
   const args = process.argv.slice(2);

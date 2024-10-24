@@ -561,5 +561,19 @@
         ]
       }
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "name": "graphs",
+      "tags": [
+        "v1/graphs"
+      ]
+    },
+    {
+      "name": "webhooks",
+      "tags": [
+        "v1/webhooks"
+      ]
+    }
+  ]
 }

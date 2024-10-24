@@ -51,7 +51,7 @@ import { hasChainSubmissions } from '@projectlibertylabs/siwfv2';
 // - `authorizationPayload`: A base64url encoded, JSON stringification of the SIWF Response data structure.
 //
 
-@Controller('v2/accounts')
+@Controller({ version: '2', path: 'accounts' })
 @ApiTags('v2/accounts')
 export class AccountsControllerV2 {
   private readonly logger: Logger;

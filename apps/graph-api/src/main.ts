@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import apiConfig, { IGraphApiConfig } from './api.config';
@@ -31,10 +31,24 @@ async function bootstrap() {
     rawBody: true,
   });
 
+  // Enable URL-based API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Graph Service',
     description: 'Graph Service API',
     version: '1.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'graphs', tags: ['v1/graphs'] },
+          { name: 'webhooks', tags: ['v1/webhooks'] },
+        ],
+      ],
+    ]),
   });
 
   const args = process.argv.slice(2);

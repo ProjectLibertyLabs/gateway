@@ -480,5 +480,25 @@
         ]
       }
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "name": "scanner",
+      "tags": [
+        "v1/scanner"
+      ]
+    },
+    {
+      "name": "search",
+      "tags": [
+        "v1/search"
+      ]
+    },
+    {
+      "name": "webhook",
+      "tags": [
+        "v1/webhook"
+      ]
+    }
+  ]
 }

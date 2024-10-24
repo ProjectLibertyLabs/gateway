@@ -27,7 +27,7 @@ import {
 import { TransactionType } from '#types/account-webhook';
 import { MsaIdDto } from '#types/dtos/common';
 
-@Controller('v1/keys')
+@Controller({ version: '1', path: 'keys' })
 @ApiTags('v1/keys')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class KeysControllerV1 {

@@ -774,5 +774,25 @@
         ]
       }
     }
-  }
+  },
+  "x-tagGroups": [
+    {
+      "name": "asset",
+      "tags": [
+        "v1/asset"
+      ]
+    },
+    {
+      "name": "content",
+      "tags": [
+        "v1/content"
+      ]
+    },
+    {
+      "name": "profile",
+      "tags": [
+        "v1/profile"
+      ]
+    }
+  ]
 }

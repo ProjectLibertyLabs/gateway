@@ -3,7 +3,7 @@
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 
@@ -36,7 +36,7 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainRpcQueryService,
+    protected readonly blockchainService: BlockchainService,
     protected readonly logger: Logger,
   ) {
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;

@@ -8,11 +8,16 @@ export interface ISwaggerDocOptions {
   description?: string;
 
   version?: string;
+
+  extensions?: Map<string, any>;
 }
 
 const logger = new Logger('Swagger');
 
-export async function generateSwaggerDoc(app: INestApplication, { title, description, version }: ISwaggerDocOptions) {
+export async function generateSwaggerDoc(
+  app: INestApplication,
+  { title, description, version, extensions }: ISwaggerDocOptions,
+) {
   let builder = new DocumentBuilder();
 
   if (title) {
@@ -25,6 +30,13 @@ export async function generateSwaggerDoc(app: INestApplication, { title, descrip
 
   if (version) {
     builder = builder.setVersion(version);
+  }
+
+  if (extensions) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [extension, value] of extensions.entries()) {
+      builder = builder.addExtension(extension, value);
+    }
   }
 
   const config = builder.build();

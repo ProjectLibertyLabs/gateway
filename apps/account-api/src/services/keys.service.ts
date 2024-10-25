@@ -1,6 +1,6 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { EnvironmentInterface, EnvironmentType, Graph } from '@dsnp/graph-sdk';
+import { EnvironmentInterface, EnvironmentType, Graph } from '@projectlibertylabs/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,

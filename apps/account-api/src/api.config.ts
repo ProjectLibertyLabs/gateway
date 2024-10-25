@@ -1,5 +1,5 @@
 import { JoiUtils } from '#config';
-import { EnvironmentType } from '@dsnp/graph-sdk';
+import { EnvironmentType } from '@projectlibertylabs/graph-sdk';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 

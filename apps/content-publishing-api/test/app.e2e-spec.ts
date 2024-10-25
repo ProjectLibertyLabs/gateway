@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -12,9 +12,12 @@ import {
   validReaction,
   validReplyNoUploadedAssets,
 } from './mockRequestData';
+import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 describe('AppController E2E request verification!', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let module: TestingModule;
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -25,12 +28,21 @@ describe('AppController E2E request verification!', () => {
     }).compile();
 
     app = module.createNestApplication();
+
+    // Uncomment below to see logs when debugging tests
+    // module.useLogger(new Logger());
+
+    const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
+    app.enableVersioning({ type: VersioningType.URI });
+    app.enableShutdownHooks();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
       await app.close();
     });
-    app.useGlobalPipes(new ValidationPipe());
-    app.enableShutdownHooks();
     await app.init();
   });
 

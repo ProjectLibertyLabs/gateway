@@ -6,7 +6,7 @@ import {
 import { Body, Controller, Delete, Get, HttpStatus, Logger, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('v1/webhooks')
+@Controller({ version: '1', path: 'webhooks' })
 @ApiTags('v1/webhooks')
 export class WebhookControllerV1 {
   private readonly logger: Logger;

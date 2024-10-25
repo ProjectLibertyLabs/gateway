@@ -3,7 +3,7 @@
 import '@frequency-chain/api-augment';
 import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainService } from '#blockchain/blockchain.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 
@@ -14,17 +14,20 @@ export interface IBlockchainScanParameters {
 }
 
 export class EndOfChainError extends Error {}
+export class SkipBlockError extends Error {}
 
 function eventName({ event: { section, method } }: FrameSystemEventRecord) {
   return `${section}.${method}`;
 }
 
 export abstract class BlockchainScannerService {
+  private scanIsPaused = false;
+
   protected scanInProgress = false;
 
   protected chainEventHandlers = new Map<
     string,
-    ((block: SignedBlock, event: FrameSystemEventRecord) => any | Promise<any>)[]
+    ((block: SignedBlock, event: FrameSystemEventRecord) => unknown | Promise<unknown>)[]
   >();
 
   private readonly lastSeenBlockNumberKey: string;
@@ -33,10 +36,24 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainService,
+    protected readonly blockchainService: BlockchainRpcQueryService,
     protected readonly logger: Logger,
   ) {
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
+    this.blockchainService.on('chain.disconnected', () => {
+      this.paused = true;
+    });
+    this.blockchainService.on('chain.connected', () => {
+      this.paused = false;
+    });
+  }
+
+  protected get paused() {
+    return this.scanIsPaused;
+  }
+
+  private set paused(p: boolean) {
+    this.scanIsPaused = p;
   }
 
   public get scanParameters() {
@@ -57,7 +74,6 @@ export abstract class BlockchainScannerService {
     }
 
     try {
-      await this.blockchainService.isReady();
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
 
@@ -76,26 +92,36 @@ export abstract class BlockchainScannerService {
       this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
-      while (true) {
-        await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
-        const block = await this.blockchainService.getBlock(currentBlockHash);
-        const blockEvents = await this.blockchainService.getEvents(currentBlockHash);
-        await this.handleChainEvents(block, blockEvents);
-        await this.processCurrentBlock(block, blockEvents);
+      while (!this.paused) {
+        try {
+          await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
+          const block = await this.blockchainService.getBlock(currentBlockHash);
+          const blockEvents = await this.blockchainService.getEvents(currentBlockHash);
+          await this.handleChainEvents(block, blockEvents);
+          await this.processCurrentBlock(block, blockEvents);
+        } catch (err) {
+          if (!(err instanceof SkipBlockError)) {
+            throw err;
+          }
+          this.logger.debug(`Skipping block ${currentBlockNumber}`);
+        }
         await this.setLastSeenBlockNumber(currentBlockNumber);
 
         // Move to the next block
         currentBlockNumber += 1;
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
-    } catch (e: any) {
+    } catch (e) {
       if (e instanceof EndOfChainError) {
         this.logger.debug(e.message);
         return;
       }
 
-      this.logger.error('Unexpected error scanning chain', JSON.stringify(e), e?.stack);
-      throw e;
+      // Don't throw if scan paused; that's WHY it's paused
+      if (!this.paused) {
+        this.logger.error(JSON.stringify(e));
+        throw e;
+      }
     } finally {
       this.scanInProgress = false;
     }
@@ -130,7 +156,7 @@ export abstract class BlockchainScannerService {
 
   public registerChainEventHandler(
     events: string[],
-    callback: (block: SignedBlock, blockEvents: FrameSystemEventRecord) => any | Promise<any>,
+    callback: (block: SignedBlock, blockEvents: FrameSystemEventRecord) => unknown | Promise<unknown>,
   ) {
     events.forEach((event) => {
       const handlers = new Set(this.chainEventHandlers.get(event) || []);

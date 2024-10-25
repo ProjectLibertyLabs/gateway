@@ -74,11 +74,11 @@ services:
     # such as:
     # --state-pruning=archive
     command: --offchain-worker=always --enable-offchain-indexing=true
-    options: >-
-      --health-cmd "bash -c '(echo >\"/dev/tcp/127.0.0.1/9944\") &>/dev/null'"
-      --health-interval 10s
-      --health-timeout 5s
-      --health-retries 5
+    healthcheck:
+      test: ["CMD", "bash", "-c", '(echo >\"/dev/tcp/127.0.0.1/9944\") &>/dev/null']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - 9944:9944
     networks:

@@ -75,7 +75,7 @@ services:
     # --state-pruning=archive
     command: --offchain-worker=always --enable-offchain-indexing=true
     healthcheck:
-      test: ["CMD", "bash", "-c", '(echo >\"/dev/tcp/127.0.0.1/9944\") &>/dev/null']
+      test: ["CMD", "bash", "-c", "curl -X POST -H \"Content-Type: application/json\" -d '{\"jsonrpc\":\"2.0\",\"method\":\"system_health\",\"params\":[],\"id\":1}' http://127.0.0.1:9944 > /dev/null 2>&1"]
       interval: 10s
       timeout: 5s
       retries: 5

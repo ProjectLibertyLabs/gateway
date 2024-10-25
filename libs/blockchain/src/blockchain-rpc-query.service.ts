@@ -63,6 +63,17 @@ interface ItemizedPageUpdated {
   debugMsg: string;
 }
 
+interface MsaRetired {
+  msaId: string;
+  debugMsg: string;
+}
+
+interface DelegationRevoked {
+  msaId: string;
+  providerId: string;
+  debugMsg: string;
+}
+
 export interface ICapacityInfo {
   providerId: string;
   currentBlockNumber: number;
@@ -398,6 +409,28 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.api.tx.msa.revokeDelegationByDelegator(providerId);
   }
 
+  /**
+   * Handles the DelegationRevoked transaction result events and extracts the MSA ID and Provider ID from the event data.
+   * @param {Event} event - The DelegationRevoked event
+   * @returns {DelegationRevoked} The revoked delegation information
+   */
+  public handleRevokeDelegationTxResult(event: Event): DelegationRevoked {
+    // Grab the event data
+    if (event && this.api.events.msa.DelegationRevoked.is(event)) {
+      const providerId = event.data.providerId.toString();
+      const msaId = event.data.delegatorId.toString();
+
+      return {
+        msaId,
+        providerId,
+        debugMsg: `Delegation revoked for msaId: ${msaId}, providerId: ${providerId}`,
+      };
+    }
+
+    this.logger.error(`Expected DelegationRevoked event but found ${event}`);
+    return {} as DelegationRevoked;
+  }
+
   public createAddPublicKeyToMsaPayload(payload: KeysRequestPayloadDto): any {
     const msaIdU64 = this.api.createType('u64', payload.msaId);
 
@@ -570,6 +603,26 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
   public async retireMsa() {
     return this.api.tx.msa.retireMsa();
+  }
+
+  /**
+   * Handles the MsaRetired transaction result events and extracts the retired MSA ID from the event data.
+   * @param {Event} event - The MsaRetired event
+   * @returns {MsaRetired} The MSA ID that was retired
+   */
+  public handleRetireMsaTxResult(event: Event): MsaRetired {
+    // Grab the event data
+    if (event && this.api.events.msa.MsaRetired.is(event)) {
+      const msaId = event.data.msaId.toString();
+
+      return {
+        msaId,
+        debugMsg: `MSA retired for msaId: ${msaId}`,
+      };
+    }
+
+    this.logger.error(`Expected MsaRetired event but found ${event}`);
+    return {} as MsaRetired;
   }
 
   public upsertPage(

@@ -53,10 +53,12 @@ export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends Publi
   msaId: string,
   options: O,
 ): T;
+export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
+export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
 export function createWebhookRsp(
   { type: transactionType, providerId, referenceId }: ITxStatus,
   msaId: string,
-  options: TxWebhookOpts,
+  options?: TxWebhookOpts,
 ): TxWebhookRsp {
   const response = {
     transactionType,

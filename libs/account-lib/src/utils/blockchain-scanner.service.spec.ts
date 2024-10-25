@@ -6,11 +6,12 @@ import { Redis } from 'ioredis';
 import { BlockchainScannerService } from './blockchain-scanner.service';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { BlockchainService } from '#blockchain/blockchain.service';
+import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
+import { NonceConstants } from '#types/constants';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -28,9 +29,21 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonPr
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
+
 const mockRedis = {
+  get: jest.fn(),
+  set: jest.fn(),
+  defineCommand: jest.fn(),
+};
+
+const mockDefaultRedisProvider = {
   provide: getRedisToken(DEFAULT_REDIS_NAMESPACE),
-  useValue: { get: jest.fn(), set: jest.fn() },
+  useValue: mockRedis,
+};
+
+const mockNonceRedisProvider = {
+  provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
+  useValue: mockRedis,
 };
 
 const mockBlockHash = {
@@ -91,7 +104,14 @@ describe('BlockchainScannerService', () => {
           ignoreErrors: false,
         }),
       ],
-      providers: [mockRedis, mockBlockchainConfigProvider, Logger, BlockchainService, ScannerService],
+      providers: [
+        mockDefaultRedisProvider,
+        mockNonceRedisProvider,
+        mockBlockchainConfigProvider,
+        Logger,
+        BlockchainService,
+        ScannerService,
+      ],
     }).compile();
     moduleRef.enableShutdownHooks();
     service = moduleRef.get<ScannerService>(ScannerService);

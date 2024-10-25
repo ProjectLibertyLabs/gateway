@@ -160,6 +160,7 @@ export class TxnNotifierService
                 );
               }
               break;
+
             case TransactionType.SIWF_SIGNUP:
               {
                 const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
@@ -175,6 +176,7 @@ export class TxnNotifierService
                 );
               }
               break;
+
             case TransactionType.ADD_KEY:
               {
                 const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
@@ -187,6 +189,7 @@ export class TxnNotifierService
                 this.logger.log(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
               }
               break;
+
             case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
               {
                 const itemizedPageUpdated =
@@ -200,6 +203,26 @@ export class TxnNotifierService
                 this.logger.log(`Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`);
               }
               break;
+
+            case TransactionType.RETIRE_MSA:
+              {
+                const msaRetired = this.blockchainService.handleRetireMsaTxResult(successEvent);
+                const response = createWebhookRsp(txStatus, msaRetired.msaId);
+                webhookResponse = response;
+              }
+              break;
+
+            case TransactionType.REVOKE_DELEGATION:
+              {
+                const delegationRevoked = this.blockchainService.handleRevokeDelegationTxResult(successEvent);
+                const response = createWebhookRsp(
+                  { ...txStatus, providerId: delegationRevoked.providerId },
+                  delegationRevoked.msaId,
+                );
+                webhookResponse = response;
+              }
+              break;
+
             default:
               this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
               break;

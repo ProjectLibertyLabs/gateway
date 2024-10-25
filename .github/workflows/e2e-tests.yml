@@ -18,7 +18,7 @@ jobs:
       services: >-
         ["account"]
       # Resolves to true if it should run everything, aka when common files change
-      run-all: ${{ steps.determine-matrix.outputs.changes.common }}
+      run-all: ${{ contains(fromJson(steps.determine-matrix.outputs.changes), 'common') }}
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4

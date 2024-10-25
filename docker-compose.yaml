@@ -74,11 +74,11 @@ services:
     # such as:
     # --state-pruning=archive
     command: --offchain-worker=always --enable-offchain-indexing=true
-    options: >-
-      --health-cmd "bash -c '(echo >\"/dev/tcp/127.0.0.1/9944\") &>/dev/null'"
-      --health-interval 10s
-      --health-timeout 5s
-      --health-retries 5
+    healthcheck:
+      test: ["CMD", "bash", "-c", "curl -X POST -H \"Content-Type: application/json\" -d '{\"jsonrpc\":\"2.0\",\"method\":\"system_health\",\"params\":[],\"id\":1}' http://127.0.0.1:9944 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - 9944:9944
     networks:

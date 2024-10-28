@@ -7,7 +7,7 @@ data:
   TRUST_UNFINALIZED_BLOCKS: {{ .Values.contentPublishing.env.TRUST_UNFINALIZED_BLOCKS | quote }}
   IPFS_ENDPOINT: {{ .Values.contentPublishing.env.IPFS_ENDPOINT | quote }}
   IPFS_GATEWAY_URL: {{ .Values.contentPublishing.env.IPFS_GATEWAY_URL | quote }}
-  FREQUENCY_URL: {{ .Values.contentPublishing.env.FREQUENCY_URL | quote }}
+  FREQUENCY_API_WS_URL: {{ .Values.contentPublishing.env.FREQUENCY_API_WS_URL | quote }}
   PROVIDER_ID: {{ .Values.contentPublishing.env.PROVIDER_ID | quote }}
   REDIS_URL: {{ .Values.contentPublishing.env.REDIS_URL | quote }}
   CAPACITY_LIMIT: {{ .Values.contentPublishing.env.CAPACITY_LIMIT | quote }}

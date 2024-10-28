@@ -38,6 +38,7 @@
   - [Secret Management](./Run/Vault.md)
   - [Security](./Run/Security.md)
   - [Scalability](./Run/Scalability.md)
+  - [Monitoring](./Run/Monitoring.md)
 
 ---
 

@@ -1,0 +1,23 @@
+{{- if .Values.cloudwatch.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cwagent-config
+  namespace: amazon-cloudwatch
+data:
+  cwagentconfig.json: |
+    {
+      "agent": {
+        "region": "{{ .Values.cloudwatch.region }}"
+      },
+      "logs": {
+        "metrics_collected": {
+          "kubernetes": {
+            "cluster_name": "{{ .Values.cloudwatch.cluster_name }}",
+            "metrics_collection_interval": {{ .Values.cloudwatch.metrics_collection_interval }},
+          }
+        },
+        "force_flush_interval": {{ .Values.cloudwatch.force_flush_interval }}
+      }
+    }
+{{- end }}

@@ -87,8 +87,8 @@ account:
         args: "account-worker"
   env:
     API_PORT: "3002"
-    FREQUENCY_URL: "ws://<host-ip>:9944"
-    FREQUENCY_HTTP_URL: "http://<host-ip>:9944"
+    FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
+    SIWF_NODE_RPC_URL: "http://<host-ip>:9944"
     PROVIDER_ID: "1"
     WEBHOOK_BASE_URL: "http://host.docker.internal:3001/webhooks/account-service"
     REDIS_URL: "redis://<host-ip>:6379"
@@ -128,7 +128,7 @@ contentPublishing:
     TRUST_UNFINALIZED_BLOCKS: "false"
     IPFS_ENDPOINT: "http://<host-ip>:5001"
     IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
-    FREQUENCY_URL: "ws://<host-ip>:9944"
+    FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
     PROVIDER_ID: "1"
     REDIS_URL: "redis://<host-ip>:6379"
     CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
@@ -153,7 +153,7 @@ contentWatcher:
     API_PORT: "3004"
     IPFS_ENDPOINT: "http://<host-ip>:5001"
     IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
-    FREQUENCY_URL: "ws://<host-ip>:9944"
+    FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
     REDIS_URL: "redis://<host-ip>:6379"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
     QUEUE_HIGH_WATER: "1000"
@@ -177,7 +177,7 @@ graph:
         args: "graph-worker"
   env:
     API_PORT: "3005"
-    FREQUENCY_URL: "ws://<host-ip>:9944"
+    FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
     PROVIDER_ID: "1"
     REDIS_URL: "redis://<host-ip>:6379"
     QUEUE_HIGH_WATER: "1000"
@@ -199,3 +199,11 @@ graph:
     PROVIDER_ACCESS_TOKEN: "some-token"
     AT_REST_ENCRYPTION_KEY_SEED: 'egg angry govern region tuition hawk solid rotate heart upgrade coral van'
 
+
+# Monitoring configuration for AWS CloudWatch
+cloudwatch:
+  enabled: false
+  region: "us-east-1"
+  cluster_name: "microk8s-cluster"
+  metrics_collection_interval: 60
+  force_flush_interval: 5

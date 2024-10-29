@@ -92,12 +92,15 @@
   color: var(--button-nav-fg);
 }
 
-.svg-embed {
+.svg-embed-light,
+.svg-embed-dark {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 
-.svg-embed svg {
+/* Handles oversized svgs */
+.svg-embed-light svg,
+.svg-embed-dark svg {
   width: 100%;
   height: 100%;
 }

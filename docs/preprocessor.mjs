@@ -91,10 +91,15 @@ function svgEmbed(chapter) {
   const regex = /{{#svg-embed\s(.+?)\s(.+?)}}/g;
   const matches = [...chapter.content.matchAll(regex)];
   matches.forEach((match) => {
-    const svgFile = match[1];
+    const svgFileLight = match[1];
+    const svgFileDark = match[1].replace('.svg', '-Dark.svg');
     const titleTag = match[2];
-    const output = readFileSync(svgFile, 'utf8');
-    const replaceWith = `<div class="svg-embed" title="${titleTag}">${output}</div>`;
+    const svgOutputLight = readFileSync(svgFileLight, 'utf8');
+    const svgOutputDark = readFileSync(svgFileDark, 'utf8');
+    const replaceWith = [
+      `<div class="svg-embed-light" title="${titleTag}">${svgOutputLight}</div>`,
+      `<div class="svg-embed-coal" title="${titleTag}">${svgOutputDark}</div>`,
+    ].join('\n');
     chapter.content = chapter.content.replace(match[0], replaceWith);
   });
   if (chapter.sub_items) {

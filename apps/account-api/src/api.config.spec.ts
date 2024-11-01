@@ -14,7 +14,7 @@ describe('Account API Config', () => {
     GRAPH_ENVIRONMENT_TYPE: undefined,
     SIWF_URL: undefined,
     SIWF_V2_URL: undefined,
-    SIWF_V2_DOMAIN: undefined,
+    SIWF_V2_URI_VALIDATION: undefined,
   };
 
   beforeAll(() => {
@@ -41,12 +41,6 @@ describe('Account API Config', () => {
     it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
 
     it('invalid url for SIWF_V2_URL', async () => shouldFailBadValues(ALL_ENV, 'SIWF_V2_URL', ['sdfdsf']));
-
-    it('invalid url SIWF_V2_DOMAIN', async () =>
-      shouldFailBadValues(ALL_ENV, 'SIWF_V2_DOMAIN', ['https://www.example.com']));
-
-    it('invalid with port SIWF_V2_DOMAIN', async () =>
-      shouldFailBadValues(ALL_ENV, 'SIWF_V2_DOMAIN', ['localhost:3000']));
   });
 
   describe('valid environment', () => {
@@ -74,6 +68,19 @@ describe('Account API Config', () => {
     it('should get SIWF URL', () => {
       expect(accountServiceConfig.siwfUrl).toStrictEqual(ALL_ENV.SIWF_URL);
     });
+
+    it('should get SIWF V2 URL', () => {
+      expect(accountServiceConfig.siwfV2Url).toStrictEqual(ALL_ENV.SIWF_V2_URL);
+    });
+
+    it.each([['https://example.com/login'], ['example://login'], ['localhost'], ['localhost:3030/login/path']])(
+      'should get SIWF V2 URI VALIDATION for %s',
+      async (value) => {
+        ALL_ENV.SIWF_V2_URI_VALIDATION = value;
+        accountServiceConfig = await setupConfigService(ALL_ENV);
+        expect(accountServiceConfig.siwfV2URIValidation).toStrictEqual(value);
+      },
+    );
 
     it('should get api timeout limit milliseconds', () => {
       expect(accountServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));

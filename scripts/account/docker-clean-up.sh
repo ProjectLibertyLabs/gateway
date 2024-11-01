@@ -2,17 +2,17 @@
 
 # Stop and remove containers, networks
 echo "Stopping and removing containers, networks..."
-docker compose down frequency redis account-service-api account-service-worker
+docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile e2e down
 
 # Remove specified volumes
 echo "Removing specified volumes..."
-docker -f volume rm gateway_redis_data
-docker -f volume rm gateway_chainstorage
-docker -f volume rm gateway_account_api_node_cache
-docker -f volume rm gateway_account_worker_node_cache
+docker volume rm -f gateway_redis_data
+docker volume rm -f gateway_chainstorage
+docker volume rm -f gateway_account_api_node_cache
+docker volume rm -f gateway_account_worker_node_cache
 docker volume prune -f
 
 # Remove account-service images
 echo "Removing account-service image..."
-docker rm gateway-gateway-base-1
-docker rmi account-service gateway-dev
+docker rm -f gateway-gateway-base-1
+docker rmi -f account-service gateway-dev

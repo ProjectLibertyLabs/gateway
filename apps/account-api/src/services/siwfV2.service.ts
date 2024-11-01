@@ -124,11 +124,11 @@ export class SiwfV2Service {
 
   async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
     let payload: SiwfResponse;
-    const loginMsgDomain = this.apiConf.siwfV2Domain;
+    const loginMsgURIValidation = this.apiConf.siwfV2URIValidation;
     if (request.authorizationPayload) {
       try {
         // Await here so the error is caught
-        payload = await validateSiwfResponse(request.authorizationPayload, loginMsgDomain);
+        payload = await validateSiwfResponse(request.authorizationPayload, loginMsgURIValidation);
       } catch (e) {
         this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
@@ -138,7 +138,7 @@ export class SiwfV2Service {
       try {
         payload = await getLoginResult(request.authorizationCode, {
           endpoint: this.swifV2Endpoint(),
-          loginMsgDomain,
+          loginMsgUri: loginMsgURIValidation,
         });
       } catch (e) {
         this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e.toString() });

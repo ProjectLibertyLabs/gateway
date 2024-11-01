@@ -18,7 +18,8 @@ data:
   HEALTH_CHECK_SUCCESS_THRESHOLD: {{ .Values.account.env.HEALTH_CHECK_SUCCESS_THRESHOLD | quote }}
   CAPACITY_LIMIT: {{ .Values.account.env.CAPACITY_LIMIT | quote }}
   SIWF_URL: {{ .Values.account.env.SIWF_URL | quote }}
-  SIWF_DOMAIN: {{ .Values.account.env.SIWF_DOMAIN | quote }}
+  SIWF_V2_URL: {{ .Values.account.env.SIWF_V2_URL | quote }}
+  SIWF_V2_URI_VALIDATION: {{ .Values.account.env.SIWF_V2_URI_VALIDATION | quote }}
   DEBUG: {{ .Values.account.env.DEBUG | quote }}
   CACHE_KEY_PREFIX: {{ .Values.account.env.CACHE_KEY_PREFIX | quote }}
   GRAPH_ENVIRONMENT_TYPE: {{ .Values.account.env.GRAPH_ENVIRONMENT_TYPE | quote }}

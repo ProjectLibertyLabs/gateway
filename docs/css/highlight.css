@@ -168,3 +168,10 @@ pre .hljs {
 .hljs-meta-keyword {
   font-weight: bold;
 }
+
+.svg-embed-light {
+  display: block;
+}
+.svg-embed-coal {
+  display: none;
+}

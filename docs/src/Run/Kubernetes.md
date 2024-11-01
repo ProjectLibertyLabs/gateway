@@ -170,7 +170,7 @@ You should see the status as `deployed`.
 
 ## 6. Accessing Kubernetes Services
 
-By default, Kubernetes services are exposed on `localhost`. Here’s how to access them:
+By default, Kubernetes services are exposed on `localhost`. Here's how to access them:
 
 ### 6.1. Accessing via NodePort
 

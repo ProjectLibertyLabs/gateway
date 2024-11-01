@@ -18,7 +18,8 @@
   text-decoration: none;
 }
 
-.button-links {
+.button-links,
+.button-links > p {
   display: flex;
   justify-content: space-around;
   align-content: center;
@@ -26,8 +27,15 @@
   flex-wrap: wrap;
 }
 
+.button-links > p {
+  width: 100%;
+  margin: 0;
+}
+
 .button-links a,
-.button-links a:link {
+.button-links > p a,
+.button-links a:link,
+.button-links > p a:link {
   box-sizing: content-box;
   font-weight: 300;
   color: var(--button-nav-fg);
@@ -51,7 +59,9 @@
 
 @media screen and (max-width: 1080px) {
   .button-links a,
-  .button-links a:link {
+  .button-links > p a,
+  .button-links a:link,
+  .button-links > p a:link {
     box-sizing: border-box;
     margin: 10px 6px;
     flex: 0 0 90%;
@@ -62,7 +72,9 @@
 
 @media screen and (max-width: 400px) {
   .button-links a,
-  .button-links a:link {
+  .button-links > p a,
+  .button-links a:link,
+  .button-links > p a:link {
     box-sizing: border-box;
     margin: 10px 6px;
     flex: 0 0 100%;
@@ -72,18 +84,23 @@
 }
 
 .button-links a:hover,
-.button-links a:visited:hover {
+.button-links > p a:hover,
+.button-links a:visited:hover,
+.button-links > p a:visited:hover {
   text-decoration: none;
   border: 2px solid var(--button-nav-hover);
   color: var(--button-nav-fg);
 }
 
-.svg-embed {
+.svg-embed-light,
+.svg-embed-dark {
   margin-top: 10px;
   margin-bottom: 10px;
 }
 
-.svg-embed svg {
+/* Handles oversized svgs */
+.svg-embed-light svg,
+.svg-embed-dark svg {
   width: 100%;
   height: 100%;
 }

@@ -81,7 +81,7 @@ Similarly, create secrets for other services:
 
 ### 2.3 Set Up Kubernetes Authentication
 
-To allow your Kubernetes cluster to access secrets in Vault, you need to configure Vault’s Kubernetes authentication method.
+To allow your Kubernetes cluster to access secrets in Vault, you need to configure Vault's Kubernetes authentication method.
 
 1. **Enable Kubernetes Auth Method:**
 
@@ -116,7 +116,7 @@ To allow your Kubernetes cluster to access secrets in Vault, you need to configu
 
 ### 3.1 Helm Configuration
 
-Update your `values.yaml` file to enable Vault integration for Frequency Gateway deployment. Here’s an example configuration:
+Update your `values.yaml` file to enable Vault integration for Frequency Gateway deployment. Here's an example configuration:
 
 ```yaml
 vault:
@@ -294,7 +294,7 @@ vault kv get -field=PROVIDER_ACCESS_TOKEN secret/frequency-gateway/account
 ## 5. Troubleshooting
 
 - **Vault Access Errors:** Ensure that the Kubernetes authentication method is correctly configured, and the service accounts are bound to the appropriate Vault roles.
-- **Secrets Not Being Retrieved:** Double-check your `values.yaml` file for correct Vault paths and the service’s configuration for secret access.
+- **Secrets Not Being Retrieved:** Double-check your `values.yaml` file for correct Vault paths and the service's configuration for secret access.
 
 For more information, refer to the [Vault documentation](https://www.vaultproject.io/docs).
 

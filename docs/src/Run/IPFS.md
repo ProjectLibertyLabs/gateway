@@ -117,13 +117,13 @@ You can find more details about reverse proxy configuration in [Nginx documentat
 
 ### 3.2. Managing Egress Traffic
 
-Egress refers to outgoing traffic, including requests your node makes to the IPFS network for files it doesn’t have locally. You can limit this traffic by adjusting your node's **bandwidth profile**:
+Egress refers to outgoing traffic, including requests your node makes to the IPFS network for files it doesn't have locally. You can limit this traffic by adjusting your node's **bandwidth profile**:
 
 ```bash
 ipfs config profile apply lowpower
 ```
 
-For a more detailed network configuration, refer to [IPFS’s networking documentation](https://docs.ipfs.tech/how-to/default-profile/#available-profiles).
+For a more detailed network configuration, refer to [IPFS's networking documentation](https://docs.ipfs.tech/how-to/default-profile/#available-profiles).
 
 ---
 
@@ -185,6 +185,6 @@ For additional management tasks like **peer discovery**, **publishing content**,
 
 ## Conclusion
 
-By following this guide, you’ve successfully set up an IPFS node, configured ingress and egress, and learned about third-party pinning services for enhanced data availability. With IPFS, you are now part of a decentralized network for distributed storage and sharing.
+By following this guide, you've successfully set up an IPFS node, configured ingress and egress, and learned about third-party pinning services for enhanced data availability. With IPFS, you are now part of a decentralized network for distributed storage and sharing.
 
 For more advanced configurations or integrating IPFS with your services, consider exploring additional features such as **IPFS Cluster** for node orchestration or **Filecoin** for long-term decentralized storage.

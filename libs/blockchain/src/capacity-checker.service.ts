@@ -103,7 +103,6 @@ export class CapacityCheckerService {
         ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit)
         : false;
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
-
       outOfCapacity = capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded;
 
       if (outOfCapacity) {

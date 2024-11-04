@@ -1,7 +1,15 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import {
+  AccountId,
+  AccountId32,
+  BlockHash,
+  BlockNumber,
+  Event,
+  FeeDetails,
+  SignedBlock,
+} from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
 import { Bytes, Option, u128, u16, Vec } from '@polkadot/types';
@@ -240,6 +248,10 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   public async getCurrentEpochLength(blockHash?: Uint8Array | string): Promise<number> {
     const api = await this.getApi(blockHash);
     return (await api.query.capacity.epochLength()).toNumber();
+  }
+
+  public async getCapacityCostForExt(enocdedExt: Bytes): Promise<FeeDetails> {
+    return this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
   }
 
   public async getMessagesBySchemaId(schemaId: AnyNumber, pagination: IBlockPaginationRequest) {

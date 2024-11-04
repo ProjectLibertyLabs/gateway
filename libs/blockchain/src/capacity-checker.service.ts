@@ -7,6 +7,7 @@ import { ICapacityInfo } from './blockchain.service';
 import { ConfigService } from '@nestjs/config';
 import { IBlockchainConfig } from './blockchain.config';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
+import { Bytes } from '@polkadot/types';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -80,12 +81,27 @@ export class CapacityCheckerService {
     return outOfCapacity;
   }
 
+  private async checkTxCapacityLimit(
+    capacityInfo: ICapacityInfo,
+    encodedExt: Bytes | Uint8Array | string,
+  ): Promise<boolean> {
+    const { remainingCapacity } = capacityInfo;
+    const capacityCost = await this.blockchainService.getCapacityCostForExt(encodedExt);
+    let outOfCapacity = false;
+    if (capacityCost.inclusionFee.isSome) {
+      const inclusionFee = capacityCost.inclusionFee.unwrap();
+      const adjustedWeightFee = inclusionFee.adjustedWeightFee.toBigInt();
+      outOfCapacity = remainingCapacity < adjustedWeightFee;
+    }
+    return outOfCapacity;
+  }
+
   /**
    * Checks remaining Capacity against configured per-service and total Capacity limits.
    *
    * @returns {boolean} Returns true if remaining Capacity is within allowed limits; false otherwise
    */
-  public async checkForSufficientCapacity(): Promise<boolean> {
+  public async checkForSufficientCapacity(encodedExt?: Bytes | Uint8Array | string): Promise<boolean> {
     let outOfCapacity = false;
 
     try {
@@ -103,7 +119,12 @@ export class CapacityCheckerService {
         ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit)
         : false;
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
-      outOfCapacity = capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded;
+      let txCapacityChecked = true;
+      if (encodedExt) {
+        txCapacityChecked = await this.checkTxCapacityLimit(capacityInfo, encodedExt);
+      }
+      outOfCapacity =
+        capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded || txCapacityChecked;
 
       if (outOfCapacity) {
         await this.eventEmitter.emitAsync(CAPACITY_EXHAUSTED_EVENT, capacityInfo);

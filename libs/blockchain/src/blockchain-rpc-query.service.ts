@@ -250,7 +250,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.capacity.epochLength()).toNumber();
   }
 
-  public async getCapacityCostForExt(enocdedExt: Bytes): Promise<FeeDetails> {
+  public async getCapacityCostForExt(enocdedExt: Bytes | Uint8Array | string): Promise<FeeDetails> {
     return this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
   }
 

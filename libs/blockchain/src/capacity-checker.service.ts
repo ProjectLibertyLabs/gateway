@@ -119,12 +119,12 @@ export class CapacityCheckerService {
         ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit)
         : false;
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
-      let txCapacityChecked = true;
+      let txCapacityExceeded = false;
       if (encodedExt) {
-        txCapacityChecked = await this.checkTxCapacityLimit(capacityInfo, encodedExt);
+        txCapacityExceeded = await this.checkTxCapacityLimit(capacityInfo, encodedExt);
       }
       outOfCapacity =
-        capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded || txCapacityChecked;
+        capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded || txCapacityExceeded;
 
       if (outOfCapacity) {
         await this.eventEmitter.emitAsync(CAPACITY_EXHAUSTED_EVENT, capacityInfo);

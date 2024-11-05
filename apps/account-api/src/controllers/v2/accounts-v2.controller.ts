@@ -101,12 +101,14 @@ export class AccountsControllerV2 {
 
     // Validate claim handle transactions to prevent invalid submissions to the blockchain
     await Promise.all(
-      payload.payloads.filter(isPayloadClaimHandle).map(async (claimHandle) => {
-        const isValidHandle = await this.blockchainService.isValidHandle(claimHandle.payload.baseHandle);
-        if (isValidHandle.isFalse) {
-          throw new BadRequestException('Invalid base handle');
-        }
-      }),
+      payload.payloads
+        .filter((transaction) => isPayloadClaimHandle(transaction))
+        .map(async (claimHandle) => {
+          const isValidHandle = await this.blockchainService.isValidHandle(claimHandle.payload.baseHandle);
+          if (isValidHandle.isFalse) {
+            throw new BadRequestException('Invalid base handle');
+          }
+        }),
     );
 
     if (hasChainSubmissions(payload) && this.chainConfig.isDeployedReadOnly) {

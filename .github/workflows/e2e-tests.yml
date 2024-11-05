@@ -70,13 +70,12 @@ jobs:
           echo "CHANGES=${{ needs.service-matrix.outputs.changes }}"
           echo "SERVICES=${{ needs.service-matrix.outputs.services }}"
           echo "RUN-ALL=${{ needs.service-matrix.outputs.run-all }}"
-          echo "ACCOUNT_CHANGE_DETECTED=${{ contains(fromJson(needs.service-matrix.outputs.changes), 'account') }}"
+          echo "ACCOUNT_CHANGE_DETECTED=${{ contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}"
 
       - name: Run or Skip
         id: should
         run: |
-          echo "MATRIX_SERVICE=${{ matrix.service }}"
-          echo "RUN=${{contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
+          echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}

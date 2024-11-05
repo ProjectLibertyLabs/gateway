@@ -4,7 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { Bytes, Option, u128, u16, Vec } from '@polkadot/types';
+import { bool, Bytes, Option, u128, u16, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
@@ -144,6 +144,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
     this.logger.error(`No block found corresponding to hash ${hash}`);
     return undefined;
+  }
+
+  /**
+   * Validates a given handle by querying the blockchain.
+   *
+   * @param {string} baseHandle - The base handle to be validated.
+   * @returns {Promise<bool>} - A promise that resolves to a bool indicating whether the handle is valid.
+   */
+  public async isValidHandle(baseHandle: string): Promise<bool> {
+    return this.api.rpc.handles.validateHandle(baseHandle);
   }
 
   public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {

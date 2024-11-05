@@ -53,6 +53,8 @@ jobs:
               - 'apps/content-watcher/**'
               - 'libs/content-watcher-lib/**'
               - 'libs/storage/**'
+      - name: Debug determine-matrix changes output
+        run: echo 'CHANGES=${{ steps.determine-matrix.outputs.changes }}'
 
   build:
     name: '[${{ matrix.service }}] E2E Tests'
@@ -63,9 +65,17 @@ jobs:
       matrix:
         service: ${{ fromJson(needs.service-matrix.outputs.services) }}
     steps:
+      - name: Debug Run or Skip Errors
+        run: |
+          echo "CHANGES=${{ needs.service-matrix.outputs.changes }}"
+          echo "SERVICES=${{ needs.service-matrix.outputs.services }}"
+          echo "RUN-ALL=${{ needs.service-matrix.outputs.run-all }}"
+          echo "ACCOUNT_CHANGE_DETECTED=${{ contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}"
+
       - name: Run or Skip
         id: should
-        run: echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}

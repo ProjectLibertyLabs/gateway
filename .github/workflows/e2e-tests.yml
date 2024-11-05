@@ -74,7 +74,9 @@ jobs:
 
       - name: Run or Skip
         id: should
-        run: echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "MATRIX_SERVICE=${{ matrix.service }}"
+          echo "RUN=${{contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}

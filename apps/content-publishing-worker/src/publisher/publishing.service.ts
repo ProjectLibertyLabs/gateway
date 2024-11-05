@@ -56,7 +56,6 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     try {
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
-        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);

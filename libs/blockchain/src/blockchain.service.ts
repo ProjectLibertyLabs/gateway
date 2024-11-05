@@ -15,6 +15,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DelayedError } from 'bullmq';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -154,6 +155,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacity(
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, tx.toString());
+    if (outOfCapacity) {
+      throw new DelayedError();
+    }
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
@@ -169,6 +174,12 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacityBatchAll(
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+    tx.forEach(async (call) => {
+      const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, call.toString());
+      if (outOfCapacity) {
+        throw new DelayedError();
+      }
+    });
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();

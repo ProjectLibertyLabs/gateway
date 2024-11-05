@@ -81,21 +81,6 @@ export class CapacityCheckerService {
     return outOfCapacity;
   }
 
-  private async checkTxCapacityLimit(
-    capacityInfo: ICapacityInfo,
-    encodedExt: Bytes | Uint8Array | string,
-  ): Promise<boolean> {
-    const { remainingCapacity } = capacityInfo;
-    const capacityCost = await this.blockchainService.getCapacityCostForExt(encodedExt);
-    let outOfCapacity = false;
-    if (capacityCost.inclusionFee.isSome) {
-      const inclusionFee = capacityCost.inclusionFee.unwrap();
-      const adjustedWeightFee = inclusionFee.adjustedWeightFee.toBigInt();
-      outOfCapacity = remainingCapacity < adjustedWeightFee;
-    }
-    return outOfCapacity;
-  }
-
   /**
    * Checks remaining Capacity against configured per-service and total Capacity limits.
    *
@@ -121,7 +106,7 @@ export class CapacityCheckerService {
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
       let txCapacityExceeded = false;
       if (encodedExt) {
-        txCapacityExceeded = await this.checkTxCapacityLimit(capacityInfo, encodedExt);
+        txCapacityExceeded = await this.blockchainService.checkTxCapacityLimit(providerId, encodedExt);
       }
       outOfCapacity =
         capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded || txCapacityExceeded;

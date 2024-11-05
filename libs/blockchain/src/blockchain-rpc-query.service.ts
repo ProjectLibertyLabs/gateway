@@ -235,6 +235,19 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
+  public async checkTxCapacityLimit(providerId: AnyNumber, encodedExt: Bytes | Uint8Array | string): Promise<boolean> {
+    const capacityInfo = await this.capacityInfo(providerId);
+    const { remainingCapacity } = capacityInfo;
+    const capacityCost = await this.getCapacityCostForExt(encodedExt);
+    let outOfCapacity = false;
+    if (capacityCost.inclusionFee.isSome) {
+      const inclusionFee = capacityCost.inclusionFee.unwrap();
+      const adjustedWeightFee = inclusionFee.adjustedWeightFee.toBigInt();
+      outOfCapacity = remainingCapacity < adjustedWeightFee;
+    }
+    return outOfCapacity;
+  }
+
   public async getCurrentCapacityEpoch(blockHash?: Uint8Array | string): Promise<number> {
     const api = await this.getApi(blockHash);
     return (await api.query.capacity.currentEpoch()).toNumber();

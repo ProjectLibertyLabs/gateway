@@ -1,7 +1,7 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -118,6 +118,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
 
       this.logger.debug('Cached extrinsic to monitor: ', payWithCapacityTxHash);
     } catch (error: unknown) {
+      if (error instanceof DelayedError) {
+        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
+      }
       this.logger.error(error);
       throw error;
     } finally {

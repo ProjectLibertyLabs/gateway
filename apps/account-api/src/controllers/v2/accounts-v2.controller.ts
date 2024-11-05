@@ -1,5 +1,6 @@
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { SiwfV2Service } from '#account-api/services/siwfV2.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
 import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
@@ -17,9 +18,10 @@ import {
   Body,
   ForbiddenException,
   Inject,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { hasChainSubmissions } from '@projectlibertylabs/siwfv2';
+import { hasChainSubmissions, isPayloadClaimHandle } from '@projectlibertylabs/siwfv2';
 
 // # SIWF Wallet API V2
 // Goal: Generic Interface that supports FA and dApp 3rd-party wallets
@@ -58,6 +60,7 @@ export class AccountsControllerV2 {
 
   constructor(
     private siwfV2Service: SiwfV2Service,
+    private blockchainService: BlockchainRpcQueryService,
     @Inject(blockchainConfig.KEY) private chainConfig: IBlockchainConfig,
     @Inject(apiConfig.KEY) private accountConfig: IAccountApiConfig,
   ) {
@@ -95,6 +98,16 @@ export class AccountsControllerV2 {
     // This inludes the validation of the login payload if any
     // Also makes sure it is either a login or a delegation
     const payload = await this.siwfV2Service.getPayload(callbackRequest);
+
+    // Validate claim handle transactions to prevent invalid submissions to the blockchain
+    await Promise.all(
+      payload.payloads.filter(isPayloadClaimHandle).map(async (claimHandle) => {
+        const isValidHandle = await this.blockchainService.isValidHandle(claimHandle.payload.baseHandle);
+        if (isValidHandle.isFalse) {
+          throw new BadRequestException('Invalid base handle');
+        }
+      }),
+    );
 
     if (hasChainSubmissions(payload) && this.chainConfig.isDeployedReadOnly) {
       throw new ForbiddenException('New account sign-up unavailable in read-only mode');

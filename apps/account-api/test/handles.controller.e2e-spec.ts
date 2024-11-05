@@ -169,5 +169,13 @@ describe('Handles Controller', () => {
         .expect(HttpStatus.NOT_FOUND)
         .expect((res) => expect(res.text).toContain('Invalid msaId'));
     });
+
+    it('(GET) /handles/change/:newHandle with invalid handle', async () => {
+      const invalidHandle = 'invalidHandle';
+      await request(HTTP_SERVER)
+        .get(`/v1/handles/change/${invalidHandle}`)
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => expect(res.text).toContain('Invalid handle provided'));
+    });
   });
 });

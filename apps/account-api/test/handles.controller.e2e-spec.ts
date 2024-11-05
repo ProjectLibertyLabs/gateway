@@ -171,7 +171,7 @@ describe('Handles Controller', () => {
     });
 
     it('(GET) /handles/change/:newHandle with invalid handle', async () => {
-      const invalidHandle = 'invalidHandle';
+      const invalidHandle = 'ThisHandleIsTooLongForFrequency';
       await request(HTTP_SERVER)
         .get(`/v1/handles/change/${invalidHandle}`)
         .expect(HttpStatus.BAD_REQUEST)

@@ -30,6 +30,7 @@ function startShutdownTimer() {
 }
 
 async function bootstrap() {
+console.log('DUMMY LOG TO TEST PR PIPELINE');
   process.on('uncaughtException', (error) => {
     console.error('****** UNCAUGHT EXCEPTION ******', error);
     process.exit(1);

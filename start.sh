@@ -110,15 +110,14 @@ EOI
     fi
 
     # Ask the user if they want to start on testnet or local
-    if yesno "Do you want to start on Frequency Paseo Testnet" N; then
+    if yesno "Do you want to start on Frequency Paseo Testnet" N ; then
         TESTNET_ENV=true
-        # TODO: Check this profile
-        PROFILES="${PROFILES} local-node"
+        PROFILES="${PROFILES}"
     else
         TESTNET_ENV=false
         COMPOSE_FILES="${COMPOSE_FILES} docker-compose.local-frequency.yaml"
     fi
-    export_save_variable TESTNET_ENV ${TESTNET_ENV}
+    export_save_variable TESTNET_ENV "${TESTNET_ENV}"
 
     # Ask the user which services they want to start
     ${OUTPUT} << EOI
@@ -130,8 +129,6 @@ Hit <ENTER> to accept the default value or enter new value and then hit <ENTER>
 EOI
     if yesno "Start the account service" Y ; then
         PROFILES="${PROFILES} account"
-        # REMOVE: 
-        echo "PROFILES: ${PROFILES}"
     fi
     if yesno "Start the graph service" Y ; then
         PROFILES="${PROFILES} graph"
@@ -147,18 +144,12 @@ EOI
         PROFILES="${PROFILES} local-node"
     fi
 
-    # REMOVE:
-    echo "PROFILES: ${PROFILES}"
-    # REMOVE:
-    echo "PROFILES: ${PROFILES}"
     ${OUTPUT} << EOI
 Selected services to start:
 ${PROFILES}
 EOI
 
-    # REMOVE:
-    echo "PROFILES: ${PROFILES}"
-    if [[ $TESTNET_ENV =~ ^[Yy]$ ]]; then
+    if [[ $TESTNET_ENV = true ]]; then
         ${OUTPUT} << EOI
 Setting defaults for testnet...
 Hit <ENTER> to accept the default value, or,
@@ -220,8 +211,6 @@ IPFS_UA_GATEWAY_URL="${DEFAULT_IPFS_UA_GATEWAY_URL}"
 EOI
     fi
 
-    # REMOVE: 
-    echo "PROFILES: ${PROFILES}"
     export_save_variable PROFILES "${PROFILES}"
     export_save_variable COMPOSE_FILES "${COMPOSE_FILES}"
 fi
@@ -234,7 +223,7 @@ fi
 
 set -a; source ${ENV_FILE}; set +a
 
-if [[ ! $TESTNET_ENV =~ ^[Yy]$ ]]; then
+if [[ ! $TESTNET_ENV = false ]]; then
     # Start specific services in detached mode
     echo -e "\nStarting local frequency services..."
     docker compose up -d frequency
@@ -245,8 +234,6 @@ echo -e "\nStarting selected services..."
 COMPOSE_CMD=$( prefix_postfix_values "${COMPOSE_FILES}" "-f ")
 PROFILE_CMD=$( prefix_postfix_values "${PROFILES}" "--profile ")
 
-# REMOVE:
-echo "docker compose ${COMPOSE_CMD} ${PROFILE_CMD} up -d"
 docker compose ${COMPOSE_CMD} ${PROFILE_CMD} up -d
 
 if [ ${SKIP_CHAIN_SETUP} != true -a ${TESTNET_ENV} != true ]
@@ -264,7 +251,7 @@ then
     then
         # Run npm run local:init
         echo "Running npm run local:init to provision Provider with capacity, etc..."
-        ( cd backend && npm run local:init )
+        npm run setup:content-publishing:chain
     else
         echo "Timed out waiting for Frequency node to be ready" >&2
     fi

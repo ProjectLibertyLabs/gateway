@@ -1,5 +1,10 @@
 #!/bin/bash
 
+BASE_DIR=${HOME}/.projectliberty
+BASE_NAME=gateway-dev
+
+ALL_PROFILES="account graph content_publishing content_watcher webhook"
+COMPOSE_FILES=""
 BOX_WIDTH=96
 
 ###################################################################################
@@ -317,4 +322,37 @@ function export_save_variable() {
     export ${variable_name}="${value}"
 }
 
+###################################################################################
+# prefix_postfix_values
+#
+# Description: Given a list of values in ${1} separated by IFS, return a composite string
+#              consisting of each value, prefixed by ${2} and postfixed by ${3}.
+#
+###################################################################################
+function prefix_postfix_values() {
+    str=""
+    for val in ${1}; do
+        str="${str} ${2}${val}${3}"
+    done
 
+    echo ${str}
+}
+
+###################################################################################
+# is_frequency_ready
+#
+# Description: Runs a command to check the health status of the 'frequency' service
+#
+###################################################################################
+function is_frequency_ready {
+    # REMOVE:
+    echo "Checking frequency service health..."
+    echo "docker compose -p ${COMPOSE_PROJECT_NAME} ps --format '{{.Health}}' frequency"
+    health=$( docker compose -p ${COMPOSE_PROJECT_NAME} ps --format '{{.Health}}' frequency )
+    echo "Health: ${health}"
+    if [ "${health}" = 'healthy' ]; then
+        return 0
+    fi
+
+    return 1
+}

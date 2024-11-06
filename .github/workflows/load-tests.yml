@@ -34,6 +34,7 @@ jobs:
               - 'libs/types'
               - 'libs/utils'
               - 'libs/consumer'
+              - 'libs/blockchain'
             account-api:
               - 'apps/account-api/**'
               - 'libs/account-lib/**'

@@ -17,7 +17,7 @@ jobs:
       services: >-
         ["account-api", "graph-api", "content-publishing-api", "content-watcher"]
       # Resolves to true if it should run everything, aka when common files change
-      run-all: ${{ steps.determine-matrix.outputs.changes.common }}
+      run-all: ${{ contains(fromJson(steps.determine-matrix.outputs.changes), 'common') }}
     steps:
       - name: Check Out Repo
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
     steps:
       - name: Run or Skip
         id: should
-        run: echo "RUN=${{ needs.service-matrix.outputs.run-all || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
+        run: echo "RUN=${{ needs.service-matrix.outputs.run-all == true || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}

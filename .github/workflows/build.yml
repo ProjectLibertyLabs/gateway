@@ -62,7 +62,7 @@ jobs:
       fail-fast: false
     steps:
       - name: 'Bats start.sh Tests'
-        if: ${{ needs.service-matrix.outputs.changes.common }}
+        if: ${{ needs.service-matrix.outputs.changes.common == true }}
         run: |
           npm run test:bats-install
           npm run test:bats-start

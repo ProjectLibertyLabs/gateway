@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+ 
 import { IsNotEmpty } from 'class-validator';
 import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
 import { IDelegation, IDelegationResponseV2, ISchemaDelegation } from '#types/interfaces/account/delegations.interface';

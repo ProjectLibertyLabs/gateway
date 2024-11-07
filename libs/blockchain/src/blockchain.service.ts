@@ -1,5 +1,5 @@
-/* eslint-disable new-cap */
-/* eslint-disable no-underscore-dangle */
+ 
+ 
 import fs from 'fs';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Keyring } from '@polkadot/api';
@@ -18,7 +18,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
-export type Sr25519Signature = { Sr25519: HexString };
+export interface Sr25519Signature { Sr25519: HexString }
 interface SIWFTxnValues {
   msaId: string;
   address: string;

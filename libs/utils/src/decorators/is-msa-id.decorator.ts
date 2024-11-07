@@ -13,7 +13,7 @@ export function isValidMsa(value: unknown): boolean {
 }
 
 export function IsMsaId(validationOptions?: ValidationOptions) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsMsaId',

@@ -9,7 +9,7 @@ export enum AnnouncementType {
   Update = 6,
 }
 
-export type AnnouncementResponse = {
+export interface AnnouncementResponse {
   /**
    * An optional identifier for the request, may be used for tracking or correlation
    */
@@ -33,12 +33,12 @@ export type AnnouncementResponse = {
     | ReactionAnnouncement
     | ProfileAnnouncement
     | UpdateAnnouncement;
-};
+}
 
-export type TypedAnnouncement = {
+export interface TypedAnnouncement {
   announcementType: AnnouncementType;
   fromId: string;
-};
+}
 
 export type TombstoneAnnouncement = TypedAnnouncement & {
   targetAnnouncementType: number;

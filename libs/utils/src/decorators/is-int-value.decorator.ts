@@ -6,7 +6,7 @@ interface IsIntValueValidationOption extends ValidationOptions {
 }
 
 export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsIntValue',

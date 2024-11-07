@@ -7,7 +7,7 @@ const { setupConfigService, validateMissing, shouldFailBadValues } =
   configSetup<IContentPublishingWorkerConfig>(workerConfig);
 
 describe('Content Publishing Worker Config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
     TRUST_UNFINALIZED_BLOCKS: undefined,
     ASSET_EXPIRATION_INTERVAL_SECONDS: undefined,

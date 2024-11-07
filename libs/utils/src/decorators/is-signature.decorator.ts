@@ -10,7 +10,7 @@ interface IsSignatureValidationOption extends ValidationOptions {
  * @constructor
  */
 export function IsSignature(validationOptions?: IsSignatureValidationOption) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsSignature',

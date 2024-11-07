@@ -164,7 +164,7 @@ export class BatchingProcessorService {
     return batchMetadata ? JSON.parse(batchMetadata) : undefined;
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   private static getTimeoutName(queueName: string, batchId: string): string {
     return `TIMEOUT:${queueName}:${batchId}`;
   }

@@ -6,7 +6,7 @@ interface IsHexValueValidationOption extends ValidationOptions {
 }
 
 export function IsHexValue(validationOptions?: IsHexValueValidationOption) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsHexValue',

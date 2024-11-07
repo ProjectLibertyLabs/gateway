@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, shouldFailBadValues } = configSetup<IAccountWorkerConfig>(workerConfig);
 
 describe('Account Worker Config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
     TRUST_UNFINALIZED_BLOCKS: undefined,
     WEBHOOK_BASE_URL: undefined,

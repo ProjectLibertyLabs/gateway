@@ -14,7 +14,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   protected readonly logger: Logger;
 
-  // eslint-disable-next-line no-undef
+   
   private disconnectedTimeout: NodeJS.Timeout | undefined;
 
   private apiListeners: [ApiInterfaceEvents, () => void][] = [];

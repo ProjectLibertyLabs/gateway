@@ -55,8 +55,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     httpAdapter.reply(ctx.getResponse(), extendedBody, httpStatus);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  extractErrorResponse(response: object | String): object {
+   
+  extractErrorResponse(response: object | string): object {
     if (typeof response === 'string') {
       return {
         message: response,

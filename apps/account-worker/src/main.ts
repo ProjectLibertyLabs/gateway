@@ -6,7 +6,7 @@ import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { WorkerModule } from './worker.module';
 
 // Monkey-patch BigInt so that JSON.stringify will work
-// eslint-disable-next-line
+ 
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };

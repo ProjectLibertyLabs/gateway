@@ -56,7 +56,7 @@ export class PubSubService {
           try {
             this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
             this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
-            // eslint-disable-next-line no-await-in-loop
+             
             await axios.post(webhookUrl, message);
             this.logger.debug(`Announcement sent to webhook: ${webhookUrl}`);
             break;
@@ -64,7 +64,7 @@ export class PubSubService {
             this.logger.error(`Failed to send announcement to webhook: ${webhookUrl}`);
             this.logger.error(error);
             retries += 1;
-            // eslint-disable-next-line no-await-in-loop
+             
             await new Promise((r) => {
               setTimeout(r, this.config.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
             });

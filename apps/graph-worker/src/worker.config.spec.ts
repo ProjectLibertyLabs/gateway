@@ -4,7 +4,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService } = configSetup<IGraphWorkerConfig>(workerConfig);
 
 describe('Graph Worker Config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     GRAPH_ENVIRONMENT_TYPE: undefined,
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,

@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, shouldFailBadValues } = configSetup<IScannerConfig>(scannerConfig);
 
 describe('Scanner config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: undefined,
     QUEUE_HIGH_WATER: undefined,
   };

@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+ 
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
 import { AnnouncementTypeName } from '#types/enums';
 import { HttpStatus } from '@nestjs/common';

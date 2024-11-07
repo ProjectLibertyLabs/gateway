@@ -1,7 +1,7 @@
 /**
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
-// eslint-disable-next-line max-classes-per-file
+ 
 import {
   ArrayNotEmpty,
   ArrayUnique,
@@ -28,7 +28,7 @@ import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// eslint-disable-next-line no-shadow
+ 
 export enum UnitTypeEnum {
   CM = 'cm',
   M = 'm',
@@ -38,13 +38,13 @@ export enum UnitTypeEnum {
   MILES = 'miles',
 }
 
-// eslint-disable-next-line no-shadow
+ 
 export enum TagTypeEnum {
   Mention = 'mention',
   Hashtag = 'hashtag',
 }
 
-// eslint-disable-next-line no-shadow
+ 
 export enum AttachmentType {
   LINK = 'link',
   IMAGE = 'image',

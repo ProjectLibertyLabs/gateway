@@ -30,7 +30,7 @@ export function validateContentHash(contentHash: unknown): boolean {
 }
 
 export function IsDsnpContentHash(validationOptions?: ValidationOptions) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpContentHash',

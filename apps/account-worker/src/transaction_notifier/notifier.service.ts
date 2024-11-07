@@ -1,4 +1,4 @@
-/* eslint-disable no-await-in-loop */
+ 
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
@@ -118,7 +118,7 @@ export class TxnNotifierService
         .filter(({ event }) => this.blockchainService.events.capacity.CapacityWithdrawn.is(event))
         .reduce((sum, { event }) => (event as unknown as any).data.amount.toBigInt() + sum, 0n);
 
-      // eslint-disable-next-line no-restricted-syntax
+       
       for (const [txHash, txIndex] of extrinsicIndices) {
         const extrinsicEvents = events.filter(
           ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
@@ -257,7 +257,7 @@ export class TxnNotifierService
     }
 
     // Now check all pending transactions for expiration as of this block
-    // eslint-disable-next-line no-restricted-syntax
+     
     for (const { birth, death, txHash } of pendingTxns) {
       if (death <= currentBlockNumber) {
         this.logger.verbose(

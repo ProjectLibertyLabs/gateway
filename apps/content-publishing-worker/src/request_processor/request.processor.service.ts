@@ -39,7 +39,7 @@ export class RequestProcessorService extends BaseConsumer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   private async delayJobAndIncrementAttempts(job: Job<IRequestJob, any, string>) {
     const { data } = job;
     data.dependencyAttempt += 1;

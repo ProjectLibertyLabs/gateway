@@ -69,7 +69,7 @@ export class AccountsService {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
     const api = (await this.blockchainService.getApi()) as ApiPromise;
     const { providerId } = this.blockchainConf;

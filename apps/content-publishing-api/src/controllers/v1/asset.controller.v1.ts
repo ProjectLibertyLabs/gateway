@@ -43,7 +43,7 @@ export class AssetControllerV1 {
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     )
-    files: // eslint-disable-next-line no-undef
+    files:  
     Express.Multer.File[],
   ): Promise<UploadResponseDto> {
     return this.apiService.addAssets(files);

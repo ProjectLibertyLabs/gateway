@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-/* eslint-disable func-names */
+ 
 /*
  * Account Service
  * Account Service API
@@ -30,7 +30,7 @@ const SLEEP_DURATION = 0.1;
 
 export default function () {
   // Request No. 1: ApiController_health
-  // eslint-disable-next-line no-lone-blocks
+   
   const url = `${BASE_URL}/healthz`;
   const request = http.get(url);
 

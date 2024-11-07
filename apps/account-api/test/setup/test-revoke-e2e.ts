@@ -15,7 +15,7 @@ async function main() {
   console.log('Connecting...');
   await initialize(FREQUENCY_API_WS_URL);
 
-  // eslint-disable-next-line no-use-before-define
+   
   await revokeDelegation();
 }
 

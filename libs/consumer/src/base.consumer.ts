@@ -27,7 +27,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
     await this.worker?.close(false);
     let maxWaitMs = CommonConsumer.MAX_WAIT_FOR_GRACE_FULL_SHUTDOWN_MS;
     while (this.actives.size > 0 && maxWaitMs > 0) {
-      // eslint-disable-next-line no-await-in-loop
+       
       await delayMS(CommonConsumer.DELAY_TO_CHECK_FOR_SHUTDOWN_MS);
       maxWaitMs -= CommonConsumer.DELAY_TO_CHECK_FOR_SHUTDOWN_MS;
     }

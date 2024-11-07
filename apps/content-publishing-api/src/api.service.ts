@@ -111,7 +111,7 @@ export class ApiService {
     return map;
   }
 
-  // eslint-disable-next-line no-undef
+   
   async addAssets(files: Express.Multer.File[]): Promise<UploadResponseDto> {
     // calculate ipfs cid references
     const referencePromises: Promise<string>[] = files.map((file) => calculateIpfsCID(file.buffer));
@@ -197,7 +197,7 @@ export class ApiService {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   private calculateJobId(jobWithoutId: IRequestJob): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');

@@ -21,13 +21,13 @@ export class CapacityCheckerService {
 
   private lastCapacityUsedCheck: bigint;
 
-  // eslint-disable-next-line no-useless-constructor
+   
   constructor(
     private readonly blockchainService: BlockchainRpcQueryService,
     private readonly configService: ConfigService,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
-    // eslint-disable-next-line no-empty-function
+     
   ) {
     this.logger = new Logger();
   }

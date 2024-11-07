@@ -4,7 +4,7 @@ import { sha256 } from 'multiformats/hashes/sha2';
 import { base32 } from 'multiformats/bases/base32';
 
 export async function delayMS(ms): Promise<any> {
-  // eslint-disable-next-line no-promise-executor-return
+   
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

@@ -39,7 +39,7 @@ export class CacheMonitorService implements OnModuleDestroy {
     client.on('ready', () => this.handleRedisReady(namespace));
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   public handleRedisError(_err: unknown, _namespace: ClientNamespace) {
     // this.logger.error(`REDIS ERROR [${namespace.toString()}]: `, err);
   }

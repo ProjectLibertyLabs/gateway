@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-/* eslint-disable func-names */
+ 
 /*
  * Account Service
  * Account Service API: New Sign Ups

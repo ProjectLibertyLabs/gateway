@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+ 
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -19,7 +19,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 describe('AppController E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
-  // eslint-disable-next-line no-promise-executor-return
+   
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   beforeEach(async () => {

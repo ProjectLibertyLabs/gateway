@@ -11,29 +11,29 @@ export enum TransactionType {
   REVOKE_DELEGATION = 'REVOKE_DELEGATION',
 }
 
-export type TxWebhookRspBase = {
+export interface TxWebhookRspBase {
   providerId: string;
   referenceId: string;
   msaId: string;
   transactionType?: TransactionType;
-};
+}
 
-export type PublishHandleOpts = {
+export interface PublishHandleOpts {
   handle: string;
-};
+}
 
-export type SIWFOpts = {
+export interface SIWFOpts {
   handle: string;
   accountId: string;
-};
+}
 
-export type PublishKeysOpts = {
+export interface PublishKeysOpts {
   newPublicKey: string;
-};
+}
 
-export type PublishGraphKeysOpts = {
+export interface PublishGraphKeysOpts {
   schemaId: string;
-};
+}
 
 export type TxWebhookOpts = PublishHandleOpts | SIWFOpts | PublishKeysOpts | PublishGraphKeysOpts;
 

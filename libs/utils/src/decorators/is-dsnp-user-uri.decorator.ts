@@ -2,7 +2,7 @@ import { registerDecorator, ValidationOptions, ValidationArguments } from 'class
 import { isValidMsa } from '#utils/decorators/is-msa-id.decorator';
 
 export function IsDsnpUserURI(validationOptions?: ValidationOptions) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpUserURI',

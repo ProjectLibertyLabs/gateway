@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IGraphCommonConfig>(graphCommonConfig);
 
 describe('Graph Common Config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     DEBOUNCE_SECONDS: undefined,
     GRAPH_ENVIRONMENT_TYPE: undefined,
     AT_REST_ENCRYPTION_KEY_SEED: undefined,

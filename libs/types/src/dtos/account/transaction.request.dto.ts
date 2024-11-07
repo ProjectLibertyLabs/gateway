@@ -13,10 +13,10 @@ export interface SIWFEncodedExtrinsic {
   encodedExtrinsic: string;
 }
 
-export type PublishSIWFSignupRequestDto = {
+export interface PublishSIWFSignupRequestDto {
   calls: SIWFEncodedExtrinsic[];
   type: TransactionType.SIWF_SIGNUP;
-};
+}
 
 export type TransactionData<
   RequestType =

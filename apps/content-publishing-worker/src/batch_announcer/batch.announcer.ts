@@ -54,7 +54,7 @@ export class BatchAnnouncer {
       publishStream as any,
       writerOptions,
     );
-    // eslint-disable-next-line no-restricted-syntax
+     
     for await (const announcement of announcements) {
       await writer.appendRow(announcement);
     }

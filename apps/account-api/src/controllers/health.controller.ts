@@ -5,7 +5,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('health')
 export class HealthController {
   // Health endpoint
-  // eslint-disable-next-line class-methods-use-this
+   
   @Get('healthz')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the health status of the service' })
@@ -18,7 +18,7 @@ export class HealthController {
   }
 
   // Live endpoint
-  // eslint-disable-next-line class-methods-use-this
+   
   @Get('livez')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the live status of the service' })
@@ -31,7 +31,7 @@ export class HealthController {
   }
 
   // Ready endpoint
-  // eslint-disable-next-line class-methods-use-this
+   
   @Get('readyz')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the ready status of the service' })

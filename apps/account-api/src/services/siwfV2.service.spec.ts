@@ -340,7 +340,7 @@ describe('SiwfV2Service', () => {
               toHex: jest.fn().mockReturnValue(hash),
             }),
           };
-          // eslint-disable-next-line no-param-reassign
+           
           prev.tx[pallet] = prev.tx[pallet] ? { ...prev.tx[pallet], ...add } : add;
           return prev;
         },

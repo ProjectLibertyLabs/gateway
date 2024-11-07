@@ -3,7 +3,7 @@ import { isValidMsa } from '#utils/decorators/is-msa-id.decorator';
 import { validateContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
 
 export function IsDsnpContentURI(validationOptions?: ValidationOptions) {
-  // eslint-disable-next-line func-names
+   
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isDsnpContentURI',

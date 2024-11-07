@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IAccountApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     API_BODY_JSON_LIMIT: undefined,
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,

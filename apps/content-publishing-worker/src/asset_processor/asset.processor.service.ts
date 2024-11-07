@@ -34,7 +34,7 @@ export class AssetProcessorService extends BaseConsumer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
+   
   @OnWorkerEvent('completed')
   async onCompleted(job: Job<IAssetJob, any, string>) {
     this.logger.log(`completed ${job.id}`);

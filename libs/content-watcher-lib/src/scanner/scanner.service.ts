@@ -1,5 +1,5 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-await-in-loop */
+ 
+ 
 import '@frequency-chain/api-augment';
 import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -102,7 +102,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       this.scanInProgress = true;
 
       let first = true;
-      // eslint-disable-next-line no-constant-condition
+       
       while (true) {
         if (this.paused) {
           this.logger.log('Scan paused');

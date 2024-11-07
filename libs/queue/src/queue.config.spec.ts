@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IQueueConfig>(queueConfig);
 
 describe('Queue module config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     REDIS_URL: undefined,
     CACHE_KEY_PREFIX: undefined,
   };

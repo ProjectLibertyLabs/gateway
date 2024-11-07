@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-exports
+ 
 // export * from './base.consumer';
 export * from './ipfs/ipfs.module';
 export * from './ipfs/ipfs.service';

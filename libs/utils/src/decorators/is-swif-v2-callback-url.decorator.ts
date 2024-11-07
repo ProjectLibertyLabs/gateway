@@ -1,8 +1,8 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 
 export function IsSwifV2CallbackUrl(validationOptions?: ValidationOptions) {
-  // eslint-disable-next-line func-names
-  return function (object: Object, propertyName: string) {
+   
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsSwifV2CallbackUrl',
       target: object.constructor,

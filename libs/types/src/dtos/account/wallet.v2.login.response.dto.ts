@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+ 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 
@@ -160,5 +160,5 @@ export class WalletV2LoginResponseDto {
     ],
   })
   @IsArray()
-  rawCredentials?: Object[];
+  rawCredentials?: object[];
 }

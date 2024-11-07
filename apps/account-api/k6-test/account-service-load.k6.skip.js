@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
-/* eslint-disable func-names */
+ 
 /*
  * Account Service
  * Account Service API
@@ -69,7 +69,7 @@ export default function () {
   // Needs generation
   group('/v1/keys/add', () => {
     // Request No. 1: KeysController_addKey
-    // eslint-disable-next-line no-lone-blocks
+     
     const url = `${BASE_URL}/v1/keys/add`;
     const keysRequest = {
       msaOwnerAddress: '5G3aEHgZSr3cG1qY4QapTb9osftUYRCkYKShcywVvxdVuvdt',
@@ -116,7 +116,7 @@ export default function () {
   // Needs generation
   group('/v1/handles', () => {
     // Request No. 1: HandlesController_createHandle
-    // eslint-disable-next-line no-lone-blocks
+     
     {
       const url = `${BASE_URL}/v1/handles`;
       // Sample data copied from e2e test case.
@@ -147,7 +147,7 @@ export default function () {
   // Needs generation
   group('/v1/handles/change', () => {
     // Request No. 1: HandlesController_changeHandle
-    // eslint-disable-next-line no-lone-blocks
+     
     {
       const url = `${BASE_URL}/v1/handles/change`;
       // Sample data copied from the e2e tests.

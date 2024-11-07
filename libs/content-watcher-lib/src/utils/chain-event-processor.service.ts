@@ -10,7 +10,7 @@ import { BlockchainRpcQueryService, IBlockPaginationRequest } from '#blockchain/
 
 @Injectable()
 export class ChainEventProcessorService {
-  // eslint-disable-next-line no-empty-function
+   
   constructor(private readonly blockchainService: BlockchainRpcQueryService) {}
 
   public async getMessagesInBlock(
@@ -61,7 +61,7 @@ export class ChainEventProcessorService {
             page_size: 1000,
             to_block: blockNumber + 1,
           };
-          // eslint-disable-next-line no-await-in-loop
+           
           messageResponse = await this.blockchainService.getMessagesBySchemaId(schemaId, paginationRequest);
           if (messageResponse.content.length > 0) {
             messages.push(...messageResponse.content);

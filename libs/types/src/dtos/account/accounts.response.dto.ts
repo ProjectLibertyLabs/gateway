@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+ 
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { IsHexValue } from '#utils/decorators';

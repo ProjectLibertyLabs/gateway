@@ -71,7 +71,7 @@ class ScannerService extends BlockchainScannerService {
   constructor(@InjectRedis() redis: Redis, blockchainService: BlockchainService) {
     super(redis, blockchainService, new Logger('ScannerService'));
   }
-  // eslint-disable-next-line
+   
   protected processCurrentBlock = jest.fn((_currentBlock: SignedBlock, _blockEvents: FrameSystemEventRecord[]) => {
     return Promise.resolve();
   });

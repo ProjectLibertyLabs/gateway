@@ -11,7 +11,7 @@ import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#open
 const logger = new Logger('main');
 
 // Monkey-patch BigInt so that JSON.stringify will work
-// eslint-disable-next-line
+ 
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };

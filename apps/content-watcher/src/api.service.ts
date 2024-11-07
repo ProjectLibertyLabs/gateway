@@ -65,7 +65,7 @@ export class ApiService {
       return job;
     }
     this.requestQueue.remove(jobId);
-    // eslint-disable-next-line no-param-reassign
+     
     contentSearchRequestDto.clientReferenceId = jobId;
     const jobPromise = await this.requestQueue.add(`Content Search ${jobId}`, contentSearchRequestDto, { jobId });
     const JOB_REQUEST_WATCH_KEY = `${EVENTS_TO_WATCH_KEY}:${jobId}`;

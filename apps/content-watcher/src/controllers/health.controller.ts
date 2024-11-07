@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this */
+ 
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 

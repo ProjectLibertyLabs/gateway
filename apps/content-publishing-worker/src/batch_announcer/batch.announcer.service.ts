@@ -34,7 +34,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnModuleDe
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
       const publisherJob = await this.ipfsPublisher.announce(job.data);
-      // eslint-disable-next-line no-promise-executor-return
+       
       await this.publishQueue.add(publisherJob.id, publisherJob, {
         jobId: publisherJob.id,
         removeOnComplete: 1000,

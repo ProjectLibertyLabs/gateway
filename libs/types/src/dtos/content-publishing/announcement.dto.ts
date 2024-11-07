@@ -1,7 +1,7 @@
 /**
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
-// eslint-disable-next-line max-classes-per-file
+ 
 import { IsEnum, IsNotEmpty, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
@@ -11,7 +11,7 @@ import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decora
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 
-// eslint-disable-next-line no-shadow
+ 
 export enum ModifiableAnnouncementType {
   BROADCAST = 'broadcast',
   REPLY = 'reply',

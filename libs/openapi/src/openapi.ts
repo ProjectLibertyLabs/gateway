@@ -33,7 +33,7 @@ export async function generateSwaggerDoc(
   }
 
   if (extensions) {
-    // eslint-disable-next-line no-restricted-syntax
+     
     for (const [extension, value] of extensions.entries()) {
       builder = builder.addExtension(extension, value);
     }

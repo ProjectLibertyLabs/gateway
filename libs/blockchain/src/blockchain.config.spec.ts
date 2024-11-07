@@ -7,7 +7,7 @@ const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup
 const { setupConfigService: setupConfigServiceReadOnly } = configSetup<IBlockchainConfig>(allowReadOnly);
 
 describe('Blockchain module config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     FREQUENCY_TIMEOUT_SECS: undefined,
     FREQUENCY_API_WS_URL: undefined,
     PROVIDER_ACCOUNT_SEED_PHRASE: undefined,

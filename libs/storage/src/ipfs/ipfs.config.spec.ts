@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IIpfsConfig>(ipfsConfig);
 
 describe('IPFS config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     IPFS_ENDPOINT: undefined,
     IPFS_GATEWAY_URL: undefined,
     IPFS_BASIC_AUTH_USER: undefined,

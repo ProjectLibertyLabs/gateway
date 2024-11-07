@@ -1,4 +1,4 @@
-/* eslint-disable no-redeclare */
+ 
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import {
   PublishHandleOpts,

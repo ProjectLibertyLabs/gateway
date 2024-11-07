@@ -1,5 +1,5 @@
-/* eslint-disable new-cap */
-/* eslint-disable no-underscore-dangle */
+ 
+ 
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
@@ -41,7 +41,7 @@ import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
 
-export type Sr25519Signature = { Sr25519: HexString };
+export interface Sr25519Signature { Sr25519: HexString }
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
 interface HandleTxnValues {
   msaId: string;
@@ -328,7 +328,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async getEvents(blockHash?: Uint8Array | string): Promise<FrameSystemEventRecord[]> {
-    // eslint-disable-next-line prefer-destructuring
+     
     let api: ApiPromise | ApiDecoration<'promise'> = this.api;
     if (blockHash) {
       api = await this.api.at(blockHash);
@@ -368,11 +368,11 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  // eslint-disable-next-line consistent-return, class-methods-use-this
+   
   public async getRawPayloadForSigning(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
     signerAddress: string,
-    // eslint-disable-next-line consistent-return
+     
   ): Promise<SignerPayloadRaw> {
     let signRaw;
     try {

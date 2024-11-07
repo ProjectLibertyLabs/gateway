@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this */
+ 
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';

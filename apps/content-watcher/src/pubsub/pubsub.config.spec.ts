@@ -6,7 +6,7 @@ import configSetup from '#testlib/utils.config-tests';
 const { setupConfigService, shouldFailBadValues } = configSetup<IPubSubConfig>(pubsubConfig);
 
 describe('PubSub config', () => {
-  const ALL_ENV: { [key: string]: string | undefined } = {
+  const ALL_ENV: Record<string, string | undefined> = {
     WEBHOOK_FAILURE_THRESHOLD: undefined,
     WEBHOOK_RETRY_INTERVAL_SECONDS: undefined,
   };

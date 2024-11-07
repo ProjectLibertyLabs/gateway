@@ -47,7 +47,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
   private async checkProviderWebhook() {
     // Check webhook
     try {
-      // eslint-disable-next-line no-await-in-loop
+       
       await this.webhook.get(`/health`);
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;

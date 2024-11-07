@@ -1,4 +1,4 @@
-// eslint-disable-next-line max-classes-per-file
+ 
 import { IsNotEmpty, IsString, MinLength, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';

@@ -3,7 +3,7 @@ import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.conf
 
 @Injectable()
 export class ReadOnlyGuard implements CanActivate {
-  // eslint-disable-next-line no-useless-constructor, no-empty-function
+   
   constructor(@Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig) {}
 
   canActivate(context: ExecutionContext): boolean {

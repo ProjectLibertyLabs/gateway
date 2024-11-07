@@ -1,4 +1,4 @@
-/* eslint-disable class-methods-use-this */
+ 
 import { ApiService } from '#content-watcher/api.service';
 import { ContentSearchRequestDto, SearchResponseDto } from '#types/dtos/content-watcher';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
@@ -7,7 +7,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller({ version: '1', path: 'search' })
 @ApiTags('v1/search')
 export class SearchControllerV1 {
-  // eslint-disable-next-line no-empty-function
+   
   constructor(private readonly apiService: ApiService) {}
 
   @Post()

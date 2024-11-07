@@ -133,7 +133,7 @@ export class GraphMonitorService extends BlockchainScannerService {
         return sum;
       }, 0n);
 
-      // eslint-disable-next-line no-restricted-syntax
+       
       for (const [txHash, txIndex] of extrinsicIndices) {
         const extrinsicEvents = events.filter(
           ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
@@ -184,7 +184,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     }
 
     // Now check all remaining transactions for expiration as of this block
-    // eslint-disable-next-line no-restricted-syntax
+     
     for (const txStatus of pendingTxns) {
       if (txStatus.death <= currentBlockNumber) {
         this.logger.warn(
@@ -215,7 +215,7 @@ export class GraphMonitorService extends BlockchainScannerService {
         } catch (error: any) {
           this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);
           retries += 1;
-          // eslint-disable-next-line no-await-in-loop
+           
           await new Promise((r) => {
             setTimeout(r, this.workerConf.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
           });
@@ -309,7 +309,7 @@ export class GraphMonitorService extends BlockchainScannerService {
             try {
               this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
               this.logger.debug(`Graph Change: ${JSON.stringify(graphUpdateNotification)}`);
-              // eslint-disable-next-line no-await-in-loop
+               
               await axios.post(webhookUrl, graphUpdateNotification);
               this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
               break;
@@ -317,7 +317,7 @@ export class GraphMonitorService extends BlockchainScannerService {
               this.logger.error(`Failed to send notification to webhook: ${webhookUrl}`);
               this.logger.error(error);
               retries += 1;
-              // eslint-disable-next-line no-await-in-loop
+               
               await new Promise((r) => {
                 setTimeout(r, this.workerConf.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND);
               });

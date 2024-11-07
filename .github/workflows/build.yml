@@ -62,11 +62,29 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      - name: Run or Skip
+        id: should
+        run: echo "RUN=${{ needs.service-matrix.outputs.run-all == 'true' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+          cache-dependency-path: ./package-lock.json
+      - name: Install dependencies
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        run: npm ci
       - name: 'Bats start.sh Tests'
-        if: ${{ needs.service-matrix.outputs.run-all == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' }}
         run: |
-          npm run test:bats-install
-          npm run test:bats-start
+          npm install -g bats
+          bats tools/bats/test_start.bats
 
   build:
     name: '[${{ matrix.service }}] Build and Test'

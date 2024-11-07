@@ -61,6 +61,11 @@ jobs:
     strategy:
       fail-fast: false
     steps:
+      - name: 'Bats test is needed'
+        run: |
+          echo "RUNALL=${{ needs.service-matrix.outputs.run-all }}"
+          echo "COMMON=${{ needs.service-matrix.outputs.changes.common }}"
+          echo "RUN=${{ needs.service-matrix.outputs.changes.common == true }}"
       - name: 'Bats start.sh Tests'
         if: ${{ needs.service-matrix.outputs.changes.common == true }}
         run: |

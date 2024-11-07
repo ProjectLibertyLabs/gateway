@@ -11,12 +11,12 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/k6": "^0.51.0"
+    "@types/k6": "^0.54.1"
   },
   "dependencies": {
-    "@polkadot/api": "^12.3.1",
-    "@polkadot/types": "^12.3.1",
-    "@polkadot/util": "^13.0.2",
-    "@polkadot/util-crypto": "^13.0.2"
+    "@polkadot/api": "^14.2.3",
+    "@polkadot/types": "^14.2.3",
+    "@polkadot/util": "^13.2.2",
+    "@polkadot/util-crypto": "^13.2.2"
   }
 }

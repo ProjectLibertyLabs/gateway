@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { Keyring } from '@polkadot/keyring';
 import { hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';

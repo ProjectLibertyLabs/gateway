@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { ValueProvider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';

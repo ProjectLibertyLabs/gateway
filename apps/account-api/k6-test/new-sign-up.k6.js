@@ -1,5 +1,3 @@
-/* eslint-disable import/no-unresolved */
- 
 /*
  * Account Service
  * Account Service API: New Sign Ups

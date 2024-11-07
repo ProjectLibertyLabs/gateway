@@ -2,9 +2,7 @@ import { initialize } from '@projectlibertylabs/frequency-scenario-template';
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { u8aToHex } from '@polkadot/util';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
-// eslint-disable-next-line import/no-relative-packages
 import { setupProviderAndUsers } from '../e2e-setup.mock.spec';
 
 const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://127.0.0.1:9944';
@@ -15,7 +13,6 @@ async function main() {
   console.log('Connecting...');
   await initialize(FREQUENCY_API_WS_URL);
 
-   
   await revokeDelegation();
 }
 

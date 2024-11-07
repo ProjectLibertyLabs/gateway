@@ -29,7 +29,10 @@ jobs:
             common:
               - 'Docker/**'
               - '.github/**'
+              - '*.sh'
               - 'docker-compose.yaml'
+              - 'docker-compose.local-frequency.yaml'
+              - 'docker-compose-published.yaml'
               - 'libs/types'
               - 'libs/utils'
               - 'libs/consumer'
@@ -86,6 +89,11 @@ jobs:
       - name: Lint
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run lint:${{ matrix.service }}
+      - name: Start.sh Test 
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        run: |
+          npm run test:bats-install
+          npm run test:bats-start
       - name: Unit Test
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run test:${{ matrix.service }}

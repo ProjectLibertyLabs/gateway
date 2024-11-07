@@ -345,11 +345,7 @@ function prefix_postfix_values() {
 #
 ###################################################################################
 function is_frequency_ready {
-    # REMOVE:
-    echo "Checking frequency service health..."
-    echo "docker compose -p ${COMPOSE_PROJECT_NAME} ps --format '{{.Health}}' frequency"
     health=$( docker compose -p ${COMPOSE_PROJECT_NAME} ps --format '{{.Health}}' frequency )
-    echo "Health: ${health}"
     if [ "${health}" = 'healthy' ]; then
         return 0
     fi

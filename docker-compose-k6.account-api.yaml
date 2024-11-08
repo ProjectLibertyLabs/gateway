@@ -52,6 +52,8 @@ services:
       start_period: 40s
     networks:
       - gateway-net
+    profiles:
+      - account
 
   gateway-base:
     profiles:

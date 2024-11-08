@@ -359,3 +359,27 @@ function is_frequency_ready() {
 
     return 1
 }
+
+###################################################################################
+# append
+#
+# Description: Appends a variable to another variable, creating the variable
+#              if it does not exist.
+# Usage: append <variable> <value_to_append>
+# Arguments:
+#   variable: The name of the variable to append to.
+#   value_to_append: The value to append to the variable.
+###################################################################################
+function append() {
+    local var_name="$1"  # The name of the variable
+    local value="$2"     # The value to append
+
+    # Check if the variable exists and is not unset
+    if [ -n "${!var_name}" ]; then
+        # Append the value to the existing variable
+        eval "$var_name=\"\${$var_name}$value\""
+    else
+        # If the variable does not exist, set it to the value
+        eval "$var_name=\"$value\""
+    fi
+}

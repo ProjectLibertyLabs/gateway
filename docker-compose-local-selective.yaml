@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+  content-watcher-service:
+    profiles:
+      - content-watcher
+
+  # gateway-base:
+  #   profiles:
+  #     - skip
+  content-publishing-service-worker:
+    profiles:
+      - content-publishing
+  content-publishing-service-api:
+    profiles:
+      - content-publishing
+  account-service-worker:
+    profiles:
+      - account
+  account-service-api:
+    profiles:
+      - account
+  graph-service-api:
+    profiles:
+      - graph
+  graph-service-worker:
+    profiles:
+      - graph

@@ -131,7 +131,7 @@ Using Gateway Services published containers from Docker Hub with tag: ${DOCKER_T
 EOI
     else
         export_save_variable USE_PUBLISHED false
-        COMPOSE_FILES="docker-compose.yaml"
+        COMPOSE_FILES="docker-compose.yaml docker-compose-local-selective.yaml"
         ${OUTPUT} << EOI
 Using Gateway Services development containers built from local source...
 EOI
@@ -261,7 +261,7 @@ function local_setup_tasks() {
         if is_frequency_ready; then
             # Run npm run local:init
             echo "Running local setup script to provision Provider with capacity, etc..."
-            npm run setup:content-publishing:chain
+            npm run setup:common:chain
         else
             echo "Timed out waiting for Frequency node to be ready" >&2
         fi
@@ -356,7 +356,7 @@ function main() {
     parse_arguments "$@"
     setup_environment
     check_dependencies
-    handle_en*v_file
+    handle_env_file
 
     if [ ! -f "${ENV_FILE}" ]; then
         prompt_for_configuration

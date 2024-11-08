@@ -3,6 +3,9 @@
 
 . ./bash_functions.sh
 
+# Set the output function
+check_pcre_grep
+
 BASE_DIR=${HOME}/.projectliberty
 BASE_NAME=gateway-dev
 ENV_FILE="${BASE_DIR}/.env.${BASE_NAME}"

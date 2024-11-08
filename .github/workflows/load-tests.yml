@@ -106,7 +106,7 @@ jobs:
       # Just start the services we need...
       - name: Start All Services
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml --profile account up -d
+        run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml up -d
 
       - name: Wait for API to be ready
         if: ${{ steps.should.outputs.RUN == 'true' }}

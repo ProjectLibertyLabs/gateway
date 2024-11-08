@@ -103,6 +103,7 @@
     "setup:content-watcher:publish": "node scripts/content-watcher/content-setup.js",
     "setup:content-watcher:webhook": "node scripts/content-watcher/webhook-cat.cjs",
     "setup:graph:chain": "tsx scripts/graph/chain-setup.ts",
+    "setup:common:chain": "node scripts/local-init.cjs",
     "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts"
   },
   "dependencies": {

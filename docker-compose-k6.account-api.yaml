@@ -19,8 +19,6 @@ services:
         condition: service_healthy
     environment:
       WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
-    profiles:
-      - account
 
   account-service-worker:
     pull_policy: never
@@ -34,8 +32,6 @@ services:
       - ipfs
     environment:
       WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
-    profiles:
-      - account
 
   account-service-webhook:
     image: rust:1.81.0
@@ -52,8 +48,6 @@ services:
       start_period: 40s
     networks:
       - gateway-net
-    profiles:
-      - account
 
   gateway-base:
     profiles:

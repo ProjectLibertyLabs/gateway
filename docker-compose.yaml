@@ -127,8 +127,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - content-publishing
 
   content-publishing-service-worker:
     pull_policy: never
@@ -146,8 +144,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - content-publishing
 
   content-watcher-service:
     pull_policy: never
@@ -166,8 +162,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - content-watcher
 
   graph-service-api:
     pull_policy: never
@@ -186,8 +180,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - graph
 
   graph-service-worker:
     pull_policy: never
@@ -204,8 +196,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - graph
 
   account-service-api:
     pull_policy: never
@@ -223,8 +213,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - account
 
   account-service-worker:
     pull_policy: never
@@ -240,8 +228,6 @@ services:
       - gateway-base
     networks:
       - gateway-net
-    profiles:
-      - account
 
   mock-webhook-logger:
     pull_policy: never
@@ -255,7 +241,6 @@ services:
       - ${ACCOUNT_WEBHOOK_PORT:-3001}:3001
     profiles:
       - webhook
-      - account
     networks:
       - gateway-net
 

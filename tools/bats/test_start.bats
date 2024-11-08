@@ -2,14 +2,13 @@
 
 # Load the functions from start.sh
 source './start.sh'
+
+# Ensure BASE_NAME,BASE_DIR,ENV_FILE globals are set for tests
 BASE_NAME="test-dev"
+BASE_DIR="./test_dir"
 ENV_FILE="${BASE_DIR}/.env.${BASE_NAME}"
 
 # Mock functions and variables
-function yesno() {
-    echo "yes"
-}
-
 function redact_sensitive_values() {
     echo "redacted content"
 }
@@ -30,10 +29,7 @@ function is_frequency_ready() {
     return 0
 }
 
-# Ensure BASE_DIR is set for tests
-BASE_DIR="./test_dir"
-
-# Clean up before tests
+# Setup runs before every test 
 setup() {
     rm -rf "${BASE_DIR}"
 }
@@ -84,14 +80,35 @@ setup() {
 
 # Create a mock ENV_FILE for further tests
 setup_file() {
+    OUTPUT="echo -e"
+    mkdir -p "${BASE_DIR}"
     touch "${ENV_FILE}"
 }
 
 # Test handle_env_file function when ENV_FILE exists
-@test "handle_env_file handles existing ENV_FILE" {
+@test "handle_env_file handles existing ENV_FILE with yes" {
     setup_file
+    function yesno() {
+        return 0
+    }
     run handle_env_file
     [ "$status" -eq 0 ]
+    [[ "$output" == *"Loading environment values from file..."* ]]
+    
+}
+
+
+# Test handle_env_file function when ENV_FILE exists
+@test "handle_env_file handles existing ENV_FILE with no" {
+    setup_file
+    function yesno() {
+        return 1
+    }
+    run handle_env_file
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Removing previous saved environment..."* ]]
+    [ ! -f $ENV_FILE ]
+    
 }
 
 # Test start_services function (Mocked Docker Compose commands)

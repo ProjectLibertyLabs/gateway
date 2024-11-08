@@ -11,32 +11,34 @@ BOX_WIDTH=96
 #  Wrangle grep because MacOS doesn't come with a PCRE-enabled grep by default.
 #  If we don't find one, disable our "pretty" output function.
 ###################################################################################
-PCRE_GREP=
-if 2>/dev/null 1>/dev/null grep -q -P "foo"; then
-    PCRE_GREP=grep
-else
-    # Grep is not PCRE compatible, check for other greps
-    if command -v ggrep >/dev/null; then # MacOS Homebrew might have ggrep
-        PCRE_GREP=ggrep
-    elif command -v prce2grep > /dev/null; then # MacOS Homebrew could also have pcre2grep
-        PCRE_GREP=pcre2grep
+function check_pcre_grep() {
+    PCRE_GREP=
+    if 2>/dev/null 1>/dev/null grep -q -P "foo"; then
+        PCRE_GREP=grep
+    else
+        # Grep is not PCRE compatible, check for other greps
+        if command -v ggrep >/dev/null; then # MacOS Homebrew might have ggrep
+            PCRE_GREP=ggrep
+        elif command -v pcre2grep > /dev/null; then # MacOS Homebrew could also have pcre2grep
+            PCRE_GREP=pcre2grep
+        fi
     fi
-fi
 
-if [ -z "${PCRE_GREP}" ]; then
-    cat << EOI
+    if [ -z "${PCRE_GREP}" ]; then
+        cat << EOI
 WARNING: No PCRE-capable 'grep' utility found; pretty terminal output disabled.
 
 If you're on a Mac, try installing GNU grep:
     brew install grep
 
 EOI
-  read -p 'Press any key to continue... '
+            read -p 'Press any key to continue... '
 
-  OUTPUT='echo -e'
-else
-  OUTPUT="box_text -w ${BOX_WIDTH}"
-fi
+        OUTPUT='echo -e'
+    else
+        OUTPUT="box_text -w ${BOX_WIDTH}"
+    fi
+}
 
 ###################################################################################
 # yesno
@@ -69,7 +71,13 @@ function yesno() {
     return 1
 }
 
-# Internal function to calculate the display width of a string considering some common wide characters
+###################################################################################
+# display_width
+#
+# Description: Calculate the display width of a string considering some common wide characters
+#
+# ${1} - Input string
+###################################################################################
 function display_width() {
     local str="$1"
     local width=0
@@ -93,8 +101,6 @@ function display_width() {
     echo $width
 }
 
-
-
 ###################################################################################
 # box_text
 #
@@ -106,7 +112,7 @@ function display_width() {
 #    min_width - Pad the output text box to a least min_width characters.
 #                Default: do not pad
 ###################################################################################
-box_text() {
+function box_text() {
     local input
     local min_width=0
 
@@ -174,10 +180,10 @@ box_text() {
 ###################################################################################
 # box_text_attention
 #
-# Description: Like box texty, but output is surrounded by a box;
+# Description: Like box text, but output is surrounded by a box;
 # padded with blank lines and attention-getting characters.
 # ##################################################################################
-box_text_attention() {
+function box_text_attention() {
     local input
     local min_width=0
     local attention=false
@@ -256,7 +262,7 @@ box_text_attention() {
 # ${3} - [optional] default response if user hits <Enter>
 # ${4} - [optional] hide input if true (Default: false)
 ###################################################################################
-ask_and_save() {
+function ask_and_save() {
     local var_name=${1}
     local prompt=${2}
     local default_value=${3}
@@ -306,6 +312,7 @@ function redact_sensitive_values() {
 }
 
 ###################################################################################
+# export_save_variable
 #
 # Description: Save a name/value pair to the environment file & simultaneously
 #              export to the current environment.
@@ -344,7 +351,7 @@ function prefix_postfix_values() {
 # Description: Runs a command to check the health status of the 'frequency' service
 #
 ###################################################################################
-function is_frequency_ready {
+function is_frequency_ready() {
     health=$( docker compose -p ${COMPOSE_PROJECT_NAME} ps --format '{{.Health}}' frequency )
     if [ "${health}" = 'healthy' ]; then
         return 0

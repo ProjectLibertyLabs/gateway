@@ -55,6 +55,7 @@ function setup_environment() {
     if [[ -n $ENV_FILE ]]; then
         ${OUTPUT} "Using environment file: $ENV_FILE"
     fi
+    return 0
 }
 
 ###################################################################################
@@ -85,7 +86,6 @@ function handle_env_file() {
         if yesno "Do you want to re-use the saved parameters" Y; then
             ${OUTPUT} "Loading environment values from file..."
         else
-            clear
             ${OUTPUT} "Removing previous saved environment..."
 
             rm ${ENV_FILE}
@@ -96,6 +96,7 @@ function handle_env_file() {
             fi
         fi
     fi
+    return 0
 }
 
 ###################################################################################
@@ -350,10 +351,12 @@ You can access the Gateway at the following local addresses:
 #
 ###################################################################################
 function main() {
+    # Call the check_pcre_grep function to initialize PCRE_GREP and OUTPUT
+    check_pcre_grep
     parse_arguments "$@"
     setup_environment
     check_dependencies
-    handle_env_file
+    handle_en*v_file
 
     if [ ! -f "${ENV_FILE}" ]; then
         prompt_for_configuration

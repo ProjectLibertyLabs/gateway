@@ -155,7 +155,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacity(
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
-    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, tx.toString());
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, [tx.toString()]);
     if (outOfCapacity) {
       throw new DelayedError();
     }
@@ -174,12 +174,11 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacityBatchAll(
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
-    tx.forEach(async (call) => {
-      const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, call.toString());
-      if (outOfCapacity) {
-        throw new DelayedError();
-      }
-    });
+    const callMap = tx.map((t) => t.toString());
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, callMap);
+    if (outOfCapacity) {
+      throw new DelayedError();
+    }
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();

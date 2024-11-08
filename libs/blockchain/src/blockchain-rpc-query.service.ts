@@ -245,16 +245,26 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  public async checkTxCapacityLimit(providerId: AnyNumber, encodedExt: Bytes | Uint8Array | string): Promise<boolean> {
+  public async checkTxCapacityLimit(
+    providerId: AnyNumber,
+    encodedExtArray: (Bytes | Uint8Array | string)[],
+  ): Promise<boolean> {
     const capacityInfo = await this.capacityInfo(providerId);
     const { remainingCapacity } = capacityInfo;
-    const capacityCost = await this.getCapacityCostForExt(encodedExt);
-    let outOfCapacity = false;
-    if (capacityCost.inclusionFee.isSome) {
-      const inclusionFee = capacityCost.inclusionFee.unwrap();
-      const adjustedWeightFee = inclusionFee.adjustedWeightFee.toBigInt();
-      outOfCapacity = remainingCapacity < adjustedWeightFee;
+
+    // Calculate the total capacity cost for all encoded extensions
+    let totalAdjustedWeightFee = BigInt(0);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const encodedExt of encodedExtArray) {
+      const capacityCost = await this.getCapacityCostForExt(encodedExt);
+      if (capacityCost.inclusionFee.isSome) {
+        const inclusionFee = capacityCost.inclusionFee.unwrap();
+        totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
+      }
     }
+
+    // Check if the total cost exceeds the remaining capacity
+    const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
     return outOfCapacity;
   }
 

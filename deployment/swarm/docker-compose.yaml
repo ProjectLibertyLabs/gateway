@@ -46,7 +46,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  WEBHOOK_BASE_URL: 'http://mock-webhook-logger:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
+  WEBHOOK_BASE_URL: 'http://your-app.com:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
@@ -63,23 +63,6 @@ services:
       - gateway-net
     volumes:
       - redis_data:/data/redis
-    profiles:
-      - account
-
-  mock-webhook-logger:
-    pull_policy: never
-    image: mock-webhook-logger:latest
-    build:
-      context: .
-      dockerfile: Docker/Dockerfile.mock-webhook-logger
-      tags:
-        - mock-webhook-logger:latest
-    ports:
-      - ${ACCOUNT_WEBHOOK_PORT:-3001}:3001
-    profiles:
-      - webhook
-    networks:
-      - gateway-net
 
   ipfs:
     image: ipfs/kubo:latest
@@ -94,69 +77,56 @@ services:
       - gateway-net
     volumes:
       - ${IPFS_VOLUME:-ipfs_data}:/data/ipfs
-    profiles:
-      - ipfs
-
-  gateway-base:
-    profiles:
-      - skip
 
   content-publishing-service-api:
     image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     ports:
       - ${SERVICE_PORT_0}:3000
     environment:
       <<: [*common-environment, *content-publishing-env]
     depends_on:
       - redis
+      - ipfs
     networks:
       - gateway-net
-    profiles:
-      - content_publishing
 
   content-publishing-service-worker:
     image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     environment:
       <<: [*common-environment, *content-publishing-env]
       START_PROCESS: content-publishing-worker
     depends_on:
       - redis
+      - ipfs
     networks:
       - gateway-net
-    profiles:
-      - content_publishing
 
   content-watcher-service:
     image: projectlibertylabs/content-watcher-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     ports:
       - ${SERVICE_PORT_1}:3000
     environment:
       <<: [*common-environment, *content-watcher-env]
     depends_on:
       - redis
+      - ipfs
     networks:
       - gateway-net
-    profiles:
-      - content_watcher
 
   graph-service-api:
     image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     ports:
       - ${SERVICE_PORT_2}:3000
     environment:
@@ -164,33 +134,29 @@ services:
       START_PROCESS: graph-api
     depends_on:
       - redis
+      - ipfs
     networks:
       - gateway-net
-    profiles:
-      - graph
 
   graph-service-worker:
     image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     environment:
       <<: [*common-environment, *graph-service-env]
       START_PROCESS: graph-worker
     depends_on:
       - redis
+      - ipfs
     networks:
       - gateway-net
-    profiles:
-      - graph
 
   account-service-api:
     image: projectlibertylabs/account-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     ports:
       - ${SERVICE_PORT_3}:3000
     command: account-api
@@ -200,15 +166,12 @@ services:
       - redis
     networks:
       - gateway-net
-    profiles:
-      - account
 
   account-service-worker:
     image: projectlibertylabs/account-service:${DOCKER_TAG:-latest}
     deploy:
       mode: replicated
       replicas: 1
-    pull_policy: always
     command: account-worker
     environment:
       <<: [*common-environment, *account-service-env]
@@ -216,8 +179,6 @@ services:
       - redis
     networks:
       - gateway-net
-    profiles:
-      - account
 
 volumes:
   ipfs_data:

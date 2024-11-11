@@ -119,14 +119,14 @@ On the manager node, get the join token:
 ```bash
 >sudo docker swarm join-token worker
 
-docker swarm join --token SWMTKN-1-1tbk3g4qxoshrnzmx6a3fzoz9yyf6wxtaca33xwnt2fykd95et-1je480mao8ubve9xesiq3dym2 18.158.238.77:2377
+docker swarm join --token SWMTKN-1-1tbk3g4qxoshrnzmx6a3fzoz9yyf6wxtaca33xwnt2fykd95et-1je480mao8ubve9xesiq3dym2 <manager-node-ip>:2377
 ```
 
 Save the join token for later use.
 On each worker node, run the join command provided, e.g.:
 
 ```bash
-sudo docker swarm join --token <token> <manager-node-ip>:2377
+sudo docker swarm join --token <token> <manager-node-ip>:2377 --advertise-addr <worker-node-ip>
 ```
 
 Once you have your entire Swarm cluster setup, check the status on the manager node:
@@ -180,7 +180,19 @@ docker service logs gateway_account-service-api
 docker service logs gateway_account-service-worker
 ```
 
-You can also check the logs of a specific worker node:
+In order to update the stack, edit the docker-compose-swarm.yaml file and use the following command:
+
+```bash
+sudo docker stack deploy -c docker-compose-swarm.yaml gateway
+```
+
+In order to remove the stack, use the following command:
+
+```bash
+sudo docker stack rm gateway
+```
+
+You can also check the logs on a specific worker node, by logging in to that worker node and running:
 
 ```bash
 docker ps

@@ -17,8 +17,8 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  CHAIN_ENVIRONMENT: dev
-  DEBUG: true
+  CHAIN_ENVIRONMENT: 'dev'
+  DEBUG: 'true'
 
 x-content-publishing-env: &content-publishing-env
   START_PROCESS: content-publishing-api
@@ -38,16 +38,16 @@ x-content-watcher-env: &content-watcher-env
 
 x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
-  GRAPH_ENVIRONMENT_TYPE: Mainnet
-  RECONNECTION_SERVICE_REQUIRED: false
+  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
+  RECONNECTION_SERVICE_REQUIRED: 'false'
   CACHE_KEY_PREFIX: 'graph:'
   AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
 
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
-  TRUST_UNFINALIZED_BLOCKS: true
+  TRUST_UNFINALIZED_BLOCKS: 'true'
   WEBHOOK_BASE_URL: 'http://your-app.com:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
-  GRAPH_ENVIRONMENT_TYPE: Mainnet
+  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
 
@@ -188,3 +188,4 @@ volumes:
 
 networks:
   gateway-net:
+    driver: overlay

@@ -1,14 +1,14 @@
-# Running Gateway in Production
+# Running Gateway Services
 
-In this section, you will find instructions to help you get Gateway Services up and running in production.
-Since each of the four Gateway microservices are completely independent of one another, you can begin with whichever service you want or need first.
+In this section, you will find instructions to help you quickly set up Gateway Services. After testing your application with Gateway Services in your local environment, you can proceed to more advanced deployment options.
+
+Every deployment and production environment is unique. Therefore, we recommend testing your application in a staging environment before deploying it to production. The guides in this section will assist you in getting started with the basics of deploying Gateway Services in various environments, including AWS, Kubernetes, and more.
+
+Look for the Quick Start guide in the Run Gateway Services section to get started with Gateway Services in less than 5 minutes.
 
 <div class="button-links">
 
-[Run Account Service](./AccountService/RunAccountService.md)
-[Run Graph Service](./GraphService/RunGraphService.md)
-[Run Content Publishing](./ContentPublishing/RunContentPublishing.md)
-[Run Content Watcher](./ContentWatcher/RunContentWatcher.md)
+[Run Gateway Services](./GatewayServices/RunGatewayServices.md)
 
 </div>
 

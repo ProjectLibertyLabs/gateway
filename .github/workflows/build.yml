@@ -63,15 +63,14 @@ jobs:
       fail-fast: false
     steps:
       - name: Run or Skip
-        id: should
-        run: echo "RUN=${{ needs.service-matrix.outputs.run-all == 'true' }}" >> "$GITHUB_OUTPUT"
+        run: echo "SHOULD_RUN=${{ needs.service-matrix.outputs.run-all == 'true' }}" >> "$GITHUB_ENV"
 
       - name: Checkout
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ env.SHOULD_RUN == 'true' }}
         uses: actions/checkout@v4
 
       - name: Install Node.js
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ env.SHOULD_RUN == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -80,11 +79,11 @@ jobs:
           cache-dependency-path: ./package-lock.json
 
       - name: Install dependencies
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ env.SHOULD_RUN == 'true' }}
         run: npm ci
 
       - name: 'Bats start.sh Tests'
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ env.SHOULD_RUN == 'true' }}
         run: |
           npm install -g bats
           npm run test:bats-start

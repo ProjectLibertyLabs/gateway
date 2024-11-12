@@ -1,14 +1,10 @@
 # Running Gateway in Production
 
 In this section, you will find instructions to help you get Gateway Services up and running in production.
-Since each of the four Gateway microservices are completely independent of one another, you can begin with whichever service you want or need first.
 
 <div class="button-links">
 
-[Run Account Service](./AccountService/RunAccountService.md)
-[Run Graph Service](./GraphService/RunGraphService.md)
-[Run Content Publishing](./ContentPublishing/RunContentPublishing.md)
-[Run Content Watcher](./ContentWatcher/RunContentWatcher.md)
+[Run Gateway Services](./GatewayServices/RunGatewayServices.md)
 
 </div>
 

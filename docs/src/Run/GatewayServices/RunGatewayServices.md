@@ -42,7 +42,7 @@ To run this project, you need:
    - **Account Service**: Manages user accounts and authentication.
    - **Graph Service**: Handles the creation and querying of social graphs.
    - **Content Publishing Service**: Manages the publishing and distribution of content.
-   - **Content Watcher Service**: Monitors content for updates and changes.
+   - **Content Watcher Service**: Monitors the chain for content announcements (new content, updates, etc).
 
 5. Choose the Frequency API Websocket URL for the selected services. The default will be set to the network chosen in step 3.
 

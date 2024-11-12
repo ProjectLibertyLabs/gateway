@@ -75,6 +75,7 @@ Ensure you have the following installed:
    ```
 
 5. Start account service api and worker applications using Docker:
+
    ```bash
    docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile account up -d
    ```
@@ -102,6 +103,7 @@ If you prefer to run services locally for development:
    ```
 
 4. Start the Worker (in another new terminal):
+
    ```bash
    npm run start:account-worker:dev
    ```

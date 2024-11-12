@@ -78,7 +78,7 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
     - TCP/UDP 7946 (communication among nodes).
     - UDP 4789 (overlay network traffic).
     - TCP 2377 (Swarm manager communication).
-  - Allow Gateway service ports (e.g., this will depend on your Swarm mappings, default starts at 30000)
+  - Allow Gateway service ports (Note: This will depend on your Swarm mappings, default starts at 30000)
     - TCP 30000-32767 (Swarm mode routing mesh).
     - OR specific ports for each service, see `SERVICE_PORT_X` in [docker-compose-swarm.yaml](../../../deployment/swarm/docker-compose.yaml)
 
@@ -89,7 +89,7 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
 
 ### 1.2 Installing Docker Swarm
 
-Login to each EC2 instance (or other cloud instances) using SSH.
+Log in to each EC2 instance (or other cloud instances) using SSH.
 
 #### Step 1: Update Packages
 
@@ -129,7 +129,7 @@ On each worker node, run the join command provided, e.g.:
 sudo docker swarm join --token <token> <manager-node-ip>:2377 --advertise-addr <worker-node-ip>
 ```
 
-Once you have your entire Swarm cluster setup, check the status on the manager node:
+Once you have your entire Swarm cluster set up, check the status on the manager node:
 
 ```bash
 sudo docker node ls
@@ -152,7 +152,7 @@ cd gateway/deployment/swarm
 
 The repo includes an example [docker-compose-swarm.yaml](../../../deployment/swarm/docker-compose.yaml) file for deploying the Gateway services on Docker Swarm.
 Edit the file to set the correct environment variables and service ports.
-Take note of the number of replicas for each service, the default is set to 3.
+Take note of the number of replicas for each service. The default is set to 3.
 
 ```bash
 sudo docker stack deploy -c docker-compose-swarm.yaml gateway
@@ -169,7 +169,7 @@ yp455xvoa9gz   gateway_account-service-worker   replicated   3/3        projectl
 y263ft5sbvhz   gateway_redis                    replicated   3/3        redis:latest                                *:30001->6379/tcp
 ```
 
-This stack was deployed without setting the `SERVICE_PORT_X` environment variables, so the default port mappings (30000, 30001) are used
+This stack was deployed without setting the `SERVICE_PORT_X` environment variables, so the default port mappings (30000, 30001) are used.
 
 #### Step 4: Debugging and other useful commands
 

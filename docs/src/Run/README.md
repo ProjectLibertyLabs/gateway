@@ -1,6 +1,10 @@
-# Running Gateway in Production
+# Running Gateway Services
 
-In this section, you will find instructions to help you get Gateway Services up and running in production.
+In this section, you will find instructions to help you quickly set up Gateway Services. After testing your application with Gateway Services in your local environment, you can proceed to more advanced deployment options.
+
+Every deployment and production environment is unique. Therefore, we recommend testing your application in a staging environment before deploying it to production. The guides in this section will assist you in getting started with the basics of deploying Gateway Services in various environments, including AWS, Kubernetes, and more.
+
+Look for the Quick Start guide in the Run Gateway Services section to get started with Gateway Services in less than 5 minutes.
 
 <div class="button-links">
 

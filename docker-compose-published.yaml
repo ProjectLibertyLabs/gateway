@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 x-common-environment: &common-environment
-  FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-ws://frequency:9944}
-  SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-http://localhost:9944}
+  FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-wss://0.rpc.testnet.amplica.io}
+  SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-https://0.rpc.testnet.amplica.io}
   REDIS_URL: 'redis://redis:6379'
   PROVIDER_ID: ${PROVIDER_ID:-1}
   PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
@@ -39,6 +39,7 @@ x-content-watcher-env: &content-watcher-env
 x-graph-service-env: &graph-service-env
   DEBOUNCE_SECONDS: 10
   GRAPH_ENVIRONMENT_TYPE: Mainnet
+  RECONNECTION_SERVICE_REQUIRED: false
   CACHE_KEY_PREFIX: 'graph:'
   AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
 
@@ -54,11 +55,13 @@ services:
   redis:
     image: redis:latest
     ports:
-      - 6379:6379
+      - ${SERVICE_PORT_7}:6379
     networks:
       - gateway-net
     volumes:
       - redis_data:/data/redis
+    profiles:
+      - account
 
   frequency:
     image: frequencychain/standalone-node:latest
@@ -75,159 +78,23 @@ services:
     # such as:
     # --state-pruning=archive
     command: --offchain-worker=always --enable-offchain-indexing=true
-    healthcheck:
-      test: ["CMD", "bash", "-c", "curl -X POST -H \"Content-Type: application/json\" -d '{\"jsonrpc\":\"2.0\",\"method\":\"system_health\",\"params\":[],\"id\":1}' http://127.0.0.1:9944 > /dev/null 2>&1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     ports:
       - 9944:9944
     networks:
       - gateway-net
     volumes:
       - chainstorage:/data
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "curl --silent --fail -H \"Content-Type: application/json\" -d '{\"id\":1, \"jsonrpc\":\"2.0\", \"method\": \"schemas_getBySchemaId\", \"params\": [11]}' http://localhost:9944/ | grep -qv '{\"jsonrpc\":\"2.0\",\"result\":null,\"id\":1}' || exit 1"
+      ]
+      interval: 15s        # Equivalent to the "15s" in Dockerfile
+      timeout: 15s         # Equivalent to "0s" as a default timeout
+      retries: 3           # Retries is a new parameter for robustness
+      start_period: 0s  
     profiles:
       - local-node
-
-  ipfs:
-    image: ipfs/kubo:latest
-    ports:
-      - 4001:4001
-      - 127.0.0.1:5001:5001
-      - 127.0.0.1:8080:8080
-    networks:
-      - gateway-net
-    volumes:
-      - ipfs_data:${IPFS_VOLUME:-/data/ipfs}
-
-  gateway-base:
-    pull_policy: never
-    image: gateway-dev:latest
-    build:
-      context: .
-      dockerfile: Docker/Dockerfile.dev
-      tags:
-        - gateway-dev:latest
-
-  content-publishing-service-api:
-    pull_policy: never
-    image: gateway-dev:latest
-    ports:
-      - ${SERVICE_PORT_0:-3010}:3000
-    command: make start-content-publishing-api
-    environment:
-      <<: [*common-environment, *content-publishing-env]
-      START_PROCESS: content-publishing-api
-    volumes:
-      - ./:/app
-      - content_publishing_api_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - ipfs
-      - gateway-base
-    networks:
-      - gateway-net
-
-  content-publishing-service-worker:
-    pull_policy: never
-    image: gateway-dev:latest
-    command: make start-content-publishing-worker
-    environment:
-      <<: [*common-environment, *content-publishing-env]
-      START_PROCESS: content-publishing-worker
-    volumes:
-      - ./:/app
-      - content_publishing_worker_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - ipfs
-      - gateway-base
-    networks:
-      - gateway-net
-
-  content-watcher-service:
-    pull_policy: never
-    image: gateway-dev:latest
-    ports:
-      - ${SERVICE_PORT_1:-3011}:3000
-    command: make start-content-watcher
-    environment:
-      <<: [*common-environment, *content-watcher-env]
-    volumes:
-      - ./:/app
-      - content_watcher_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - ipfs
-      - gateway-base
-    networks:
-      - gateway-net
-
-  graph-service-api:
-    pull_policy: never
-    image: gateway-dev:latest
-    ports:
-      - ${SERVICE_PORT_2:-3012}:3000
-    command: make start-graph-api
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-api
-    volumes:
-      - ./:/app
-      - graph_api_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
-
-  graph-service-worker:
-    pull_policy: never
-    image: gateway-dev:latest
-    command: make start-graph-worker
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-worker
-    volumes:
-      - ./:/app
-      - graph_worker_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
-
-  account-service-api:
-    pull_policy: never
-    image: gateway-dev:latest
-    ports:
-      - ${SERVICE_PORT_3:-3013}:3000
-    environment:
-      <<: [*common-environment, *account-service-env]
-    command: make start-account-api
-    volumes:
-      - ./:/app
-      - account_api_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
-
-  account-service-worker:
-    pull_policy: never
-    image: gateway-dev:latest
-    command: make start-account-worker
-    environment:
-      <<: [*common-environment, *account-service-env]
-    volumes:
-      - ./:/app
-      - account_worker_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
 
   mock-webhook-logger:
     pull_policy: never
@@ -244,19 +111,125 @@ services:
     networks:
       - gateway-net
 
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - 4001:4001
+      - 127.0.0.1:5001:5001
+      - 127.0.0.1:8080:8080
+    networks:
+      - gateway-net
+    volumes:
+      - ${IPFS_VOLUME:-ipfs_data}:/data/ipfs
+    profiles:
+      - ipfs
+
+  gateway-base:
+    profiles:
+      - skip
+
+  content-publishing-service-api:
+    image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    ports:
+      - ${SERVICE_PORT_0}:3000
+    environment:
+      <<: [*common-environment, *content-publishing-env]
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - content_publishing
+
+  content-publishing-service-worker:
+    image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    environment:
+      <<: [*common-environment, *content-publishing-env]
+      START_PROCESS: content-publishing-worker
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - content_publishing
+
+  content-watcher-service:
+    image: projectlibertylabs/content-watcher-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    ports:
+      - ${SERVICE_PORT_1}:3000
+    environment:
+      <<: [*common-environment, *content-watcher-env]
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - content_watcher
+
+  graph-service-api:
+    image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    ports:
+      - ${SERVICE_PORT_2}:3000
+    environment:
+      <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-api
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - graph
+
+  graph-service-worker:
+    image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    environment:
+      <<: [*common-environment, *graph-service-env]
+      START_PROCESS: graph-worker
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - graph
+
+  account-service-api:
+    image: projectlibertylabs/account-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    ports:
+      - ${SERVICE_PORT_3}:3000
+    command: account-api
+    environment:
+      <<: [*common-environment, *account-service-env]
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - account
+
+  account-service-worker:
+    image: projectlibertylabs/account-service:${DOCKER_TAG:-latest}
+    pull_policy: always
+    command: account-worker
+    environment:
+      <<: [*common-environment, *account-service-env]
+    depends_on:
+      - redis
+    networks:
+      - gateway-net
+    profiles:
+      - account
+
 volumes:
   ipfs_data:
   chainstorage:
     external: false
   redis_data:
-  bull_data:
-  account_api_node_cache:
-  account_worker_node_cache:
-  graph_api_node_cache:
-  graph_worker_node_cache:
-  content_publishing_api_node_cache:
-  content_publishing_worker_node_cache:
-  content_watcher_node_cache:
 
 networks:
   gateway-net:

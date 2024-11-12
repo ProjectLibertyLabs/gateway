@@ -1,0 +1,34 @@
+services:
+  content-publishing-service-api:
+    depends_on:
+      frequency:
+        condition: service_healthy
+  content-publishing-service-worker:
+    depends_on:
+      frequency:
+        condition: service_healthy
+
+  content-watcher-service:
+    depends_on:
+      frequency:
+        condition: service_healthy
+
+  graph-service-api:
+    depends_on:
+      frequency:
+        condition: service_healthy
+
+  graph-service-worker:
+    depends_on:
+      frequency:
+        condition: service_healthy
+
+  account-service-api:
+    depends_on:
+      frequency:
+        condition: service_healthy
+
+  account-service-worker:
+    depends_on:
+      frequency:
+        condition: service_healthy

@@ -55,6 +55,7 @@ To run this project, you need:
 9. Choose to configure an IPFS Pinning Service or use the default IPFS container. See the [IPFS Setup Guide](https://projectlibertylabs.github.io/gateway/Run/IPFS.html) for more information.
 
 10. The configuration will be saved to `$HOME/.projectliberty/.env.gateway-dev` for future use.
+(NOTE: you can store multiple project profiles stored as `$HOME/.projectliberty/.env.<profile-name>` and access them by running the initial command as `./start.sh -n <profile-name>`)
 
 11. `start.sh` uses `docker compose` to start the selected services with the provided configuration. It will print out how to access the services once they are running.
 

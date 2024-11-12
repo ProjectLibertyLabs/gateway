@@ -13,7 +13,7 @@ BOX_WIDTH=96
 ###################################################################################
 function check_pcre_grep() {
     PCRE_GREP=
-    if 2>/dev/null 1>/dev/null grep -q -P "foo"; then
+    if echo "foobar" | grep -q -P "foo(?=bar)" >/dev/null 2>&1; then
         PCRE_GREP=grep
     else
         # Grep is not PCRE compatible, check for other greps

@@ -5,9 +5,6 @@ services:
     profiles:
       - content-watcher
 
-  # gateway-base:
-  #   profiles:
-  #     - skip
   content-publishing-service-worker:
     profiles:
       - content-publishing

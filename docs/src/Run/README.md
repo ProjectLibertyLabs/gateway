@@ -8,7 +8,7 @@ Look for the Quick Start guide in the Run Gateway Services section to get starte
 
 <div class="button-links">
 
-[Run Gateway Services](./GatewayServices/RunGatewayServices.md)
+[Running Gateway Services](./GatewayServices/RunGatewayServices.md)
 
 </div>
 
@@ -47,89 +47,79 @@ Each service also requires a docker network (or equivalent) to connect to any ot
 
 Some services require a connection to an IPFS instance. See the [IPFS Setup Guide](./IPFS.md) for more information.
 
-See the [docker-compose.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose.yaml) for examples of redis and ipfs services.
+See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose-swarm.yaml) for examples of redis and ipfs services.
 
-### Account Service
+---
 
-- Docker image: `projectlibertylabs/account-service`
-- Dependencies: Redis
-- API Ports: `3000`
-- Inter-Service Ports: `3001, 6379, 9944`
-- Docker Compose Services
-  - account-service-api `command: account-api`
-  - account-service-worker `command: account-worker`
-- Environment Variables: [Account Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md)
-- Account Service Specific Environment Variables:
+| **Account Service**            | **Details**                                                                                       |
+|--------------------------------|---------------------------------------------------------------------------------------------------|
+| **Docker Image**               | `projectlibertylabs/account-service`                                                              |
+| **Dependencies**               | Redis                                                                                             |
+| **API Ports**                  | `3000`                                                                                            |
+| **Inter-Service Ports**        | `3001, 6379, 9944`                                                                                |
+| **Docker Compose Services**    | account-service-api `command: account-api`                                                        |
+|                                | account-service-worker `command: account-worker`                                                  |
+| **Required Variables**         | [Account Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md) |
+|                                | BLOCKCHAIN_SCAN_INTERVAL_SECONDS                                                                  |
+|                                | TRUST_UNFINALIZED_BLOCKS                                                                          |
+|                                | WEBHOOK_BASE_URL                                                                                  |
+|                                | GRAPH_ENVIRONMENT_TYPE                                                                            |
+|                                | CACHE_KEY_PREFIX                                                                                  |
+|                                | SIWF_V2_URI_VALIDATION                                                                            |
 
-```yaml
-  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
-  TRUST_UNFINALIZED_BLOCKS: 'true'
-  WEBHOOK_BASE_URL: 'http://your-app.com:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
-  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
-  CACHE_KEY_PREFIX: 'account:'
-  SIWF_V2_URI_VALIDATION: 'localhost'
-```
+---
 
-### Graph Service
+| **Graph Service**              | **Details**                                                                                       |
+|--------------------------------|---------------------------------------------------------------------------------------------------|
+| **Docker Image**               | `projectlibertylabs/graph-service`                                                                |
+| **Dependencies**               | Redis, IPFS                                                                                       |
+| **API Ports**                  | `3000`                                                                                            |
+| **Inter-Service Ports**        | `6379, 9944`                                                                                      |
+| **Docker Compose Services**    | graph-service-api `START_PROCESS: graph-api`                                                      |
+|                                | graph-service-worker `START_PROCESS: graph-worker`                                                |
+| **Required Variables**         | [Graph Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/graph/ENVIRONMENT.md) |
+|                                | DEBOUNCE_SECONDS                                                                                  |
+|                                | GRAPH_ENVIRONMENT_TYPE                                                                            |
+|                                | RECONNECTION_SERVICE_REQUIRED                                                                     |
+|                                | CACHE_KEY_PREFIX                                                                                  |
+|                                | AT_REST_ENCRYPTION_KEY_SEED                                                                       |
 
-- Docker image: `projectlibertylabs/graph-service`
-- Dependencies: Redis, IPFS
-- API Ports: `3000`
-- Inter-Service Ports: `6379, 9944`
-- Docker Compose Services
-  - graph-service-api `START_PROCESS: graph-api`
-  - graph-service-worker `START_PROCESS: graph-worker`
-- Environment Variables: [Graph Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/graph/ENVIRONMENT.md)
-- Graph Service Specific Environment Variables:
+---
 
-```yaml
-  DEBOUNCE_SECONDS: 10
-  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
-  RECONNECTION_SERVICE_REQUIRED: 'false'
-  CACHE_KEY_PREFIX: 'graph:'
-  AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
-```
+| **Content Publishing Service** | **Details**                                                                                       |
+|--------------------------------|---------------------------------------------------------------------------------------------------|
+| **Docker Image**               | `projectlibertylabs/content-publishing-service`                                                   |
+| **Dependencies**               | Redis, IPFS                                                                                       |
+| **API Ports**                  | `3000`                                                                                            |
+| **Inter-Service Ports**        | `6379, 9944`                                                                                      |
+| **Docker Compose Services**    | content-publishing-service-api `START_PROCESS: content-publishing-api`                            |
+|                                | content-publishing-service-worker `START_PROCESS: content-publishing-worker`                      |
+| **Required Variables**         | [Content Publishing Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/content-publishing/ENVIRONMENT.md) |
+|                                | START_PROCESS                                                                                     |
+|                                | FILE_UPLOAD_MAX_SIZE_IN_BYTES                                                                     |
+|                                | FILE_UPLOAD_COUNT_LIMIT                                                                           |
+|                                | ASSET_EXPIRATION_INTERVAL_SECONDS                                                                 |
+|                                | BATCH_INTERVAL_SECONDS                                                                            |
+|                                | BATCH_MAX_COUNT                                                                                   |
+|                                | ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS                                                           |
+|                                | CACHE_KEY_PREFIX                                                                                  |
 
-### Content Publishing Service
+---
 
-- Docker image: `projectlibertylabs/content-publishing-service`
-- Dependencies: Redis, IPFS
-- API Ports: `3000`
-- Inter-Service Ports: `6379, 9944`
-- Docker Compose Services
-  - content-publishing-service-api `START_PROCESS: content-publishing-api`
-  - content-publishing-service-worker `START_PROCESS: content-publishing-worker`
-- Environment Variables: [Content Publishing Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/content-publishing/ENVIRONMENT.md)
-- Content Publishing Specific Environment Variables:
+| **Content Watcher Service**    | **Details**                                                                                       |
+|--------------------------------|---------------------------------------------------------------------------------------------------|
+| **Docker Image**               | `projectlibertylabs/content-watcher-service`                                                      |
+| **Dependencies**               | Redis, IPFS                                                                                       |
+| **API Ports**                  | `3000`                                                                                            |
+| **Inter-Service Ports**        | `6379, 9944`                                                                                      |
+| **Docker Compose Services**    | content-watcher-service                                                                           |
+| **Required Variables**         | [Content Watcher Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/content-watcher/ENVIRONMENT.md) |
+|                                | STARTING_BLOCK                                                                                    |
+|                                | BLOCKCHAIN_SCAN_INTERVAL_SECONDS                                                                  |
+|                                | WEBHOOK_FAILURE_THRESHOLD                                                                         |
+|                                | CACHE_KEY_PREFIX                                                                                  |
 
-```yaml
-  START_PROCESS: content-publishing-api
-  FILE_UPLOAD_MAX_SIZE_IN_BYTES: 500000000
-  FILE_UPLOAD_COUNT_LIMIT: 10
-  ASSET_EXPIRATION_INTERVAL_SECONDS: 300
-  BATCH_INTERVAL_SECONDS: 12
-  BATCH_MAX_COUNT: 1000
-  ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 5
-  CACHE_KEY_PREFIX: 'content-publishing:'
-```
-
-### Content Watcher Service
-
-- Docker image: `projectlibertylabs/content-watcher-service`
-- Dependencies: Redis, IPFS
-- API Ports: `3000`
-- Inter-Service Ports: `6379, 9944`
-- Docker Compose
-  - content-watcher-service
-- Environment Variables: [Content Watcher Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/content-watcher/ENVIRONMENT.md)
-- Content Watcher Specific Environment Variables:
-
-```yaml
-  STARTING_BLOCK: 759882
-  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 6
-  WEBHOOK_FAILURE_THRESHOLD: 4
-  CACHE_KEY_PREFIX: 'content-watcher:'
-```
+---
 
 ## Other Deployment Guides
 

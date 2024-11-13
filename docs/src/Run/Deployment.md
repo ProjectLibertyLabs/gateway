@@ -78,7 +78,7 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
     - TCP/UDP 7946 (communication among nodes).
     - UDP 4789 (overlay network traffic).
     - TCP 2377 (Swarm manager communication).
-  - Allow Gateway service ports (Note: This will depend on your Swarm mappings, default starts at 30000)
+  - Allow Gateway service ports (Note: This will depend on your Swarm mappings. The default starts at 30000)
     - TCP 30000-32767 (Swarm mode routing mesh).
     - OR specific ports for each service, see `SERVICE_PORT_X` in [docker-compose-swarm.yaml](../../../deployment/swarm/docker-compose.yaml)
 
@@ -153,6 +153,8 @@ cd gateway/deployment/swarm
 The repo includes an example [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose-swarm.yaml) file for deploying the Gateway services on Docker Swarm.
 Edit the file to set the correct environment variables and service ports.
 Take note of the number of replicas for each service. The default is set to 3.
+
+Note: `docker-compose-swarm.yaml` is the only file required to deploy the Gateway services on Docker Swarm. If you prefer not to clone the entire repository, you can copy this file to your Docker Swarm Manager node.
 
 ```bash
 sudo docker stack deploy -c docker-compose-swarm.yaml gateway

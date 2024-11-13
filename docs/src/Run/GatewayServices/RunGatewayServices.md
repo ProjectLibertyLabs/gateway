@@ -83,4 +83,4 @@ To run this project, you need:
 
 ## Environment Variables
 
-For more information on environment variables, see [ENVIRONMENT.md](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md).
+For more information on environment variables, see `ENVIRONMENT.md` in the `developer-docs` directory for your selected service.

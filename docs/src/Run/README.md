@@ -56,8 +56,8 @@ See the [docker-compose.yaml](https://github.com/projectlibertylabs/gateway/blob
 - API Ports: `3000`
 - Inter-Service Ports: `3001, 6379, 9944`
 - Docker Compose Services
-  - account-service-api command: `account-api`
-  - account-service-worker command: `account-worker`
+  - account-service-api `command: account-api`
+  - account-service-worker `command: account-worker`
 - Environment Variables: [Account Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md)
 - Account Service Specific Environment Variables:
 
@@ -77,8 +77,8 @@ See the [docker-compose.yaml](https://github.com/projectlibertylabs/gateway/blob
 - API Ports: `3000`
 - Inter-Service Ports: `6379, 9944`
 - Docker Compose Services
-  - graph-service-api
-  - graph-service-worker
+  - graph-service-api `START_PROCESS: graph-api`
+  - graph-service-worker `START_PROCESS: graph-worker`
 - Environment Variables: [Graph Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/graph/ENVIRONMENT.md)
 - Graph Service Specific Environment Variables:
 
@@ -97,8 +97,8 @@ See the [docker-compose.yaml](https://github.com/projectlibertylabs/gateway/blob
 - API Ports: `3000`
 - Inter-Service Ports: `6379, 9944`
 - Docker Compose Services
-  - content-publishing-service-api
-  - content-publishing-service-worker
+  - content-publishing-service-api `START_PROCESS: content-publishing-api`
+  - content-publishing-service-worker `START_PROCESS: content-publishing-worker`
 - Environment Variables: [Content Publishing Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/content-publishing/ENVIRONMENT.md)
 - Content Publishing Specific Environment Variables:
 

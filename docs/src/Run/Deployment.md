@@ -150,7 +150,7 @@ cd gateway/deployment/swarm
 
 #### Step 2: Deploy the Stack
 
-The repo includes an example [docker-compose-swarm.yaml](../../../deployment/swarm/docker-compose.yaml) file for deploying the Gateway services on Docker Swarm.
+The repo includes an example [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose-swarm.yaml) file for deploying the Gateway services on Docker Swarm.
 Edit the file to set the correct environment variables and service ports.
 Take note of the number of replicas for each service. The default is set to 3.
 

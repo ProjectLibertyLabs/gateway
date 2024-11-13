@@ -12,7 +12,7 @@ Look for the Quick Start guide in the Run Gateway Services section to get starte
 
 </div>
 
-## Deployment Quick Reference
+## DevOps Deployment Quick Reference
 
 Refer to the following sections to get a quick overview of the minimum requirements for deploying individual Gateway Services in different environments.
 

@@ -1,10 +1,10 @@
-# Deploying Gateway Services on AWS EC2
+# Deploying Frequency Developer Gateway Services on AWS EC2
 
 This guide provides example step-by-step instructions to deploy the Gateway services on AWS EC2 instances using Docker Swarm and Kubernetes. You may have to modify these instructions based on your actual AWS configuration. These instructions are provided as a general guide and may also be adapted for other cloud providers. Part 3 also includes Terraform examples to automate the deployments in a cloud-agnostic manner.
 
 ## Table of Contents
 
-- [Deploying Gateway Services on AWS EC2](#deploying-gateway-services-on-aws-ec2)
+- [Deploying Frequency Developer Gateway Services on AWS EC2](#deploying-frequency-developer-gateway-services-on-aws-ec2)
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Part 1: Deploying with Docker Swarm](#part-1-deploying-with-docker-swarm)
@@ -262,9 +262,9 @@ cd gateway
 
 #### Step 2: Kubernetes Deployment and Service Files
 
-Here we will follow [modified instructions from the Kubernetes documentation](kubernetes.md) to deploy the Frequency Gateway using Helm.
+Here we will follow [modified instructions from the Kubernetes documentation](kubernetes.md) to deploy the Frequency Developer Gateway using Helm.
 
-Refer to the section "5. Deploying Frequency Gateway" in `kubernetes.md` for detailed steps on a local Kubernetes cluster.
+Refer to the section "5. Deploying Frequency Developer Gateway" in `kubernetes.md` for detailed steps on a local Kubernetes cluster.
 
 ---
 

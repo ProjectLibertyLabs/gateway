@@ -1,22 +1,26 @@
-# Gateway
+# Frequency Developer Gateway
 
-Gateway is a suite of microservices designed to simplify interactions with the Frequency blockchain, bridging the gap between Web2 and Web3 development.
+Frequency Developer Gateway is a suite of microservices designed to simplify interactions with the Frequency blockchain, bridging the gap between Web2 and Web3 development.
 
 <!-- TABLE OF CONTENTS -->
 
 # 📗 Table of Contents
 
-- [📖 About the Project](#about-project)
-- [🚀 Live OpenAPI Docs](#-live-docs)
-- [🔍 Architecture Map](#-arch-maps)
-- [🔍 Gateway Microservices](#gateway-microservices)
-- [💻 Getting Started](#getting-started)
-  - [🚀 Quick Start Guide](#quick-start-guide)
-  - [💻 Microservice Start Guide](#microservices-start-guide)
-- [🛫 Deployment](#deployment)
-- [🤝 Contributing](#-contributing)
-- [🙏 Acknowledgements](#-acknowledgements)
-- [📝 License](#-license)
+- [Frequency Developer Gateway](#frequency-developer-gateway)
+- [📗 Table of Contents](#-table-of-contents)
+- [📖 Gateway Services ](#-gateway-services-)
+  - [🚀 Live Docs ](#-live-docs-)
+  - [🔭 Architecture Maps ](#-architecture-maps-)
+    - [Overview Gateway Services](#overview-gateway-services)
+  - [Gateway Microservices ](#gateway-microservices-)
+    - [Key Features of Gateway Microservices](#key-features-of-gateway-microservices)
+  - [💻 Getting Started ](#-getting-started-)
+    - [🚀 Quick Start Guide ](#-quick-start-guide-)
+    - [Getting Started with Microservices ](#getting-started-with-microservices-)
+  - [Deployment ](#deployment-)
+  - [🤝 Contributing](#-contributing)
+  - [🙏 Acknowledgements](#-acknowledgements)
+  - [📝 License](#-license)
 
 <!-- PROJECT DESCRIPTION -->
 

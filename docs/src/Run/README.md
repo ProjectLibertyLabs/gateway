@@ -8,7 +8,7 @@ Look for the Quick Start guide in the Run Gateway Services section to get starte
 
 <div class="button-links">
 
-[Run Gateway Services](./GatewayServices/RunGatewayServices.md)
+[Run Frequency Developer Gateway Services](./GatewayServices/RunGatewayServices.md)
 
 </div>
 

@@ -245,22 +245,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  public async checkTxCapacityLimit(
-    providerId: AnyNumber,
-    encodedExtArray: (Bytes | Uint8Array | string)[],
-  ): Promise<boolean> {
+  public async checkTxCapacityLimit(providerId: AnyNumber, encodedExt: HexString): Promise<boolean> {
     const capacityInfo = await this.capacityInfo(providerId);
     const { remainingCapacity } = capacityInfo;
 
     // Calculate the total capacity cost for all encoded extensions
     let totalAdjustedWeightFee = BigInt(0);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const encodedExt of encodedExtArray) {
-      const capacityCost = await this.getCapacityCostForExt(encodedExt);
-      if (capacityCost.inclusionFee.isSome) {
-        const inclusionFee = capacityCost.inclusionFee.unwrap();
-        totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
-      }
+    const capacityCost = await this.getCapacityCostForExt(encodedExt);
+    if (capacityCost.inclusionFee.isSome) {
+      const inclusionFee = capacityCost.inclusionFee.unwrap();
+      totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
     }
 
     // Check if the total cost exceeds the remaining capacity
@@ -283,7 +277,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.capacity.epochLength()).toNumber();
   }
 
-  public async getCapacityCostForExt(enocdedExt: Bytes | Uint8Array | string): Promise<FeeDetails> {
+  public async getCapacityCostForExt(enocdedExt: HexString): Promise<FeeDetails> {
     return this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
   }
 

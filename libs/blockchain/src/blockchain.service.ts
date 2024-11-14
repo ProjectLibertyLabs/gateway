@@ -155,11 +155,11 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacity(
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
-    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, [tx.toString()]);
+    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
     if (outOfCapacity) {
       throw new DelayedError();
     }
-    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
@@ -174,12 +174,11 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async payWithCapacityBatchAll(
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
-    const callMap = tx.map((t) => t.toString());
-    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, callMap);
+    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
     if (outOfCapacity) {
       throw new DelayedError();
     }
-    const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);

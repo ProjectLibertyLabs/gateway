@@ -7,7 +7,6 @@ import { ICapacityInfo } from './blockchain.service';
 import { ConfigService } from '@nestjs/config';
 import { IBlockchainConfig } from './blockchain.config';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
-import { Bytes } from '@polkadot/types';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -86,7 +85,7 @@ export class CapacityCheckerService {
    *
    * @returns {boolean} Returns true if remaining Capacity is within allowed limits; false otherwise
    */
-  public async checkForSufficientCapacity(encodedExt?: Bytes | Uint8Array | string): Promise<boolean> {
+  public async checkForSufficientCapacity(): Promise<boolean> {
     let outOfCapacity = false;
 
     try {
@@ -104,12 +103,8 @@ export class CapacityCheckerService {
         ? this.checkTotalCapacityLimit(capacityInfo, capacityLimit.totalLimit)
         : false;
       const serviceLimitExceeded = await this.checkServiceCapacityLimit(capacityInfo, capacityLimit.serviceLimit);
-      let txCapacityExceeded = false;
-      if (encodedExt) {
-        txCapacityExceeded = await this.blockchainService.checkTxCapacityLimit(providerId, [encodedExt]);
-      }
-      outOfCapacity =
-        capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded || txCapacityExceeded;
+
+      outOfCapacity = capacityInfo.remainingCapacity <= 0n || serviceLimitExceeded || totalLimitExceeded;
 
       if (outOfCapacity) {
         await this.eventEmitter.emitAsync(CAPACITY_EXHAUSTED_EVENT, capacityInfo);

@@ -1,5 +1,17 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
+/*
+ * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
+ *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
+ *       encoded objects that are directly returned from Frequency RPC calls; rather, all payloads should be
+ *       unwrapped and re-formed using native Javascript types.
+ *
+ *       RPC methods that have the potential to return values wrapped as `Option<...>` or any value supporting
+ *       the `.isEmpty`, `.isSome`, or `.isNone` getters should implement one of the following behaviors:
+ *          - have a specified return type of `<type> | null` and return null for an empty value
+ *          - return some sane default for an empty value
+ *          - throw an error if an empty value is encountered
+ */
 import fs from 'fs';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Keyring } from '@polkadot/api';
@@ -15,25 +27,12 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DelayedError } from 'bullmq';
+import { SIWFTxnValues } from './types';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
-interface SIWFTxnValues {
-  msaId: string;
-  address: string;
-  handle: string;
-  newProvider: string;
-}
-
-export interface ICapacityInfo {
-  providerId: string;
-  currentBlockNumber: number;
-  nextEpochStart: number;
-  remainingCapacity: bigint;
-  totalCapacityIssued: bigint;
-  currentEpoch: number;
-}
 
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
@@ -155,6 +154,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
+    if (outOfCapacity) {
+      throw new DelayedError();
+    }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);
@@ -170,6 +173,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
+    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
+    if (outOfCapacity) {
+      throw new DelayedError();
+    }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.getNextNonce();
     this.logger.debug(`Capacity Wrapped Extrinsic: ${extrinsic.toHuman()}, nonce: ${nonce}`);

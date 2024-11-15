@@ -246,20 +246,25 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async checkTxCapacityLimit(providerId: AnyNumber, encodedExt: HexString): Promise<boolean> {
-    const capacityInfo = await this.capacityInfo(providerId);
-    const { remainingCapacity } = capacityInfo;
+    try {
+      const capacityInfo = await this.capacityInfo(providerId);
+      const { remainingCapacity } = capacityInfo;
 
-    // Calculate the total capacity cost for all encoded extensions
-    let totalAdjustedWeightFee = BigInt(0);
-    const capacityCost = await this.getCapacityCostForExt(encodedExt);
-    if (capacityCost.inclusionFee.isSome) {
-      const inclusionFee = capacityCost.inclusionFee.unwrap();
-      totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
+      // Calculate the total capacity cost for all encoded extensions
+      let totalAdjustedWeightFee = BigInt(0);
+      const capacityCost = await this.getCapacityCostForExt(encodedExt);
+      if (capacityCost.inclusionFee.isSome) {
+        const inclusionFee = capacityCost.inclusionFee.unwrap();
+        totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
+      }
+
+      // Check if the total cost exceeds the remaining capacity
+      const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
+      return outOfCapacity;
+    } catch (e) {
+      this.logger.error(`Error checking capacity limit: ${e}`);
+      return false;
     }
-
-    // Check if the total cost exceeds the remaining capacity
-    const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
-    return outOfCapacity;
   }
 
   public async getCurrentCapacityEpoch(blockHash?: Uint8Array | string): Promise<number> {

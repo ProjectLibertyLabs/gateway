@@ -15,7 +15,8 @@ import { BaseConsumer } from '#consumer';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { BlockchainService, ICapacityInfo } from '#blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
+import { ICapacityInfo } from '#blockchain/types';
 import { HexString } from '@polkadot/util/types';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';

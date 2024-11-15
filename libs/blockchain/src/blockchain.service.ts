@@ -16,25 +16,11 @@ import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DelayedError } from 'bullmq';
+import { SIWFTxnValues } from './types';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
-interface SIWFTxnValues {
-  msaId: string;
-  address: string;
-  handle: string;
-  newProvider: string;
-}
-
-export interface ICapacityInfo {
-  providerId: string;
-  currentBlockNumber: number;
-  nextEpochStart: number;
-  remainingCapacity: bigint;
-  totalCapacityIssued: bigint;
-  currentEpoch: number;
-}
 
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 

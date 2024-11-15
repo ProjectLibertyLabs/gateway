@@ -1,15 +1,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  AccountId,
-  AccountId32,
-  BlockHash,
-  BlockNumber,
-  Event,
-  FeeDetails,
-  SignedBlock,
-} from '@polkadot/types/interfaces';
+import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
 import { bool, Bytes, Option, u128, u16, Vec } from '@polkadot/types';
@@ -48,6 +40,7 @@ import { IBlockchainNonProviderConfig, noProviderBlockchainConfig } from './bloc
 import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
+import { ICapacityFeeDetails } from './types';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
@@ -251,12 +244,8 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       const { remainingCapacity } = capacityInfo;
 
       // Calculate the total capacity cost for all encoded extensions
-      let totalAdjustedWeightFee = BigInt(0);
       const capacityCost = await this.getCapacityCostForExt(encodedExt);
-      if (capacityCost.inclusionFee.isSome) {
-        const inclusionFee = capacityCost.inclusionFee.unwrap();
-        totalAdjustedWeightFee += inclusionFee.adjustedWeightFee.toBigInt();
-      }
+      const totalAdjustedWeightFee = capacityCost.inclusionFee.adjustedWeightFee;
 
       // Check if the total cost exceeds the remaining capacity
       const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
@@ -282,8 +271,26 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.capacity.epochLength()).toNumber();
   }
 
-  public async getCapacityCostForExt(enocdedExt: HexString): Promise<FeeDetails> {
-    return this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
+  public async getCapacityCostForExt(enocdedExt: HexString): Promise<ICapacityFeeDetails> {
+    const feeDetails = await this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
+    if (feeDetails.inclusionFee.isSome) {
+      const inclusionFee = feeDetails.inclusionFee.unwrap();
+      return {
+        inclusionFee: {
+          baseFee: inclusionFee.baseFee.toBigInt(),
+          lenFee: inclusionFee.lenFee.toBigInt(),
+          adjustedWeightFee: inclusionFee.adjustedWeightFee.toBigInt(),
+        },
+      };
+    }
+
+    return {
+      inclusionFee: {
+        baseFee: BigInt(0),
+        lenFee: BigInt(0),
+        adjustedWeightFee: BigInt(0),
+      },
+    };
   }
 
   public async getMessagesBySchemaId(schemaId: AnyNumber, pagination: IBlockPaginationRequest) {

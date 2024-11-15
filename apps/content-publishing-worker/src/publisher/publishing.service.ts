@@ -74,7 +74,9 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
       this.logger.verbose(`Successfully completed job ${job.id}`);
     } catch (e) {
-      if (!(e instanceof DelayedError)) {
+      if (e instanceof DelayedError) {
+        job.moveToDelayed(Date.now(), job.token);
+      } else {
         this.logger.error(`Job ${job.id} failed (attempts=${job.attemptsMade})error: ${e}`);
       }
       if (e instanceof Error && e.message.includes('Inability to pay some fees')) {

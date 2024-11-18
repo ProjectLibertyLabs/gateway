@@ -27,7 +27,7 @@
     - [REST API](./Build/GraphService/Api.md)
     - [Webhooks API](./Build/GraphService/Webhooks.md)
 - [Run](./Run/README.md)
-  - [Frequency Developer Gateway Services](./Run/GatewayServices/RunGatewayServices.md)
+  - [Running Gateway Services](./Run/GatewayServices/RunGatewayServices.md)
   - [IPFS](./Run/IPFS.md)
   - [Deployment](./Run/Deployment.md)
   - [Kubernetes](./Run/Kubernetes.md)

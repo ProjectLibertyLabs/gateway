@@ -7,7 +7,8 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { BlockchainService, ICapacityInfo } from '#blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
+import { ICapacityInfo } from '#blockchain/types';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#consumer';
 import { TransactionData } from '#types/dtos/account';
@@ -67,7 +68,6 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     try {
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
-        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
@@ -138,10 +138,11 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       obj[txHash] = JSON.stringify(status);
       this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
     } catch (error: any) {
-      if (!(error instanceof DelayedError)) {
+      if (error instanceof DelayedError) {
+        job.moveToDelayed(Date.now(), job.token);
+      } else {
         this.logger.error('Unknown error encountered: ', error, error?.stack);
       }
-
       throw error;
     }
   }

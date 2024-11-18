@@ -4,7 +4,7 @@ Getting started building on Decentralized Social is as easy as deploying a Web2 
 
 ## Build What You Want
 
-Gateway offers a suite of tools you can pick and choose from to build the best applications for your users.
+Frequency Developer Gateway offers a suite of tools you can pick and choose from to build the best applications for your users.
 
 <!-- Add more visual elements to the services -->
 
@@ -22,7 +22,7 @@ Gateway offers a suite of tools you can pick and choose from to build the best a
 
 ## Basic Architecture
 
-Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
+Frequency Developer Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
 
 {{#svg-embed ./src/GatewayLayers.svg Gateway Application Layer Diagram}}
 

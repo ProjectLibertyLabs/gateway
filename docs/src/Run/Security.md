@@ -94,7 +94,7 @@ In this example, the LoadBalancer listens on port 443 for TLS traffic and forwar
 - **Rate Limiting**: Ensure NGINX or your gateway implements rate limiting to avoid API abuse.
 - **Authentication and Authorization**: Use tokens (e.g., OAuth2, JWT) to verify clients and their permissions before granting access.
 - **Monitoring and Logging**: Always log API requests, including their origin and headers, to track potential security issues.
-- **API Gateway Security**: If you use a gateway service (such as Frequency Gateway), ensure it handles secure API routing, load balancing, and traffic filtering.
+- **API Gateway Security**: If you use a gateway service (such as Frequency Developer Gateway), ensure it handles secure API routing, load balancing, and traffic filtering.
 - **DDoS Protection**: Use external services like Cloudflare or AWS Shield if you expect large volumes of traffic that might lead to denial-of-service attacks.
 
 ### 3.1 Testing the Setup with curl

@@ -1,4 +1,4 @@
-# Gateway Architecture
+# Frequency Developer Gateway Architecture
 
 {{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
 

@@ -1,12 +1,12 @@
-# **Scalability Guide for Frequency Gateway**
+# **Scalability Guide for Frequency Developer Gateway**
 
-This guide explains how to configure and manage scalability using Kubernetes Horizontal Pod Autoscaler (HPA) for Frequency Gateway to ensure services scale dynamically based on resource usage.
+This guide explains how to configure and manage scalability using Kubernetes Horizontal Pod Autoscaler (HPA) for Frequency Developer Gateway to ensure services scale dynamically based on resource usage.
 
 ---
 
 ## **Table of Contents**
 
-- [**Scalability Guide for Frequency Gateway**](#scalability-guide-for-frequency-gateway)
+- [**Scalability Guide for Frequency Developer Gateway**](#scalability-guide-for-frequency-gateway)
   - [**Table of Contents**](#table-of-contents)
   - [**Introduction**](#introduction)
   - [**Prerequisites**](#prerequisites)
@@ -24,7 +24,7 @@ This guide explains how to configure and manage scalability using Kubernetes Hor
 
 ## **Introduction**
 
-Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Gateway, you ensure your services remain available and responsive under varying loads--scaling out when demand increases and scaling down when resources aren't needed.
+Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Developer Gateway, you ensure your services remain available and responsive under varying loads--scaling out when demand increases and scaling down when resources aren't needed.
 
 ---
 
@@ -34,7 +34,7 @@ Before implementing autoscaling, ensure that:
 
 - Kubernetes metrics server (or another resource metrics provider) is enabled and running.
 - [**Helm**](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
-- The deployment for [**Frequency Gateway**](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s) is running in your Kubernetes cluster.
+- The deployment for [**Frequency Developer Gateway**](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s) is running in your Kubernetes cluster.
 
 ---
 
@@ -166,4 +166,4 @@ If your services are scaling too slowly or too aggressively, consider adjusting 
 
 ---
 
-By following this guide, you will have a solid understanding of how to configure Kubernetes autoscaling for your Frequency Gateway services, ensuring they adapt dynamically to workload demands.
+By following this guide, you will have a solid understanding of how to configure Kubernetes autoscaling for your Frequency Developer Gateway services, ensuring they adapt dynamically to workload demands.

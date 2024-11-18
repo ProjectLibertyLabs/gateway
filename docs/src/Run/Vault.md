@@ -1,17 +1,17 @@
-# Frequency Gateway - Vault Integration
+# Frequency Developer Gateway - Vault Integration
 
-This guide describes how to set up and integrate HashiCorp Vault for managing and securely storing secrets used by the Frequency Gateway services. The integration allows sensitive data such as API tokens, account seed phrases, and credentials to be securely managed through Vault, rather than hardcoding them in Kubernetes manifests.
+This guide describes how to set up and integrate HashiCorp Vault for managing and securely storing secrets used by the Frequency Developer Gateway services. The integration allows sensitive data such as API tokens, account seed phrases, and credentials to be securely managed through Vault, rather than hardcoding them in Kubernetes manifests.
 
 ## Prerequisites
 
 1. [Vault](https://www.vaultproject.io/) installed and running.
-2. [Kubernetes](https://kubernetes.io/docs) cluster (with Frequency Gateway deployed).
-3. [Helm](https://helm.sh/docs/intro/install/) installed (for deploying Vault and Frequency Gateway).
+2. [Kubernetes](https://kubernetes.io/docs) cluster (with Frequency Developer Gateway deployed).
+3. [Helm](https://helm.sh/docs/intro/install/) installed (for deploying Vault and Frequency Developer Gateway).
 4. Vault configured with Kubernetes authentication.
 
 ## Table of Contents
 
-- [Frequency Gateway - Vault Integration](#frequency-gateway---vault-integration)
+- [Frequency Developer Gateway - Vault Integration](#frequency-gateway---vault-integration)
   - [Prerequisites](#prerequisites)
   - [Table of Contents](#table-of-contents)
   - [1. Overview](#1-overview)
@@ -19,7 +19,7 @@ This guide describes how to set up and integrate HashiCorp Vault for managing an
     - [2.1 Enable Key-Value (KV) Secret Engine](#21-enable-key-value-kv-secret-engine)
     - [2.2 Create Secrets](#22-create-secrets)
     - [2.3 Set Up Kubernetes Authentication](#23-set-up-kubernetes-authentication)
-  - [3. Integrating Vault with Frequency Gateway](#3-integrating-vault-with-frequency-gateway)
+  - [3. Integrating Vault with Frequency Developer Gateway](#3-integrating-vault-with-frequency-gateway)
     - [3.1 Helm Configuration](#31-helm-configuration)
     - [3.2 Creating External Secret and Secret Store](#32-creating-external-secret-and-secret-store)
     - [3.3 Handling Single-Value Secrets](#33-handling-single-value-secrets)
@@ -32,7 +32,7 @@ This guide describes how to set up and integrate HashiCorp Vault for managing an
 
 ## 1. Overview
 
-Vault is used to manage and securely inject secrets into the Frequency Gateway services, such as:
+Vault is used to manage and securely inject secrets into the Frequency Developer Gateway services, such as:
 
 - **account-service**: Stores provider access tokens and account seed phrases.
 - **content-publishing-service**: Manages IPFS authentication secrets.
@@ -51,7 +51,7 @@ vault secrets enable -path=secret kv
 
 ### 2.2 Create Secrets
 
-Vault allows you to store your secrets under a defined path. For the Frequency Gateway, secrets are stored under paths like `secret/data/frequency-gateway/[service-name]`. You can add secrets using the Vault CLI.
+Vault allows you to store your secrets under a defined path. For the Frequency Developer Gateway, secrets are stored under paths like `secret/data/frequency-gateway/[service-name]`. You can add secrets using the Vault CLI.
 
 For example, to create secrets for the `account` service:
 
@@ -100,9 +100,9 @@ To allow your Kubernetes cluster to access secrets in Vault, you need to configu
      kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
    ```
 
-3. **Create a Vault Role for Frequency Gateway:**
+3. **Create a Vault Role for Frequency Developer Gateway:**
 
-   Bind the Vault role to the appropriate Kubernetes service accounts, which allows the Frequency Gateway pods to retrieve secrets.
+   Bind the Vault role to the appropriate Kubernetes service accounts, which allows the Frequency Developer Gateway pods to retrieve secrets.
 
    ```bash
    vault write auth/kubernetes/role/frequency-gateway-role \
@@ -112,11 +112,11 @@ To allow your Kubernetes cluster to access secrets in Vault, you need to configu
      ttl=24h
    ```
 
-## 3. Integrating Vault with Frequency Gateway
+## 3. Integrating Vault with Frequency Developer Gateway
 
 ### 3.1 Helm Configuration
 
-Update your `values.yaml` file to enable Vault integration for Frequency Gateway deployment. Here's an example configuration:
+Update your `values.yaml` file to enable Vault integration for Frequency Developer Gateway deployment. Here's an example configuration:
 
 ```yaml
 vault:
@@ -128,9 +128,9 @@ vault:
   secretsPath: "secret/data/frequency-gateway"
 ```
 
-For each service (e.g., `account-service`, `content-publishing-service`) in the Frequency Gateway, add a similar configuration to the `values.yaml` file.
+For each service (e.g., `account-service`, `content-publishing-service`) in the Frequency Developer Gateway, add a similar configuration to the `values.yaml` file.
 
-Deploy or upgrade the Frequency Gateway Helm chart with:
+Deploy or upgrade the Frequency Developer Gateway Helm chart with:
 
 ```bash
 helm upgrade --install frequency-gateway ./helm/frequency-gateway -f values.yaml
@@ -272,7 +272,7 @@ spec:
 
 ## 4. Accessing Secrets
 
-Once Vault is integrated, services in the Frequency Gateway will automatically retrieve secrets at runtime.
+Once Vault is integrated, services in the Frequency Developer Gateway will automatically retrieve secrets at runtime.
 
 ### 4.1 Using CLI
 

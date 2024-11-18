@@ -1,4 +1,4 @@
-# Running Gateway Services
+# Running Frequency Developer Gateway Services
 
 ## Prerequisites
 

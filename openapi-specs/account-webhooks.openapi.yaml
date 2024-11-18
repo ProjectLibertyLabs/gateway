@@ -1,6 +1,6 @@
 ---
 #
-# Define webhook API for the Gateway Account Service. The nestjs/swagger package does not
+# Define webhook API for the Frequency Developer Gateway Account Service. The nestjs/swagger package does not
 # support auto-generation of webhooks, or types that are not part of controller
 # endpoints.
 #

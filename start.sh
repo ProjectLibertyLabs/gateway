@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to start all Gateway services on the Frequency Paseo Testnet
+# Script to start all Frequency Developer Gateway services on the Frequency Paseo Testnet
 
 # Load external functions
 . ./bash_functions.sh

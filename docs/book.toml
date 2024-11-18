@@ -3,7 +3,7 @@ authors = ["Project Liberty Labs"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Gateway"
+title = "Frequency Developer Gateway"
 
 [preprocessor.local]
 command = "node preprocessor.mjs"

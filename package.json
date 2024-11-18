@@ -1,7 +1,7 @@
 {
   "name": "@projectlibertylabs/gateway",
   "version": "1.0.0",
-  "description": "Monorepo for Gateway shared packages",
+  "description": "Monorepo for Frequency Developer Gateway shared packages",
   "author": "Project Liberty, LLC",
   "license": "Apache-2.0",
   "workspaces": [

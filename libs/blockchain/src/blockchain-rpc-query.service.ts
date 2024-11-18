@@ -1,10 +1,22 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
+/*
+ * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
+ *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
+ *       encoded objects that are directly returned from Frequency RPC calls; rather, all payloads should be
+ *       unwrapped and re-formed using native Javascript types.
+ *
+ *       RPC methods that have the potential to return values wrapped as `Option<...>` or any value supporting
+ *       the `.isEmpty`, `.isSome`, or `.isNone` getters should implement one of the following behaviors:
+ *          - have a specified return type of `<type> | null` and return null for an empty value
+ *          - return some sane default for an empty value
+ *          - throw an error if an empty value is encountered
+ */
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { Bytes, Option, u128, u16, Vec } from '@polkadot/types';
+import { bool, Bytes, Option, u128, u16, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
@@ -40,6 +52,7 @@ import { IBlockchainNonProviderConfig, noProviderBlockchainConfig } from './bloc
 import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
+import { ICapacityFeeDetails } from './types';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
@@ -146,6 +159,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return undefined;
   }
 
+  /**
+   * Validates a given handle by querying the blockchain.
+   *
+   * @param {string} baseHandle - The base handle to be validated.
+   * @returns {Promise<bool>} - A promise that resolves to a bool indicating whether the handle is valid.
+   */
+  public async isValidHandle(baseHandle: string): Promise<bool> {
+    return this.api.rpc.handles.validateHandle(baseHandle);
+  }
+
   public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {
     return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
@@ -227,6 +250,24 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
+  public async checkTxCapacityLimit(providerId: AnyNumber, encodedExt: HexString): Promise<boolean> {
+    try {
+      const capacityInfo = await this.capacityInfo(providerId);
+      const { remainingCapacity } = capacityInfo;
+
+      // Calculate the total capacity cost for all encoded extensions
+      const capacityCost = await this.getCapacityCostForExt(encodedExt);
+      const totalAdjustedWeightFee = capacityCost.inclusionFee.adjustedWeightFee;
+
+      // Check if the total cost exceeds the remaining capacity
+      const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
+      return outOfCapacity;
+    } catch (e) {
+      this.logger.error(`Error checking capacity limit: ${e}`);
+      return false;
+    }
+  }
+
   public async getCurrentCapacityEpoch(blockHash?: Uint8Array | string): Promise<number> {
     const api = await this.getApi(blockHash);
     return (await api.query.capacity.currentEpoch()).toNumber();
@@ -240,6 +281,28 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   public async getCurrentEpochLength(blockHash?: Uint8Array | string): Promise<number> {
     const api = await this.getApi(blockHash);
     return (await api.query.capacity.epochLength()).toNumber();
+  }
+
+  public async getCapacityCostForExt(enocdedExt: HexString): Promise<ICapacityFeeDetails> {
+    const feeDetails = await this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
+    if (feeDetails.inclusionFee.isSome) {
+      const inclusionFee = feeDetails.inclusionFee.unwrap();
+      return {
+        inclusionFee: {
+          baseFee: inclusionFee.baseFee.toBigInt(),
+          lenFee: inclusionFee.lenFee.toBigInt(),
+          adjustedWeightFee: inclusionFee.adjustedWeightFee.toBigInt(),
+        },
+      };
+    }
+
+    return {
+      inclusionFee: {
+        baseFee: BigInt(0),
+        lenFee: BigInt(0),
+        adjustedWeightFee: BigInt(0),
+      },
+    };
   }
 
   public async getMessagesBySchemaId(schemaId: AnyNumber, pagination: IBlockPaginationRequest) {

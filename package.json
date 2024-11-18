@@ -1,7 +1,7 @@
 {
   "name": "@projectlibertylabs/gateway",
   "version": "1.0.0",
-  "description": "Monorepo for Gateway shared packages",
+  "description": "Monorepo for Frequency Developer Gateway shared packages",
   "author": "Project Liberty, LLC",
   "license": "Apache-2.0",
   "workspaces": [
@@ -88,6 +88,8 @@
     "test:e2e:content-watcher": "dotenvx run -f env-files/content-watcher.template.env -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'content-watcher*'",
     "test:e2e:graph": "dotenvx run -f env-files/graph.template.env -- jest --testRegex \".e2e-spec.ts\" --detectOpenHandles 'graph*'",
     "test:k6:account": "for t in apps/account-api/k6-test/*.k6.js ; do k6 run ${t} ; done",
+    "test:bats-install": "cd node_modules/bats && sudo ./install.sh /usr/local",
+    "test:bats-start": "bats ./tools/bats/test_start.bats",
     "format": "prettier --write .",
     "lint": "eslint 'apps/**/*.[tj]s' 'libs/**/*.[tj]s'",
     "lint:account": "eslint 'apps/account*/**/*.[tj]s' 'libs/account-lib/**/*.[tj]s'",
@@ -101,6 +103,7 @@
     "setup:content-watcher:publish": "node scripts/content-watcher/content-setup.js",
     "setup:content-watcher:webhook": "node scripts/content-watcher/webhook-cat.cjs",
     "setup:graph:chain": "tsx scripts/graph/chain-setup.ts",
+    "setup:common:chain": "node scripts/local-init.cjs",
     "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts"
   },
   "dependencies": {
@@ -169,6 +172,7 @@
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "base64url": "^3.0.1",
+    "bats": "^1.11.0",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",

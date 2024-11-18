@@ -1,6 +1,6 @@
-# Gateway
+# Frequency Developer Gateway
 
-Gateway is a suite of microservices designed to simplify interactions with the Frequency blockchain, bridging the gap between Web2 and Web3 development.
+Frequency Developer Gateway is a suite of microservices designed to simplify interactions with the Frequency blockchain, bridging the gap between Web2 and Web3 development.
 
 <!-- TABLE OF CONTENTS -->
 
@@ -9,7 +9,7 @@ Gateway is a suite of microservices designed to simplify interactions with the F
 - [📖 About the Project](#about-project)
 - [🚀 Live OpenAPI Docs](#-live-docs)
 - [🔍 Architecture Map](#-arch-maps)
-- [🔍 Gateway Microservices](#gateway-microservices)
+- [🔍 Frequency Developer Gateway Microservices](#gateway-microservices)
 - [💻 Getting Started](#getting-started)
   - [🚀 Quick Start Guide](#quick-start-guide)
   - [💻 Microservice Start Guide](#microservices-start-guide)
@@ -20,7 +20,7 @@ Gateway is a suite of microservices designed to simplify interactions with the F
 
 <!-- PROJECT DESCRIPTION -->
 
-# 📖 Gateway Services <a name="about-project"></a>
+# 📖 Frequency Developer Gateway Services <a name="about-project"></a>
 
 Gateway is a collection of services designed to simplify interactions with the Frequency blockchain. It bridges the gap between Web2 and Web3, allowing developers to interact with Frequency as easily as they would with any traditional Web2 API.
 

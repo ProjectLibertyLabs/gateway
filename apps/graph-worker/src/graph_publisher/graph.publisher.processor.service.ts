@@ -1,7 +1,7 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
-import { Job, Queue } from 'bullmq';
+import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -15,7 +15,8 @@ import { BaseConsumer } from '#consumer';
 import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { BlockchainService, ICapacityInfo } from '#blockchain/blockchain.service';
+import { BlockchainService } from '#blockchain/blockchain.service';
+import { ICapacityInfo } from '#blockchain/types';
 import { HexString } from '@polkadot/util/types';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -118,6 +119,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
 
       this.logger.debug('Cached extrinsic to monitor: ', payWithCapacityTxHash);
     } catch (error: unknown) {
+      if (error instanceof DelayedError) {
+        job.moveToDelayed(Date.now(), job.token); // fake delay, we just want to avoid processing the current job if we're out of capacity
+      }
       this.logger.error(error);
       throw error;
     } finally {

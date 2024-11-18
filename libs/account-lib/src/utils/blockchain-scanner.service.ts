@@ -89,7 +89,6 @@ export abstract class BlockchainScannerService {
         this.scanInProgress = false;
         return;
       }
-      this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
@@ -113,7 +112,6 @@ export abstract class BlockchainScannerService {
       }
     } catch (e) {
       if (e instanceof EndOfChainError) {
-        this.logger.debug(e.message);
         return;
       }
 

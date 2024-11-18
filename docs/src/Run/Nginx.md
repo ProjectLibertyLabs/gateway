@@ -1,8 +1,8 @@
-# NGINX Ingress for Frequency Gateway
+# NGINX Ingress for Frequency Developer Gateway
 
 ## Table of Contents
 
-- [NGINX Ingress for Frequency Gateway](#nginx-ingress-for-frequency-gateway)
+- [NGINX Ingress for Frequency Developer Gateway](#nginx-ingress-for-frequency-developer-gateway)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Prerequisites](#prerequisites)
@@ -20,7 +20,7 @@
 
 ## Introduction
 
-In this guide, we will walk through the process of setting up NGINX Ingress for the Frequency Gateway on MicroK8s. This includes configuring Ingress rules, managing paths for various services, and ensuring proper security measures through CORS (Cross-Origin Resource Sharing) configurations.
+In this guide, we will walk through the process of setting up NGINX Ingress for the Frequency Developer Gateway on MicroK8s. This includes configuring Ingress rules, managing paths for various services, and ensuring proper security measures through CORS (Cross-Origin Resource Sharing) configurations.
 
 ## Prerequisites
 
@@ -114,4 +114,4 @@ The `-i` flag includes the HTTP response headers in the output, which is useful 
 
 ## Conclusion
 
-Configuring NGINX Ingress for your Frequency Gateway in MicroK8s is a straightforward process that can greatly enhance your application's routing capabilities. By properly setting up paths and CORS configurations, you can ensure that your services are accessible and secure. Always remember to follow best practices for security, especially when dealing with cross-origin requests.
+Configuring NGINX Ingress for your Frequency Developer Gateway in MicroK8s is a straightforward process that can greatly enhance your application's routing capabilities. By properly setting up paths and CORS configurations, you can ensure that your services are accessible and secure. Always remember to follow best practices for security, especially when dealing with cross-origin requests.

@@ -1,10 +1,10 @@
 # Community Resources
 
-## Gateway
+## Frequency Developer Gateway
 
-All Gateway code is open source, and you are welcome to participate in its development.
+All Frequency Developer Gateway code is open source, and you are welcome to participate in its development.
 
-- [Gateway on GitHub](https://github.com/ProjectLibertyLabs/gateway)
+- [Frequency Developer Gateway on GitHub](https://github.com/ProjectLibertyLabs/gateway)
 
 Many of the Gateway related tools are also open source:
 
@@ -36,7 +36,7 @@ While most users rely on providers to maintain the availability of files, users 
 
 ## DSNP
 
-Gateway is built using DSNP (Decentralized Social Media Protocol).
+Frequency Developer Gateway is built using DSNP (Decentralized Social Media Protocol).
 
 - [DSNP Homepage](https://dsnp.org)
 - [DSNP Specification](https://spec.dsnp.org/)

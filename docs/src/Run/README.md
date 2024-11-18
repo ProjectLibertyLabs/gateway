@@ -1,4 +1,4 @@
-# Running Gateway Services
+# Running  Frequency Developer Gateway Services
 
 In this section, you will find instructions to help you quickly set up Gateway Services. After testing your application with Gateway Services in your local environment, you can proceed to more advanced deployment options.
 
@@ -8,7 +8,7 @@ Look for the Quick Start guide in the Run Gateway Services section to get starte
 
 <div class="button-links">
 
-[Running Gateway Services](./GatewayServices/RunGatewayServices.md)
+[Running Frequency Developer Gateway Services](./GatewayServices/RunGatewayServices.md)
 
 </div>
 

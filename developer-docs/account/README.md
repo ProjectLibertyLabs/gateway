@@ -62,19 +62,22 @@ Ensure you have the following installed:
    cp env-files/account.template.env .env.account
    ```
 
+   Ensure that the `.env.account` file is correctly configured for your environment. For more information, refer to the [Environment Variables](ENVIRONMENT.md) section in the full documentation. Specifically, you will need to set the `FREQUENCY_API_WS_URL`, etc., to the correct network (e.g., `wss://0.rpc.testnet.amplica.io`).
+
 3. Install dependencies:
 
    ```bash
    npm install
    ```
 
-4. Start supporting services using Docker:
+4. Start supporting services (local frequency node, redis) using Docker:
 
    ```bash
    ./scripts/account/restart-chain-docker.sh
    ```
 
 5. Start account service api and worker applications using Docker:
+
    ```bash
    docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile account up -d
    ```
@@ -102,6 +105,7 @@ If you prefer to run services locally for development:
    ```
 
 4. Start the Worker (in another new terminal):
+
    ```bash
    npm run start:account-worker:dev
    ```

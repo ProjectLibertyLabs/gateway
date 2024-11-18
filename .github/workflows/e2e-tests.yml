@@ -37,6 +37,7 @@ jobs:
               - 'libs/types'
               - 'libs/utils'
               - 'libs/consumer'
+              - 'libs/blockchain/**'
             account:
               - 'apps/account-api/**'
               - 'apps/account-worker/**'
@@ -66,7 +67,7 @@ jobs:
     steps:
       - name: Run or Skip
         id: should
-        run: echo "RUN=${{ needs.service-matrix.outputs.run-all == true || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
+        run: echo "RUN=${{ needs.service-matrix.outputs.run-all == 'true' || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}

@@ -78,6 +78,9 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
     - TCP/UDP 7946 (communication among nodes).
     - UDP 4789 (overlay network traffic).
     - TCP 2377 (Swarm manager communication).
+  - Allow Gateway service ports (Note: This will depend on your Swarm mappings. The default starts at 30000)
+    - TCP 30000-32767 (Swarm mode routing mesh).
+    - OR specific ports for each service, see `SERVICE_PORT_X` in [docker-compose-swarm.yaml](../../../deployment/swarm/docker-compose.yaml)
 
 #### Step 2: Configure SSH Access
 
@@ -85,6 +88,8 @@ This guide provides example step-by-step instructions to deploy the Gateway serv
 - Note the public IP addresses for each instance.
 
 ### 1.2 Installing Docker Swarm
+
+Log in to each EC2 instance (or other cloud instances) using SSH.
 
 #### Step 1: Update Packages
 
@@ -112,36 +117,88 @@ sudo docker swarm init --advertise-addr <manager-node-ip>
 On the manager node, get the join token:
 
 ```bash
-sudo docker swarm join-token worker
+>sudo docker swarm join-token worker
+
+docker swarm join --token SWMTKN-1-1tbk3g4qxoshrnzmx6a3fzoz9yyf6wxtaca33xwnt2fykd95et-1je480mao8ubve9xesiq3dym2 <manager-node-ip>:2377
 ```
 
+Save the join token for later use.
 On each worker node, run the join command provided, e.g.:
 
 ```bash
-sudo docker swarm join --token <token> <manager-node-ip>:2377
+sudo docker swarm join --token <token> <manager-node-ip>:2377 --advertise-addr <worker-node-ip>
+```
+
+Once you have your entire Swarm cluster set up, check the status on the manager node:
+
+```bash
+sudo docker node ls
+ID                            HOSTNAME           STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+q2lq4y0tzuwbrb17kddignc0p     ip-10-173-10-61    Ready     Active                          27.3.1
+6j201nmxjf54zwhjya0xxbl3d *   ip-10-173-10-112   Ready     Active         Leader           24.0.7
+ylett3pu2wz1p4heo1vdhz20w     ip-10-173-11-194   Ready     Active                          27.3.1
 ```
 
 ### 1.3 Deploying Gateway Services
 
 #### Step 1: Clone the Gateway Repository
 
-On the manager node:
-
 ```bash
 git clone https://github.com/ProjectLibertyLabs/gateway.git
-cd gateway
+cd gateway/deployment/swarm
 ```
 
 #### Step 2: Deploy the Stack
 
+The repo includes an example [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose-swarm.yaml) file for deploying the Gateway services on Docker Swarm.
+Edit the file to set the correct environment variables and service ports.
+Take note of the number of replicas for each service. The default is set to 3.
+
+Note: `docker-compose-swarm.yaml` is the only file required to deploy the Gateway services on Docker Swarm. If you prefer not to clone the entire repository, you can copy this file to your Docker Swarm Manager node.
+
 ```bash
-sudo docker stack deploy -c docker-compose.yaml gateway
+sudo docker stack deploy -c docker-compose-swarm.yaml gateway
 ```
 
 #### Step 3: Verify the Deployment
 
 ```bash
-sudo docker stack services gateway
+>sudo docker service ls
+
+ID             NAME                             MODE         REPLICAS   IMAGE                                       PORTS
+y3bkq23881md   gateway_account-service-api      replicated   3/3        projectlibertylabs/account-service:latest   *:30000->3000/tcp
+yp455xvoa9gz   gateway_account-service-worker   replicated   3/3        projectlibertylabs/account-service:latest
+y263ft5sbvhz   gateway_redis                    replicated   3/3        redis:latest                                *:30001->6379/tcp
+```
+
+This stack was deployed without setting the `SERVICE_PORT_X` environment variables, so the default port mappings (30000, 30001) are used.
+
+#### Step 4: Debugging and other useful commands
+
+If you encounter issues, you can check the logs of the services on the manager node. The manager node will show the logs for all replicas of a service.
+
+```bash
+docker service logs gateway_account-service-api
+docker service logs gateway_account-service-worker
+```
+
+In order to update the stack, edit the docker-compose-swarm.yaml file and use the following command:
+
+```bash
+sudo docker stack deploy -c docker-compose-swarm.yaml gateway
+```
+
+In order to remove the stack, use the following command:
+
+```bash
+sudo docker stack rm gateway
+```
+
+You can also check the logs on a specific worker node, by logging in to that worker node and running:
+
+```bash
+docker ps
+docker logs <container-id>
 ```
 
 ---

@@ -159,7 +159,7 @@
     "@nestjs/cli": "^10.4.5",
     "@nestjs/schematics": "^10.2.2",
     "@nestjs/testing": "^10.4.6",
-    "@projectlibertylabs/frequency-scenario-template": "^1.1.9",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.10",
     "@types/jest": "^29.5.13",
     "@types/node": "^20.3.1",
     "@types/node-fetch": "^2.6.11",

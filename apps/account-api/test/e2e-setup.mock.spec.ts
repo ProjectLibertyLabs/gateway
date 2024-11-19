@@ -21,7 +21,7 @@ import { u8aToHex } from '@polkadot/util';
 export const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 
-export async function setupProviderAndUsers(numUsers = 4) {
+export async function setupProviderAndUsers(seedPhrase = BASE_SEED_PHRASE, numUsers = 4) {
   await cryptoWaitReady();
   await initialize(FREQUENCY_API_WS_URL);
   log.setLevel('trace');
@@ -29,10 +29,10 @@ export async function setupProviderAndUsers(numUsers = 4) {
   const currentBlockNumber = await getCurrentBlockNumber();
 
   // Get keys and MSA Ids for users provisioned in setup
-  const provider = await provisionProvider(BASE_SEED_PHRASE, 'Alice');
-  const users = await initializeLocalUsers(`${BASE_SEED_PHRASE}//users`, numUsers);
-  const revokedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//revoked`, 1))[0];
-  const undelegatedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//undelegated`, 1))[0];
+  const provider = await provisionProvider(seedPhrase, 'Alice');
+  const users = await initializeLocalUsers(`${seedPhrase}//users`, numUsers);
+  const revokedUser: ChainUser = (await initializeLocalUsers(`${seedPhrase}//revoked`, 1))[0];
+  const undelegatedUser: ChainUser = (await initializeLocalUsers(`${seedPhrase}//undelegated`, 1))[0];
 
   const maxMsaId = (await ExtrinsicHelper.apiPromise.query.msa.currentMsaIdentifierMaximum()).toString();
 

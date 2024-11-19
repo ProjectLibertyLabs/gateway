@@ -24,7 +24,7 @@ describe('Keys Controller', () => {
   let currentBlockNumber: number;
 
   beforeAll(async () => {
-    ({ users, provider, currentBlockNumber } = await setupProviderAndUsers());
+    ({ users, provider, currentBlockNumber } = await setupProviderAndUsers('//Bob', 2));
 
     module = await Test.createTestingModule({
       imports: [ApiModule],

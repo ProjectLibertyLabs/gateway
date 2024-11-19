@@ -37,7 +37,7 @@ const main = async () => {
         } else {
           console.error(
             'ERROR: Expected event not found',
-            events.map((x) => x.toHuman())
+            events.map((x) => x.toHuman()),
           );
           reject();
         }
@@ -61,7 +61,7 @@ const main = async () => {
         } else {
           console.error(
             'ERROR: Expected event not found',
-            events.map((x) => x.toHuman())
+            events.map((x) => x.toHuman()),
           );
           reject();
         }
@@ -84,7 +84,7 @@ const main = async () => {
         } else {
           console.error(
             'ERROR: Expected event not found',
-            events.map((x) => x.toHuman())
+            events.map((x) => x.toHuman()),
           );
           reject();
         }

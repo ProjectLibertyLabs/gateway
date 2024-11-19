@@ -21,7 +21,7 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 
 let HTTP_SERVER: any;
 
-describe('Keys Controller', () => {
+describe('Capacity Tests', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let users: ChainUser[];

@@ -99,7 +99,8 @@ describe('Capacity Tests', () => {
       ]);
       const requiredFee = await blockChainRpcQueryService.getCapacityCostForExt(tx.toHex());
       expect(requiredFee.inclusionFee.adjustedWeightFee).toBeGreaterThan(0);
-      await ensureProviderStake(provider.keypair, requiredFee.inclusionFee.adjustedWeightFee, provider.msaId!);
+      const feeRequiredToStake = 50n * requiredFee.inclusionFee.adjustedWeightFee;
+      await ensureProviderStake(provider.keypair, feeRequiredToStake, provider.msaId!);
       const outOfCapacity = await blockChainRpcQueryService.checkTxCapacityLimit(provider.msaId, tx.toHex());
       expect(outOfCapacity).toBe(false);
     });

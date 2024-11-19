@@ -5,7 +5,12 @@
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ChainUser, ExtrinsicHelper, createKeys } from '@projectlibertylabs/frequency-scenario-template';
+import {
+  ChainUser,
+  ExtrinsicHelper,
+  createKeys,
+  ensureProviderStake,
+} from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
 import { generateAddPublicKeyExtrinsic, setupProviderAndUsers } from './e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
@@ -82,6 +87,21 @@ describe('Keys Controller', () => {
       ]);
       const outOfCapacity = await blockChainRpcQueryService.checkTxCapacityLimit(provider.msaId, tx.toHex());
       expect(outOfCapacity).toBe(true);
+    });
+
+    it('Expects a success if available capacity enough to send a tx at hand', async () => {
+      const blockChainRpcQueryService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+      const newKey0 = createKeys('new key', `${users[0].uri}//newkey`);
+      const newKey1 = createKeys('new key', `${users[1].uri}//newkey`);
+      const tx = await ExtrinsicHelper.api.tx.frequencyTxPayment.payWithCapacityBatchAll([
+        (await generateAddPublicKeyExtrinsic(users[0], newKey0, currentBlockNumber))(),
+        (await generateAddPublicKeyExtrinsic(users[1], newKey1, currentBlockNumber))(),
+      ]);
+      const requiredFee = await blockChainRpcQueryService.getCapacityCostForExt(tx.toHex());
+      expect(requiredFee.inclusionFee.adjustedWeightFee).toBeGreaterThan(0);
+      await ensureProviderStake(provider.keypair, requiredFee.inclusionFee.adjustedWeightFee, provider.msaId!);
+      const outOfCapacity = await blockChainRpcQueryService.checkTxCapacityLimit(provider.msaId, tx.toHex());
+      expect(outOfCapacity).toBe(false);
     });
   });
 });

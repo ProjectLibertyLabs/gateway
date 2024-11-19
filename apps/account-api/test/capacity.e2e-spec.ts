@@ -76,11 +76,11 @@ describe('Keys Controller', () => {
       const blockChainRpcQueryService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
       const newKey0 = createKeys('new key', `${users[0].uri}//newkey`);
       const newKey1 = createKeys('new key', `${users[1].uri}//newkey`);
-      const tx = await ExtrinsicHelper.payWithCapacityBatchAll(provider.keypair, [
+      const tx = await ExtrinsicHelper.api.tx.frequencyTxPayment.payWithCapacityBatchAll([
         (await generateAddPublicKeyExtrinsic(users[0], newKey0, currentBlockNumber))(),
         (await generateAddPublicKeyExtrinsic(users[1], newKey1, currentBlockNumber))(),
       ]);
-      const outOfCapacity = await blockChainRpcQueryService.checkTxCapacityLimit(provider.msaId, tx.getCall().toHex());
+      const outOfCapacity = await blockChainRpcQueryService.checkTxCapacityLimit(provider.msaId, tx.toHex());
       expect(outOfCapacity).toBe(true);
     });
   });

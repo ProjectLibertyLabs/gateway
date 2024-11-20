@@ -1,0 +1,262 @@
+/* This overrides the default theme, so we can use it instead of editing the theme css */
+
+:root {
+  font-size: 100% !important;
+}
+
+body {
+  font-size: 18px;
+}
+
+html {
+  font-family: 'Poppins', 'Adjusted Verdana Fallback', Tahoma, Arial, sans-serif;
+  font-weight: 300;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-weight: normal;
+}
+
+::-webkit-scrollbar {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+}
+
+/* Hide extra things */
+.menu-title {
+  display: hidden;
+}
+
+/* scrollbar fixes */
+
+#sidebar::-webkit-scrollbar {
+  background: var(--sidebar-bg);
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+}
+
+/* Content padding */
+#page-wrapper {
+  padding-bottom: 120px;
+}
+
+#theme-list {
+  color: var(--theme-popup-fg);
+}
+
+/* Switch to Chevron */
+.chapter li > a.toggle {
+  background-color: var(--sidebar-fg);
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="chevron"><polyline points="9 18 15 12 9 6"></polyline></svg>');
+  mask-repeat: repeat;
+  background-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  opacity: 1;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0px;
+}
+
+.chapter li:hover > a.toggle,
+.chapter a.active + a.toggle {
+  background-color: var(--sidebar-active);
+}
+
+.chapter li > a.toggle div {
+  display: none;
+}
+
+.chapter li > a.toggle {
+  transition: transform 0.5s;
+}
+
+.chapter li.expanded > a.toggle {
+  transform: rotate(90deg);
+}
+
+/* End Switch to Chevron */
+
+#content .mobile-nav-chapters {
+  display: block;
+  font-size: 1em;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  background-color: var(--button-nav-bg);
+  color: var(--button-nav-fg);
+  border: 2px solid transparent;
+  transition-property: border, color;
+  transition-duration: 0.5s;
+  margin-bottom: 24px;
+}
+
+#content .mobile-nav-chapters:hover {
+  color: var(--button-nav-hover-fg);
+  background: var(--button-nav-hover-bg);
+  text-decoration: none;
+  border: 2px solid var(--button-nav-hover-border);
+}
+
+#content .mobile-nav-chapters:active {
+  color: var(--button-nav-hover-fg);
+  background: var(--button-nav-hover-bg);
+  border: 2px solid var(--button-nav-hover-border);
+}
+
+/* General content related overrides */
+
+mark {
+  color: var(--fg);
+}
+
+h1:target::before {
+  display: none;
+}
+
+h2:target::before,
+h3:target::before {
+  display: inline-block;
+  content: '#';
+  width: 30px;
+  position: relative;
+  color: var(--headers);
+}
+
+h4:target::before,
+h5:target::before,
+h6:target::before {
+  display: inline-block;
+  content: '#';
+  width: 20px;
+  position: relative;
+  color: var(--headers);
+}
+
+/* Override some colors */
+
+.content .header:link,
+.content .header:visited,
+.content .header:hover,
+.content .header:visited:hover {
+  color: var(--headers);
+}
+
+/* Bottom nav buttons */
+
+.nav-wide-wrapper {
+  padding: 0 calc(5% + 11px + var(--page-padding));
+}
+
+.nav-wide-wrapper .mobile-nav-chapters {
+  display: block;
+  font-size: 1em;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  background-color: var(--button-nav-bg);
+  color: var(--button-nav-fg);
+  border: 2px solid transparent;
+  transition-property: border, color;
+  transition-duration: 0.5s;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+@media screen and (min-width: 620px) {
+  .nav-wide-wrapper .mobile-nav-chapters {
+    width: auto;
+  }
+}
+
+.mobile-nav-chapters:hover {
+  color: var(--button-nav-hover-fg);
+  background: var(--button-nav-hover-bg);
+  text-decoration: none;
+  border: 2px solid var(--button-nav-hover-border);
+}
+
+.mobile-nav-chapters:active {
+  color: var(--button-nav-hover-fg);
+  background: var(--button-nav-hover-bg);
+  border: 2px solid var(--button-nav-hover-border);
+}
+
+.nav-wrapper {
+  display: none !important;
+}
+
+.nav-wide-wrapper {
+  display: block !important;
+}
+
+/* Basic icon styling for sidebar contents */
+
+.sidebar .sidebar-scrollbox {
+  padding: 20px;
+}
+
+/* logo */
+#logo {
+  display: block;
+  letter-spacing: -0.1rem;
+  font-size: 3em;
+  font-weight: 300;
+  line-height: 1;
+  padding-bottom: 56px;
+}
+
+#logo,
+#logo:hover,
+#logo:visited,
+#logo:hover:visited {
+  color: var(--sidebar-fg);
+  text-decoration: none;
+}
+
+/* Nav */
+
+.section > li.chapter-item:first-of-type {
+  margin-top: 10px;
+}
+
+.chapter li.chapter-item {
+  margin-bottom: 10px;
+  margin-block-start: 1em;
+}
+
+.chapter {
+  font-weight: 400;
+}
+
+.chapter > .chapter-item {
+  font-weight: 700;
+}
+
+/* Tables */
+
+table {
+  width: 100%;
+}
+
+/* Elements */
+
+hr {
+  color: var(--headers);
+  margin: 20px 0;
+}

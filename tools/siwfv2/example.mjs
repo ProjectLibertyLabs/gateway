@@ -10,6 +10,8 @@ Requirements
 */
 
 import http from 'http';
+import fs from 'fs';
+import path from 'path';
 import { URL } from 'url';
 
 const HOSTNAME = 'localhost';
@@ -64,11 +66,19 @@ function handleRootRequest(_req, res) {
   res.setHeader('Content-Type', 'text/html');
   res.end(
     formatHtml(
-      `<h1>SIWF V2 Testing</h1><button onclick="window.location.href='/signin'">Sign In with Frequency</button>`,
+      `<h1>SIWF V2 Example</h1><a href="/signin"><img src="button-siwf-primary.svg"></a>`,
     ),
   );
 }
 
+function handleButtonRequest(_req, res) {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'image/svg+xml');
+  fs.readFile(path.join(import.meta.dirname, 'button-siwf-primary.svg'), (_err, data) => {
+    res.end(data);
+  });
+}
+  
 async function handleSignInRequest(_req, res) {
   try {
     const redirectUrl = await requestSignIn();
@@ -165,6 +175,8 @@ const server = http.createServer((req, res) => {
   console.log(`RECEIVED: ${req.method} Request for ${req.url}`);
   if (req.url === '/' && req.method === 'GET') {
     handleRootRequest(req, res);
+  } else if (req.url === '/button-siwf-primary.svg' && req.method === 'GET') {
+    handleButtonRequest(req, res);
   } else if (req.url === '/signin' && req.method === 'GET') {
     handleSignInRequest(req, res);
   } else if (req.url.startsWith('/login/callback') && req.method === 'GET') {

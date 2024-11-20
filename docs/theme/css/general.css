@@ -1,7 +1,5 @@
 /* Base styles and content styles */
 
-@import 'variables.css';
-
 :root {
   /* Browser default font-size is 16px, this way 1 rem = 10px */
   font-size: 62.5%;
@@ -9,8 +7,7 @@
 }
 
 html {
-  font-family: 'Poppins', 'Adjusted Verdana Fallback', Tahoma, Arial, sans-serif;
-  font-weight: 300;
+  font-family: 'Open Sans', sans-serif;
   color: var(--fg);
   background-color: var(--bg);
   text-size-adjust: none;
@@ -19,7 +16,7 @@ html {
 
 body {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   overflow-x: hidden;
 }
 
@@ -37,7 +34,6 @@ main {
 /* make wide tables scroll if they overflow */
 .table-wrapper {
   overflow-x: auto;
-  margin-block-end: 2em;
 }
 
 /* Don't change font size in headers. */
@@ -66,23 +62,13 @@ h6 code {
   display: none !important;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: 'Arial Black', Arial, sans-serif;
-  font-weight: normal;
-}
-
 h2,
 h3 {
-  margin-block-start: 1.5em;
+  margin-block-start: 2.5em;
 }
 h4,
 h5 {
-  margin-block-start: 1em;
+  margin-block-start: 2em;
 }
 
 .header + .header h3,
@@ -91,25 +77,16 @@ h5 {
   margin-block-start: 1em;
 }
 
-h2:target,
-h3:target,
-h4:target,
-h5:target,
-h6:target {
-  margin-left: 20px;
-}
-
+h1:target::before,
 h2:target::before,
 h3:target::before,
 h4:target::before,
 h5:target::before,
 h6:target::before {
   display: inline-block;
-  content: '#';
-  margin-inline-start: -20px;
-  width: 20px;
-  position: relative;
-  color: var(--headers);
+  content: '»';
+  margin-inline-start: -30px;
+  width: 30px;
 }
 
 /* This is broken on Safari as of version 14, but is fixed
@@ -144,16 +121,8 @@ h6:target::before {
 
 .content {
   overflow-y: auto;
-  padding: 0 15px;
-  padding-bottom: 50px;
+  padding: 0 5px 50px 5px;
 }
-
-@media screen and (max-width: 400px) {
-  .content {
-    padding: 0 2px;
-  }
-}
-
 .content main {
   margin-inline-start: auto;
   margin-inline-end: auto;
@@ -180,7 +149,7 @@ h6:target::before {
 }
 .content .header:link,
 .content .header:visited {
-  color: var(--headers);
+  color: var(--fg);
 }
 .content .header:link,
 .content .header:visited:hover {
@@ -190,28 +159,23 @@ h6:target::before {
 table {
   margin: 0 auto;
   border-collapse: collapse;
-  width: 100%;
 }
 table td {
-  padding: 4px 12px;
+  padding: 3px 20px;
   border: 1px var(--table-border-color) solid;
-  border-left-width: 0;
-  border-right-width: 0;
 }
-
+table thead {
+  background: var(--table-header-bg);
+}
 table thead td {
   font-weight: 700;
   border: none;
 }
 table thead th {
-  padding: 4px 12px;
-  text-align: left;
+  padding: 3px 20px;
 }
 table thead tr {
-  border: 2px var(--table-header-bg) solid;
-  border-left-width: 0;
-  border-right-width: 0;
-  border-top: none;
+  border: 1px var(--table-header-bg) solid;
 }
 /* Alternate background colors for rows */
 table tbody tr:nth-child(2n) {
@@ -231,9 +195,6 @@ blockquote {
   margin: 20px;
   padding: 0 20px;
   border-inline-start: 2px solid var(--warning-border);
-  /* Increase the strength of the warning */
-  font-weight: bold;
-  border-bottom: 2px solid var(--warning-border);
 }
 
 .warning:before {
@@ -264,6 +225,16 @@ kbd {
   line-height: 10px;
   padding: 4px 5px;
   vertical-align: middle;
+}
+
+sup {
+  /* Set the line-height for superscript and footnote references so that there
+       isn't an awkward space appearing above lines that contain the footnote.
+
+       See https://github.com/rust-lang/mdBook/pull/2443#discussion_r1813773583
+       for an explanation.
+    */
+  line-height: 0;
 }
 
 :not(.footnote-definition) + .footnote-definition,

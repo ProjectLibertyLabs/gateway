@@ -23,6 +23,35 @@ h6 {
   font-weight: normal;
 }
 
+h1 {
+  margin: 0.67em 0;
+}
+
+/* Reset the margins for the first header in the contents */
+h1:first-of-type {
+  margin-top: 0;
+}
+
+h2 {
+  margin: 0.83em 0;
+}
+
+h3 {
+  margin: 1em 0;
+}
+
+h4 {
+  margin: 1.33em 0;
+}
+
+h5 {
+  margin: 1.67em 0;
+}
+
+h6 {
+  margin: 2.33em 0;
+}
+
 ::-webkit-scrollbar {
   background: var(--bg);
 }

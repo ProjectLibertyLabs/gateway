@@ -7,7 +7,10 @@ window.onunload = function () {};
 function playground_text(playground, hidden = true) {
   let code_block = playground.querySelector('code');
 
-  if (hidden) {
+  if (window.ace && code_block.classList.contains('editable')) {
+    let editor = window.ace.edit(code_block);
+    return editor.getValue();
+  } else if (hidden) {
     return code_block.textContent;
   } else {
     return code_block.innerText;
@@ -42,6 +45,26 @@ function playground_text(playground, hidden = true) {
   function handle_crate_list_update(playground_block, playground_crates) {
     // update the play buttons after receiving the response
     update_play_button(playground_block, playground_crates);
+
+    // and install on change listener to dynamically update ACE editors
+    if (window.ace) {
+      let code_block = playground_block.querySelector('code');
+      if (code_block.classList.contains('editable')) {
+        let editor = window.ace.edit(code_block);
+        editor.addEventListener('change', function (e) {
+          update_play_button(playground_block, playground_crates);
+        });
+        // add Ctrl-Enter command to execute rust code
+        editor.commands.addCommand({
+          name: 'run',
+          bindKey: {
+            win: 'Ctrl-Enter',
+            mac: 'Ctrl-Enter',
+          },
+          exec: (_editor) => run_rust_code(playground_block),
+        });
+      }
+    }
   }
 
   // updates the visibility of play button based on `no_run` class and
@@ -139,9 +162,29 @@ function playground_text(playground, hidden = true) {
       return !node.parentElement.classList.contains('header');
     });
 
-  code_nodes.forEach(function (block) {
-    hljs.highlightBlock(block);
-  });
+  if (window.ace) {
+    // language-rust class needs to be removed for editable
+    // blocks or highlightjs will capture events
+    code_nodes
+      .filter(function (node) {
+        return node.classList.contains('editable');
+      })
+      .forEach(function (block) {
+        block.classList.remove('language-rust');
+      });
+
+    code_nodes
+      .filter(function (node) {
+        return !node.classList.contains('editable');
+      })
+      .forEach(function (block) {
+        hljs.highlightBlock(block);
+      });
+  } else {
+    code_nodes.forEach(function (block) {
+      hljs.highlightBlock(block);
+    });
+  }
 
   // Adding the hljs class gives code blocks the color css
   // even if highlighting doesn't apply
@@ -196,7 +239,7 @@ function playground_text(playground, hidden = true) {
         }
 
         var clipButton = document.createElement('button');
-        clipButton.className = 'fa fa-copy clip-button';
+        clipButton.className = 'clip-button';
         clipButton.title = 'Copy to clipboard';
         clipButton.setAttribute('aria-label', clipButton.title);
         clipButton.innerHTML = '<i class="tooltiptext"></i>';
@@ -229,12 +272,28 @@ function playground_text(playground, hidden = true) {
 
     if (window.playground_copyable) {
       var copyCodeClipboardButton = document.createElement('button');
-      copyCodeClipboardButton.className = 'fa fa-copy clip-button';
+      copyCodeClipboardButton.className = 'clip-button';
       copyCodeClipboardButton.innerHTML = '<i class="tooltiptext"></i>';
       copyCodeClipboardButton.title = 'Copy to clipboard';
       copyCodeClipboardButton.setAttribute('aria-label', copyCodeClipboardButton.title);
 
       buttons.insertBefore(copyCodeClipboardButton, buttons.firstChild);
+    }
+
+    let code_block = pre_block.querySelector('code');
+    if (window.ace && code_block.classList.contains('editable')) {
+      var undoChangesButton = document.createElement('button');
+      undoChangesButton.className = 'fa fa-history reset-button';
+      undoChangesButton.title = 'Undo changes';
+      undoChangesButton.setAttribute('aria-label', undoChangesButton.title);
+
+      buttons.insertBefore(undoChangesButton, buttons.firstChild);
+
+      undoChangesButton.addEventListener('click', function () {
+        let editor = window.ace.edit(code_block);
+        editor.setValue(editor.originalCode);
+        editor.clearSelection();
+      });
     }
   });
 })();
@@ -244,7 +303,14 @@ function playground_text(playground, hidden = true) {
   var themeToggleButton = document.getElementById('theme-toggle');
   var themePopup = document.getElementById('theme-list');
   var themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
+  var themeIds = [];
+  themePopup.querySelectorAll('button.theme').forEach(function (el) {
+    themeIds.push(el.id);
+  });
   var stylesheets = {
+    // MOD: Different stylesheets
+    // ayuHighlight: document.querySelector("[href$='ayu-highlight.css']"),
+    // tomorrowNight: document.querySelector("[href$='tomorrow-night.css']"),
     highlightDark: document.querySelector("[href$='highlight-dark.css']"),
     highlight: document.querySelector("[href$='highlight.css']"),
   };
@@ -273,7 +339,7 @@ function playground_text(playground, hidden = true) {
     try {
       theme = localStorage.getItem('mdbook-theme');
     } catch (e) {}
-    if (theme === null || theme === undefined) {
+    if (theme === null || theme === undefined || !themeIds.includes(theme)) {
       return default_theme;
     } else {
       return theme;
@@ -281,6 +347,9 @@ function playground_text(playground, hidden = true) {
   }
 
   function set_theme(theme, store = true) {
+    let ace_theme;
+
+    // MOD: Different stylesheets
     if (theme == 'coal' || theme == 'navy') {
       stylesheets.highlightDark.disabled = false;
       stylesheets.highlight.disabled = true;
@@ -295,6 +364,12 @@ function playground_text(playground, hidden = true) {
     setTimeout(function () {
       themeColorMetaTag.content = getComputedStyle(document.documentElement).backgroundColor;
     }, 1);
+
+    if (window.ace && window.editors) {
+      window.editors.forEach(function (editor) {
+        editor.setTheme(ace_theme);
+      });
+    }
 
     var previousTheme = get_theme();
 
@@ -411,16 +486,6 @@ function playground_text(playground, hidden = true) {
       localStorage.setItem('mdbook-sidebar', 'visible');
     } catch (e) {}
   }
-
-  var sidebarAnchorToggles = document.querySelectorAll('#sidebar a.toggle');
-
-  function toggleSection(ev) {
-    ev.currentTarget.parentElement.classList.toggle('expanded');
-  }
-
-  Array.from(sidebarAnchorToggles).forEach(function (el) {
-    el.addEventListener('click', toggleSection);
-  });
 
   function hideSidebar() {
     body.classList.remove('sidebar-visible');
@@ -559,12 +624,12 @@ function playground_text(playground, hidden = true) {
 
   function hideTooltip(elem) {
     elem.firstChild.innerText = '';
-    elem.className = 'fa fa-copy clip-button';
+    elem.className = 'clip-button';
   }
 
   function showTooltip(elem, msg) {
     elem.firstChild.innerText = msg;
-    elem.className = 'fa fa-copy tooltipped';
+    elem.className = 'clip-button tooltipped';
   }
 
   var clipboardSnippets = new ClipboardJS('.clip-button', {

@@ -5,15 +5,23 @@ multilingual = false
 src = "src"
 title = "Frequency Developer Gateway"
 
-[preprocessor.local]
-command = "node preprocessor.mjs"
+[preprocessor.button-links]
+command = "node preprocessors/button-links.mjs"
+
+[preprocessor.svg-embed]
+command = "node preprocessors/svg-embed.mjs"
+
+[preprocessor.swagger-embed]
+command = "node preprocessors/swagger-embed.mjs"
 
 
 [output.html]
 additional-css = [
-  "css/extended.css",
   "css/highlight.css",
   "css/highlight-dark.css",
+  "css/tailwind-short.css",
+  "css/button-links.css",
+  "css/overrides.css",
 ]
 no-section-label = true
 git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"

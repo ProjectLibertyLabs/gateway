@@ -17,9 +17,11 @@ command = "node preprocessors/swagger-embed.mjs"
 
 [output.html]
 additional-css = [
-  "css/extended.css",
   "css/highlight.css",
   "css/highlight-dark.css",
+  "css/tailwind-short.css",
+  "css/button-links.css",
+  "css/overrides.css",
 ]
 no-section-label = true
 git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"

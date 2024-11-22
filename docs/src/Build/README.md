@@ -2,9 +2,9 @@
 
 <div class="button-links">
   <a href="./AccountService/AccountService.html">Account Service</a>
-  <a href="./ContentPublishing.html">Content PublisherService</a>
+  <a href="./ContentPublishing.html">Content Publisher Service</a>
   <a href="./GraphService/GraphService.html">Graph Service</a>
-  <a href="./ContentWatcher/ContentWatcher.html">Content WatcherService</a>
+  <a href="./ContentWatcher/ContentWatcher.html">Content Watcher Service</a>
 </div>
 
 {{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}

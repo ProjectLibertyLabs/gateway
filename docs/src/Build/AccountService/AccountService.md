@@ -10,7 +10,7 @@ It includes endpoints for managing user authentication, account details, delegat
 
 ## Configuration
 
-{{#markdown-embed ../developer-docs/account/ENVIRONMENT.md 2}}
+{{#include ../../../../developer-docs/account/ENVIRONMENT.md:2:}}
 
 ## Best Practices
 

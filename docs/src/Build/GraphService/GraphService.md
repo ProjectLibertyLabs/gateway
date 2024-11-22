@@ -10,7 +10,7 @@ The Graph Service manages the social graphs, including follow/unfollow actions, 
 
 ## Configuration
 
-{{#markdown-embed ../developer-docs/graph/ENVIRONMENT.md 2}}
+{{#include ../../../../developer-docs/graph/ENVIRONMENT.md:2:}}
 
 
 ## Best Practices

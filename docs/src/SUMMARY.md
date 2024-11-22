@@ -5,7 +5,7 @@
 
 ---
 
-- [Guides]()
+- [Guides](./GettingStarted/Landing.md)
     - [Quick Start](./GettingStarted/README.md)
     - [Become a Provider](./GettingStarted/BecomeProvider.md)
     - [Single Sign On](./GettingStarted/SSO.md)

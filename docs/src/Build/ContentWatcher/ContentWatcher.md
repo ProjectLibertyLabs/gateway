@@ -10,7 +10,7 @@ The Content Watcher Service monitors and retrieves the latest feed state, includ
 
 ## Configuration
 
-{{#markdown-embed ../developer-docs/content-watcher/ENVIRONMENT.md 2}}
+{{#include ../../../../developer-docs/content-watcher/ENVIRONMENT.md:2:}}
 
 ## Best Practices
 

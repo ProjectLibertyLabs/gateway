@@ -289,3 +289,14 @@ hr {
   color: var(--headers);
   margin: 20px 0;
 }
+
+.warning {
+  position: relative;
+}
+
+.warning:before {
+  width: 2.5rem;
+  margin-inline-start: calc(-3rem + 7px);
+  top: -8px;
+  margin-right: 0.5em;
+}

@@ -9,7 +9,7 @@ APIs
 [Aa]utoscal(er|ing)
 autoscaling.
 backend
-backend-only-accessable
+backend-only-accessible
 backoff
 [Bb]alancers?
 BullMQ

@@ -215,7 +215,7 @@ Learn more about the [SIWF v2 Specification](https://projectlibertylabs.github.i
 ### Account Service
 
 1. Generates a signed SIWF v2 URL using a Provider Control Key.
-2. Retrieves and valdiates the response from the SIWF v2 Callback URL.
+2. Retrieves and validates the response from the SIWF v2 Callback URL.
 
 ### Frequency
 

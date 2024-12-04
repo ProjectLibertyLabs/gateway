@@ -15,7 +15,7 @@ Frequency Developer Gateway is a suite of microservices designed to simplify int
   - [💻 Microservice Start Guide](#microservices-start-guide)
 - [🛫 Deployment](#deployment)
 - [🤝 Contributing](#-contributing)
-- [🙏 Acknowledgements](#-acknowledgements)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [📝 License](#-license)
 
 <!-- PROJECT DESCRIPTION -->
@@ -181,9 +181,9 @@ Contributions, issues, and feature requests are welcome!
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
-<!-- ACKNOWLEDGEMENTS -->
+<!-- ACKNOWLEDGMENTS -->
 
-## 🙏 Acknowledgements
+## 🙏 Acknowledgments
 
 Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
 

@@ -24,7 +24,7 @@ See [Account Service Details & API Reference](./AccountService/README)
 ## Graph Service
 
 The Graph Service enables easy interaction with social graphs on Frequency.
-Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidiectional (double opt-in friend connection).
+Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidirectional (double opt-in friend connection).
 
 - Fetch user graph
 - Update delegated user graphs
@@ -47,7 +47,7 @@ See [Content Publishing Service Details & API Reference](./ContentPublishing)
 
 ## Content Watcher Service
 
-The Content Watcher Service enables client applications to process content found on Frequency by registering for webhook notifications, triggered when relevant content is found, eleminating the need to interact with the chain for new content.
+The Content Watcher Service enables client applications to process content found on Frequency by registering for webhook notifications, triggered when relevant content is found, eliminating the need to interact with the chain for new content.
 
 - Parses and validates Frequency content
 - Filterable webhooks

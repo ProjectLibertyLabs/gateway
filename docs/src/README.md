@@ -1,4 +1,4 @@
-# Making Decentrialized Social Easy
+# Making Decentralized Social Easy
 
 Getting started building on Decentralized Social is as easy as deploying a Web2 API.
 
@@ -45,7 +45,7 @@ Accounts are defined as an `msaId` (64-bit identifier) and can contain additiona
 ### Graph Service
 
 The Graph Service enables easy interaction with social graphs on Frequency.
-Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidiectional (double opt-in friend connection).
+Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidirectional (double opt-in friend connection).
 
 - Fetch user graph
 - Update delegated user graphs
@@ -64,7 +64,7 @@ The Content Publishing Service enables the creation of new content-related activ
 
 ### Content Watcher Service
 
-The Content Watcher Service enables client applications to process content found on Frequency by registering for webhook notifications, triggered when relevant content is found, eleminating the need to interact with the chain for new content.
+The Content Watcher Service enables client applications to process content found on Frequency by registering for webhook notifications, triggered when relevant content is found, eliminating the need to interact with the chain for new content.
 
 - Parses and validates Frequency content
 - Filterable webhooks

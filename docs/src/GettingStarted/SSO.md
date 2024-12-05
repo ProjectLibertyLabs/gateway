@@ -21,7 +21,7 @@ In this tutorial, you will set up a Sign In With Frequency button for use with T
 ## Prerequisites
 Ensure you have:
 - Registered your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
-- A backend-only-accessable [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
+- A backend-only-accessible [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
 - Access to a Frequency RPC Node.
     - Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 
@@ -215,7 +215,7 @@ Learn more about the [SIWF v2 Specification](https://projectlibertylabs.github.i
 ### Account Service
 
 1. Generates a signed SIWF v2 URL using a Provider Control Key.
-2. Retrieves and valdiates the response from the SIWF v2 Callback URL.
+2. Retrieves and validates the response from the SIWF v2 Callback URL.
 
 ### Frequency
 

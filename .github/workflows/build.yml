@@ -126,6 +126,9 @@ jobs:
       - name: Lint
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run lint:${{ matrix.service }}
+      - name: Spellcheck
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        run: npm run spellcheck
       - name: Unit Test
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run test:${{ matrix.service }}

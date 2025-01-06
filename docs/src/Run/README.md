@@ -43,7 +43,7 @@ The following environment variables are common to all Gateway Services. This sni
 
 Each service requires connection to a Redis instance. The `REDIS_URL` environment variable is set to `redis://redis:6379` by default. If you are using a different Redis instance, you can set the `REDIS_URL` environment variable to the appropriate connection string.
 
-Each service also requires a docker network (or equivalent) to connect to any other containers. The default network is set to `gateway_net`. If you are using a different network, you can edit the `networks:` environment variable in the `docker-compose.yaml` to the appropriate network name.
+Each service also requires a docker network (or equivalent) to connect to any other containers. The default network is set to `gateway-net`. If you are using a different network, you can edit the `networks:` environment variable in the `docker-compose.yaml` to the appropriate network name.
 
 Some services require a connection to an IPFS instance. See the [IPFS Setup Guide](./IPFS.md) for more information.
 

@@ -134,7 +134,6 @@ services:
       START_PROCESS: graph-api
     depends_on:
       - redis
-      - ipfs
     networks:
       - gateway-net
 
@@ -148,7 +147,6 @@ services:
       START_PROCESS: graph-worker
     depends_on:
       - redis
-      - ipfs
     networks:
       - gateway-net
 

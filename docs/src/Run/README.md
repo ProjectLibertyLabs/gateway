@@ -72,7 +72,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 | **Graph Service**              | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
 | **Docker Image**               | `projectlibertylabs/graph-service`                                                                |
-| **Dependencies**               | Redis, IPFS                                                                                       |
+| **Dependencies**               | Redis                                                                                       |
 | **API Ports**                  | `3000`                                                                                            |
 | **Inter-Service Ports**        | `6379, 9944`                                                                                      |
 | **Docker Compose Services**    | graph-service-api `START_PROCESS: graph-api`                                                      |

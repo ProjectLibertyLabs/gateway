@@ -13,8 +13,6 @@ services:
     depends_on: !override
       redis:
         condition: service_started
-      ipfs:
-        condition: service_healthy
       account-service-webhook:
         condition: service_healthy
     environment:
@@ -29,7 +27,6 @@ services:
     volumes: !reset []
     depends_on: !override
       - redis
-      - ipfs
     environment:
       WEBHOOK_BASE_URL: 'http://account-service-webhook:3001/webhooks/account-service'
 

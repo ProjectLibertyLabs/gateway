@@ -17,7 +17,6 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  CHAIN_ENVIRONMENT: dev
   DEBUG: true
 
 x-content-publishing-env: &content-publishing-env

@@ -38,7 +38,6 @@ The following environment variables are common to all Gateway Services. This sni
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  CHAIN_ENVIRONMENT: 'dev'
 ```
 
 Each service requires connection to a Redis instance. The `REDIS_URL` environment variable is set to `redis://redis:6379` by default. If you are using a different Redis instance, you can set the `REDIS_URL` environment variable to the appropriate connection string.

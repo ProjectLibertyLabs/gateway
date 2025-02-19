@@ -247,6 +247,58 @@
         ]
       }
     },
+    "/v2/content/{schemaId}/onChainContent": {
+      "post": {
+        "operationId": "ContentControllerV2_postContent",
+        "summary": "Create on-chain content for a given schema",
+        "parameters": [
+          {
+            "name": "schemaId",
+            "required": true,
+            "in": "path",
+            "description": "SchemaId in decimal format",
+            "schema": {
+              "example": 15,
+              "type": "number"
+            }
+          },
+          {
+            "name": "onBehalfOf",
+            "required": false,
+            "in": "query",
+            "description": "Optional MSA ID this post is on behalf of",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnChainContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/content"
+        ]
+      }
+    },
     "/v1/profile/{msaId}": {
       "put": {
         "operationId": "ProfileControllerV1_profile",
@@ -725,6 +777,19 @@
         "required": [
           "targetAnnouncementType",
           "targetContentHash"
+        ]
+      },
+      "OnChainContentDto": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "string",
+            "description": "Binary content encoded as a Base64 string",
+            "format": "byte"
+          }
+        },
+        "required": [
+          "payload"
         ]
       },
       "ProfileActivityDto": {

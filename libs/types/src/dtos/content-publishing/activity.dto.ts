@@ -11,6 +11,7 @@ import {
   IsISO8601,
   IsLatitude,
   IsLongitude,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -22,7 +23,7 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { DURATION_REGEX } from './validation';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
@@ -283,4 +284,18 @@ export class ProfileActivityDto extends BaseActivityDto {
   @IsOptional()
   @IsISO8601({ strict: true, strictSeparator: true })
   published?: string;
+}
+
+export class OnChainContentDto {
+  /**
+   *  Payload bytes encoded using the schema defined by `schemaId`
+   */
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Binary content encoded as a Base64 string',
+    type: 'string',
+    format: 'byte', // OpenAPI 3.0 format for base64-encoded data
+  })
+  @Transform(({ value }) => Buffer.from(value, 'base64')) // Convert from Base64 to Uint8Array
+  payload: Uint8Array;
 }

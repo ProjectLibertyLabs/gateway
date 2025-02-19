@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 
 export function isValidMsa(value: unknown): boolean {
   // no leading zeros are accepted since this would cause different DsnpUserUri to be valid for the same user
@@ -30,4 +31,16 @@ export function IsMsaId(validationOptions?: ValidationOptions) {
       },
     });
   };
+}
+
+@Injectable()
+export class ParseMsaIdPipe implements PipeTransform {
+  // eslint-disable-next-line class-methods-use-this
+  transform(value: string | undefined, metadata: ArgumentMetadata): string | undefined {
+    if (value && !isValidMsa(value)) {
+      throw new BadRequestException(`${metadata.data} should be a valid positive number!`);
+    }
+
+    return value;
+  }
 }

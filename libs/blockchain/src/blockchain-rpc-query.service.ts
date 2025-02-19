@@ -29,7 +29,6 @@ import {
   ItemizedStoragePageResponse,
   KeyInfoResponse,
   PaginatedStorageResponse,
-  SchemaId,
 } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
 import {

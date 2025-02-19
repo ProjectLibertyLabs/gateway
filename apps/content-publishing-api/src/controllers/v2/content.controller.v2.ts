@@ -2,14 +2,13 @@ import {
   Body,
   Controller,
   HttpCode,
-  Logger,
   Param,
   Post,
   Query,
   PayloadTooLargeException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ApiOperation, ApiPayloadTooLargeResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import { AnnouncementResponseDto, OnChainContentDto } from '#types/dtos/content-publishing';
 import { SchemaIdDto } from '#types/dtos/common';

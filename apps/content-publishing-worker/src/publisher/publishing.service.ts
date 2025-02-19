@@ -15,7 +15,7 @@ import {
 } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { MessagePublisher } from './message.publisher';
-import { IContentTxStatus, IPublisherJob, isIpfsJob, isOnChainJob } from '#types/interfaces';
+import { IContentTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 

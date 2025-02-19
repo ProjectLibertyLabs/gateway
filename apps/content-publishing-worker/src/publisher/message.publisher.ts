@@ -16,8 +16,7 @@ export class MessagePublisher {
   public async publish(
     message: IPublisherJob,
   ): Promise<[SubmittableExtrinsic<'promise', ISubmittableResult>, HexString]> {
-    this.logger.debug(JSON.stringify(message));
-    const tx = isIpfsJob(message.data)
+    const tx = isIpfsJob(message)
       ? this.blockchainService.generateAddIpfsMessage(message.schemaId, message.data.cid, message.data.payloadLength)
       : this.blockchainService.generateAddOnchainMessage(
           message.schemaId,

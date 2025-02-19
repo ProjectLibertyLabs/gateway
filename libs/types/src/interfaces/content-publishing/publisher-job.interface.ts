@@ -8,13 +8,25 @@ export interface OnChainJobData {
   onBehalfOf?: string;
 }
 
-export interface IPublisherJob {
+interface IBasePublisherJob {
   id: string;
   schemaId: number;
-  data: IPFSJobData | OnChainJobData;
 }
 
-export function isIpfsJob(data: IPFSJobData | OnChainJobData): data is IPFSJobData {
-  // eslint-disable-next-line dot-notation
-  return typeof data['cid'] === 'string';
+interface IIpfsPublisherJob extends IBasePublisherJob {
+  data: IPFSJobData;
+}
+
+interface IOnChainPublisherJob extends IBasePublisherJob {
+  data: OnChainJobData;
+}
+
+export type IPublisherJob = IIpfsPublisherJob | IOnChainPublisherJob;
+
+export function isIpfsJob(job: IPublisherJob): job is IIpfsPublisherJob {
+  return 'cid' in job.data;
+}
+
+export function isOnChainJob(job: IPublisherJob): job is IOnChainPublisherJob {
+  return 'payload' in job.data;
 }

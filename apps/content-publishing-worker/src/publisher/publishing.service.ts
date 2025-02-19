@@ -15,7 +15,7 @@ import {
 } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { MessagePublisher } from './message.publisher';
-import { IContentTxStatus, IPublisherJob, isIpfsJob } from '#types/interfaces';
+import { IContentTxStatus, IPublisherJob, isIpfsJob, isOnChainJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
@@ -53,6 +53,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
   async process(job: Job<IPublisherJob, any, string>): Promise<void> {
     try {
+      const { data: jobData } = job;
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError();
@@ -61,24 +62,24 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
-      if (!isIpfsJob(job.data.data) && typeof job.data.data.onBehalfOf !== 'undefined') {
+      if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
         const isDelegationValid = await this.blockchainService.checkCurrentDelegation(
-          job.data.data.onBehalfOf,
-          job.data.schemaId,
+          jobData.data.onBehalfOf,
+          jobData.schemaId,
           this.blockchainConf.providerId,
         );
         if (!isDelegationValid) {
           throw new UnrecoverableError('No valid delegation for schema');
         }
       }
-      const [tx, txHash] = await this.messagePublisher.publish(job.data);
+      const [tx, txHash] = await this.messagePublisher.publish(jobData);
 
       const status: IContentTxStatus = {
         txHash,
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),
         death: tx.era.asMortalEra.death(currentBlockNumber),
-        referencePublishJob: job.data,
+        referencePublishJob: jobData,
       };
       const obj = {};
       obj[txHash.toString()] = JSON.stringify(status);

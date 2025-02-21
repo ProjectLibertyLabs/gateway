@@ -1,15 +1,22 @@
+import { HexString } from '@polkadot/util/types';
+
 export interface IPFSJobData {
   cid: string;
+
   payloadLength: number;
 }
 
 export interface OnChainJobData {
-  payload: Uint8Array;
+  payload: HexString;
+
+  published: string;
+
   onBehalfOf?: string;
 }
 
 interface IBasePublisherJob {
   id: string;
+
   schemaId: number;
 }
 

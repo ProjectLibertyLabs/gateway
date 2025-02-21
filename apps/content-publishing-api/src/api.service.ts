@@ -12,7 +12,6 @@ import {
   AssetIncludedRequestDto,
   isImage,
   UploadResponseDto,
-  AttachmentType,
   OnChainContentDto,
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob, IPublisherJob } from '#types/interfaces/content-publishing';
@@ -22,7 +21,7 @@ import {
   ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#types/constants/redis-keys.constants';
-import { AnnouncementTypeName } from '#types/enums';
+import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 
@@ -39,18 +38,12 @@ export class ApiService {
     this.logger = new Logger(this.constructor.name);
   }
 
-  async enqueueContent(
-    schemaId: number,
-    contentDto: OnChainContentDto,
-    onBehalfOf: string,
-  ): Promise<AnnouncementResponseDto> {
+  async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
+    const { schemaId, ...data } = content;
     const jobData: IPublisherJob = {
-      id: Date.now().toString(), // timestamp will get overwritten, but guarantees id-uniqueness
+      id: '',
       schemaId,
-      data: {
-        onBehalfOf,
-        payload: contentDto.payload,
-      },
+      data: { ...data, onBehalfOf: msaId },
     };
     jobData.id = this.calculateJobId(jobData);
     const job = await this.publishQueue.add(`OnChain content job - ${jobData.id}`, jobData, {
@@ -66,7 +59,7 @@ export class ApiService {
 
   async enqueueRequest(
     announcementType: AnnouncementTypeName,
-    dsnpUserId: string,
+    msaId: string,
     content: RequestTypeDto,
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<AnnouncementResponseDto> {
@@ -74,7 +67,7 @@ export class ApiService {
       content,
       id: '',
       announcementType,
-      dsnpUserId,
+      msaId,
       dependencyAttempt: 0,
     } as IRequestJob;
     data.id = this.calculateJobId(data);

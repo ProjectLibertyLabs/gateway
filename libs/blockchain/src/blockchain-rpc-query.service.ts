@@ -733,7 +733,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
   public generateAddOnchainMessage(
     schemaId: AnyNumber,
-    payload: Uint8Array,
+    payload: HexString,
     onBehalfOf: AnyNumber,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx.messages.addOnchainMessage(onBehalfOf, schemaId, payload);

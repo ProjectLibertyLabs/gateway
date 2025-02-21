@@ -247,6 +247,49 @@
         ]
       }
     },
+    "/v2/content/{msaId}/on-chain": {
+      "post": {
+        "operationId": "ContentControllerV2_postContent",
+        "summary": "Create on-chain content for a given schema",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "description": "Msa Id of requested account",
+            "schema": {
+              "example": "2",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnChainContentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/content"
+        ]
+      }
+    },
     "/v1/profile/{msaId}": {
       "put": {
         "operationId": "ProfileControllerV1_profile",
@@ -725,6 +768,30 @@
         "required": [
           "targetAnnouncementType",
           "targetContentHash"
+        ]
+      },
+      "OnChainContentDto": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number",
+            "description": "Schema ID of the OnChain schema this message is being posted to.\n@example: 16"
+          },
+          "payload": {
+            "type": "string",
+            "description": "Payload bytes encoded as a hex string using the schema defined by `schemaId`",
+            "pattern": "/^0x/"
+          },
+          "published": {
+            "type": "string",
+            "description": "The time of publishing ISO8601",
+            "example": "1970-01-01T00:00:00+00:00"
+          }
+        },
+        "required": [
+          "schemaId",
+          "payload",
+          "published"
         ]
       },
       "ProfileActivityDto": {

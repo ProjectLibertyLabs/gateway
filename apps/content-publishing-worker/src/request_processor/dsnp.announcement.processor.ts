@@ -21,8 +21,6 @@ import {
   ProfileDto,
   TombstoneDto,
   ModifiableAnnouncementType,
-  TagTypeEnum,
-  AttachmentType,
   AssetDto,
   TagDto,
 } from '#types/dtos/content-publishing';
@@ -42,7 +40,7 @@ import {
   createProfile,
 } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
+import { AnnouncementType, AnnouncementTypeName, AttachmentType, TagTypeEnum } from '#types/enums';
 import { getIpfsCidPlaceholder, IIpfsConfig, IpfsService } from '#storage';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
@@ -66,7 +64,7 @@ export class DsnpAnnouncementProcessor {
 
   public async collectAnnouncementAndQueue(data: IRequestJob) {
     this.logger.debug(`Collecting announcement and queuing`);
-    this.logger.verbose(`Processing Activity: ${data.announcementType} for ${data.dsnpUserId}`);
+    this.logger.verbose(`Processing Activity: ${data.announcementType} for ${data.msaId}`);
     try {
       switch (data.announcementType) {
         case AnnouncementTypeName.BROADCAST:
@@ -91,13 +89,13 @@ export class DsnpAnnouncementProcessor {
           throw new Error(`Unsupported announcement type ${typeof data.announcementType}`);
       }
     } catch (e) {
-      this.logger.error(`Error processing announcement ${data.announcementType} for ${data.dsnpUserId}: ${e}`);
+      this.logger.error(`Error processing announcement ${data.announcementType} for ${data.msaId}: ${e}`);
       throw e;
     }
   }
 
   private async queueBroadcast(data: IRequestJob) {
-    const broadcast = await this.processBroadcast(data.content as BroadcastDto, data.dsnpUserId, data.assetToMimeType);
+    const broadcast = await this.processBroadcast(data.content as BroadcastDto, data.msaId, data.assetToMimeType);
     await this.broadcastQueue.add(`Broadcast Job - ${data.id}`, broadcast, {
       jobId: data.id,
       removeOnFail: false,
@@ -106,7 +104,7 @@ export class DsnpAnnouncementProcessor {
   }
 
   private async queueReply(data: IRequestJob) {
-    const reply = await this.processReply(data.content as ReplyDto, data.dsnpUserId, data.assetToMimeType);
+    const reply = await this.processReply(data.content as ReplyDto, data.msaId, data.assetToMimeType);
     await this.replyQueue.add(`Reply Job - ${data.id}`, reply, {
       jobId: data.id,
       removeOnFail: false,
@@ -115,7 +113,7 @@ export class DsnpAnnouncementProcessor {
   }
 
   private async queueReaction(data: IRequestJob) {
-    const reaction = await this.processReaction(data.content as ReactionDto, data.dsnpUserId);
+    const reaction = await this.processReaction(data.content as ReactionDto, data.msaId);
     await this.reactionQueue.add(`Reaction Job - ${data.id}`, reaction, {
       jobId: data.id,
       removeOnFail: false,
@@ -132,7 +130,7 @@ export class DsnpAnnouncementProcessor {
       updateDto,
       updateAnnouncementType,
       updateDto.targetContentHash ?? '',
-      data.dsnpUserId,
+      data.msaId,
       data.assetToMimeType,
     );
     await this.updateQueue.add(`Update Job - ${data.id}`, update, {
@@ -143,7 +141,7 @@ export class DsnpAnnouncementProcessor {
   }
 
   private async queueProfile(data: IRequestJob) {
-    const profile = await this.processProfile(data.content as ProfileDto, data.dsnpUserId, data.assetToMimeType);
+    const profile = await this.processProfile(data.content as ProfileDto, data.msaId, data.assetToMimeType);
     await this.profileQueue.add(`Profile Job - ${data.id}`, profile, {
       jobId: data.id,
       removeOnFail: false,
@@ -156,7 +154,7 @@ export class DsnpAnnouncementProcessor {
     const announcementType: AnnouncementType = await this.getAnnouncementTypeFromModifiableAnnouncementType(
       tombStoneDto.targetAnnouncementType,
     );
-    const tombstone = createTombstone(data.dsnpUserId, announcementType, tombStoneDto.targetContentHash ?? '');
+    const tombstone = createTombstone(data.msaId, announcementType, tombStoneDto.targetContentHash ?? '');
     await this.tombstoneQueue.add(`Tombstone Job - ${data.id}`, tombstone, {
       jobId: data.id,
       removeOnFail: false,

@@ -1,3 +1,5 @@
+export * from './activity.interface';
+export * from './announcement.interface';
 export * from './asset-job.interface';
 export * from './batch-announcer.job.interface';
 export * from './batch.interface';

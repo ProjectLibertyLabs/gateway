@@ -1,7 +1,7 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
-import { DelayedError, Job, Queue } from 'bullmq';
+import { DelayedError, Job, Queue, UnrecoverableError } from 'bullmq';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
@@ -14,9 +14,8 @@ import {
   TXN_WATCH_LIST_KEY,
 } from '#types/constants';
 import { BaseConsumer } from '#consumer';
-import { IPublisherJob } from '../interfaces';
-import { IPFSPublisher } from './ipfs.publisher';
-import { IContentTxStatus } from '#types/interfaces';
+import { MessagePublisher } from './message.publisher';
+import { IContentTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 
@@ -30,7 +29,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainService,
-    private ipfsPublisher: IPFSPublisher,
+    private messagePublisher: MessagePublisher,
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
     private capacityCheckerService: CapacityCheckerService,
@@ -54,20 +53,33 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
   async process(job: Job<IPublisherJob, any, string>): Promise<void> {
     try {
+      const { data: jobData } = job;
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
       const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
-      const [tx, txHash] = await this.ipfsPublisher.publish(job.data);
+
+      // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
+      if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
+        const isDelegationValid = await this.blockchainService.checkCurrentDelegation(
+          jobData.data.onBehalfOf,
+          jobData.schemaId,
+          this.blockchainConf.providerId,
+        );
+        if (!isDelegationValid) {
+          throw new UnrecoverableError('No valid delegation for schema');
+        }
+      }
+      const [tx, txHash] = await this.messagePublisher.publish(jobData);
 
       const status: IContentTxStatus = {
         txHash,
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),
         death: tx.era.asMortalEra.death(currentBlockNumber),
-        referencePublishJob: job.data,
+        referencePublishJob: jobData,
       };
       const obj = {};
       obj[txHash.toString()] = JSON.stringify(status);

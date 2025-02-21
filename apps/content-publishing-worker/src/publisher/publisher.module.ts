@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PublishingService } from './publishing.service';
-import { IPFSPublisher } from './ipfs.publisher';
+import { MessagePublisher } from './message.publisher';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [PublishingService, IPFSPublisher],
-  exports: [PublishingService, IPFSPublisher],
+  providers: [PublishingService, MessagePublisher],
+  exports: [PublishingService, MessagePublisher],
 })
 export class PublisherModule {}

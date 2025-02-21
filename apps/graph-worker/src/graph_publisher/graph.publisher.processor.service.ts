@@ -71,7 +71,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           if (typeof job.data.update.payload === 'object' && 'data' in job.data.update.payload) {
             payloadData = Array.from((job.data.update.payload as { data: Uint8Array }).data);
           }
-          const tx = this.blockchainService.upsertPage(
+          const tx = this.blockchainService.generateUpsertPage(
             job.data.update.ownerDsnpUserId,
             job.data.update.schemaId,
             job.data.update.pageId,
@@ -83,7 +83,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         }
         case 'DeletePage': {
           successMethod = 'PaginatedPageDeleted';
-          const tx = this.blockchainService.deletePage(
+          const tx = this.blockchainService.generateDeletePage(
             job.data.update.ownerDsnpUserId,
             job.data.update.schemaId,
             job.data.update.pageId,

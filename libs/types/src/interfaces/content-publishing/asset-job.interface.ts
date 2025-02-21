@@ -1,4 +1,4 @@
-import { AttachmentType } from '#types/dtos/content-publishing';
+import { AttachmentType } from '#types/enums';
 
 export interface IAssetJob {
   ipfsCid: string;

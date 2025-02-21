@@ -2,6 +2,7 @@
 import { IsNotEmpty, IsString, IsUrl, MinLength } from 'class-validator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
+import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 
 export class MsaIdDto {
   /**
@@ -48,4 +49,12 @@ export class AccountIdDto {
    */
   @IsAccountIdOrAddress()
   accountId: string;
+}
+export class SchemaIdDto {
+  /**
+   * SchemaId in decimal format
+   * @example 15
+   */
+  @IsSchemaId()
+  schemaId: number;
 }

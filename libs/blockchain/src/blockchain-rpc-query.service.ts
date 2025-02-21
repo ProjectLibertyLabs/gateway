@@ -214,6 +214,21 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return response;
   }
 
+  public async checkCurrentDelegation(msaId: AnyNumber, schemaId: AnyNumber, providerId: AnyNumber): Promise<boolean> {
+    const delegation = (
+      await this.api.rpc.msa.checkDelegations(
+        [msaId],
+        providerId,
+        (await this.api.rpc.chain.getHeader()).number.toNumber(),
+        schemaId,
+      )
+    )
+      .toArray()
+      .find(([delegatorId, _]) => delegatorId.toString() === (typeof msaId === 'string' ? msaId : msaId.toString()));
+
+    return delegation[1].toPrimitive();
+  }
+
   public async getProviderToRegistryEntry(
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaProviderRegistryEntry | null> {
@@ -390,7 +405,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.system.events()).toArray();
   }
 
-  public async addPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
+  public async generateAddPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const txPayload = this.createAddPublicKeyToMsaPayload(payload);
 
@@ -403,7 +418,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return addKeyResponse;
   }
 
-  public async addPublicKeyAgreementToMsa(
+  public async generateAddPublicKeyAgreementToMsa(
     keysRequest: PublicKeyAgreementRequestDto,
   ): Promise<SubmittableExtrinsic<any>> {
     const { accountId, payload, proof } = keysRequest;
@@ -466,7 +481,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  public async revokeDelegationByDelegator(
+  public async generateRevokeDelegationByDelegator(
     providerId: string,
   ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
     return this.api.tx.msa.revokeDelegationByDelegator(providerId);
@@ -534,7 +549,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  public async publishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
+  public async generatePublishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
     this.logger.debug(`claimHandlePayload: ${JSON.stringify(jobData.payload)}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
@@ -664,7 +679,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  public async retireMsa() {
+  public async generateRetireMsa() {
     return this.api.tx.msa.retireMsa();
   }
 
@@ -688,7 +703,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return {} as MsaRetired;
   }
 
-  public upsertPage(
+  public generateUpsertPage(
     msaId: AnyNumber,
     schemaId: AnyNumber,
     pageId: AnyNumber,
@@ -699,7 +714,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.api.tx.statefulStorage.upsertPage(msaId, schemaId, pageId, targetHash, payload as any);
   }
 
-  public deletePage(
+  public generateDeletePage(
     msaId: AnyNumber,
     schemaId: AnyNumber,
     pageId: AnyNumber,
@@ -708,12 +723,20 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.api.tx.statefulStorage.deletePage(msaId, schemaId, pageId, targetHash);
   }
 
-  public addIpfsMessage(
+  public generateAddIpfsMessage(
     schemaId: AnyNumber,
     cid: string,
     payloadLength: number,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx.messages.addIpfsMessage(schemaId, cid, payloadLength);
+  }
+
+  public generateAddOnchainMessage(
+    schemaId: AnyNumber,
+    payload: HexString,
+    onBehalfOf: AnyNumber,
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+    return this.api.tx.messages.addOnchainMessage(onBehalfOf, schemaId, payload);
   }
 
   public decodeTransaction(encodedExtrinsic: string) {

@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Queue } from 'bullmq';
 import { expect, describe, it, beforeEach, jest } from '@jest/globals';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
-import { ModifiableAnnouncementType, TagTypeEnum } from '#types/dtos/content-publishing';
+import { ModifiableAnnouncementType } from '#types/dtos/content-publishing';
 import { IRequestJob } from '#types/interfaces/content-publishing';
-import { AnnouncementTypeName } from '#types/enums';
+import { AnnouncementTypeName, TagTypeEnum } from '#types/enums';
 import { IIpfsConfig, IpfsService } from '#storage';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 
@@ -62,7 +62,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '1',
       announcementType: AnnouncementTypeName.BROADCAST,
-      dsnpUserId: 'dsnp://123',
+      msaId: 'dsnp://123',
       dependencyAttempt: 0,
       content: {
         content: {
@@ -85,7 +85,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '2',
       announcementType: AnnouncementTypeName.REPLY,
-      dsnpUserId: 'dsnp://456',
+      msaId: 'dsnp://456',
       dependencyAttempt: 0,
       content: {
         content: {
@@ -110,7 +110,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '3',
       announcementType: AnnouncementTypeName.REACTION,
-      dsnpUserId: 'dsnp://789',
+      msaId: 'dsnp://789',
       dependencyAttempt: 0,
       content: {
         emoji: '👍',
@@ -132,7 +132,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '4',
       announcementType: AnnouncementTypeName.UPDATE,
-      dsnpUserId: 'dsnp://101',
+      msaId: 'dsnp://101',
       dependencyAttempt: 0,
       content: {
         content: {
@@ -158,7 +158,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '5',
       announcementType: AnnouncementTypeName.PROFILE,
-      dsnpUserId: 'dsnp://789',
+      msaId: 'dsnp://789',
       dependencyAttempt: 0,
       content: {
         profile: {
@@ -187,7 +187,7 @@ describe('DsnpAnnouncementProcessor', () => {
     const data: IRequestJob = {
       id: '6',
       announcementType: AnnouncementTypeName.TOMBSTONE,
-      dsnpUserId: 'dsnp://999',
+      msaId: 'dsnp://999',
       dependencyAttempt: 0,
       content: {
         targetAnnouncementType: ModifiableAnnouncementType.BROADCAST,

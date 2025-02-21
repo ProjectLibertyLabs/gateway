@@ -8,9 +8,11 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsHexadecimal,
   IsISO8601,
   IsLatitude,
   IsLongitude,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -27,32 +29,22 @@ import { DURATION_REGEX } from './validation';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { OnChainJobData } from '#types/interfaces';
+import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
+import { HexString } from '@polkadot/util/types';
+import { UnitTypeEnum } from '../../enums/unit-type.enum';
+import { TagTypeEnum } from '../../enums/tag-type.enum';
+import {
+  IAsset,
+  IAssetReference,
+  IBaseActivity,
+  ILocation,
+  INoteActivity,
+  IProfileActivity,
+  ITag,
+} from '#types/interfaces/content-publishing/activity.interface';
 
-// eslint-disable-next-line no-shadow
-export enum UnitTypeEnum {
-  CM = 'cm',
-  M = 'm',
-  KM = 'km',
-  INCHES = 'inches',
-  FEET = 'feet',
-  MILES = 'miles',
-}
-
-// eslint-disable-next-line no-shadow
-export enum TagTypeEnum {
-  Mention = 'mention',
-  Hashtag = 'hashtag',
-}
-
-// eslint-disable-next-line no-shadow
-export enum AttachmentType {
-  LINK = 'link',
-  IMAGE = 'image',
-  AUDIO = 'audio',
-  VIDEO = 'video',
-}
-
-export class LocationDto {
+export class LocationDto implements ILocation {
   /**
    * The display name for the location
    * @example 'New York, NY'
@@ -117,7 +109,7 @@ export class LocationDto {
   units?: UnitTypeEnum;
 }
 
-export class AssetReferenceDto {
+export class AssetReferenceDto implements IAssetReference {
   /**
    * The unique Id for the uploaded asset
    * @example 'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu'
@@ -152,7 +144,7 @@ export class AssetReferenceDto {
   duration?: string;
 }
 
-export class TagDto {
+export class TagDto implements ITag {
   @IsEnum(TagTypeEnum)
   @ApiProperty({
     description: 'Identifies the tag type',
@@ -180,7 +172,7 @@ export class TagDto {
   mentionedId?: string;
 }
 
-export class AssetDto {
+export class AssetDto implements IAsset {
   /**
    * Determines if this asset is a link
    * @example false
@@ -217,7 +209,7 @@ export class AssetDto {
   href?: string;
 }
 
-export class BaseActivityDto {
+export class BaseActivityDto implements IBaseActivity {
   /**
    * The display name for the activity type
    * @example 'A simple activity'
@@ -237,7 +229,7 @@ export class BaseActivityDto {
   location?: LocationDto;
 }
 
-export class NoteActivityDto extends BaseActivityDto {
+export class NoteActivityDto extends BaseActivityDto implements INoteActivity {
   /**
    * Text content of the note
    * @example 'Hello world!'
@@ -260,7 +252,7 @@ export class NoteActivityDto extends BaseActivityDto {
   assets?: AssetDto[];
 }
 
-export class ProfileActivityDto extends BaseActivityDto {
+export class ProfileActivityDto extends BaseActivityDto implements IProfileActivity {
   @IsOptional()
   @ValidateNested({ each: true })
   @IsArray()
@@ -283,4 +275,28 @@ export class ProfileActivityDto extends BaseActivityDto {
   @IsOptional()
   @IsISO8601({ strict: true, strictSeparator: true })
   published?: string;
+}
+
+export class OnChainContentDto implements OnChainJobData {
+  /**
+   * Schema ID of the OnChain schema this message is being posted to.
+   * @example: 16
+   */
+  @IsSchemaId()
+  schemaId: number;
+
+  /**
+   *  Payload bytes encoded as a hex string using the schema defined by `schemaId`
+   */
+  @IsNotEmpty()
+  @IsHexadecimal()
+  @Matches(/^0x/, { message: "payload bytes must include '0x' prefix" })
+  payload: HexString;
+
+  /**
+   * The time of publishing ISO8601
+   * @example '1970-01-01T00:00:00+00:00'
+   */
+  @IsISO8601({ strict: true, strictSeparator: true })
+  published: string;
 }

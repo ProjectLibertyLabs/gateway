@@ -8,6 +8,7 @@ export interface IContentPublishingApiConfig {
   apiTimeoutMs: number;
   fileUploadMaxSizeBytes: number;
   fileUploadCountLimit: number;
+  providerId: bigint;
 }
 
 export default registerAs('content-publishing-api', (): IContentPublishingApiConfig => {
@@ -32,6 +33,10 @@ export default registerAs('content-publishing-api', (): IContentPublishingApiCon
     fileUploadCountLimit: {
       value: process.env.FILE_UPLOAD_COUNT_LIMIT,
       joi: Joi.number().min(1).required(),
+    },
+    providerId: {
+      value: process.env.PROVIDER_ID,
+      joi: JoiUtils.bigintSchema().required(),
     },
   };
 

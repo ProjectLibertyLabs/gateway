@@ -29,7 +29,8 @@ export function validateContentHash(contentHash: unknown): boolean {
       return false;
     }
 
-    const hash = decoded.slice(versionLength);
+    const [_multicodec, multicodecLength] = varint.decode(decoded, versionLength);
+    const hash = decoded.slice(versionLength + multicodecLength);
 
     const hex = u8aToHex(hash).toLowerCase();
 
@@ -37,7 +38,7 @@ export function validateContentHash(contentHash: unknown): boolean {
     // check blake3   hash 0x1e20 -> 0x1e for (blake3)   and hash length (0x20 for 32 bytes)
     // check sha2-256 hash 0x1220 -> 0x12 for (sha2-256) and hash length (0x20 for 32 bytes)
     if (!(hex.startsWith('0x1e20') || hex.startsWith('0x1220'))) {
-      console.error(`Unsupported hashing algorithm: ${hex.slice(0, 4)}`);
+      console.error(`Unsupported hashing algorithm: ${hex.slice(0, 4)} (${contentHash})`);
       return false;
     }
   } catch (err: any) {

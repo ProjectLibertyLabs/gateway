@@ -29,7 +29,7 @@ export class BroadcastDto implements IBroadcast {
 export class ReplyDto implements IReply {
   /**
    * Target DSNP Content URI
-   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   * @example 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
    */
   @IsDsnpContentURI()
   inReplyTo: string;
@@ -43,7 +43,7 @@ export class ReplyDto implements IReply {
 export class TombstoneDto implements ITombstone {
   /**
    * Target DSNP Content Hash
-   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   * @example 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
    */
   @IsDsnpContentHash()
   @IsNotEmpty()
@@ -62,7 +62,7 @@ export class TombstoneDto implements ITombstone {
 export class UpdateDto implements IUpdate {
   /**
    * Target DSNP Content Hash
-   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   * @example 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
    */
   @IsDsnpContentHash()
   @IsNotEmpty()
@@ -102,7 +102,7 @@ export class ReactionDto implements IReaction {
 
   /**
    * Target DSNP Content URI
-   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
+   * @example 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
    */
   @IsDsnpContentURI()
   inReplyTo: string;

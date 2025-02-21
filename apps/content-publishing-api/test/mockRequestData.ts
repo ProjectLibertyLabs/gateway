@@ -40,13 +40,13 @@ export const validBroadCastNoUploadedAssets = {
 
 export const validReplyNoUploadedAssets = {
   content: validContentNoUploadedAssets,
-  inReplyTo: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  inReplyTo: 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
 };
 
 export const validReaction = {
   emoji: '🤌🏼',
   apply: 5,
-  inReplyTo: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+  inReplyTo: 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
 };
 
 export const validProfileNoUploadedAssets = {

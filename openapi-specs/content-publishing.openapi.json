@@ -290,6 +290,38 @@
         ]
       }
     },
+    "/v2/content/batchAnnouncement": {
+      "post": {
+        "operationId": "ContentControllerV2_postBatches",
+        "summary": "Create off-chain batch content announcements",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchFilesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/content"
+        ]
+      }
+    },
     "/v1/profile/{msaId}": {
       "put": {
         "operationId": "ProfileControllerV1_profile",
@@ -792,6 +824,40 @@
           "schemaId",
           "payload",
           "published"
+        ]
+      },
+      "BatchFileDto": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number",
+            "description": "Schema ID of batched off-chain content",
+            "example": 123
+          },
+          "referenceId": {
+            "type": "string",
+            "description": "Reference ID of off-chain batch file",
+            "example": "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "schemaId",
+          "referenceId"
+        ]
+      },
+      "BatchFilesDto": {
+        "type": "object",
+        "properties": {
+          "batchFiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatchFileDto"
+            }
+          }
+        },
+        "required": [
+          "batchFiles"
         ]
       },
       "ProfileActivityDto": {

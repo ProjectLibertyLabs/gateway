@@ -5,7 +5,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { BatchAnnouncer } from './batch.announcer';
 import { BaseConsumer } from '#consumer';
 import { ContentPublishingQueues as QueueConstants, CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
-import { IBatchAnnouncerJobData } from '../interfaces';
+import { IBatchAnnouncerJob, isExistingBatch } from '../interfaces';
 
 @Injectable()
 @Processor(QueueConstants.BATCH_QUEUE_NAME, {
@@ -30,10 +30,12 @@ export class BatchAnnouncementService extends BaseConsumer implements OnModuleDe
     await super.onModuleDestroy();
   }
 
-  async process(job: Job<IBatchAnnouncerJobData, any, string>): Promise<any> {
+  async process(job: Job<IBatchAnnouncerJob, any, string>): Promise<any> {
     this.logger.log(`Processing job ${job.id} of type ${job.name}`);
     try {
-      const publisherJob = await this.ipfsPublisher.announce(job.data);
+      const publisherJob = await (isExistingBatch(job.data)
+        ? this.ipfsPublisher.announceExistingBatch(job.data)
+        : this.ipfsPublisher.announce(job.data));
       // eslint-disable-next-line no-promise-executor-return
       await this.publishQueue.add(publisherJob.id, publisherJob, {
         jobId: publisherJob.id,

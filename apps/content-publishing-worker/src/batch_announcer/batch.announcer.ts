@@ -10,7 +10,7 @@ import { IBatchAnnouncerJobData } from '../interfaces';
 import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#storage/ipfs/ipfs.config';
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
-import { IPublisherJob } from '#types/interfaces/content-publishing';
+import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
 
 @Injectable()
 export class BatchAnnouncer {
@@ -67,6 +67,17 @@ export class BatchAnnouncer {
     this.logger.debug(`Batch ${batchId} published to IPFS at ${ipfsUrl}`);
     this.logger.debug(`Batch ${batchId} hash: ${hash}`);
     return { id: batchId, schemaId, data: { cid, payloadLength: size } };
+  }
+
+  public async announceExistingBatch(batch: IBatchFile): Promise<IPublisherJob> {
+    // Get previously uploaded file from IPFS
+    const { Key: cid, Size: size } = await this.ipfsService.getInfo(batch.referenceId);
+
+    const ipfsUrl = await this.formIpfsUrl(cid);
+    const response = { id: batch.referenceId, schemaId: batch.schemaId, data: { cid, payloadLength: size } };
+    this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
+    this.logger.debug(`IPFS URL: ${ipfsUrl}`);
+    return response;
   }
 
   private async bufferPublishStream(publishStream: PassThrough): Promise<Buffer> {

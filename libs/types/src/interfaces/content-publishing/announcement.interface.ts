@@ -61,5 +61,17 @@ export interface IProfile {
   profile: IProfileActivity;
 }
 
+export interface IBatchFile {
+  /**
+   * Schema ID for batched off-chain content
+   */
+  schemaId: number;
+
+  /**
+   * Reference ID of off-chain batch file
+   */
+  referenceId: string;
+}
+
 export type IRequestType = IBroadcast | IReply | IReaction | IUpdate | IProfile | ITombstone;
 export type IAssetIncludedRequest = IBroadcast & IReply & IUpdate & IProfile;

@@ -11,6 +11,14 @@ import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
 
+export interface IpfsBlockStatResponse {
+  Key?: string;
+  Size?: number;
+  Message?: string;
+  Code?: number;
+  Type?: string;
+}
+
 @Injectable()
 export class IpfsService {
   logger: Logger;
@@ -51,6 +59,26 @@ export class IpfsService {
     return data;
   }
 
+  public async getInfo(cid: string, checkExistence = true): Promise<IpfsBlockStatResponse> {
+    if (checkExistence && !(await this.isPinned(cid))) {
+      return Promise.resolve({ Message: 'Requested resource does not exist', Type: 'error' });
+    }
+
+    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/block/stat?arg=${cid}`;
+    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
+    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
+    const ipfsAuth =
+      ipfsAuthUser && ipfsAuthSecret
+        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
+        : '';
+
+    const headers = { Accept: '*/*', Connection: 'keep-alive', authorization: ipfsAuth };
+
+    const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' });
+    this.logger.debug(`IPFS response: ${JSON.stringify(response.data)}`);
+    return response.data as IpfsBlockStatResponse;
+  }
+
   public async isPinned(cid: string): Promise<boolean> {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
@@ -79,9 +107,14 @@ export class IpfsService {
 
   public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash = true): Promise<FilePin> {
     const fileName = calculateDsnpHash ? await calculateDsnpMultiHash(file) : randomUUID().toString();
-    const extension = getExtension(mimeType);
+    let extension = getExtension(mimeType);
+    // NOTE: 'application/vnd.apache.parquet' has been officially accepted by IANA, but the 'mime-db' package has not been updated
     if (extension === false) {
-      throw new Error(`unknown mimetype: ${mimeType}`);
+      if (mimeType === 'application/vnd.apache.parquet') {
+        extension = 'parquet';
+      } else {
+        throw new Error(`unknown mimetype: ${mimeType}`);
+      }
     }
     const ipfs = await this.ipfsPinBuffer(`${fileName}.${extension}`, mimeType, file);
     return { ...ipfs, hash: calculateDsnpHash ? fileName : '' };

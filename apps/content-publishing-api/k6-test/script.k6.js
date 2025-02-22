@@ -43,7 +43,7 @@ export default function () {
     {
       let url = BASE_URL + `/v1/content/${msaId}`;
       const body = {
-        targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+        targetContentHash: 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
         targetAnnouncementType: 'broadcast',
         content: validContentNoUploadedAssets,
       };
@@ -58,7 +58,7 @@ export default function () {
     {
       let url = BASE_URL + `/v1/content/${msaId}`;
       const body = {
-        targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+        targetContentHash: 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
         targetAnnouncementType: 'broadcast',
         content: createContentWithAsset(BASE_URL),
       };
@@ -74,7 +74,7 @@ export default function () {
     {
       let url = BASE_URL + `/v1/content/${msaId}`;
       let body = {
-        targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+        targetContentHash: 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
         targetAnnouncementType: 'broadcast',
       };
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };

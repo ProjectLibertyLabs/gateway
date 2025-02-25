@@ -12,6 +12,7 @@ import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IBatchFile, IBroadcast, IProfile, IReaction, IReply, ITombstone, IUpdate } from '#types/interfaces';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
+import { IsCidV1 } from '#utils/decorators/is-cidv1.decorator';
 
 // eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementType {
@@ -29,7 +30,7 @@ export class BroadcastDto implements IBroadcast {
 export class ReplyDto implements IReply {
   /**
    * Target DSNP Content URI
-   * @example 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
+   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
    */
   @IsDsnpContentURI()
   inReplyTo: string;
@@ -43,7 +44,7 @@ export class ReplyDto implements IReply {
 export class TombstoneDto implements ITombstone {
   /**
    * Target DSNP Content Hash
-   * @example 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
+   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
    */
   @IsDsnpContentHash()
   @IsNotEmpty()
@@ -62,7 +63,7 @@ export class TombstoneDto implements ITombstone {
 export class UpdateDto implements IUpdate {
   /**
    * Target DSNP Content Hash
-   * @example 'bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
+   * @example 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
    */
   @IsDsnpContentHash()
   @IsNotEmpty()
@@ -102,7 +103,7 @@ export class ReactionDto implements IReaction {
 
   /**
    * Target DSNP Content URI
-   * @example 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy'
+   * @example 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna'
    */
   @IsDsnpContentURI()
   inReplyTo: string;
@@ -124,12 +125,11 @@ export class BatchFileDto implements IBatchFile {
   schemaId: number;
 
   /**
-   * Reference ID of off-chain batch file
+   * CIDv1 of off-chain batch file
    * @example "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi"
    */
-  @IsString()
-  @MinLength(1)
-  referenceId: string;
+  @IsCidV1()
+  cid: string;
 }
 
 export class BatchFilesDto {

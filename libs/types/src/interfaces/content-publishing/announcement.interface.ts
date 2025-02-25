@@ -70,7 +70,7 @@ export interface IBatchFile {
   /**
    * Reference ID of off-chain batch file
    */
-  referenceId: string;
+  cid: string;
 }
 
 export type IRequestType = IBroadcast | IReply | IReaction | IUpdate | IProfile | ITombstone;

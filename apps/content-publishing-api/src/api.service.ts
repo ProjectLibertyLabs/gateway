@@ -122,9 +122,7 @@ export class ApiService {
         ),
       );
     } else if (content.batchFiles) {
-      content.batchFiles.forEach((batchFile) =>
-        checkingList.push({ onlyImage: false, referenceId: batchFile.referenceId }),
-      );
+      content.batchFiles.forEach((batchFile) => checkingList.push({ onlyImage: false, referenceId: batchFile.cid }));
     }
 
     const redisResults = await Promise.all(

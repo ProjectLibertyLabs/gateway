@@ -2,8 +2,9 @@ import { validContentNoUploadedAssets } from '../test/mockRequestData.ts';
 import { b64encode } from 'k6/encoding';
 import http from 'k6/http';
 import { check } from 'k6';
+import { randomBytes } from 'k6/crypto';
 
-export const mockAsset = (size) => {
+export const mockAsset = (size, extension = 'jpg', mimetype = 'image/jpeg') => {
   let fileSize;
   switch (size) {
     case 'sm':
@@ -16,16 +17,15 @@ export const mockAsset = (size) => {
       fileSize = 50 * 1000 * 1000; // 50MB
       break;
   }
-  const char = 'g';
-  const str = char.repeat(fileSize);
-  const buffer = b64encode(str, 'utf-8');
+  const arrayBuf = randomBytes(fileSize);
+  const buffer = b64encode(arrayBuf, 'utf-8');
   return {
-    files: http.file(buffer, 'file1.jpg', 'image/jpeg'),
+    files: http.file(buffer, `file1.${extension}`, mimetype),
   };
 };
 
-export const getReferenceId = (baseUrl) => {
-  const asset = mockAsset('sm');
+export const getReferenceId = (baseUrl, extension = 'jpg', mimetype = 'image/jpeg') => {
+  const asset = mockAsset('sm', extension, mimetype);
   // Send the PUT request
   const assetRequest = http.put(baseUrl + `/v1/asset/upload`, asset);
   let referenceId = '';
@@ -35,12 +35,12 @@ export const getReferenceId = (baseUrl) => {
   return referenceId;
 };
 
-export const createContentWithAsset = (baseUrl) => {
-  const referenceId = getReferenceId(baseUrl);
+export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'image/jpeg') => {
+  const referenceId = getReferenceId(baseUrl, extension, mimetype);
   return Object.assign({}, validContentNoUploadedAssets, {
     assets: [
       {
-        name: 'file1.jpg',
+        name: `file1.${extension}`,
         references: [
           {
             referenceId: referenceId,

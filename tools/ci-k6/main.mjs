@@ -3,6 +3,34 @@ import { Keyring } from '@polkadot/keyring';
 
 const keyring = new Keyring({ type: 'sr25519' });
 
+const AVRO_GRAPH_CHANGE = {
+  type: 'record',
+  name: 'GraphChange',
+  fields: [
+    // When converting from Frequency Schema Message to DSNP Announcement, assume announcementType=1
+    {
+      name: 'changeType',
+      type: {
+        name: 'ChangeTypeEnum',
+        type: 'enum',
+        symbols: ['Unfollow', 'Follow'], // Encoded as int
+      },
+    },
+    {
+      name: 'fromId',
+      type: {
+        name: 'DSNPId',
+        type: 'fixed',
+        size: 8,
+      },
+    },
+    {
+      name: 'objectId',
+      type: 'DSNPId',
+    },
+  ],
+};
+
 export async function createAndStake(providerUrl, keyUri) {
   const api = await ApiPromise.create({ provider: new WsProvider(providerUrl) });
 
@@ -14,6 +42,9 @@ export async function createAndStake(providerUrl, keyUri) {
     api.tx.msa.create(),
     api.tx.msa.createProvider('alice'),
     api.tx.capacity.stake(1, 10_000_000_000_000),
+    // Need to create an 'OnChain' schema in order to test endpoints, as there are no registered 'OnChain' DSNP schemas
+    // **SHOULD** get created as SchemaID 16001
+    api.tx.schemas.createSchema(JSON.stringify(AVRO_GRAPH_CHANGE), 'AvroBinary', 'OnChain'),
   ]);
 
   console.log('Submitting call...');
@@ -30,7 +61,11 @@ export async function createAndStake(providerUrl, keyUri) {
           );
         const success = events.find((x) => api.events.system.ExtrinsicSuccess.is(x.event));
         const failure = events.find((x) => api.events.system.ExtrinsicFailed.is(x.event));
+        const { event: schemaCreated } = events.find((x) => api.events.schemas.SchemaCreated.is(x.event));
         unsub();
+        if (schemaCreated) {
+          console.log(`Created OnChain schema ID ${schemaCreated.data.schemaId.toNumber()}`);
+        }
         if (success && !failure) {
           console.log('Success!');
           resolve();

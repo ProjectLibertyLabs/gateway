@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import { randomString } from 'https://jslib.k6.io/k6-utils/1.6.0/index.js';
+
 export const validLocation = {
   name: 'name of location',
   accuracy: 97,
@@ -40,13 +43,13 @@ export const validBroadCastNoUploadedAssets = {
 
 export const validReplyNoUploadedAssets = {
   content: validContentNoUploadedAssets,
-  inReplyTo: 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
+  inReplyTo: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
 };
 
 export const validReaction = {
   emoji: '🤌🏼',
   apply: 5,
-  inReplyTo: 'dsnp://78187493520/bafybeibrueoxoturxz4vfmnc7geejiiqmnygk7os2of32ic3bnr5t6twiy',
+  inReplyTo: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
 };
 
 export const validProfileNoUploadedAssets = {
@@ -55,4 +58,10 @@ export const validProfileNoUploadedAssets = {
   name: 'name of profile content',
   tag: validTags,
   location: validLocation,
+};
+
+export const validOnChainContent = {
+  schemaId: 16001,
+  payload: `0x${randomString(1024, '0123456789abcdef')}`,
+  published: new Date().toISOString(),
 };

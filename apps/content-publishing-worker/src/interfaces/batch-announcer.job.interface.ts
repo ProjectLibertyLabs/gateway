@@ -10,5 +10,5 @@ export interface IBatchAnnouncerJobData {
 export type IBatchAnnouncerJob = IBatchAnnouncerJobData | IBatchFile;
 
 export function isExistingBatch(data: IBatchAnnouncerJob): data is IBatchFile {
-  return 'referenceId' in data;
+  return 'cid' in data;
 }

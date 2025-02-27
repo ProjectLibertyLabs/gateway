@@ -97,6 +97,8 @@ export class ApiService {
     data.id = this.calculateJobId(data);
     const job = await this.batchAnnouncerQueue.add(`Batch Request Job - ${data.id}`, data, {
       jobId: data.id,
+      attempts: 3,
+      delay: 3000,
       removeOnFail: false,
       removeOnComplete: 2000,
     }); // TODO: should come from queue configs

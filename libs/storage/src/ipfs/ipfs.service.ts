@@ -61,7 +61,7 @@ export class IpfsService {
 
   public async getInfo(cid: string, checkExistence = true): Promise<IpfsBlockStatResponse> {
     if (checkExistence && !(await this.isPinned(cid))) {
-      return Promise.resolve({ Message: 'Requested resource does not exist', Type: 'error' });
+      return { Message: 'Requested resource does not exist', Type: 'error' };
     }
 
     const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/block/stat?arg=${cid}`;
@@ -74,6 +74,7 @@ export class IpfsService {
 
     const headers = { Accept: '*/*', Connection: 'keep-alive', authorization: ipfsAuth };
 
+    this.logger.debug(`Requesting IPFS stats from ${ipfsGet}`);
     const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' });
     this.logger.debug(`IPFS response: ${JSON.stringify(response.data)}`);
     return response.data as IpfsBlockStatResponse;
@@ -96,8 +97,9 @@ export class IpfsService {
       authorization: ipfsAuth,
     };
 
+    this.logger.debug(`Requesting pin info from IPFS for ${ipfsGet}`);
     const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' }).catch((error) => {
-      // when pid does not exist this call returns 500 which is not great
+      // when pin does not exist this call returns 500 which is not great
       if (error.response && error.response.status !== 500) {
         this.logger.error(error.toJSON());
       }

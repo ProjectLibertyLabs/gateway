@@ -71,7 +71,14 @@ export class BatchAnnouncer {
 
   public async announceExistingBatch(batch: IBatchFile): Promise<IPublisherJob> {
     // Get previously uploaded file from IPFS
-    const { Key: cid, Size: size } = await this.ipfsService.getInfo(batch.cid);
+    this.logger.log(`Getting info from IPFS for ${batch.cid}`);
+    const { Key: cid, Size: size, Message: msg, Type: msgType } = await this.ipfsService.getInfo(batch.cid);
+    if (msgType === 'error' || !cid) {
+      this.logger.error(`Unable to confirm batch file existence in IPFS: ${msg}`);
+      throw new Error(`Unable to confirm batch file existence in IPFS: ${msg}`);
+    }
+
+    this.logger.debug(`Got info from IPFS: cid=${cid}, size=${size}`);
 
     const ipfsUrl = await this.formIpfsUrl(cid);
     const response = { id: batch.cid, schemaId: batch.schemaId, data: { cid, payloadLength: size } };

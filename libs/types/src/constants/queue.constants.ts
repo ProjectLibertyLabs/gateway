@@ -165,7 +165,7 @@ export namespace ContentPublishingQueues {
       {
         name: BATCH_QUEUE_NAME,
         defaultJobOptions: {
-          attempts: 1,
+          attempts: 3,
           backoff: {
             type: 'exponential',
           },

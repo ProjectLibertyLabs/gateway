@@ -73,7 +73,7 @@ export class BatchAnnouncer {
     // Get previously uploaded file from IPFS
     this.logger.log(`Getting info from IPFS for ${batch.cid}`);
     const { Key: cid, Size: size, Message: msg, Type: msgType } = await this.ipfsService.getInfo(batch.cid);
-    if (msgType === 'error' || cid === undefined) {
+    if (msgType === 'error' || !cid) {
       this.logger.error(`Unable to confirm batch file existence in IPFS: ${msg}`);
       throw new Error(`Unable to confirm batch file existence in IPFS: ${msg}`);
     }

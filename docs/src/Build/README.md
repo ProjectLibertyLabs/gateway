@@ -19,7 +19,7 @@ Accounts are defined as an `msaId` (64-bit identifier) and can contain additiona
 - User Handle creation and retrieval
 - User key retrieval and management
 
-See [Account Service Details & API Reference](./AccountService/README)
+See [Account Service Details & API Reference](./AccountService/AccountService.md)
 
 ## Graph Service
 
@@ -30,7 +30,7 @@ Each Graph connection on Frequency can be private or public and can be unidirect
 - Update delegated user graphs
 - Watch graphs for external updates
 
-See [Graph Service Details & API Reference](./GraphService)
+See [Graph Service Details & API Reference](./GraphService/GraphService.md)
 
 ## Content Publishing Service
 
@@ -43,7 +43,7 @@ The Content Publishing Service enables the creation of new content-related activ
 - Request deletion of content
 - Store and attach media with [IPFS](https://ipfs.tech)
 
-See [Content Publishing Service Details & API Reference](./ContentPublishing)
+See [Content Publishing Service Details & API Reference](./ContentPublishing/ContentPublishing.md)
 
 ## Content Watcher Service
 
@@ -53,4 +53,4 @@ The Content Watcher Service enables client applications to process content found
 - Filterable webhooks
 - Scanning control
 
-See [Content Watcher Service Details & API Reference](./ContentWatcher)
+See [Content Watcher Service Details & API Reference](./ContentWatcher/ContentWatcher.md)

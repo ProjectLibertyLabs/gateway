@@ -21,7 +21,7 @@ In this tutorial, you will set up a Sign In With Frequency button for use with T
 ## Prerequisites
 Ensure you have:
 - Registered your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
-- A backend-only-accessible [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
+- A backend-only-accessible [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
 - Access to a Frequency RPC Node.
     - Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 

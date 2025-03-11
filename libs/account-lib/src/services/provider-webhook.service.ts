@@ -4,6 +4,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
 
@@ -29,12 +30,14 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
   constructor(
     @Inject(accountWorkerConfig.KEY) private config: IAccountWorkerConfig,
+    @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,
   ) {
     this.logger = new Logger(this.constructor.name);
     this.webhook = axios.create({
       baseURL: this.config.webhookBaseUrl.toString(),
+      timeout: httpConfig.httpResponseTimeoutMS,
     });
 
     this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;

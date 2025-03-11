@@ -7,6 +7,7 @@ export interface IIpfsConfig {
   ipfsGatewayUrl: string;
   ipfsBasicAuthUser: string;
   ipfsBasicAuthSecret: string;
+  ipfsResponseTimeoutMs: number;
 }
 
 export function getIpfsCidPlaceholder(cid: string, gatewayUrl: string): string {
@@ -33,6 +34,10 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
     ipfsBasicAuthSecret: {
       value: process.env.IPFS_BASIC_AUTH_SECRET,
       joi: Joi.string().allow('').empty(''),
+    },
+    ipfsResponseTimeoutMs: {
+      value: process.env.HTTP_RESPONSE_TIMEOUT_MS,
+      joi: Joi.number().min(0).default(1000),
     },
   };
 

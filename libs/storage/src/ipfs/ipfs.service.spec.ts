@@ -9,6 +9,7 @@ const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
   ipfsBasicAuthUser: '',
   ipfsBasicAuthSecret: '',
   ipfsGatewayUrl: 'http://localhost:8080/ipfs/[CID]',
+  ipfsResponseTimeoutMs: 1000,
 });
 
 describe('IpfsService Tests', () => {

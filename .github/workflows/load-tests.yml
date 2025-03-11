@@ -75,7 +75,7 @@ jobs:
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: tools/ci-k6/package-lock.json

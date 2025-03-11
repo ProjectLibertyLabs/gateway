@@ -8,6 +8,7 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { AnnouncementResponse } from '#types/content-announcement';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import pubsubConfig, { IPubSubConfig } from './pubsub.config';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 @Injectable()
 export class PubSubService {
@@ -16,6 +17,7 @@ export class PubSubService {
   constructor(
     @InjectRedis() private redis: Redis,
     @Inject(pubsubConfig.KEY) private readonly config: IPubSubConfig,
+    @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -57,7 +59,7 @@ export class PubSubService {
             this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
             this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
             // eslint-disable-next-line no-await-in-loop
-            await axios.post(webhookUrl, message);
+            await axios.post(webhookUrl, message, { timeout: this.httpConfig.httpResponseTimeoutMS });
             this.logger.debug(`Announcement sent to webhook: ${webhookUrl}`);
             break;
           } catch (error) {

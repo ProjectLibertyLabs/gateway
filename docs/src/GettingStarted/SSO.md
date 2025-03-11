@@ -28,8 +28,8 @@ Register your application as a [Provider on Frequency Testnet](./BecomeProvider.
 ✅ **Completed the Access Form**  
 Fill out the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
 
-✅ **Set Up a Backend Instance**  
-You need a **backend-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
+✅ **Set Up a Back-end Instance**  
+You need a **back-end-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
 
 ✅ **Access to a Frequency RPC Node**  
 - **Public Testnet Node:**  

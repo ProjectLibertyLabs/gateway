@@ -23,7 +23,7 @@ podSecurityContext: {}
 securityContext: {}
 
 # Ingress configuration
-# Using nginx ingress controller, 
+# Using nginx ingress controller,
 # ensure nginx ingress controller is installed
 ingress:
   enabled: false
@@ -49,7 +49,7 @@ affinity: {}
 
 # Support vault integration
 vault:
-  enabled: false 
+  enabled: false
   secretsPath: "secret/frequency-gateway"
   role: "frequency-gateway-role"
 
@@ -126,7 +126,7 @@ contentPublishing:
     API_PORT: "3003"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"
     TRUST_UNFINALIZED_BLOCKS: "false"
-    IPFS_ENDPOINT: "http://<host-ip>:5001"
+    IPFS_ENDPOINT: "http://<host-ip>:5001/api/v0"
     IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
     FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
     PROVIDER_ID: "1"
@@ -151,7 +151,7 @@ contentWatcher:
     readinessProbePath: "/readyz"
   env:
     API_PORT: "3004"
-    IPFS_ENDPOINT: "http://<host-ip>:5001"
+    IPFS_ENDPOINT: "http://<host-ip>:5001/api/v0"
     IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
     FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
     REDIS_URL: "redis://<host-ip>:6379"

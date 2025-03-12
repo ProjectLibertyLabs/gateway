@@ -5,7 +5,7 @@ import { IIpfsConfig, IpfsService } from '#storage';
 jest.mock('axios');
 
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
-  ipfsEndpoint: 'http://localhost:5001',
+  ipfsEndpoint: 'http://localhost:5001/api/v0',
   ipfsBasicAuthUser: '',
   ipfsBasicAuthSecret: '',
   ipfsGatewayUrl: 'http://localhost:8080/ipfs/[CID]',

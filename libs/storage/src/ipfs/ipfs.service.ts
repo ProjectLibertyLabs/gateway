@@ -7,6 +7,7 @@ import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
 import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 @Injectable()
 export class IpfsService {
@@ -14,11 +15,14 @@ export class IpfsService {
 
   private readonly logger: Logger;
 
-  constructor(@Inject(ipfsConfig.KEY) config: IIpfsConfig) {
+  constructor(
+    @Inject(ipfsConfig.KEY) config: IIpfsConfig,
+    @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
+  ) {
     this.logger = new Logger(IpfsService.name);
     this.ipfs = createKuboRPCClient({
       url: config.ipfsEndpoint,
-      timeout: config.ipfsResponseTimeoutMs,
+      timeout: httpConfig.httpResponseTimeoutMS,
       headers: {
         Authorization:
           config.ipfsBasicAuthUser && config.ipfsBasicAuthSecret

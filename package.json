@@ -166,6 +166,7 @@
     "@nestjs/schematics": "^10.2.2",
     "@nestjs/testing": "^10.4.6",
     "@projectlibertylabs/frequency-scenario-template": "^1.1.10",
+    "@types/base64url": "^2.0.3",
     "@types/jest": "^29.5.13",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20.3.1",

@@ -8,14 +8,23 @@
   "testRegex": ".*\\.spec\\.ts$",
   "testPathIgnorePatterns": [".*\\.mock\\.spec\\.ts$"],
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.test.json"
+      }
+    ]
   },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!(multiformats)/)"
+  ],
   "collectCoverageFrom": ["**/*.(t|j)s"],
   "coveragePathIgnorePatterns": ["/test/"],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",
   "roots": ["<rootDir>/apps/", "<rootDir>/libs/"],
   "moduleNameMapper": {
+    "kubo-rpc-client": "<rootDir>/__mocks__/kubo-rpc-client.ts",
     "^#testlib(|/.*)$": "<rootDir>/testlib/$1",
     "^#account-api(|/.*)$": "<rootDir>/apps/account-api/src/$1",
     "^#account-lib(|/.*)$": "<rootDir>/libs/account-lib/src/$1",

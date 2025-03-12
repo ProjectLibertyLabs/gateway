@@ -3,7 +3,7 @@ FROM node:22 AS builder
 
 WORKDIR /build
 
-COPY package* tsconfig* nest-cli.json ./
+COPY package* tsconfig* nest-cli.json patches ./
 
 RUN npm ci
 

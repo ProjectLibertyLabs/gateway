@@ -57,7 +57,7 @@ services:
     networks:
       - gateway-net
     volumes:
-      - redis_data:/data/redis
+      - redis_data:/data
 
   frequency:
     image: frequencychain/standalone-node:latest

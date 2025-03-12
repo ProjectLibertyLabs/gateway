@@ -1,30 +1,37 @@
 // ipfs.service.ts
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import axios from 'axios';
-import { CID } from 'multiformats/cid';
 import ipfsConfig, { IIpfsConfig } from './ipfs.config';
-import FormData from 'form-data';
 import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
-
 import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
-
-export interface IpfsBlockStatResponse {
-  Key?: string;
-  Size?: number;
-  Message?: string;
-  Code?: number;
-  Type?: string;
-}
+import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 @Injectable()
 export class IpfsService {
-  logger: Logger;
+  private readonly ipfs: KuboRPCClient;
 
-  constructor(@Inject(ipfsConfig.KEY) private readonly config: IIpfsConfig) {
+  private readonly logger: Logger;
+
+  constructor(
+    @Inject(ipfsConfig.KEY) config: IIpfsConfig,
+    @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
+  ) {
     this.logger = new Logger(IpfsService.name);
+    this.ipfs = createKuboRPCClient({
+      url: config.ipfsEndpoint,
+      timeout: httpConfig.httpResponseTimeoutMS,
+      headers: {
+        Authorization:
+          config.ipfsBasicAuthUser && config.ipfsBasicAuthSecret
+            ? `Basic ${Buffer.from(`${config.ipfsBasicAuthUser}:${config.ipfsBasicAuthSecret}`).toString('base64')}`
+            : '',
+        Accept: '*/*',
+        Connection: 'keep-alive',
+      },
+    });
   }
 
   /**
@@ -39,72 +46,51 @@ export class IpfsService {
     if (checkExistence && !(await this.isPinned(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
-    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/cat?arg=${cid}`;
-    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
-
-    const headers = {
-      Accept: '*/*',
-      Connection: 'keep-alive',
-      authorization: ipfsAuth,
-    };
-
-    const response = await axios.post(ipfsGet, null, { headers, responseType: 'arraybuffer' });
-
-    const { data } = response;
-    return data;
+    const bytesIter = this.ipfs.cat(cid);
+    const chunks = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const chunk of bytesIter) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
   }
 
-  public async getInfo(cid: string, checkExistence = true): Promise<IpfsBlockStatResponse> {
+  public async getInfo(cid: string, checkExistence = true): Promise<BlockStatResult> {
     if (checkExistence && !(await this.isPinned(cid))) {
-      return { Message: 'Requested resource does not exist', Type: 'error' };
+      throw new Error('Requested resource does not exist');
     }
 
-    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/block/stat?arg=${cid}`;
-    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
-
-    const headers = { Accept: '*/*', Connection: 'keep-alive', authorization: ipfsAuth };
-
-    this.logger.debug(`Requesting IPFS stats from ${ipfsGet}`);
-    const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' });
-    this.logger.debug(`IPFS response: ${JSON.stringify(response.data)}`);
-    return response.data as IpfsBlockStatResponse;
+    this.logger.debug(`Requesting IPFS stats for ${cid}`);
+    const response = await this.ipfs.block.stat(CID.parse(cid));
+    this.logger.debug(`IPFS response: ${JSON.stringify(response)}`);
+    if (!response.cid) {
+      throw new Error('Requested resource not found');
+    }
+    return response;
   }
 
   public async isPinned(cid: string): Promise<boolean> {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
-    const ipfsGet = `${this.config.ipfsEndpoint}/api/v0/pin/ls?type=all&quiet=true&arg=${v0Cid}`;
-    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
 
-    const headers = {
-      Accept: '*/*',
-      Connection: 'keep-alive',
-      authorization: ipfsAuth,
-    };
-
-    this.logger.debug(`Requesting pin info from IPFS for ${ipfsGet}`);
-    const response = await axios.post(ipfsGet, null, { headers, responseType: 'json' }).catch((error) => {
-      // when pin does not exist this call returns 500 which is not great
-      if (error.response && error.response.status !== 500) {
-        this.logger.error(error.toJSON());
+    this.logger.debug(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
+    try {
+      const r = this.ipfs.pin.ls({ paths: v0Cid, type: 'all' });
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const pin of r) {
+        if (pin.cid.toString() === v0Cid) {
+          return true;
+        }
       }
-    });
-    return response && response.data && JSON.stringify(response.data).indexOf(v0Cid) >= 0;
+    } catch (err: any) {
+      if (err?.message.includes('not pinned')) {
+        return false;
+      }
+
+      throw err;
+    }
+
+    return false;
   }
 
   public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash = true): Promise<FilePin> {
@@ -123,45 +109,24 @@ export class IpfsService {
   }
 
   private async ipfsPinBuffer(filename: string, contentType: string, fileBuffer: Buffer): Promise<FilePin> {
-    const ipfsAdd = `${this.config.ipfsEndpoint}/api/v0/add`;
-    const form = new FormData();
-    form.append('file', fileBuffer, {
-      filename,
-      contentType,
-    });
+    this.logger.log(`Making IPFS pinning request for ${filename} (${contentType})`);
 
-    const ipfsAuthUser = this.config.ipfsBasicAuthUser;
-    const ipfsAuthSecret = this.config.ipfsBasicAuthSecret;
-    const ipfsAuth =
-      ipfsAuthUser && ipfsAuthSecret
-        ? `Basic ${Buffer.from(`${ipfsAuthUser}:${ipfsAuthSecret}`).toString('base64')}`
-        : '';
-
-    const headers = {
-      'Content-Type': `multipart/form-data; boundary=${form.getBoundary()}`,
-      Accept: '*/*',
-      Connection: 'keep-alive',
-      authorization: ipfsAuth,
-    };
-
-    this.logger.log('Making IPFS pinning request: ', ipfsAdd, headers);
-
-    const response = await axios.post(ipfsAdd, form, { headers });
-
-    const { data } = response;
-    if (!data || !data.Hash || !data.Size) {
-      throw new Error(`Unable to pin file: ${filename}`);
+    try {
+      const result = await this.ipfs.add(fileBuffer, {
+        cidVersion: 0,
+        hashAlg: 'sha2-256',
+        pin: true,
+      });
+      this.logger.debug(`Pinned file: ${filename} with size: ${result.size} and cid: ${result.cid}`);
+      return {
+        cid: result.cid.toV1().toString(),
+        cidBytes: result.cid.bytes,
+        fileName: result.path,
+        size: result.size,
+        hash: '',
+      };
+    } catch (err: any) {
+      throw new Error(`Unable to pin file: ${err?.message}`);
     }
-    const cid = CID.parse(data.Hash).toV1();
-
-    this.logger.debug(`Pinned file: ${filename} with size: ${data.Size} and cid: ${cid}`);
-
-    return {
-      cid: cid.toString(),
-      cidBytes: cid.bytes,
-      fileName: data.Name,
-      size: data.Size,
-      hash: '',
-    };
   }
 }

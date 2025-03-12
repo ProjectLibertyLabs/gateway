@@ -21,12 +21,22 @@ import pubsubConfig from '#content-watcher/pubsub/pubsub.config';
 import { PubSubModule } from '#content-watcher/pubsub/pubsub.module';
 import { CrawlerModule } from '#content-watcher/crawler/crawler.module';
 import { IPFSProcessorModule } from '#content-watcher/ipfs/ipfs.processor.module';
+import httpCommonConfig from '#config/http-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, noProviderBlockchainConfig, cacheConfig, queueConfig, ipfsConfig, scannerConfig, pubsubConfig],
+      load: [
+        apiConfig,
+        noProviderBlockchainConfig,
+        cacheConfig,
+        queueConfig,
+        ipfsConfig,
+        scannerConfig,
+        pubsubConfig,
+        httpCommonConfig,
+      ],
     }),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync({

@@ -89,7 +89,7 @@ To start your node:
 ipfs daemon
 ```
 
-Your node is now running and part of the global IPFS network. By default, it listens on **localhost:5001** for API access and serves content through **localhost:8080**.
+Your node is now running and part of the global IPFS network. By default, it listens on **localhost:5001/api/v0** for API access and serves content through **localhost:8080**.
 
 ---
 

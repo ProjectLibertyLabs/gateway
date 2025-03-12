@@ -17,12 +17,21 @@ import scannerConfig from './graph_notifier/scanner.config';
 import graphCommonConfig from '#config/graph-common.config';
 import { QueueModule } from '#queue/queue.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
+import httpCommonConfig from '#config/http-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, queueConfig, scannerConfig],
+      load: [
+        workerConfig,
+        graphCommonConfig,
+        blockchainConfig,
+        cacheConfig,
+        queueConfig,
+        scannerConfig,
+        httpCommonConfig,
+      ],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

@@ -8,6 +8,7 @@ import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
 import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { Readable } from 'stream';
 
 @Injectable()
 export class IpfsService {
@@ -121,6 +122,28 @@ export class IpfsService {
       return {
         cid: result.cid.toV1().toString(),
         cidBytes: result.cid.bytes,
+        fileName: result.path,
+        size: result.size,
+        hash: '',
+      };
+    } catch (err: any) {
+      throw new Error(`Unable to pin file: ${err?.message}`);
+    }
+  }
+
+  public async ipfsPinStream(stream: Readable): Promise<FilePin> {
+    this.logger.log(`Making IPFS pinning request for uploaded content`);
+
+    try {
+      const result = await this.ipfs.add(
+        { path: randomUUID(), content: stream },
+        { cidVersion: 0, hashAlg: 'sha2-256', pin: true },
+      );
+      const cid = result.cid.toV1();
+      this.logger.debug(`Pinned file: ${result.path} with size ${result.size} and CID: ${cid.toString()}`);
+      return {
+        cid: cid.toString(),
+        cidBytes: cid.bytes,
         fileName: result.path,
         size: result.size,
         hash: '',

@@ -52,7 +52,7 @@ x-account-service-env: &account-service-env
 
 services:
   redis:
-    image: redis:latest
+    image: redis:7.0
     ports:
       - ${SERVICE_PORT_7}:6379
     networks:

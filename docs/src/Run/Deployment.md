@@ -168,7 +168,7 @@ sudo docker stack deploy -c docker-compose-swarm.yaml gateway
 ID             NAME                             MODE         REPLICAS   IMAGE                                       PORTS
 y3bkq23881md   gateway_account-service-api      replicated   3/3        projectlibertylabs/account-service:latest   *:30000->3000/tcp
 yp455xvoa9gz   gateway_account-service-worker   replicated   3/3        projectlibertylabs/account-service:latest
-y263ft5sbvhz   gateway_redis                    replicated   3/3        redis:latest                                *:30001->6379/tcp
+y263ft5sbvhz   gateway_redis                    replicated   3/3        redis:7.0                                *:30001->6379/tcp
 ```
 
 This stack was deployed without setting the `SERVICE_PORT_X` environment variables, so the default port mappings (30000, 30001) are used.

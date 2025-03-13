@@ -18,6 +18,7 @@ import {
   validProfileNoUploadedAssets,
   validReaction,
   validReplyNoUploadedAssets,
+  validOnChainContent,
 } from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
@@ -201,6 +202,37 @@ export default function () {
     {
       let url = BASE_URL + `/v1/content/${msaId}/reply`;
       let body = Object.assign({}, validReplyNoUploadedAssets, { content: createContentWithAsset(BASE_URL) });
+      let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
+      let request = http.post(url, JSON.stringify(body), params);
+
+      check(request, {
+        '': (r) => r.status === 202,
+      });
+    }
+  });
+
+  group('/v2/content/{msaId}/on-chain', () => {
+    let msaId = '1';
+
+    // Request: ContentControllerV2_postContent
+    {
+      let url = BASE_URL + `/v2/content/${msaId}/on-chain`;
+      let body = validOnChainContent;
+      let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
+      let request = http.post(url, JSON.stringify(body), params);
+
+      check(request, {
+        '': (r) => r.status === 202,
+      });
+    }
+  });
+
+  group('/v2/content/batchAnnouncement', () => {
+    // Request No. 2: ContentControllerV2_batchAnnouncement with asset
+    {
+      let url = BASE_URL + `/v2/content/batchAnnouncement`;
+      const referenceId = getReferenceId(BASE_URL, 'parquet', 'application/vnd.apache.parquet');
+      let body = { batchFiles: [{ cid: referenceId, schemaId: 16001 }] };
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.post(url, JSON.stringify(body), params);
 

@@ -4,4 +4,5 @@ export enum AttachmentType {
   IMAGE = 'image',
   AUDIO = 'audio',
   VIDEO = 'video',
+  PARQUET = 'parquet',
 }

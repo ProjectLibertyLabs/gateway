@@ -86,7 +86,7 @@
         "type": "object",
         "properties": {
           "announcementType": {
-            "type": "AnnouncementType"
+            "$ref": "#/components/schemas/AnnouncementType"
           },
           "fromId": {
             "type": "string"

@@ -19,12 +19,24 @@ Resources:
 In this tutorial, you will set up a Sign In With Frequency button for use with Testnet, which will enable you to acquire onboarded, authenticated users with minimal steps.
 
 ## Prerequisites
-Ensure you have:
-- Registered your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
-- A backend-only-accessible [running instance](../Run/AccountService/RunAccountService.md) of the Account Service.
-- Access to a Frequency RPC Node.
-    - Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 
+Before proceeding, ensure you have completed the following steps:
+
+✅ **Registered as a Provider**  
+Register your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
+
+✅ **Completed the Access Form**  
+Fill out the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
+
+✅ **Set Up a Back-end Instance**  
+You need a **back-end-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
+
+✅ **Access to a Frequency RPC Node**  
+- **Public Testnet Node:**  
+  ```plaintext
+  wss://0.rpc.testnet.amplica.io
+  ```
+  
 ## Overview
 
 1. Application creates a signed request SIWF URL that contains a callback URL.

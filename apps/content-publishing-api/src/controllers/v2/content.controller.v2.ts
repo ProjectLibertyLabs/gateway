@@ -8,10 +8,11 @@ import {
   Param,
   UnauthorizedException,
   Inject,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-import { AnnouncementResponseDto, OnChainContentDto } from '#types/dtos/content-publishing';
+import { AnnouncementResponseDto, BatchFilesDto, OnChainContentDto } from '#types/dtos/content-publishing';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { MsaIdDto } from '#types/dtos/common';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
@@ -26,7 +27,6 @@ export class ContentControllerV2 {
     // eslint-disable-next-line no-empty-function
   ) {}
 
-  // eslint-disable-next-line class-methods-use-this
   @Post(':msaId/on-chain')
   @ApiOperation({ summary: 'Create on-chain content for a given schema' })
   @HttpCode(202)
@@ -61,5 +61,14 @@ export class ContentControllerV2 {
       }
     }
     return this.apiService.enqueueContent(onBehalfOf, contentDto) as Promise<AnnouncementResponseDto>;
+  }
+
+  @Post('batchAnnouncement')
+  @ApiOperation({ summary: 'Create off-chain batch content announcements' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
+  async postBatches(@Body() batchContentDto: BatchFilesDto): Promise<AnnouncementResponseDto[]> {
+    const promises = batchContentDto.batchFiles.map((batchFile) => this.apiService.enqueueBatchRequest(batchFile));
+    return Promise.all(promises);
   }
 }

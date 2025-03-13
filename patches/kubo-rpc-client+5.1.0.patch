@@ -1,0 +1,14 @@
+diff --git a/node_modules/kubo-rpc-client/package.json b/node_modules/kubo-rpc-client/package.json
+index 54e653c..95b2396 100644
+--- a/node_modules/kubo-rpc-client/package.json
++++ b/node_modules/kubo-rpc-client/package.json
+@@ -34,7 +34,8 @@
+   "exports": {
+     ".": {
+       "types": "./dist/src/index.d.ts",
+-      "import": "./dist/src/index.js"
++      "import": "./dist/src/index.js",
++      "require": "./dist/src/index.js"
+     }
+   },
+   "eslintConfig": {

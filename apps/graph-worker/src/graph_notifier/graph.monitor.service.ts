@@ -20,6 +20,7 @@ import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { REDIS_WEBHOOK_ALL, REDIS_WEBHOOK_PREFIX, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
@@ -84,6 +85,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private requestQueue: Queue,
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
     @Inject(workerConfig.KEY) private readonly workerConf: IGraphWorkerConfig,
+    @Inject(httpCommonConfig.KEY) private readonly httpConf: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
     super(cacheManager, blockchainService, new Logger(GraphMonitorService.prototype.constructor.name));
@@ -210,7 +212,11 @@ export class GraphMonitorService extends BlockchainScannerService {
           this.logger.debug(
             `Sending graph operation status (${statusToReport.status}) notification for refId ${statusToReport.referenceId} to webhook: ${webhook}`,
           );
-          await axios.post(webhook, { referenceId: statusToReport.referenceId, status: statusToReport.status });
+          await axios.post(
+            webhook,
+            { referenceId: statusToReport.referenceId, status: statusToReport.status },
+            { timeout: this.httpConf.httpResponseTimeoutMS },
+          );
           break;
         } catch (error: any) {
           this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);
@@ -310,7 +316,7 @@ export class GraphMonitorService extends BlockchainScannerService {
               this.logger.debug(`Sending graph change notification to webhook: ${webhookUrl}`);
               this.logger.debug(`Graph Change: ${JSON.stringify(graphUpdateNotification)}`);
               // eslint-disable-next-line no-await-in-loop
-              await axios.post(webhookUrl, graphUpdateNotification);
+              await axios.post(webhookUrl, graphUpdateNotification, { timeout: this.httpConf.httpResponseTimeoutMS });
               this.logger.debug(`Notification sent to webhook: ${webhookUrl}`);
               break;
             } catch (error) {

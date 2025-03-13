@@ -13,6 +13,8 @@ import {
   isImage,
   UploadResponseDto,
   OnChainContentDto,
+  isParquet,
+  BatchFileDto,
 } from '#types/dtos/content-publishing';
 import { IRequestJob, IAssetMetadata, IAssetJob, IPublisherJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
@@ -34,6 +36,7 @@ export class ApiService {
     @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
     @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -86,6 +89,23 @@ export class ApiService {
     };
   }
 
+  public async enqueueBatchRequest(batchFile: BatchFileDto): Promise<AnnouncementResponseDto> {
+    const data = {
+      id: '',
+      ...batchFile,
+    };
+    data.id = this.calculateJobId(data);
+    const job = await this.batchAnnouncerQueue.add(`Batch Request Job - ${data.id}`, data, {
+      jobId: data.id,
+      attempts: 3,
+      delay: 3000,
+      removeOnFail: false,
+      removeOnComplete: 2000,
+    }); // TODO: should come from queue configs
+    this.logger.debug(`Enqueued Batch Request Job: ${job.id}`);
+    return { referenceId: data.id };
+  }
+
   async validateAssetsAndFetchMetadata(
     content: AssetIncludedRequestDto,
   ): Promise<IRequestJob['assetToMimeType'] | undefined> {
@@ -103,6 +123,8 @@ export class ApiService {
           }),
         ),
       );
+    } else if (content.batchFiles) {
+      content.batchFiles.forEach((batchFile) => checkingList.push({ onlyImage: false, referenceId: batchFile.cid }));
     }
 
     const redisResults = await Promise.all(
@@ -147,18 +169,25 @@ export class ApiService {
         STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
         f.buffer,
       );
-      const type = ((m) => {
-        switch (m) {
-          case 'image':
-            return AttachmentType.IMAGE;
-          case 'audio':
-            return AttachmentType.AUDIO;
-          case 'video':
-            return AttachmentType.VIDEO;
-          default:
-            throw new Error('Invalid MIME type');
-        }
-      })(f.mimetype.split('/')[0]);
+
+      let type: AttachmentType;
+      this.logger.debug(`File mime type is: ${f.mimetype}`);
+      if (isParquet(f.mimetype)) {
+        type = AttachmentType.PARQUET;
+      } else {
+        type = ((m) => {
+          switch (m) {
+            case 'image':
+              return AttachmentType.IMAGE;
+            case 'audio':
+              return AttachmentType.AUDIO;
+            case 'video':
+              return AttachmentType.VIDEO;
+            default:
+              throw new Error('Invalid MIME type');
+          }
+        })(f.mimetype.split('/')[0]);
+      }
 
       const assetCache: IAssetMetadata = {
         ipfsCid: references[index],

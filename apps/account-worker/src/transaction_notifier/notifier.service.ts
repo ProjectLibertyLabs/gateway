@@ -17,6 +17,7 @@ import { ACCOUNT_SERVICE_WATCHER_PREFIX, TXN_WATCH_LIST_KEY } from '#types/const
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 
 @Injectable()
 export class TxnNotifierService
@@ -48,6 +49,7 @@ export class TxnNotifierService
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
     @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
+    @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
     super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
@@ -233,7 +235,7 @@ export class TxnNotifierService
             try {
               this.logger.debug(`Sending transaction notification to webhook: ${webhook}`);
               this.logger.debug(`Transaction: ${JSON.stringify(webhookResponse)}`);
-              await axios.post(webhook, webhookResponse);
+              await axios.post(webhook, webhookResponse, { timeout: this.httpConfig.httpResponseTimeoutMS });
               this.logger.debug(`Transaction Notification sent to webhook: ${webhook}`);
               break;
             } catch (error) {

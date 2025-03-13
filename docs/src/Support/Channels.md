@@ -5,7 +5,7 @@ There are many different options to meet your needs.
 
 ## GitHub Issues
 
-Checking and creating a GitHub issue is a easy place to start if you want to ask a question or file a bug report or documentation issue you find.
+Checking and creating a GitHub issue is an easy place to start if you want to ask a question or file a bug report or documentation issue you find.
 
 - [Frequency Developer Gateway GitHub Issues](https://github.com/ProjectLibertyLabs/gateway/issues)
 - [Social App Template GitHub Issues](https://github.com/ProjectLibertyLabs/social-app-template/issues)

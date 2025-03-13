@@ -33,17 +33,16 @@ The following environment variables are common to all Gateway Services. This sni
   HEALTH_CHECK_SUCCESS_THRESHOLD: 10
   CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
   SIWF_URL: 'https://projectlibertylabs.github.io/siwf/v1/ui'
-  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001}
+  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001/api/v0}
   IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  CHAIN_ENVIRONMENT: 'dev'
 ```
 
 Each service requires connection to a Redis instance. The `REDIS_URL` environment variable is set to `redis://redis:6379` by default. If you are using a different Redis instance, you can set the `REDIS_URL` environment variable to the appropriate connection string.
 
-Each service also requires a docker network (or equivalent) to connect to any other containers. The default network is set to `gateway_net`. If you are using a different network, you can edit the `networks:` environment variable in the `docker-compose.yaml` to the appropriate network name.
+Each service also requires a docker network (or equivalent) to connect to any other containers. The default network is set to `gateway-net`. If you are using a different network, you can edit the `networks:` environment variable in the `docker-compose.yaml` to the appropriate network name.
 
 Some services require a connection to an IPFS instance. See the [IPFS Setup Guide](./IPFS.md) for more information.
 
@@ -72,7 +71,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 | **Graph Service**              | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
 | **Docker Image**               | `projectlibertylabs/graph-service`                                                                |
-| **Dependencies**               | Redis, IPFS                                                                                       |
+| **Dependencies**               | Redis                                                                                       |
 | **API Ports**                  | `3000`                                                                                            |
 | **Inter-Service Ports**        | `6379, 9944`                                                                                      |
 | **Docker Compose Services**    | graph-service-api `START_PROCESS: graph-api`                                                      |

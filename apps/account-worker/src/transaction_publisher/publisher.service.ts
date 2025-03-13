@@ -77,7 +77,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
-          const trx = await this.blockchainService.publishHandle(job.data);
+          const trx = await this.blockchainService.generatePublishHandle(job.data);
           targetEvent = { section: 'handles', method: 'HandleClaimed' };
           [tx, txHash] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
@@ -93,14 +93,14 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.ADD_KEY: {
-          const trx = await this.blockchainService.addPublicKeyToMsa(job.data);
+          const trx = await this.blockchainService.generateAddPublicKeyToMsa(job.data);
           targetEvent = { section: 'msa', method: 'PublicKeyAdded' };
           [tx, txHash] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.ADD_PUBLIC_KEY_AGREEMENT: {
-          const trx = await this.blockchainService.addPublicKeyAgreementToMsa(job.data);
+          const trx = await this.blockchainService.generateAddPublicKeyAgreementToMsa(job.data);
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
           [tx, txHash] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);

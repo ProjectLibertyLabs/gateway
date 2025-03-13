@@ -8,7 +8,7 @@ The Content Publishing Service allows users to create, post, and manage content 
 
 ## Configuration
 
-{{#markdown-embed ../developer-docs/content-publishing/ENVIRONMENT.md 2}}
+{{#include ../../../../developer-docs/content-publishing/ENVIRONMENT.md:2:}}
 
 ## Best Practices
 

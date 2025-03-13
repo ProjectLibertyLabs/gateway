@@ -37,6 +37,17 @@
   white-space: nowrap;
 }
 
+.button-links.button-links-small a,
+.button-links.button-links-small > p a,
+.button-links.button-links-small a:link,
+.button-links.button-links-small > p a:link {
+  font-size: 16px;
+  padding: 10px 20px;
+  margin: 10px auto;
+  width: auto;
+  flex: 0;
+}
+
 @media screen and (max-width: 1080px) {
   .button-links a,
   .button-links > p a,

@@ -2,22 +2,27 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { IPublisherJob } from '../interfaces';
 import { HexString } from '@polkadot/util/types';
+import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
 
 @Injectable()
-export class IPFSPublisher {
+export class MessagePublisher {
   private logger: Logger;
 
   constructor(private blockchainService: BlockchainService) {
-    this.logger = new Logger(IPFSPublisher.name);
+    this.logger = new Logger(MessagePublisher.name);
   }
 
   public async publish(
     message: IPublisherJob,
   ): Promise<[SubmittableExtrinsic<'promise', ISubmittableResult>, HexString]> {
-    this.logger.debug(JSON.stringify(message));
-    const tx = this.blockchainService.addIpfsMessage(message.schemaId, message.data.cid, message.data.payloadLength);
+    const tx = isIpfsJob(message)
+      ? this.blockchainService.generateAddIpfsMessage(message.schemaId, message.data.cid, message.data.payloadLength)
+      : this.blockchainService.generateAddOnchainMessage(
+          message.schemaId,
+          message.data.payload,
+          message.data.onBehalfOf,
+        );
     return this.processSingleBatch(tx);
   }
 

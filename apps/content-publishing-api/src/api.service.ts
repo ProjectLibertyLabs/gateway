@@ -12,16 +12,18 @@ import {
   AssetIncludedRequestDto,
   isImage,
   UploadResponseDto,
-  AttachmentType,
+  OnChainContentDto,
+  isParquet,
+  BatchFileDto,
 } from '#types/dtos/content-publishing';
-import { IRequestJob, IAssetMetadata, IAssetJob } from '#types/interfaces/content-publishing';
+import { IRequestJob, IAssetMetadata, IAssetJob, IPublisherJob } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { calculateIpfsCID } from '#utils/common/common.utils';
 import {
   ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#types/constants/redis-keys.constants';
-import { AnnouncementTypeName } from '#types/enums';
+import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 
@@ -33,13 +35,34 @@ export class ApiService {
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
     @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
+    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
 
+  async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
+    const { schemaId, ...data } = content;
+    const jobData: IPublisherJob = {
+      id: '',
+      schemaId,
+      data: { ...data, onBehalfOf: msaId },
+    };
+    jobData.id = this.calculateJobId(jobData);
+    const job = await this.publishQueue.add(`OnChain content job - ${jobData.id}`, jobData, {
+      jobId: jobData.id,
+      removeOnComplete: 1000,
+      attempts: 3,
+    });
+    this.logger.debug(`Enqueued on-chain content job: ${job.id}`);
+    return {
+      referenceId: jobData.id,
+    };
+  }
+
   async enqueueRequest(
     announcementType: AnnouncementTypeName,
-    dsnpUserId: string,
+    msaId: string,
     content: RequestTypeDto,
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<AnnouncementResponseDto> {
@@ -47,7 +70,7 @@ export class ApiService {
       content,
       id: '',
       announcementType,
-      dsnpUserId,
+      msaId,
       dependencyAttempt: 0,
     } as IRequestJob;
     data.id = this.calculateJobId(data);
@@ -60,10 +83,27 @@ export class ApiService {
       removeOnFail: false,
       removeOnComplete: 2000,
     }); // TODO: should come from queue configs
-    this.logger.debug('Enqueue Request Job: ', job);
+    this.logger.debug(`Enqueued Request Job: ${job.id}`);
     return {
       referenceId: data.id,
     };
+  }
+
+  public async enqueueBatchRequest(batchFile: BatchFileDto): Promise<AnnouncementResponseDto> {
+    const data = {
+      id: '',
+      ...batchFile,
+    };
+    data.id = this.calculateJobId(data);
+    const job = await this.batchAnnouncerQueue.add(`Batch Request Job - ${data.id}`, data, {
+      jobId: data.id,
+      attempts: 3,
+      delay: 3000,
+      removeOnFail: false,
+      removeOnComplete: 2000,
+    }); // TODO: should come from queue configs
+    this.logger.debug(`Enqueued Batch Request Job: ${job.id}`);
+    return { referenceId: data.id };
   }
 
   async validateAssetsAndFetchMetadata(
@@ -83,6 +123,8 @@ export class ApiService {
           }),
         ),
       );
+    } else if (content.batchFiles) {
+      content.batchFiles.forEach((batchFile) => checkingList.push({ onlyImage: false, referenceId: batchFile.cid }));
     }
 
     const redisResults = await Promise.all(
@@ -127,18 +169,25 @@ export class ApiService {
         STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
         f.buffer,
       );
-      const type = ((m) => {
-        switch (m) {
-          case 'image':
-            return AttachmentType.IMAGE;
-          case 'audio':
-            return AttachmentType.AUDIO;
-          case 'video':
-            return AttachmentType.VIDEO;
-          default:
-            throw new Error('Invalid MIME type');
-        }
-      })(f.mimetype.split('/')[0]);
+
+      let type: AttachmentType;
+      this.logger.debug(`File mime type is: ${f.mimetype}`);
+      if (isParquet(f.mimetype)) {
+        type = AttachmentType.PARQUET;
+      } else {
+        type = ((m) => {
+          switch (m) {
+            case 'image':
+              return AttachmentType.IMAGE;
+            case 'audio':
+              return AttachmentType.AUDIO;
+            case 'video':
+              return AttachmentType.VIDEO;
+            default:
+              throw new Error('Invalid MIME type');
+          }
+        })(f.mimetype.split('/')[0]);
+      }
 
       const assetCache: IAssetMetadata = {
         ipfsCid: references[index],
@@ -198,7 +247,7 @@ export class ApiService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  private calculateJobId(jobWithoutId: IRequestJob): string {
+  private calculateJobId(jobWithoutId: unknown): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');
   }

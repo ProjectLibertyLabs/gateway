@@ -26,7 +26,7 @@ Find and replace list:
   - [Deployment](#deployment)
 - [🤝 Contributing](#-contributing)
 - [⭐️ Show your support](#-support)
-- [🙏 Acknowledgements](#-acknowledgements)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [❓FAQ](#faq)
 - [📝 License](#-license)
 
@@ -211,9 +211,9 @@ If you like this project...join the zoom calls or loom at the label for `good-fi
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
-<!-- ACKNOWLEDGEMENTS -->
+<!-- ACKNOWLEDGMENTS -->
 
-## 🙏 Acknowledgements
+## 🙏 Acknowledgments
 
 > Give credit to everyone who inspired our codebase.
 

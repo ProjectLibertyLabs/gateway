@@ -1,12 +1,12 @@
 # Summary
 
 [Introduction](README.md)
-[Quick Start Tutorial](./GettingStarted/README.md)
+[Quick Start Tutorial](./GettingStarted/QuickStart.md)
 
 ---
 
-- [Guides]()
-    - [Quick Start](./GettingStarted/README.md)
+- [Guides](./GettingStarted/README.md)
+    - [Quick Start](./GettingStarted/QuickStart.md)
     - [Become a Provider](./GettingStarted/BecomeProvider.md)
     - [Single Sign On](./GettingStarted/SSO.md)
 - [Fundamentals](./Fundamentals/README.md)

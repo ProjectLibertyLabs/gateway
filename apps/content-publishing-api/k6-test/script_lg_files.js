@@ -17,7 +17,7 @@ export const options = {
 };
 
 export default function () {
-  group('/v1/asset/upload medium files', () => {
+  group('/v1/asset/upload large files', () => {
     let url = BASE_URL + `/v1/asset/upload`;
     // Request No. 1: ApiController_assetUpload large files
     {

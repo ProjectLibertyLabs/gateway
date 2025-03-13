@@ -15,12 +15,13 @@ import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
+import httpConfig from '#config/http-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, queueConfig, workerConfig],
+      load: [blockchainConfig, cacheConfig, queueConfig, workerConfig, httpConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application

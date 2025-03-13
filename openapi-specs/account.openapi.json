@@ -494,6 +494,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid handle provided or provided signature is not valid for the payload!"
           }
         },
         "tags": [
@@ -526,6 +529,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid handle provided or provided signature is not valid for the payload!"
           }
         },
         "tags": [
@@ -560,6 +566,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid handle provided"
           }
         },
         "tags": [

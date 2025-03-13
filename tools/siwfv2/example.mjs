@@ -64,11 +64,7 @@ function formatHtml(content, script = '') {
 function handleRootRequest(_req, res) {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
-  res.end(
-    formatHtml(
-      `<h1>SIWF V2 Example</h1><a href="/signin"><img src="button-siwf-primary.svg"></a>`,
-    ),
-  );
+  res.end(formatHtml(`<h1>SIWF V2 Example</h1><a href="/signin"><img src="button-siwf-primary.svg"></a>`));
 }
 
 function handleButtonRequest(_req, res) {
@@ -78,7 +74,7 @@ function handleButtonRequest(_req, res) {
     res.end(data);
   });
 }
-  
+
 async function handleSignInRequest(_req, res) {
   try {
     const redirectUrl = await requestSignIn();

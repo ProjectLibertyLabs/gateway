@@ -1,5 +1,5 @@
+import { IPublisherJob } from '#types/interfaces/content-publishing';
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
-import { IPublisherJob } from './publisher-job.interface';
 
 export interface ITxMonitorJob {
   id: string;

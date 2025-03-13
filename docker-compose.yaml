@@ -12,12 +12,11 @@ x-common-environment: &common-environment
   HEALTH_CHECK_SUCCESS_THRESHOLD: 10
   CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
   SIWF_URL: 'https://projectlibertylabs.github.io/siwf/v1/ui'
-  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001}
+  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001/api/v0}
   IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  CHAIN_ENVIRONMENT: dev
   DEBUG: true
 
 x-content-publishing-env: &content-publishing-env
@@ -52,13 +51,13 @@ x-account-service-env: &account-service-env
 
 services:
   redis:
-    image: redis:latest
+    image: redis:7.0
     ports:
       - 6379:6379
     networks:
       - gateway-net
     volumes:
-      - redis_data:/data/redis
+      - redis_data:/data
 
   frequency:
     image: frequencychain/standalone-node:latest

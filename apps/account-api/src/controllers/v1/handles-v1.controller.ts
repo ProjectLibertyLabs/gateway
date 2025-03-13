@@ -61,7 +61,7 @@ export class HandlesControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to create a new handle for an account' })
   @ApiOkResponse({ description: 'Handle creation request enqueued', type: TransactionResponse })
-  @ApiBadRequestResponse({ description: 'Invalid handle provided or Provided signature is not valid for the payload!' })
+  @ApiBadRequestResponse({ description: 'Invalid handle provided or provided signature is not valid for the payload!' })
   /**
    * Creates a handle using the provided query parameters.
    * @param queryParams - The query parameters for creating the account.
@@ -85,7 +85,7 @@ export class HandlesControllerV1 {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request to change a handle' })
   @ApiOkResponse({ description: 'Handle change request enqueued', type: TransactionResponse })
-  @ApiBadRequestResponse({ description: 'Invalid handle provided or Provided signature is not valid for the payload!' })
+  @ApiBadRequestResponse({ description: 'Invalid handle provided or provided signature is not valid for the payload!' })
   /**
    * Using the provided query parameters, removes the old handle and creates a new one.
    * @param queryParams - The query parameters for changing the handle.

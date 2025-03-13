@@ -7,13 +7,12 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ContentPublishingQueues as QueueConstants, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
-import { IPublisherJob } from '../interfaces';
 import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
-import { IContentTxStatus } from '#types/interfaces';
+import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 

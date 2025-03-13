@@ -70,7 +70,7 @@ Developers can integrate their custom code within this modular framework, extend
 
 [BullMQ](https://bullmq.io) is a Node.js library for creating robust job queues with Redis.
 
-- **Struture for Redis Queues**: BullMQ enhances Redis by providing a reliable and scalable way to manage background jobs and task queues, ensuring that tasks are processed efficiently and reliably.
+- **Structure for Redis Queues**: BullMQ enhances Redis by providing a reliable and scalable way to manage background jobs and task queues, ensuring that tasks are processed efficiently and reliably.
 - **Usage in Gateway:** BullMQ can be used to handle background processing tasks such as sending notifications, processing user actions, and managing content updates.
 
 ## IPFS Kubo API

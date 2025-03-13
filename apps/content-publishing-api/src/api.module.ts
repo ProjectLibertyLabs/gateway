@@ -15,13 +15,17 @@ import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
+import { ContentControllerV2 } from './controllers/v2';
+import { BlockchainModule } from '#blockchain/blockchain.module';
+import { allowReadOnly } from '#blockchain/blockchain.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, cacheConfig, queueConfig],
+      load: [apiConfig, allowReadOnly, cacheConfig, queueConfig],
     }),
+    BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -73,8 +77,15 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers:
     process.env?.ENVIRONMENT === 'dev'
-      ? [AssetControllerV1, ContentControllerV1, ProfileControllerV1, HealthController, DevelopmentControllerV1]
-      : [AssetControllerV1, ContentControllerV1, ProfileControllerV1, HealthController],
+      ? [
+          AssetControllerV1,
+          ContentControllerV1,
+          ContentControllerV2,
+          ProfileControllerV1,
+          HealthController,
+          DevelopmentControllerV1,
+        ]
+      : [AssetControllerV1, ContentControllerV1, ContentControllerV2, ProfileControllerV1, HealthController],
   exports: [],
 })
 export class ApiModule {}

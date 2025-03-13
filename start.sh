@@ -198,7 +198,7 @@ EOI
     fi
 
     DEFAULT_IPFS_VOLUME="/data/ipfs"
-    DEFAULT_IPFS_ENDPOINT="http://ipfs:5001"
+    DEFAULT_IPFS_ENDPOINT="http://ipfs:5001/api/v0"
     DEFAULT_IPFS_GATEWAY_URL='https://ipfs.io/ipfs/[CID]'
     DEFAULT_IPFS_BASIC_AUTH_USER=""
     DEFAULT_IPFS_BASIC_AUTH_SECRET=""

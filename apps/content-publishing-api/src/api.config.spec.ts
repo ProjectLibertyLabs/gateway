@@ -13,6 +13,7 @@ describe('Content Publishing API Config', () => {
     API_TIMEOUT_MS: undefined,
     FILE_UPLOAD_MAX_SIZE_IN_BYTES: undefined,
     FILE_UPLOAD_COUNT_LIMIT: undefined,
+    PROVIDER_ID: undefined,
   };
 
   beforeAll(() => {
@@ -38,6 +39,10 @@ describe('Content Publishing API Config', () => {
 
     it('invalid file upload count limit should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'FILE_UPLOAD_COUNT_LIMIT', [-1]));
+
+    it('missing provider id should fail', async () => validateMissing(ALL_ENV, 'PROVIDER_ID'));
+
+    it('invalid provider id should fail', async () => shouldFailBadValues(ALL_ENV, 'PROVIDER_ID', [-1, 'abc']));
   });
 
   describe('valid environment', () => {
@@ -72,6 +77,10 @@ describe('Content Publishing API Config', () => {
 
     it('should get api json body size limit', () => {
       expect(contentPublishingServiceConfig.apiBodyJsonLimit).toStrictEqual(ALL_ENV.API_BODY_JSON_LIMIT?.toString());
+    });
+
+    it('should get provider id', () => {
+      expect(contentPublishingServiceConfig.providerId.toString()).toStrictEqual(ALL_ENV.PROVIDER_ID.toString());
     });
   });
 });

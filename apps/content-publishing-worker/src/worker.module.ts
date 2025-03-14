@@ -18,12 +18,14 @@ import workerConfig from './worker.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { QueueModule } from '#queue/queue.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
+import { IpfsService } from '#storage';
+import httpCommonConfig from '#config/http-common.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, queueConfig, ipfsConfig, workerConfig],
+      load: [blockchainConfig, cacheConfig, queueConfig, ipfsConfig, workerConfig, httpCommonConfig],
     }),
     CacheModule.forRootAsync({
       useFactory: (blockchainConf, cacheConf) => [
@@ -67,6 +69,7 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
     RequestProcessorModule,
     BatchingProcessorModule,
   ],
-  providers: [],
+  providers: [IpfsService],
+  exports: [IpfsService],
 })
 export class WorkerModule {}

@@ -18,7 +18,7 @@
     "@polkadot/types": "^15.8.1",
     "@polkadot/util": "^13.4.3",
     "@polkadot/util-crypto": "^13.4.3",
-    "@projectlibertylabs/frequency-scenario-template": "^1.1.10",
+    "@projectlibertylabs/frequency-scenario-template": "^1.1.11",
     "loglevel": "^1.9.2"
   },
   "devDependencies": {

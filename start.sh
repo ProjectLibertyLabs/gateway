@@ -162,10 +162,10 @@ EOI
         PROFILES="${PROFILES} graph"
     fi
     if yesno "Start the content-publishing service" Y; then
-        PROFILES="${PROFILES} content_publishing"
+        PROFILES="${PROFILES} content-publishing"
     fi
     if yesno "Start the content-watcher service" Y; then
-        PROFILES="${PROFILES} content_watcher"
+        PROFILES="${PROFILES} content-watcher"
     fi
 
     if [ "${TESTNET_ENV}" != true ]; then
@@ -291,6 +291,7 @@ function start_services() {
     COMPOSE_CMD=$( prefix_postfix_values "${COMPOSE_FILES}" "-f ")
     PROFILE_CMD=$( prefix_postfix_values "${PROFILES}" "--profile ")
 
+    echo -e "docker compose ${COMPOSE_CMD} ${PROFILE_CMD} up -d"
     docker compose ${COMPOSE_CMD} ${PROFILE_CMD} up -d
 }
 
@@ -316,7 +317,7 @@ You can access the Gateway at the following local addresses:
           (View log messages in docker)
 "
     fi
-    if [[ ${PROFILES} =~ content_publishing ]]; then
+    if [[ ${PROFILES} =~ content-publishing ]]; then
         SERVICES_STR="${SERVICES_STR}
     * content-publishing-service:
         - API:              http://localhost:${SERVICE_PORT_0}
@@ -324,7 +325,7 @@ You can access the Gateway at the following local addresses:
         - Swagger UI:       http://localhost:${SERVICE_PORT_0}/docs/swagger
 "
     fi
-    if [[ ${PROFILES} =~ content_watcher ]]; then
+    if [[ ${PROFILES} =~ content-watcher ]]; then
         SERVICES_STR="${SERVICES_STR}
     * content-watcher-service:
         - API:              http://localhost:${SERVICE_PORT_1}

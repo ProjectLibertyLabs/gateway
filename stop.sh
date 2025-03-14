@@ -65,7 +65,7 @@ then
     docker volume rm -f ${COMPOSE_PROJECT_NAME}_account_worker_node_cache
     docker volume rm -f ${COMPOSE_PROJECT_NAME}_graph_api_node_cache
     docker volume rm -f ${COMPOSE_PROJECT_NAME}_graph_worker_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_publishing_api_node_cache
+    docker volume rm -f ${COMPOSE_PROJECT_NAME}_content-publishing_api_node_cache
     docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_publishing_worker_node_cache
     docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_watcher_node_cache
     if [[ ! $TESTNET_ENV =~ ^[Yy]$ ]]

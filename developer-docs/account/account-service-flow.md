@@ -8,15 +8,6 @@ sequenceDiagram
     participant BL as Blockchain Service
     participant DB as Accounts Database
 
-    # Setup Provider
-    Note over UI, API: Provider Setup
-    UI->>+API: Create Provider (CreateProviderRequest)
-    API-->>+WS: Create Provider (name, wallet signature)
-    WS-->>+BL: Create DSNP ID (encoded extrinsic)
-    WS-->>BL: Create Provider (encoded extrinsic)
-    BL-->>-WS: Provider Created Transaction Finalized
-    WS-->>-UI: Provider Created (CreateProviderResponse)
-
     # Register User
     Note over UI, API: Register User
     UI->>API: Register User

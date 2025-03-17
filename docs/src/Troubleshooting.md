@@ -12,9 +12,9 @@ Some of these troubleshooting steps assume that the social-app-template is runni
 
 ### Registration Process
 
-Provider registration is required to setup a Provider on Frequency. This is a 1-time process Providers use to register, and get a Provider ID.  On Testnet, anyone may set up a Provider.  However, if you wish to set up a Provider on Mainnet, this has to be done in concert with the Frequency Foundation. See the [Provider Dashboard](https://provider.frequency.xyz) for more information.
+Provider registration is required to setup a Provider on Frequency. This is a one-time process Providers use to register and obtain a Provider ID.  Registration of Providers on Testnet is unrestricted; on Mainnet it requires approval from the Frequency Network Foundation. See the [Provider Dashboard](https://provider.frequency.xyz) for more information.
 
-The Register User flow is the process by which a user registers with a Provider.  This is a 1-time process for each user.  The user will be able to log in to the Provider's app using the Sign In With Frequency [SIWF](https://github.com/ProjectLibertyLabs/siwf) process.  The user will now be able to interact with the Provider's app.
+The Register User flow is the process by which a user registers with a Provider.  This is a one-time process required each time a user signs up with a new Provider.  The user will be able to log in to the Provider's app using the Sign In With Frequency [SIWF](https://github.com/ProjectLibertyLabs/siwf) process.  The user will now be able to interact with the Provider's app.
 
 The Login User flow is the process by which a user logs in to the Provider's app after the user has registered. The user will be able to interact with the Provider's app.
 
@@ -49,16 +49,16 @@ The API Service handles incoming HTTP requests, while the Worker Service process
 
 Here are the steps:
 
-1. Provider’s User Interface will interact with Frequency Access to collect the user's identity information and use that information to send a registration request to the Gateway-Account Service API.
-2. Account Service API receives the [SIWF POST](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_postSignInWithFrequency) at `/v2/accounts/swif` and sends them to the Account Service Worker.
-    - Account Service API will respond with a `200 OK` if the request is successful.
+1. Provider’s application UI will invoke the Frequency Access UI, which collects the user's identity information and returns a signed registration payload. The Provider application then uses that information to send a registration request to the Gateway-Account Service API.
+2. Account Service API receives the [SIWF POST](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_postSignInWithFrequency) at `/v2/accounts/swif` and enqueues a request to the Account Service Worker.
+    - Account Service API will respond with a `200 OK` if enqueueing the request is successful.
 3. Account Service Worker has been configured by the Provider to use Capacity to process the transactions and send them to the blockchain.
     - Account Service Worker will process the request and send a transaction to the blockchain.
-    - Accound Service Worker will montior the blockchain for the transaction to be finalized.
-4. The blockchain finalizes the transactions and Account Service Worker detects the finalized transaction.
-    - If the Provider has configured a webhook, the Account Service Worker will send a webhook callback to the Provider.
-    - Currently, `social-app-template` will poll the Account Service API at `/v1/accounts/{accountId}` to check if the user has been created.
-    The poll times out after 90 seconds. This is a temporary solution and it is recommended to use Server-Sent Events (SSE), or a similar method, to update the UI based on the webhook callback.
+    - Accound Service Worker will monitor the blockchain for the transaction to be finalized.
+4. The blockchain finalizes the transactions and Account Service Worker detects the finalized transaction. The Provider application may choose from several different methods to received notification that the transaction has been finalized:
+    - If a webhook configuration has been supplied, the Account Service Worker will send a webhook callback to the configured URL. The definition for the webhook endpoint can be found [here](https://projectlibertylabs.github.io/gateway/account/webhooks.html).
+    - The application may also poll the Account Service API endpoint `GET /v1/accounts/account/{accountId}`; this endpoint will return an `HTTP 404 Not Found` error if the account has not been created on-chain yet.
+(NOTE: Currently, the `social-app-template` frontend will poll the Account Service API (via the `social-app-template` backend) for 90 seconds to check if the user has been created. This is a temporary solution and it is recommended to use Server-Sent Events (SSE), or a similar method, to update the UI.)
 
 What happens if I don't get the expected response?
 
@@ -237,7 +237,7 @@ This will give you more information about the transaction and the error that occ
 
 In the above image you will able to see the transactions in that block.
 
-**NOTE:** If you are on testnet, you may not be the only contributor of transactions to that block.
+**NOTE:** If you are on a public chain (ie, testnet or mainnet), you may not be the only contributor of transactions to that block.
 Anybody can be posting to that block.  However, you should be able to find the transaction within that block by
 
  1) Mapping to the correct extrinsics (msa.msaCreated, msa.DelegationGranted, msa.HandleClaimed and statefulStorage.ItemizedPageUpdated)

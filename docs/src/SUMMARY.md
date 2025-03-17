@@ -39,7 +39,7 @@
 
 ---
 
-[FAQ](./FAQ.md)
+[Troubleshooting](./Troubleshooting.md)
 [Support Channels](./Support/Channels.md)
 [Community Resources](./Support/Community.md)
 

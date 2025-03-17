@@ -247,6 +247,6 @@ Anybody can be posting to that block.  However, you should be able to find the t
 
 You may get a message that the extrinsic failed.
 In this case, there will be an error code you can reference.
-In the below example, the error code is 60.
+In the below example, the error index is 60 and the error code is 0. Error index indicates the Frequency Substrate pallet that produced the error, and the error code is the value of the error enum within that pallet. A list of errors can be found in [the Frequency Wiki](https://github.com/frequency-chain/frequency/wiki/Errors).
 
 ![Polkadot Block Explorer Error](./BlockchainError.png)

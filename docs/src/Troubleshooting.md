@@ -55,7 +55,7 @@ Here are the steps:
 3. Account Service Worker has been configured by the Provider to use Capacity to process the transactions and send them to the blockchain.
     - Account Service Worker will process the request and send a transaction to the blockchain.
     - Accound Service Worker will monitor the blockchain for the transaction to be finalized.
-4. The blockchain finalizes the transactions and Account Service Worker detects the finalized transaction. The Provider application may choose from several different methods to received notification that the transaction has been finalized:
+4. The blockchain finalizes the transactions and Account Service Worker detects the finalized transaction. The Provider application may choose from several different methods to receive notification that the transaction has been finalized:
     - If a webhook configuration has been supplied, the Account Service Worker will send a webhook callback to the configured URL. The definition for the webhook endpoint can be found [here](https://projectlibertylabs.github.io/gateway/account/webhooks.html).
     - The application may also poll the Account Service API endpoint `GET /v1/accounts/account/{accountId}`; this endpoint will return an `HTTP 404 Not Found` error if the account has not been created on-chain yet.
 (NOTE: Currently, the `social-app-template` frontend will poll the Account Service API (via the `social-app-template` backend) for 90 seconds to check if the user has been created. This is a temporary solution and it is recommended to use Server-Sent Events (SSE), or a similar method, to update the UI.)

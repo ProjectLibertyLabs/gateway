@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDto } from '#types/dtos/content-publishing';
-import { Controller, HttpCode, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, HttpCode, Inject, Logger, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -40,7 +40,7 @@ export class AssetControllerV2 {
     type: FilesUploadDto,
   })
   @ApiResponse({ status: '2XX', type: UploadResponseDto })
-  async uploadFile(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<IUploadResponse> {
+  async uploadFile(@Req() req: Request, @Res({ passthrough: true }) _res: Response): Promise<IUploadResponse> {
     const busboy = Busboy({ headers: req.headers });
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
@@ -74,7 +74,6 @@ export class AssetControllerV2 {
 
     req.pipe(busboy);
 
-    // res.status(HttpStatus.ACCEPTED);
     return result;
   }
 }

@@ -25,7 +25,11 @@ import {
   IFileResponse,
 } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateIncrementalDsnpMultiHash, calculateIpfsCID } from '#utils/common/common.utils';
+import {
+  calculateDsnpMultiHash,
+  calculateIncrementalDsnpMultiHash,
+  calculateIpfsCID,
+} from '#utils/common/common.utils';
 import {
   ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
@@ -167,7 +171,9 @@ export class ApiService {
   async addAssets(files: Express.Multer.File[]): Promise<UploadResponseDto> {
     // calculate ipfs cid references
     const referencePromises: Promise<string>[] = files.map((file) => calculateIpfsCID(file.buffer));
+    const hashPromises: Promise<string>[] = files.map((file) => calculateDsnpMultiHash(file.buffer));
     const references = await Promise.all(referencePromises);
+    const dsnpHashes = await Promise.all(hashPromises);
 
     let dataTransaction = this.redis.multi();
     let metadataTransaction = this.redis.multi();
@@ -201,7 +207,7 @@ export class ApiService {
 
       const assetCache: IAssetMetadata = {
         ipfsCid: references[index],
-        dsnpMultiHash: '',
+        dsnpMultiHash: dsnpHashes[index],
         mimeType: f.mimetype,
         createdOn: Date.now(),
         type,

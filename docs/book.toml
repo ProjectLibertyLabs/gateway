@@ -14,6 +14,8 @@ command = "node preprocessors/svg-embed.mjs"
 [preprocessor.swagger-embed]
 command = "node preprocessors/swagger-embed.mjs"
 
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
 
 [output.html]
 additional-css = [
@@ -27,6 +29,7 @@ no-section-label = true
 git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"
 edit-url-template = "https://github.com/ProjectLibertyLabs/gateway/blob/main/docs/src/{path}"
 preferred-dark-theme = "coal"
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
 
 [output.html.fold]
 enable = true

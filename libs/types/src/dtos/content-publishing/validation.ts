@@ -22,8 +22,7 @@ export const DURATION_REGEX = /^-?P(([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([
  * Dsnp attachments mime types
  */
 export const DSNP_VALID_MIME_TYPES =
-  /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm|application\/vnd.apache.parquet)$/;
-/**
+  /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm|application\/vnd.apache.parquet)$/; /**
  * checks to see if provided mime type is an image
  */
 export function isImage(mimeType: string): boolean {

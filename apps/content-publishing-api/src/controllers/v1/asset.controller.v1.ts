@@ -13,7 +13,6 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-import { compareCidHashToDsnpMultihash } from '#utils/common/common.utils';
 
 @Controller({ version: '1', path: 'asset' })
 @ApiTags('v1/asset')
@@ -29,6 +28,7 @@ export class AssetControllerV1 {
   @HttpCode(202)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload asset files' })
+  @ApiResponse({ status: 400, description: 'Bad request, eg too many files or file too large' })
   @ApiBody({
     description: 'Asset files',
     type: FilesUploadDto,
@@ -47,7 +47,6 @@ export class AssetControllerV1 {
     files: // eslint-disable-next-line no-undef
     Express.Multer.File[],
   ): Promise<UploadResponseDto> {
-    await Promise.all(files.map((file) => compareCidHashToDsnpMultihash(file.buffer)));
     return this.apiService.addAssets(files);
   }
 }

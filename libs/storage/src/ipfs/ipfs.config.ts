@@ -16,6 +16,10 @@ export function getIpfsCidPlaceholder(cid: string, gatewayUrl: string): string {
   return gatewayUrl.replace('[CID]', cid);
 }
 
+export function formIpfsUrl(cid: string, config: IIpfsConfig): string {
+  return getIpfsCidPlaceholder(cid, config.ipfsGatewayUrl);
+}
+
 const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
   const configs: JoiUtils.JoiConfig<IIpfsConfig> = {
     ipfsEndpoint: {

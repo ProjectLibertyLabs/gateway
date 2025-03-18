@@ -15,10 +15,17 @@ import {
   OnChainContentDto,
   isParquet,
   BatchFileDto,
+  DSNP_VALID_MIME_TYPES,
 } from '#types/dtos/content-publishing';
-import { IRequestJob, IAssetMetadata, IAssetJob, IPublisherJob } from '#types/interfaces/content-publishing';
+import {
+  IRequestJob,
+  IAssetMetadata,
+  IAssetJob,
+  IPublisherJob,
+  IFileResponse,
+} from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
-import { calculateIpfsCID } from '#utils/common/common.utils';
+import { calculateIncrementalDsnpMultiHash, calculateIpfsCID } from '#utils/common/common.utils';
 import {
   ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
@@ -26,6 +33,8 @@ import {
 import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
+import { PassThrough, Readable } from 'stream';
+import { FilePin, IpfsService } from '#storage';
 
 @Injectable()
 export class ApiService {
@@ -37,6 +46,7 @@ export class ApiService {
     @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
+    private readonly ipfs: IpfsService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -191,6 +201,7 @@ export class ApiService {
 
       const assetCache: IAssetMetadata = {
         ipfsCid: references[index],
+        dsnpMultiHash: '',
         mimeType: f.mimetype,
         createdOn: Date.now(),
         type,
@@ -244,6 +255,80 @@ export class ApiService {
     return {
       assetIds: references,
     };
+  }
+
+  public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string): Promise<IFileResponse> {
+    this.logger.debug(`Processing file: ${filename} (${mimetype})`);
+
+    if (!DSNP_VALID_MIME_TYPES.test(mimetype)) {
+      this.logger.warn(`Skipping file: ${filename} due to unsupported file type (${mimetype}).`);
+      return { error: `Unsupported file type (${mimetype})` };
+    }
+
+    // Create pipes to process IPFS upload & DSNP multihash calculation in parallel
+    const uploadPassThru = new PassThrough();
+    const hashPassThru = new PassThrough();
+
+    stream.pipe(uploadPassThru);
+    stream.pipe(hashPassThru);
+
+    let uploadResult: FilePin;
+    let dsnpMultiHash: string;
+
+    try {
+      [uploadResult, dsnpMultiHash] = await Promise.all([
+        this.ipfs.ipfsPinStream(uploadPassThru),
+        calculateIncrementalDsnpMultiHash(hashPassThru),
+      ]);
+    } catch (error: any) {
+      // Make sure streams are properly resumed so the main request can continue
+      // Streams will not resume properly unless there are NO 'readable' event handlers
+      uploadPassThru.removeAllListeners('readable');
+      hashPassThru.removeAllListeners('readable');
+      uploadPassThru.resume();
+      hashPassThru.resume();
+      return { error: error?.message || `Error uploading or hashing file ${filename}` };
+    }
+
+    try {
+      // Cache asset meta-info
+      let type: AttachmentType;
+      if (isParquet(mimetype)) {
+        type = AttachmentType.PARQUET;
+      } else {
+        type = ((m) => {
+          switch (m) {
+            case 'image':
+              return AttachmentType.IMAGE;
+            case 'audio':
+              return AttachmentType.AUDIO;
+            case 'video':
+              return AttachmentType.VIDEO;
+            default:
+              throw new Error('Invalid MIME type');
+          }
+        })(mimetype.split('/')[0]);
+      }
+
+      const assetCache: IAssetMetadata = {
+        ipfsCid: uploadResult.cid,
+        dsnpMultiHash,
+        mimeType: mimetype,
+        createdOn: Date.now(),
+        type,
+      };
+
+      await this.redis.setex(
+        getAssetMetadataKey(uploadResult.cid),
+        STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
+        JSON.stringify(assetCache),
+      );
+    } catch (error: any) {
+      // If there was an error caching the metadata, it's okay--we'll just have to retrieve the file again later to compute the hash
+      this.logger.error(`Unexpected error caching asset metadata for ${filename} (${uploadResult.cid})`);
+    }
+
+    return { cid: uploadResult.cid };
   }
 
   // eslint-disable-next-line class-methods-use-this

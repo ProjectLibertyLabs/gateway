@@ -35,12 +35,14 @@ DSNP
 DTO
 E2E
 EC2
+(enqueueing|enqueuing)
 enum
 etcd
 extrinsics
 Filebase
 Filecoin
 FRQCY
+(Frontend|frontend)
 go-ipfs
 graph-service-api
 hardcoding

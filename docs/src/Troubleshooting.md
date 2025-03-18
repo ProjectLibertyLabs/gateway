@@ -4,7 +4,7 @@ So you set up your app or the [social-app-template](https://github.com/ProjectLi
 
 Here is a basic walk-through on figuring out where things went wrong.
 
-We will examine the logs from the services configured for the default setup running against the Paseo testnet. We will look at the flow of a post as it starts from the front end, gets published on-chain, and is displayed in a feed on the front end.
+We will examine the logs from the services configured for the default setup running against the Paseo Testnet. We will look at the flow of a post as it starts from the front end, gets published on-chain, and is displayed in a feed on the front end.
 
 Some of these troubleshooting steps assume that the social-app-template is running your front end. If you have implemented your own front end, the Gateway service message flow will be similar.
 
@@ -54,7 +54,7 @@ Here are the steps:
     - Account Service API will respond with a `200 OK` if enqueueing the request is successful.
 3. Account Service Worker has been configured by the Provider to use Capacity to process the transactions and send them to the blockchain.
     - Account Service Worker will process the request and send a transaction to the blockchain.
-    - Accound Service Worker will monitor the blockchain for the transaction to be finalized.
+    - Account Service Worker will monitor the blockchain for the transaction to be finalized.
 4. The blockchain finalizes the transactions and Account Service Worker detects the finalized transaction. The Provider application may choose from several different methods to receive notification that the transaction has been finalized:
     - If a webhook configuration has been supplied, the Account Service Worker will send a webhook callback to the configured URL. The definition for the webhook endpoint can be found [here](https://projectlibertylabs.github.io/gateway/account/webhooks.html).
     - The application may also poll the Account Service API endpoint `GET /v1/accounts/account/{accountId}`; this endpoint will return an `HTTP 404 Not Found` error if the account has not been created on-chain yet.
@@ -237,12 +237,12 @@ This will give you more information about the transaction and the error that occ
 
 In the above image you will able to see the transactions in that block.
 
-**NOTE:** If you are on a public chain (ie, testnet or mainnet), you may not be the only contributor of transactions to that block.
+**NOTE:** If you are on a public chain (ie, Testnet or mainnet), you may not be the only contributor of transactions to that block.
 Anybody can be posting to that block.  However, you should be able to find the transaction within that block by
 
  1) Mapping to the correct extrinsics (msa.msaCreated, msa.DelegationGranted, msa.HandleClaimed and statefulStorage.ItemizedPageUpdated)
  2) Finding the transaction that maps to your provider MSA (729 in the example above)
- 3) Checking the User Key (5GBa7oCJF… in the example below)
+ 3) Checking the User Key `(5GBa7oCJF…` in the example below)
  4) Checking the user handle provided to you against the one claimed in the transaction (gateway-16.49 in the example below)
 
 You may get a message that the extrinsic failed.

@@ -9,6 +9,7 @@ export interface IAssetJob {
 
 export interface IAssetMetadata {
   ipfsCid: string;
+  dsnpMultiHash: string;
   mimeType: string;
   createdOn: number;
   type: AttachmentType;

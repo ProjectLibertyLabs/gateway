@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
@@ -80,7 +80,8 @@ async function bootstrap() {
         transform: true,
       }),
     );
-    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    const reflector = app.get<Reflector>(Reflector);
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs, reflector));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
     initializeSwaggerUI(app, swaggerDoc);

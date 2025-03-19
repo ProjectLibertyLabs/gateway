@@ -18,12 +18,16 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { ContentControllerV2 } from './controllers/v2';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { allowReadOnly } from '#blockchain/blockchain.config';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
+import httpCommonConfig from '#config/http-common.config';
+import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
+import { IPFSStorageModule } from '#storage';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, allowReadOnly, cacheConfig, queueConfig],
+      load: [apiConfig, allowReadOnly, cacheConfig, queueConfig, ipfsConfig, httpCommonConfig],
     }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
@@ -64,6 +68,7 @@ import { allowReadOnly } from '#blockchain/blockchain.config';
       }),
       inject: [apiConfig.KEY],
     }),
+    IPFSStorageModule,
   ],
   providers: [
     ApiService,
@@ -79,13 +84,21 @@ import { allowReadOnly } from '#blockchain/blockchain.config';
     process.env?.ENVIRONMENT === 'dev'
       ? [
           AssetControllerV1,
+          AssetControllerV2,
           ContentControllerV1,
           ContentControllerV2,
           ProfileControllerV1,
           HealthController,
           DevelopmentControllerV1,
         ]
-      : [AssetControllerV1, ContentControllerV1, ContentControllerV2, ProfileControllerV1, HealthController],
+      : [
+          AssetControllerV1,
+          AssetControllerV2,
+          ContentControllerV1,
+          ContentControllerV2,
+          ProfileControllerV1,
+          HealthController,
+        ],
   exports: [],
 })
 export class ApiModule {}

@@ -18,6 +18,9 @@
           }
         },
         "responses": {
+          "400": {
+            "description": "Bad request, eg too many files or file too large"
+          },
           "2XX": {
             "description": "",
             "content": {
@@ -31,6 +34,39 @@
         },
         "tags": [
           "v1/asset"
+        ]
+      }
+    },
+    "/v2/asset/upload": {
+      "post": {
+        "operationId": "AssetControllerV2_uploadFile",
+        "summary": "Upload asset files",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Asset files",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponseDtoV2"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/asset"
         ]
       }
     },
@@ -501,6 +537,31 @@
           "assetIds"
         ]
       },
+      "FileResponseDto": {
+        "type": "object",
+        "properties": {
+          "cid": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadResponseDtoV2": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileResponseDto"
+            }
+          }
+        },
+        "required": [
+          "files"
+        ]
+      },
       "AssetReferenceDto": {
         "type": "object",
         "properties": {
@@ -834,16 +895,15 @@
             "description": "Schema ID of batched off-chain content",
             "example": 123
           },
-          "referenceId": {
+          "cid": {
             "type": "string",
-            "description": "Reference ID of off-chain batch file",
-            "example": "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-            "minLength": 1
+            "description": "CIDv1 of off-chain batch file",
+            "example": "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi"
           }
         },
         "required": [
           "schemaId",
-          "referenceId"
+          "cid"
         ]
       },
       "BatchFilesDto": {

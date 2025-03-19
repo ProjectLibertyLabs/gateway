@@ -5,9 +5,10 @@ import ipfsConfig, { IIpfsConfig } from './ipfs.config';
 import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
-import { calculateDsnpMultiHash } from '#utils/common/common.utils';
+import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
 import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { Readable } from 'stream';
 
 @Injectable()
 export class IpfsService {
@@ -17,7 +18,7 @@ export class IpfsService {
 
   constructor(
     @Inject(ipfsConfig.KEY) config: IIpfsConfig,
-    @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
+    @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
   ) {
     this.logger = new Logger(IpfsService.name);
     this.ipfs = createKuboRPCClient({
@@ -93,6 +94,17 @@ export class IpfsService {
     return false;
   }
 
+  public async getDsnpMultiHash(cid: string, checkExistence = true): Promise<string | null> {
+    if (checkExistence && !(await this.isPinned(cid))) {
+      this.logger.warn(`Requested DSNP multihash of ${cid}, but resource is not pinned`);
+      return null;
+    }
+
+    this.logger.debug(`Requesting IPFS resource ${cid} for hashing`);
+    const bytes = this.ipfs.cat(cid);
+    return calculateIncrementalDsnpMultiHash(bytes);
+  }
+
   public async ipfsPin(mimeType: string, file: Buffer, calculateDsnpHash = true): Promise<FilePin> {
     const fileName = calculateDsnpHash ? await calculateDsnpMultiHash(file) : randomUUID().toString();
     let extension = getExtension(mimeType);
@@ -128,5 +140,54 @@ export class IpfsService {
     } catch (err: any) {
       throw new Error(`Unable to pin file: ${err?.message}`);
     }
+  }
+
+  public async ipfsPinStream(stream: Readable): Promise<FilePin> {
+    this.logger.verbose(`Making IPFS pinning request for uploaded content`);
+
+    try {
+      const result = await this.withConnectionCheck(() =>
+        this.ipfs.add({ path: randomUUID(), content: stream }, { cidVersion: 0, hashAlg: 'sha2-256', pin: true }),
+      );
+      const cid = result.cid.toV1();
+      this.logger.debug(`Pinned file: ${result.path} with size ${result.size} and CID: ${cid.toString()}`);
+      return {
+        cid: cid.toString(),
+        cidBytes: cid.bytes,
+        fileName: result.path,
+        size: result.size,
+        hash: '',
+      };
+    } catch (err: any) {
+      throw new Error(`Unable to pin file: ${err?.message}`);
+    }
+  }
+
+  /**
+   * Ensures the IPFS node is reachable before executing an API call.
+   * Supports both Promise-based and AsyncIterable-based functions.
+   * Necessary because kubo-rpc-client doesn't support a connection-timeout
+   * in case the node is unreachable, down, etc.
+   * (Note, would require a similar solution even if using Axios directly)
+   */
+  private withConnectionCheck<T>(fn: () => T | Promise<T>): Promise<T> | T {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      this.logger.error('IPFS node API call timed out');
+      controller.abort();
+    }, this.httpConfig.httpResponseTimeoutMS);
+
+    // ✅ Use `version()` as a lightweight connectivity check
+    return this.ipfs
+      .version({ signal: controller.signal })
+      .catch(() => {
+        throw new Error(`Failed to connect to IPFS node within ${this.httpConfig.httpResponseTimeoutMS}ms`);
+      })
+      .then(() => {
+        this.logger.debug('IPFS connection attempt succeeded, clearing timeout');
+        clearTimeout(timeout);
+        return fn();
+      })
+      .finally(() => clearTimeout(timeout));
   }
 }

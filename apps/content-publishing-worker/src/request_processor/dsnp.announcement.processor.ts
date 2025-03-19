@@ -38,12 +38,15 @@ import {
   createUpdate,
   ProfileAnnouncement,
   createProfile,
+  IAssetMetadata,
 } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { AnnouncementType, AnnouncementTypeName, AttachmentType, TagTypeEnum } from '#types/enums';
-import { getIpfsCidPlaceholder, IIpfsConfig, IpfsService } from '#storage';
-import ipfsConfig from '#storage/ipfs/ipfs.config';
-import { calculateDsnpMultiHash } from '#utils/common/common.utils';
+import { IIpfsConfig, IpfsService } from '#storage';
+import ipfsConfig, { formIpfsUrl } from '#storage/ipfs/ipfs.config';
+import Redis from 'ioredis';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import { ContentPublisherRedisConstants } from '#types/constants';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
@@ -56,6 +59,7 @@ export class DsnpAnnouncementProcessor {
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) private updateQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) private profileQueue: Queue,
     @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
+    @InjectRedis() private readonly redis: Redis,
     @Inject(ipfsConfig.KEY) private config: IIpfsConfig,
     private ipfsService: IpfsService,
   ) {
@@ -197,8 +201,8 @@ export class DsnpAnnouncementProcessor {
     const toUint8Array = new TextEncoder();
     const encoded = toUint8Array.encode(noteString);
 
-    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(encoded));
-    const ipfsUrl = this.formIpfsUrl(cid);
+    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(encoded));
+    const ipfsUrl = formIpfsUrl(cid, this.config);
     return [cid, ipfsUrl, hash];
   }
 
@@ -232,6 +236,26 @@ export class DsnpAnnouncementProcessor {
     return tags;
   }
 
+  private async getDsnpMultiHash(referenceId: string): Promise<string> {
+    // Get DSNP multihash for asset
+    const key = await this.redis.get(ContentPublisherRedisConstants.getAssetMetadataKey(referenceId));
+    let dsnpMultiHash: string;
+    if (key) {
+      dsnpMultiHash = (JSON.parse(key) as IAssetMetadata)?.dsnpMultiHash;
+    }
+    // Make sure hash was set in metadata cache
+    if (!dsnpMultiHash) {
+      this.logger.verbose(`Asset ${referenceId} not found in metadata cache; requesting from IPFS to get hash`);
+      dsnpMultiHash = await this.ipfsService.getDsnpMultiHash(referenceId, true);
+    }
+
+    if (!dsnpMultiHash) {
+      throw new Error(`Unable to get DSNP multihash for asset: ${referenceId}`);
+    }
+
+    return dsnpMultiHash;
+  }
+
   private async prepareAttachments(
     assetData?: AssetDto[],
     assetToMimeType?: IRequestJob['assetToMimeType'],
@@ -243,19 +267,20 @@ export class DsnpAnnouncementProcessor {
           attachments.push(this.prepareLinkAttachment(asset));
         } else if (asset.references) {
           const assetPromises = asset.references.map(async (reference) => {
+            const dsnpMultiHash = await this.getDsnpMultiHash(reference.referenceId);
             if (!assetToMimeType) {
               throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
             }
             const { attachmentType } = assetToMimeType[reference.referenceId];
             switch (attachmentType) {
               case AttachmentType.IMAGE:
-                attachments.push(await this.prepareImageAttachment(asset, assetToMimeType));
+                attachments.push(await this.prepareImageAttachment(asset, dsnpMultiHash, assetToMimeType));
                 break;
               case AttachmentType.VIDEO:
-                attachments.push(await this.prepareVideoAttachment(asset, assetToMimeType));
+                attachments.push(await this.prepareVideoAttachment(asset, dsnpMultiHash, assetToMimeType));
                 break;
               case AttachmentType.AUDIO:
-                attachments.push(await this.prepareAudioAttachment(asset, assetToMimeType));
+                attachments.push(await this.prepareAudioAttachment(asset, dsnpMultiHash, assetToMimeType));
                 break;
               case AttachmentType.LINK:
                 throw new Error(`Links should not get included inside references ${JSON.stringify(reference)}`);
@@ -282,6 +307,7 @@ export class DsnpAnnouncementProcessor {
 
   private async prepareImageAttachment(
     asset: AssetDto,
+    dsnpMultiHash: string,
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<ActivityContentImage> {
     const imageLinks: ActivityContentImageLink[] = [];
@@ -291,15 +317,13 @@ export class DsnpAnnouncementProcessor {
           throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
         }
         const mediaType = assetToMimeType[reference.referenceId];
-        const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         const image: ActivityContentImageLink = {
           mediaType,
-          hash: [hashedContent],
+          hash: [dsnpMultiHash],
           height: reference.height,
           width: reference.width,
           type: 'Link',
-          href: this.formIpfsUrl(reference.referenceId),
+          href: formIpfsUrl(reference.referenceId, this.config),
         };
         imageLinks.push(image);
       });
@@ -315,6 +339,7 @@ export class DsnpAnnouncementProcessor {
 
   private async prepareVideoAttachment(
     asset: AssetDto,
+    dsnpMultiHash: string,
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<ActivityContentVideo> {
     const videoLinks: ActivityContentVideoLink[] = [];
@@ -326,15 +351,13 @@ export class DsnpAnnouncementProcessor {
           throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
         }
         const mediaType = assetToMimeType[reference.referenceId];
-        const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         const video: ActivityContentVideoLink = {
           mediaType,
-          hash: [hashedContent],
+          hash: [dsnpMultiHash],
           height: reference.height,
           width: reference.width,
           type: 'Link',
-          href: this.formIpfsUrl(reference.referenceId),
+          href: formIpfsUrl(reference.referenceId, this.config),
         };
         duration = duration ? reference.duration : '';
         videoLinks.push(video);
@@ -352,6 +375,7 @@ export class DsnpAnnouncementProcessor {
 
   private async prepareAudioAttachment(
     asset: AssetDto,
+    dsnpMultiHash: string,
     assetToMimeType?: IRequestJob['assetToMimeType'],
   ): Promise<ActivityContentAudio> {
     const audioLinks: ActivityContentAudioLink[] = [];
@@ -362,14 +386,12 @@ export class DsnpAnnouncementProcessor {
           throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
         }
         const mediaType = assetToMimeType[reference.referenceId];
-        const contentBuffer = await this.ipfsService.getPinned(reference.referenceId);
-        const hashedContent = await calculateDsnpMultiHash(contentBuffer);
         duration = duration ?? reference.duration ?? '';
         const audio: ActivityContentAudioLink = {
           mediaType,
-          hash: [hashedContent],
+          hash: [dsnpMultiHash],
           type: 'Link',
-          href: this.formIpfsUrl(reference.referenceId),
+          href: formIpfsUrl(reference.referenceId, this.config),
         };
         audioLinks.push(audio);
       });
@@ -447,8 +469,8 @@ export class DsnpAnnouncementProcessor {
     const profileString = JSON.stringify(profileActivity);
     const profileEncoded = toUint8Array.encode(profileString);
 
-    const [cid, hash] = await this.pinBufferToIPFS(Buffer.from(profileEncoded));
-    return createProfile(dsnpUserId, this.formIpfsUrl(cid), hash);
+    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(profileEncoded));
+    return createProfile(dsnpUserId, formIpfsUrl(cid, this.config), hash);
   }
 
   private async prepareProfileIconAttachments(
@@ -462,15 +484,14 @@ export class DsnpAnnouncementProcessor {
         throw new Error(`asset ${icon.referenceId} should have a mimeTypes`);
       }
       const mediaType = assetToMimeType[icon.referenceId];
-      const contentBuffer = await this.ipfsService.getPinned(icon.referenceId);
-      const hashedContent = await calculateDsnpMultiHash(contentBuffer);
+      const dsnpMultiHash = await this.getDsnpMultiHash(icon.referenceId);
       const image: ActivityContentImageLink = {
         mediaType,
-        hash: [hashedContent],
+        hash: [dsnpMultiHash],
         height: icon.height,
         width: icon.width,
         type: 'Link',
-        href: this.formIpfsUrl(icon.referenceId),
+        href: formIpfsUrl(icon.referenceId, this.config),
       };
       attachments.push(image);
     });
@@ -492,14 +513,5 @@ export class DsnpAnnouncementProcessor {
       units: locationData.units,
       type: 'Place',
     };
-  }
-
-  private async pinBufferToIPFS(buf: Buffer): Promise<[string, string, number]> {
-    const { cid, hash, size } = await this.ipfsService.ipfsPin('application/octet-stream', buf);
-    return [cid.toString(), hash, size];
-  }
-
-  private formIpfsUrl(cid: string): string {
-    return getIpfsCidPlaceholder(cid, this.config.ipfsGatewayUrl);
   }
 }

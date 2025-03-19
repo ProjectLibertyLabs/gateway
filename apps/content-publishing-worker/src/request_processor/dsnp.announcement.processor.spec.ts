@@ -7,6 +7,8 @@ import { IRequestJob } from '#types/interfaces/content-publishing';
 import { AnnouncementTypeName, TagTypeEnum } from '#types/enums';
 import { IIpfsConfig, IpfsService } from '#storage';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
+import Redis from 'ioredis-mock';
+import { getRedisToken } from '@songkeys/nestjs-redis';
 
 const mockQueue = {
   add: jest.fn(),
@@ -34,6 +36,7 @@ describe('DsnpAnnouncementProcessor', () => {
     module = await Test.createTestingModule({
       providers: [
         { provide: ipfsConfig.KEY, useValue: mockIpfsConfig },
+        { provide: getRedisToken('default'), useValue: new Redis() },
         { provide: IpfsService, useValue: mockIpfsService },
         { provide: Queue, useValue: mockQueue },
         { provide: 'BullQueue_assetQueue', useValue: mockQueue },

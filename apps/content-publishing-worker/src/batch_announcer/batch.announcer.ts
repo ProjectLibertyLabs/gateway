@@ -7,7 +7,7 @@ import Redis from 'ioredis';
 import { hexToString } from '@polkadot/util';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IBatchAnnouncerJobData } from '../interfaces';
-import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from '#storage/ipfs/ipfs.config';
+import ipfsConfig, { formIpfsUrl, IIpfsConfig } from '#storage/ipfs/ipfs.config';
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
@@ -63,7 +63,7 @@ export class BatchAnnouncer {
 
     const buffer = await parquetBufferAwait;
     const [cid, hash, size] = await this.pinParquetFileToIPFS(buffer);
-    const ipfsUrl = await this.formIpfsUrl(cid);
+    const ipfsUrl = formIpfsUrl(cid, this.config);
     this.logger.debug(`Batch ${batchId} published to IPFS at ${ipfsUrl}`);
     this.logger.debug(`Batch ${batchId} hash: ${hash}`);
     return { id: batchId, schemaId, data: { cid, payloadLength: size } };
@@ -107,9 +107,5 @@ export class BatchAnnouncer {
   private async pinParquetFileToIPFS(buf: Buffer): Promise<[string, string, number]> {
     const { cid, hash, size } = await this.ipfsService.ipfsPin('application/octet-stream', buf);
     return [cid.toString(), hash, size];
-  }
-
-  private async formIpfsUrl(cid: string): Promise<string> {
-    return getIpfsCidPlaceholder(cid, this.config.ipfsGatewayUrl);
   }
 }

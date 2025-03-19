@@ -201,7 +201,7 @@ export class DsnpAnnouncementProcessor {
     const toUint8Array = new TextEncoder();
     const encoded = toUint8Array.encode(noteString);
 
-    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(encoded), true);
+    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(encoded));
     const ipfsUrl = formIpfsUrl(cid, this.config);
     return [cid, ipfsUrl, hash];
   }
@@ -461,7 +461,7 @@ export class DsnpAnnouncementProcessor {
     const profileString = JSON.stringify(profileActivity);
     const profileEncoded = toUint8Array.encode(profileString);
 
-    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(profileEncoded), true);
+    const { cid, hash } = await this.ipfsService.ipfsPin('application/octet-stream', Buffer.from(profileEncoded));
     return createProfile(dsnpUserId, formIpfsUrl(cid, this.config), hash);
   }
 

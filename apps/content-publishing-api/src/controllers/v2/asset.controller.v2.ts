@@ -1,4 +1,4 @@
-import { FilesUploadDto, UploadResponseDto } from '#types/dtos/content-publishing';
+import { FilesUploadDto, UploadResponseDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
 import { Controller, HttpCode, Inject, Logger, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
@@ -21,15 +21,6 @@ export class AssetControllerV2 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  @Post('timeout')
-  @HttpCode(200)
-  async doTimeout(): Promise<void> {
-    await new Promise<void>((resolve) => {
-      setTimeout(() => resolve(), 5000);
-    });
-  }
-
   @Post('upload')
   @SkipInterceptors()
   @HttpCode(202)
@@ -39,7 +30,7 @@ export class AssetControllerV2 {
     description: 'Asset files',
     type: FilesUploadDto,
   })
-  @ApiResponse({ status: '2XX', type: UploadResponseDto })
+  @ApiResponse({ status: '2XX', type: UploadResponseDtoV2 })
   async uploadFile(@Req() req: Request, @Res({ passthrough: true }) _res: Response): Promise<IUploadResponse> {
     const busboy = Busboy({ headers: req.headers });
 

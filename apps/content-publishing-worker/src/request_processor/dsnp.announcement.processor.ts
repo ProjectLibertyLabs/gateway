@@ -236,6 +236,26 @@ export class DsnpAnnouncementProcessor {
     return tags;
   }
 
+  private async getDsnpMultiHash(referenceId: string): Promise<string> {
+    // Get DSNP multihash for asset
+    const key = await this.redis.get(ContentPublisherRedisConstants.getAssetMetadataKey(referenceId));
+    let dsnpMultiHash: string;
+    if (key) {
+      dsnpMultiHash = (JSON.parse(key) as IAssetMetadata)?.dsnpMultiHash;
+    }
+    // Make sure hash was set in metadata cache
+    if (!dsnpMultiHash) {
+      this.logger.verbose(`Asset ${referenceId} not found in metadata cache; requesting from IPFS to get hash`);
+      dsnpMultiHash = await this.ipfsService.getDsnpMultiHash(referenceId, true);
+    }
+
+    if (!dsnpMultiHash) {
+      throw new Error(`Unable to get DSNP multihash for asset: ${referenceId}`);
+    }
+
+    return dsnpMultiHash;
+  }
+
   private async prepareAttachments(
     assetData?: AssetDto[],
     assetToMimeType?: IRequestJob['assetToMimeType'],
@@ -247,19 +267,7 @@ export class DsnpAnnouncementProcessor {
           attachments.push(this.prepareLinkAttachment(asset));
         } else if (asset.references) {
           const assetPromises = asset.references.map(async (reference) => {
-            // Get DSNP multihash for asset
-            const key = await this.redis.get(ContentPublisherRedisConstants.getAssetMetadataKey(reference.referenceId));
-            let dsnpMultiHash: string;
-            if (key) {
-              dsnpMultiHash = (JSON.parse(key) as IAssetMetadata)?.dsnpMultiHash;
-            }
-            // Make sure hash was set in metadata cache
-            if (!dsnpMultiHash) {
-              this.logger.verbose(
-                `Asset ${reference.referenceId} not found in metadata cache; requesting from IPFS to get hash`,
-              );
-              dsnpMultiHash = await this.ipfsService.getDsnpMultiHash(reference.referenceId, true);
-            }
+            const dsnpMultiHash = await this.getDsnpMultiHash(reference.referenceId);
             if (!assetToMimeType) {
               throw new Error(`asset ${reference.referenceId} should have a mimeTypes`);
             }
@@ -476,14 +484,7 @@ export class DsnpAnnouncementProcessor {
         throw new Error(`asset ${icon.referenceId} should have a mimeTypes`);
       }
       const mediaType = assetToMimeType[icon.referenceId];
-      let dsnpMultiHash: string;
-      const val = await this.redis.get(ContentPublisherRedisConstants.getAssetMetadataKey(icon.referenceId));
-      if (val) {
-        dsnpMultiHash = (JSON.parse(val) as IAssetMetadata).dsnpMultiHash;
-      } else {
-        this.logger.verbose(`Asset ${icon.referenceId} not found in metadata cache; requesting from IPFS to get hash`);
-        dsnpMultiHash = await this.ipfsService.getDsnpMultiHash(icon.referenceId, true);
-      }
+      const dsnpMultiHash = await this.getDsnpMultiHash(icon.referenceId);
       const image: ActivityContentImageLink = {
         mediaType,
         hash: [dsnpMultiHash],

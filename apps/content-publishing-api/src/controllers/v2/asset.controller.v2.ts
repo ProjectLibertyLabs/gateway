@@ -1,4 +1,4 @@
-import { FilesUploadDto, UploadResponseDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
+import { FilesUploadDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
 import { Controller, HttpCode, Inject, Logger, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
@@ -35,17 +35,17 @@ export class AssetControllerV2 {
     const busboy = Busboy({ headers: req.headers });
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
-    let resolveRepsonse: (val: IUploadResponse) => void;
+    let resolveResponse: (val: IUploadResponse) => void;
     const result = new Promise<IUploadResponse>((resolve) => {
-      resolveRepsonse = resolve;
+      resolveResponse = resolve;
     });
     let fileIndex = 0;
 
     busboy.on('file', (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
       if (fileIndex > this.config.fileUploadCountLimit) {
-        fileStream.resume();
-        fileProcessingPromises.push(Promise.resolve({ error: 'Max file upload count per request execeeded' }));
+        fileStream.resume(); // Make sure we consume the entire file stream so the rest of the request can be processed
+        fileProcessingPromises.push(Promise.resolve({ error: 'Max file upload count per request exceeded' }));
         return;
       }
 
@@ -56,7 +56,7 @@ export class AssetControllerV2 {
 
     busboy.on('finish', async () => {
       const results = await Promise.all(fileProcessingPromises);
-      resolveRepsonse({ files: results });
+      resolveResponse({ files: results });
     });
 
     busboy.on('error', (error: any) => {

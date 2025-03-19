@@ -96,6 +96,7 @@ export class IpfsService {
 
   public async getDsnpMultiHash(cid: string, checkExistence = true): Promise<string | null> {
     if (checkExistence && !(await this.isPinned(cid))) {
+      this.logger.warn(`Requested DSNP multihash of ${cid}, but resource is not pinned`);
       return null;
     }
 
@@ -165,6 +166,9 @@ export class IpfsService {
   /**
    * Ensures the IPFS node is reachable before executing an API call.
    * Supports both Promise-based and AsyncIterable-based functions.
+   * Necessary because kubo-rpc-client doesn't support a connection-timeout
+   * in case the node is unreachable, down, etc.
+   * (Note, would require a similar solution even if using Axios directly)
    */
   private withConnectionCheck<T>(fn: () => T | Promise<T>): Promise<T> | T {
     const controller = new AbortController();

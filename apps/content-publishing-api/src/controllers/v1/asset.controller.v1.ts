@@ -13,6 +13,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
+import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
 
 @Controller({ version: '1', path: 'asset' })
 @ApiTags('v1/asset')
@@ -24,6 +25,7 @@ export class AssetControllerV1 {
   }
 
   @Put('upload')
+  @SkipInterceptors()
   @UseInterceptors(FilesInterceptor('files'))
   @HttpCode(202)
   @ApiConsumes('multipart/form-data')

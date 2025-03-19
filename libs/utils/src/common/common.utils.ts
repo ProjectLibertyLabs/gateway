@@ -3,7 +3,7 @@ import { CID } from 'multiformats';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { base32 } from 'multiformats/bases/base32';
 import Stream from 'stream';
-import { createHash } from 'crypto';
+import { createHash, Hash } from 'crypto';
 
 export async function delayMS(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -27,6 +27,11 @@ export function isNotNull<T>(x: T | null): x is T {
   return x !== null;
 }
 
+async function calculateDsnpMultiHashFromRawHash(hash: Hash): Promise<string> {
+  const multihash = await sha256.digest(hash.digest());
+  return base32.encode(multihash.bytes);
+}
+
 // The multihash package that's part of 'multiformats' doesn't support incremental hashing.
 // So, we use the standard Node 'crypto' sha2-256 hash to incrementally hash the file as it streams in,
 // then pass the raw hash to 'multihash' to get the multihash representation. Finally, we encode as base32 multiformat.
@@ -37,19 +42,17 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
   if (stream instanceof Stream) {
     stream.on('data', (chunk) => hash.update(chunk));
     return new Promise<string>((resolve, reject) => {
-      stream.on('end', async () => {
-        const multihash = await sha256.digest(hash.digest());
-        resolve(base32.encode(multihash.bytes));
+      stream.once('end', async () => {
+        resolve(calculateDsnpMultiHashFromRawHash(hash));
       });
-      stream.on('error', reject);
+      stream.once('error', reject);
     });
   }
 
-  // Handle an async byte array (fetched from IPFS)
+  // Else, handle an async byte array (such as fetched from IPFS)
   // eslint-disable-next-line no-restricted-syntax
   for await (const chunk of stream) {
     hash.update(chunk);
   }
-  const multihash = await sha256.digest(hash.digest());
-  return base32.encode(multihash.bytes);
+  return calculateDsnpMultiHashFromRawHash(hash);
 }

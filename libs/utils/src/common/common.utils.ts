@@ -2,8 +2,9 @@ import * as ipfsHash from 'ipfs-only-hash';
 import { CID } from 'multiformats';
 import { sha256 } from 'multiformats/hashes/sha2';
 import { base32 } from 'multiformats/bases/base32';
+import { create } from 'multiformats/hashes/digest';
 import Stream from 'stream';
-import { createHash, Hash } from 'crypto';
+import { createHash } from 'crypto';
 
 export async function delayMS(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -27,8 +28,8 @@ export function isNotNull<T>(x: T | null): x is T {
   return x !== null;
 }
 
-async function calculateDsnpMultiHashFromRawHash(hash: Hash): Promise<string> {
-  const multihash = await sha256.digest(hash.digest());
+async function calculateDsnpMultiHashFromRawHash(rawHash: Buffer): Promise<string> {
+  const multihash = create(sha256.code, rawHash);
   return base32.encode(multihash.bytes);
 }
 
@@ -42,9 +43,7 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
   if (stream instanceof Stream) {
     stream.on('data', (chunk) => hash.update(chunk));
     return new Promise<string>((resolve, reject) => {
-      stream.once('end', async () => {
-        resolve(calculateDsnpMultiHashFromRawHash(hash));
-      });
+      stream.once('end', async () => resolve(calculateDsnpMultiHashFromRawHash(hash.digest())));
       stream.once('error', reject);
     });
   }
@@ -54,5 +53,5 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
   for await (const chunk of stream) {
     hash.update(chunk);
   }
-  return calculateDsnpMultiHashFromRawHash(hash);
+  return calculateDsnpMultiHashFromRawHash(hash.digest());
 }

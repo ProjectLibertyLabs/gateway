@@ -252,11 +252,11 @@ export class ApiService {
     //    2: metadata transaction failure: at this point we already stored the data content and jobs and those two are
     //       enough to process the asset on the worker side, the worker will clean up both of them after processing
     const dataOps = await dataTransaction.exec();
-    this.checkTransactionResult(dataOps);
+    ApiService.checkTransactionResult(dataOps);
     const queuedJobs = await this.assetQueue.addBulk(jobs);
     this.logger.debug('Add Assets Job: ', queuedJobs);
     const metaDataOps = await metadataTransaction.exec();
-    this.checkTransactionResult(metaDataOps);
+    ApiService.checkTransactionResult(metaDataOps);
 
     return {
       assetIds: references,
@@ -331,7 +331,7 @@ export class ApiService {
       );
     } catch (error: any) {
       // If there was an error caching the metadata, it's okay--we'll just have to retrieve the file again later to compute the hash
-      this.logger.error(`Unexpected error caching asset metadata for ${filename} (${uploadResult.cid})`);
+      this.logger.warn(`Unexpected error caching asset metadata for ${filename} (${uploadResult.cid})`);
     }
 
     return { cid: uploadResult.cid };
@@ -343,8 +343,7 @@ export class ApiService {
     return createHash('sha1').update(stringVal).digest('base64url');
   }
 
-  private checkTransactionResult(result: [error: Error | null, result: unknown][] | null) {
-    this.logger.log('Check Transaction Result: ', result);
+  private static checkTransactionResult(result: [error: Error | null, result: unknown][] | null) {
     for (let index = 0; result && index < result.length; index += 1) {
       const [err, _id] = result[index];
       if (err) {

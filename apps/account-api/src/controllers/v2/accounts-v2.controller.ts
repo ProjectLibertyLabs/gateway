@@ -116,9 +116,13 @@ export class AccountsControllerV2 {
     }
 
     // Trigger chain submissions, if any
-    await this.siwfV2Service.queueChainActions(payload);
+    const jobStatus = await this.siwfV2Service.queueChainActions(payload, callbackRequest);
 
-    const response = this.siwfV2Service.getSiwfV2LoginResponse(payload);
+    const response = await this.siwfV2Service.getSiwfV2LoginResponse(payload);
+    if (jobStatus) {
+      response.signUpReferenceId = jobStatus.referenceId;
+      response.signUpStatus = jobStatus.state;
+    }
 
     return response;
   }

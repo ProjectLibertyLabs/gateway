@@ -30,6 +30,10 @@ import { isNotNull } from '#utils/common/common.utils';
 import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 
+interface IAuthCode {
+  authorizationCode?: string;
+}
+
 @Injectable()
 export class SiwfV2Service {
   private readonly logger: Logger;
@@ -177,12 +181,9 @@ export class SiwfV2Service {
 
     response.controlKey = payload.userPublicKey.encodedValue;
 
-    // Try to look up the MSA id, if there is no createSponsoredAccountWithDelegation request
-    if (payload.payloads.every((x) => x.endpoint?.extrinsic !== 'createSponsoredAccountWithDelegation')) {
-      // Get the MSA Id from the chain
-      const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
-      if (msaId) response.msaId = msaId;
-    }
+    // Get the MSA Id from the chain, if it exists
+    const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
+    if (msaId) response.msaId = msaId;
 
     // Parse out the email, phone, and graph
     const email = payload.credentials.find(isCredentialEmail)?.credentialSubject.emailAddress;
@@ -198,7 +199,10 @@ export class SiwfV2Service {
     return response;
   }
 
-  async queueChainActions(response: SiwfResponse): Promise<TransactionResponse | null> {
+  async queueChainActions(
+    response: SiwfResponse,
+    { authorizationCode }: IAuthCode,
+  ): Promise<TransactionResponse | null> {
     // Don't do anything if there is nothing to do
     if (!hasChainSubmissions(response)) return null;
 
@@ -212,6 +216,7 @@ export class SiwfV2Service {
       return this.enqueueService.enqueueRequest<PublishSIWFSignupRequestDto>({
         calls,
         type: TransactionType.SIWF_SIGNUP,
+        authorizationCode,
       });
     } catch (e) {
       this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e.toString() });

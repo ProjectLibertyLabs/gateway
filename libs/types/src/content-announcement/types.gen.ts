@@ -13,11 +13,11 @@ export type AnnouncementResponse = {
   /**
    * An optional identifier for the request, may be used for tracking or correlation
    */
-  requestId?: string | null;
+  requestId?: string;
   /**
    * An optional webhook URL registered as part of a specific search request
    */
-  webhookUrl?: string | null;
+  webhookUrl?: string;
   /**
    * Identifier for the schema being used or referenced
    */
@@ -41,35 +41,66 @@ export type TypedAnnouncement = {
 };
 
 export type TombstoneAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Tombstone;
   targetAnnouncementType: number;
   targetContentHash: string;
 };
 
 export type BroadcastAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Broadcast;
   contentHash: string;
   url: string;
 };
 
 export type ReplyAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Reply;
   contentHash: string;
   inReplyTo: string;
   url: string;
 };
 
 export type ReactionAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Reaction;
   emoji: string;
   inReplyTo: string;
   apply: number;
 };
 
 export type ProfileAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Profile;
   contentHash: string;
   url: string;
 };
 
 export type UpdateAnnouncement = TypedAnnouncement & {
+  announcementType?: AnnouncementType.Update;
   contentHash: string;
   targetAnnouncementType: number;
   targetContentHash: string;
   url: string;
+};
+
+export type CreateAnnouncementResponse_Data = {
+  body: AnnouncementResponse;
+  path?: never;
+  query?: never;
+  url: '/content-announcements';
+};
+
+export type CreateAnnouncementResponse_Errors = {
+  /**
+   * Bad request
+   */
+  400: unknown;
+};
+
+export type CreateAnnouncementResponse_Responses = {
+  /**
+   * Content announcement notification received
+   */
+  201: unknown;
+};
+
+export type ClientOptions = {
+  baseUrl: `${string}://openapi-specs` | (string & {});
 };

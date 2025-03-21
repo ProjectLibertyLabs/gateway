@@ -16,6 +16,7 @@ export interface SIWFEncodedExtrinsic {
 export type PublishSIWFSignupRequestDto = {
   calls: SIWFEncodedExtrinsic[];
   type: TransactionType.SIWF_SIGNUP;
+  authorizationCode?: string;
 };
 
 export type TransactionData<

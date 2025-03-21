@@ -93,18 +93,7 @@
           }
         },
         "required": ["announcementType", "fromId"],
-        "discriminator": {
-          "propertyName": "announcementType",
-          "mapping": {
-            "0": "#/components/schemas/TombstoneAnnouncement",
-            "2": "#/components/schemas/BroadcastAnnouncement",
-            "3": "#/components/schemas/ReplyAnnouncement",
-            "4": "#/components/schemas/ReactionAnnouncement",
-            "5": "#/components/schemas/ProfileAnnouncement",
-            "6": "#/components/schemas/UpdateAnnouncement"
-          }
-        }
-      },
+        },
       "TombstoneAnnouncement": {
         "allOf": [
           {
@@ -113,6 +102,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [0]
+              },
               "targetAnnouncementType": {
                 "type": "integer"
               },
@@ -132,6 +125,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [2]
+              },
               "contentHash": {
                 "type": "string"
               },
@@ -151,6 +148,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [3]
+              },
               "contentHash": {
                 "type": "string"
               },
@@ -173,6 +174,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [4]
+              },
               "emoji": {
                 "type": "string"
               },
@@ -195,6 +200,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [5]
+              },
               "contentHash": {
                 "type": "string"
               },
@@ -214,6 +223,10 @@
           {
             "type": "object",
             "properties": {
+              "announcementType": {
+                "type": "integer",
+                "enum": [6]
+              },
               "contentHash": {
                 "type": "string"
               },

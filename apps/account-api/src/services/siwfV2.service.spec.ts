@@ -349,7 +349,7 @@ describe('SiwfV2Service', () => {
 
     it('should do nothing if there are no chain submissions', async () => {
       const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
-      const result = await siwfV2Service.queueChainActions(validSiwfLoginResponsePayload);
+      const result = await siwfV2Service.queueChainActions(validSiwfLoginResponsePayload, {});
 
       expect(result).toBeNull();
       expect(enqueueSpy).not.toHaveBeenCalled();
@@ -367,7 +367,7 @@ describe('SiwfV2Service', () => {
           ]) as ApiPromise,
         );
 
-      await expect(siwfV2Service.queueChainActions(validSiwfAddDelegationResponsePayload)).resolves.not.toThrow();
+      await expect(siwfV2Service.queueChainActions(validSiwfAddDelegationResponsePayload, {})).resolves.not.toThrow();
       expect(enqueueSpy).toHaveBeenCalledWith({
         calls: [
           {
@@ -397,7 +397,7 @@ describe('SiwfV2Service', () => {
       );
 
       try {
-        await siwfV2Service.queueChainActions(validSiwfNewUserResponse);
+        await siwfV2Service.queueChainActions(validSiwfNewUserResponse, {});
       } catch (err: any) {
         console.error(err);
         throw err;

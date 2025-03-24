@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class GraphKeySubject {
   @ApiProperty({
@@ -8,7 +7,6 @@ export class GraphKeySubject {
     required: true,
     example: 'did:key:z6QNucQV4AF1XMQV4kngbmnBHwYa6mVswPEGrkFrUayhttT1',
   })
-  @IsString()
   id: string;
 
   @ApiProperty({
@@ -16,7 +14,6 @@ export class GraphKeySubject {
     required: true,
     example: '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17',
   })
-  @IsString()
   encodedPublicKeyValue: string;
 
   @ApiProperty({
@@ -24,7 +21,6 @@ export class GraphKeySubject {
     required: true,
     example: '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87',
   })
-  @IsString()
   encodedPrivateKeyValue: string;
 
   @ApiProperty({
@@ -32,7 +28,6 @@ export class GraphKeySubject {
     required: true,
     example: 'base16',
   })
-  @IsString()
   encoding: string;
 
   @ApiProperty({
@@ -40,7 +35,6 @@ export class GraphKeySubject {
     required: true,
     example: 'bare',
   })
-  @IsString()
   format: string;
 
   @ApiProperty({
@@ -48,7 +42,6 @@ export class GraphKeySubject {
     required: true,
     example: 'X25519',
   })
-  @IsString()
   type: string;
 
   @ApiProperty({
@@ -56,7 +49,6 @@ export class GraphKeySubject {
     required: true,
     example: 'dsnp.public-key-key-agreement',
   })
-  @IsString()
   keyType: string;
 }
 
@@ -67,16 +59,29 @@ export class WalletV2LoginResponseDto {
     type: String,
     example: 'f6cL4wq1HUNx11TcvdABNf9UNXXoyH47mVUwT59tzSFRW8yDH',
   })
-  @IsString()
   controlKey: string;
+
+  @ApiPropertyOptional({
+    description: 'ReferenceId of an associated sign-up request queued task, if applicable',
+    required: false,
+    type: String,
+    example: 'MjY3MjI3NWZlMGM0NTZmYjY3MWU0ZjQxN2ZiMmY5ODkyYzc1NzNiYQo',
+  })
+  signUpReferenceId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Status of associated sign-up request queued task, if applicable',
+    required: false,
+    type: String,
+    example: 'waiting',
+  })
+  signUpStatus?: string;
 
   @ApiPropertyOptional({
     description: "The user's MSA Id, if one is already created. Will be empty if it is still being processed.",
     type: String,
     example: '314159265358979323846264338',
   })
-  @IsString()
-  @IsOptional()
   msaId?: string;
 
   @ApiPropertyOptional({
@@ -84,8 +89,6 @@ export class WalletV2LoginResponseDto {
     type: String,
     example: 'user@example.com',
   })
-  @IsString()
-  @IsOptional()
   email?: string;
 
   @ApiPropertyOptional({
@@ -93,8 +96,6 @@ export class WalletV2LoginResponseDto {
     type: String,
     example: '555-867-5309',
   })
-  @IsString()
-  @IsOptional()
   phoneNumber?: string;
 
   @ApiPropertyOptional({
@@ -102,7 +103,6 @@ export class WalletV2LoginResponseDto {
     type: GraphKeySubject,
     example: '555-867-5309',
   })
-  @IsOptional()
   graphKey?: GraphKeySubject;
 
   @ApiPropertyOptional({
@@ -159,6 +159,5 @@ export class WalletV2LoginResponseDto {
       },
     ],
   })
-  @IsArray()
   rawCredentials?: Object[];
 }

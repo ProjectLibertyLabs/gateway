@@ -162,7 +162,7 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.38.5",
-    "@hey-api/openapi-ts": "^0.64.11",
+    "@hey-api/openapi-ts": "^0.64.13",
     "@jest/globals": "^29.7.0",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.2",

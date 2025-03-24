@@ -902,6 +902,16 @@
             "description": "The ss58 encoded MSA Control Key of the login.",
             "example": "f6cL4wq1HUNx11TcvdABNf9UNXXoyH47mVUwT59tzSFRW8yDH"
           },
+          "signUpReferenceId": {
+            "type": "string",
+            "description": "ReferenceId of an associated sign-up request queued task, if applicable",
+            "example": "MjY3MjI3NWZlMGM0NTZmYjY3MWU0ZjQxN2ZiMmY5ODkyYzc1NzNiYQo"
+          },
+          "signUpStatus": {
+            "type": "string",
+            "description": "Status of associated sign-up request queued task, if applicable",
+            "example": "waiting"
+          },
           "msaId": {
             "type": "string",
             "description": "The user's MSA Id, if one is already created. Will be empty if it is still being processed.",
@@ -1231,6 +1241,11 @@
       "TransactionResponse": {
         "type": "object",
         "properties": {
+          "state": {
+            "type": "string",
+            "description": "Job state",
+            "example": "waiting"
+          },
           "referenceId": {
             "type": "string"
           }

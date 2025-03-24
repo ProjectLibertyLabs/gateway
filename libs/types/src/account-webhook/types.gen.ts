@@ -72,3 +72,28 @@ export type TxWebhookRsp =
   | PublishGraphKeysWebhookRsp
   | RetireMsaWebhookRsp
   | RevokeDelegationWebhookRsp;
+
+export type PostTransactionNotify_Data = {
+  body: TxWebhookRsp;
+  path?: never;
+  query?: never;
+  url: '/transaction-notify';
+};
+
+export type PostTransactionNotify_Errors = {
+  /**
+   * Bad request
+   */
+  400: unknown;
+};
+
+export type PostTransactionNotify_Responses = {
+  /**
+   * Successful notification
+   */
+  200: unknown;
+};
+
+export type ClientOptions = {
+  baseUrl: `${string}://openapi-specs` | (string & {});
+};

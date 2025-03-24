@@ -27,7 +27,7 @@ export class EnqueueService {
     const { providerId } = this.config;
     // Best-effort attempt at de-duping payloads that are submitted multiple times.
     // For payloads submitted via authorization code, we can de-dupe on that.
-    // For paylaods submitted directly, we can de-dupe IFF the exact same payload
+    // For payloads submitted directly, we can de-dupe IFF the exact same payload
     // is submitted multiple times; however, it is possible that the same set of extrinsic
     // calls could be submitted multiple times, but with different signatures. In that case
     // the only way to de-dupe would be to decode the extrinsics in the payload and de-dupe

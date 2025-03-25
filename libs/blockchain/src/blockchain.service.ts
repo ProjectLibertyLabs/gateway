@@ -193,7 +193,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
     if (!nonce) {
       nonce = await this.getNonce(this.accountId);
-      await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS, nonce);
+      await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS / 2, nonce);
     }
     const keys = getNextPossibleNonceKeys(this.accountId, nonce);
     // @ts-ignore

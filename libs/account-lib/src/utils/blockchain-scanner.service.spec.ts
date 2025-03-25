@@ -122,7 +122,7 @@ describe('BlockchainScannerService', () => {
       .mockImplementation((blockNumber: BlockNumber | AnyNumber) =>
         Promise.resolve((blockNumber as unknown as number) > 1 ? mockEmptyBlockHash : mockBlockHash),
       );
-    jest.spyOn(blockchainService, 'getLatestFinalizedBlockNumber');
+    jest.spyOn(blockchainService, 'getLatestBlockNumber');
     jest.spyOn(blockchainService, 'getEvents').mockResolvedValue([]);
     mockApi.emit('connected'); // keeps the test suite from hanging when finished
   });
@@ -141,7 +141,7 @@ describe('BlockchainScannerService', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
       service.scanParameters = { onlyFinalized: true };
-      jest.spyOn(blockchainService, 'getLatestFinalizedBlockNumber').mockResolvedValue(latestFinalizedBlockNumber);
+      jest.spyOn(blockchainService, 'getLatestBlockNumber').mockResolvedValue(latestFinalizedBlockNumber);
     });
 
     afterAll(() => {

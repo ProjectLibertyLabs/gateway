@@ -15,10 +15,16 @@ runs:
         # Optional Plugins have to be enabled
         # use-linkcheck: true
         # linkcheck-version: "~0.7.7"
+        # add mdbook-mermaid plugin
+        use-mermaid: true
+        mermaid-version: '0.14.1'
 
     - name: Show mdbook version
       shell: bash
       run: mdbook --version
+    - name: Show mdbook-mermaid version
+      shell: bash
+      run: mdbook-mermaid --version
     # - name: Show linkchecker version
     #   shell: bash
     #   run: mdbook-linkcheck --version

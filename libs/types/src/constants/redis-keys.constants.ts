@@ -66,7 +66,7 @@ export namespace NonceConstants {
    * temporarily locked keys on redis side and get the first available one. This number defines the number of keys
    * we should look into before giving up
    */
-  export const NUMBER_OF_NONCE_KEYS_TO_CHECK = 50;
+  export const NUMBER_OF_NONCE_KEYS_TO_CHECK = 200;
   /**
    * Nonce keys have to get expired shortly so that if any of nonce numbers get skipped we would still have a way to
    * submit them after expiration

@@ -130,7 +130,12 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
 
     try {
       const { capacityLimit } = this.config;
-      const capacityInfo = JSON.parse(await this.redis.get(CURRENT_CHAIN_CAPACITY_KEY)) as ICapacityInfo;
+      const capacityInfo = JSON.parse(await this.redis.get(CURRENT_CHAIN_CAPACITY_KEY), (key, value) => {
+        if (key === 'remainingCapacity' || key === 'totalCapacityIssued') {
+          return BigInt(value);
+        }
+        return value;
+      }) as ICapacityInfo;
 
       // This doesn't really pick up on capacity exhaustion, as usage is unlikely to bring capacity to zero
       // (there will always be some dust). But it will warn in the case where a provider has been completely un-staked

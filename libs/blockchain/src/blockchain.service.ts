@@ -36,11 +36,11 @@ export type Sr25519Signature = { Sr25519: HexString };
 
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
-function getNextPossibleNonceKeys(currentNonce: number): string[] {
+function getNextPossibleNonceKeys(account: string, currentNonce: string | number): string[] {
   const keys: string[] = [];
   for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
-    const key = currentNonce + i;
-    keys.push(getNonceKey(`${key}`));
+    const key = Number(currentNonce) + i;
+    keys.push(getNonceKey(account, `${key}`));
   }
   return keys;
 }
@@ -189,13 +189,18 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async getNextNonce(): Promise<number> {
-    const nonce = await this.getNonce(this.accountId);
-    const keys = getNextPossibleNonceKeys(nonce);
+    const currentNonceKey = getNonceKey(this.accountId, 'current');
+    let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
+    if (!nonce) {
+      nonce = await this.getNonce(this.accountId);
+      await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS, nonce);
+    }
+    const keys = getNextPossibleNonceKeys(this.accountId, nonce);
     // @ts-ignore
     const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
       this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
-      return nonce + NUMBER_OF_NONCE_KEYS_TO_CHECK;
+      return Number(nonce) + NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);

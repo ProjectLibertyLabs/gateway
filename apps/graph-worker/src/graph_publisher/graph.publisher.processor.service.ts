@@ -63,7 +63,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     let successMethod: string;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber();
       switch (job.data.update.type) {
         case 'PersistPage': {
           successMethod = 'PaginatedPageUpdated';

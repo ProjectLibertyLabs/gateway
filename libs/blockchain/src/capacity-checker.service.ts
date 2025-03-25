@@ -11,37 +11,65 @@
  *          - throw an error if an empty value is encountered
  */
 import { ICapacityLimit } from '#types/interfaces/capacity-limit.interface';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ICapacityInfo } from './types';
-import { ConfigService } from '@nestjs/config';
-import { IBlockchainConfig } from './blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
 
 const EPOCH_CAPACITY_PREFIX = 'epochCapacity:';
+const CURRENT_CHAIN_CAPACITY_KEY = 'currentChainCapacity:';
+const CAPACITY_CHECK_INTERVAL_MS = 10000; // 10 seconds
 
 @Injectable()
-export class CapacityCheckerService {
+export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger: Logger;
 
   private lastCapacityEpoch: number;
 
   private lastCapacityUsedCheck: bigint;
 
+  private capacityCheckInterval: NodeJS.Timeout;
+
+  async onApplicationBootstrap() {
+    await this.updateCachedCapacity();
+  }
+
+  onModuleDestroy() {
+    if (this.capacityCheckInterval) {
+      clearInterval(this.capacityCheckInterval);
+    }
+  }
+
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private readonly blockchainService: BlockchainRpcQueryService,
-    private readonly configService: ConfigService,
+    @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
-    // eslint-disable-next-line no-empty-function
   ) {
     this.logger = new Logger();
+
+    // NOTE: Why we do this on an interval instead of using an expiring cache key & fetching inside checkForSufficientCapacity:
+    // - We wanted to take the RPC call to the chain out of the critical path for checking capacity (and more specifically, out of the critical path for submitting transactions)
+    this.capacityCheckInterval = setInterval(() => {
+      this.updateCachedCapacity();
+    }, CAPACITY_CHECK_INTERVAL_MS); // Check every 10 seconds
+  }
+
+  private async updateCachedCapacity() {
+    try {
+      const { providerId } = this.config;
+      const capacityInfo = await this.blockchainService.capacityInfo(providerId);
+      await this.redis.set(CURRENT_CHAIN_CAPACITY_KEY, JSON.stringify(capacityInfo));
+    } catch (err: any) {
+      this.logger.error('Caught error in updateCachedCapacity', err?.stack);
+    }
   }
 
   private checkTotalCapacityLimit(capacityInfo: ICapacityInfo, totalLimit: ICapacityLimit): boolean {
@@ -101,8 +129,8 @@ export class CapacityCheckerService {
     let outOfCapacity = false;
 
     try {
-      const { capacityLimit, providerId }: IBlockchainConfig = this.configService.get('blockchain');
-      const capacityInfo = await this.blockchainService.capacityInfo(providerId);
+      const { capacityLimit } = this.config;
+      const capacityInfo = JSON.parse(await this.redis.get(CURRENT_CHAIN_CAPACITY_KEY)) as ICapacityInfo;
 
       // This doesn't really pick up on capacity exhaustion, as usage is unlikely to bring capacity to zero
       // (there will always be some dust). But it will warn in the case where a provider has been completely un-staked

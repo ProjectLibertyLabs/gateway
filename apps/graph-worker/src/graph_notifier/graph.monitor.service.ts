@@ -44,7 +44,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     // If no transactions pending, skip to end of chain at startup, else, skip to earliest
     /// birth block of a monitored extrinsic if we haven't crawled that far yet
     if (Object.keys(pendingTxns).length === 0) {
-      const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const blockNumber = await this.blockchainService.getLatestBlockNumber();
       this.logger.log(`Skipping to end of the chain to resume scanning (block #${blockNumber})`);
       await this.setLastSeenBlockNumber(blockNumber);
     } else {

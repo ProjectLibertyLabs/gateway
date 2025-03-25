@@ -73,8 +73,8 @@ export namespace NonceConstants {
    */
   export const NONCE_KEY_EXPIRE_SECONDS = 2;
   const CHAIN_NONCE_KEY = 'chain:nonce';
-  export function getNonceKey(suffix: string) {
-    return `${CHAIN_NONCE_KEY}:${suffix}`;
+  export function getNonceKey(address: string, suffix: string) {
+    return `${CHAIN_NONCE_KEY}:${address}:${suffix}`;
   }
 }
 

@@ -26,7 +26,7 @@ import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 
-export const SECONDS_PER_BLOCK = 12;
+export const SECONDS_PER_BLOCK = 6;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
 /**
@@ -71,13 +71,13 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber(false);
       let tx: SubmittableExtrinsic<'promise'>;
       let targetEvent: ITxStatus['successEvent'];
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
-          const trx = await this.blockchainService.generatePublishHandle(job.data);
+          const trx = this.blockchainService.generatePublishHandle(job.data);
           targetEvent = { section: 'handles', method: 'HandleClaimed' };
           [tx, txHash] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
@@ -155,7 +155,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    * @returns The hash of the submitted transaction.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleTxn(
+  processSingleTxn(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     this.logger.debug(
@@ -169,7 +169,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processBatchTxn(
+  processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
     this.logger.debug(`processBatchTxn: callVec: ${callVec.map((c) => c.toHuman())}`);

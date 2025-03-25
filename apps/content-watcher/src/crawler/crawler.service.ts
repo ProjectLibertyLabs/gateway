@@ -34,7 +34,7 @@ export class CrawlerService extends BaseConsumer {
     // we can access from the node
     try {
       let { upperBoundBlock } = job.data;
-      const latestBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const latestBlock = await this.blockchainService.getLatestBlockNumber();
       if (!upperBoundBlock) {
         upperBoundBlock = latestBlock;
         this.logger.debug(`No starting block specified; starting from end of chain at block ${upperBoundBlock}`);

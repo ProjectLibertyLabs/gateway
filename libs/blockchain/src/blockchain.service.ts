@@ -159,14 +159,19 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       throw new DelayedError();
     }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
-    const nonce = await this.getNextNonce();
-    this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys, { nonce });
-    if (!txHash) {
-      throw new Error('Tx hash is undefined');
+    const nonce = await this.reserveNextNonce();
+    try {
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
+      const txHash = await extrinsic.signAndSend(keys, { nonce });
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return [extrinsic, txHash.toHex()];
+    } catch (err: any) {
+      this.unreserveNonce(nonce);
+      throw err;
     }
-    this.logger.debug(`Tx hash: ${txHash}`);
-    return [extrinsic, txHash.toHex()];
   }
 
   public async payWithCapacityBatchAll(
@@ -178,17 +183,22 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       throw new DelayedError();
     }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
-    const nonce = await this.getNextNonce();
-    this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys, { nonce });
-    if (!txHash) {
-      throw new Error('Tx hash is undefined');
+    const nonce = await this.reserveNextNonce();
+    try {
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
+      const txHash = await extrinsic.signAndSend(keys, { nonce });
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash.toString()}`);
+      return [extrinsic, txHash.toHex()];
+    } catch (err: any) {
+      this.unreserveNonce(nonce);
+      throw err;
     }
-    this.logger.debug(`Tx hash: ${txHash.toString()}`);
-    return [extrinsic, txHash.toHex()];
   }
 
-  public async getNextNonce(): Promise<number> {
+  public async reserveNextNonce(): Promise<number> {
     const currentNonceKey = getNonceKey(this.accountId, 'current');
     let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
     if (!nonce) {
@@ -205,6 +215,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);
     return nextNonce;
+  }
+
+  public async unreserveNonce(nonce: number) {
+    await this.nonceRedis.del(getNonceKey(this.accountId, `${nonce}`));
   }
 
   public createTxFromEncoded(encodedTx: any): SubmittableExtrinsic<'promise', ISubmittableResult> {

@@ -24,8 +24,8 @@ BigInt.prototype['toJSON'] = function () {
  */
 function startShutdownTimer() {
   setTimeout(() => {
-    logger.log('Shutdown timer expired');
-    process.exit(0);
+    logger.warn('Shutdown timer expired');
+    process.exit(1);
   }, 10_000);
 }
 

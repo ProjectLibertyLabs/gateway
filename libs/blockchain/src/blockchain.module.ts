@@ -22,9 +22,8 @@ export class BlockchainModule {
       : { provide: BlockchainRpcQueryService, useExisting: BlockchainService };
 
     BlockchainModule.services = [
-      CapacityCheckerService,
       BlockchainRpcQueryProvider,
-      ...(readOnly ? [] : [BlockchainService]),
+      ...(readOnly ? [] : [BlockchainService, CapacityCheckerService]),
     ];
     BlockchainModule.isConfigured = true;
 

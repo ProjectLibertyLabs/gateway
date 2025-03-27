@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
@@ -18,6 +18,7 @@ import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.conf
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ICapacityInfo } from '#blockchain/types';
 import { HexString } from '@polkadot/util/types';
+import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -26,8 +27,9 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE)
-export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationShutdown {
+export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
+    this.worker.concurrency = this.graphWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
     await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
@@ -44,6 +46,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     @InjectRedis() private cacheManager: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE) private graphChangePublishQueue: Queue,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    @Inject(workerConfig.KEY) private readonly graphWorkerConfig: IGraphWorkerConfig,
     private blockchainService: BlockchainService,
     private capacityCheckerService: CapacityCheckerService,
     private schedulerRegistry: SchedulerRegistry,
@@ -63,7 +66,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     let successMethod: string;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber();
       switch (job.data.update.type) {
         case 'PersistPage': {
           successMethod = 'PaginatedPageUpdated';

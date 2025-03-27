@@ -1,19 +1,24 @@
 import { Announcement } from '#types/interfaces/content-publishing';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { BaseConsumer } from '#consumer';
 import { BatchingProcessorService } from '../batching.processor.service';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
-@Processor(QueueConstants.PROFILE_QUEUE_NAME, { concurrency: 2 })
+@Processor(QueueConstants.PROFILE_QUEUE_NAME)
 export class ProfileWorker extends BaseConsumer implements OnApplicationBootstrap {
-  constructor(private batchingProcessorService: BatchingProcessorService) {
+  constructor(
+    private batchingProcessorService: BatchingProcessorService,
+    @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+  ) {
     super();
   }
 
   async onApplicationBootstrap() {
+    this.worker.concurrency = this.cpWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
     return this.batchingProcessorService.setupActiveBatchTimeout(QueueConstants.PROFILE_QUEUE_NAME);
   }
 

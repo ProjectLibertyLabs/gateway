@@ -1,11 +1,10 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
-import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ICapacityInfo } from '#blockchain/types';
@@ -25,8 +24,8 @@ import { Vec } from '@polkadot/types';
 import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
+import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 
-export const SECONDS_PER_BLOCK = 12;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
 /**
@@ -34,9 +33,10 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-export class TransactionPublisherService extends BaseConsumer implements OnApplicationShutdown {
+export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.capacityCheckerService.checkForSufficientCapacity();
+    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -54,6 +54,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     private blockchainService: BlockchainService,
     private schedulerRegistry: SchedulerRegistry,
     private capacityCheckerService: CapacityCheckerService,
+    @Inject(workerConfig.KEY)
+    private readonly accountWorkerConfig: IAccountWorkerConfig,
   ) {
     super();
   }
@@ -71,15 +73,15 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
       let tx: SubmittableExtrinsic<'promise'>;
       let targetEvent: ITxStatus['successEvent'];
+      let blockNumber: number;
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
         case TransactionType.CHANGE_HANDLE: {
-          const trx = await this.blockchainService.generatePublishHandle(job.data);
+          const trx = this.blockchainService.generatePublishHandle(job.data);
           targetEvent = { section: 'handles', method: 'HandleClaimed' };
-          [tx, txHash] = await this.processSingleTxn(trx);
+          [tx, txHash, blockNumber] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -87,7 +89,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           // eslint-disable-next-line prettier/prettier
           const txns = job.data.calls?.map((x) => this.blockchainService.createTxFromEncoded(x.encodedExtrinsic));
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
-          [tx, txHash] = await this.processBatchTxn(callVec);
+          [tx, txHash, blockNumber] = await this.processBatchTxn(callVec);
           targetEvent = { section: 'utility', method: 'BatchCompleted' };
           this.logger.debug(`txns: ${txns}`);
           break;
@@ -95,27 +97,27 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         case TransactionType.ADD_KEY: {
           const trx = await this.blockchainService.generateAddPublicKeyToMsa(job.data);
           targetEvent = { section: 'msa', method: 'PublicKeyAdded' };
-          [tx, txHash] = await this.processSingleTxn(trx);
+          [tx, txHash, blockNumber] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.ADD_PUBLIC_KEY_AGREEMENT: {
           const trx = await this.blockchainService.generateAddPublicKeyAgreementToMsa(job.data);
           targetEvent = { section: 'statefulStorage', method: 'ItemizedPageUpdated' };
-          [tx, txHash] = await this.processSingleTxn(trx);
+          [tx, txHash, blockNumber] = await this.processSingleTxn(trx);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
         case TransactionType.RETIRE_MSA: {
           const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
           targetEvent = { section: 'msa', method: 'MsaRetired' };
-          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
+          [tx, txHash, blockNumber] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           break;
         }
         case TransactionType.REVOKE_DELEGATION: {
           const trx = this.blockchainService.decodeTransaction(job.data.encodedExtrinsic);
           targetEvent = { section: 'msa', method: 'DelegationRevoked' };
-          [tx, txHash] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
+          [tx, txHash, blockNumber] = await this.processProxyTxn(trx, job.data.accountId, job.data.signature);
           this.logger.debug(`tx: ${tx}`);
           break;
         }
@@ -131,8 +133,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         providerId: job.data.providerId,
         txHash,
         successEvent: targetEvent,
-        birth: tx.era.asMortalEra.birth(lastFinalizedBlockNumber),
-        death: tx.era.asMortalEra.death(lastFinalizedBlockNumber),
+        birth: tx.era.asMortalEra.birth(blockNumber),
+        death: tx.era.asMortalEra.death(blockNumber),
       };
       const obj: Record<string, string> = {};
       obj[txHash] = JSON.stringify(status);
@@ -152,12 +154,12 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
    *
    * @param providerKeys The key pair used for signing the transaction.
    * @param tx The transaction to be submitted.
-   * @returns The hash of the submitted transaction.
+   * @returns [tx, txHash, blockNumber] The transaction, transaction hash, and submitted block number.
    * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
    */
-  async processSingleTxn(
+  processSingleTxn(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  ): ReturnType<BlockchainService['payWithCapacity']> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
@@ -169,9 +171,9 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     }
   }
 
-  async processBatchTxn(
+  processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
     this.logger.debug(`processBatchTxn: callVec: ${callVec.map((c) => c.toHuman())}`);
     try {
       return this.blockchainService.payWithCapacityBatchAll(callVec);
@@ -185,7 +187,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
     accountId: string,
     signature: HexString,
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     try {
       const prefixedSignature: SignerResult = { id: 1, signature };
       const signer: Signer = getSignerForRawSignature(prefixedSignature);
@@ -196,7 +198,11 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       if (!txHash) throw new Error('Tx hash is undefined');
 
       this.logger.debug(`Tx hash: ${txHash}`);
-      return [submittableExtrinsic, txHash];
+
+      // The caller needs to know the block number (or approximate block number) of the block hash used when the transaction was signed.
+      // But because these "proxy" transactions are signed externally, we don't know that. All we can do is use the current block number as a best guess.
+      const { number: blockNumber } = await this.blockchainService.getBlockForSigning();
+      return [submittableExtrinsic, txHash, blockNumber];
     } catch (error: any) {
       this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
@@ -207,7 +213,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   public async handleCapacityExhausted(capacityInfo: ICapacityInfo) {
     await this.transactionPublishQueue.pause();
     const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
-    const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    const epochTimeout = blocksRemaining * (this.blockchainService.blockTimeMs || 6000);
     // Avoid spamming the log
     if (!(await this.transactionPublishQueue.isPaused())) {
       this.logger.warn(
@@ -228,7 +234,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       );
     } catch (err) {
       // Handle any errors
-      console.error(err);
+      this.logger.error(err);
     }
   }
 

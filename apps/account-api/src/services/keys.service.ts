@@ -80,7 +80,7 @@ export class KeysService {
   }
 
   private async getExpiration(): Promise<number> {
-    const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+    const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber();
     // standard expiration in SIWF is 10 minutes
     return lastFinalizedBlockNumber + 600 / BlockchainConstants.SECONDS_PER_BLOCK;
   }

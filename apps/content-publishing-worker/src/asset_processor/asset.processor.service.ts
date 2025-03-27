@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Processor, OnWorkerEvent } from '@nestjs/bullmq';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
 import Redis from 'ioredis';
 import { IAssetJob } from '#types/interfaces/content-publishing';
@@ -11,11 +11,16 @@ import { IpfsService } from '#storage';
 
 @Injectable()
 @Processor(QueueConstants.ASSET_QUEUE_NAME)
-export class AssetProcessorService extends BaseConsumer {
+export class AssetProcessorService extends BaseConsumer implements OnApplicationBootstrap {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.cpWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
+  }
+
   constructor(
     @InjectRedis() private redis: Redis,
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private ipfsService: IpfsService,
+    @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
   ) {
     super();
   }

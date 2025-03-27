@@ -225,7 +225,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       this.logger.debug(`Tx hash: ${txHash}`);
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
-      this.unreserveNonce(nonce);
+      await this.unreserveNonce(nonce);
       throw err;
     }
   }

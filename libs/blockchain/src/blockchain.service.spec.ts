@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, jest, expect } from '@jest/globals';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from './blockchain.service';
 import { IBlockchainConfig } from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
@@ -16,8 +16,13 @@ jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
   return {
     __esModules: true,
-    WsProvider: jest.fn().mockImplementation(() => originalModule.WsProvider),
+    WsProvider: jest.fn().mockImplementation(() => ({
+      disconnect: jest.fn(),
+      ...originalModule.WsProvider,
+    })),
     ApiPromise: jest.fn().mockImplementation(() => ({
+      consts: {},
+      disconnect: jest.fn(),
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
@@ -33,6 +38,11 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   isDeployedReadOnly: false,
 });
 
+const mockDefaultRedisProvider: Provider = {
+  provide: getRedisToken('default'),
+  useValue: {},
+};
+
 const mockNonceRedisProvider: Provider = {
   provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
   useValue: {
@@ -44,11 +54,12 @@ describe('BlockchainService', () => {
   let mockApi: any;
   let blockchainService: BlockchainService;
   let blockchainConf: IBlockchainConfig;
+  let moduleRef: TestingModule;
 
   beforeAll(async () => {
     // const foo = await import('@polkadot/api');
     // console.log(foo);
-    const moduleRef = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       imports: [
         EventEmitterModule.forRoot({
           // Use this instance throughout the application
@@ -70,7 +81,7 @@ describe('BlockchainService', () => {
         }),
       ],
       controllers: [],
-      providers: [BlockchainService, mockBlockchainConfigProvider, mockNonceRedisProvider],
+      providers: [BlockchainService, mockBlockchainConfigProvider, mockNonceRedisProvider, mockDefaultRedisProvider],
     }).compile();
 
     moduleRef.enableShutdownHooks();
@@ -81,6 +92,10 @@ describe('BlockchainService', () => {
 
     await cryptoWaitReady();
     mockApi.emit('connected'); // keeps the test suite from hanging when finished
+  });
+
+  afterAll(async () => {
+    moduleRef.close();
   });
 
   describe('getCurrentCapacityEpochStart', () => {

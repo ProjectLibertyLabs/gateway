@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
@@ -16,8 +16,13 @@ jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
   return {
     __esModules: true,
-    WsProvider: jest.fn().mockImplementation(() => originalModule.WsProvider),
+    WsProvider: jest.fn().mockImplementation(() => ({
+      disconnect: jest.fn(),
+      ...originalModule.WsProvider,
+    })),
     ApiPromise: jest.fn().mockImplementation(() => ({
+      consts: {},
+      disconnect: jest.fn(),
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
@@ -80,9 +85,10 @@ class ScannerService extends BlockchainScannerService {
 describe('BlockchainScannerService', () => {
   let service: ScannerService;
   let blockchainService: BlockchainService;
+  let moduleRef: TestingModule;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       imports: [
         EventEmitterModule.forRoot({
           // Use this instance throughout the application
@@ -125,6 +131,10 @@ describe('BlockchainScannerService', () => {
     jest.spyOn(blockchainService, 'getLatestBlockNumber');
     jest.spyOn(blockchainService, 'getEvents').mockResolvedValue([]);
     mockApi.emit('connected'); // keeps the test suite from hanging when finished
+  });
+
+  afterAll(async () => {
+    moduleRef.close();
   });
 
   describe('scan', () => {

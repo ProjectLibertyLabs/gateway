@@ -106,6 +106,19 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     return this.api.consts.system.ss58Prefix.toBn().toNumber();
   }
 
+  /**
+   * Gets block time ms from the chain metadata
+   * From: https://github.com/polkadot-js/api/blob/a5c5f76aee54622d004c6b4342040e8c9d149d1e/packages/api-derive/src/tx/signingInfo.ts#L77
+   */
+  public get blockTimeMs(): number {
+    return (
+      this.api.consts.babe?.expectedBlockTime?.toNumber() ||
+      this.api.consts.aura?.slotDuration?.toNumber() ||
+      this.api.consts.timestamp?.minimumPeriod?.muln(2).toNumber() || // timestamp minimum period is half the block time
+      6000 // fallback to a sane default of 6s (ie, metadata hasn't been fetched yet)
+    );
+  }
+
   public async isReady(): Promise<boolean> {
     return (await this.baseIsReadyPromise) && !!(await this.api.isReady);
   }

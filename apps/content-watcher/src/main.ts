@@ -6,6 +6,7 @@ import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
+import { getLogLevels } from 'libs/logger/logLevel-common-config';
 
 const logger = new Logger('main');
 
@@ -27,7 +28,7 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    logger: getLogLevels(),
     rawBody: true,
   });
 
@@ -82,6 +83,7 @@ async function bootstrap() {
 
     initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
+    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen(config.apiPort);
   } catch (e) {
     await app.close();

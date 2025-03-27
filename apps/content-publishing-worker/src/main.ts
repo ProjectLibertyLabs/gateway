@@ -3,6 +3,7 @@ import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
+import { getLogLevels } from 'libs/logger/logLevel-common-config';
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
@@ -26,7 +27,7 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(WorkerModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    logger: getLogLevels(),
     strategy: new KeepAliveStrategy(),
   });
 
@@ -40,6 +41,7 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
+    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen();
     logger.log('Exiting bootstrap');
   } catch (e) {

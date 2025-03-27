@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { WorkerModule } from './worker.module';
+import { getLogLevels } from 'libs/logger/logLevel-common-config';
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
@@ -30,7 +31,7 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.createMicroservice(WorkerModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    logger: getLogLevels(),
     strategy: new KeepAliveStrategy(),
   });
   logger.log('Nest ApplicationContext created successfully.');
@@ -45,6 +46,7 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
+    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen();
   } catch (e) {
     logger.error('****** MAIN CATCH ********', e);

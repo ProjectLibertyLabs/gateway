@@ -7,6 +7,7 @@ import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
+import { getLogLevels } from 'libs/logger/logLevel-common-config';
 
 const logger = new Logger('main');
 
@@ -93,7 +94,7 @@ async function bootstrap() {
 
     initializeSwaggerUI(app, swaggerDoc);
     logger.log(`Listening on port ${config.apiPort}`);
-    logger.debug('****** DEBUGGING ENABLED ********');
+    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen(config.apiPort);
   } catch (e) {
     logger.log('****** MAIN CATCH ********');

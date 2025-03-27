@@ -39,5 +39,15 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
     },
   };
 
+  Object.keys(process.env)
+    .filter((key) => /_QUEUE_WORKER_CONCURRENCY/.test(key))
+    .forEach((key) => {
+      const queueName = key.replace(/_QUEUE_WORKER_CONCURRENCY/, '');
+      configs[`${queueName}QueueWorkerConcurrency`] = {
+        value: process.env[key],
+        joi: Joi.number().max(250).min(1),
+      };
+    });
+
   return JoiUtils.validate<IContentPublishingWorkerConfig>(configs);
 });

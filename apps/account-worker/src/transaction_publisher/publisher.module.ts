@@ -6,6 +6,6 @@ import { TransactionPublisherService } from './publisher.service';
 @Module({
   imports: [],
   providers: [TransactionPublisherService],
-  exports: [TransactionPublisherService],
+  exports: [],
 })
 export class TransactionPublisherModule {}

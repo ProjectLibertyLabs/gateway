@@ -1,5 +1,5 @@
 import { Processor } from '@nestjs/bullmq';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { DelayedError, Job } from 'bullmq';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IRequestJob } from '#types/interfaces/content-publishing';
@@ -11,7 +11,11 @@ import { IpfsService } from '#storage';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME)
-export class RequestProcessorService extends BaseConsumer {
+export class RequestProcessorService extends BaseConsumer implements OnApplicationBootstrap {
+  onApplicationBootstrap() {
+    this.worker.concurrency = this.config[`${this.worker.name}QueueWorkerConcurrency`] || 1;
+  }
+
   constructor(
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,

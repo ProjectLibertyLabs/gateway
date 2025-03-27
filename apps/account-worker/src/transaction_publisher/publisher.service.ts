@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
@@ -25,6 +25,7 @@ import { Vec } from '@polkadot/types';
 import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
+import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 
 export const SECONDS_PER_BLOCK = 6;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
@@ -33,10 +34,11 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  * Service responsible for publishing account updates.
  */
 @Injectable()
-@Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE, { concurrency: 2 })
-export class TransactionPublisherService extends BaseConsumer implements OnApplicationShutdown {
+@Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
+export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.capacityCheckerService.checkForSufficientCapacity();
+    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -54,6 +56,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     private blockchainService: BlockchainService,
     private schedulerRegistry: SchedulerRegistry,
     private capacityCheckerService: CapacityCheckerService,
+    @Inject(workerConfig.KEY)
+    private readonly accountWorkerConfig: IAccountWorkerConfig,
   ) {
     super();
   }

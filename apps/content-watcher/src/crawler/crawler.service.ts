@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -10,19 +10,23 @@ import { BaseConsumer } from '#consumer';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-search-request.dto';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { ChainEventProcessorService } from '#content-watcher-lib/utils/chain-event-processor.service';
+import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
 
 const CRAWLER_BLOCK_CHUNK_SIZE = 500;
 
 @Injectable()
-@Processor(QueueConstants.WATCHER_REQUEST_QUEUE_NAME, {
-  concurrency: 2,
-})
-export class CrawlerService extends BaseConsumer {
+@Processor(QueueConstants.WATCHER_REQUEST_QUEUE_NAME)
+export class CrawlerService extends BaseConsumer implements OnApplicationBootstrap {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.config[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+  }
+
   constructor(
     @InjectRedis() private readonly cache: Redis,
     @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private readonly chainEventService: ChainEventProcessorService,
     private readonly blockchainService: BlockchainRpcQueryService,
+    @Inject(apiConfig.KEY) private readonly config: IContentWatcherApiConfig,
   ) {
     super();
   }

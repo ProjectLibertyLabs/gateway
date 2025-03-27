@@ -1,15 +1,23 @@
 import { Processor } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#consumer';
 import { PubSubService } from '../pubsub.service';
 import { AnnouncementResponse } from '#types/content-announcement';
+import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
 
 @Injectable()
 @Processor(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME, { concurrency: 2 })
-export class TomstoneSubscriber extends BaseConsumer {
-  constructor(private readonly pubsubService: PubSubService) {
+export class TomstoneSubscriber extends BaseConsumer implements OnApplicationBootstrap {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.config[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+  }
+
+  constructor(
+    private readonly pubsubService: PubSubService,
+    @Inject(apiConfig.KEY) private readonly config: IContentWatcherApiConfig,
+  ) {
     super();
   }
 

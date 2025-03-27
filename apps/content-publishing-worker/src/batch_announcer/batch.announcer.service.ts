@@ -1,21 +1,25 @@
 import { Processor, InjectQueue } from '@nestjs/bullmq';
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BatchAnnouncer } from './batch.announcer';
 import { BaseConsumer } from '#consumer';
 import { ContentPublishingQueues as QueueConstants, CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
 import { IBatchAnnouncerJob, isExistingBatch } from '../interfaces';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
-@Processor(QueueConstants.BATCH_QUEUE_NAME, {
-  concurrency: 2,
-})
-export class BatchAnnouncementService extends BaseConsumer implements OnModuleDestroy {
+@Processor(QueueConstants.BATCH_QUEUE_NAME)
+export class BatchAnnouncementService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.cpWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+  }
+
   constructor(
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     private ipfsPublisher: BatchAnnouncer,
     private schedulerRegistry: SchedulerRegistry,
+    @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
   ) {
     super();
   }

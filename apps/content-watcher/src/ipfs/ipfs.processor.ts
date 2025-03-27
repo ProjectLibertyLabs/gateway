@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import { hexToString } from '@polkadot/util';
@@ -18,12 +18,15 @@ import {
 } from '#content-watcher-lib/utils/type-guards';
 import scannerConfig, { IScannerConfig } from '#content-watcher-lib/scanner/scanner.config';
 import { IpfsService } from '#storage/ipfs/ipfs.service';
+import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
 
 @Injectable()
-@Processor(QueueConstants.WATCHER_IPFS_QUEUE, {
-  concurrency: 2,
-})
-export class IPFSContentProcessor extends BaseConsumer {
+@Processor(QueueConstants.WATCHER_IPFS_QUEUE)
+export class IPFSContentProcessor extends BaseConsumer implements OnApplicationBootstrap {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.contentWatcherApiConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+  }
+
   constructor(
     @InjectQueue(QueueConstants.WATCHER_BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
     @InjectQueue(QueueConstants.WATCHER_TOMBSTONE_QUEUE_NAME) private tombstoneQueue: Queue,
@@ -32,6 +35,7 @@ export class IPFSContentProcessor extends BaseConsumer {
     @InjectQueue(QueueConstants.WATCHER_PROFILE_QUEUE_NAME) private profileQueue: Queue,
     @InjectQueue(QueueConstants.WATCHER_UPDATE_QUEUE_NAME) private updateQueue: Queue,
     @Inject(scannerConfig.KEY) private config: IScannerConfig,
+    @Inject(apiConfig.KEY) private contentWatcherApiConfig: IContentWatcherApiConfig,
     private ipfsService: IpfsService,
   ) {
     super();

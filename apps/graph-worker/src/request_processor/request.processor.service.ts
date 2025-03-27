@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import {
@@ -24,10 +24,15 @@ import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
+import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
-export class RequestProcessorService extends BaseConsumer implements OnModuleDestroy {
+export class RequestProcessorService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
+  public onApplicationBootstrap() {
+    this.worker.concurrency = this.graphWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
+  }
+
   async onModuleDestroy(): Promise<void> {
     await this.graphChangePublisherQueue.close();
   }
@@ -38,6 +43,7 @@ export class RequestProcessorService extends BaseConsumer implements OnModuleDes
     private graphStateManager: GraphStateManager,
     private blockchainService: BlockchainService,
     private encryptionService: EncryptionService,
+    @Inject(workerConfig.KEY) private readonly graphWorkerConfig: IGraphWorkerConfig,
   ) {
     super();
     cacheManager.defineCommand('updateLastProcessed', {

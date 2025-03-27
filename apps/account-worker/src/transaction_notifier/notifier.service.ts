@@ -29,7 +29,7 @@ export class TxnNotifierService
     const pendingTxns = await this.cacheManager.hkeys(TXN_WATCH_LIST_KEY);
     // If no transactions pending, skip to end of chain at startup
     if (pendingTxns.length === 0) {
-      const blockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const blockNumber = await this.blockchainService.getLatestBlockNumber();
       await this.setLastSeenBlockNumber(blockNumber);
     }
     this.schedulerRegistry.addInterval(

@@ -291,7 +291,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
 
   /**
    * Gets the block hash and number of the latest block for signing. We cache this info & update asynchronously. This
-   * elminates unnecessary RPC calls to get the latest block info, since it's okay if we're a little behind in the block number/hash we
+   * eliminates unnecessary RPC calls to get the latest block info, since it's okay if we're a little behind in the block number/hash we
    * use for signing and mortality checking.
    * @returns The block hash & number of the latest finalized block if the finality lag is greater than the maximum allowed, otherwise the block hash of the latest block.
    */
@@ -314,7 +314,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   /**
-   * Gets get default mortality period for transactions.
+   * Gets default mortality period for transactions.
    * From: https://github.com/polkadot-js/api/blob/a5c5f76aee54622d004c6b4342040e8c9d149d1e/packages/api-derive/src/tx/signingInfo.ts#L117
    * @returns The default mortality period for transactions.
    */

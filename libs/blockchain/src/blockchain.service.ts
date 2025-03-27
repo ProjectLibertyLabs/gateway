@@ -296,10 +296,16 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
    * @returns The block hash & number of the latest finalized block if the finality lag is greater than the maximum allowed, otherwise the block hash of the latest block.
    */
   public async getBlockForSigning(): Promise<IHeaderInfo> {
-    const [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget([
-      'latestHeader',
-      'latestFinalizedHeader',
-    ]);
+    let [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+
+    if (!latestHeaderStr || !finalizedHeaderStr) {
+      await this.updateLatestBlockHeader();
+      [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+    }
+
+    if (!latestHeaderStr || !finalizedHeaderStr) {
+      throw new Error('Unable to get latest block header info');
+    }
 
     const latestHeader = JSON.parse(latestHeaderStr) as IHeaderInfo;
     const finalizedHeader = JSON.parse(finalizedHeaderStr) as IHeaderInfo;

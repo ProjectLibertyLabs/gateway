@@ -113,7 +113,6 @@ export abstract class BlockchainScannerService {
       }
     } catch (e) {
       if (e instanceof EndOfChainError) {
-        this.logger.debug(e.message);
         return;
       }
 
@@ -148,7 +147,7 @@ export abstract class BlockchainScannerService {
     }
 
     if (this.scanParameters?.onlyFinalized) {
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber();
       if (blockNumber > lastFinalizedBlockNumber) {
         throw new EndOfChainError(`Latest finalized block (${lastFinalizedBlockNumber}) encountered`);
       }

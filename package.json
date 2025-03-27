@@ -132,6 +132,7 @@
     "@nestjs/swagger": "^7.4.2",
     "@polkadot/api": "^15.8.1",
     "@polkadot/api-base": "^15.8.1",
+    "@polkadot/api-derive": "^15.8.1",
     "@polkadot/keyring": "^13.4.3",
     "@polkadot/rpc-provider": "^15.8.1",
     "@polkadot/types": "^15.8.1",

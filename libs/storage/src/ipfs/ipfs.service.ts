@@ -74,7 +74,7 @@ export class IpfsService {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
 
-    this.logger.debug(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
+    this.logger.verbose(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
     try {
       const r = this.ipfs.pin.ls({ paths: v0Cid, type: 'all' });
       // eslint-disable-next-line no-restricted-syntax

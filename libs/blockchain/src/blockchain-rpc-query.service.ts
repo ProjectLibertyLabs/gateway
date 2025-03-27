@@ -13,7 +13,7 @@
  *          - throw an error if an empty value is encountered
  */
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountId, AccountId32, BlockHash, BlockNumber, Event, SignedBlock } from '@polkadot/types/interfaces';
+import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
 import { bool, Bytes, Option, u128, u16, Vec } from '@polkadot/types';
@@ -144,9 +144,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.api.rpc.chain.getFinalizedHead();
   }
 
-  public async getLatestFinalizedBlockNumber(): Promise<number> {
-    const blockHash = await this.getLatestFinalizedBlockHash();
-    return (await this.api.rpc.chain.getHeader(blockHash)).number.toNumber();
+  public async getLatestBlockNumber(finalized = true): Promise<number> {
+    let header: Header;
+    if (finalized) {
+      const blockHash = await this.getLatestFinalizedBlockHash();
+      header = await this.api.rpc.chain.getHeader(blockHash);
+    } else {
+      header = await this.api.rpc.chain.getHeader();
+    }
+
+    return header.number.toNumber();
   }
 
   public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {
@@ -549,7 +556,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  public async generatePublishHandle(jobData: TransactionData<PublishHandleRequestDto>) {
+  public generatePublishHandle(
+    jobData: TransactionData<PublishHandleRequestDto>,
+  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
     this.logger.debug(`claimHandlePayload: ${JSON.stringify(jobData.payload)}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 

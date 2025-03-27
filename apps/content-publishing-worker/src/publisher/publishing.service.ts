@@ -18,11 +18,10 @@ import { MessagePublisher } from './message.publisher';
 import { IContentTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Injectable()
-@Processor(QueueConstants.PUBLISH_QUEUE_NAME, {
-  concurrency: 2,
-})
+@Processor(QueueConstants.PUBLISH_QUEUE_NAME)
 export class PublishingService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     @InjectRedis() private cacheManager: Redis,
@@ -33,11 +32,13 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
     private capacityCheckerService: CapacityCheckerService,
+    @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
   ) {
     super();
   }
 
   public async onApplicationBootstrap() {
+    this.worker.concurrency = this.cpWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
     await this.capacityCheckerService.checkForSufficientCapacity();
   }
 
@@ -59,7 +60,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const currentBlockNumber = await this.blockchainService.getLatestFinalizedBlockNumber();
+      const currentBlockNumber = await this.blockchainService.getLatestBlockNumber();
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {

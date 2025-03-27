@@ -75,7 +75,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   public async resetScan({ blockNumber, rewindOffset, immediate }: IScanReset) {
     this.pauseScanner();
-    let targetBlock = blockNumber ?? (await this.blockchainService.getLatestFinalizedBlockNumber());
+    let targetBlock = blockNumber ?? (await this.blockchainService.getLatestBlockNumber());
     targetBlock -= rewindOffset ? Math.abs(rewindOffset) : 0;
     targetBlock = Math.max(targetBlock, 1);
     this.scanResetBlockNumber = targetBlock;
@@ -152,7 +152,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     } else {
       nextBlock = Number((await this.cache.get(LAST_SEEN_BLOCK_NUMBER_SCANNER_KEY)) ?? '0');
       if (!nextBlock) {
-        nextBlock = await this.blockchainService.getLatestFinalizedBlockNumber();
+        nextBlock = await this.blockchainService.getLatestBlockNumber();
         this.setLastSeenBlockNumber(nextBlock);
       }
 

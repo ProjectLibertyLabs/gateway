@@ -3,6 +3,7 @@ import { WorkerModule } from './worker.module';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
+import { getLogLevels } from 'libs/logger/logLevel-common-config';
 
 const logger = new Logger('main');
 
@@ -24,6 +25,7 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(WorkerModule, {
+    logger: getLogLevels(),
     strategy: new KeepAliveStrategy(),
   });
 
@@ -37,6 +39,7 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
+    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen();
     logger.log('Exiting bootstrap');
   } catch (e) {

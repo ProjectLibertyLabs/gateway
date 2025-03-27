@@ -21,6 +21,12 @@ import { IMethod, ISubmittableResult } from '@polkadot/types/types';
 import { Vec } from '@polkadot/types';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { HexString } from '@polkadot/util/types';
+import {
+  FALLBACK_MAX_HASH_COUNT,
+  FALLBACK_PERIOD,
+  MAX_FINALITY_LAG,
+  MORTAL_PERIOD,
+} from '@polkadot/api-derive/tx/constants';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -29,18 +35,25 @@ import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DelayedError } from 'bullmq';
 import { SIWFTxnValues } from './types';
+import { BN } from '@polkadot/util';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
 
+export interface IHeaderInfo {
+  blockHash: HexString;
+  number: number;
+  parentHash: HexString;
+}
+
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
-function getNextPossibleNonceKeys(currentNonce: number): string[] {
+function getNextPossibleNonceKeys(account: string, currentNonce: string | number): string[] {
   const keys: string[] = [];
   for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
-    const key = currentNonce + i;
-    keys.push(getNonceKey(`${key}`));
+    const key = Number(currentNonce) + i;
+    keys.push(getNonceKey(account, `${key}`));
   }
   return keys;
 }
@@ -51,6 +64,8 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   private readyResolve: (arg: boolean) => void;
 
   private readyReject: (reason: any) => void;
+
+  private readonly headerInterval: NodeJS.Timeout;
 
   private isReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.readyResolve = resolve;
@@ -70,12 +85,43 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     }
   }
 
+  public async onApplicationShutdown() {
+    clearInterval(this.headerInterval);
+    super.onApplicationShutdown();
+  }
+
   public async isReady(): Promise<boolean> {
     return (await this.baseIsReadyPromise) && (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
+  public async updateLatestBlockHeader() {
+    const latestHeader = await this.api.rpc.chain.getHeader();
+    const latestFinalizedBlock = await this.api.rpc.chain.getFinalizedHead();
+    const latestFinalizedHeader = await this.api.rpc.chain.getHeader(latestFinalizedBlock);
+    await this.defaultRedis
+      .multi()
+      .set(
+        'latestHeader',
+        JSON.stringify({
+          blockHash: latestHeader.hash.toHex(),
+          number: latestHeader.number.toNumber(),
+          parentHash: latestHeader.parentHash.toHex(),
+        }),
+      )
+      .set(
+        'latestFinalizedHeader',
+        JSON.stringify({
+          blockHash: latestFinalizedBlock.toHex(),
+          number: latestFinalizedHeader.number.toNumber(),
+          parentHash: latestFinalizedHeader.parentHash.toHex(),
+        }),
+      )
+      .exec();
+  }
+
   constructor(
     @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,
+    @InjectRedis() private readonly defaultRedis: Redis,
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private readonly nonceRedis: Redis,
     eventEmitter: EventEmitter2,
   ) {
@@ -85,6 +131,8 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,
       lua: fs.readFileSync('lua/incrementNonce.lua', 'utf8'),
     });
+
+    this.headerInterval = setInterval(() => this.updateLatestBlockHeader(), this.blockTimeMs);
   }
 
   /**
@@ -150,59 +198,132 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     }
   }
 
+  /**
+   * Submits a transaction to the blockchain, paying for it with the provider's capacity.
+   * @param tx
+   * @returns [extrinsic, txHash, submittedBlockNumber]
+   */
   public async payWithCapacity(
     tx: Call | IMethod | string | Uint8Array,
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
     const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
     if (outOfCapacity) {
       throw new DelayedError();
     }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
-    const nonce = await this.getNextNonce();
-    this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys, { nonce });
-    if (!txHash) {
-      throw new Error('Tx hash is undefined');
+    const nonce = await this.reserveNextNonce();
+    const block = await this.getBlockForSigning();
+    const blockHash = this.api.createType('Hash', block.blockHash);
+    const era = this.api.createType('ExtrinsicEra', { current: blockHash, period: this.defaultMortalityPeriod });
+    try {
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
+      const txHash = await extrinsic.signAndSend(keys, { nonce, blockHash, era });
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash}`);
+      return [extrinsic, txHash.toHex(), block.number];
+    } catch (err: any) {
+      await this.unreserveNonce(nonce);
+      throw err;
     }
-    this.logger.debug(`Tx hash: ${txHash}`);
-    return [extrinsic, txHash.toHex()];
   }
 
+  /**
+   * Submits a batch of transactions to the blockchain, paying for them with the provider's capacity.
+   * @param tx[]
+   * @returns [extrinsic, txHash, submittedBlockNumber]
+   */
   public async payWithCapacityBatchAll(
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
-  ): Promise<[SubmittableExtrinsic<'promise'>, HexString]> {
+  ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
     const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
     if (outOfCapacity) {
       throw new DelayedError();
     }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
-    const nonce = await this.getNextNonce();
-    this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
-    const txHash = await extrinsic.signAndSend(keys, { nonce });
-    if (!txHash) {
-      throw new Error('Tx hash is undefined');
+    const nonce = await this.reserveNextNonce();
+    const block = await this.getBlockForSigning();
+    const blockHash = this.api.createType('Hash', block.blockHash);
+    const era = this.api.createType('ExtrinsicEra', { current: block.number, period: this.defaultMortalityPeriod });
+    try {
+      this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
+      const txHash = await extrinsic.signAndSend(keys, { nonce, blockHash, era });
+      if (!txHash) {
+        throw new Error('Tx hash is undefined');
+      }
+      this.logger.debug(`Tx hash: ${txHash.toString()}`);
+      return [extrinsic, txHash.toHex(), block.number];
+    } catch (err: any) {
+      await this.unreserveNonce(nonce);
+      throw err;
     }
-    this.logger.debug(`Tx hash: ${txHash.toString()}`);
-    return [extrinsic, txHash.toHex()];
   }
 
-  public async getNextNonce(): Promise<number> {
-    const nonce = await this.getNonce(this.accountId);
-    const keys = getNextPossibleNonceKeys(nonce);
+  public async reserveNextNonce(): Promise<number> {
+    const currentNonceKey = getNonceKey(this.accountId, 'current');
+    let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
+    if (!nonce) {
+      nonce = await this.getNonce(this.accountId);
+      await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS / 2, nonce);
+    }
+    const keys = getNextPossibleNonceKeys(this.accountId, nonce);
     // @ts-ignore
     const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
       this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
-      return nonce + NUMBER_OF_NONCE_KEYS_TO_CHECK;
+      return Number(nonce) + NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex - 1;
     this.logger.debug(`nextNonce ${nextNonce}`);
     return nextNonce;
   }
 
+  public async unreserveNonce(nonce: number) {
+    await this.nonceRedis.del(getNonceKey(this.accountId, `${nonce}`));
+  }
+
   public createTxFromEncoded(encodedTx: any): SubmittableExtrinsic<'promise', ISubmittableResult> {
     return this.api.tx(encodedTx);
+  }
+
+  /**
+   * Gets the block hash and number of the latest block for signing. We cache this info & update asynchronously. This
+   * eliminates unnecessary RPC calls to get the latest block info, since it's okay if we're a little behind in the block number/hash we
+   * use for signing and mortality checking.
+   * @returns The block hash & number of the latest finalized block if the finality lag is greater than the maximum allowed, otherwise the block hash of the latest block.
+   */
+  public async getBlockForSigning(): Promise<IHeaderInfo> {
+    let [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+
+    if (!latestHeaderStr || !finalizedHeaderStr) {
+      await this.updateLatestBlockHeader();
+      [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+    }
+
+    if (!latestHeaderStr || !finalizedHeaderStr) {
+      throw new Error('Unable to get latest block header info');
+    }
+
+    const latestHeader = JSON.parse(latestHeaderStr) as IHeaderInfo;
+    const finalizedHeader = JSON.parse(finalizedHeaderStr) as IHeaderInfo;
+
+    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? finalizedHeader : latestHeader;
+  }
+
+  /**
+   * Gets default mortality period for transactions.
+   * From: https://github.com/polkadot-js/api/blob/a5c5f76aee54622d004c6b4342040e8c9d149d1e/packages/api-derive/src/tx/signingInfo.ts#L117
+   * @returns The default mortality period for transactions.
+   */
+  public get defaultMortalityPeriod(): number {
+    return Math.min(
+      this.api.consts.system?.blockHashCount?.toNumber() || FALLBACK_MAX_HASH_COUNT,
+      MORTAL_PERIOD.div(new BN(this.blockTimeMs) || FALLBACK_PERIOD)
+        .iadd(MAX_FINALITY_LAG)
+        .toNumber(),
+    );
   }
 }

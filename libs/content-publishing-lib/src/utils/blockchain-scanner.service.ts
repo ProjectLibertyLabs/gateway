@@ -113,7 +113,6 @@ export abstract class BlockchainScannerService {
       }
     } catch (e) {
       if (e instanceof EndOfChainError) {
-        this.logger.verbose(e.message);
         return;
       }
 

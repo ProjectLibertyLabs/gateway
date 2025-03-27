@@ -5,7 +5,6 @@ import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
-import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ICapacityInfo } from '#blockchain/types';
@@ -27,7 +26,6 @@ import { getSignerForRawSignature } from '#utils/common/signature.util';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 
-export const SECONDS_PER_BLOCK = 6;
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
 /**
@@ -215,7 +213,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   public async handleCapacityExhausted(capacityInfo: ICapacityInfo) {
     await this.transactionPublishQueue.pause();
     const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
-    const epochTimeout = blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
+    const epochTimeout = blocksRemaining * (this.blockchainService.blockTimeMs || 6000);
     // Avoid spamming the log
     if (!(await this.transactionPublishQueue.isPaused())) {
       this.logger.warn(
@@ -236,7 +234,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       );
     } catch (err) {
       // Handle any errors
-      console.error(err);
+      this.logger.error(err);
     }
   }
 

@@ -1,16 +1,19 @@
 # Fast Single Sign On with SIWF v2 with Account Service
 
 # Overview
+
 Sign In With Frequency (SIWF v2) is quick, user-friendly, decentralized authentication using the Frequency blockchain.
 Coupled with the Account Service, this provides fast and secure SSO across applications by utilizing cryptographic signatures to verify user identities without complex identity management systems.
 
 Key benefits:
+
 - Decentralized authentication
 - Integration with the identity system on Frequency
 - Support for multiple credentials (e.g., email, phone)
 - Secure and fast user onboarding
 
 Resources:
+
 - [SIWF v2 Documentation](https://projectlibertylabs.github.io/siwf/v2/docs)
 - [Account Service Documentation](../Build/AccountService/AccountService.md)
 
@@ -22,17 +25,19 @@ In this tutorial, you will set up a Sign In With Frequency button for use with T
 
 Before proceeding, ensure you have completed the following steps:
 
-✅ **Registered as a Provider**  
+**Registered as a Provider**  
 Register your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
 
-✅ **Completed the Access Form**  
+**Completed the Access Form**  
 Fill out the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
 
-✅ **Set Up a Back-end Instance**  
-You need a **back-end-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
+**Set Up a Backend Instance**  
+You need a **backend-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
 
-✅ **Access to a Frequency RPC Node**  
+**Access to a Frequency RPC Node**  
+
 - **Public Testnet Node:**  
+
   ```plaintext
   wss://0.rpc.testnet.amplica.io
   ```
@@ -46,7 +51,6 @@ You need a **back-end-only-accessible** [running instance](../Run/GatewayService
 5. User returns with the callback URL.
 6. Application has the Account Service validate and process registration on Frequency if needed.
 7. User is authenticated.
-
 
 <div style="background:white">
 <!--- Replace with styled image --->
@@ -74,7 +78,7 @@ The Account Service provides an API to generate the Signed Request URL:
 
 <div class="warning">
 Remember that the Account Service is NOT meant to be an externally exposed service.
-It should be configured in an appropriately isolated network environment, and your Application backend will need to make the call securely.
+It should be configured in an appropriately isolated network environment, and your application backend will need to make the call securely.
 </div>
 
 ```bash
@@ -97,6 +101,7 @@ See list of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/d
 ## Step 2: Forward the User for Authentication
 
 Redirect the user to the URL obtained from the previous step:
+
 ```javascript
 window.location.href = '"https://testnet.frequencyaccess.com/siwa/start?signedRequest=eyJyZXF1ZXN0ZWRTaWduYXR1cmVzIjp7InB1YmxpY0tleSI6eyJlbmNvZGVkVmFsdWUiOiJmNmNMNHdxMUhVTngxMVRjdmRBQk5mOVVOWFhveUg0N21WVXdUNTl0elNGUlc4eURIIiwiZW5jb2RpbmciOiJiYXNlNTgiLCJmb3JtYXQiOiJzczU4IiwidHlwZSI6IlNyMjU1MTkifSwic2lnbmF0dXJlIjp7ImFsZ28iOiJTUjI1NTE5IiwiZW5jb2RpbmciOiJiYXNlMTYiLCJlbmNvZGVkVmFsdWUiOiIweDNlMTdhYzM3Yzk3ZWE3M2E3YzM1ZjBjYTJkZTcxYmY3MmE5NjlkYjhiNjQyYzU3ZTI2N2Q4N2Q1OTA3ZGM4MzVmYTJjODI4MTdlODA2YTQ5NGIyY2E5Y2U5MjJmNDM1NDY4M2U4YzAxMzY5NTNlMGZlNWExODJkMzU0NjQ2Yzg4In0sInBheWxvYWQiOnsiY2FsbGJhY2siOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJwZXJtaXNzaW9ucyI6WzUsNyw4LDksMTBdfX0sInJlcXVlc3RlZENyZWRlbnRpYWxzIjpbeyJ0eXBlIjoiVmVyaWZpZWRHcmFwaEtleUNyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFtZHZteGQ1NHp2ZTVraWZ5Y2dzZHRvYWhzNWVjZjRoYWwydHMzZWV4a2dvY3ljNW9jYTJ5Il19LHsiYW55T2YiOlt7InR5cGUiOiJWZXJpZmllZEVtYWlsQWRkcmVzc0NyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFlNHFvY3poZnRpY2k0ZHpmdmZiZWw3Zm80aDRzcjVncmNvM29vdnd5azZ5NHluZjQ0dHNpIl19LHsidHlwZSI6IlZlcmlmaWVkUGhvbmVOdW1iZXJDcmVkZW50aWFsIiwiaGFzaCI6WyJiY2lxanNwbmJ3cGMzd2p4NGZld2NlazVkYXlzZGpwYmY1eGppbXo1d251NXVqN2UzdnUydXducSJdfV19XX0&mode=dark"';
 ```

@@ -132,6 +132,7 @@ UDP
 UI
 unfollow(ing|s)?
 URI
+URIs
 user-centric
 [Vv]1
 [Vv]2

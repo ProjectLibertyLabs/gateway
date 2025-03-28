@@ -4,7 +4,8 @@
     "/v1/asset/upload": {
       "put": {
         "operationId": "AssetControllerV1_assetUpload",
-        "summary": "Upload asset files",
+        "summary": "Upload asset files [deprecated; use `POST /v2/asset/upload` instead]",
+        "deprecated": true,
         "parameters": [],
         "requestBody": {
           "required": true,

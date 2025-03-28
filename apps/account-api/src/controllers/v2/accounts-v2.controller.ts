@@ -89,7 +89,7 @@ export class AccountsControllerV2 {
   async postSignInWithFrequency(@Body() callbackRequest: WalletV2LoginRequestDto): Promise<WalletV2LoginResponseDto> {
     this.logger.debug('Received Sign In With Frequency v2 callback', JSON.stringify(callbackRequest));
 
-    if (!this.accountConfig.siwfV2URIValidation) {
+    if (!this.accountConfig.siwfV2URIValidation || !this.accountConfig.siwfV2URIValidation.length) {
       this.logger.error('"SIWF_V2_URI_VALIDATION" required to use SIWF v2');
       throw new ForbiddenException('SIWF v2 processing unavailable');
     }

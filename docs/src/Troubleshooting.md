@@ -250,3 +250,74 @@ In this case, there will be an error code you can reference.
 In the below example, the error index is 60 and the error code is 0. Error index indicates the Frequency Substrate pallet that produced the error, and the error code is the value of the error enum within that pallet. A list of errors can be found in [the Frequency Wiki](https://github.com/frequency-chain/frequency/wiki/Errors).
 
 ![Polkadot Block Explorer Error](./BlockchainError.png)
+
+### Other Debugging Tools
+
+#### Swagger/OpenAPI Documentation
+
+Each Gateway service provides a Swagger/OpenAPI interface that you can use to test API endpoints directly.
+
+If you're using a deployed environment, consult your DevOps team or the person who set up the Gateway Services to get the appropriate access information. You'll need to replace `localhost:[PORT]` with the correct host and port for your deployment.
+
+For local development environments, the Swagger UI is available at these URLs:
+
+```bash
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * account-service:                                                                │
+│ 🔗💠📡          - Swagger UI:       http://localhost:3013/docs/swagger                        │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * content-publishing-service:                                                     │
+│ 🔗💠📡          - Swagger UI:       http://localhost:3010/docs/swagger                        │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * content-watcher-service:                                                        │
+│ 🔗💠📡          - Swagger UI:       http://localhost:3011/docs/swagger                        │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * graph-service:                                                                  │
+│ 🔗💠📡          - Swagger UI:       http://localhost:3012/docs/swagger                        │
+│ 🔗💠📡                                                                                        │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+<!-- Briefly explain how to use the Swagger UI to test the API endpoints. -->
+1. Open the Swagger UI in your web browser.
+2. You will see a list of available API endpoints.
+3. Click on an endpoint to expand it and see the details.
+4. You can fill in the required parameters and click "Try it out!" to test the endpoint.
+5. The Swagger UI will show you the request and response details, including any errors that occurred.
+<!-- Embed the Swagger UI image -->
+![Swagger UI](./SwaggerUI.png)
+
+#### BullMQ UI Documentation
+
+The BullMQ UI is a web interface that allows you to monitor the queues and jobs in the Gateway services. You can use it to see the status of jobs, retry failed jobs, and view job logs.
+
+If you're using a deployed environment, consult your DevOps team or the person who set up the Gateway Services to get the appropriate access information. You'll need to replace `localhost:[PORT]` with the correct host and port for your deployment.
+
+For local development environments, the BullMQ UI is available at these URLs:
+
+```bash
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * account-service:                                                                │
+│ 🔗💠📡          - Queue management: http://localhost:3013/queues                              │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * content-publishing-service:                                                     │
+│ 🔗💠📡          - Queue management: http://localhost:3010/queues                              │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * content-watcher-service:                                                        │
+│ 🔗💠📡          - Queue management: http://localhost:3011/queues                              │
+│ 🔗💠📡                                                                                        │
+│ 🔗💠📡      * graph-service:                                                                  │
+│ 🔗💠📡          - Queue management: http://localhost:3012/queues                              │
+│ 🔗💠📡                                                                                        │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+<!-- Briefly explain how to access and use the BullMQ UI to monitor the queues. -->
+1. Open the BullMQ UI in your web browser.
+2. You will see a list of queues and jobs.
+3. Click on a queue to see the details of the jobs in that queue.
+4. You can view the status of jobs, retry failed jobs, and view job logs.
+5. You can also see the job progress and any errors that occurred.
+<!-- Embed the BullMQ UI image -->
+![BullMQ UI](./BullMQUI.png)

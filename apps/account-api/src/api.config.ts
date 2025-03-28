@@ -11,7 +11,7 @@ export interface IAccountApiConfig {
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
-  siwfV2URIValidation?: string;
+  siwfV2URIValidation?: string[];
 }
 
 export default registerAs('account-api', (): IAccountApiConfig => {
@@ -46,8 +46,45 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     },
     siwfV2URIValidation: {
       value: process.env.SIWF_V2_URI_VALIDATION,
-      // Allow localhost specifically
-      joi: Joi.string().optional().allow(null).allow('localhost').allow('').empty('').uri(),
+      joi: Joi.custom((value, helpers) => {
+        if (value === undefined || value === '') {
+          return undefined; // treat unset/empty as undefined
+        }
+
+        const uriSchema = Joi.string().uri().allow('localhost');
+
+        // Try parsing as JSON array
+        if (typeof value === 'string') {
+          try {
+            const parsed = JSON.parse(value);
+
+            if (Array.isArray(parsed)) {
+              const { error, value: validatedArray } = Joi.array().items(uriSchema).validate(parsed);
+              if (error || !validatedArray.length) {
+                return helpers.error('any.invalid', { message: error.message });
+              }
+              return validatedArray;
+            }
+          } catch {
+            // not JSON, fall through
+          }
+
+          // Validate as single URI
+          const { error } = uriSchema.validate(value);
+          if (error) {
+            return helpers.error('any.invalid', { message: error.message });
+          }
+
+          return [value];
+        }
+
+        return helpers.error('any.invalid');
+      })
+        .messages({
+          'any.invalid':
+            'Must be a URI string or a JSON array of URI strings (allowing "localhost", excluding empty strings inside arrays)',
+        })
+        .optional(),
     },
   };
 

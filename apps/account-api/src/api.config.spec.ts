@@ -3,7 +3,8 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IAccountApiConfig>(apiConfig);
+const { setupConfigService, validateMissing, shouldFailBadValues, shouldBeOptional } =
+  configSetup<IAccountApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -40,7 +41,13 @@ describe('Account API Config', () => {
 
     it('invalid api timeout limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_TIMEOUT_MS', [0]));
 
-    it('invalid url for SIWF_V2_URL', async () => shouldFailBadValues(ALL_ENV, 'SIWF_V2_URL', ['sdfdsf']));
+    it('invalid url for SIWF_V2_URL', async () =>
+      shouldFailBadValues(ALL_ENV, 'SIWF_V2_URL', [
+        'sdfdsf',
+        '["http://somedomain.org", "baduri"]',
+        '["http://somedomain.org", ""]',
+        '[]', // note, we explicitly reject an empty array; omitted value, `undefined` or empty string is the correct syntax for no value supplied
+      ]));
   });
 
   describe('valid environment', () => {
@@ -69,18 +76,30 @@ describe('Account API Config', () => {
       expect(accountServiceConfig.siwfUrl).toStrictEqual(ALL_ENV.SIWF_URL);
     });
 
+    it('missing SIWF V2 URL should be OK', async () => shouldBeOptional(ALL_ENV, 'SIWF_V2_URI_VALIDATION'));
+
     it('should get SIWF V2 URL', () => {
       expect(accountServiceConfig.siwfV2Url).toStrictEqual(ALL_ENV.SIWF_V2_URL);
     });
 
-    it.each([['https://example.com/login'], ['example://login'], ['localhost'], ['localhost:3030/login/path']])(
-      'should get SIWF V2 URI VALIDATION for %s',
-      async (value) => {
-        ALL_ENV.SIWF_V2_URI_VALIDATION = value;
-        accountServiceConfig = await setupConfigService(ALL_ENV);
-        expect(accountServiceConfig.siwfV2URIValidation).toStrictEqual(value);
-      },
-    );
+    it.each([
+      ['https://example.com/login'],
+      ['example://login'],
+      ['localhost'],
+      ['localhost:3030/login/path'],
+      ['["https://example.com","example://login","localhost","localhost:3030/login/path"]'],
+    ])('should get SIWF V2 URI VALIDATION for %s', async (value) => {
+      ALL_ENV.SIWF_V2_URI_VALIDATION = value;
+      accountServiceConfig = await setupConfigService(ALL_ENV);
+      let expectedValue: string[] = [value];
+      try {
+        // If value parses as a JSON array, keep it
+        expectedValue = JSON.parse(value);
+      } catch {
+        // keep original value
+      }
+      expect(accountServiceConfig.siwfV2URIValidation).toStrictEqual(expectedValue);
+    });
 
     it('should get api timeout limit milliseconds', () => {
       expect(accountServiceConfig.apiTimeoutMs).toStrictEqual(parseInt(ALL_ENV.API_TIMEOUT_MS as string, 10));

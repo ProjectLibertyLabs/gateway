@@ -45,7 +45,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: 'true'
-  WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://your-app.com:3001}/webhooks/account-service}'
+  WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://your-app.com:3001/webhooks/account-service}'
   GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'

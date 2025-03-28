@@ -90,15 +90,30 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
     webHookUrl: string,
   ) {
     this.logger.debug(`Processing block list ${Math.min(...blockList)}...${Math.max(...blockList)}`);
+
+    const blockSummaries: { blockNumber: number; messageCount: number }[] = [];
+
     await Promise.all(
       blockList.map(async (blockNumber) => {
         const messages = await this.chainEventService.getMessagesInBlock(blockNumber, filters);
         if (messages.length > 0) {
-          this.logger.debug(`Found ${messages.length} messages for block ${blockNumber}`);
+          blockSummaries.push({ blockNumber, messageCount: messages.length });
+          // eslint-disable-next-line no-await-in-loop
+          await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId, webHookUrl);
         }
-        // eslint-disable-next-line no-await-in-loop
-        await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId, webHookUrl);
       }),
     );
+
+    if (blockSummaries.length > 0) {
+      const totalMessages = blockSummaries.reduce((sum, block) => sum + block.messageCount, 0);
+      this.logger.debug(
+        `Found ${totalMessages} messages in ${blockSummaries.length} blocks. Range: ${Math.min(...blockSummaries.map((s) => s.blockNumber))} to ${Math.max(...blockSummaries.map((s) => s.blockNumber))}`,
+      );
+
+      // Optionally add verbose log at trace level if detailed block info is needed for debugging
+      this.logger.verbose(
+        `Block details: ${blockSummaries.map((s) => `${s.blockNumber}(${s.messageCount})`).join(', ')}`,
+      );
+    }
   }
 }

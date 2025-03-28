@@ -45,7 +45,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  WEBHOOK_BASE_URL: 'http://mock-webhook-logger:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
+  WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://mock-webhook-logger:3001/webhooks/account-service}'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
@@ -139,7 +139,7 @@ services:
     networks:
       - gateway-net
     profiles:
-      - content_publishing
+      - content-publishing
 
   content-publishing-service-worker:
     image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
@@ -152,7 +152,7 @@ services:
     networks:
       - gateway-net
     profiles:
-      - content_publishing
+      - content-publishing
 
   content-watcher-service:
     image: projectlibertylabs/content-watcher-service:${DOCKER_TAG:-latest}
@@ -166,7 +166,7 @@ services:
     networks:
       - gateway-net
     profiles:
-      - content_watcher
+      - content-watcher
 
   graph-service-api:
     image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}

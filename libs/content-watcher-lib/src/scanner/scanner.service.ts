@@ -33,6 +33,10 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   private scanResetBlockNumber: number | undefined;
 
+  private lastQueueLimitLogTime = 0;
+
+  private readonly LOG_THROTTLE_MS = 60000;
+
   constructor(
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
     private readonly blockchainService: BlockchainRpcQueryService,
@@ -93,7 +97,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       if (!registeredWebhook) {
         return;
       }
-      this.logger.debug('Starting scanner');
+      // this.logger.debug('Starting scanner');
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters
         ? JSON.parse(chainWatchFilters)
@@ -111,7 +115,13 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
         const queueSize = await this.ipfsQueue.count();
         if (queueSize > this.config.queueHighWater) {
-          this.logger.log('Queue soft limit reached; pausing scan until next interval');
+          const now = Date.now();
+          if (now - this.lastQueueLimitLogTime > this.LOG_THROTTLE_MS) {
+            this.logger.log(
+              `Queue soft limit reached (${queueSize}/${this.config.queueHighWater}); pausing scan until next interval`,
+            );
+            this.lastQueueLimitLogTime = now;
+          }
           break;
         }
 

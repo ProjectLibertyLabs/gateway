@@ -34,7 +34,7 @@ import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DelayedError } from 'bullmq';
-import { SIWFTxnValues } from './types';
+import { NonceConflictError, RpcError, SIWFTxnValues } from './types';
 import { BN } from '@polkadot/util';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
@@ -226,6 +226,14 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
       await this.unreserveNonce(nonce);
+      if (err?.name === 'RpcError') {
+        if (/Priority is too low/.test(err?.message)) {
+          throw new NonceConflictError(err);
+        }
+
+        throw new RpcError(err);
+      }
+
       throw err;
     }
   }
@@ -258,6 +266,14 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
       await this.unreserveNonce(nonce);
+      if (err?.name === 'RpcError') {
+        if (/Priority is too low/.test(err?.message)) {
+          throw new NonceConflictError(err);
+        }
+
+        throw new RpcError(err);
+      }
+
       throw err;
     }
   }

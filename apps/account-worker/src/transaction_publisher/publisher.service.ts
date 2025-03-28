@@ -7,7 +7,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { ICapacityInfo } from '#blockchain/types';
+import { ICapacityInfo, NonceConflictError } from '#blockchain/types';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#consumer';
 import { TransactionData } from '#types/dtos/account';
@@ -167,6 +167,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       return this.blockchainService.payWithCapacity(tx);
     } catch (error) {
       this.logger.error(`Error processing single transaction: ${error}`);
+      // Allow retry on nonce conflict
+      if (error instanceof NonceConflictError) {
+        throw new DelayedError();
+      }
       throw error;
     }
   }
@@ -179,6 +183,9 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       return this.blockchainService.payWithCapacityBatchAll(callVec);
     } catch (error: any) {
       this.logger.error(`Error processing batch transaction: ${error}`);
+      if (error instanceof NonceConflictError) {
+        throw new DelayedError();
+      }
       throw error;
     }
   }

@@ -52,6 +52,11 @@ export default <T>(configObj: any) => {
       delete obj[key];
       await expect(setupConfigService(obj)).rejects.toBeDefined();
     },
+    shouldBeOptional: async (baseObj: object, key: string) => {
+      const obj = { ...baseObj };
+      delete obj[key];
+      await expect(setupConfigService(obj)).resolves.toBeDefined();
+    },
     shouldFailBadValues: async (baseObj: object, key: string, values: any[]) => {
       const obj = { ...baseObj };
       delete obj[key];

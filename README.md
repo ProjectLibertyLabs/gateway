@@ -138,6 +138,10 @@ Use this script when you need to stop all running Gateway services.
 5. **Build Gateway Documentation**
 
 ```sh
+  # First time installation only
+  cargo install mdbook
+  cargo install mdbook-mermaid
+
   cd docs
   mdbook build
 ```

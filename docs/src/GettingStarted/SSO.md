@@ -1,7 +1,5 @@
 # Fast Single Sign On with SIWF v2 with Account Service
 
-# Overview
-
 Sign In With Frequency (SIWF v2) is quick, user-friendly, decentralized authentication using the Frequency blockchain.
 Coupled with the Account Service, this provides fast and secure SSO across applications by utilizing cryptographic signatures to verify user identities without complex identity management systems.
 
@@ -52,12 +50,23 @@ You need a **backend-only-accessible** [running instance](../Run/GatewayServices
 6. Application has the Account Service validate and process registration on Frequency if needed.
 7. User is authenticated.
 
-<div style="background:white">
-<!--- Replace with styled image --->
-
-[![](https://mermaid.ink/img/pako:eNp1UltrwjAU_ivhPHfSi07NgyBswt7GyhiMvoT0WAM26XIZq-J_X9J2YnX2pSHnu52PHIGrEoGCwS-HkuOTYJVmdSGJ_xqmreCiYdKSd4P69nbdNP9ccq6c_-eovwXHW0D-8rG5P93oPkvbj4IxeVitghclb2FmrCF7VQnZI_ygA1zKUpKLSmJJdE_okZeIjhLEKVk7u0PpAzArlCTGYmOuzEfMEQPvSA9xrdPSEObxSotDbxA6H0e_qoySV604miviwBljO_65s2BZCb-BJi5k5zsmKzQREVvCZHtfoYvbrcsudivHMfu6OpTvv_L1CgkR1KhrJkr_jI4BX4AXqLEA6o8lbpnb2wIKefJQ15Re9rkUVmmgW7Y3GIF3VHkrOVCrHf6Bhqd4RvnHAfQIP0Afl5M4iZNlupgn8TKbzyJogc7SdJJOF4tpnGVpnCXpKYKDUl4g6cif3bl30MpVu0H59AtH2v93?type=png)](https://mermaid.live/edit#pako:eNp1UltrwjAU_ivhPHfSi07NgyBswt7GyhiMvoT0WAM26XIZq-J_X9J2YnX2pSHnu52PHIGrEoGCwS-HkuOTYJVmdSGJ_xqmreCiYdKSd4P69nbdNP9ccq6c_-eovwXHW0D-8rG5P93oPkvbj4IxeVitghclb2FmrCF7VQnZI_ygA1zKUpKLSmJJdE_okZeIjhLEKVk7u0PpAzArlCTGYmOuzEfMEQPvSA9xrdPSEObxSotDbxA6H0e_qoySV604miviwBljO_65s2BZCb-BJi5k5zsmKzQREVvCZHtfoYvbrcsudivHMfu6OpTvv_L1CgkR1KhrJkr_jI4BX4AXqLEA6o8lbpnb2wIKefJQ15Re9rkUVmmgW7Y3GIF3VHkrOVCrHf6Bhqd4RvnHAfQIP0Afl5M4iZNlupgn8TKbzyJogc7SdJJOF4tpnGVpnCXpKYKDUl4g6cif3bl30MpVu0H59AtH2v93)
-
-</div>
+```mermaid
+sequenceDiagram
+    participant User
+    participant App
+    participant Account Service
+    participant SIWF Service
+    participant Frequency
+    User ->> App: Requests login
+    App ->> SIWF Service: Signed request
+    SIWF Service ->> User: Authentication steps
+    User ->> SIWF Service : Authenticate
+    SIWF Service ->> App: Returns authorization code
+    App ->> Account Service: Process authorization
+    Account Service ->> Frequency: Register user changes, if any
+    Account Service ->> App: User authenticated
+    App ->> User: User logged in
+```
 
 ## Step 1: Generate a SIWF v2 Signed Request
 

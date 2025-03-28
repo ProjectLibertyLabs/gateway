@@ -37,7 +37,7 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
-    logger: process.env.DEBUG ? ['error', 'warn', 'log', 'verbose', 'debug'] : ['error', 'warn', 'log'],
+    logger: getLogLevels(),
     rawBody: true,
   });
 

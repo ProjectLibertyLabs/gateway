@@ -33,9 +33,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   private scanResetBlockNumber: number | undefined;
 
-  private lastQueueLimitLogTime = 0;
-
-  private readonly LOG_THROTTLE_MS = 60000;
+  private isHighWater = false;
 
   constructor(
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
@@ -114,12 +112,19 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
         const queueSize = await this.ipfsQueue.count();
         if (queueSize > this.config.queueHighWater) {
-          const now = Date.now();
-          if (now - this.lastQueueLimitLogTime > this.LOG_THROTTLE_MS) {
+          // Check if we're entering high water mark
+          if (!this.isHighWater) {
             this.logger.log(
               `Queue soft limit reached (${queueSize}/${this.config.queueHighWater}); pausing scan until next interval`,
             );
-            this.lastQueueLimitLogTime = now;
+            this.isHighWater = true;
+          }
+          // Check if we've drained enough to exit high water state
+          else if (this.isHighWater && queueSize <= this.config.queueHighWater * 0.8) {
+            this.logger.log(
+              `Queue drained below threshold (${queueSize}/${this.config.queueHighWater}); will resume scanning`,
+            );
+            this.isHighWater = false;
           }
           break;
         }

@@ -97,7 +97,6 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       if (!registeredWebhook) {
         return;
       }
-      // this.logger.debug('Starting scanner');
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters
         ? JSON.parse(chainWatchFilters)
@@ -128,14 +127,14 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         const currentBlockNumber = await this.getNextBlockNumber();
         const currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
         if (currentBlockHash.isEmpty) {
-          this.logger.debug(
+          this.logger.verbose(
             `No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`,
           );
           break;
         }
 
         if (first) {
-          this.logger.log(`Starting scan @ block # ${currentBlockNumber} (${currentBlockHash})`);
+          this.logger.verbose(`Starting scan @ block # ${currentBlockNumber} (${currentBlockHash})`);
           first = false;
         }
 

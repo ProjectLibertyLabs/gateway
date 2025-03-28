@@ -43,7 +43,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
 
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
-      this.logger.log(`IPFS Processing job ${job.id}`);
+      this.logger.verbose(`IPFS Processing job ${job.id}`);
       if (!job.data.cid) {
         this.logger.error(`IPFS Job ${job.id} failed with no CID`);
         return;
@@ -52,7 +52,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
       const contentBuffer = await this.ipfsService.getPinned(cidStr, true);
 
       if (contentBuffer.byteLength === 0) {
-        this.logger.log(`IPFS Job ${job.id} completed with no content`);
+        this.logger.verbose(`IPFS Job ${job.id} completed with no content`);
         return;
       }
 

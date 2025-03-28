@@ -17,7 +17,7 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  DEBUG: true
+  DEBUG: ${DEBUG:-true}
   HTTP_RESPONSE_TIMEOUT_MS: ${HTTP_RESPONSE_TIMEOUT_MS:-30000}
 
 x-content-publishing-env: &content-publishing-env
@@ -45,7 +45,7 @@ x-graph-service-env: &graph-service-env
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
-  WEBHOOK_BASE_URL: 'http://mock-webhook-logger:${ACCOUNT_WEBHOOK_PORT:-3001}/webhooks/account-service'
+  WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://mock-webhook-logger:3001/webhooks/account-service}'
   GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
@@ -108,6 +108,9 @@ services:
       dockerfile: Docker/Dockerfile.dev
       tags:
         - gateway-dev:latest
+    volumes:
+      - ./:/app
+      - gateway_base_node_cache:/app/node_modules
 
   content-publishing-service-api:
     pull_policy: never
@@ -257,6 +260,7 @@ volumes:
   content_publishing_api_node_cache:
   content_publishing_worker_node_cache:
   content_watcher_node_cache:
+  gateway_base_node_cache:
 
 networks:
   gateway-net:

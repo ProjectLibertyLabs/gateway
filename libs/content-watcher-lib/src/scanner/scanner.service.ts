@@ -33,6 +33,8 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
   private scanResetBlockNumber: number | undefined;
 
+  private isHighWater = false;
+
   constructor(
     @Inject(scannerConfig.KEY) private readonly config: IScannerConfig,
     private readonly blockchainService: BlockchainRpcQueryService,
@@ -93,7 +95,6 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       if (!registeredWebhook) {
         return;
       }
-      this.logger.debug('Starting scanner');
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters
         ? JSON.parse(chainWatchFilters)
@@ -111,27 +112,36 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
         const queueSize = await this.ipfsQueue.count();
         if (queueSize > this.config.queueHighWater) {
-          this.logger.log('Queue soft limit reached; pausing scan until next interval');
+          // Check if we're entering high water mark
+          if (!this.isHighWater) {
+            this.logger.log(
+              `Queue soft limit reached (${queueSize}/${this.config.queueHighWater}); pausing scan until next interval`,
+            );
+            this.isHighWater = true;
+          }
+          // Check if we've drained enough to exit high water state
+          else if (this.isHighWater && queueSize <= this.config.queueHighWater * 0.8) {
+            this.logger.log(
+              `Queue drained below threshold (${queueSize}/${this.config.queueHighWater}); will resume scanning`,
+            );
+            this.isHighWater = false;
+          }
           break;
         }
 
         const currentBlockNumber = await this.getNextBlockNumber();
         const currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
         if (currentBlockHash.isEmpty) {
-          this.logger.debug(
-            `No new blocks to scan @ block number ${currentBlockNumber}; pausing scan until next interval`,
-          );
           break;
         }
 
         if (first) {
-          this.logger.log(`Starting scan @ block # ${currentBlockNumber} (${currentBlockHash})`);
           first = false;
         }
 
         const messages = await this.chainEventProcessor.getMessagesInBlock(currentBlockNumber, eventsToWatch);
         if (messages.length > 0) {
-          this.logger.debug(`Found ${messages.length} messages to process`);
+          this.logger.verbose(`Found ${messages.length} messages to process`);
         }
         await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue);
         await this.saveProgress(currentBlockNumber);

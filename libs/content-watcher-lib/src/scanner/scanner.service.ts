@@ -141,7 +141,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
         const messages = await this.chainEventProcessor.getMessagesInBlock(currentBlockNumber, eventsToWatch);
         if (messages.length > 0) {
-          this.logger.debug(`Found ${messages.length} messages to process`);
+          this.logger.verbose(`Found ${messages.length} messages to process`);
         }
         await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue);
         await this.saveProgress(currentBlockNumber);

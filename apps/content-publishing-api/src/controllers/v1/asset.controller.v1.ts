@@ -29,7 +29,7 @@ export class AssetControllerV1 {
   @UseInterceptors(FilesInterceptor('files'))
   @HttpCode(202)
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload asset files' })
+  @ApiOperation({ summary: 'Upload asset files [deprecated; use `POST /v2/asset/upload` instead]', deprecated: true })
   @ApiResponse({ status: 400, description: 'Bad request, eg too many files or file too large' })
   @ApiBody({
     description: 'Asset files',

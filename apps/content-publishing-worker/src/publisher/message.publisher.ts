@@ -3,6 +3,8 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
+import { NonceConflictError } from '#blockchain/types';
+import { DelayedError } from 'bullmq';
 
 @Injectable()
 export class MessagePublisher {
@@ -31,6 +33,9 @@ export class MessagePublisher {
       return this.blockchainService.payWithCapacity(tx);
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
+      if (e instanceof NonceConflictError) {
+        throw new DelayedError();
+      }
       throw e;
     }
   }

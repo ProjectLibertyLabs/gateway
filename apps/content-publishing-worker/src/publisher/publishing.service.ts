@@ -60,7 +60,6 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
         throw new DelayedError();
       }
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const currentBlockNumber = await this.blockchainService.getLatestBlockNumber();
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
@@ -73,7 +72,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
           throw new UnrecoverableError('No valid delegation for schema');
         }
       }
-      const [tx, txHash] = await this.messagePublisher.publish(jobData);
+      const [tx, txHash, currentBlockNumber] = await this.messagePublisher.publish(jobData);
 
       const status: IContentTxStatus = {
         txHash,

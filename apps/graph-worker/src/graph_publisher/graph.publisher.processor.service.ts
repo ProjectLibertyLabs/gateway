@@ -16,7 +16,7 @@ import { SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { ICapacityInfo } from '#blockchain/types';
+import { ICapacityInfo, NonceConflictError } from '#blockchain/types';
 import { HexString } from '@polkadot/util/types';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
@@ -66,7 +66,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     let successMethod: string;
     try {
       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-      const lastFinalizedBlockNumber = await this.blockchainService.getLatestBlockNumber();
+      let blockNumber: number;
       switch (job.data.update.type) {
         case 'PersistPage': {
           successMethod = 'PaginatedPageUpdated';
@@ -81,7 +81,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
             job.data.update.prevHash,
             payloadData,
           );
-          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(tx);
+          [payWithCapacityTx, payWithCapacityTxHash, blockNumber] = await this.processSingleBatch(tx);
           break;
         }
         case 'DeletePage': {
@@ -92,7 +92,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
             job.data.update.pageId,
             job.data.update.prevHash,
           );
-          [payWithCapacityTxHash, payWithCapacityTx] = await this.processSingleBatch(tx);
+          [payWithCapacityTx, payWithCapacityTxHash, blockNumber] = await this.processSingleBatch(tx);
           break;
         }
         default:
@@ -111,8 +111,8 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
           method: successMethod,
         },
         referenceJob: job.data.originalRequestJob,
-        birth: payWithCapacityTx.era.asMortalEra.birth(lastFinalizedBlockNumber),
-        death: payWithCapacityTx.era.asMortalEra.death(lastFinalizedBlockNumber),
+        birth: payWithCapacityTx.era.asMortalEra.birth(blockNumber),
+        death: payWithCapacityTx.era.asMortalEra.death(blockNumber),
       };
 
       const obj = {};
@@ -142,15 +142,17 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
    */
   async processSingleBatch(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): Promise<[HexString, SubmittableExtrinsic<'promise', ISubmittableResult>]> {
+  ): ReturnType<BlockchainService['payWithCapacity']> {
     this.logger.debug(
       `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
     );
     try {
-      const [ext, txHash] = await this.blockchainService.payWithCapacity(tx);
-      return [txHash, ext];
-    } catch (error: unknown) {
+      return this.blockchainService.payWithCapacity(tx);
+    } catch (error: any) {
       this.logger.error(`Error processing batch: ${error}`);
+      if (error instanceof NonceConflictError) {
+        throw new DelayedError();
+      }
       throw error;
     }
   }

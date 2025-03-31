@@ -178,7 +178,10 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.debug(`processBatchTxn: callVec: ${callVec.map((c) => c.toHuman())}`);
+    this.logger.debug(
+      'processBatchTxn: callVec: ',
+      callVec.map((c) => c.toHuman()),
+    );
     try {
       return this.blockchainService.payWithCapacityBatchAll(callVec);
     } catch (error: any) {

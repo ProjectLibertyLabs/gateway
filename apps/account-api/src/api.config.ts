@@ -26,7 +26,7 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     },
     apiTimeoutMs: {
       value: process.env.API_TIMEOUT_MS,
-      joi: Joi.number().min(1).default(5000),
+      joi: Joi.number().min(1).default(30000),
     },
     siwfNodeRpcUrl: {
       value: process.env.SIWF_NODE_RPC_URL,

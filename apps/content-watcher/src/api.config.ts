@@ -16,11 +16,11 @@ export default registerAs('content-watcher-api', (): IContentWatcherApiConfig =>
     },
     apiPort: {
       value: process.env.API_PORT,
-      joi: Joi.number().min(0).default(30000),
+      joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {
       value: process.env.API_TIMEOUT_MS,
-      joi: Joi.number().min(1).default(5000),
+      joi: Joi.number().min(1).default(30000),
     },
   };
 

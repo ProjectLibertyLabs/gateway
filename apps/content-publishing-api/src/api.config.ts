@@ -25,7 +25,7 @@ export default registerAs('content-publishing-api', (): IContentPublishingApiCon
     apiTimeoutMs: {
       value: process.env.API_TIMEOUT_MS,
       // uploading files requires us to have a larger default value
-      joi: Joi.number().min(1).default(60000),
+      joi: Joi.number().min(1).default(30000),
     },
     fileUploadMaxSizeBytes: {
       value: process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES,

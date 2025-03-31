@@ -44,8 +44,11 @@ export class TimeoutInterceptor implements NestInterceptor {
       timeout(this.timeoutMs),
       catchError((err) => {
         if (err instanceof TimeoutError) {
-          const route = context.switchToHttp().getRequest<Request>().url;
-          this.logger.error(`Request took longer than ${this.timeoutMs}ms to process; throwing timeout error`, route);
+          const request = context.switchToHttp().getRequest<Request>();
+          this.logger.error(
+            `Request took longer than ${this.timeoutMs}ms to process; throwing timeout error`,
+            `${request.method} ${request.url}`,
+          );
           return throwError(() => new RequestTimeoutException());
         }
         return throwError(() => err);

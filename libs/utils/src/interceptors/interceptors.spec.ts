@@ -66,6 +66,6 @@ describe('Timeout Interceptor Tests', () => {
     const logger: Logger = (interceptor as unknown as any).logger;
     const logSpy = jest.spyOn(logger, 'error');
     await request(httpServer).get('/timeout');
-    expect(logSpy).toHaveBeenCalledWith(expect.any(String), expect.stringMatching('/timeout'));
+    expect(logSpy).toHaveBeenCalledWith(expect.any(String), expect.stringMatching('GET /timeout'));
   });
 });

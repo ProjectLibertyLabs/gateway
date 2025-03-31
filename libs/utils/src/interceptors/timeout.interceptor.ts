@@ -1,5 +1,12 @@
 import { SKIP_INTERCEPTOR_KEY } from '#utils/decorators/skip-interceptors.decorator';
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, RequestTimeoutException } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  RequestTimeoutException,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
@@ -7,6 +14,8 @@ import { catchError, timeout } from 'rxjs/operators';
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {
   timeoutMs: number;
+
+  private readonly logger: Logger;
 
   /**
    *
@@ -18,6 +27,7 @@ export class TimeoutInterceptor implements NestInterceptor {
     private readonly reflector?: Reflector,
   ) {
     this.timeoutMs = timeoutMs;
+    this.logger = new Logger();
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -34,6 +44,8 @@ export class TimeoutInterceptor implements NestInterceptor {
       timeout(this.timeoutMs),
       catchError((err) => {
         if (err instanceof TimeoutError) {
+          const route = context.switchToHttp().getRequest<Request>().url;
+          this.logger.error(`Request took longer than ${this.timeoutMs}ms to process; throwing timeout error`, route);
           return throwError(() => new RequestTimeoutException());
         }
         return throwError(() => err);

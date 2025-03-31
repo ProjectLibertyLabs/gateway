@@ -1,11 +1,18 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 
 services:
-  graph-service-api:
+  graph-service-dev:
     pull_policy: never
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.graph
+      tags:
+        - graph-service-dev:latest
+    command: []
+
+  graph-service-api:
+    pull_policy: never
+    image: graph-service-dev:latest
     ports:
       - 3000:3000
     volumes: !reset []
@@ -14,9 +21,7 @@ services:
 
   graph-service-worker:
     pull_policy: never
-    build:
-      context: .
-      dockerfile: ./Docker/Dockerfile.graph
+    image: graph-service-dev:latest
     volumes: !reset []
     depends_on: !override
       - redis

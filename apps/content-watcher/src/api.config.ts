@@ -20,7 +20,7 @@ export default registerAs('content-watcher-api', (): IContentWatcherApiConfig =>
     },
     apiTimeoutMs: {
       value: process.env.API_TIMEOUT_MS,
-      joi: Joi.number().min(1).default(5000),
+      joi: Joi.number().min(1).default(30000),
     },
   };
 

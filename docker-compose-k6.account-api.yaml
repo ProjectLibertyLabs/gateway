@@ -1,11 +1,19 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 
 services:
-  account-service-api:
+  account-service-dev:
     pull_policy: never
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.account
+      tags:
+        - account-service-dev:latest
+    command: []
+
+
+  account-service-api:
+    pull_policy: never
+    image: account-service-dev:latest
     command: ['account-api']
     ports:
       - 3000:3000
@@ -20,9 +28,7 @@ services:
 
   account-service-worker:
     pull_policy: never
-    build:
-      context: .
-      dockerfile: ./Docker/Dockerfile.account
+    image: account-service-dev:latest
     command: ['account-worker']
     volumes: !reset []
     depends_on: !override

@@ -1,11 +1,18 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
 
 services:
-  content-publishing-service-api:
+  content-publishing-dev:
     pull_policy: never
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.content-publishing
+      tags:
+        - content-publishing-dev:latest
+    command: []
+
+  content-publishing-service-api:
+    pull_policy: never
+    image: content-publishing-dev:latest
     ports:
       - 3000:3000
     volumes: !reset []
@@ -15,9 +22,7 @@ services:
 
   content-publishing-service-worker:
     pull_policy: never
-    build:
-      context: .
-      dockerfile: ./Docker/Dockerfile.content-publishing
+    image: content-publishing-dev:latest
     volumes: !reset []
     depends_on: !override
       - redis

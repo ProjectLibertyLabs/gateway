@@ -3,6 +3,7 @@
 services:
   content-watcher-service:
     pull_policy: never
+    image: content-watcher-service-dev:latest
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.content-watcher

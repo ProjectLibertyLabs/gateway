@@ -7,7 +7,13 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { ICapacityInfo, NonceConflictError } from '#blockchain/types';
+import {
+  BadSignatureError,
+  ICapacityInfo,
+  InsufficientBalanceError,
+  MortalityError,
+  NonceConflictError,
+} from '#blockchain/types';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { BaseConsumer } from '#consumer';
 import { TransactionData } from '#types/dtos/account';
@@ -36,7 +42,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.capacityCheckerService.checkForSufficientCapacity();
-    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
@@ -125,7 +131,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           throw new Error(`Invalid job type.`);
         }
       }
-      this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
+      this.logger.debug(`Job successfully completed (${job.id})`);
+      this.logger.verbose(JSON.stringify(job, null, 2));
 
       const status: ITxStatus = {
         type: job.data.type,
@@ -140,13 +147,36 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       obj[txHash] = JSON.stringify(status);
       this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
     } catch (error: any) {
-      if (error instanceof DelayedError) {
+      if (error instanceof DelayedError || TransactionPublisherService.shouldRetry(job, error)) {
         job.moveToDelayed(Date.now(), job.token);
       } else {
         this.logger.error('Unknown error encountered: ', error, error?.stack);
       }
       throw error;
     }
+  }
+
+  /**
+   * Determine if job should be returned to the queue for retries.
+   * (Default retry logic is "1"; ie only a single attempt. But some chain
+   * submission errors deserve a retry; however, we don't want to retry indefinitely,
+   * so we cap it at 4)
+   * @param job The current job
+   * @param err The error that was thrown
+   * @returns Whether the job should be retried
+   */
+  public static shouldRetry(job: Job<any>, err: Error): boolean {
+    if (
+      job.attemptsStarted < 4 &&
+      (err instanceof NonceConflictError ||
+        err instanceof BadSignatureError ||
+        err instanceof InsufficientBalanceError ||
+        err instanceof MortalityError)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -178,7 +208,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.debug(
+    this.logger.verbose(
       'processBatchTxn: callVec: ',
       callVec.map((c) => c.toHuman()),
     );

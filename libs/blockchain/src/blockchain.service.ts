@@ -33,8 +33,14 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { NonceConstants } from '#types/constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DelayedError } from 'bullmq';
-import { NonceConflictError, RpcError, SIWFTxnValues } from './types';
+import {
+  BadSignatureError,
+  InsufficientBalanceError,
+  MortalityError,
+  NonceConflictError,
+  RpcError,
+  SIWFTxnValues,
+} from './types';
 import { BN } from '@polkadot/util';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
@@ -111,7 +117,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       .set(
         'latestFinalizedHeader',
         JSON.stringify({
-          blockHash: latestFinalizedBlock.toHex(),
+          blockHash: latestFinalizedHeader.hash.toHex(),
           number: latestFinalizedHeader.number.toNumber(),
           parentHash: latestFinalizedHeader.parentHash.toHex(),
         }),
@@ -198,6 +204,30 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     }
   }
 
+  public static createError(err: any): any {
+    if (err?.name === 'RpcError') {
+      if (/Priority is too low/.test(err?.message)) {
+        return new NonceConflictError(err);
+      }
+
+      if (/Transaction has a bad signature/.test(err?.message)) {
+        return new BadSignatureError(err);
+      }
+
+      if (/Inability to pay some fees/.test(err?.message)) {
+        return new InsufficientBalanceError(err);
+      }
+
+      if (/Transaction has an ancient birth block/.test(err?.message)) {
+        return new MortalityError(err);
+      }
+
+      return new RpcError(err);
+    }
+
+    return err;
+  }
+
   /**
    * Submits a transaction to the blockchain, paying for it with the provider's capacity.
    * @param tx
@@ -207,10 +237,6 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
-    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
-    if (outOfCapacity) {
-      throw new DelayedError();
-    }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
@@ -226,15 +252,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
       await this.unreserveNonce(nonce);
-      if (err?.name === 'RpcError') {
-        if (/Priority is too low/.test(err?.message)) {
-          throw new NonceConflictError(err);
-        }
-
-        throw new RpcError(err);
-      }
-
-      throw err;
+      throw BlockchainService.createError(err);
     }
   }
 
@@ -247,10 +265,6 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
-    const outOfCapacity = await this.checkTxCapacityLimit(this.config.providerId, extrinsic.toHex());
-    if (outOfCapacity) {
-      throw new DelayedError();
-    }
     const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
@@ -266,15 +280,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
       await this.unreserveNonce(nonce);
-      if (err?.name === 'RpcError') {
-        if (/Priority is too low/.test(err?.message)) {
-          throw new NonceConflictError(err);
-        }
-
-        throw new RpcError(err);
-      }
-
-      throw err;
+      throw BlockchainService.createError(err);
     }
   }
 
@@ -297,8 +303,8 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     return nextNonce;
   }
 
-  public async unreserveNonce(nonce: number) {
-    await this.nonceRedis.del(getNonceKey(this.accountId, `${nonce}`));
+  public unreserveNonce(nonce: number) {
+    return this.nonceRedis.del(getNonceKey(this.accountId, `${nonce}`));
   }
 
   public createTxFromEncoded(encodedTx: any): SubmittableExtrinsic<'promise', ISubmittableResult> {
@@ -326,7 +332,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const latestHeader = JSON.parse(latestHeaderStr) as IHeaderInfo;
     const finalizedHeader = JSON.parse(finalizedHeaderStr) as IHeaderInfo;
 
-    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? finalizedHeader : latestHeader;
+    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? latestHeader : finalizedHeader;
   }
 
   /**

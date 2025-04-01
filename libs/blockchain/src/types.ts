@@ -38,4 +38,6 @@ export interface ICapacityFeeDetails {
 
 export class RpcError extends Error {}
 export class NonceConflictError extends RpcError {}
-export class FutureNonceError extends RpcError {}
+export class BadSignatureError extends RpcError {}
+export class InsufficientBalanceError extends RpcError {}
+export class MortalityError extends RpcError {}

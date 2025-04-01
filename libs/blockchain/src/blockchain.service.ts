@@ -326,7 +326,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const latestHeader = JSON.parse(latestHeaderStr) as IHeaderInfo;
     const finalizedHeader = JSON.parse(finalizedHeaderStr) as IHeaderInfo;
 
-    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? finalizedHeader : latestHeader;
+    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? latestHeader : finalizedHeader;
   }
 
   /**

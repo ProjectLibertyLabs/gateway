@@ -55,7 +55,7 @@ export class EnqueueService {
     const job = await this.transactionPublishQueue.add(`Transaction Job - ${data.referenceId}`, data, {
       jobId: data.referenceId,
     });
-    this.logger.debug('Submitted payload to the queue');
+    this.logger.debug(`Submitted payload to the queue (${referenceId})`);
     const jobState = await job.getState();
     this.logger.log(`Job submitted or retrieved: ${job.id} ${jobState}`);
     this.logger.verbose(JSON.stringify(job));

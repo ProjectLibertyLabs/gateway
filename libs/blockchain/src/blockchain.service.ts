@@ -117,7 +117,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       .set(
         'latestFinalizedHeader',
         JSON.stringify({
-          blockHash: latestFinalizedBlock.toHex(),
+          blockHash: latestFinalizedHeader.hash.toHex(),
           number: latestFinalizedHeader.number.toNumber(),
           parentHash: latestFinalizedHeader.parentHash.toHex(),
         }),

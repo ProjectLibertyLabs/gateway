@@ -131,7 +131,8 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           throw new Error(`Invalid job type.`);
         }
       }
-      this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
+      this.logger.debug(`Job successfully completed (${job.id})`);
+      this.logger.verbose(JSON.stringify(job, null, 2));
 
       const status: ITxStatus = {
         type: job.data.type,
@@ -207,7 +208,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.debug(
+    this.logger.verbose(
       'processBatchTxn: callVec: ',
       callVec.map((c) => c.toHuman()),
     );

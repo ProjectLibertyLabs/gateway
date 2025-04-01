@@ -36,7 +36,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
     await this.capacityCheckerService.checkForSufficientCapacity();
-    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
+    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {

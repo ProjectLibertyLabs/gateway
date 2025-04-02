@@ -11,7 +11,7 @@ export interface IQueueConfig {
 type ExtendedQueueConfig = IQueueConfig & { extendedOptions: RedisOptions };
 
 const DEFAULT_REDIS_OPTIONS: RedisOptions = {
-  commandTimeout: 5000,
+  commandTimeout: 10_000,
 };
 
 export default registerAs('queue', (): IQueueConfig => {

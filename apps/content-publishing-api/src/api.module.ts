@@ -51,6 +51,7 @@ import { IPFSStorageModule } from '#storage';
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig) => [
         {
+          ...cacheConf.redisOptions,
           url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },

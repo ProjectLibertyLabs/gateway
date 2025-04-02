@@ -8,8 +8,14 @@ export interface IQueueConfig {
   cacheKeyPrefix: string;
 }
 
+type ExtendedQueueConfig = IQueueConfig & { extendedOptions: RedisOptions };
+
+const DEFAULT_REDIS_OPTIONS: RedisOptions = {
+  commandTimeout: 10_000,
+};
+
 export default registerAs('queue', (): IQueueConfig => {
-  const configs: JoiUtils.JoiConfig<IQueueConfig> = {
+  const configs: JoiUtils.JoiConfig<ExtendedQueueConfig> = {
     cacheKeyPrefix: {
       value: process.env.CACHE_KEY_PREFIX,
       joi: Joi.string().required(),
@@ -35,7 +41,19 @@ export default registerAs('queue', (): IQueueConfig => {
           };
         }),
     },
+    extendedOptions: {
+      value: process.env.REDIS_OPTIONS,
+      joi: JoiUtils.jsonObjectSchema('REDIS_OPTIONS').optional(),
+    },
   };
 
-  return JoiUtils.validate<IQueueConfig>(configs);
+  const validatedOptions = JoiUtils.validate<ExtendedQueueConfig>(configs);
+  validatedOptions.redisConnectionOptions = {
+    ...validatedOptions.redisConnectionOptions,
+    ...DEFAULT_REDIS_OPTIONS,
+    ...validatedOptions?.extendedOptions,
+  };
+  delete validatedOptions.extendedOptions;
+
+  return validatedOptions;
 });

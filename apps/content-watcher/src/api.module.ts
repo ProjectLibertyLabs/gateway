@@ -47,7 +47,9 @@ import httpCommonConfig from '#config/http-common.config';
     IPFSProcessorModule,
     PubSubModule,
     CacheModule.forRootAsync({
-      useFactory: (conf: ICacheConfig) => [{ url: conf.redisUrl, keyPrefix: conf.cacheKeyPrefix }],
+      useFactory: (conf: ICacheConfig) => [
+        { ...conf.redisOptions, url: conf.redisUrl, keyPrefix: conf.cacheKeyPrefix },
+      ],
       inject: [cacheConfig.KEY],
     }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),

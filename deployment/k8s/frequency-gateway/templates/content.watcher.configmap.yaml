@@ -6,6 +6,7 @@ data:
   IPFS_ENDPOINT: {{ .Values.contentWatcher.env.IPFS_ENDPOINT | quote }}
   IPFS_GATEWAY_URL: {{ .Values.contentWatcher.env.IPFS_GATEWAY_URL | quote }}
   FREQUENCY_API_WS_URL: {{ .Values.contentWatcher.env.FREQUENCY_API_WS_URL | quote }}
+  REDIS_OPTIONS: {{ .Values.contentWatcher.env.REDIS_OPTIONS | quote }}
   REDIS_URL: {{ .Values.contentWatcher.env.REDIS_URL | quote }}
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: {{ .Values.contentWatcher.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS | quote }}
   QUEUE_HIGH_WATER: {{ .Values.contentWatcher.env.QUEUE_HIGH_WATER | quote }}

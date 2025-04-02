@@ -45,10 +45,12 @@ import httpConfig from '#config/http-common.config';
     CacheModule.forRootAsync({
       useFactory: async (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
+          ...cacheConf.redisOptions,
           url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
+          ...cacheConf.redisOptions,
           url: cacheConf.redisUrl.toString(),
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
           keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,

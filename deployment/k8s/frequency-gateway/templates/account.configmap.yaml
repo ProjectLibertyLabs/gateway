@@ -8,6 +8,7 @@ data:
   FREQUENCY_API_WS_URL: {{ .Values.account.env.FREQUENCY_API_WS_URL | quote }}
   SIWF_NODE_RPC_URL: {{ .Values.account.env.SIWF_NODE_RPC_URL | quote }}
   WEBHOOK_BASE_URL: {{ .Values.account.env.WEBHOOK_BASE_URL | quote }}
+  REDIS_OPTIONS: {{ .Values.account.env.REDIS_OPTIONS | quote }}
   REDIS_URL: {{ .Values.account.env.REDIS_URL | quote }}
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: {{ .Values.account.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS | quote }}
   TRUST_UNFINALIZED_BLOCKS: {{ .Values.account.env.TRUST_UNFINALIZED_BLOCKS | quote }}

@@ -51,6 +51,7 @@ import { QueueModule } from '#queue/queue.module';
       imports: [ConfigModule],
       useFactory: (cacheConf: ICacheConfig) => [
         {
+          ...cacheConf.redisOptions,
           url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
           maxRetriesPerRequest: null,

@@ -9,6 +9,7 @@ data:
   IPFS_GATEWAY_URL: {{ .Values.contentPublishing.env.IPFS_GATEWAY_URL | quote }}
   FREQUENCY_API_WS_URL: {{ .Values.contentPublishing.env.FREQUENCY_API_WS_URL | quote }}
   PROVIDER_ID: {{ .Values.contentPublishing.env.PROVIDER_ID | quote }}
+  REDIS_OPTIONS: {{ .Values.contentPublishing.env.REDIS_OPTIONS | quote }}
   REDIS_URL: {{ .Values.contentPublishing.env.REDIS_URL | quote }}
   CAPACITY_LIMIT: {{ .Values.contentPublishing.env.CAPACITY_LIMIT | quote }}
   API_PORT: {{ .Values.contentPublishing.env.API_PORT | quote }}

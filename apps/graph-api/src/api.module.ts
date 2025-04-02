@@ -50,6 +50,7 @@ import { EncryptionService } from '#graph-lib/services/encryption.service';
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig) => [
         {
+          ...cacheConf.redisOptions,
           url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },

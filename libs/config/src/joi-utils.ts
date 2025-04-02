@@ -30,6 +30,27 @@ export const bigintSchema = (options?: IBigIntOptions) =>
     return value;
   });
 
+export const jsonObjectSchema = (name: string) =>
+  Joi.string()
+    .optional()
+    .allow('')
+    .custom((value, helpers) => {
+      let parsed: object;
+      try {
+        parsed = JSON.parse(value) as object;
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+          return helpers.error('jsonObject.nonObject');
+        }
+      } catch (err: any) {
+        return helpers.error('jsonObject.invalid');
+      }
+      return parsed;
+    }, 'Custom JSON parser')
+    .messages({
+      'jsonObject.invalid': `${name} must be a valid JSON string`,
+      'jsonObject.nonObject': `${name} must be a valid JSON object string, not an array or primitive`,
+    });
+
 /**
  * Extract only a single property from our configuration object.
  * @param config    Entire configuration object.

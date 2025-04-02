@@ -8,6 +8,7 @@ const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup
 describe('Cache module config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
     REDIS_URL: undefined,
+    REDIS_OPTIONS: undefined,
     CACHE_KEY_PREFIX: undefined,
   };
 
@@ -23,12 +24,15 @@ describe('Cache module config', () => {
     it('invalid redis url should fail', async () => shouldFailBadValues(ALL_ENV, 'REDIS_URL', ['invalid url']));
 
     it('missing cache key prefix should fail', async () => validateMissing(ALL_ENV, 'CACHE_KEY_PREFIX'));
+
+    it('invalid redis options should fail', async () =>
+      shouldFailBadValues(ALL_ENV, 'REDIS_OPTIONS', ['{badKey:1000}', 1000, 'string', '[1,2]']));
   });
 
   describe('valid environment', () => {
     let cacheConf: ICacheConfig;
     beforeAll(async () => {
-      cacheConf = await setupConfigService(ALL_ENV);
+      cacheConf = await setupConfigService({ ...ALL_ENV, REDIS_OPTIONS: '{"socketTimeout": 10000}' });
     });
 
     it('should be defined', () => {
@@ -41,6 +45,15 @@ describe('Cache module config', () => {
 
     it('should get cache key prefix', () => {
       expect(cacheConf.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
+    });
+
+    it('should get redis options with merged defaults', () => {
+      const options = {
+        socketTimeout: 10000,
+        commandTimeout: 5000,
+      };
+
+      expect(cacheConf.redisOptions).toStrictEqual(options);
     });
   });
 });

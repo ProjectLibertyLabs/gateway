@@ -43,25 +43,7 @@ export default registerAs('queue', (): IQueueConfig => {
     },
     extendedOptions: {
       value: process.env.REDIS_OPTIONS,
-      joi: Joi.string()
-        .optional()
-        .custom((value, helpers) => {
-          let parsed: RedisOptions;
-          try {
-            parsed = JSON.parse(value) as RedisOptions;
-            if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-              return helpers.error('redisOptions.nonObject');
-            }
-          } catch (err) {
-            return helpers.error('redisOptions.invalid');
-          }
-          return parsed;
-        }, 'Custom JSON parser')
-        .optional()
-        .messages({
-          'redisOptions.invalid': 'REDIS_OPTIONS must be a valid JSON string',
-          'redisOptions.nonObject': 'REDIS_OPTIONS must be a valid JSON object string, not an array or primitive',
-        }),
+      joi: JoiUtils.jsonObjectSchema('REDIS_OPTIONS').optional(),
     },
   };
 

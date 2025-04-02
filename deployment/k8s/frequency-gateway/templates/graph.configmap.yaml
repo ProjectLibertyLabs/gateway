@@ -6,6 +6,7 @@ data:
   API_PORT: {{ .Values.graph.env.API_PORT | quote }}
   FREQUENCY_API_WS_URL: {{ .Values.graph.env.FREQUENCY_API_WS_URL | quote }}
   PROVIDER_ID: {{ .Values.graph.env.PROVIDER_ID | quote }}
+  REDIS_OPTIONS: {{ .Values.graph.env.REDIS_OPTIONS | quote }}
   REDIS_URL: {{ .Values.graph.env.REDIS_URL | quote }}
   QUEUE_HIGH_WATER: {{ .Values.graph.env.QUEUE_HIGH_WATER | quote }}
   DEBOUNCE_SECONDS: {{ .Values.graph.env.DEBOUNCE_SECONDS | quote }}

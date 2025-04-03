@@ -9,7 +9,7 @@ interface IBigIntOptions {
   convert: boolean;
 }
 
-export type JoiConfig<T> = Record<keyof T, ConfigProps>;
+export type JoiConfig<T> = Record<keyof T & 'label', ConfigProps>;
 
 export const bigintSchema = (options?: IBigIntOptions) =>
   Joi.custom((value) => {
@@ -30,26 +30,44 @@ export const bigintSchema = (options?: IBigIntOptions) =>
     return value;
   });
 
-export const jsonObjectSchema = (name: string) =>
-  Joi.string()
-    .optional()
-    .allow('')
-    .custom((value, helpers) => {
-      let parsed: object;
-      try {
-        parsed = JSON.parse(value) as object;
-        if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-          return helpers.error('jsonObject.nonObject');
-        }
-      } catch (err: any) {
-        return helpers.error('jsonObject.invalid');
+export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {
+  const updatedConfig = { ...config };
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key in updatedConfig) {
+    if (Object.prototype.hasOwnProperty.call(updatedConfig, key)) {
+      if (updatedConfig[key]?.label) {
+        updatedConfig[key].joi = updatedConfig[key].joi.label(updatedConfig[key].label);
       }
-      return parsed;
-    }, 'Custom JSON parser')
-    .messages({
-      'jsonObject.invalid': `${name} must be a valid JSON string`,
-      'jsonObject.nonObject': `${name} must be a valid JSON object string, not an array or primitive`,
-    });
+
+      if (!updatedConfig[key]?.value) {
+        updatedConfig[key].value = process.env[updatedConfig[key].label];
+      }
+    }
+  }
+
+  return updatedConfig;
+}
+
+export const jsonObjectSchema = Joi.string()
+  .optional()
+  .allow('')
+  .custom((value, helpers) => {
+    let parsed: object;
+    try {
+      parsed = JSON.parse(value) as object;
+      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return helpers.error('jsonObject.nonObject');
+      }
+    } catch (err: any) {
+      return helpers.error('jsonObject.invalid');
+    }
+    return parsed;
+  }, 'Custom JSON parser')
+  .messages({
+    'jsonObject.invalid': '{{#label}} must be a valid JSON string',
+    'jsonObject.nonObject': '{{#label}} must be a valid JSON object string, not an array or primitive',
+  });
 
 /**
  * Extract only a single property from our configuration object.

@@ -12,7 +12,6 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ConfigModule } from '@nestjs/config';
 import workerConfig from './worker.config';
-import queueConfig from '#queue';
 import scannerConfig from './graph_notifier/scanner.config';
 import graphCommonConfig from '#config/graph-common.config';
 import { QueueModule } from '#queue/queue.module';
@@ -23,15 +22,7 @@ import httpCommonConfig from '#config/http-common.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        workerConfig,
-        graphCommonConfig,
-        blockchainConfig,
-        cacheConfig,
-        queueConfig,
-        scannerConfig,
-        httpCommonConfig,
-      ],
+      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -56,13 +47,11 @@ import httpCommonConfig from '#config/http-common.config';
       useFactory: (cacheConf: ICacheConfig, blockchainConf: IBlockchainConfig) => [
         {
           ...cacheConf.redisOptions,
-          url: cacheConf.redisUrl.toString(),
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
           ...cacheConf.redisOptions,
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: cacheConf.redisUrl.toString(),
           keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],

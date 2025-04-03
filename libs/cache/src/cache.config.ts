@@ -38,7 +38,7 @@ export default registerAs('cache', (): ICacheConfig => {
   }
 
   if (!validatedOptions.redisOptions && !validatedOptions.redisUrl) {
-    throw new Error('Either REDIS_URL or REDIS_OPTIONS must be provided');
+    throw new Error('Either "REDIS_URL" or "REDIS_OPTIONS" is required');
   }
 
   if (validatedOptions.redisUrl) {

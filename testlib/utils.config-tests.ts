@@ -50,7 +50,8 @@ export default <T>(configObj: any) => {
     validateMissing: async (baseObj: object, key: string) => {
       const obj = { ...baseObj };
       delete obj[key];
-      await expect(setupConfigService(obj)).rejects.toBeDefined();
+      const re = new RegExp(`"${key}" is required`);
+      await expect(setupConfigService(obj)).rejects.toThrow(re);
     },
     shouldBeOptional: async (baseObj: object, key: string) => {
       const obj = { ...baseObj };
@@ -64,7 +65,8 @@ export default <T>(configObj: any) => {
         values.map((v) => {
           const badObj = { ...obj };
           badObj[key] = v;
-          return expect(setupConfigService(badObj)).rejects.toBeDefined();
+          const re = new RegExp(`"${key}" must`);
+          return expect(setupConfigService(badObj)).rejects.toThrow(re);
         }),
       );
     },

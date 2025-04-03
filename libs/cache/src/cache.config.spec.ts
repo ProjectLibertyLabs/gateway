@@ -3,6 +3,8 @@
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import cacheConfig, { ICacheConfig } from './cache.config';
 import configSetup from '#testlib/utils.config-tests';
+import { url } from 'inspector';
+import { urlencoded } from 'express';
 
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<ICacheConfig>(cacheConfig);
 
@@ -13,34 +15,37 @@ describe('Cache module config', () => {
     CACHE_KEY_PREFIX: undefined,
   };
 
+  let urlEnv: object;
+  let optionsEnv: object;
+
   beforeAll(() => {
     Object.keys(ALL_ENV).forEach((key) => {
       ALL_ENV[key] = process.env[key];
     });
+
+    const { REDIS_OPTIONS: _unused1, ...restUrlEnv } = ALL_ENV;
+    const { REDIS_URL: _unused2, ...restOptionsEnv } = ALL_ENV;
+    urlEnv = restUrlEnv;
+    optionsEnv = restOptionsEnv;
   });
 
   describe('invalid environment', () => {
-    it('missing redis url should fail', async () => validateMissing(ALL_ENV, 'REDIS_URL'));
+    it('missing redis url & config should fail', async () => validateMissing(optionsEnv, 'REDIS_OPTIONS'));
 
-    it('invalid redis url should fail', async () => shouldFailBadValues(ALL_ENV, 'REDIS_URL', ['invalid url']));
+    it('invalid redis url should fail', async () => shouldFailBadValues(urlEnv, 'REDIS_URL', ['invalid url']));
 
-    it('missing cache key prefix should fail', async () => validateMissing(ALL_ENV, 'CACHE_KEY_PREFIX'));
+    it('missing cache key prefix should fail', async () =>
+      validateMissing({ ...ALL_ENV, REDIS_OPTIONS: '{}' }, 'CACHE_KEY_PREFIX'));
+
+    it('config with both redis url and config should fail', async () => {
+      await expect(setupConfigService({ ...ALL_ENV, REDIS_OPTIONS: '{}' })).rejects.toBeDefined();
+    });
 
     it('invalid redis options should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'REDIS_OPTIONS', ['{badKey:1000}', 1000, 'string', '[1,2]']));
+      shouldFailBadValues(optionsEnv, 'REDIS_OPTIONS', ['{badKey:1000}', 1000, 'string', '[1,2]']));
   });
 
   describe('valid environment', () => {
-    let urlEnv: object;
-    let optionsEnv: object;
-
-    beforeAll(() => {
-      const { REDIS_OPTIONS: _unused1, ...restUrlEnv } = ALL_ENV;
-      const { REDIS_URL: _unused2, ...restOptionsEnv } = ALL_ENV;
-      urlEnv = restUrlEnv;
-      optionsEnv = restOptionsEnv;
-    });
-
     it('should be defined', async () => {
       const cacheConf = await setupConfigService(urlEnv);
       expect(cacheConf).toBeDefined();

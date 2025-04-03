@@ -65,7 +65,7 @@ export default <T>(configObj: any) => {
         values.map((v) => {
           const badObj = { ...obj };
           badObj[key] = v;
-          const re = new RegExp(`"${key}" must`);
+          const re = new RegExp(`"${key}" (must|failed custom validation)`);
           return expect(setupConfigService(badObj)).rejects.toThrow(re);
         }),
       );

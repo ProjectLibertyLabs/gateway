@@ -13,21 +13,13 @@ export type JoiConfig<T> = Record<keyof T & 'label', ConfigProps>;
 
 export const bigintSchema = (options?: IBigIntOptions) =>
   Joi.custom((value) => {
-    const strResult = Joi.string().validate(value);
-    if (strResult.error) {
-      throw strResult.error;
+    const result = Joi.alternatives().try(Joi.string(), Joi.number().unsafe().positive()).validate(value);
+    if (result.error) {
+      throw result.error;
     }
 
-    const numResult = Joi.number().unsafe().positive().validate(value);
-    if (numResult.error) {
-      throw numResult.error;
-    }
-
-    if (options?.convert) {
-      return BigInt(value);
-    }
-
-    return value;
+    const converted = BigInt(value);
+    return options?.convert ? converted : value;
   });
 
 export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {

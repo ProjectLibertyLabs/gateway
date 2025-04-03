@@ -58,8 +58,11 @@ services:
       - 6379:6379
     networks:
       - gateway-net
+    command:
+      - /etc/redis/redis.conf
     volumes:
       - redis_data:/data
+      - ./redis:/etc/redis:ro
 
   frequency:
     image: frequencychain/standalone-node:latest
@@ -251,7 +254,6 @@ services:
 volumes:
   ipfs_data:
   chainstorage:
-    external: false
   redis_data:
   bull_data:
   account_api_node_cache:

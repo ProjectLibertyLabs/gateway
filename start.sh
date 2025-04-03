@@ -158,6 +158,9 @@ EOI
     if yesno "Start the account service" Y; then
         PROFILES="${PROFILES} account"
     fi
+    if yesno "Start the mock webhook logger" Y; then
+        PROFILES="${PROFILES} webhook"
+    fi
     if yesno "Start the graph service" Y; then
         PROFILES="${PROFILES} graph"
     fi

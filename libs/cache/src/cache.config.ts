@@ -52,6 +52,14 @@ export default registerAs('cache', (): ICacheConfig => {
     if (validatedOptions.redisUrl.startsWith('rediss:')) {
       (validatedOptions.redisOptions.tls as unknown as boolean) = true;
     }
+
+    if (typeof validatedOptions.redisOptions.port === 'string') {
+      validatedOptions.redisOptions.port = parseInt(validatedOptions.redisOptions.port, 10);
+    }
+    if (typeof validatedOptions.redisOptions.db === 'string') {
+      validatedOptions.redisOptions.db = parseInt(validatedOptions.redisOptions.db, 10);
+    }
+
     delete validatedOptions.redisUrl;
   }
 

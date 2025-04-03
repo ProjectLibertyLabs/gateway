@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import cacheConfig, { ICacheConfig } from './cache.config';
@@ -30,30 +31,59 @@ describe('Cache module config', () => {
   });
 
   describe('valid environment', () => {
-    let cacheConf: ICacheConfig;
-    beforeAll(async () => {
-      cacheConf = await setupConfigService({ ...ALL_ENV, REDIS_OPTIONS: '{"socketTimeout": 10000}' });
+    let urlEnv: object;
+    let optionsEnv: object;
+
+    beforeAll(() => {
+      const { REDIS_OPTIONS: _unused1, ...restUrlEnv } = ALL_ENV;
+      const { REDIS_URL: _unused2, ...restOptionsEnv } = ALL_ENV;
+      urlEnv = restUrlEnv;
+      optionsEnv = restOptionsEnv;
     });
 
-    it('should be defined', () => {
+    it('should be defined', async () => {
+      const cacheConf = await setupConfigService(urlEnv);
       expect(cacheConf).toBeDefined();
     });
 
-    it('should get redis url', () => {
-      expect(cacheConf.redisUrl).toStrictEqual(ALL_ENV.REDIS_URL);
-    });
-
-    it('should get cache key prefix', () => {
+    it('should get cache key prefix', async () => {
+      const cacheConf = await setupConfigService(urlEnv);
       expect(cacheConf.cacheKeyPrefix).toStrictEqual(ALL_ENV.CACHE_KEY_PREFIX?.toString());
     });
 
-    it('should get redis options with merged defaults', () => {
+    it('should get redis config from url', async () => {
+      const cacheConf = await setupConfigService({ ...urlEnv, REDIS_URL: 'redis://localhost:6379' });
       const options = {
-        socketTimeout: 10000,
-        commandTimeout: 5000,
+        host: 'localhost',
+        port: 6379,
+        commandTimeout: 10000,
       };
-
       expect(cacheConf.redisOptions).toStrictEqual(options);
+    });
+
+    it('should parse rediss:// url for TLS config', async () => {
+      const cacheConf = await setupConfigService({ ...urlEnv, REDIS_URL: 'rediss://localhost:6379' });
+      expect(cacheConf.redisOptions.tls).toBeTruthy();
+    });
+
+    it('should get redis options with merged defaults', async () => {
+      const options = {
+        host: 'localhost',
+        port: 6379,
+        keepAliveTimeout: 300,
+      };
+      const cacheConf = await setupConfigService({ ...optionsEnv, REDIS_OPTIONS: JSON.stringify(options) });
+      expect(cacheConf.redisOptions).toStrictEqual({ ...options, commandTimeout: 10000 });
+    });
+
+    it('should get redis options with overriden defaults', async () => {
+      const options = {
+        host: 'localhost',
+        port: 6379,
+        commandTimeout: 9999,
+      };
+      const cacheConf = await setupConfigService({ ...optionsEnv, REDIS_OPTIONS: JSON.stringify(options) });
+      expect(cacheConf.redisOptions.commandTimeout).toStrictEqual(options.commandTimeout);
     });
   });
 });

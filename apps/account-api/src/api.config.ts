@@ -15,37 +15,37 @@ export interface IAccountApiConfig {
 }
 
 export default registerAs('account-api', (): IAccountApiConfig => {
-  const configs: JoiUtils.JoiConfig<IAccountApiConfig> = {
+  const configs: JoiUtils.JoiConfig<IAccountApiConfig> = JoiUtils.normalizeConfigNames({
     apiBodyJsonLimit: {
-      value: process.env.API_BODY_JSON_LIMIT,
+      label: 'API_BODY_JSON_LIMIT',
       joi: Joi.string().default('1mb'),
     },
     apiPort: {
-      value: process.env.API_PORT,
+      label: 'API_PORT',
       joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {
-      value: process.env.API_TIMEOUT_MS,
+      label: 'API_TIMEOUT_MS',
       joi: Joi.number().min(1).default(30000),
     },
     siwfNodeRpcUrl: {
-      value: process.env.SIWF_NODE_RPC_URL,
+      label: 'SIWF_NODE_RPC_URL',
       joi: Joi.string().uri().required(),
     },
     graphEnvironmentType: {
-      value: process.env.GRAPH_ENVIRONMENT_TYPE,
+      label: 'GRAPH_ENVIRONMENT_TYPE',
       joi: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
     },
     siwfUrl: {
-      value: process.env.SIWF_URL,
+      label: 'SIWF_URL',
       joi: Joi.string().uri().default('https://ProjectLibertyLabs.github.io/siwf/v1/ui'),
     },
     siwfV2Url: {
-      value: process.env.SIWF_V2_URL,
+      label: 'SIWF_V2_URL',
       joi: Joi.string().optional().allow(null).allow('').empty('').uri(),
     },
     siwfV2URIValidation: {
-      value: process.env.SIWF_V2_URI_VALIDATION,
+      label: 'SIWF_V2_URI_VALIDATION',
       joi: Joi.custom((value, helpers) => {
         if (value === undefined || value === '') {
           return undefined; // treat unset/empty as undefined
@@ -82,11 +82,11 @@ export default registerAs('account-api', (): IAccountApiConfig => {
       })
         .messages({
           'any.invalid':
-            'Must be a URI string or a JSON array of URI strings (allowing "localhost", excluding empty strings inside arrays)',
+            '{{#label}} must be a URI string or a JSON array of URI strings (allowing "localhost", excluding empty strings inside arrays)',
         })
         .optional(),
     },
-  };
+  });
 
   return JoiUtils.validate<IAccountApiConfig>(configs);
 });

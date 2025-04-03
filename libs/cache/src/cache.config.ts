@@ -1,5 +1,4 @@
 import { JoiUtils } from '#config';
-import { normalizeConfigNames } from '#config/joi-utils';
 import { registerAs } from '@nestjs/config';
 import { RedisOptions } from 'ioredis';
 import { parseURL } from 'ioredis/built/utils';
@@ -18,7 +17,7 @@ const DEFAULT_REDIS_OPTIONS: RedisOptions = {
 };
 
 export default registerAs('cache', (): ICacheConfig => {
-  const configs: JoiUtils.JoiConfig<CacheValidationOptions> = normalizeConfigNames({
+  const configs: JoiUtils.JoiConfig<CacheValidationOptions> = JoiUtils.normalizeConfigNames({
     redisUrl: {
       label: 'REDIS_URL',
       joi: Joi.string().uri().optional(),

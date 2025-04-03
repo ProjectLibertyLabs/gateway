@@ -13,33 +13,33 @@ export interface IContentPublishingApiConfig {
 }
 
 export default registerAs('content-publishing-api', (): IContentPublishingApiConfig => {
-  const configs: JoiUtils.JoiConfig<IContentPublishingApiConfig> = {
+  const configs: JoiUtils.JoiConfig<IContentPublishingApiConfig> = JoiUtils.normalizeConfigNames({
     apiBodyJsonLimit: {
-      value: process.env.API_BODY_JSON_LIMIT,
+      label: 'API_BODY_JSON_LIMIT',
       joi: Joi.string().default('1mb'),
     },
     apiPort: {
-      value: process.env.API_PORT,
+      label: 'API_PORT',
       joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {
-      value: process.env.API_TIMEOUT_MS,
+      label: 'API_TIMEOUT_MS',
       // uploading files requires us to have a larger default value
       joi: Joi.number().min(1).default(30000),
     },
     fileUploadMaxSizeBytes: {
-      value: process.env.FILE_UPLOAD_MAX_SIZE_IN_BYTES,
+      label: 'FILE_UPLOAD_MAX_SIZE_IN_BYTES',
       joi: Joi.number().min(1).required(),
     },
     fileUploadCountLimit: {
-      value: process.env.FILE_UPLOAD_COUNT_LIMIT,
+      label: 'FILE_UPLOAD_COUNT_LIMIT',
       joi: Joi.number().min(1).required(),
     },
     providerId: {
-      value: process.env.PROVIDER_ID,
+      label: 'PROVIDER_ID',
       joi: JoiUtils.bigintSchema().required(),
     },
-  };
+  });
 
   return JoiUtils.validate<IContentPublishingApiConfig>(configs);
 });

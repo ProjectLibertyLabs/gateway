@@ -3,7 +3,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, Module } from '@nestjs/common';
-import queueConfig, { IQueueConfig } from './queue.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { IQueueModuleOptions } from './queue.interfaces';
 
 @Module({})
@@ -11,12 +11,12 @@ export class QueueModule {
   static forRoot(options: IQueueModuleOptions): DynamicModule {
     const imports = [
       BullModule.forRootAsync({
-        useFactory: (queueConf: IQueueConfig) => ({
+        useFactory: (cacheConf: ICacheConfig) => ({
           ...options?.config,
-          connection: options?.config?.connection || queueConf.redisConnectionOptions,
-          prefix: options?.config?.prefix || `${queueConf.cacheKeyPrefix}:bull`,
+          connection: options?.config?.connection || cacheConf.redisOptions,
+          prefix: options?.config?.prefix || `${cacheConf.cacheKeyPrefix}:bull`,
         }),
-        inject: [queueConfig.KEY],
+        inject: [cacheConfig.KEY],
       }),
       BullModule.registerQueue(...options.queues),
     ];

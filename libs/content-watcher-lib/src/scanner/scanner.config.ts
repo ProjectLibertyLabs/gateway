@@ -8,16 +8,16 @@ export interface IScannerConfig {
 }
 
 export default registerAs('scanner', (): IScannerConfig => {
-  const configs: JoiUtils.JoiConfig<IScannerConfig> = {
+  const configs: JoiUtils.JoiConfig<IScannerConfig> = JoiUtils.normalizeConfigNames({
     blockchainScanIntervalSeconds: {
-      value: process.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS,
+      label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(6),
     },
     queueHighWater: {
-      value: process.env.QUEUE_HIGH_WATER,
+      label: 'QUEUE_HIGH_WATER',
       joi: Joi.number().min(100).default(1000),
     },
-  };
+  });
 
   return JoiUtils.validate<IScannerConfig>(configs);
 });

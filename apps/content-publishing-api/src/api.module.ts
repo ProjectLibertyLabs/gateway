@@ -11,7 +11,6 @@ import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
@@ -27,7 +26,7 @@ import { IPFSStorageModule } from '#storage';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, allowReadOnly, cacheConfig, queueConfig, ipfsConfig, httpCommonConfig],
+      load: [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonConfig],
     }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
@@ -52,7 +51,6 @@ import { IPFSStorageModule } from '#storage';
       useFactory: (cacheConf: ICacheConfig) => [
         {
           ...cacheConf.redisOptions,
-          url: cacheConf.redisUrl,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
       ],

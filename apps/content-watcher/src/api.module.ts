@@ -11,7 +11,6 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
-import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
@@ -31,7 +30,6 @@ import httpCommonConfig from '#config/http-common.config';
         apiConfig,
         noProviderBlockchainConfig,
         cacheConfig,
-        queueConfig,
         ipfsConfig,
         scannerConfig,
         pubsubConfig,
@@ -47,9 +45,7 @@ import httpCommonConfig from '#config/http-common.config';
     IPFSProcessorModule,
     PubSubModule,
     CacheModule.forRootAsync({
-      useFactory: (conf: ICacheConfig) => [
-        { ...conf.redisOptions, url: conf.redisUrl, keyPrefix: conf.cacheKeyPrefix },
-      ],
+      useFactory: (conf: ICacheConfig) => [{ ...conf.redisOptions, keyPrefix: conf.cacheKeyPrefix }],
       inject: [cacheConfig.KEY],
     }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),

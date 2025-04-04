@@ -50,29 +50,16 @@ COMPOSE_CMD=$( prefix_postfix_values "${COMPOSE_FILES}" "-f ")
 PROFILE_CMD=$( prefix_postfix_values "${PROFILES}" "--profile ")
 
 # Shutting down any running services
-${OUTPUT} "Shutting down any running services..."
-docker compose ${COMPOSE_CMD} ${PROFILE_CMD} down
-
+VOLUMES=
+VOLUMES_MSG=
 # Ask the user if they want to remove specified volumes
 if yesno "Do you want to remove specified volumes to remove all state and start fresh" N
 then
-    echo "Removing specified volumes..."
-    # Docker volume names are lowercase versions of the directory name
-    # In the root directory of the repository, we get from the system directory name
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_redis_data
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_ipfs_data
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_account_api_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_account_worker_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_graph_api_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_graph_worker_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_publishing_api_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_publishing_worker_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_content_watcher_node_cache
-    docker volume rm -f ${COMPOSE_PROJECT_NAME}_gateway_base_node_cache
-    if [[ ! $TESTNET_ENV == "true" ]]
-    then
-        docker volume rm -f ${COMPOSE_PROJECT_NAME}_chainstorage
-    fi
+    VOLUMES="--volumes"
+    VOLUMES_MSG=" and removing all volumes"
 else
     ${OUTPUT} "Leaving Docker volumes alone."
 fi
+
+${OUTPUT} "Shutting down any running services${VOLUMES_MSG}..."
+docker compose ${COMPOSE_CMD} ${PROFILE_CMD} down ${VOLUMES}

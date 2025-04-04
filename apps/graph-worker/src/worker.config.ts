@@ -8,16 +8,16 @@ export interface IGraphWorkerConfig {
 }
 
 export default registerAs('graph-worker', (): IGraphWorkerConfig => {
-  const configs: JoiUtils.JoiConfig<IGraphWorkerConfig> = {
+  const configs: JoiUtils.JoiConfig<IGraphWorkerConfig> = JoiUtils.normalizeConfigNames({
     webhookFailureThreshold: {
-      value: process.env.WEBHOOK_FAILURE_THRESHOLD,
+      label: 'WEBHOOK_FAILURE_THRESHOLD',
       joi: Joi.number().min(1).default(3),
     },
     webhookRetryIntervalSeconds: {
-      value: process.env.WEBHOOK_RETRY_INTERVAL_SECONDS,
+      label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(10),
     },
-  };
+  });
 
   Object.keys(process.env)
     .filter((key) => /_QUEUE_WORKER_CONCURRENCY/.test(key))
@@ -25,7 +25,7 @@ export default registerAs('graph-worker', (): IGraphWorkerConfig => {
       const queueName = key.replace(/_QUEUE_WORKER_CONCURRENCY/, '');
       configs[`${queueName}QueueWorkerConcurrency`] = {
         value: process.env[key],
-        joi: Joi.number().max(250).min(1),
+        joi: Joi.number().max(250).min(1).label(key),
       };
     });
 

@@ -3,8 +3,6 @@
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import cacheConfig, { ICacheConfig } from './cache.config';
 import configSetup from '#testlib/utils.config-tests';
-import { url } from 'inspector';
-import { urlencoded } from 'express';
 
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<ICacheConfig>(cacheConfig);
 

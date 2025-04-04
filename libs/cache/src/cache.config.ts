@@ -5,7 +5,6 @@ import { parseURL } from 'ioredis/built/utils';
 import Joi from 'joi';
 
 export interface ICacheConfig {
-  // redisUrl: string;
   cacheKeyPrefix: string;
   redisOptions: RedisOptions;
 }

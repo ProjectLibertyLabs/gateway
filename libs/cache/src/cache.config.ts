@@ -12,7 +12,7 @@ export interface ICacheConfig {
 type CacheValidationOptions = ICacheConfig & { redisUrl: string };
 
 const DEFAULT_REDIS_OPTIONS: RedisOptions = {
-  commandTimeout: 10_000,
+  commandTimeout: 25_000,
 };
 
 export default registerAs('cache', (): ICacheConfig => {

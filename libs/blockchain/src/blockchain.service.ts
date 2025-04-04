@@ -241,7 +241,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);
-    const era = this.api.createType('ExtrinsicEra', { current: blockHash, period: this.defaultMortalityPeriod });
+    const era = this.api.createType('ExtrinsicEra', { current: block.number, period: this.defaultMortalityPeriod });
     try {
       this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
       const txHash = await extrinsic.signAndSend(keys, { nonce, blockHash, era });

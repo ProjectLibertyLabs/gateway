@@ -11,7 +11,9 @@ import {
   WatchGraphsDto,
   GraphsQueryParamsDto,
   UserGraphDto,
+  GraphsQueryAllParamsDto,
 } from '#types/dtos/graph';
+import { PrivacyType, ConnectionType } from '@projectlibertylabs/graph-sdk';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import {
@@ -220,6 +222,48 @@ export class ApiService implements BeforeApplicationShutdown {
       }
     }
     return graphs;
+  }
+
+
+  async getAllGraphsForMsaId(query: GraphsQueryAllParamsDto): Promise<{
+    publicFollowGraph?: UserGraphDto;
+    privateFollowGraph?: UserGraphDto;
+    privateFriendshipGraph?: UserGraphDto;
+  }> {
+    const results: any = {};
+
+    if (query.includePublicFollow) {
+      [results.publicFollowGraph] = await this.getGraphs({
+        dsnpIds: [query.dsnpId],
+        privacyType: PrivacyType.Public,
+        connectionType: ConnectionType.Follow,
+      });
+    }
+
+    if (query.includePrivateFollow || query.includePrivateFriendship) {
+      // Convert single key pair to array for compatibility
+      const keyPairs = query.graphKeyPair ? [query.graphKeyPair] : [];
+
+      if (query.includePrivateFollow) {
+        [results.privateFollowGraph] = await this.getGraphs({
+          dsnpIds: [query.dsnpId],
+          privacyType: PrivacyType.Private,
+          connectionType: ConnectionType.Follow,
+          graphKeyPairs: keyPairs,
+        });
+      }
+
+      if (query.includePrivateFriendship) {
+        [results.privateFriendshipGraph] = await this.getGraphs({
+          dsnpIds: [query.dsnpId],
+          privacyType: PrivacyType.Private,
+          connectionType: ConnectionType.Friendship,
+          graphKeyPairs: keyPairs,
+        });
+      }
+    }
+
+    return results;
   }
 
   // eslint-disable-next-line class-methods-use-this

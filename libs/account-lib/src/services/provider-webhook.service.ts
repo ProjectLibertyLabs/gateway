@@ -40,6 +40,60 @@ export class ProviderWebhookService implements OnModuleDestroy {
       timeout: httpConfig.httpResponseTimeoutMS,
     });
 
+    // Add request interceptor for logging
+    this.webhook.interceptors.request.use(
+      (config) => {
+        this.logger.debug(`[Provider] Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+        this.logger.debug('[Provider] Request config:', {
+          method: config.method,
+          url: config.url,
+          timeout: config.timeout,
+          headers: config.headers,
+          data: config.data
+        });
+        return config;
+      },
+      (error) => {
+        this.logger.error('[Provider] Request interceptor error:', error);
+        return Promise.reject(error);
+      }
+    );
+
+    // Add response interceptor for logging
+    this.webhook.interceptors.response.use(
+      (response) => {
+        this.logger.debug(`[Provider] Response received for ${response.config.method?.toUpperCase()} ${response.config.url}`);
+        this.logger.debug('[Provider] Response details:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          data: response.data
+        });
+        return response;
+      },
+      (error) => {
+        if (axios.isAxiosError(error)) {
+          this.logger.error('[Provider] Response interceptor error:');
+          this.logger.error(`- Message: ${error.message}`);
+          this.logger.error(`- Code: ${error.code}`);
+          this.logger.error(`- Status: ${error.response?.status}`);
+          this.logger.error(`- Status Text: ${error.response?.statusText}`);
+          this.logger.error('- Request Config:', {
+            method: error.config?.method,
+            url: error.config?.url,
+            timeout: error.config?.timeout,
+            headers: error.config?.headers
+          });
+          if (error.response?.data) {
+            this.logger.error('- Response Data:', error.response.data);
+          }
+        } else {
+          this.logger.error('[Provider] Non-Axios Error:', error);
+        }
+        return Promise.reject(error);
+      }
+    );
+
     this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
   }
 
@@ -50,8 +104,36 @@ export class ProviderWebhookService implements OnModuleDestroy {
   private async checkProviderWebhook() {
     // Check webhook
     try {
-      // eslint-disable-next-line no-await-in-loop
-      await this.webhook.get(`/health`);
+      this.logger.debug(`[Provider] Making health check GET request to: ${this.config.webhookBaseUrl}/health`);
+      this.logger.debug(`[Provider] Timeout setting: ${this.webhook.defaults.timeout}ms`);
+      
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const response = await this.webhook.get(`/health`);
+        this.logger.debug(`[Provider] Health check successful`);
+        this.logger.debug(`[Provider] Response status: ${response.status}`);
+      } catch (error) {
+        this.logger.error(`[Provider] Health check failed`);
+        if (axios.isAxiosError(error)) {
+          this.logger.error('[Provider] Axios Error Details:');
+          this.logger.error(`- Message: ${error.message}`);
+          this.logger.error(`- Code: ${error.code}`);
+          this.logger.error(`- Status: ${error.response?.status}`);
+          this.logger.error(`- Status Text: ${error.response?.statusText}`);
+          this.logger.error('- Request Config:', {
+            method: error.config?.method,
+            url: error.config?.url,
+            timeout: error.config?.timeout,
+            headers: error.config?.headers
+          });
+          if (error.response?.data) {
+            this.logger.error('- Response Data:', error.response.data);
+          }
+        } else {
+          this.logger.error('[Provider] Non-Axios Error:', error);
+        }
+        throw error;
+      }
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;
     } catch (e) {

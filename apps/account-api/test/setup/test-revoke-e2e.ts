@@ -26,7 +26,34 @@ async function revokeDelegation() {
   const { keypair } = users[1];
   const accountId = keypair.address;
   const getPath: string = `http:/localhost:3013/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
-  const response = await axios.get(getPath);
+  console.log(`[Test] Making GET request to: ${getPath}`);
+  let response;
+  try {
+    response = await axios.get(getPath);
+    console.log(`[Test] GET request successful`);
+    console.log(`[Test] Response status: ${response.status}`);
+  } catch (error) {
+    console.error(`[Test] GET request failed to: ${getPath}`);
+    if (axios.isAxiosError(error)) {
+      console.error('[Test] Axios Error Details:');
+      console.error(`- Message: ${error.message}`);
+      console.error(`- Code: ${error.code}`);
+      console.error(`- Status: ${error.response?.status}`);
+      console.error(`- Status Text: ${error.response?.statusText}`);
+      console.error('- Request Config:', {
+        method: error.config?.method,
+        url: error.config?.url,
+        timeout: error.config?.timeout,
+        headers: error.config?.headers
+      });
+      if (error.response?.data) {
+        console.error('- Response Data:', error.response.data);
+      }
+    } else {
+      console.error('[Test] Non-Axios Error:', error);
+    }
+    throw error;
+  }
   const revokeDelegationPayloadResponse = response.data;
   console.log(`RevokeDelegationPayloadResponse = ${JSON.stringify(revokeDelegationPayloadResponse)}`);
 
@@ -46,7 +73,34 @@ async function revokeDelegation() {
   console.log(`revokeDelegationRequest = ${JSON.stringify(revokeDelegationRequest)}`);
 
   const postPath = 'http:/localhost:3013/v1/delegation/revokeDelegation';
-  await axios.post(postPath, revokeDelegationRequest);
+  console.log(`[Test] Making POST request to: ${postPath}`);
+  console.log(`[Test] Request payload:`, revokeDelegationRequest);
+  try {
+    const response = await axios.post(postPath, revokeDelegationRequest);
+    console.log(`[Test] POST request successful`);
+    console.log(`[Test] Response status: ${response.status}`);
+  } catch (error) {
+    console.error(`[Test] POST request failed to: ${postPath}`);
+    if (axios.isAxiosError(error)) {
+      console.error('[Test] Axios Error Details:');
+      console.error(`- Message: ${error.message}`);
+      console.error(`- Code: ${error.code}`);
+      console.error(`- Status: ${error.response?.status}`);
+      console.error(`- Status Text: ${error.response?.statusText}`);
+      console.error('- Request Config:', {
+        method: error.config?.method,
+        url: error.config?.url,
+        timeout: error.config?.timeout,
+        headers: error.config?.headers
+      });
+      if (error.response?.data) {
+        console.error('- Response Data:', error.response.data);
+      }
+    } else {
+      console.error('[Test] Non-Axios Error:', error);
+    }
+    throw error;
+  }
 }
 
 main()

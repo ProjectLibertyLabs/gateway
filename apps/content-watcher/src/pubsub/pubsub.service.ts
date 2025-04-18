@@ -59,7 +59,36 @@ export class PubSubService {
             this.logger.debug(`Sending announcement to webhook: ${webhookUrl}`);
             this.logger.debug(`Announcement: ${JSON.stringify(message)}`);
             // eslint-disable-next-line no-await-in-loop
-            await axios.post(webhookUrl, message, { timeout: this.httpConfig.httpResponseTimeoutMS });
+            this.logger.debug(`[PubSub] Sending message to webhook: ${webhookUrl}`);
+            this.logger.debug(`[PubSub] Request payload:`, message);
+            this.logger.debug(`[PubSub] Timeout setting: ${this.httpConfig.httpResponseTimeoutMS}ms`);
+            
+            try {
+              await axios.post(webhookUrl, message, { timeout: this.httpConfig.httpResponseTimeoutMS });
+              this.logger.debug(`[PubSub] Message sent successfully to webhook: ${webhookUrl}`);
+            } catch (error) {
+              this.logger.error(`[PubSub] Failed to send message to webhook: ${webhookUrl}`);
+              
+              if (axios.isAxiosError(error)) {
+                this.logger.error('[PubSub] Axios Error Details:');
+                this.logger.error(`- Message: ${error.message}`);
+                this.logger.error(`- Code: ${error.code}`);
+                this.logger.error(`- Status: ${error.response?.status}`);
+                this.logger.error(`- Status Text: ${error.response?.statusText}`);
+                this.logger.error(`- Request Config:`, {
+                  method: error.config?.method,
+                  url: error.config?.url,
+                  timeout: error.config?.timeout,
+                  headers: error.config?.headers
+                });
+                if (error.response?.data) {
+                  this.logger.error(`- Response Data:`, error.response.data);
+                }
+              } else {
+                this.logger.error('[PubSub] Non-Axios Error:', error);
+              }
+              throw error; // Re-throw to be handled by caller
+            }
             this.logger.debug(`Announcement sent to webhook: ${webhookUrl}`);
             break;
           } catch (error) {

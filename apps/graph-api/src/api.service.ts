@@ -10,7 +10,10 @@ import {
   GraphChangeResponseDto,
   WatchGraphsDto,
   GraphsQueryParamsDto,
+  GraphsQueryAllParamsDto,
   UserGraphDto,
+  PrivacyType,
+  ConnectionType,
 } from '#types/dtos/graph';
 import { ProviderGraphUpdateJob } from '#types/interfaces/graph';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
@@ -221,6 +224,51 @@ export class ApiService implements BeforeApplicationShutdown {
     }
     return graphs;
   }
+
+  async getAllGraphsForMsaId(
+    query: GraphsQueryAllParamsDto
+  ): Promise<{
+    publicFollowGraph?: UserGraphDto,
+    privateFollowGraph?: UserGraphDto,
+    privateFriendshipGraph?: UserGraphDto
+  }> {
+    const results: any = {};
+    
+    if (query.includePublicFollow) {
+      results.publicFollowGraph = (await this.getGraphs({
+        dsnpIds: [query.dsnpId],
+        privacyType: PrivacyType.Public,
+        connectionType: ConnectionType.Follow
+      }))[0];
+    }
+  
+    if (query.includePrivateFollow || query.includePrivateFriendship) {
+      // Convert single key pair to array for compatibility
+      const keyPairs = query.graphKeyPair ? [query.graphKeyPair] : [];
+  
+      if (query.includePrivateFollow) {
+        results.privateFollowGraph = (await this.getGraphs({
+          dsnpIds: [query.dsnpId],
+          privacyType: PrivacyType.Private,
+          connectionType: ConnectionType.Follow,
+          graphKeyPairs: keyPairs
+        }))[0];
+      }
+  
+      if (query.includePrivateFriendship) {
+        results.privateFriendshipGraph = (await this.getGraphs({
+          dsnpIds: [query.dsnpId],
+          privacyType: PrivacyType.Private,
+          connectionType: ConnectionType.Friendship,
+          graphKeyPairs: keyPairs
+        }))[0];
+      }
+    }
+  
+    return results;
+  }
+
+
 
   // eslint-disable-next-line class-methods-use-this
   private calculateJobId(jobWithoutId: ProviderGraphDto): string {

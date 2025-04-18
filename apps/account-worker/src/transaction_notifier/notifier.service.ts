@@ -233,15 +233,42 @@ export class TxnNotifierService
           let retries = 0;
           while (retries < this.config.healthCheckMaxRetries) {
             try {
-              this.logger.debug(`Sending transaction notification to webhook: ${webhook}`);
-              this.logger.debug(`Transaction: ${JSON.stringify(webhookResponse)}`);
+              this.logger.debug(`[Attempt ${retries + 1}] Sending transaction notification to webhook: ${webhook}`);
+              this.logger.debug(`Request payload: ${JSON.stringify(webhookResponse)}`);
+              this.logger.debug(`Timeout setting: ${this.httpConfig.httpResponseTimeoutMS}ms`);
+              
               await axios.post(webhook, webhookResponse, { timeout: this.httpConfig.httpResponseTimeoutMS });
               this.logger.debug(`Transaction Notification sent to webhook: ${webhook}`);
               break;
             } catch (error) {
-              this.logger.error(`Failed to send notification to webhook: ${webhook}`);
-              this.logger.error(error);
+              this.logger.error(`[Attempt ${retries + 1}] Failed to send notification to webhook: ${webhook}`);
+              
+              if (axios.isAxiosError(error)) {
+                this.logger.error('Axios Error Details:');
+                this.logger.error(`- Message: ${error.message}`);
+                this.logger.error(`- Code: ${error.code}`);
+                this.logger.error(`- Status: ${error.response?.status}`);
+                this.logger.error(`- Status Text: ${error.response?.statusText}`);
+                this.logger.error(`- Request Config:`, {
+                  method: error.config?.method,
+                  url: error.config?.url,
+                  timeout: error.config?.timeout,
+                  headers: error.config?.headers
+                });
+                if (error.response?.data) {
+                  this.logger.error(`- Response Data:`, error.response.data);
+                }
+              } else {
+                this.logger.error('Non-Axios Error:', error);
+              }
+              
               retries += 1;
+              if (retries < this.config.healthCheckMaxRetries) {
+                this.logger.debug(`Will retry in 1 second... (${this.config.healthCheckMaxRetries - retries} attempts remaining)`);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+              } else {
+                this.logger.error(`Max retries (${this.config.healthCheckMaxRetries}) reached for webhook: ${webhook}`);
+              }
             }
           }
         } else {

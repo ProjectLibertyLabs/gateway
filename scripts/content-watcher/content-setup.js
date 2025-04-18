@@ -57,7 +57,36 @@ const apiUrl = 'http://localhost:3001/api';
 
 const postBroadcast = async (dsnpUserId, content) => {
   try {
-    const response = await axios.post(`${apiUrl}/content/${dsnpUserId}/broadcast`, content);
+    const url = `${apiUrl}/content/${dsnpUserId}/broadcast`;
+    console.log(`[Setup] Making POST request to: ${url}`);
+    console.log(`[Setup] Request payload:`, content);
+    try {
+      const response = await axios.post(url, content);
+      console.log(`[Setup] POST request successful`);
+      console.log(`[Setup] Response status: ${response.status}`);
+      return response;
+    } catch (error) {
+      console.error(`[Setup] POST request failed to: ${url}`);
+      if (axios.isAxiosError(error)) {
+        console.error('[Setup] Axios Error Details:');
+        console.error(`- Message: ${error.message}`);
+        console.error(`- Code: ${error.code}`);
+        console.error(`- Status: ${error.response?.status}`);
+        console.error(`- Status Text: ${error.response?.statusText}`);
+        console.error('- Request Config:', {
+          method: error.config?.method,
+          url: error.config?.url,
+          timeout: error.config?.timeout,
+          headers: error.config?.headers
+        });
+        if (error.response?.data) {
+          console.error('- Response Data:', error.response.data);
+        }
+      } else {
+        console.error('[Setup] Non-Axios Error:', error);
+      }
+      throw error;
+    }
     return response.data;
   } catch (error) {
     console.error('Error posting broadcast:', error.message);
@@ -67,7 +96,36 @@ const postBroadcast = async (dsnpUserId, content) => {
 
 const postReply = async (dsnpUserId, content) => {
   try {
-    const response = await axios.post(`${apiUrl}/content/${dsnpUserId}/reply`, content);
+    const url = `${apiUrl}/content/${dsnpUserId}/reply`;
+    console.log(`[Setup] Making POST request to: ${url}`);
+    console.log(`[Setup] Request payload:`, content);
+    try {
+      const response = await axios.post(url, content);
+      console.log(`[Setup] POST request successful`);
+      console.log(`[Setup] Response status: ${response.status}`);
+      return response;
+    } catch (error) {
+      console.error(`[Setup] POST request failed to: ${url}`);
+      if (axios.isAxiosError(error)) {
+        console.error('[Setup] Axios Error Details:');
+        console.error(`- Message: ${error.message}`);
+        console.error(`- Code: ${error.code}`);
+        console.error(`- Status: ${error.response?.status}`);
+        console.error(`- Status Text: ${error.response?.statusText}`);
+        console.error('- Request Config:', {
+          method: error.config?.method,
+          url: error.config?.url,
+          timeout: error.config?.timeout,
+          headers: error.config?.headers
+        });
+        if (error.response?.data) {
+          console.error('- Response Data:', error.response.data);
+        }
+      } else {
+        console.error('[Setup] Non-Axios Error:', error);
+      }
+      throw error;
+    }
     return response.data;
   } catch (error) {
     console.error('Error posting reply:', error.message);
@@ -77,7 +135,36 @@ const postReply = async (dsnpUserId, content) => {
 
 const postReaction = async (dsnpUserId, reaction) => {
   try {
-    const response = await axios.post(`${apiUrl}/content/${dsnpUserId}/reaction`, reaction);
+    const url = `${apiUrl}/content/${dsnpUserId}/reaction`;
+    console.log(`[Setup] Making POST request to: ${url}`);
+    console.log(`[Setup] Request payload:`, reaction);
+    try {
+      const response = await axios.post(url, reaction);
+      console.log(`[Setup] POST request successful`);
+      console.log(`[Setup] Response status: ${response.status}`);
+      return response;
+    } catch (error) {
+      console.error(`[Setup] POST request failed to: ${url}`);
+      if (axios.isAxiosError(error)) {
+        console.error('[Setup] Axios Error Details:');
+        console.error(`- Message: ${error.message}`);
+        console.error(`- Code: ${error.code}`);
+        console.error(`- Status: ${error.response?.status}`);
+        console.error(`- Status Text: ${error.response?.statusText}`);
+        console.error('- Request Config:', {
+          method: error.config?.method,
+          url: error.config?.url,
+          timeout: error.config?.timeout,
+          headers: error.config?.headers
+        });
+        if (error.response?.data) {
+          console.error('- Response Data:', error.response.data);
+        }
+      } else {
+        console.error('[Setup] Non-Axios Error:', error);
+      }
+      throw error;
+    }
     return response.data;
   } catch (error) {
     console.error('Error posting reaction:', error.message);

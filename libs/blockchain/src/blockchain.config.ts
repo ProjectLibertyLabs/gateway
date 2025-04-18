@@ -76,24 +76,24 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         break;
     }
 
-    const configs: JoiUtil.JoiConfig<IBlockchainConfig> = {
+    const configs: JoiUtil.JoiConfig<IBlockchainConfig> = JoiUtil.normalizeConfigNames({
       frequencyTimeoutSecs: {
-        value: process.env.FREQUENCY_TIMEOUT_SECS,
+        label: 'FREQUENCY_TIMEOUT_SECS',
         joi: Joi.number().positive().default(60),
       },
       frequencyApiWsUrl: {
-        value: process.env.FREQUENCY_API_WS_URL,
+        label: 'FREQUENCY_API_WS_URL',
         joi: Joi.string()
           .uri({ scheme: ['http', 'https', 'ws', 'wss'] })
           .required()
           .custom((v) => new URL(v)),
       },
       providerId: {
-        value: process.env.PROVIDER_ID,
+        label: 'PROVIDER_ID',
         joi: providerIdValidation,
       },
       providerSeedPhrase: {
-        value: process.env.PROVIDER_ACCOUNT_SEED_PHRASE,
+        label: 'PROVIDER_ACCOUNT_SEED_PHRASE',
         joi: seedValidation,
       },
       isDeployedReadOnly: {
@@ -101,7 +101,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         joi: readOnlyValidation,
       },
       capacityLimit: {
-        value: process.env.CAPACITY_LIMIT,
+        label: 'CAPACITY_LIMIT',
         joi: Joi.when('isDeployedReadOnly', {
           is: true,
           then: Joi.any().strip(),
@@ -152,7 +152,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
             }),
         }),
       },
-    };
+    });
 
     return JoiUtil.validate(configs);
   });

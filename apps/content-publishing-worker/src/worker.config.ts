@@ -12,32 +12,32 @@ export interface IContentPublishingWorkerConfig {
 }
 
 export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig => {
-  const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = {
+  const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = JoiUtils.normalizeConfigNames({
     blockchainScanIntervalSeconds: {
-      value: process.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS,
+      label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(6),
     },
     trustUnfinalizedBlocks: {
-      value: process.env.TRUST_UNFINALIZED_BLOCKS,
+      label: 'TRUST_UNFINALIZED_BLOCKS',
       joi: Joi.bool().default(false),
     },
     assetExpirationIntervalSeconds: {
-      value: process.env.ASSET_EXPIRATION_INTERVAL_SECONDS,
+      label: 'ASSET_EXPIRATION_INTERVAL_SECONDS',
       joi: Joi.number().min(1).required(),
     },
     assetUploadVerificationDelaySeconds: {
-      value: process.env.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS,
+      label: 'ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS',
       joi: Joi.number().min(1).required(),
     },
     batchIntervalSeconds: {
-      value: process.env.BATCH_INTERVAL_SECONDS,
+      label: 'BATCH_INTERVAL_SECONDS',
       joi: Joi.number().min(1).required(),
     },
     batchMaxCount: {
-      value: process.env.BATCH_MAX_COUNT,
+      label: 'BATCH_MAX_COUNT',
       joi: Joi.number().min(0).required(),
     },
-  };
+  });
 
   Object.keys(process.env)
     .filter((key) => /_QUEUE_WORKER_CONCURRENCY/.test(key))
@@ -45,7 +45,7 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
       const queueName = key.replace(/_QUEUE_WORKER_CONCURRENCY/, '');
       configs[`${queueName}QueueWorkerConcurrency`] = {
         value: process.env[key],
-        joi: Joi.number().max(250).min(1),
+        joi: Joi.number().max(250).min(1).label(key),
       };
     });
 

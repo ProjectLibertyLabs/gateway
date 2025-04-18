@@ -11,7 +11,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
-import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
@@ -21,7 +20,7 @@ import httpConfig from '#config/http-common.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, queueConfig, workerConfig, httpConfig],
+      load: [blockchainConfig, cacheConfig, workerConfig, httpConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -45,11 +44,11 @@ import httpConfig from '#config/http-common.config';
     CacheModule.forRootAsync({
       useFactory: async (blockchainConf: IBlockchainConfig, cacheConf: ICacheConfig) => [
         {
-          url: cacheConf.redisUrl.toString(),
+          ...cacheConf.redisOptions,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
-          url: cacheConf.redisUrl.toString(),
+          ...cacheConf.redisOptions,
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
           keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },

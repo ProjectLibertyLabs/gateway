@@ -8,16 +8,16 @@ export interface IPubSubConfig {
 }
 
 export default registerAs('pubsub', (): IPubSubConfig => {
-  const configs: JoiUtils.JoiConfig<IPubSubConfig> = {
+  const configs: JoiUtils.JoiConfig<IPubSubConfig> = JoiUtils.normalizeConfigNames({
     webhookMaxRetries: {
-      value: process.env.WEBHOOK_FAILURE_THRESHOLD,
+      label: 'WEBHOOK_FAILURE_THRESHOLD',
       joi: Joi.number().min(0).default(3),
     },
     webhookRetryIntervalSeconds: {
-      value: process.env.WEBHOOK_RETRY_INTERVAL_SECONDS,
+      label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(10),
     },
-  };
+  });
 
   return JoiUtils.validate<IPubSubConfig>(configs);
 });

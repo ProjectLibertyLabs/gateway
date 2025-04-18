@@ -19,7 +19,6 @@ import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2
 import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
-import queueConfig from '#queue';
 import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
@@ -27,7 +26,7 @@ import { QueueModule } from '#queue/queue.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig, queueConfig] }),
+    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig] }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -51,7 +50,7 @@ import { QueueModule } from '#queue/queue.module';
       imports: [ConfigModule],
       useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: cacheConf.redisUrl,
+          ...cacheConf.redisOptions,
           keyPrefix: cacheConf.cacheKeyPrefix,
           maxRetriesPerRequest: null,
         },

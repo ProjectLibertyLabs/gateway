@@ -11,7 +11,6 @@ import { RequestProcessorModule } from './request_processor/request.processor.mo
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
-import queueConfig from '#queue';
 import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
@@ -25,17 +24,17 @@ import httpCommonConfig from '#config/http-common.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, queueConfig, ipfsConfig, workerConfig, httpCommonConfig],
+      load: [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig],
     }),
     CacheModule.forRootAsync({
       useFactory: (blockchainConf, cacheConf) => [
         {
-          url: cacheConf.redisUrl.toString(),
+          ...cacheConf.redisOptions,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
         {
+          ...cacheConf.redisOptions,
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          url: cacheConf.redisUrl.toString(),
           keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
         },
       ],

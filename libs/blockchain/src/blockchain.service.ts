@@ -55,11 +55,11 @@ export interface IHeaderInfo {
 
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
-function getNextPossibleNonceKeys(account: string, currentNonce: string | number): string[] {
+function getNextPossibleNonceKeys(currentNonce: string | number): string[] {
   const keys: string[] = [];
   for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
     const key = Number(currentNonce) + i;
-    keys.push(getNonceKey(account, `${key}`));
+    keys.push(getNonceKey(`${key}`));
   }
   return keys;
 }
@@ -241,7 +241,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);
-    const era = this.api.createType('ExtrinsicEra', { current: blockHash, period: this.defaultMortalityPeriod });
+    const era = this.api.createType('ExtrinsicEra', { current: block.number, period: this.defaultMortalityPeriod });
     try {
       this.logger.debug(`Capacity Wrapped Extrinsic: ${JSON.stringify(extrinsic.toHuman())}, nonce: ${nonce}`);
       const txHash = await extrinsic.signAndSend(keys, { nonce, blockHash, era });
@@ -285,13 +285,13 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async reserveNextNonce(): Promise<number> {
-    const currentNonceKey = getNonceKey(this.accountId, 'current');
+    const currentNonceKey = getNonceKey('current');
     let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
     if (!nonce) {
       nonce = await this.getNonce(this.accountId);
       await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS / 2, nonce);
     }
-    const keys = getNextPossibleNonceKeys(this.accountId, nonce);
+    const keys = getNextPossibleNonceKeys(nonce);
     // @ts-ignore
     const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
@@ -304,7 +304,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public unreserveNonce(nonce: number) {
-    return this.nonceRedis.del(getNonceKey(this.accountId, `${nonce}`));
+    return this.nonceRedis.del(getNonceKey(`${nonce}`));
   }
 
   public createTxFromEncoded(encodedTx: any): SubmittableExtrinsic<'promise', ISubmittableResult> {

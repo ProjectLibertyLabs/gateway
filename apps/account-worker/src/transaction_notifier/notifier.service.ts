@@ -236,13 +236,13 @@ export class TxnNotifierService
               this.logger.debug(`[Attempt ${retries + 1}] Sending transaction notification to webhook: ${webhook}`);
               this.logger.debug(`Request payload: ${JSON.stringify(webhookResponse)}`);
               this.logger.debug(`Timeout setting: ${this.httpConfig.httpResponseTimeoutMS}ms`);
-              
+
               await axios.post(webhook, webhookResponse, { timeout: this.httpConfig.httpResponseTimeoutMS });
               this.logger.debug(`Transaction Notification sent to webhook: ${webhook}`);
               break;
             } catch (error) {
               this.logger.error(`[Attempt ${retries + 1}] Failed to send notification to webhook: ${webhook}`);
-              
+
               if (axios.isAxiosError(error)) {
                 this.logger.error('Axios Error Details:');
                 this.logger.error(`- Message: ${error.message}`);
@@ -253,7 +253,7 @@ export class TxnNotifierService
                   method: error.config?.method,
                   url: error.config?.url,
                   timeout: error.config?.timeout,
-                  headers: error.config?.headers
+                  headers: error.config?.headers,
                 });
                 if (error.response?.data) {
                   this.logger.error(`- Response Data:`, error.response.data);
@@ -261,11 +261,15 @@ export class TxnNotifierService
               } else {
                 this.logger.error('Non-Axios Error:', error);
               }
-              
+
               retries += 1;
               if (retries < this.config.healthCheckMaxRetries) {
-                this.logger.debug(`Will retry in 1 second... (${this.config.healthCheckMaxRetries - retries} attempts remaining)`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+                this.logger.debug(
+                  `Will retry in 1 second... (${this.config.healthCheckMaxRetries - retries} attempts remaining)`,
+                );
+                await new Promise((resolve) => {
+                  setTimeout(resolve, 1000);
+                }); // Wait 1 second before retry
               } else {
                 this.logger.error(`Max retries (${this.config.healthCheckMaxRetries}) reached for webhook: ${webhook}`);
               }

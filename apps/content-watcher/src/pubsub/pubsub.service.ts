@@ -62,13 +62,13 @@ export class PubSubService {
             this.logger.debug(`[PubSub] Sending message to webhook: ${webhookUrl}`);
             this.logger.debug(`[PubSub] Request payload:`, message);
             this.logger.debug(`[PubSub] Timeout setting: ${this.httpConfig.httpResponseTimeoutMS}ms`);
-            
+
             try {
               await axios.post(webhookUrl, message, { timeout: this.httpConfig.httpResponseTimeoutMS });
               this.logger.debug(`[PubSub] Message sent successfully to webhook: ${webhookUrl}`);
             } catch (error) {
               this.logger.error(`[PubSub] Failed to send message to webhook: ${webhookUrl}`);
-              
+
               if (axios.isAxiosError(error)) {
                 this.logger.error('[PubSub] Axios Error Details:');
                 this.logger.error(`- Message: ${error.message}`);
@@ -79,7 +79,7 @@ export class PubSubService {
                   method: error.config?.method,
                   url: error.config?.url,
                   timeout: error.config?.timeout,
-                  headers: error.config?.headers
+                  headers: error.config?.headers,
                 });
                 if (error.response?.data) {
                   this.logger.error(`- Response Data:`, error.response.data);

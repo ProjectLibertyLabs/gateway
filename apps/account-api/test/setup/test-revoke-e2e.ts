@@ -44,7 +44,7 @@ async function revokeDelegation() {
         method: error.config?.method,
         url: error.config?.url,
         timeout: error.config?.timeout,
-        headers: error.config?.headers
+        headers: error.config?.headers,
       });
       if (error.response?.data) {
         console.error('- Response Data:', error.response.data);
@@ -76,9 +76,9 @@ async function revokeDelegation() {
   console.log(`[Test] Making POST request to: ${postPath}`);
   console.log(`[Test] Request payload:`, revokeDelegationRequest);
   try {
-    const response = await axios.post(postPath, revokeDelegationRequest);
+    const revokeResponse = await axios.post(postPath, revokeDelegationRequest);
     console.log(`[Test] POST request successful`);
-    console.log(`[Test] Response status: ${response.status}`);
+    console.log(`[Test] Response status: ${revokeResponse.status}`);
   } catch (error) {
     console.error(`[Test] POST request failed to: ${postPath}`);
     if (axios.isAxiosError(error)) {
@@ -91,7 +91,7 @@ async function revokeDelegation() {
         method: error.config?.method,
         url: error.config?.url,
         timeout: error.config?.timeout,
-        headers: error.config?.headers
+        headers: error.config?.headers,
       });
       if (error.response?.data) {
         console.error('- Response Data:', error.response.data);

@@ -319,13 +319,13 @@ export class GraphMonitorService extends BlockchainScannerService {
               this.logger.debug(`[Graph] Sending graph update to webhook: ${webhookUrl}`);
               this.logger.debug(`[Graph] Request payload:`, graphUpdateNotification);
               this.logger.debug(`[Graph] Timeout setting: ${this.httpConf.httpResponseTimeoutMS}ms`);
-              
+
               try {
                 await axios.post(webhookUrl, graphUpdateNotification, { timeout: this.httpConf.httpResponseTimeoutMS });
                 this.logger.debug(`[Graph] Update sent successfully to webhook: ${webhookUrl}`);
               } catch (error) {
                 this.logger.error(`[Graph] Failed to send update to webhook: ${webhookUrl}`);
-                
+
                 if (axios.isAxiosError(error)) {
                   this.logger.error('[Graph] Axios Error Details:');
                   this.logger.error(`- Message: ${error.message}`);
@@ -336,7 +336,7 @@ export class GraphMonitorService extends BlockchainScannerService {
                     method: error.config?.method,
                     url: error.config?.url,
                     timeout: error.config?.timeout,
-                    headers: error.config?.headers
+                    headers: error.config?.headers,
                   });
                   if (error.response?.data) {
                     this.logger.error(`- Response Data:`, error.response.data);

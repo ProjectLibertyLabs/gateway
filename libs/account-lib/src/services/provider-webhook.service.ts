@@ -42,32 +42,36 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
     // Add request interceptor for logging
     this.webhook.interceptors.request.use(
-      (config) => {
-        this.logger.debug(`[Provider] Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`);
+      (requestConfig) => {
+        this.logger.debug(
+          `[Provider] Making ${requestConfig.method?.toUpperCase()} request to: ${requestConfig.baseURL}${requestConfig.url}`,
+        );
         this.logger.debug('[Provider] Request config:', {
-          method: config.method,
-          url: config.url,
-          timeout: config.timeout,
-          headers: config.headers,
-          data: config.data
+          method: requestConfig.method,
+          url: requestConfig.url,
+          timeout: requestConfig.timeout,
+          headers: requestConfig.headers,
+          data: requestConfig.data,
         });
-        return config;
+        return requestConfig;
       },
       (error) => {
         this.logger.error('[Provider] Request interceptor error:', error);
         return Promise.reject(error);
-      }
+      },
     );
 
     // Add response interceptor for logging
     this.webhook.interceptors.response.use(
       (response) => {
-        this.logger.debug(`[Provider] Response received for ${response.config.method?.toUpperCase()} ${response.config.url}`);
+        this.logger.debug(
+          `[Provider] Response received for ${response.config.method?.toUpperCase()} ${response.config.url}`,
+        );
         this.logger.debug('[Provider] Response details:', {
           status: response.status,
           statusText: response.statusText,
           headers: response.headers,
-          data: response.data
+          data: response.data,
         });
         return response;
       },
@@ -82,7 +86,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
             method: error.config?.method,
             url: error.config?.url,
             timeout: error.config?.timeout,
-            headers: error.config?.headers
+            headers: error.config?.headers,
           });
           if (error.response?.data) {
             this.logger.error('- Response Data:', error.response.data);
@@ -91,7 +95,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
           this.logger.error('[Provider] Non-Axios Error:', error);
         }
         return Promise.reject(error);
-      }
+      },
     );
 
     this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
@@ -106,7 +110,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
     try {
       this.logger.debug(`[Provider] Making health check GET request to: ${this.config.webhookBaseUrl}/health`);
       this.logger.debug(`[Provider] Timeout setting: ${this.webhook.defaults.timeout}ms`);
-      
+
       try {
         // eslint-disable-next-line no-await-in-loop
         const response = await this.webhook.get(`/health`);
@@ -124,7 +128,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
             method: error.config?.method,
             url: error.config?.url,
             timeout: error.config?.timeout,
-            headers: error.config?.headers
+            headers: error.config?.headers,
           });
           if (error.response?.data) {
             this.logger.error('- Response Data:', error.response.data);

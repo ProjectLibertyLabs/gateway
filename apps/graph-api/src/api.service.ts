@@ -224,7 +224,6 @@ export class ApiService implements BeforeApplicationShutdown {
     return graphs;
   }
 
-
   async getAllGraphsForMsaId(query: GraphsQueryAllParamsDto): Promise<{
     publicFollowGraph?: UserGraphDto;
     privateFollowGraph?: UserGraphDto;

@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-import { AnnouncementResponseDto, BatchFilesDto, OnChainContentDto, TombstoneDto } from '#types/dtos/content-publishing';
+import {
+  AnnouncementResponseDto,
+  BatchFilesDto,
+  OnChainContentDto,
+  TombstoneDto,
+} from '#types/dtos/content-publishing';
 import { AnnouncementTypeName } from '#types/enums';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { MsaIdDto } from '#types/dtos/common';

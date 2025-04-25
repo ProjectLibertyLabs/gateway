@@ -77,7 +77,10 @@ export class ContentControllerV2 {
   @ApiOperation({ summary: 'Delete DSNP Content for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async delete(@Param() { msaId }: MsaIdDto, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {
+  async postTombstone(
+    @Param() { msaId }: MsaIdDto,
+    @Body() tombstoneDto: TombstoneDto,
+  ): Promise<AnnouncementResponseDto> {
     return this.apiService.enqueueRequest(AnnouncementTypeName.TOMBSTONE, msaId, tombstoneDto);
   }
 }

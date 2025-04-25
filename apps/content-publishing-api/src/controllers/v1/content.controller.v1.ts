@@ -58,7 +58,10 @@ export class ContentControllerV1 {
   }
 
   @Delete(':msaId')
-  @ApiOperation({ summary: 'Delete DSNP Content for user [deprecated; use `POST /v2/asset/upload` instead]', deprecated: true })
+  @ApiOperation({
+    summary: 'Delete DSNP Content for user [deprecated; use `POST /v2/content/{msaId}/tombstones` instead]',
+    deprecated: true,
+  })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async delete(@Param() { msaId }: MsaIdDto, @Body() tombstoneDto: TombstoneDto): Promise<AnnouncementResponseDto> {

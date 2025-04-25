@@ -9,20 +9,20 @@ export interface IContentWatcherApiConfig {
 }
 
 export default registerAs('content-watcher-api', (): IContentWatcherApiConfig => {
-  const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = {
+  const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = JoiUtils.normalizeConfigNames({
     apiBodyJsonLimit: {
-      value: process.env.API_BODY_JSON_LIMIT,
+      label: 'API_BODY_JSON_LIMIT',
       joi: Joi.string().default('1mb'),
     },
     apiPort: {
-      value: process.env.API_PORT,
+      label: 'API_PORT',
       joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {
-      value: process.env.API_TIMEOUT_MS,
+      label: 'API_TIMEOUT_MS',
       joi: Joi.number().min(1).default(30000),
     },
-  };
+  });
 
   Object.keys(process.env)
     .filter((key) => /_QUEUE_WORKER_CONCURRENCY/.test(key))
@@ -30,7 +30,7 @@ export default registerAs('content-watcher-api', (): IContentWatcherApiConfig =>
       const queueName = key.replace(/_QUEUE_WORKER_CONCURRENCY/, '');
       configs[`${queueName}QueueWorkerConcurrency`] = {
         value: process.env[key],
-        joi: Joi.number().max(250).min(1),
+        joi: Joi.number().max(250).min(1).label(key),
       };
     });
 

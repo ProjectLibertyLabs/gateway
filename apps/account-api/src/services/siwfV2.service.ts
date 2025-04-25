@@ -133,6 +133,7 @@ export class SiwfV2Service {
       try {
         // Await here so the error is caught
         payload = await validateSiwfResponse(request.authorizationPayload, loginMsgURIValidation);
+        this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
       } catch (e) {
         this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
@@ -144,6 +145,9 @@ export class SiwfV2Service {
           endpoint: this.swifV2Endpoint(),
           loginMsgUri: loginMsgURIValidation,
         });
+        this.logger.debug(
+          `Retrieved payload from SIWFv2 for authorizationCode '${request.authorizationCode}' (${payload.userPublicKey.encodedValue})`,
+        );
       } catch (e) {
         this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e.toString() });
         throw new BadRequestException('Invalid response from `authorizationCode` payload fetch.');
@@ -173,16 +177,19 @@ export class SiwfV2Service {
       }
     }
 
+    this.logger.verbose(`Payload: ${JSON.stringify(payload)}`);
     return payload;
   }
 
   async getSiwfV2LoginResponse(payload: SiwfResponse): Promise<WalletV2LoginResponseDto> {
+    this.logger.debug('Generating login response');
     const response = new WalletV2LoginResponseDto();
 
     response.controlKey = payload.userPublicKey.encodedValue;
 
     // Get the MSA Id from the chain, if it exists
     const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
+    this.logger.debug(`Result of MSA check: ${msaId}`);
     if (msaId) response.msaId = msaId;
 
     // Parse out the email, phone, and graph

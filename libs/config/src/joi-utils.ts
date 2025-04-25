@@ -9,25 +9,56 @@ interface IBigIntOptions {
   convert: boolean;
 }
 
-export type JoiConfig<T> = Record<keyof T, ConfigProps>;
+export type JoiConfig<T> = Record<keyof T & 'label', ConfigProps>;
 
 export const bigintSchema = (options?: IBigIntOptions) =>
   Joi.custom((value) => {
-    const strResult = Joi.string().validate(value);
-    if (strResult.error) {
-      throw strResult.error;
+    const result = Joi.alternatives().try(Joi.string(), Joi.number().unsafe().positive()).validate(value);
+    if (result.error) {
+      throw result.error;
     }
 
-    const numResult = Joi.number().unsafe().positive().validate(value);
-    if (numResult.error) {
-      throw numResult.error;
-    }
+    const converted = BigInt(value);
+    return options?.convert ? converted : value;
+  });
 
-    if (options?.convert) {
-      return BigInt(value);
-    }
+export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {
+  const updatedConfig = { ...config };
 
-    return value;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const key in updatedConfig) {
+    if (Object.prototype.hasOwnProperty.call(updatedConfig, key)) {
+      if (updatedConfig[key]?.label) {
+        updatedConfig[key].joi = updatedConfig[key].joi.label(updatedConfig[key].label);
+      }
+
+      if (!updatedConfig[key]?.value) {
+        updatedConfig[key].value = process.env[updatedConfig[key].label];
+      }
+    }
+  }
+
+  return updatedConfig;
+}
+
+export const jsonObjectSchema = Joi.string()
+  .optional()
+  .allow('')
+  .custom((value, helpers) => {
+    let parsed: object;
+    try {
+      parsed = JSON.parse(value) as object;
+      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return helpers.error('jsonObject.nonObject');
+      }
+    } catch (err: any) {
+      return helpers.error('jsonObject.invalid');
+    }
+    return parsed;
+  }, 'Custom JSON parser')
+  .messages({
+    'jsonObject.invalid': '{{#label}} must be a valid JSON string',
+    'jsonObject.nonObject': '{{#label}} must be a valid JSON object string, not an array or primitive',
   });
 
 /**

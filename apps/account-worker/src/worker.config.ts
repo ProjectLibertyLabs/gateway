@@ -15,47 +15,47 @@ export interface IAccountWorkerConfig {
 }
 
 export default registerAs('account-worker', (): IAccountWorkerConfig => {
-  const configs: JoiUtils.JoiConfig<IAccountWorkerConfig> = {
+  const configs: JoiUtils.JoiConfig<IAccountWorkerConfig> = JoiUtils.normalizeConfigNames({
     blockchainScanIntervalSeconds: {
-      value: process.env.BLOCKCHAIN_SCAN_INTERVAL_SECONDS,
+      label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(6),
     },
     healthCheckMaxRetries: {
-      value: process.env.HEALTH_CHECK_MAX_RETRIES,
+      label: 'HEALTH_CHECK_MAX_RETRIES',
       joi: Joi.number().min(0).default(20),
     },
     healthCheckMaxRetryIntervalSeconds: {
-      value: process.env.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS,
+      label: 'HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(64),
     },
     healthCheckSuccessThreshold: {
-      value: process.env.HEALTH_CHECK_SUCCESS_THRESHOLD,
+      label: 'HEALTH_CHECK_SUCCESS_THRESHOLD',
       joi: Joi.number().min(1).default(10),
     },
     providerApiToken: {
-      value: process.env.PROVIDER_ACCESS_TOKEN,
+      label: 'PROVIDER_ACCESS_TOKEN',
       joi: Joi.string().default(''),
     },
     trustUnfinalizedBlocks: {
-      value: process.env.TRUST_UNFINALIZED_BLOCKS,
+      label: 'TRUST_UNFINALIZED_BLOCKS',
       joi: Joi.bool().default(false),
     },
     webhookBaseUrl: {
-      value: process.env.WEBHOOK_BASE_URL,
+      label: 'WEBHOOK_BASE_URL',
       joi: Joi.string()
         .uri()
         .required()
         .custom((v) => new URL(v)),
     },
     webhookFailureThreshold: {
-      value: process.env.WEBHOOK_FAILURE_THRESHOLD,
+      label: 'WEBHOOK_FAILURE_THRESHOLD',
       joi: Joi.number().min(1).default(3),
     },
     webhookRetryIntervalSeconds: {
-      value: process.env.WEBHOOK_RETRY_INTERVAL_SECONDS,
+      label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(10),
     },
-  };
+  });
 
   Object.keys(process.env)
     .filter((key) => /_QUEUE_WORKER_CONCURRENCY/.test(key))
@@ -63,7 +63,7 @@ export default registerAs('account-worker', (): IAccountWorkerConfig => {
       const queueName = key.replace(/_QUEUE_WORKER_CONCURRENCY/, '');
       configs[`${queueName}QueueWorkerConcurrency`] = {
         value: process.env[key],
-        joi: Joi.number().max(250).min(1),
+        joi: Joi.number().max(250).min(1).label(key),
       };
     });
 

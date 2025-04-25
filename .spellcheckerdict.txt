@@ -54,6 +54,7 @@ HTTPS
 IAM
 ie
 [Ii]nfura
+[Ii]oredis
 IPFS('s)?
 ipfs
 JSDoc
@@ -112,6 +113,7 @@ S3-compatible
 scalable
 Schemas
 SDK
+SDKs
 signin
 signup
 SIWF

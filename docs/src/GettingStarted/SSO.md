@@ -13,6 +13,7 @@ Key benefits:
 Resources:
 
 - [SIWF v2 Documentation](https://projectlibertylabs.github.io/siwf/v2/docs)
+- [SIWF v2 SDKs](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Overview.html)
 - [Account Service Documentation](../Build/AccountService/AccountService.md)
 
 ## Setup Tutorial
@@ -23,23 +24,23 @@ In this tutorial, you will set up a Sign In With Frequency button for use with T
 
 Before proceeding, ensure you have completed the following steps:
 
-**Registered as a Provider**  
+**Registered as a Provider**
 Register your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
 
-**Completed the Access Form**  
+**Completed the Access Form**
 Fill out the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
 
-**Set Up a Backend Instance**  
+**Set Up a Backend Instance**
 You need a **backend-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
 
-**Access to a Frequency RPC Node**  
+**Access to a Frequency RPC Node**
 
-- **Public Testnet Node:**  
+- **Public Testnet Node:**
 
   ```plaintext
   wss://0.rpc.testnet.amplica.io
   ```
-  
+
 ## Overview
 
 1. Application creates a signed request SIWF URL that contains a callback URL.
@@ -109,6 +110,22 @@ See list of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/d
 
 ## Step 2: Forward the User for Authentication
 
+### Option A: SIWF Button SDK
+
+The SIWF SDK provides an easy way to use your `signedRequest` and display a button for your users.
+
+The example below is with the SIWF SDK for the Web.
+Guides for Android, iOS that also support handling the callback correctly and more are available [in the SIWF SDK documentation](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Overview.html).
+
+```html
+<!-- Add a button container with data attributes and replace "YOUR_ENCODED_SIGNED_REQUEST" with your "signedRequest" value -->
+<div data-siwf-button="YOUR_ENCODED_SIGNED_REQUEST" data-siwf-mode="primary" data-siwf-endpoint="mainnet"></div>
+<!-- Include the latest version of the script -->
+<script src="https://cdn.jsdelivr.net/npm/@projectlibertylabs/siwf-sdk-web@1.0.1/siwf-sdk-web.min.js"></script>
+```
+
+### Option B: Manually
+
 Redirect the user to the URL obtained from the previous step:
 
 ```javascript
@@ -116,6 +133,7 @@ window.location.href = '"https://testnet.frequencyaccess.com/siwa/start?signedRe
 ```
 
 For mobile applications, use an embedded browser to handle the redirection smoothly with minimal impact on user experience.
+SDKs for [Android](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Android.html) and [iOS](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/iOS.html) are available that handle this part for you.
 
 ## Step 3: Handle the Callback
 

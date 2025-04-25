@@ -100,7 +100,7 @@ export class AccountsControllerV2 {
     const payload = await this.siwfV2Service.getPayload(callbackRequest);
 
     // Validate claim handle transactions to prevent invalid submissions to the blockchain
-    await Promise.all(
+    const handleResults = await Promise.all(
       payload.payloads
         .filter((transaction) => isPayloadClaimHandle(transaction))
         .map(async (claimHandle) => {
@@ -110,6 +110,9 @@ export class AccountsControllerV2 {
           }
         }),
     );
+    if (handleResults.length) {
+      this.logger.debug(`Validated handles (${payload.userPublicKey.encodedValue})`);
+    }
 
     if (hasChainSubmissions(payload) && this.chainConfig.isDeployedReadOnly) {
       throw new ForbiddenException('New account sign-up unavailable in read-only mode');

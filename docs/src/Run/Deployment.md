@@ -201,6 +201,18 @@ docker ps
 docker logs <container-id>
 ```
 
+If a container fails to deploy, and there are no logs, you can use the following command to see the logs from the stack deployment:
+
+```bash
+docker service ps <service-name> --no-trunc
+```
+
+You can find still more information about the service by inspecting the container:
+
+```bash
+docker inspect <container-id>
+```
+
 ---
 
 ## Part 2: Deploying with Kubernetes

@@ -13,7 +13,6 @@ import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
 import { allowReadOnly } from '#blockchain/blockchain.config';
-import queueConfig from '#queue';
 import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
@@ -26,7 +25,7 @@ import { EncryptionService } from '#graph-lib/services/encryption.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, graphCommonConfig, allowReadOnly, cacheConfig, queueConfig, scannerConfig],
+      load: [apiConfig, graphCommonConfig, allowReadOnly, cacheConfig, scannerConfig],
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -50,7 +49,7 @@ import { EncryptionService } from '#graph-lib/services/encryption.service';
     CacheModule.forRootAsync({
       useFactory: (cacheConf: ICacheConfig) => [
         {
-          url: cacheConf.redisUrl,
+          ...cacheConf.redisOptions,
           keyPrefix: cacheConf.cacheKeyPrefix,
         },
       ],

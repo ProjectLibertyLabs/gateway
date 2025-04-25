@@ -6,9 +6,8 @@
 ---
 
 - [Guides](./GettingStarted/README.md)
-    - [Quick Start](./GettingStarted/QuickStart.md)
-    - [Become a Provider](./GettingStarted/BecomeProvider.md)
-    - [Single Sign On](./GettingStarted/SSO.md)
+  - [Become a Provider](./GettingStarted/BecomeProvider.md)
+  - [Single Sign On](./GettingStarted/SSO.md)
 - [Fundamentals](./Fundamentals/README.md)
   - [Blockchain Basics](./Fundamentals/BlockchainBasics.md)
   - [Frequency Networks](./Fundamentals/Networks.md)

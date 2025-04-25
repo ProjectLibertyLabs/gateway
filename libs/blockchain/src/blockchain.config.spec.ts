@@ -31,6 +31,7 @@ describe('Blockchain module config', () => {
 
     it('invalid capacity limit should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'CAPACITY_LIMIT', [
+        '{ badjson }',
         '{ "type": "bad type", "value": 0 }',
         '{ "type": "percentage", "value": -1 }',
         '{ "type": "percentage", "value": 101 }',

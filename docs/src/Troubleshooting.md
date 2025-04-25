@@ -16,7 +16,7 @@ Provider registration is required to setup a Provider on Frequency. This is a on
 
 The Register User flow is the process by which a user registers with a Provider.  This is a one-time process required each time a user signs up with a new Provider.  The user will be able to log in to the Provider's app using the Sign In With Frequency [SIWF](https://github.com/ProjectLibertyLabs/siwf) process.  The user will now be able to interact with the Provider's app.
 
-The Login User flow is the process by which a user logs in to the Provider's app after the user has registered. The user will be able to interact with the Provider's app.
+The Login User flow is the process by which a user logs in to the Provider's app after the user has registered. The user will subsequently be able to interact with the Provider's app.
 
 <!-- This diagram is excerpted from the original here: [Account Service Flow Chart](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/account/account-service-flow.md). Please keep these diagrams in sync.-->
 ```mermaid
@@ -229,7 +229,7 @@ VERBOSE [TxnNotifierService] Successfully found transaction 0xdefab4526e86f83aec
 
 Look in these logs for any errors or warnings. If you see any, they will give you a clue as to what went wrong.
 
-Use the block number to look up the transaction on the [Polkadot blockchain explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F0.rpc.testnet.amplica.io#/explorer).
+Find the block number that corresponds with the error in the log, and then use that block number to look up the transaction on the [Polkadot blockchain explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F0.rpc.testnet.amplica.io#/explorer).
 This will give you more information about the transaction and the error that occurred.
 
 <!-- {{#png-embed ./src/PolkadotBlockExplorer.png Polkadot Block Explorer}} -->
@@ -251,7 +251,25 @@ In the below example, the error index is 60 and the error code is 0. Error index
 
 ![Polkadot Block Explorer Error](./BlockchainError.png)
 
-### Other Debugging Tools
+### Validate Your Deployment
+
+Confirm that Frequency Developer Gateway Services are properly deployed and running. This guide provides examples for using [Docker Swarm](https://projectlibertylabs.github.io/gateway/Run/Deployment.html#part-1-deploying-with-docker-swarm) and [Kubernetes](https://projectlibertylabs.github.io/gateway/Run/Kubernetes.html) in AWS. However, the same principles apply to other deployment methods.
+
+#### Validate Your Services
+
+Gateway depends on a number of [standard services](https://projectlibertylabs.github.io/gateway/Fundamentals/Architecture.html?highlight=Redis#standard-services-gateway-uses) including Redis, BullMQ and IPFS Kubo API.  Each of these services must be correctly configured and deployed within your development environment in order for Gateway to function properly.  As part of this process, you may also wish to double check your [environment variables](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/account/ENVIRONMENT.md).
+
+#### Validating Your IPFS Environment
+
+1. Ensure your [IPFS node](https://projectlibertylabs.github.io/gateway/Run/IPFS.html) is running correctly and check the status of your IPFS node.
+2. For additional management tasks and tests refer to the [IPFS Documentation](https://docs.ipfs.io).
+
+#### Validating Your Redis and BullMQ Environment
+
+1. Inspect all of your container logs, not just the ones pertaining to the API Service.  (Any one of your logs may show a problem with Redis.)  Look for error messages in your logs, specifically related to BullMQ or Redis.
+2. Try to execute a command shell in the container that your service is running in and invoke the Redis command line or ping the Redis node in order to verify your application container has network connectivity to your Redis environment.
+3. Further configuration information may be found in the [environment files](https://github.com/ProjectLibertyLabs/gateway/blob/main/env-files/account.template.env#L36).
+4. If either of these tests fail, you will need to first correct the problems in the Redis environment before you can move forward with Gateway.
 
 #### Swagger/OpenAPI Documentation
 

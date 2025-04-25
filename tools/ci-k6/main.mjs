@@ -44,7 +44,7 @@ export async function createAndStake(providerUrl, keyUri) {
     api.tx.capacity.stake(1, 10_000_000_000_000),
     // Need to create an 'OnChain' schema in order to test endpoints, as there are no registered 'OnChain' DSNP schemas
     // **SHOULD** get created as SchemaID 16001
-    api.tx.schemas.createSchema(JSON.stringify(AVRO_GRAPH_CHANGE), 'AvroBinary', 'OnChain'),
+    api.tx.schemas.createSchemaV3(JSON.stringify(AVRO_GRAPH_CHANGE), 'AvroBinary', 'OnChain', [], 'test.graphchange'),
   ]);
 
   console.log('Submitting call...');
@@ -61,7 +61,9 @@ export async function createAndStake(providerUrl, keyUri) {
           );
         const success = events.find((x) => api.events.system.ExtrinsicSuccess.is(x.event));
         const failure = events.find((x) => api.events.system.ExtrinsicFailed.is(x.event));
-        const { event: schemaCreated } = events.find((x) => api.events.schemas.SchemaCreated.is(x.event));
+        const { event: schemaCreated } = success
+          ? events.find((x) => api.events.schemas.SchemaCreated.is(x.event))
+          : { event: null };
         unsub();
         if (schemaCreated) {
           console.log(`Created OnChain schema ID ${schemaCreated.data.schemaId.toNumber()}`);
@@ -70,7 +72,7 @@ export async function createAndStake(providerUrl, keyUri) {
           console.log('Success!');
           resolve();
         } else {
-          console.error('FAILED!');
+          console.error('FAILED!', failure.toHuman());
           reject();
         }
       }

@@ -44,7 +44,7 @@ export async function createAndStake(providerUrl, keyUri) {
     api.tx.capacity.stake(1, 10_000_000_000_000),
     // Need to create an 'OnChain' schema in order to test endpoints, as there are no registered 'OnChain' DSNP schemas
     // **SHOULD** get created as SchemaID 16001
-    api.tx.schemas.createSchema(JSON.stringify(AVRO_GRAPH_CHANGE), 'AvroBinary', 'OnChain'),
+    api.tx.schemas.createSchemaV3(JSON.stringify(AVRO_GRAPH_CHANGE), 'AvroBinary', 'OnChain', [], 'test.graphchange'),
   ]);
 
   console.log('Submitting call...');

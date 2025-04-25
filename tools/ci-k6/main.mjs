@@ -61,7 +61,9 @@ export async function createAndStake(providerUrl, keyUri) {
           );
         const success = events.find((x) => api.events.system.ExtrinsicSuccess.is(x.event));
         const failure = events.find((x) => api.events.system.ExtrinsicFailed.is(x.event));
-        const { event: schemaCreated } = events.find((x) => api.events.schemas.SchemaCreated.is(x.event));
+        const { event: schemaCreated } = success
+          ? events.find((x) => api.events.schemas.SchemaCreated.is(x.event))
+          : { event: null };
         unsub();
         if (schemaCreated) {
           console.log(`Created OnChain schema ID ${schemaCreated.data.schemaId.toNumber()}`);
@@ -70,7 +72,7 @@ export async function createAndStake(providerUrl, keyUri) {
           console.log('Success!');
           resolve();
         } else {
-          console.error('FAILED!');
+          console.error('FAILED!', failure.toHuman());
           reject();
         }
       }

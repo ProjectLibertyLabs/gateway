@@ -616,6 +616,38 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
   });
 
+  describe('(POST) /v2/content/:dsnpUserId/tombstones', () => {
+    it('valid request should work!', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: '0x7653423447AF',
+          targetAnnouncementType: 'reply',
+        })
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('invalid targetAnnouncementType should fail', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: '0x7653423447AF',
+          targetAnnouncementType: 'invalid',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetAnnouncementType must be one of the following values')));
+
+    it('invalid targetContentHash should fail', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: '6328462378',
+          targetAnnouncementType: 'reply',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
+  });
+
   describe('(PUT) /v1/profile/:userDsnpId', () => {
     it('valid request without assets should work!', () =>
       request(app.getHttpServer())

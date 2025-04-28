@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+x-common-environment: &common-environment
+  FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-ws://frequency:9944}
+  SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-http://localhost:9944}
+  REDIS_OPTIONS: ${REDIS_OPTIONS:-}
+  REDIS_URL: 'redis://redis:6379'
+  PROVIDER_ID: ${PROVIDER_ID:-1}
+  PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
+  WEBHOOK_FAILURE_THRESHOLD: 3
+  WEBHOOK_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRIES: 4
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_SUCCESS_THRESHOLD: 10
+  CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
+  SIWF_URL: 'https://projectlibertylabs.github.io/siwf/v1/ui'
+  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001/api/v0}
+  IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
+  IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
+  IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
+  QUEUE_HIGH_WATER: 1000
+  DEBUG: ${DEBUG:-true}
+  HTTP_RESPONSE_TIMEOUT_MS: ${HTTP_RESPONSE_TIMEOUT_MS:-30000}
+
+x-content-publishing-env: &content-publishing-env
+  START_PROCESS: content-publishing-api
+  FILE_UPLOAD_MAX_SIZE_IN_BYTES: 500000000
+  FILE_UPLOAD_COUNT_LIMIT: 10
+  ASSET_EXPIRATION_INTERVAL_SECONDS: 300
+  BATCH_INTERVAL_SECONDS: 12
+  BATCH_MAX_COUNT: 1000
+  ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: 5
+  CACHE_KEY_PREFIX: 'content-publishing:'
+
+services:
+  redis:
+    profiles:
+      - e2e
+
+  ipfs:
+    profiles:
+      - e2e
+
+  frequency:
+    profiles:
+      - e2e
+      - local-node
+
+  mock-webhook-server:
+    profiles:
+      - skip
+
+  gateway-base:
+    profiles:
+      - account
+  content-publishing-service-worker:
+    environment:
+      <<: [*common-environment, *content-publishing-env]
+    profiles:
+      - content-publishing
+  content-publishing-service-api:
+    # It is not possible to override a single key in a map, so we replace the entire environment map
+    environment:
+      <<: [*common-environment, *content-publishing-env]
+    profiles:
+      - content-publishing
+  content-watcher-service:
+    profiles:
+      - skip
+  graph-service-api:
+    profiles:
+      - skip
+  graph-service-worker:
+    profiles:
+      - skip
+  account-service-api:
+    profiles:
+      - skip
+  account-service-worker:
+    profiles:
+      - skip

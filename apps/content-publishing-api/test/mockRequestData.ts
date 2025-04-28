@@ -65,3 +65,10 @@ export const validOnChainContent = {
   payload: '',
   published: new Date().toISOString(),
 };
+
+export const validTombstone = {
+  // Target announcement type
+  targetAnnouncementType: 'broadcast',
+  // Target DSNP Content Hash
+  targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+};

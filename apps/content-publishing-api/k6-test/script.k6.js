@@ -19,6 +19,7 @@ import {
   validReaction,
   validReplyNoUploadedAssets,
   validOnChainContent,
+  validTombstone
 } from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
@@ -234,6 +235,22 @@ export default function () {
       let url = BASE_URL + `/v2/content/batchAnnouncement`;
       const referenceId = getReferenceId(BASE_URL, 'parquet', 'application/vnd.apache.parquet');
       let body = { batchFiles: [{ cid: referenceId, schemaId: 16001 }] };
+      let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
+      let request = http.post(url, JSON.stringify(body), params);
+
+      check(request, {
+        '': (r) => r.status === 202,
+      });
+    }
+  });
+
+  group('/v2/content/{msaId}/tombstones', () => {
+    let msaId = '1';
+
+    // Request No. 1: Create tombstone with a valid announcement type: "broadcast"
+    {
+      let url = BASE_URL + `/v2/content/${msaId}/tombstones`;
+      let body = validTombstone;
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.post(url, JSON.stringify(body), params);
 

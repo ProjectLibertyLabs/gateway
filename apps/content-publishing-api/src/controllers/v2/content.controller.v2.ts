@@ -79,7 +79,7 @@ export class ContentControllerV2 {
   }
 
   @Post(':msaId/tombstones')
-  @ApiOperation({ summary: 'Delete DSNP Content for user' })
+  @ApiOperation({ summary: 'Post an announcement that previously-announced content is invalid/revoked' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async postTombstone(

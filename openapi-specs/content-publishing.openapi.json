@@ -360,6 +360,49 @@
         ]
       }
     },
+    "/v2/content/{msaId}/tombstones": {
+      "post": {
+        "operationId": "ContentControllerV2_postTombstone",
+        "summary": "Post an announcement that previously-announced content is invalid/revoked",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "description": "Msa Id of requested account",
+            "schema": {
+              "example": "2",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TombstoneDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/content"
+        ]
+      }
+    },
     "/v1/profile/{msaId}": {
       "put": {
         "operationId": "ProfileControllerV1_profile",

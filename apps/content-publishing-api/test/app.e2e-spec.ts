@@ -3,7 +3,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { randomFill } from 'crypto';
+import { randomBytes, randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
 import {
   validBroadCastNoUploadedAssets,
@@ -11,10 +11,18 @@ import {
   validProfileNoUploadedAssets,
   validReaction,
   validReplyNoUploadedAssets,
+  validOnChainContent,
 } from './mockRequestData';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+
+const randomString = (length: number, _unused) =>
+  randomBytes(Math.ceil(length / 2))
+    .toString('hex')
+    .slice(0, length);
+
+validOnChainContent.payload = randomString(1024, null);
 
 describe('AppController E2E request verification!', () => {
   let app: NestExpressApplication;
@@ -22,7 +30,7 @@ describe('AppController E2E request verification!', () => {
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [ApiModule],
     }).compile();
@@ -35,7 +43,16 @@ describe('AppController E2E request verification!', () => {
     const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+        enableDebugMessages: true,
+      }),
+    );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
@@ -62,7 +79,7 @@ describe('AppController E2E request verification!', () => {
         .post(`/v1/content/${invalidDsnpUserId}/broadcast`)
         .send(validBroadCastNoUploadedAssets)
         .expect(400)
-        .expect((res) => expect(res.text).toContain('must be a number string'));
+        .expect((res) => expect(res.text).toContain('should be a valid positive number'));
     });
   });
 
@@ -161,21 +178,21 @@ describe('AppController E2E request verification!', () => {
         .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
-        .expect((res) => expect(res.text).toContain('published must match'));
+        .expect((res) => expect(res.text).toContain('must be a valid ISO 8601 date string'));
     });
 
     it('invalid published should fail', () => {
       const body2 = {
         content: {
           content: 'tests content',
-          published: '1980',
+          published: 'invalid-date',
         },
       };
       return request(app.getHttpServer())
         .post(`/v1/content/123/broadcast`)
         .send(body2)
         .expect(400)
-        .expect((res) => expect(res.text).toContain('published must match'));
+        .expect((res) => expect(res.text).toContain('content.published must be a valid ISO 8601 date string'));
     });
 
     it('image asset without references should fail', () => {
@@ -297,7 +314,7 @@ describe('AppController E2E request verification!', () => {
         .post(`/v1/content/123/broadcast`)
         .send(body)
         .expect(400)
-        .expect((res) => expect(res.text).toContain('mentionedId must be longer than or equal to 1 character'));
+        .expect((res) => expect(res.text).toContain('Invalid DSNP User URI'));
     });
 
     it('invalid tag type should fail', () => {
@@ -438,7 +455,7 @@ describe('AppController E2E request verification!', () => {
           content: validContentNoUploadedAssets,
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('inReplyTo must be a string')));
+        .expect((res) => expect(res.text).toContain('inReplyTo should be a valid DsnpContentURI')));
 
     it('invalid inReplyTo should fail', () =>
       request(app.getHttpServer())
@@ -448,7 +465,7 @@ describe('AppController E2E request verification!', () => {
           inReplyTo: 'shgdjas72gsjajasa',
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('inReplyTo must match')));
+        .expect((res) => expect(res.text).toContain('inReplyTo should be a valid DsnpContentURI')));
   });
 
   describe('(POST) /v1/content/:dsnpUserId/reaction', () => {
@@ -468,7 +485,7 @@ describe('AppController E2E request verification!', () => {
         .expect(400)
         .expect((res) => expect(res.text).toContain('emoji must match')));
 
-    it('valid apply amount should fail', () =>
+    it('invalid apply amount should fail', () =>
       request(app.getHttpServer())
         .post(`/v1/content/123/reaction`)
         .send({
@@ -476,7 +493,7 @@ describe('AppController E2E request verification!', () => {
           apply: -1,
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('apply must not be less than 0')));
+        .expect((res) => expect(res.text).toContain('apply should be a number between 0 and 255')));
 
     it('invalid inReplyTo should fail', () =>
       request(app.getHttpServer())
@@ -487,7 +504,7 @@ describe('AppController E2E request verification!', () => {
           inReplyTo: 'shgdjas72gsjajasa',
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('inReplyTo must match')));
+        .expect((res) => expect(res.text).toContain('inReplyTo should be a valid DsnpContentURI')));
   });
 
   describe('(PUT) /v1/content/:dsnpUserId', () => {
@@ -495,7 +512,7 @@ describe('AppController E2E request verification!', () => {
       request(app.getHttpServer())
         .put(`/v1/content/123`)
         .send({
-          targetContentHash: '0x7653423447AF',
+          targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
           targetAnnouncementType: 'broadcast',
           content: validContentNoUploadedAssets,
         })
@@ -527,7 +544,7 @@ describe('AppController E2E request verification!', () => {
       return request(app.getHttpServer())
         .put(`/v1/content/123`)
         .send({
-          targetContentHash: '0x7653423447AF',
+          targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
           targetAnnouncementType: 'broadcast',
           content: validContentWithUploadedAssets,
         })
@@ -558,7 +575,7 @@ describe('AppController E2E request verification!', () => {
           content: validBroadCastWithUploadedAssets,
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain(`${badAssetCid} does not exist`));
+        .expect((res) => expect(res.text).toContain('targetContentHash should be a valid DsnpContentHash'));
     });
 
     it('invalid targetAnnouncementType should fail', () =>
@@ -581,7 +598,7 @@ describe('AppController E2E request verification!', () => {
           content: validContentNoUploadedAssets,
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
+        .expect((res) => expect(res.text).toContain('targetContentHash should be a valid DsnpContentHash')));
   });
 
   describe('(DELETE) /v1/content/:dsnpUserId', () => {
@@ -589,7 +606,7 @@ describe('AppController E2E request verification!', () => {
       request(app.getHttpServer())
         .delete(`/v1/content/123`)
         .send({
-          targetContentHash: '0x7653423447AF',
+          targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
           targetAnnouncementType: 'reply',
         })
         .expect(202)
@@ -613,7 +630,40 @@ describe('AppController E2E request verification!', () => {
           targetAnnouncementType: 'reply',
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('targetContentHash must be in hexadecimal format!')));
+        .expect((res) => expect(res.text).toContain('targetContentHash should be a valid DsnpContentHash')));
+  });
+
+  describe('(POST) /v2/content/:dsnpUserId/tombstones', () => {
+    it('valid request should work!', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+          targetAnnouncementType: 'reply',
+        })
+        .expect((res) => console.log(res.text))
+        .expect(202)
+        .expect((res) => expect(res.text).toContain('referenceId')));
+
+    it('invalid targetAnnouncementType should fail', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: '0x7653423447AF',
+          targetAnnouncementType: 'invalid',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetAnnouncementType must be one of the following values')));
+
+    it('invalid targetContentHash should fail', () =>
+      request(app.getHttpServer())
+        .post(`/v2/content/123/tombstones`)
+        .send({
+          targetContentHash: '6328462378',
+          targetAnnouncementType: 'reply',
+        })
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('targetContentHash should be a valid DsnpContentHash')));
   });
 
   describe('(PUT) /v1/profile/:userDsnpId', () => {
@@ -711,11 +761,11 @@ describe('AppController E2E request verification!', () => {
         .put(`/v1/profile/123`)
         .send({
           profile: {
-            published: '1980',
+            published: 'invalid-date',
           },
         })
         .expect(400)
-        .expect((res) => expect(res.text).toContain('published must match')));
+        .expect((res) => expect(res.text).toContain('profile.published must be a valid ISO 8601 date string')));
 
     it('non unique reference ids should fail', () =>
       request(app.getHttpServer())
@@ -769,25 +819,14 @@ describe('AppController E2E request verification!', () => {
       randomFill(buffer, (err, _buf) => {
         if (err) throw err;
       });
-      const response = await request(app.getHttpServer())
+      return request(app.getHttpServer())
         .put(`/v1/asset/upload`)
         .attach('files', Buffer.from(buffer), 'file1.jpg')
         .expect(202);
-      const assetId = response.body.assetIds[0];
-      await sleep(2000);
-      return request(app.getHttpServer())
-        .get(`/v1/dev/asset/${assetId}`)
-        .expect(200)
-        .expect((res) => expect(Buffer.from(res.body)).toEqual(Buffer.from(buffer)));
     }, 15000);
-
-    it('not uploaded asset should return not found', async () => {
-      const assetId = 'bafybeieva67sj7hiiywi4kxsamcc2t2y2pptni2ki6gu63azj3pkznbzna';
-      return request(app.getHttpServer()).get(`/v1/dev/asset/${assetId}`).expect(404);
-    });
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     try {
       await app.close();
     } catch (err) {

@@ -19,6 +19,7 @@ import {
   validReaction,
   validReplyNoUploadedAssets,
   validOnChainContent,
+  validTombstone
 } from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
@@ -211,13 +212,29 @@ export default function () {
     }
   });
 
-  group('/v2/content/{msaId}/on-chain', () => {
-    let msaId = '1';
+  // TODO: Uncomment once we have a valid schema with `OnChain` payload location
+  // group('/v2/content/{msaId}/on-chain', () => {
+  //   let msaId = '1';
 
-    // Request: ContentControllerV2_postContent
+  //   // Request: ContentControllerV2_postContent
+  //   {
+  //     let url = BASE_URL + `/v2/content/${msaId}/on-chain`;
+  //     let body = validOnChainContent;
+  //     let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
+  //     let request = http.post(url, JSON.stringify(body), params);
+
+  //     check(request, {
+  //       '': (r) => r.status === 202,
+  //     });
+  //   }
+  // });
+
+  group('/v2/content/batchAnnouncement', () => {
+    // Request No. 2: ContentControllerV2_batchAnnouncement with asset
     {
-      let url = BASE_URL + `/v2/content/${msaId}/on-chain`;
-      let body = validOnChainContent;
+      let url = BASE_URL + `/v2/content/batchAnnouncement`;
+      const referenceId = getReferenceId(BASE_URL, 'parquet', 'application/vnd.apache.parquet');
+      let body = { batchFiles: [{ cid: referenceId, schemaId: 16001 }] };
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.post(url, JSON.stringify(body), params);
 
@@ -227,12 +244,13 @@ export default function () {
     }
   });
 
-  group('/v2/content/batchAnnouncement', () => {
-    // Request No. 2: ContentControllerV2_batchAnnouncement with asset
+  group('/v2/content/{msaId}/tombstones', () => {
+    let msaId = '1';
+
+    // Request No. 1: Create tombstone with a valid announcement type: "broadcast"
     {
-      let url = BASE_URL + `/v2/content/batchAnnouncement`;
-      const referenceId = getReferenceId(BASE_URL, 'parquet', 'application/vnd.apache.parquet');
-      let body = { batchFiles: [{ cid: referenceId, schemaId: 16001 }] };
+      let url = BASE_URL + `/v2/content/${msaId}/tombstones`;
+      let body = validTombstone;
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.post(url, JSON.stringify(body), params);
 

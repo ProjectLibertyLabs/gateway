@@ -12,7 +12,13 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-import { AnnouncementResponseDto, BatchFilesDto, OnChainContentDto } from '#types/dtos/content-publishing';
+import {
+  AnnouncementResponseDto,
+  BatchFilesDto,
+  OnChainContentDto,
+  TombstoneDto,
+} from '#types/dtos/content-publishing';
+import { AnnouncementTypeName } from '#types/enums';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { MsaIdDto } from '#types/dtos/common';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
@@ -70,5 +76,16 @@ export class ContentControllerV2 {
   async postBatches(@Body() batchContentDto: BatchFilesDto): Promise<AnnouncementResponseDto[]> {
     const promises = batchContentDto.batchFiles.map((batchFile) => this.apiService.enqueueBatchRequest(batchFile));
     return Promise.all(promises);
+  }
+
+  @Post(':msaId/tombstones')
+  @ApiOperation({ summary: 'Post an announcement that previously-announced content is invalid/revoked' })
+  @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
+  async postTombstone(
+    @Param() { msaId }: MsaIdDto,
+    @Body() tombstoneDto: TombstoneDto,
+  ): Promise<AnnouncementResponseDto> {
+    return this.apiService.enqueueRequest(AnnouncementTypeName.TOMBSTONE, msaId, tombstoneDto);
   }
 }

@@ -46,7 +46,7 @@ describe('IpfsService Tests', () => {
 
   describe('getPinned', () => {
     it('should return empty buffer if resource is not pinned', async () => {
-      jest.spyOn(service, 'isPinned').mockResolvedValueOnce(false);
+      jest.spyOn(service, 'checkExists').mockResolvedValueOnce(false);
       await expect(service.getPinned(dummyCidV1)).resolves.toStrictEqual(Buffer.alloc(0));
     });
 
@@ -54,7 +54,7 @@ describe('IpfsService Tests', () => {
       const buf = Buffer.from([1, 2, 3]);
       const bufIter = bufferGenerator(Array.from(buf));
 
-      jest.spyOn(service, 'isPinned').mockResolvedValueOnce(true);
+      jest.spyOn(service, 'checkExists').mockResolvedValueOnce(true);
       jest.spyOn(ipfs, 'cat').mockReturnValueOnce(bufIter);
 
       await expect(service.getPinned(dummyCidV1)).resolves.toStrictEqual(buf);
@@ -62,21 +62,39 @@ describe('IpfsService Tests', () => {
   });
 
   describe('getInfo', () => {
-    it('should throw if resource is not pinned', async () => {
-      jest.spyOn(service, 'isPinned').mockResolvedValueOnce(false);
+    it('should throw if resource does not exist', async () => {
+      jest.spyOn(service, 'checkExists').mockResolvedValueOnce(false);
       await expect(service.getInfo(dummyCidV1)).rejects.toThrow('Requested resource does not exist');
     });
 
-    it('should return file info if pinned', async () => {
+    it('should return file info if it exists', async () => {
       const fileInfo: BlockStatResult = {
         cid: dummyCidV1,
         size: 1024,
       };
 
-      jest.spyOn(service, 'isPinned').mockResolvedValueOnce(true);
+      jest.spyOn(service, 'checkExists').mockResolvedValueOnce(true);
       jest.spyOn(ipfs.block, 'stat').mockResolvedValueOnce(fileInfo);
 
       await expect(service.getInfo(dummyCidV1)).resolves.toStrictEqual(fileInfo);
+    });
+  });
+
+  describe('checkExists', () => {
+    it('should return false if CID does not exist', async () => {
+      jest.spyOn(global, 'fetch').mockReturnValueOnce({
+        status: 412,
+      });
+
+      await expect(service.checkExists(dummyCidV1)).resolves.toBe(false);
+    });
+
+    it('should return true if CID exists', async () => {
+      jest.spyOn(global, 'fetch').mockReturnValueOnce({
+        status: 200,
+      });
+
+      await expect(service.checkExists(dummyCidV0)).resolves.toBe(true);
     });
   });
 

@@ -1,7 +1,7 @@
 // ipfs.service.ts
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import ipfsConfig, { IIpfsConfig } from './ipfs.config';
+import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from './ipfs.config';
 import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
@@ -14,6 +14,8 @@ import { Readable } from 'stream';
 export class IpfsService {
   private readonly ipfs: KuboRPCClient;
 
+  private readonly gatewayUrl: string;
+
   private readonly logger: Logger;
 
   constructor(
@@ -21,6 +23,7 @@ export class IpfsService {
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
   ) {
     this.logger = new Logger(IpfsService.name);
+    this.gatewayUrl = config.ipfsGatewayUrl;
     this.ipfs = createKuboRPCClient({
       url: config.ipfsEndpoint,
       timeout: httpConfig.httpResponseTimeoutMS,
@@ -44,7 +47,7 @@ export class IpfsService {
    * @returns buffer of the data if exists and an empty buffer if not
    */
   public async getPinned(cid: string, checkExistence = true): Promise<Buffer> {
-    if (checkExistence && !(await this.isPinned(cid))) {
+    if (checkExistence && !(await this.checkExists(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
     const bytesIter = this.ipfs.cat(cid);
@@ -57,7 +60,7 @@ export class IpfsService {
   }
 
   public async getInfo(cid: string, checkExistence = true): Promise<BlockStatResult> {
-    if (checkExistence && !(await this.isPinned(cid))) {
+    if (checkExistence && !(await this.checkExists(cid))) {
       throw new Error('Requested resource does not exist');
     }
 
@@ -68,6 +71,17 @@ export class IpfsService {
       throw new Error('Requested resource not found');
     }
     return response;
+  }
+
+  public async checkExists(cid: string): Promise<boolean> {
+    this.logger.debug(`Requesting HEAD for ${cid}`);
+    const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
+      method: "HEAD",
+      headers: {
+        "Cache-Control": "only-if-cached",
+      },
+    });
+    return response && response.status === 200;
   }
 
   public async isPinned(cid: string): Promise<boolean> {
@@ -95,8 +109,8 @@ export class IpfsService {
   }
 
   public async getDsnpMultiHash(cid: string, checkExistence = true): Promise<string | null> {
-    if (checkExistence && !(await this.isPinned(cid))) {
-      this.logger.warn(`Requested DSNP multihash of ${cid}, but resource is not pinned`);
+    if (checkExistence && !(await this.checkExists(cid))) {
+      this.logger.warn(`Requested DSNP multihash of ${cid}, but resource does not exist`);
       return null;
     }
 

@@ -102,7 +102,7 @@ jobs:
       - name: Start Frequency
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: |
-          docker compose -f docker-compose.yaml -f docker-compose-e2e.${{ matrix.service }}.yaml --profile e2e up -d --wait --wait-timeout 30
+          docker compose -f docker-compose.yaml -f docker-compose-e2e.${{ matrix.service }}.yaml --profile e2e up -d --wait --wait-timeout 45
 
       # TODO: make a service-agnostic setup script, or make service-specific setup scripts all in one place
       - name: Generate Provider and Capacity

@@ -47,7 +47,7 @@ export class IpfsService {
    * @returns buffer of the data if exists and an empty buffer if not
    */
   public async getPinned(cid: string, checkExistence = true): Promise<Buffer> {
-    if (checkExistence && !(await this.checkExists(cid))) {
+    if (checkExistence && !(await this.existsInLocalGateway(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
     const bytesIter = this.ipfs.cat(cid);
@@ -60,7 +60,7 @@ export class IpfsService {
   }
 
   public async getInfo(cid: string, checkExistence = true): Promise<BlockStatResult> {
-    if (checkExistence && !(await this.checkExists(cid))) {
+    if (checkExistence && !(await this.existsInLocalGateway(cid))) {
       throw new Error('Requested resource does not exist');
     }
 
@@ -73,7 +73,7 @@ export class IpfsService {
     return response;
   }
 
-  public async checkExists(cid: string): Promise<boolean> {
+  public async existsInLocalGateway(cid: string): Promise<boolean> {
     this.logger.debug(`Requesting HEAD for ${cid}`);
     const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
       method: "HEAD",
@@ -109,7 +109,7 @@ export class IpfsService {
   }
 
   public async getDsnpMultiHash(cid: string, checkExistence = true): Promise<string | null> {
-    if (checkExistence && !(await this.checkExists(cid))) {
+    if (checkExistence && !(await this.existsInLocalGateway(cid))) {
       this.logger.warn(`Requested DSNP multihash of ${cid}, but resource does not exist`);
       return null;
     }

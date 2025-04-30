@@ -244,7 +244,8 @@
       },
       "delete": {
         "operationId": "ContentControllerV1_delete",
-        "summary": "Delete DSNP Content for user",
+        "summary": "Delete DSNP Content for user [deprecated; use `POST /v2/content/{msaId}/tombstones` instead]",
+        "deprecated": true,
         "parameters": [
           {
             "name": "msaId",
@@ -338,6 +339,49 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/BatchFilesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "v2/content"
+        ]
+      }
+    },
+    "/v2/content/{msaId}/tombstones": {
+      "post": {
+        "operationId": "ContentControllerV2_postTombstone",
+        "summary": "Post an announcement that previously-announced content is invalid/revoked",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "path",
+            "description": "Msa Id of requested account",
+            "schema": {
+              "example": "2",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TombstoneDto"
               }
             }
           }

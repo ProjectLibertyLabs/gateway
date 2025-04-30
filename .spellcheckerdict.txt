@@ -113,6 +113,7 @@ S3-compatible
 scalable
 Schemas
 SDK
+SDKs
 signin
 signup
 SIWF

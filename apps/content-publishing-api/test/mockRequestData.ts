@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import { randomString } from 'https://jslib.k6.io/k6-utils/1.6.0/index.js';
+// import { randomString } from 'https://jslib.k6.io/k6-utils/1.6.0/index.js';
 
 export const validLocation = {
   name: 'name of location',
@@ -62,6 +62,13 @@ export const validProfileNoUploadedAssets = {
 
 export const validOnChainContent = {
   schemaId: 16001,
-  payload: `0x${randomString(1024, '0123456789abcdef')}`,
+  payload: '',
   published: new Date().toISOString(),
+};
+
+export const validTombstone = {
+  // Target announcement type
+  targetAnnouncementType: 'broadcast',
+  // Target DSNP Content Hash
+  targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
 };

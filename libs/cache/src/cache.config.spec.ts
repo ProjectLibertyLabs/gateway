@@ -59,7 +59,7 @@ describe('Cache module config', () => {
       const options = {
         host: 'localhost',
         port: 6379,
-        commandTimeout: 10000,
+        commandTimeout: 25000,
       };
       expect(cacheConf.redisOptions).toStrictEqual(options);
     });
@@ -76,7 +76,7 @@ describe('Cache module config', () => {
         keepAliveTimeout: 300,
       };
       const cacheConf = await setupConfigService({ ...optionsEnv, REDIS_OPTIONS: JSON.stringify(options) });
-      expect(cacheConf.redisOptions).toStrictEqual({ ...options, commandTimeout: 10000 });
+      expect(cacheConf.redisOptions).toStrictEqual({ ...options, commandTimeout: 25000 });
     });
 
     it('should get redis options with overriden defaults', async () => {

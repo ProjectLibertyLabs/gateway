@@ -20,10 +20,35 @@ export const mockAsset = (size, extension = 'jpg', mimetype = 'image/jpeg') => {
       fileSize = 50 * 1000 * 1000; // 50MB
       break;
   }
-  const arrayBuf = randomBytes(fileSize);
+  let arrayBuf = randomBytes(fileSize);
+  let u8;
+
+  // We need to generate file content with correct "magic number" file headers in order
+  // to pass the MIME type filter on upload
+  switch (mimetype) {
+    case 'image/jpeg':
+      u8 = new Uint8Array(arrayBuf);
+      u8.set([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01], 0);
+      arrayBuf = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+      break;
+
+    case 'audio/ogg':
+      u8 = new Uint8Array(arrayBuf);
+      u8.set([0x4f, 0x67, 0x67, 0x53]);
+      arrayBuf = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+      break;
+
+    case 'application/vnd.apache.parquet':
+      u8 = new Uint8Array(arrayBuf);
+      u8.set([0x50, 0x41, 0x52, 0x31]);
+      arrayBuf = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+      break;
+
+    default:
+  }
   const buffer = b64encode(arrayBuf, 'utf-8');
   return {
-    files: http.file(buffer, `file1.${extension}`, mimetype),
+    files: http.file(arrayBuf, `file1.${extension}`, mimetype),
   };
 };
 

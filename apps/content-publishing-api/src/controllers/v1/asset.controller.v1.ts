@@ -41,6 +41,9 @@ export class AssetControllerV1 {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: DSNP_VALID_MIME_TYPES,
+          // @nestjs/common@10.4.16 added the 'file-type' package, which is imported dynamically as an ESM module.
+          // This import breaks under Jest, so we skip it in test mode
+          skipMagicNumbersValidation: process.env.NODE_ENV === 'test',
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

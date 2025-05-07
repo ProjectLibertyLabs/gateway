@@ -61,38 +61,34 @@ describe('IpfsService Tests', () => {
     });
   });
 
-  describe('getInfo', () => {
-    it('should throw if resource does not exist', async () => {
-      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(false);
-      await expect(service.getInfo(dummyCidV1)).rejects.toThrow('Requested resource does not exist');
+  describe('contentLengthInLocalGateway', () => {
+    it('should return -1 if CID does not exist', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        status: 412,
+      });
+
+      await expect(service.contentLengthInLocalGateway(dummyCidV1)).resolves.toStrictEqual(-1);
     });
 
-    it('should return file info if it exists', async () => {
-      const fileInfo: BlockStatResult = {
-        cid: dummyCidV1,
-        size: 1024,
-      };
+    it('should return content length if CID exists', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers({"content-length": 1}),
+      });
 
-      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(true);
-      jest.spyOn(ipfs.block, 'stat').mockResolvedValueOnce(fileInfo);
-
-      await expect(service.getInfo(dummyCidV1)).resolves.toStrictEqual(fileInfo);
+      await expect(service.contentLengthInLocalGateway(dummyCidV0)).resolves.toStrictEqual(1);
     });
   });
 
   describe('existsInLocalGateway', () => {
     it('should return false if CID does not exist', async () => {
-      jest.spyOn(global, 'fetch').mockReturnValueOnce({
-        status: 412,
-      });
+      jest.spyOn(service, 'contentLengthInLocalGateway').mockResolvedValueOnce(-1);
 
       await expect(service.existsInLocalGateway(dummyCidV1)).resolves.toBe(false);
     });
 
     it('should return true if CID exists', async () => {
-      jest.spyOn(global, 'fetch').mockReturnValueOnce({
-        status: 200,
-      });
+      jest.spyOn(service, 'contentLengthInLocalGateway').mockResolvedValueOnce(1);
 
       await expect(service.existsInLocalGateway(dummyCidV0)).resolves.toBe(true);
     });

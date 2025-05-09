@@ -79,7 +79,7 @@ export class BatchAnnouncer {
       const response = {
         id: batch.cid,
         schemaId: batch.schemaId,
-        data: { cid: batch.cid.toV1().toString(), payloadLength: size },
+        data: { cid: batch.cid, payloadLength: size },
       };
       this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
       return response;

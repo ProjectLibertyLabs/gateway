@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { FilePin, IIpfsConfig, IpfsService } from '#storage';
 import { IHttpCommonConfig } from '#config/http-common.config';
-import { dummyCidV0, dummyCidV1, BlockStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
+import { dummyCidV0, dummyCidV1, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
 import { Readable } from 'stream';
 
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
@@ -62,18 +62,20 @@ describe('IpfsService Tests', () => {
   });
 
   describe('contentLengthInLocalGateway', () => {
-    it('should return -1 if CID does not exist', async () => {
+    it('should throw if CID does not exist', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         status: 412,
       });
 
-      await expect(service.contentLengthInLocalGateway(dummyCidV1)).resolves.toStrictEqual(-1);
+      await expect(service.contentLengthInLocalGateway(dummyCidV1)).rejects.toThrow(
+        `Unable to access HEAD for ${dummyCidV1}`,
+      );
     });
 
     it('should return content length if CID exists', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         status: 200,
-        headers: new Headers({"content-length": 1}),
+        headers: new Headers({ 'content-length': 1 }),
       });
 
       await expect(service.contentLengthInLocalGateway(dummyCidV0)).resolves.toStrictEqual(1);
@@ -82,7 +84,7 @@ describe('IpfsService Tests', () => {
 
   describe('existsInLocalGateway', () => {
     it('should return false if CID does not exist', async () => {
-      jest.spyOn(service, 'contentLengthInLocalGateway').mockResolvedValueOnce(-1);
+      jest.spyOn(service, 'contentLengthInLocalGateway').mockRejectedValueOnce(new Error());
 
       await expect(service.existsInLocalGateway(dummyCidV1)).resolves.toBe(false);
     });

@@ -60,26 +60,28 @@ export class IpfsService {
   }
 
   /**
-   * gets the true content-length of the CID file from the IPFS gateway
-   * if the file does not exist locally, returns -1
+   * gets the true content-length of the CID file from the IPFS gateway,
+   * or NaN if the content-length is unknown.
+   * if the file does not exist locally, or a network error occurs, throws an error
    */
   public async contentLengthInLocalGateway(cid: string): Promise<number> {
     this.logger.debug(`Requesting HEAD for ${cid}`);
     const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
-      method: "HEAD",
+      method: 'HEAD',
       headers: {
-        "Cache-Control": "only-if-cached",
+        'Cache-Control': 'only-if-cached',
       },
     });
-    if (response && response.status === 200) {
-      return Number(response.headers.get("Content-Length"));
-    } else {
-      return -1;
+    if (response?.status === 200) {
+      return Number(response.headers?.get('Content-Length'));
     }
+    throw new Error(`Unable to access HEAD for ${cid}`);
   }
 
   public async existsInLocalGateway(cid: string): Promise<boolean> {
-    return -1 !== (await this.contentLengthInLocalGateway(cid));
+    return this.contentLengthInLocalGateway(cid)
+      .then(() => true)
+      .catch(() => false);
   }
 
   public async isPinned(cid: string): Promise<boolean> {

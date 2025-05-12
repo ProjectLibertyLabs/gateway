@@ -79,9 +79,12 @@ export class IpfsService {
   }
 
   public async existsInLocalGateway(cid: string): Promise<boolean> {
-    return this.contentLengthInLocalGateway(cid)
-      .then(() => true)
-      .catch(() => false);
+    try {
+      await this.contentLengthInLocalGateway(cid);
+      return true;
+    } catch (_err) {
+      return false;
+    }
   }
 
   public async isPinned(cid: string): Promise<boolean> {

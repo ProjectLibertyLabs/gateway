@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
-import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
+import { createKuboRPCClient, KuboRPCClient, CID } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
 
@@ -59,29 +59,32 @@ export class IpfsService {
     return Buffer.concat(chunks);
   }
 
-  public async getInfo(cid: string, checkExistence = true): Promise<BlockStatResult> {
-    if (checkExistence && !(await this.existsInLocalGateway(cid))) {
-      throw new Error('Requested resource does not exist');
+  /**
+   * gets the true content-length of the CID file from the IPFS gateway,
+   * or NaN if the content-length is unknown.
+   * if the file does not exist locally, or a network error occurs, throws an error
+   */
+  public async contentLengthInLocalGateway(cid: string): Promise<number> {
+    this.logger.debug(`Requesting HEAD for ${cid}`);
+    const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
+      method: 'HEAD',
+      headers: {
+        'Cache-Control': 'only-if-cached',
+      },
+    });
+    if (response?.status === 200) {
+      return Number(response.headers?.get('Content-Length'));
     }
-
-    this.logger.debug(`Requesting IPFS stats for ${cid}`);
-    const response = await this.ipfs.block.stat(CID.parse(cid));
-    this.logger.debug(`IPFS response: ${JSON.stringify(response)}`);
-    if (!response.cid) {
-      throw new Error('Requested resource not found');
-    }
-    return response;
+    throw new Error(`Unable to access HEAD for ${cid}`);
   }
 
   public async existsInLocalGateway(cid: string): Promise<boolean> {
-    this.logger.debug(`Requesting HEAD for ${cid}`);
-    const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
-      method: "HEAD",
-      headers: {
-        "Cache-Control": "only-if-cached",
-      },
-    });
-    return response && response.status === 200;
+    try {
+      await this.contentLengthInLocalGateway(cid);
+      return true;
+    } catch (_err) {
+      return false;
+    }
   }
 
   public async isPinned(cid: string): Promise<boolean> {

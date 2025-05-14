@@ -142,7 +142,7 @@ Ensure you have the following installed:
 Run the test:
 
 ```bash
-npm test:content-publishing
+npm run test:content-publishing
 ```
 
 Run E2E tests:

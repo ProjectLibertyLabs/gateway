@@ -1,12 +1,4 @@
 {
-  "files": [
-    "**/*.md",
-    "!STYLEGUIDE.md",
-    "!LICENSE.md",
-    "!docs/src/CoreConcepts/README.md",
-    "**/.github/**/*.md"
-  ],
-  "dictionaries": [
-    ".spellcheckerdict.txt"
-  ]
+  "files": ["**/*.md", "!STYLEGUIDE.md", "!LICENSE.md", "!docs/src/CoreConcepts/README.md", "**/.github/**/*.md"],
+  "dictionaries": [".spellcheckerdict.txt"]
 }

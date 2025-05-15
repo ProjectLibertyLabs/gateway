@@ -19,7 +19,7 @@ import {
   validReaction,
   validReplyNoUploadedAssets,
   validOnChainContent,
-  validTombstone
+  validTombstone,
 } from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';

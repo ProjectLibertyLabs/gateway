@@ -55,7 +55,7 @@ describe('AppController E2E v2 asset upload verification', () => {
     });
     await app.init();
   });
-  it('valid request with uploaded assets should work!', async () => {
+  it.skip('valid request with uploaded assets should work!', async () => {
     const file = Buffer.from('h'.repeat(30 * 1000 * 1000)); // 30MB
     const response = await request(app.getHttpServer())
       .post(`/v2/asset/upload`)

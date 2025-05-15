@@ -32,10 +32,10 @@ export class AssetControllerV2 {
   })
   @ApiResponse({ status: '2XX', type: UploadResponseDtoV2 })
   async uploadFile(@Req() req: Request, @Res({ passthrough: true }) _res: Response): Promise<IUploadResponse> {
-    req.on('end', () => console.log('Request ended'));
-    req.on('close', () => console.log('Request closed'));
-    req.on('aborted', () => console.log('Request aborted'));
-    this.logger.debug(`uploadFile: expect Header Content-length: ${req.headers['content-length']}`);
+    req.on('end', () => this.logger.verbose('Request ended'));
+    req.on('close', () => this.logger.verbose('Request closed'));
+    req.on('aborted', () => this.logger.verbose('Request aborted'));
+    this.logger.verbose(`uploadFile: expect Header Content-length: ${req.headers['content-length']}`);
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
     const busboy = Busboy({ headers: req.headers });
@@ -47,9 +47,9 @@ export class AssetControllerV2 {
 
     busboy.on('file', (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
-      this.logger.debug(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
+      this.logger.verbose(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
       fileStream.on('end', () => {
-        this.logger.debug(`Finished writing ${fileinfo.filename}`);
+        this.logger.verbose(`Finished writing ${fileinfo.filename}`);
       });
       if (fileIndex > this.config.fileUploadCountLimit) {
         fileStream.resume(); // Make sure we consume the entire file stream so the rest of the request can be processed

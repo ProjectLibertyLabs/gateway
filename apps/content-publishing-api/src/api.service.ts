@@ -309,6 +309,10 @@ export class ApiService {
     uploadPassThru.on('error', handleError);
     hashPassThru.on('error', handleError);
 
+    // Enable more logging
+    uploadPassThru.on('close', () => this.logger.verbose('uploadPassThru CLOSED'));
+    uploadPassThru.on('end', () => this.logger.verbose('uploadPassThru END'));
+
     stream.pipe(uploadPassThru);
     stream.pipe(hashPassThru);
 

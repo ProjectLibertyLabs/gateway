@@ -271,9 +271,47 @@ export class ApiService {
       return { error: `Unsupported file type (${mimetype})` };
     }
 
+    let errored = false;
+
     // Create pipes to process IPFS upload & DSNP multihash calculation in parallel
     const uploadPassThru = new PassThrough();
     const hashPassThru = new PassThrough();
+
+    // Stream error handler to make sure cleanup occurs on any stream error--
+    // but only ONCE
+    const handleError = (err: any) => {
+      if (errored) return;
+      errored = true;
+
+      this.logger.error('❌ Stream error:', err?.message || err);
+
+      // Try to destroy everything cleanly
+      [uploadPassThru, hashPassThru].forEach((s) => {
+        if (!s.destroyed) {
+          // If still readable, resume so request doesn’t hang
+          if (!s.readableEnded && !s.readableFlowing) {
+            s.removeAllListeners('readable');
+            s.resume();
+          }
+
+          // Then destroy (safe even if already ended)
+          s.destroy(err);
+        }
+      });
+
+      // Important: only destroy original stream after dependents
+      if (!stream.destroyed) {
+        stream.destroy(err);
+      }
+    };
+
+    stream.on('error', handleError);
+    uploadPassThru.on('error', handleError);
+    hashPassThru.on('error', handleError);
+
+    // Enable more logging
+    uploadPassThru.on('close', () => this.logger.verbose('uploadPassThru CLOSED'));
+    uploadPassThru.on('end', () => this.logger.verbose('uploadPassThru END'));
 
     stream.pipe(uploadPassThru);
     stream.pipe(hashPassThru);
@@ -287,12 +325,8 @@ export class ApiService {
         calculateIncrementalDsnpMultiHash(hashPassThru),
       ]);
     } catch (error: any) {
-      // Make sure streams are properly resumed so the main request can continue
-      // Streams will not resume properly unless there are NO 'readable' event handlers
-      uploadPassThru.removeAllListeners('readable');
-      hashPassThru.removeAllListeners('readable');
-      uploadPassThru.resume();
-      hashPassThru.resume();
+      this.logger.error('❌ Upload/hash promise error:', error.message);
+      handleError(error);
       return { error: error?.message || `Error uploading or hashing file ${filename}` };
     }
 

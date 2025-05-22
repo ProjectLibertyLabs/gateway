@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { FilePin, IIpfsConfig, IpfsService } from '#storage';
 import { IHttpCommonConfig } from '#config/http-common.config';
-import { dummyCidV0, dummyCidV1, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
+import { dummyCidV0, dummyCidV1, BlockStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
 import { Readable } from 'stream';
 
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
@@ -61,36 +61,38 @@ describe('IpfsService Tests', () => {
     });
   });
 
-  describe('contentLengthInLocalGateway', () => {
-    it('should throw if CID does not exist', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        status: 412,
-      });
-
-      await expect(service.contentLengthInLocalGateway(dummyCidV1)).rejects.toThrow(
-        `Unable to access HEAD for ${dummyCidV1}`,
-      );
+  describe('getInfo', () => {
+    it('should throw if resource does not exist', async () => {
+      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(false);
+      await expect(service.getInfoFromLocalNode(dummyCidV1)).rejects.toThrow('Requested resource does not exist');
     });
 
-    it('should return content length if CID exists', async () => {
-      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
-        status: 200,
-        headers: new Headers({ 'content-length': 1 }),
-      });
+    it('should return file info if it exists', async () => {
+      const fileInfo: BlockStatResult = {
+        cid: dummyCidV1,
+        size: 1024,
+      };
 
-      await expect(service.contentLengthInLocalGateway(dummyCidV0)).resolves.toStrictEqual(1);
+      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(true);
+      jest.spyOn(ipfs.block, 'stat').mockResolvedValueOnce(fileInfo);
+
+      await expect(service.getInfoFromLocalNode(dummyCidV1)).resolves.toStrictEqual(fileInfo);
     });
   });
 
   describe('existsInLocalGateway', () => {
     it('should return false if CID does not exist', async () => {
-      jest.spyOn(service, 'contentLengthInLocalGateway').mockRejectedValueOnce(new Error());
+      jest.spyOn(global, 'fetch').mockReturnValueOnce({
+        status: 412,
+      });
 
       await expect(service.existsInLocalGateway(dummyCidV1)).resolves.toBe(false);
     });
 
     it('should return true if CID exists', async () => {
-      jest.spyOn(service, 'contentLengthInLocalGateway').mockResolvedValueOnce(1);
+      jest.spyOn(global, 'fetch').mockReturnValueOnce({
+        status: 200,
+      });
 
       await expect(service.existsInLocalGateway(dummyCidV0)).resolves.toBe(true);
     });

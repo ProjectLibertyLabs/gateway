@@ -41,6 +41,7 @@ jobs:
               - 'libs/logger/src/**'
               - 'libs/openapi/src/**'
               - 'libs/queue/src/**'
+              - 'libs/storage/src/**'
               - 'libs/types/src/**'
               - 'libs/utils/src/**'
             account:

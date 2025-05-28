@@ -69,7 +69,7 @@ export class IpfsService {
     // Alternatively, could use the 'timeout' property to return an error
     // after the specified timeout)
     try {
-      const response = await this.ipfs.files.stat(CID.parse(cid), { offline: true } as FilesStatOptions);
+      const response = await this.ipfs.files.stat(`/ipfs/${CID.parse(cid)}`, { offline: true } as FilesStatOptions);
       this.logger.debug(`IPFS response: ${JSON.stringify(response)}`);
       return response;
     } catch (err: any) {

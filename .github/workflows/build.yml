@@ -15,7 +15,7 @@ jobs:
       changes: ${{ steps.determine-matrix.outputs.changes }}
       # IF you add a new filter it ALSO needs to be here
       services: >-
-        ["account", "content-publishing", "content-watcher", "graph"]
+        ["account", "content-publishing", "content-watcher", "graph", "libs"]
       # Resolves to true if it should run everything, aka when common files change
       run-all: ${{ contains(fromJson(steps.determine-matrix.outputs.changes), 'common') }}
     steps:

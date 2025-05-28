@@ -15,7 +15,7 @@ jobs:
       changes: ${{ steps.determine-matrix.outputs.changes }}
       # IF you add a new filter it ALSO needs to be here
       services: >-
-        ["account", "content-publishing", "content-watcher", "graph"]
+        ["account", "content-publishing", "content-watcher", "graph", "libs"]
       # Resolves to true if it should run everything, aka when common files change
       run-all: ${{ contains(fromJson(steps.determine-matrix.outputs.changes), 'common') }}
     steps:
@@ -60,23 +60,29 @@ jobs:
               - 'apps/content-watcher/**'
               - 'libs/content-watcher-lib/**'
               - 'libs/storage/**'
+            libs:
+              - 'libs/blockchain/**'
+              - 'libs/cache/src/**'
+              - 'libs/config/src/**'
+              - 'libs/consumer/src/**'
+              - 'libs/logger/src/**'
+              - 'libs/openapi/src/**'
+              - 'libs/queue/src/**'
+              - 'libs/storage/**'
+              - 'libs/types/src/**'
+              - 'libs/utils/src/**'
+
 
   test-start-sh:
     name: 'Common Tests'
     runs-on: ubuntu-latest
-    needs: service-matrix
     strategy:
       fail-fast: false
     steps:
-      - name: Run or Skip
-        run: echo "SHOULD_RUN=${{ needs.service-matrix.outputs.run-all == 'true' }}" >> "$GITHUB_ENV"
-
       - name: Checkout
-        if: ${{ env.SHOULD_RUN == 'true' }}
         uses: actions/checkout@v4
 
       - name: Install Node.js
-        if: ${{ env.SHOULD_RUN == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -85,16 +91,24 @@ jobs:
           cache-dependency-path: ./package-lock.json
 
       - name: Install dependencies
-        if: ${{ env.SHOULD_RUN == 'true' }}
         run: npm ci
 
       - name: 'Bats start.sh Tests'
-        if: ${{ env.SHOULD_RUN == 'true' }}
         run: |
           npm install -g bats
           npm run test:bats-start
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Spellcheck
+        run: npm run spellcheck
+
+      - name: License Check
+        # List all the licenses and error out if it is not one of the supported licenses
+        run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
 
   build:
     name: '[${{ matrix.service }}] Build and Test'
@@ -128,35 +142,25 @@ jobs:
       - name: Build NestJS
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run build:${{ matrix.service }}
-      - name: Lint
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: npm run lint:${{ matrix.service }}
-      - name: Spellcheck
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: npm run spellcheck
       - name: Unit Test
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run test:${{ matrix.service }}
-      - name: License Check
-        if: ${{ steps.should.outputs.RUN == 'true' }}
-        # List all the licenses and error out if it is not one of the supported licenses
-        run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
 
       - name: Build OpenAPI spec
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' && matrix.service != 'libs' }}
         uses: ./.github/workflows/common/openapi-build
         with:
           service: ${{ matrix.service }}
 
       # Test build of the Docker images
       - name: Set up QEMU
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' && matrix.service != 'libs' }}
         uses: docker/setup-qemu-action@v3
         with:
           platforms: |
             linux/amd64
       - name: Set up Docker Buildx
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' && matrix.service != 'libs' }}
         uses: docker/setup-buildx-action@v3
         # Use GitHub Container Registry instead due to rate limits
         with:
@@ -165,7 +169,7 @@ jobs:
 
       - name: Check for DockerHub credentials
         id: docker-credentials
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' && matrix.service != 'libs' }}
         run: |
           if [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ] && [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
             echo "do_dockerhub_login=true" >> $GITHUB_OUTPUT
@@ -180,7 +184,7 @@ jobs:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
       - name: Build Docker Image
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+        if: ${{ steps.should.outputs.RUN == 'true' && matrix.service != 'libs' }}
         uses: docker/build-push-action@v5
         with:
           context: .

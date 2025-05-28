@@ -13,6 +13,7 @@
     "build:content-publishing": "nest build content-publishing-api && nest build content-publishing-worker",
     "build:content-watcher": "nest build content-watcher",
     "build:graph": "nest build graph-api && nest build graph-worker",
+    "build:libs": "nest build libs",
     "build": "npm run build:account ; npm run build:content-publishing ; npm run build:content-watcher ; npm run build:graph",
     "start:account-api": "dotenvx run -f .env.account -- nest start account-api",
     "start:account-api:watch": "dotenvx run -f .env.account -- nest start account-api --watch",

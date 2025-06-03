@@ -27,7 +27,7 @@ export class CID {
   }
 }
 
-export interface BlockStatResult {
+export interface FilesStatResult {
   cid: string;
   size: number;
 }
@@ -40,8 +40,8 @@ export interface PinLsResult {
 }
 
 export interface KuboRPCClient {
-  block: {
-    stat: (cid: string) => Promise<BlockStatResult>;
+  files: {
+    stat: (path: string) => Promise<FilesStatResult>;
   };
   cat: (cid: string) => AsyncIterable<Uint8Array>;
   pin: {
@@ -53,8 +53,8 @@ export interface KuboRPCClient {
 
 export const createKuboRPCClient = jest.fn(
   (): KuboRPCClient => ({
-    block: {
-      stat: jest.fn(async (cid: string) => ({
+    files: {
+      stat: jest.fn(async (path: string) => ({
         cid,
         size: 1234,
         cumulativeSize: 5678,

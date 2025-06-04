@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { FilePin, IIpfsConfig, IpfsService } from '#storage';
 import { IHttpCommonConfig } from '#config/http-common.config';
-import { dummyCidV0, dummyCidV1, BlockStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
+import { dummyCidV0, dummyCidV1, FilesStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
 import { Readable } from 'stream';
 
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
@@ -61,22 +61,21 @@ describe('IpfsService Tests', () => {
     });
   });
 
-  describe('getInfo', () => {
+  describe('getInfoFromLocalNode', () => {
     it('should throw if resource does not exist', async () => {
-      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(false);
-      await expect(service.getInfo(dummyCidV1)).rejects.toThrow('Requested resource does not exist');
+      jest.spyOn(ipfs.files, 'stat').mockRejectedValueOnce('some error message');
+      await expect(service.getInfoFromLocalNode(dummyCidV1)).rejects.toThrow('Requested resource not found');
     });
 
     it('should return file info if it exists', async () => {
-      const fileInfo: BlockStatResult = {
+      const fileInfo: FilesStatResult = {
         cid: dummyCidV1,
         size: 1024,
       };
 
-      jest.spyOn(service, 'existsInLocalGateway').mockResolvedValueOnce(true);
-      jest.spyOn(ipfs.block, 'stat').mockResolvedValueOnce(fileInfo);
+      jest.spyOn(ipfs.files, 'stat').mockResolvedValueOnce(fileInfo);
 
-      await expect(service.getInfo(dummyCidV1)).resolves.toStrictEqual(fileInfo);
+      await expect(service.getInfoFromLocalNode(dummyCidV1)).resolves.toStrictEqual(fileInfo);
     });
   });
 

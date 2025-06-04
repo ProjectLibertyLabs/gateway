@@ -2,7 +2,6 @@
 x-common-environment: &common-environment
   FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-ws://frequency:9944}
   SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-http://localhost:9944}
-  REDIS_OPTIONS: ${REDIS_OPTIONS:-""}
   REDIS_URL: 'redis://redis:6379'
   PROVIDER_ID: ${PROVIDER_ID:-1}
   PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}

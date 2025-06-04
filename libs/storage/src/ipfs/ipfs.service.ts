@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
 import { FilePin } from '#storage/ipfs/pin.interface';
 import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
-import { createKuboRPCClient, KuboRPCClient, CID, BlockStatResult } from 'kubo-rpc-client';
+import { createKuboRPCClient, KuboRPCClient, CID, FilesStatResult, FilesStatOptions } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
 
@@ -59,26 +59,31 @@ export class IpfsService {
     return Buffer.concat(chunks);
   }
 
-  public async getInfo(cid: string, checkExistence = true): Promise<BlockStatResult> {
-    if (checkExistence && !(await this.existsInLocalGateway(cid))) {
-      throw new Error('Requested resource does not exist');
-    }
-
+  public async getInfoFromLocalNode(cid: string): Promise<FilesStatResult> {
     this.logger.debug(`Requesting IPFS stats for ${cid}`);
-    const response = await this.ipfs.block.stat(CID.parse(cid));
-    this.logger.debug(`IPFS response: ${JSON.stringify(response)}`);
-    if (!response.cid) {
+    // Specify 'offline: true' to return immediately with an error
+    // if the file is not in the local node's cache.
+    // (The 'kubo-rpc-client' package doesn't include the 'offline' property,
+    // but it's one of the root Kubo CLI options that are all supported:
+    // https://docs.ipfs.tech/reference/kubo/cli/#ipfs
+    // Alternatively, could use the 'timeout' property to return an error
+    // after the specified timeout)
+    try {
+      const response = await this.ipfs.files.stat(`/ipfs/${CID.parse(cid)}`, { offline: true } as FilesStatOptions);
+      this.logger.debug(`IPFS response: ${JSON.stringify(response)}`);
+      return response;
+    } catch (err: any) {
+      this.logger.error(err?.message || err);
       throw new Error('Requested resource not found');
     }
-    return response;
   }
 
   public async existsInLocalGateway(cid: string): Promise<boolean> {
     this.logger.debug(`Requesting HEAD for ${cid}`);
     const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
-      method: "HEAD",
+      method: 'HEAD',
       headers: {
-        "Cache-Control": "only-if-cached",
+        'Cache-Control': 'only-if-cached',
       },
     });
     return response && response.status === 200;

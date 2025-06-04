@@ -32,9 +32,13 @@ export class AssetControllerV2 {
   })
   @ApiResponse({ status: '2XX', type: UploadResponseDtoV2 })
   async uploadFile(@Req() req: Request, @Res({ passthrough: true }) _res: Response): Promise<IUploadResponse> {
-    const busboy = Busboy({ headers: req.headers });
+    req.on('end', () => this.logger.verbose('Request ended'));
+    req.on('close', () => this.logger.verbose('Request closed'));
+    req.on('aborted', () => this.logger.verbose('Request aborted'));
+    this.logger.verbose(`uploadFile: expect Header Content-length: ${req.headers['content-length']}`);
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
+    const busboy = Busboy({ headers: req.headers });
     let resolveResponse: (val: IUploadResponse) => void;
     const result = new Promise<IUploadResponse>((resolve) => {
       resolveResponse = resolve;
@@ -43,6 +47,10 @@ export class AssetControllerV2 {
 
     busboy.on('file', (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
+      this.logger.verbose(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
+      fileStream.on('end', () => {
+        this.logger.verbose(`Finished writing ${fileinfo.filename}`);
+      });
       if (fileIndex > this.config.fileUploadCountLimit) {
         fileStream.resume(); // Make sure we consume the entire file stream so the rest of the request can be processed
         fileProcessingPromises.push(Promise.resolve({ error: 'Max file upload count per request exceeded' }));
@@ -60,7 +68,7 @@ export class AssetControllerV2 {
     });
 
     busboy.on('error', (error: any) => {
-      this.logger.error('Busboy error: ', error);
+      this.logger.error(`Busboy error: `, error);
     });
 
     req.pipe(busboy);

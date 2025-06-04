@@ -73,7 +73,7 @@ export class BatchAnnouncer {
     // Get previously uploaded file from IPFS
     this.logger.log(`Getting info from IPFS for ${batch.cid}`);
     try {
-      const { cid, size } = await this.ipfsService.getInfo(batch.cid);
+      const { cid, size } = await this.ipfsService.getInfoFromLocalNode(batch.cid);
       this.logger.debug(`Got info from IPFS: cid=${cid}, size=${size}`);
 
       const response = {

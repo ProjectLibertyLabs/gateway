@@ -150,3 +150,10 @@ Websocket
 ws
 XRQCY
 YAML
+AOF
+filesystem
+failover
+ElastiCache
+VPC
+Auto-Failover
+auto-failover

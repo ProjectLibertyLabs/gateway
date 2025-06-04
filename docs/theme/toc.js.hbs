@@ -8,25 +8,35 @@ class MDBookSidebarScrollbox extends HTMLElement {
         super();
     }
     connectedCallback() {
+        // MOD: Update innerHTML to have the correct contents
         this.innerHTML = `
-        <a id="logo" href="https://projectlibertylabs.github.io/gateway/">
-            Frequency Developer Gateway
-        </a>
-        {{#toc}}{{/toc}}
-        <ol class="chapter">
-            <li class="chapter-item">
-                <a href="https://docs.frequency.xyz" class="nav-return">
-                    Frequency Docs
-                </a>
-            </li>
-            <li class="chapter-item">
-                <a href="https://github.com/ProjectLibertyLabs/gateway" class="nav-return">
-                    GitHub
-                </a>
-            </li>
-        </ol>`;
+        <div class="sidebar-contents">
+          <a id="logo" href="https://projectlibertylabs.github.io/gateway/">
+              Frequency Developer Gateway
+          </a>
+          <div id="toc">
+            {{#toc}}{{/toc}}
+          </div>
+          <div class="spacer"></div>
+          <ol class="chapter pt-2">
+              {{#if git_repository_url}}
+                <li class="chapter-item">
+                  <a href="{{git_repository_url}}" title="Git repository" aria-label="Git repository">
+                      <i id="git-repository-button" class="fa {{git_repository_icon}}"></i> GitHub
+                  </a>
+                  </li>
+              {{/if}}
+              {{#if git_repository_edit_url}}
+                <li class="chapter-item">
+                  <a href="{{git_repository_edit_url}}" title="Suggest an edit" aria-label="Suggest an edit">
+                      <i id="git-edit-button" class="fa fa-edit"></i> Edit this Page
+                  </a>
+                </li>
+              {{/if}}
+          </ol>
+        </div>`;
         // Set the current, active page, and reveal it if it's hidden
-        let current_page = document.location.href.toString();
+        let current_page = document.location.href.toString().split("#")[0].split("?")[0];
         if (current_page.endsWith("/")) {
             current_page += "index.html";
         }

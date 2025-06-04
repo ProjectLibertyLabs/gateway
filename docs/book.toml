@@ -16,15 +16,21 @@ command = "node preprocessors/swagger-embed.mjs"
 [preprocessor.mermaid]
 command = "mdbook-mermaid"
 
+[preprocessor.tailwind]
+renderers = ["html"]
+command = 'node preprocessors/noop-npx.mjs "npx -y @tailwindcss/cli -i ./theme/tailwind.css -o ./css/tailwind.css"'
+
 [output.html]
 additional-css = [
+  "css/tailwind.css",
+  "css/overrides.css",
+  "css/side-nav.css",
+  "css/button-links.css",
   "css/highlight.css",
   "css/highlight-dark.css",
-  "css/tailwind-short.css",
-  "css/button-links.css",
-  "css/overrides.css",
 ]
 no-section-label = true
+copy-fonts = false # Switched to custom fonts
 git-repository-url = "https://github.com/ProjectLibertyLabs/gateway"
 edit-url-template = "https://github.com/ProjectLibertyLabs/gateway/blob/main/docs/src/{path}"
 preferred-dark-theme = "coal"

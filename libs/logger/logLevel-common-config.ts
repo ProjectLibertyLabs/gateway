@@ -1,23 +1,54 @@
-import { LogLevel } from '@nestjs/common';
-
 /**
  * Determines appropriate log levels based on environment variables
  * - Always includes 'error', 'warn', and 'log'
  * - Adds 'debug' when DEBUG env var is present
  * - Adds 'verbose' when VERBOSE_LOGGING is true or DEBUG=verbose
  */
-export function getLogLevels(): LogLevel[] {
-  const logLevels: LogLevel[] = ['error', 'warn', 'log'];
+export function getLogLevels(): string[] {
+  return ['error', 'warn', 'info', 'debug', 'trace'];
+}
 
-  // Enable debug logging if DEBUG is set
-  if (process.env.DEBUG) {
-    logLevels.push('debug');
+export function getCurrentLogLevel(): string {
+  let level: string = 'info';
+  if (process.env?.LOG_LEVEL && process.env.LOG_LEVEL !== '') {
+    level = process.env.LOG_LEVEL;
+  } else if (process.env.NODE_ENV === 'test') {
+    level = 'error';
   }
+  return level;
+}
 
-  // Add verbose logging if specifically requested
-  if (process.env.VERBOSE_LOGGING || process.env.DEBUG === 'verbose') {
-    logLevels.push('verbose');
+export function getPinoTransport() {
+  if (process.env.PRETTY === 'true') {
+    return {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        colorizeObjects: true,
+        translateTime: 'SYS:standard',
+        ignore: 'hostname,context,levelStr',
+        messageFormat: `[{context}] {msg}`,
+      },
+    };
   }
+  return undefined;
+}
 
-  return logLevels;
+export function getPinoHttpOptions() {
+  return {
+    pinoHttp: {
+      level: getCurrentLogLevel(),
+      customProps: () => ({
+        context: 'HTTP',
+      }),
+      formatters: {
+        level: (label, number) => ({ level: number, levelStr: label }),
+      },
+      quietReqLogger: true, // set to 'false' to enable full HTTP req/resp logging
+      redact: {
+        paths: ['ip', '*.ip', 'ipAddress'],
+      },
+      transport: getPinoTransport(),
+    },
+  };
 }

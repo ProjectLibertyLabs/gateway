@@ -1,21 +1,32 @@
 import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getCurrentLogLevel, getLogLevels, getPinoTransport } from 'libs/logger/logLevel-common-config';
 
-const logger = new Logger('main');
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { pino } from 'pino';
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
+
+// use plain pino directly outside of the app.
+const logger = pino({
+  name: 'Gateway.main',
+  level: getCurrentLogLevel(),
+  redact: {
+    paths: ['ip', '*.ip', 'ipAddress'],
+  },
+  transport: getPinoTransport(),
+});
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -25,7 +36,6 @@ BigInt.prototype['toJSON'] = function () {
  */
 function startShutdownTimer() {
   setTimeout(() => {
-    logger.warn('Shutdown timer expired');
     process.exit(1);
   }, 10_000);
 }
@@ -37,9 +47,11 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
-    logger: getLogLevels(),
     rawBody: true,
   });
+
+  // use nestjs-pino inside the app
+  app.useLogger(app.get(PinoLogger));
 
   // Enable URL-based API versioning
   app.enableVersioning({
@@ -59,6 +71,7 @@ async function bootstrap() {
           { name: 'handles', tags: ['v1/handles'] },
           { name: 'health', tags: ['health'] },
           { name: 'keys', tags: ['v1/keys'] },
+          { name: 'prometheus', tags: ['metrics'] },
         ],
       ],
     ]),
@@ -93,11 +106,11 @@ async function bootstrap() {
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
     initializeSwaggerUI(app, swaggerDoc);
-    logger.log(`Listening on port ${config.apiPort}`);
-    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
+    logger.info(`Listening on port ${config.apiPort}`);
+    logger.info(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen(config.apiPort);
   } catch (e) {
-    logger.log('****** MAIN CATCH ********');
+    logger.info('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
@@ -108,5 +121,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.log('bootstrap exited'))
+  .then(() => logger.info('bootstrap exited'))
   .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));

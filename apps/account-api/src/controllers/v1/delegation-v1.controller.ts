@@ -9,15 +9,16 @@ import { DelegationResponse } from '#types/dtos/account/delegation.response.dto'
 import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
+import { PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'delegation' })
 @ApiTags('v1/delegation')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
-  private readonly logger: Logger;
+  private readonly logger: PinoLogger;
 
   constructor(private delegationService: DelegationService) {
-    this.logger = new Logger(this.constructor.name);
+    // this.logger.setContext(this.constructor.name);
   }
 
   @Get(':msaId')
@@ -57,7 +58,7 @@ export class DelegationControllerV1 {
     @Param() { accountId }: AccountIdDto,
     @Param() { providerId }: ProviderMsaIdDto,
   ): Promise<RevokeDelegationPayloadResponseDto> {
-    this.logger.verbose(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);
+    this.logger.trace(`Getting RevokeDelegationPayload for account ${accountId} and provider ${providerId}`);
     return this.delegationService.getRevokeDelegationPayload(accountId, providerId);
   }
 
@@ -76,7 +77,7 @@ export class DelegationControllerV1 {
     @Body()
     revokeDelegationRequest: RevokeDelegationPayloadRequestDto,
   ): Promise<TransactionResponse> {
-    this.logger.verbose(revokeDelegationRequest, 'Posting RevokeDelegationPayloadRequest');
+    this.logger.trace(revokeDelegationRequest, 'Posting RevokeDelegationPayloadRequest');
     return this.delegationService.postRevokeDelegation(revokeDelegationRequest);
   }
 }

@@ -26,8 +26,6 @@ x-account-service-env: &account-service-env
 
 services:
   redis:
-    profiles:
-      - e2e
 
   frequency:
     profiles:

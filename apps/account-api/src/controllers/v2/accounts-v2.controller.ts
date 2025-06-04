@@ -11,7 +11,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
   Query,
   Get,
   Post,
@@ -22,6 +21,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { hasChainSubmissions, isPayloadClaimHandle } from '@projectlibertylabs/siwfv2';
+import { PinoLogger } from 'nestjs-pino';
 
 // # SIWF Wallet API V2
 // Goal: Generic Interface that supports FA and dApp 3rd-party wallets
@@ -56,7 +56,7 @@ import { hasChainSubmissions, isPayloadClaimHandle } from '@projectlibertylabs/s
 @Controller({ version: '2', path: 'accounts' })
 @ApiTags('v2/accounts')
 export class AccountsControllerV2 {
-  private readonly logger: Logger;
+  private readonly logger: PinoLogger;
 
   constructor(
     private siwfV2Service: SiwfV2Service,
@@ -64,7 +64,7 @@ export class AccountsControllerV2 {
     @Inject(blockchainConfig.KEY) private chainConfig: IBlockchainConfig,
     @Inject(apiConfig.KEY) private accountConfig: IAccountApiConfig,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    // this.logger.setContext(this.constructor.name);
   }
 
   // Should be an @Query when that is widely supported

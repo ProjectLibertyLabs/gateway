@@ -1,17 +1,18 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { verifySignature } from '#utils/common/signature.util';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class HandlesService {
-  private readonly logger: Logger;
+  private readonly logger: PinoLogger;
 
   constructor(private blockchainService: BlockchainRpcQueryService) {
-    this.logger = new Logger(this.constructor.name);
+    // this.logger.setContext(this.constructor.name);
   }
 
   async getHandle(msaId: string): Promise<HandleResponseDto | null> {

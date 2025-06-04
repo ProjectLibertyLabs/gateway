@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
@@ -20,18 +20,24 @@ import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ApiPromise } from '@polkadot/api';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AccountsService {
-  private readonly logger: Logger;
-
   constructor(
     @Inject(apiConfig.KEY) private readonly apiCOnf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    @InjectPinoLogger('AccountsService')
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger.debug('debug');
+    this.logger.warn('warn');
+    this.logger.error('error');
+    this.logger.info('info');
+    this.logger.trace('trace');
+    this.logger.fatal('fatal');
   }
 
   async getAccount(msaId: string): Promise<AccountResponseDto | null> {
@@ -42,10 +48,10 @@ export class AccountsService {
         this.logger.debug(`Found handle: ${handleResponse.base_handle.toString()} for msaId: ${msaId}`);
         return { msaId, handle: handleResponse };
       }
-      this.logger.log(`Failed to get handle for msaId: ${msaId}`);
+      this.logger.info(`Failed to get handle for msaId: ${msaId}`);
       return { msaId };
     }
-    this.logger.log(`Invalid msaId: ${msaId}`);
+    this.logger.info(`Invalid msaId: ${msaId}`);
     return null;
   }
 

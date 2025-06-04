@@ -2,6 +2,7 @@ import '@frequency-chain/api-augment';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { LoggerModule } from 'nestjs-pino';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
@@ -14,6 +15,7 @@ import {
   KeysControllerV1,
   DelegationsControllerV2,
   HealthController,
+  PrometheusController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
@@ -23,6 +25,7 @@ import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
+import { getPinoHttpOptions } from '../../../libs/logger/logLevel-common-config';
 
 @Module({
   imports: [
@@ -57,6 +60,8 @@ import { QueueModule } from '#queue/queue.module';
       ],
       inject: [cacheConfig.KEY],
     }),
+    // just use default pino options
+    LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],
@@ -83,6 +88,7 @@ import { QueueModule } from '#queue/queue.module';
     HandlesControllerV1,
     KeysControllerV1,
     HealthController,
+    PrometheusController,
   ],
   exports: [],
 })

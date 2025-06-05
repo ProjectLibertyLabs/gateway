@@ -327,6 +327,7 @@ mark {
 
 h1:target::before {
   display: none;
+  margin-inline-start: 0;
 }
 
 h2:target::before,
@@ -336,6 +337,7 @@ h3:target::before {
   width: 50px;
   position: relative;
   color: var(--headers);
+  margin-inline-start: 0;
 }
 
 h4:target::before,
@@ -346,6 +348,7 @@ h6:target::before {
   width: 40px;
   position: relative;
   color: var(--headers);
+  margin-inline-start: 0;
 }
 
 /* Override some colors */

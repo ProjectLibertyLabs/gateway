@@ -11,7 +11,7 @@ runs:
       uses: jontze/action-mdbook@6c0be56d14c4bf16861b00af61f50ff7400ce502
       with:
         token: ${{ inputs.token }}
-        mdbook-version: '0.4.49' # Use a semver compatible string
+        mdbook-version: '0.4.51' # Use a semver compatible string
         # Optional Plugins have to be enabled
         # use-linkcheck: true
         # linkcheck-version: "~0.7.7"

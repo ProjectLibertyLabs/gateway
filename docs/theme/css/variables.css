@@ -55,8 +55,10 @@
   --warning-border: var(--color-warning);
 
   --table-border-color: var(--color-gray1);
-  --table-header-bg: var(--sidebar-bg);
-  --table-alternate-bg: var(--sidebar-bg);
+  --table-header-bg: var(--color-gray1);
+  --table-header-fg: var(--color-cream);
+  --table-alternate-bg: var(--color-gray1);
+  --table-alternate-fg: var(--color-cream);
 
   --searchbar-border-color: #aaa;
   --searchbar-bg: var(--color-white);
@@ -120,7 +122,9 @@ html:not(.js) {
   --warning-border: var(--color-warning);
 
   --table-border-color: var(--sidebar-bg);
+  --table-header-fg: var(--color-black);
   --table-header-bg: var(--color-gray2);
+  --table-alternate-fg: var(--color-black);
   --table-alternate-bg: var(--color-gray3);
 
   --searchbar-border-color: #aaa;
@@ -185,8 +189,10 @@ html:not(.js) {
     --warning-border: var(--color-warning);
 
     --table-border-color: var(--color-gray1);
-    --table-header-bg: var(--sidebar-bg);
-    --table-alternate-bg: var(--sidebar-bg);
+    --table-header-bg: var(--color-gray1);
+    --table-header-fg: var(--color-cream);
+    --table-alternate-bg: var(--color-gray1);
+    --table-alternate-fg: var(--color-cream);
 
     --searchbar-border-color: #aaa;
     --searchbar-bg: var(--color-white);

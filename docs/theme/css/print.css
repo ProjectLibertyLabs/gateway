@@ -8,7 +8,8 @@
 
   --table-border-color: #000 !important;
   --table-header-bg: #fff !important;
-  --table-alternate-bg: #fff !important;
+  --table-header-fg: #000 !important;
+  --table-alternate-fg: #000 !important;
 
   --color-scheme: light !important;
 }

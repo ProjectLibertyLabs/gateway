@@ -362,6 +362,28 @@ h6:target::before {
   background-color: var(--fg);
 }
 
+.warning {
+  padding-left: 30px;
+}
+.warning:before {
+  margin-inline-start: calc(-1.5rem - 30px);
+}
+
+/* Table settings */
+
+table thead {
+  background: var(--table-header-bg);
+  color: var(--table-header-fg);
+}
+table thead th {
+  border: 1px var(--table-header-fg) solid;
+}
+/* Alternate background colors for rows */
+table tbody tr:nth-child(2n) {
+  background: var(--table-alternate-bg);
+  color: var(--table-alternate-fg);
+}
+
 /* Replace Font-Awesome */
 
 .fa.fa-github {

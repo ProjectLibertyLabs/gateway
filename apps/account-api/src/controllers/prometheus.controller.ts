@@ -1,24 +1,20 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Header } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import * as client from 'prom-client';
+import { register, collectDefaultMetrics } from 'prom-client';
+
+collectDefaultMetrics();
 
 @Controller()
-@ApiTags('prometheus')
+@ApiTags('metrics')
 export class PrometheusController {
-  private readonly collectDefaultMetrics = client.collectDefaultMetrics;
-
   // Prometheus metrics endpoint
   // eslint-disable-next-line class-methods-use-this
-  @Get('prometheus')
+  @Get('metrics')
   @HttpCode(HttpStatus.OK)
+  @Header('Content-Type', register.contentType)
   @ApiOperation({ summary: 'Prometheus endpoint' })
   @ApiOkResponse({ description: 'Prometheus returned metrics' })
-  async prometheus() {
-    this.collectDefaultMetrics();
-    const metrics = await client.register.metrics();
-    return {
-      status: HttpStatus.OK,
-      message: metrics,
-    };
+  async metrics() {
+    return register.metrics();
   }
 }

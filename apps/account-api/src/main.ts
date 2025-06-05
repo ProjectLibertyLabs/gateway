@@ -7,26 +7,18 @@ import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getCurrentLogLevel, getLogLevels, getPinoTransport } from 'libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from 'libs/logger/logLevel-common-config';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
+// use plain pino directly outside of the app.
+const logger = pino(getBasicPinoOptions('account-api.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
-
-// use plain pino directly outside of the app.
-const logger = pino({
-  name: 'Gateway.main',
-  level: getCurrentLogLevel(),
-  redact: {
-    paths: ['ip', '*.ip', 'ipAddress'],
-  },
-  transport: getPinoTransport(),
-});
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -50,7 +42,6 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  // use nestjs-pino inside the app
   app.useLogger(app.get(PinoLogger));
 
   // Enable URL-based API versioning
@@ -107,7 +98,7 @@ async function bootstrap() {
 
     initializeSwaggerUI(app, swaggerDoc);
     logger.info(`Listening on port ${config.apiPort}`);
-    logger.info(`Log levels: ${getLogLevels().join(', ')}`);
+    logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen(config.apiPort);
   } catch (e) {
     logger.info('****** MAIN CATCH ********');

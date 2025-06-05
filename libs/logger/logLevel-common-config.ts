@@ -52,3 +52,16 @@ export function getPinoHttpOptions() {
     },
   };
 }
+
+// get Pino options when running in a bootstrap or otherwise outside of NestJS app.
+export function getBasicPinoOptions(name: string) {
+  // use plain pino directly outside of the app.
+  return {
+    name,
+    level: getCurrentLogLevel(),
+    redact: {
+      paths: ['ip', '*.ip', 'ipAddress'],
+    },
+    transport: getPinoTransport(),
+  };
+}

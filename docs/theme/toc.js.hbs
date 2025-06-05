@@ -73,7 +73,8 @@ class MDBookSidebarScrollbox extends HTMLElement {
         }, { passive: true });
         var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
         sessionStorage.removeItem('sidebar-scroll');
-        if (sidebarScrollTop) {
+        // MOD: Always do this as otherwise it breaks the content scrolling
+        if (true || sidebarScrollTop) {
             // preserve sidebar scroll position when navigating via links within sidebar
             this.scrollTop = sidebarScrollTop;
         } else {

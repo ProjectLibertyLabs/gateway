@@ -17,7 +17,7 @@ import {
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { ApiPromise } from '@polkadot/api';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { PinoLogger } from 'nestjs-pino';
+import { createPinoLoggerProvider } from '#testlib/mockPinoLogger';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -34,17 +34,6 @@ jest.mock('@polkadot/api', () => {
     })),
   };
 });
-
-const mockPinoLoggerProvider: PinoLogger = {
-  provide: 'PinoLogger:SiwfV2Service',
-  useValue: {
-    info: () => {},
-    error: () => {},
-    warn: () => {},
-    debug: () => {},
-    trace: () => {},
-  },
-};
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
@@ -63,7 +52,7 @@ const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfi
   graphEnvironmentType: 0,
   siwfUrl: '',
   siwfV2Url: 'https://www.example.com/siwf',
-  siwfV2URIValidation: 'localhost',
+  siwfV2URIValidation: ['localhost'],
 });
 
 const exampleCallback = 'https://www.example.com/callback';
@@ -88,7 +77,7 @@ describe('SiwfV2Service', () => {
         mockAccountApiConfigProvider,
         mockBlockchainConfigProvider,
         EnqueueService,
-        mockPinoLoggerProvider,
+        createPinoLoggerProvider('PinoLogger:SiwfV2Service'),
       ],
     }).compile();
 
@@ -229,7 +218,7 @@ describe('SiwfV2Service', () => {
     it('Should throw BadRequest if the payload is for a different domain', async () => {
       jest
         .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
-        .mockReturnValue('bad.example.com');
+        .mockReturnValue(['bad.example.com']);
       await expect(
         siwfV2Service.getPayload({
           authorizationPayload: base64url(JSON.stringify(validSiwfLoginResponsePayload)),
@@ -240,7 +229,7 @@ describe('SiwfV2Service', () => {
     it('Should throw BadRequest if the response is for a different domain', async () => {
       jest
         .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
-        .mockReturnValue('bad.example.com');
+        .mockReturnValue(['bad.example.com']);
 
       const validAuthCode = 'valid-auth-code';
       jest.spyOn(siwfV2Service as any, 'swifV2Endpoint').mockReturnValue('https://siwf.example.com');

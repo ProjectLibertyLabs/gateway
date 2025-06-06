@@ -10,7 +10,7 @@ import {
   ActivityContentAudio,
   ActivityContentProfile,
 } from '@dsnp/activity-content/types';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import {
@@ -47,6 +47,8 @@ import ipfsConfig, { formIpfsUrl } from '#storage/ipfs/ipfs.config';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ContentPublisherRedisConstants } from '#types/constants';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
@@ -63,12 +65,12 @@ export class DsnpAnnouncementProcessor {
     @Inject(ipfsConfig.KEY) private config: IIpfsConfig,
     private ipfsService: IpfsService,
   ) {
-    this.logger = new Logger(DsnpAnnouncementProcessor.name);
+    this.logger = pino(getBasicPinoOptions(DsnpAnnouncementProcessor.name));
   }
 
   public async collectAnnouncementAndQueue(data: IRequestJob) {
     this.logger.debug(`Collecting announcement and queuing`);
-    this.logger.verbose(`Processing Activity: ${data.announcementType} for ${data.msaId}`);
+    this.logger.trace(`Processing Activity: ${data.announcementType} for ${data.msaId}`);
     try {
       switch (data.announcementType) {
         case AnnouncementTypeName.BROADCAST:
@@ -245,7 +247,7 @@ export class DsnpAnnouncementProcessor {
     }
     // Make sure hash was set in metadata cache
     if (!dsnpMultiHash) {
-      this.logger.verbose(`Asset ${referenceId} not found in metadata cache; requesting from IPFS to get hash`);
+      this.logger.trace(`Asset ${referenceId} not found in metadata cache; requesting from IPFS to get hash`);
       dsnpMultiHash = await this.ipfsService.getDsnpMultiHash(referenceId, true);
     }
 

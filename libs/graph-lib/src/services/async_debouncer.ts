@@ -7,18 +7,17 @@ import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { DEBOUNCER_CACHE_KEY } from '#types/constants';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AsyncDebouncerService {
-  private readonly logger: Logger;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @Inject(graphCommonConfig.KEY) private readonly config: IGraphCommonConfig,
     private readonly graphStateManager: GraphStateManager,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    @InjectPinoLogger(AsyncDebouncerService.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   public getGraphForDsnpId(
     dsnpId: string,

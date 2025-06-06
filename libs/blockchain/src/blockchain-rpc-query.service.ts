@@ -56,6 +56,7 @@ import { ICapacityFeeDetails } from './types';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
+
 interface HandleTxnValues {
   msaId: string;
   handle: string;
@@ -454,7 +455,8 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       await tx.signAsync(signerAddress, {
         signer: {
           signRaw: (raw) => {
-            this.logger.verbose('signRaw called with [raw]:', raw);
+            // PolkadotAPIService uses NestJS logger still
+            this.logger.debug('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
             throw new Error('Stop here');

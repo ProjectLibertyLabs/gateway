@@ -1,15 +1,10 @@
 import { SKIP_INTERCEPTOR_KEY } from '#utils/decorators/skip-interceptors.decorator';
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  RequestTimeoutException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, RequestTimeoutException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
+import { pino, Logger } from 'pino';
+import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
 
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {
@@ -20,6 +15,7 @@ export class TimeoutInterceptor implements NestInterceptor {
   /**
    *
    * @param timeoutMs
+   * @param logger
    * @param reflector (optional; must be supplied in order for this interceptor to honor the @SkipInterceptor() decorator)
    */
   constructor(
@@ -27,7 +23,7 @@ export class TimeoutInterceptor implements NestInterceptor {
     private readonly reflector?: Reflector,
   ) {
     this.timeoutMs = timeoutMs;
-    this.logger = new Logger();
+    this.logger = pino(getBasicPinoOptions(TimeoutInterceptor.name));
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -36,7 +32,7 @@ export class TimeoutInterceptor implements NestInterceptor {
       const isSkipped = this.reflector.get<boolean>(SKIP_INTERCEPTOR_KEY, context.getHandler());
 
       if (isSkipped) {
-        console.log('🚀 Skipping global interceptor for this route');
+        this.logger.info('🚀 Skipping global interceptor for this route');
         return next.handle(); // Skip global interceptor logic
       }
     }

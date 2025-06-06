@@ -20,13 +20,12 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 
 @Injectable()
 export class ScannerService implements OnApplicationBootstrap, OnApplicationShutdown {
-  private readonly logger: Logger;
-
   private scanInProgress = false;
 
   private paused = false;
@@ -42,9 +41,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private chainEventProcessor: ChainEventProcessorService,
-  ) {
-    this.logger = new Logger(ScannerService.name);
-  }
+    @InjectPinoLogger(ScannerService.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   async onApplicationBootstrap() {
     setImmediate(() => this.scan());
@@ -81,7 +80,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     targetBlock -= rewindOffset ? Math.abs(rewindOffset) : 0;
     targetBlock = Math.max(targetBlock, 1);
     this.scanResetBlockNumber = targetBlock;
-    this.logger.log(`Resetting scan to block #${targetBlock}`);
+    this.logger.info(`Resetting scan to block #${targetBlock}`);
     this.resumeScanner(immediate);
   }
 
@@ -106,7 +105,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       // eslint-disable-next-line no-constant-condition
       while (true) {
         if (this.paused) {
-          this.logger.log('Scan paused');
+          this.logger.info('Scan paused');
           break;
         }
 
@@ -114,14 +113,14 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
         if (queueSize > this.config.queueHighWater) {
           // Check if we're entering high water mark
           if (!this.isHighWater) {
-            this.logger.log(
+            this.logger.info(
               `Queue soft limit reached (${queueSize}/${this.config.queueHighWater}); pausing scan until next interval`,
             );
             this.isHighWater = true;
           }
           // Check if we've drained enough to exit high water state
           else if (this.isHighWater && queueSize <= this.config.queueHighWater * 0.8) {
-            this.logger.log(
+            this.logger.info(
               `Queue drained below threshold (${queueSize}/${this.config.queueHighWater}); will resume scanning`,
             );
             this.isHighWater = false;
@@ -141,7 +140,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
 
         const messages = await this.chainEventProcessor.getMessagesInBlock(currentBlockNumber, eventsToWatch);
         if (messages.length > 0) {
-          this.logger.verbose(`Found ${messages.length} messages to process`);
+          this.logger.trace(`Found ${messages.length} messages to process`);
         }
         await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue);
         await this.saveProgress(currentBlockNumber);

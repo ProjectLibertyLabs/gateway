@@ -12,15 +12,16 @@ import {
 } from '#types/dtos/content-publishing';
 import { AnnouncementTypeName } from '#types/enums';
 import { MsaIdDto } from '#types/dtos/common';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'content' })
 @ApiTags('v1/content')
 export class ContentControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(ContentControllerV1.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   @Post(':msaId/broadcast')
   @ApiOperation({ summary: 'Create DSNP Broadcast for user' })

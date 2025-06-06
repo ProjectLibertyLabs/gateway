@@ -17,6 +17,8 @@ import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
+import { Logger } from 'nestjs-pino';
+
 describe('Account Controller', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
@@ -62,6 +64,7 @@ describe('Account Controller', () => {
     }).compile();
 
     app = module.createNestApplication();
+    app.useLogger(app.get(Logger));
 
     // Uncomment below to see logs when debugging tests
     // module.useLogger(new Logger());

@@ -26,14 +26,14 @@ export class AssetProcessorService extends BaseConsumer implements OnApplication
   }
 
   async process(job: Job<IAssetJob, any, string>): Promise<void> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    this.logger.info(`Processing job ${job.id} of type ${job.name}`);
     this.logger.debug(job.asJSON());
     const redisResults = await this.redis.getBuffer(job.data.contentLocation);
     if (!redisResults) {
       throw new Error(`Content stored in ${job.data.contentLocation} does not exist!`);
     }
     const pinned = await this.ipfsService.ipfsPin(job.data.mimeType, redisResults, false);
-    this.logger.log(pinned);
+    this.logger.info(pinned);
     if (job.data.ipfsCid !== pinned.cid) {
       throw new Error(`Cid does not match ${job.data.ipfsCid} != ${pinned.cid}`);
     }
@@ -42,7 +42,7 @@ export class AssetProcessorService extends BaseConsumer implements OnApplication
   // eslint-disable-next-line class-methods-use-this
   @OnWorkerEvent('completed')
   async onCompleted(job: Job<IAssetJob, any, string>) {
-    this.logger.log(`completed ${job.id}`);
+    this.logger.info(`completed ${job.id}`);
     const secondsPassed = Math.round((Date.now() - job.timestamp) / 1000);
     const expectedSecondsToExpire = this.config.assetExpirationIntervalSeconds;
     const secondsToExpire = Math.max(0, expectedSecondsToExpire - secondsPassed);

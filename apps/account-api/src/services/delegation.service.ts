@@ -10,17 +10,20 @@ import {
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { PinoLogger } from 'nestjs-pino';
+import { pino, Logger } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 @Injectable()
 export class DelegationService {
-  private readonly logger: PinoLogger;
+  private readonly logger: Logger;
 
   constructor(
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
-  ) {}
+  ) {
+    this.logger = pino(getBasicPinoOptions(DelegationService.name));
+  }
 
   async getDelegation(msaId: string): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);

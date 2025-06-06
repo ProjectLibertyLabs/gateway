@@ -32,7 +32,7 @@
     "start:content-publishing-api:debug": "dotenvx run -f .env.content-publishing -- nest start content-publishing-api --debug --watch",
     "start:content-publishing-worker": "dotenvx run -f .env.content-publishing -- nest start content-publishing-worker",
     "start:content-publishing-worker:watch": "dotenvx run -f .env.content-publishing -- nest start content-publishing-worker --watch",
-    "start:content-publishing-worker:prod": "node dist/apps/content-publishing-worker/main.js",
+    "start:content-publishing-worker:prod": "node dist/apps/reacontent-publishing-worker/main.js",
     "start:content-publishing-worker:dev": "dotenvx run -f .env.content-publishing -- nest start content-publishing-worker --watch",
     "start:content-publishing-worker:debug": "dotenvx run -f .env.content-publishing -- nest start content-publishing-worker --debug --watch",
     "start:content-watcher": "dotenvx run -f .env.content-watcher -- nest start content-watcher",

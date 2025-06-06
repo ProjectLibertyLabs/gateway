@@ -59,7 +59,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError();
       }
-      this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+      this.logger.info(`Processing job ${job.id} of type ${job.name}`);
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
@@ -84,7 +84,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const obj = {};
       obj[txHash.toString()] = JSON.stringify(status);
       await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
-      this.logger.verbose(`Successfully completed job ${job.id}`);
+      this.logger.trace(`Successfully completed job ${job.id}`);
     } catch (e) {
       if (e instanceof DelayedError) {
         job.moveToDelayed(Date.now(), job.token);

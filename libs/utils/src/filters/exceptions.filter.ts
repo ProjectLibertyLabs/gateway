@@ -4,20 +4,20 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Logger,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import ShortUniqueId from 'short-unique-id';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger: Logger;
-
   private readonly uid: ShortUniqueId;
 
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {
-    this.logger = new Logger(this.constructor.name);
+  constructor(
+    private readonly httpAdapterHost: HttpAdapterHost,
+    @InjectPinoLogger(AllExceptionsFilter.name) private readonly logger: PinoLogger,
+  ) {
     this.uid = new ShortUniqueId({ length: 20 });
   }
 

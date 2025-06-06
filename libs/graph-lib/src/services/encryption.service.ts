@@ -6,6 +6,7 @@ import { Aes256Gcm, CipherSuite, HkdfSha256 } from '@hpke/core';
 import { DhkemX25519HkdfSha256 } from '@hpke/dhkem-x25519';
 import { hexToU8a, u8aToHex } from '@polkadot/util';
 import { HexString } from '@polkadot/util/types';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 export class EncryptionResult {
   senderContext: HexString;
@@ -17,15 +18,14 @@ export class EncryptionResult {
 
 @Injectable()
 export class EncryptionService implements OnModuleInit {
-  private readonly logger: Logger;
-
   private suite: CipherSuite;
 
   private encryptionKey: CryptoKeyPair;
 
-  constructor(@Inject(graphCommonConfig.KEY) private readonly config: IGraphCommonConfig) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    @Inject(graphCommonConfig.KEY) private readonly config: IGraphCommonConfig,
+    @InjectPinoLogger(EncryptionService.name) private readonly logger: PinoLogger,
+  ) {}
 
   async onModuleInit() {
     this.suite = new CipherSuite({

@@ -29,7 +29,8 @@ import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
 import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 interface IAuthCode {
   authorizationCode?: string;
@@ -37,15 +38,17 @@ interface IAuthCode {
 
 @Injectable()
 export class SiwfV2Service {
+  private readonly logger: Logger;
+
   constructor(
     @Inject(apiConfig.KEY)
     private readonly apiConf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
-    @InjectPinoLogger(SiwfV2Service.name)
-    private readonly logger: PinoLogger,
-  ) {}
+  ) {
+    this.logger = pino(getBasicPinoOptions(SiwfV2Service.name));
+  }
 
   private static requestedCredentialTypesToFullRequest(requestCredentials: string[]): SiwfCredentialRequest[] {
     const credentials: SiwfCredentialRequest[] = [];

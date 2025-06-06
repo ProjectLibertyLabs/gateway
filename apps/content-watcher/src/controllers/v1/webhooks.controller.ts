@@ -3,17 +3,18 @@ import {
   WebhookRegistrationDto,
   WebhookRegistrationResponseDto,
 } from '#types/dtos/content-watcher/subscription.webhook.dto';
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'webhooks' })
 @ApiTags('v1/webhooks')
 export class WebhookControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(WebhookRegistrationDto.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Register a webhook to be called when new content is encountered on the chain' })

@@ -11,13 +11,15 @@
  *          - throw an error if an empty value is encountered
  */
 import { ICapacityLimit } from '#types/interfaces/capacity-limit.interface';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ICapacityInfo } from './types';
 import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../logger/logLevel-common-config';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';
@@ -53,7 +55,7 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
     @InjectRedis() private readonly redis: Redis,
     private readonly eventEmitter: EventEmitter2,
   ) {
-    this.logger = new Logger();
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
 
     // NOTE: Why we do this on an interval instead of using an expiring cache key & fetching inside checkForSufficientCapacity:
     // - We wanted to take the RPC call to the chain out of the critical path for checking capacity (and more specifically, out of the critical path for submitting transactions)
@@ -110,7 +112,7 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
       // Minimum with bigints
       const serviceRemaining =
         remainingCapacity > limit - epochUsedCapacity ? limit - epochUsedCapacity : remainingCapacity;
-      this.logger.verbose(
+      this.logger.trace(
         `Service Capacity usage: ${epochUsedCapacity} of ${limit} allowed (${serviceRemaining} remaining)`,
       );
       this.lastCapacityEpoch = currentEpoch;

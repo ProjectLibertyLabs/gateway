@@ -78,7 +78,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError();
       }
-      this.logger.log(`Processing job ${job.id} of type ${job.name}.`);
+      this.logger.info(`Processing job ${job.id} of type ${job.name}.`);
       let tx: SubmittableExtrinsic<'promise'>;
       let targetEvent: ITxStatus['successEvent'];
       let blockNumber: number;
@@ -132,7 +132,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         }
       }
       this.logger.debug(`Job successfully completed (${job.id})`);
-      this.logger.verbose(JSON.stringify(job, null, 2));
+      this.logger.trace(JSON.stringify(job, null, 2));
 
       const status: ITxStatus = {
         type: job.data.type,
@@ -208,7 +208,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   processBatchTxn(
     callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.verbose(
+    this.logger.trace(
       'processBatchTxn: callVec: ',
       callVec.map((c) => c.toHuman()),
     );
@@ -282,7 +282,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   public async handleCapacityAvailable() {
     // Avoid spamming the log
     if (await this.transactionPublishQueue.isPaused()) {
-      this.logger.verbose('Capacity Available: Resuming account change publish queue and clearing timeout');
+      this.logger.trace('Capacity Available: Resuming account change publish queue and clearing timeout');
     }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.transactionPublishQueue.getFailed();

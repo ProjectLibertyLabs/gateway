@@ -1,6 +1,6 @@
 // ipfs.service.ts
 
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import ipfsConfig, { getIpfsCidPlaceholder, IIpfsConfig } from './ipfs.config';
 import { randomUUID } from 'crypto';
 import { extension as getExtension } from 'mime-types';
@@ -9,6 +9,7 @@ import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#util
 import { createKuboRPCClient, KuboRPCClient, CID, FilesStatResult, FilesStatOptions } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class IpfsService {
@@ -16,13 +17,11 @@ export class IpfsService {
 
   private readonly gatewayUrl: string;
 
-  private readonly logger: Logger;
-
   constructor(
     @Inject(ipfsConfig.KEY) config: IIpfsConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
+    @InjectPinoLogger(IpfsService.name) private readonly logger: PinoLogger,
   ) {
-    this.logger = new Logger(IpfsService.name);
     this.gatewayUrl = config.ipfsGatewayUrl;
     this.ipfs = createKuboRPCClient({
       url: config.ipfsEndpoint,
@@ -93,7 +92,7 @@ export class IpfsService {
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
 
-    this.logger.verbose(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
+    this.logger.trace(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
     try {
       const r = this.ipfs.pin.ls({ paths: v0Cid, type: 'all' });
       // eslint-disable-next-line no-restricted-syntax
@@ -140,7 +139,7 @@ export class IpfsService {
   }
 
   private async ipfsPinBuffer(filename: string, contentType: string, fileBuffer: Buffer): Promise<FilePin> {
-    this.logger.log(`Making IPFS pinning request for ${filename} (${contentType})`);
+    this.logger.info(`Making IPFS pinning request for ${filename} (${contentType})`);
 
     try {
       const result = await this.ipfs.add(fileBuffer, {
@@ -162,7 +161,7 @@ export class IpfsService {
   }
 
   public async ipfsPinStream(stream: Readable): Promise<FilePin> {
-    this.logger.verbose(`Making IPFS pinning request for uploaded content`);
+    this.logger.trace(`Making IPFS pinning request for uploaded content`);
 
     try {
       const result = await this.withConnectionCheck(() =>

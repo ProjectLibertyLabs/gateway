@@ -65,7 +65,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     const successSection = 'statefulStorage';
     let successMethod: string;
     try {
-      this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+      this.logger.info(`Processing job ${job.id} of type ${job.name}`);
       let blockNumber: number;
       switch (job.data.update.type) {
         case 'PersistPage': {
@@ -184,7 +184,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
   public async handleCapacityAvailable() {
     // Avoid spamming the log
     if (await this.graphChangePublishQueue.isPaused()) {
-      this.logger.verbose('Capacity Available: Resuming graph change publish queue and clearing timeout');
+      this.logger.trace('Capacity Available: Resuming graph change publish queue and clearing timeout');
     }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.graphChangePublishQueue.getFailed();

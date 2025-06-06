@@ -4,15 +4,17 @@ import { MsaIdDto, UrlDto } from '#types/dtos/common';
 import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { WebhookControllerV1 } from '#content-watcher/controllers';
 
 @Controller({ version: '1', path: 'webhooks' })
 @ApiTags('v1/webhooks')
 export class WebhooksControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(WebhookControllerV1.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)

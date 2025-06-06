@@ -1,4 +1,4 @@
-import { BeforeApplicationShutdown, Inject, Injectable, Logger } from '@nestjs/common';
+import { BeforeApplicationShutdown, Inject, Injectable } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -22,6 +22,8 @@ import {
 } from '#types/constants';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../libs/logger/logLevel-common-config';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -45,14 +47,14 @@ export class ApiService implements BeforeApplicationShutdown {
     private readonly asyncDebouncerService: AsyncDebouncerService,
     private readonly encryptionService: EncryptionService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   beforeApplicationShutdown(_signal?: string | undefined) {
     try {
       this.redis.del(DEBOUNCER_CACHE_KEY);
       this.redis.del(LAST_PROCESSED_DSNP_ID_KEY);
-      this.logger.log('Cleanup on shutdown completed.');
+      this.logger.info('Cleanup on shutdown completed.');
     } catch (e) {
       this.logger.error(`Error during cleanup on shutdown: ${e}`);
     }
@@ -116,7 +118,7 @@ export class ApiService implements BeforeApplicationShutdown {
       );
       if (existingWebhooks.size === 0 || !existingWebhooks.has(url)) {
         webhookAdded = true;
-        this.logger.verbose(`Registering webhook for MSA ${msaId}: ${url}`);
+        this.logger.trace(`Registering webhook for MSA ${msaId}: ${url}`);
       }
       existingWebhooks.add(url);
       await this.redis.hset(REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...existingWebhooks]));

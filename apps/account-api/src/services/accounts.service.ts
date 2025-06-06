@@ -20,21 +20,23 @@ import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ApiPromise } from '@polkadot/api';
-import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 @Injectable()
 export class AccountsService {
+  private readonly logger: Logger;
+
   constructor(
     @Inject(apiConfig.KEY) private readonly apiCOnf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
-    @InjectPinoLogger('AccountsService')
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
-    private readonly logger: PinoLogger,
-  ) {}
+  ) {
+    this.logger = pino(getBasicPinoOptions(AccountsService.name));
+  }
 
   async getAccount(msaId: string): Promise<AccountResponseDto | null> {
-    this.logger.debug('blockchain service is null', this.blockchainService);
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const handleResponse = await this.blockchainService.getHandleForMsa(msaId);

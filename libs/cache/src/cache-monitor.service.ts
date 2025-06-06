@@ -1,8 +1,10 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientNamespace } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../logger/logLevel-common-config';
 
 const REDIS_TIMEOUT_MS = 30_000;
 
@@ -28,7 +30,7 @@ export class CacheMonitorService implements OnModuleDestroy {
   }
 
   constructor(private readonly eventEmitter: EventEmitter2) {
-    this.logger = new Logger(CacheMonitorService.name);
+    this.logger = pino(getBasicPinoOptions(CacheMonitorService.name));
     this.startConnectionTimer();
   }
 
@@ -50,11 +52,11 @@ export class CacheMonitorService implements OnModuleDestroy {
       this.timeout = null;
     }
     if (!this.statusMap.get(namespace)) {
-      this.logger.log(`Redis [${namespace.toString()}] connected`);
+      this.logger.info(`Redis [${namespace.toString()}] connected`);
     }
     this.statusMap.set(namespace, true);
     if (![...this.statusMap.values()].some((val) => !val)) {
-      this.logger.log('All Redis connections up.');
+      this.logger.info('All Redis connections up.');
     }
   }
 

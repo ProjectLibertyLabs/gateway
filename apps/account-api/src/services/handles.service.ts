@@ -5,14 +5,15 @@ import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { verifySignature } from '#utils/common/signature.util';
-import { PinoLogger } from 'nestjs-pino';
+import { pino, Logger } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 @Injectable()
 export class HandlesService {
-  private readonly logger: PinoLogger;
+  private readonly logger: Logger;
 
   constructor(private blockchainService: BlockchainRpcQueryService) {
-    // this.logger.setContext(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(HandlesService.name));
   }
 
   async getHandle(msaId: string): Promise<HandleResponseDto | null> {

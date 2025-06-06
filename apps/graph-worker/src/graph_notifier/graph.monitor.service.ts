@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -21,6 +21,8 @@ import { REDIS_WEBHOOK_ALL, REDIS_WEBHOOK_PREFIX, SECONDS_PER_BLOCK, TXN_WATCH_L
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { pino } from 'pino';
+import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
@@ -39,13 +41,13 @@ export class GraphMonitorService extends BlockchainScannerService {
         ['dsnp', 'private-connections'],
       ]);
     this.graphSchemaIds = schemaResponse.flatMap(({ ids }) => ids);
-    this.logger.log('Monitoring schemas for graph updates: ', this.graphSchemaIds);
+    this.logger.info('Monitoring schemas for graph updates: ', this.graphSchemaIds);
     const pendingTxns = await this.cacheManager.hgetall(TXN_WATCH_LIST_KEY);
     // If no transactions pending, skip to end of chain at startup, else, skip to earliest
     /// birth block of a monitored extrinsic if we haven't crawled that far yet
     if (Object.keys(pendingTxns).length === 0) {
       const blockNumber = await this.blockchainService.getLatestBlockNumber();
-      this.logger.log(`Skipping to end of the chain to resume scanning (block #${blockNumber})`);
+      this.logger.info(`Skipping to end of the chain to resume scanning (block #${blockNumber})`);
       await this.setLastSeenBlockNumber(blockNumber);
     } else {
       const minBirthBlock = Math.min(
@@ -57,7 +59,7 @@ export class GraphMonitorService extends BlockchainScannerService {
           .sort((a, b) => a - b),
       );
       const lastSeenBlock = await this.getLastSeenBlockNumber();
-      this.logger.log('Skipping ahead to monitor submitted extrinsics', { skipTo: minBirthBlock - 1, lastSeenBlock });
+      this.logger.info('Skipping ahead to monitor submitted extrinsics', { skipTo: minBirthBlock - 1, lastSeenBlock });
       if (lastSeenBlock < minBirthBlock - 1) {
         await this.setLastSeenBlockNumber(minBirthBlock - 1);
       }
@@ -88,7 +90,7 @@ export class GraphMonitorService extends BlockchainScannerService {
     @Inject(httpCommonConfig.KEY) private readonly httpConf: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
-    super(cacheManager, blockchainService, new Logger(GraphMonitorService.prototype.constructor.name));
+    super(cacheManager, blockchainService, pino(getBasicPinoOptions(GraphMonitorService.prototype.constructor.name)));
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
@@ -169,7 +171,7 @@ export class GraphMonitorService extends BlockchainScannerService {
             statusesToReport.push({ ...txStatus, status: 'failed' });
           }
         } else if (successEvent) {
-          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+          this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
           statusesToReport.push({ ...txStatus, status: 'succeeded' });
         } else {
           this.logger.error(
@@ -302,7 +304,7 @@ export class GraphMonitorService extends BlockchainScannerService {
       }
 
       // TODO: send out notifications of all graph updates to registered webhooks
-      this.logger.verbose(
+      this.logger.trace(
         `Found graph update in block #${block.block.header.number.toNumber()}`,
         JSON.stringify(graphUpdateNotification),
       );

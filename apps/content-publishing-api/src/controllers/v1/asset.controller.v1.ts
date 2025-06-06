@@ -4,7 +4,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
   ParseFilePipeBuilder,
   Put,
   UploadedFiles,
@@ -14,15 +13,16 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'asset' })
 @ApiTags('v1/asset')
 export class AssetControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(AssetControllerV1.name)
+    private readonly logger: PinoLogger,
+  ) {}
 
   @Put('upload')
   @SkipInterceptors()

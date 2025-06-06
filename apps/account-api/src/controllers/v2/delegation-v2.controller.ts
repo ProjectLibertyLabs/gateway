@@ -12,9 +12,7 @@ import { PinoLogger } from 'nestjs-pino';
 export class DelegationsControllerV2 {
   private readonly logger: PinoLogger;
 
-  constructor(private delegationService: DelegationService) {
-    // this.logger.setContext(this.constructor.name);
-  }
+  constructor(private delegationService: DelegationService) {}
 
   // eslint-disable-next-line class-methods-use-this
   @Get(':msaId')

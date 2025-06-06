@@ -1,8 +1,10 @@
 import { CommonConsumer } from '#types/constants/queue.constants';
 import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
-import { Logger, OnModuleDestroy } from '@nestjs/common';
+import { OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
 import { delayMS } from '#utils/common/common.utils';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../logger/logLevel-common-config';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
   protected logger: Logger;
@@ -11,7 +13,7 @@ export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost
 
   protected constructor() {
     super();
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
     this.actives = new Set();
   }
 

@@ -17,6 +17,7 @@ import {
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { ApiPromise } from '@polkadot/api';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
+import { PinoLogger } from 'nestjs-pino';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -33,6 +34,17 @@ jest.mock('@polkadot/api', () => {
     })),
   };
 });
+
+const mockPinoLoggerProvider: PinoLogger = {
+  provide: 'PinoLogger:SiwfV2Service',
+  useValue: {
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    debug: () => {},
+    trace: () => {},
+  },
+};
 
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
@@ -76,6 +88,7 @@ describe('SiwfV2Service', () => {
         mockAccountApiConfigProvider,
         mockBlockchainConfigProvider,
         EnqueueService,
+        mockPinoLoggerProvider,
       ],
     }).compile();
 

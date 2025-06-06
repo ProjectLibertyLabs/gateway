@@ -25,20 +25,18 @@ import {
 } from '#types/dtos/account/graphs.request.dto';
 import { TransactionType } from '#types/account-webhook';
 import { MsaIdDto } from '#types/dtos/common';
-import { PinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'keys' })
 @ApiTags('v1/keys')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class KeysControllerV1 {
-  private readonly logger: PinoLogger;
-
   constructor(
     private keysService: KeysService,
+    private readonly logger: PinoLogger,
+    @InjectPinoLogger(KeysService.name)
     private enqueueService: EnqueueService,
-  ) {
-    // this.logger.setContext(this.constructor.name);
-  }
+  ) {}
 
   @Post('add')
   @HttpCode(HttpStatus.OK)

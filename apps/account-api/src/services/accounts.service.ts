@@ -31,16 +31,10 @@ export class AccountsService {
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
     private readonly logger: PinoLogger,
-  ) {
-    this.logger.debug('debug');
-    this.logger.warn('warn');
-    this.logger.error('error');
-    this.logger.info('info');
-    this.logger.trace('trace');
-    this.logger.fatal('fatal');
-  }
+  ) {}
 
   async getAccount(msaId: string): Promise<AccountResponseDto | null> {
+    this.logger.debug('blockchain service is null', this.blockchainService);
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (isValidMsaId) {
       const handleResponse = await this.blockchainService.getHandleForMsa(msaId);

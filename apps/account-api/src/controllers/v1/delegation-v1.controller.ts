@@ -6,20 +6,20 @@ import {
   RevokeDelegationPayloadRequestDto,
 } from '#types/dtos/account';
 import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
-import { PinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'delegation' })
 @ApiTags('v1/delegation')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
-  private readonly logger: PinoLogger;
-
-  constructor(private delegationService: DelegationService) {
-    // this.logger.setContext(this.constructor.name);
-  }
+  constructor(
+    private readonly logger: PinoLogger,
+    @InjectPinoLogger(DelegationService.name)
+    private delegationService: DelegationService,
+  ) {}
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)

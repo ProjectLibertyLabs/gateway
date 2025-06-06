@@ -20,9 +20,7 @@ export class DelegationService {
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
-  ) {
-    // this.logger.setContext(this.constructor.name);
-  }
+  ) {}
 
   async getDelegation(msaId: string): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);

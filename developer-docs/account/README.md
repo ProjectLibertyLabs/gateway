@@ -1,6 +1,7 @@
 # Account Service
 
-The Account Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP accounts on Frequency. This document provides an overview of the service, its architecture, and guides for setup and usage.
+The Account Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP accounts on
+Frequency. This document provides an overview of the service, its architecture, and guides for setup and usage.
 
 ## 📗 Table of Contents
 
@@ -16,7 +17,9 @@ The Account Service is a crucial component of the Gateway suite, enabling easy i
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Account Service simplifies the management of user accounts, defined by a user's handle and MSA Id (Message Source Account Identifier) on the [Frequency](https://docs.frequency.xyz/) blockchain using [DSNP](https://dsnp.org/) protocols.
+The Account Service simplifies the management of user accounts, defined by a user's handle and MSA Id (Message Source
+Account Identifier) on the [Frequency](https://docs.frequency.xyz/) blockchain using [DSNP](https://dsnp.org/)
+protocols.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
@@ -62,7 +65,9 @@ Ensure you have the following installed:
    cp env-files/account.template.env .env.account
    ```
 
-   Ensure that the `.env.account` file is correctly configured for your environment. For more information, refer to the [Environment Variables](ENVIRONMENT.md) section in the full documentation. Specifically, you will need to set the `FREQUENCY_API_WS_URL`, etc., to the correct network (e.g., `wss://0.rpc.testnet.amplica.io`).
+   Ensure that the `.env.account` file is correctly configured for your environment. For more information, refer to
+   the [Environment Variables](ENVIRONMENT.md) section in the full documentation. Specifically, you will need to set the
+   `FREQUENCY_API_WS_URL`, etc., to the correct network (e.g., `wss://0.rpc.testnet.amplica.io`).
 
 3. Install dependencies:
 
@@ -79,14 +84,15 @@ Ensure you have the following installed:
 5. Start account service api and worker applications using Docker:
 
    ```bash
-   docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile account up -d
+   docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile account --profile e2e up -d
    ```
 
 ### Local Development (without containers)
 
 If you prefer to run services locally for development:
 
-1. Start Redis and Frequency:
+1. Start Redis and Frequency:  This will launch an instance of redis,
+   frequency chain, create a bunch of MSAs and Providers, and launch blockchain-service.
 
    ```bash
    ./scripts/account/restart-local-dev.sh
@@ -98,7 +104,7 @@ If you prefer to run services locally for development:
    cd webhook-servers && cargo run
    ```
 
-3. Start the API (in a new terminal):
+3. Start the API (in a new terminal). Ctrl-C to quit.
 
    ```bash
    npm run start:account-api:dev
@@ -123,13 +129,15 @@ After setting up the Account Service, you can:
 - Run the test suite to ensure everything is working correctly
 - Start integrating the Account Service into your application
 
-For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to our [comprehensive documentation](#).
+For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to
+our [comprehensive documentation](#).
 
 ## 🚀 API Documentation <a name="api-documentation"></a>
 
 ### Live OpenAPI Docs
 
-Explore our [Live API Documentation](https://projectlibertylabs.github.io/account-service) for detailed information on endpoints and usage.
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/account-service) for detailed information on
+endpoints and usage.
 
 ## 🛠 Development <a name="development"></a>
 
@@ -185,13 +193,15 @@ Note: You may need to manually remove containers using the Docker Desktop app.
 
 4. Monitor the service worker jobs in [BullUI](http://0.0.0.0:3000/queues/).
 
-   Any API functions that require an extrinsic to be submitted to the blockchain will be queued here. The queue will manage the amount of `capacity` this service is allowed to use.
+   Any API functions that require an extrinsic to be submitted to the blockchain will be queued here. The queue will
+   manage the amount of `capacity` this service is allowed to use.
 
 5. Use [Swagger](http://0.0.0.0:3000/api/docs/swagger) to test the API.
 
 Reference the [Frequency Docs](https://docs.frequency.xyz/) for more information about extrinsics and capacity.
 
-**Note:** Reference `.vscode/launch.json` for more details on the debug configurations and apply the concepts to your preferred debugger.
+**Note:** Reference `.vscode/launch.json` for more details on the debug configurations and apply the concepts to your
+preferred debugger.
 
 ### Built With
 
@@ -202,11 +212,13 @@ Reference the [Frequency Docs](https://docs.frequency.xyz/) for more information
 - **API Documentation**: Swagger
 - **Containerization**: Docker, Docker Compose
 
-For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full documentation.
+For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full
+documentation.
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
@@ -216,7 +228,8 @@ _Yes, Gateway Services are designed to be ready-to-use out of the box for social
 
 **Q: Will the Account Service scale for large applications?**
 
-_The service is designed to support small-to-medium-sized social apps. For larger use cases, custom solutions may be necessary._
+_The service is designed to support small-to-medium-sized social apps. For larger use cases, custom solutions may be
+necessary._
 
 ## 📝 License <a name="license"></a>
 

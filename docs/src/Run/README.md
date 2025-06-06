@@ -127,6 +127,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 - [Deployment with Kubernetes](./Kubernetes.md)
 - [Monitoring with AWS CloudWatch](./Monitoring.md)
 - [NGINX Ingress](./Nginx.md)
+- [Redis Configuration Guide](./Redis.md)
 - [Securing API Access with NGINX and Load Balancers](./Security.md)
 - [Setting up IPFS](./IPFS.md)
 - [Vault Integration](./Vault.md)

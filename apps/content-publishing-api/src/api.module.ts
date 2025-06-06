@@ -15,6 +15,7 @@ import { QueueModule } from '#queue/queue.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { ContentControllerV2 } from './controllers/v2';
+import { ContentControllerV3 } from './controllers/v3';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
@@ -95,6 +96,7 @@ import { IPFSStorageModule } from '#storage';
           AssetControllerV2,
           ContentControllerV1,
           ContentControllerV2,
+          ContentControllerV3,
           ProfileControllerV1,
           HealthController,
         ],

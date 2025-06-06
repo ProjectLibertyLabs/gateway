@@ -826,6 +826,73 @@ describe('AppController E2E request verification!', () => {
     }, 15000);
   });
 
+  describe('(POST) /v3/content/uploadBatchAnnouncement', () => {
+    it('should reject request without files', () => {
+      return request(app.getHttpServer())
+        .post('/v3/content/uploadBatchAnnouncement')
+        .expect(400);
+    });
+
+    it('should reject request with mismatched schema IDs', () => {
+      const file1 = Buffer.from('fake image content 1');
+      const file2 = Buffer.from('fake image content 2');
+      return request(app.getHttpServer())
+        .post('/v3/content/uploadBatchAnnouncement')
+        .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
+        .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
+        .field('schemaId', '16001')
+        .expect(400)
+        .expect((res) => expect(res.text).toContain('Number of schema IDs does not match'));
+    });
+
+    it('should reject request exceeding file count limit', async () => {
+      const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
+      const files = Array(config.fileUploadCountLimit + 1).fill(Buffer.from('fake image content'));
+      const req = files.reduce((acc, file, index) => {
+        return acc
+          .attach('files', file, { filename: `test${index}.jpg`, contentType: 'image/jpeg' })
+          .field('schemaId', '16001');
+      }, request(app.getHttpServer()).post('/v3/content/uploadBatchAnnouncement'));
+      
+      return req.expect(400)
+        .expect((res) => expect(res.text).toContain('Max file upload count'));
+    });
+
+    it('should accept valid files with matching schema IDs', async () => {
+      const imageContent = Buffer.from('fake image content');
+      
+      return request(app.getHttpServer())
+        .post('/v3/content/uploadBatchAnnouncement')
+        .attach('files', imageContent, { filename: 'test.jpg', contentType: 'image/jpeg' })
+        .field('schemaId', '16001')
+        .expect(202)
+        .expect((res) => {
+          expect(Array.isArray(res.body)).toBe(true);
+          expect(res.body.length).toBeGreaterThan(0);
+          expect(res.body[0]).toHaveProperty('referenceId');
+        });
+    }, 15000);
+
+    it('should process multiple files in a single request', async () => {
+      const file1 = Buffer.from('fake image content 1');
+      const file2 = Buffer.from('fake image content 2');
+      
+      return request(app.getHttpServer())
+        .post('/v3/content/uploadBatchAnnouncement')
+        .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
+        .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
+        .field('schemaId', '16001')
+        .field('schemaId', '16002')
+        .expect(202)
+        .expect((res) => {
+          expect(Array.isArray(res.body)).toBe(true);
+          expect(res.body.length).toBe(2);
+          expect(res.body[0]).toHaveProperty('referenceId');
+          expect(res.body[1]).toHaveProperty('referenceId');
+        });
+    }, 15000);
+  });
+
   afterAll(async () => {
     try {
       await app.close();

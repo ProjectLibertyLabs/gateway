@@ -1,8 +1,32 @@
+:root {
+  --bg: #fff !important;
+  --fg: #000 !important;
+  --headers: #000 !important;
+
+  --links: #000 !important;
+  --links-hover: var(--sidebar-active);
+
+  --table-border-color: #000 !important;
+  --table-header-bg: #fff !important;
+  --table-header-fg: #000 !important;
+  --table-alternate-fg: #000 !important;
+
+  --color-scheme: light !important;
+}
+
+#body-container {
+  min-height: 100vh;
+  display: grid;
+  grid:
+    [row2-start] "content" 1fr [row2-end]
+    / 100% !important;
+}
+
 #sidebar,
 #menu-bar,
 .nav-chapters,
 .mobile-nav-chapters {
-  display: none;
+  display: none !important;
 }
 
 #page-wrapper.page-wrapper {
@@ -15,6 +39,19 @@
   max-width: none;
   margin: 0;
   padding: 0;
+}
+
+.button-links,
+.title-embed {
+  display: none !important;
+}
+
+.svg-embed-light {
+  display: block !important;
+}
+
+.svg-embed-coal {
+  display: none !important;
 }
 
 .page {

@@ -1,0 +1,4 @@
+/* Nav Bar */
+#toc > .chapter > li > a:first-of-type {
+  font-weight: bold;
+}

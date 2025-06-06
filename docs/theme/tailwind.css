@@ -1,0 +1,97 @@
+@import "@frequency-chain/style-guide/styles";
+
+.header-shadow {
+  box-shadow: 0 4px 4px 0 #00000040;
+}
+
+@layer components {
+  /* Underline on hover animation */
+  .underline-on-hover {
+    @apply relative block cursor-pointer overflow-hidden px-0 py-1;
+  }
+
+  .underline-on-hover::after {
+    @apply absolute bottom-0 left-0 h-[0.1em] w-full opacity-0 transition-opacity content-[''];
+    transition:
+      opacity 300ms,
+      transform 300ms;
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  .underline-on-hover:hover::after,
+  .underline-on-hover:focus::after {
+    @apply opacity-100;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Lots adding back in defaults that tailwind removes */
+.content h1 {
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  font-weight: bold;
+}
+
+/* Reset the margins for the first header in the contents */
+.content h1:first-of-type {
+  margin-block-start: 0;
+  margin-top: 0;
+}
+
+.content h2 {
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  font-weight: bold;
+}
+
+.content h3 {
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  font-weight: bold;
+}
+
+.content h4 {
+  margin-block-start: 1.33em;
+  margin-block-end: 1.33em;
+  font-weight: bold;
+}
+
+.content h5 {
+  margin-block-start: 1.67em;
+  margin-block-end: 1.67em;
+  font-weight: bold;
+}
+
+.content h6 {
+  margin-block-start: 2.33em;
+  margin-block-end: 2.33em;
+  font-weight: bold;
+}
+
+.content ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 8px 0;
+}
+
+.content ul {
+  list-style: disc;
+  list-style-position: inside;
+  margin: 12px 0;
+}
+
+.content li {
+  margin: 12px 16px;
+}
+
+.content strong {
+  font-weight: 600;
+}
+
+.content p {
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 0;
+  margin-right: 0;
+}

@@ -15,13 +15,14 @@
 .button-links a,
 .button-links > p a,
 .button-links a:link,
-.button-links > p a:link {
+.button-links > p a:link,
+.button-links a:visited,
+.button-links > p a:visited {
   text-decoration: none;
   box-sizing: content-box;
   font-weight: 700;
   color: var(--button-nav-fg);
   background-color: var(--button-nav-bg);
-  border: 2px solid transparent;
   border-radius: 9999px;
   user-select: none;
   padding: 20px 10%;
@@ -29,23 +30,11 @@
   display: flex;
   font-size: 20px;
   flex: 0.5;
-  transition-property: border, color;
-  transition-duration: 0.5s;
+  transition: none;
   justify-content: center;
   align-items: center;
   text-align: center;
   white-space: nowrap;
-}
-
-.button-links.button-links-small a,
-.button-links.button-links-small > p a,
-.button-links.button-links-small a:link,
-.button-links.button-links-small > p a:link {
-  font-size: 16px;
-  padding: 10px 20px;
-  margin: 10px auto;
-  width: auto;
-  flex: 0;
 }
 
 @media screen and (max-width: 1080px) {
@@ -79,7 +68,6 @@
 .button-links a:visited:hover,
 .button-links > p a:visited:hover {
   text-decoration: none;
-  border: 2px solid var(--button-nav-hover-border);
   color: var(--button-nav-hover-fg);
   background: var(--button-nav-hover-bg);
 }

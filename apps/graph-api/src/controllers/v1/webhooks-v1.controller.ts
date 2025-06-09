@@ -1,7 +1,7 @@
 import { ApiService } from '#graph-api/api.service';
 import { WatchGraphsDto } from '#types/dtos/graph';
 import { MsaIdDto, UrlDto } from '#types/dtos/common';
-import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';

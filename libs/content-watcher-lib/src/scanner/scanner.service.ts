@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
 import '@frequency-chain/api-augment';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -20,12 +20,15 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 
 @Injectable()
 export class ScannerService implements OnApplicationBootstrap, OnApplicationShutdown {
+  private readonly logger: Logger;
+
   private scanInProgress = false;
 
   private paused = false;
@@ -41,9 +44,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private chainEventProcessor: ChainEventProcessorService,
-    @InjectPinoLogger(ScannerService.name)
-    private readonly logger: PinoLogger,
-  ) {}
+  ) {
+    this.logger = pino(getBasicPinoOptions(ScannerService.name));
+  }
 
   async onApplicationBootstrap() {
     setImmediate(() => this.scan());

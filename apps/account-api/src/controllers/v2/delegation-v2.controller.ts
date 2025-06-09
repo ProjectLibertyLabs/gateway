@@ -2,7 +2,7 @@ import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { DelegationService } from '#account-api/services/delegation.service';
 import { DelegationRequestDto, DelegationResponseV2, ProviderDelegationRequestDto } from '#types/dtos/account';
 import { IDelegationResponseV2 } from '#types/interfaces/account/delegations.interface';
-import { Controller, Get, HttpCode, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 

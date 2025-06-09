@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import {

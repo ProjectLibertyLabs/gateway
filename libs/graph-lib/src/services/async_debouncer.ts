@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { ConnectionType, PrivacyType } from '@projectlibertylabs/graph-sdk';
 import { DsnpGraphEdgeDto } from '#types/dtos/graph/dsnp-graph-edge.dto';
@@ -7,17 +7,20 @@ import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import { DEBOUNCER_CACHE_KEY } from '#types/constants';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { pino, Logger } from 'pino';
+import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
 
 @Injectable()
 export class AsyncDebouncerService {
+  private readonly logger: Logger;
+
   constructor(
     @InjectRedis() private redis: Redis,
     @Inject(graphCommonConfig.KEY) private readonly config: IGraphCommonConfig,
     private readonly graphStateManager: GraphStateManager,
-    @InjectPinoLogger(AsyncDebouncerService.name)
-    private readonly logger: PinoLogger,
-  ) {}
+  ) {
+    this.logger = pino(getBasicPinoOptions(AsyncDebouncerService.name));
+  }
 
   public getGraphForDsnpId(
     dsnpId: string,

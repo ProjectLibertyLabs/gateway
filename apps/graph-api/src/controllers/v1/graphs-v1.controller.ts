@@ -1,7 +1,7 @@
 import { ApiService } from '#graph-api/api.service';
 import { ReadOnlyDeploymentGuard } from '#graph-api/guards/read-only-deployment-guard.service';
 import { UserGraphDto, GraphsQueryParamsDto, GraphChangeResponseDto, ProviderGraphDto } from '#types/dtos/graph';
-import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, Body, Put, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 

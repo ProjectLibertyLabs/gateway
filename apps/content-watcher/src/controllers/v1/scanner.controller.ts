@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, NotFoundException, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '#content-watcher/api.service';
 import { ResetScannerDto } from '#types/dtos/content-watcher';

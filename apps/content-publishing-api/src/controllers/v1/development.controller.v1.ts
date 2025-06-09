@@ -3,7 +3,7 @@ This is a controller providing some endpoints useful for development and testing
 */
 
 // eslint-disable-next-line max-classes-per-file
-import { Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';

@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
-import { Controller, HttpCode, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 // eslint-disable-next-line import/no-extraneous-dependencies

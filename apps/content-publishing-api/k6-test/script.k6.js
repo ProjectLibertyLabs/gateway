@@ -259,4 +259,30 @@ export default function () {
       });
     }
   });
+
+  group('/v3/content/uploadBatchAnnouncement', () => {
+    // Test batch upload with multiple files
+    {
+      let url = BASE_URL + `/v3/content/uploadBatchAnnouncement`;
+      const formData = new FormData();
+      
+      // Add two test files with schema IDs
+      const file1 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
+      const file2 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
+      formData.append('files', file1);
+      formData.append('schemaId', '16001');
+      formData.append('files', file2);
+      formData.append('schemaId', '16001');
+
+      let params = { headers: { 'Content-Type': 'multipart/form-data' } };
+      let request = http.post(url, formData, params);
+
+      check(request, {
+        'Status is 202': (r) => r.status === 202,
+        'Has referenceId': (r) => JSON.parse(r.body).referenceId !== undefined,
+        'Has files array': (r) => Array.isArray(JSON.parse(r.body).files),
+        'Files have CIDs': (r) => JSON.parse(r.body).files.every(f => f.cid !== undefined)
+      });
+    }
+  });
 }

@@ -14,7 +14,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import Busboy from 'busboy';
-import { AnnouncementResponseDto, FilesUploadDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
+import { AnnouncementResponseDto, FilesUploadDto, UploadResponseDtoV2, BatchAnnouncementResponseDto } from '#types/dtos/content-publishing';
 import { ApiService } from '../../api.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
@@ -48,16 +48,16 @@ export class ContentControllerV3 {
     description: 'Asset files',
     type: FilesUploadDto,
   })
-  @ApiResponse({ status: '2XX', type: UploadResponseDtoV2 })
+  @ApiResponse({ status: '2XX', type: BatchAnnouncementResponseDto })
   async postUploadBatchAnnouncement(
     @Req() req: Request,
     @Res({ passthrough: true }) _res: Response,
-  ): Promise<AnnouncementResponseDto[]> {
+  ): Promise<BatchAnnouncementResponseDto> {
     const busboy = Busboy({ headers: req.headers });
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
-    let resolveResponse: (val: AnnouncementResponseDto[]) => void;
-    const result = new Promise<AnnouncementResponseDto[]>((resolve) => {
+    let resolveResponse: (val: BatchAnnouncementResponseDto) => void;
+    const result = new Promise<BatchAnnouncementResponseDto>((resolve) => {
       resolveResponse = resolve;
     });
     let fileIndex = 0;
@@ -108,9 +108,19 @@ export class ContentControllerV3 {
           });
         });
 
-        // Submit all batch requests
-        const response = await Promise.all(batchPromises);
-        resolveResponse(response);
+        // Submit all batch requests and collect responses
+        const responses = await Promise.all(batchPromises);
+        
+        // Get the first reference ID as the batch reference ID
+        const batchReferenceId = responses[0].referenceId;
+        
+        resolveResponse({
+          referenceId: batchReferenceId,
+          files: uploadResults.map(result => ({
+            cid: result.cid,
+            error: result.error
+          }))
+        });
       } catch (error: unknown) {
         if (error instanceof BadRequestException) {
           throw error;

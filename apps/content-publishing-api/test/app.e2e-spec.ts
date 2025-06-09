@@ -16,6 +16,7 @@ import {
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { Logger } from 'nestjs-pino';
 
 const randomString = (length: number, _unused) =>
   randomBytes(Math.ceil(length / 2))
@@ -55,6 +56,7 @@ describe('AppController E2E request verification!', () => {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+    app.useLogger(app.get(Logger));
 
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {

@@ -30,6 +30,7 @@ export class AccountsControllerV1 {
     @InjectPinoLogger(AccountsService.name)
     @Inject(blockchainConfig.KEY)
     private config: IBlockchainConfig,
+    // eslint-disable-next-line no-empty-function
   ) {}
 
   @Get('siwf')

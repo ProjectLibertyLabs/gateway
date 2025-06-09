@@ -20,6 +20,8 @@ import graphCommonConfig from '#config/graph-common.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '../../../libs/logger/logLevel-common-config';
 
 @Module({
   imports: [
@@ -55,6 +57,7 @@ import { EncryptionService } from '#graph-lib/services/encryption.service';
       ],
       inject: [cacheConfig.KEY],
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
   ],

@@ -21,6 +21,8 @@ import ipfsConfig from '#storage/ipfs/ipfs.config';
 import httpCommonConfig from '#config/http-common.config';
 import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
 import { IPFSStorageModule } from '#storage';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '../../../libs/logger/logLevel-common-config';
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { IPFSStorageModule } from '#storage';
       ],
       inject: [cacheConfig.KEY],
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     MulterModule.registerAsync({

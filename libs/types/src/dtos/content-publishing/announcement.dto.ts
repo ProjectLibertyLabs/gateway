@@ -143,6 +143,7 @@ export class BatchFilesDto {
 export class BatchAnnouncementResponseDto {
   @IsString()
   referenceId: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FileResponseDto)

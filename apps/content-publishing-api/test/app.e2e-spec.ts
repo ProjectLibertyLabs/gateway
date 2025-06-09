@@ -830,9 +830,7 @@ describe('AppController E2E request verification!', () => {
 
   describe('(POST) /v3/content/uploadBatchAnnouncement', () => {
     it('should reject request without files', () => {
-      return request(app.getHttpServer())
-        .post('/v3/content/uploadBatchAnnouncement')
-        .expect(400);
+      return request(app.getHttpServer()).post('/v3/content/uploadBatchAnnouncement').expect(400);
     });
 
     it('should reject request with mismatched schema IDs', () => {
@@ -855,14 +853,13 @@ describe('AppController E2E request verification!', () => {
           .attach('files', file, { filename: `test${index}.jpg`, contentType: 'image/jpeg' })
           .field('schemaId', '16001');
       }, request(app.getHttpServer()).post('/v3/content/uploadBatchAnnouncement'));
-      
-      return req.expect(400)
-        .expect((res) => expect(res.text).toContain('Max file upload count'));
+
+      return req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count'));
     });
 
     it('should accept valid files with matching schema IDs', async () => {
       const imageContent = Buffer.from('fake image content');
-      
+
       return request(app.getHttpServer())
         .post('/v3/content/uploadBatchAnnouncement')
         .attach('files', imageContent, { filename: 'test.jpg', contentType: 'image/jpeg' })
@@ -878,7 +875,7 @@ describe('AppController E2E request verification!', () => {
     it('should process multiple files in a single request', async () => {
       const file1 = Buffer.from('fake image content 1');
       const file2 = Buffer.from('fake image content 2');
-      
+
       return request(app.getHttpServer())
         .post('/v3/content/uploadBatchAnnouncement')
         .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })

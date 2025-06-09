@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   HttpCode,
   Post,
@@ -14,13 +13,11 @@ import {
 import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import Busboy from 'busboy';
-import { AnnouncementResponseDto, FilesUploadDto, UploadResponseDtoV2, BatchAnnouncementResponseDto } from '#types/dtos/content-publishing';
+import { FilesUploadDto, BatchAnnouncementResponseDto } from '#types/dtos/content-publishing';
 import { ApiService } from '../../api.service';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
 import { IFileResponse } from '#types/interfaces/content-publishing';
-import { IpfsService } from '#storage';
 
 @Controller({ version: '3', path: 'content' })
 @ApiTags('v3/content')
@@ -30,8 +27,6 @@ export class ContentControllerV3 {
   constructor(
     @Inject(apiConfig.KEY) private readonly appConfig: IContentPublishingApiConfig,
     private readonly apiService: ApiService,
-    private readonly blockchainService: BlockchainRpcQueryService,
-    private readonly ipfsService: IpfsService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -40,9 +35,10 @@ export class ContentControllerV3 {
   @SkipInterceptors()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Upload files and create batch announcements',
-    description: 'Upload files with their corresponding schema IDs to create batch announcements. Each file must be accompanied by a schemaId field.'
+    description:
+      'Upload files with their corresponding schema IDs to create batch announcements. Each file must be accompanied by a schemaId field.',
   })
   @ApiBody({
     description: 'Asset files',
@@ -92,7 +88,7 @@ export class ContentControllerV3 {
         const uploadResults = await Promise.all(fileProcessingPromises);
 
         // Check for upload errors
-        const errors = uploadResults.filter(result => result.error);
+        const errors = uploadResults.filter((result) => result.error);
         if (errors.length > 0) {
           throw new BadRequestException(errors[0].error || 'File upload failed');
         }
@@ -104,22 +100,22 @@ export class ContentControllerV3 {
           }
           return this.apiService.enqueueBatchRequest({
             cid: result.cid,
-            schemaId: schemaIds[index]
+            schemaId: schemaIds[index],
           });
         });
 
         // Submit all batch requests and collect responses
         const responses = await Promise.all(batchPromises);
-        
+
         // Get the first reference ID as the batch reference ID
         const batchReferenceId = responses[0].referenceId;
-        
+
         resolveResponse({
           referenceId: batchReferenceId,
-          files: uploadResults.map(result => ({
+          files: uploadResults.map((result) => ({
             cid: result.cid,
-            error: result.error
-          }))
+            error: result.error,
+          })),
         });
       } catch (error: unknown) {
         if (error instanceof BadRequestException) {
@@ -139,4 +135,4 @@ export class ContentControllerV3 {
 
     return result;
   }
-} 
+}

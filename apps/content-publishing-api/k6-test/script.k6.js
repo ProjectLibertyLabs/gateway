@@ -19,7 +19,7 @@ import {
   validReaction,
   validReplyNoUploadedAssets,
   validOnChainContent,
-  validTombstone
+  validTombstone,
 } from '../test/mockRequestData.ts';
 
 import { getReferenceId, createContentWithAsset } from './helpers.js';
@@ -265,7 +265,7 @@ export default function () {
     {
       let url = BASE_URL + `/v3/content/uploadBatchAnnouncement`;
       const formData = new FormData();
-      
+
       // Add two test files with schema IDs
       const file1 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
       const file2 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
@@ -281,7 +281,7 @@ export default function () {
         'Status is 202': (r) => r.status === 202,
         'Has referenceId': (r) => JSON.parse(r.body).referenceId !== undefined,
         'Has files array': (r) => Array.isArray(JSON.parse(r.body).files),
-        'Files have CIDs': (r) => JSON.parse(r.body).files.every(f => f.cid !== undefined)
+        'Files have CIDs': (r) => JSON.parse(r.body).files.every((f) => f.cid !== undefined),
       });
     }
   });

@@ -16,18 +16,19 @@ import { IWebhookRegistration } from '#types/dtos/content-watcher/subscription.w
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
-import { PinoLogger } from 'nestjs-pino';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '../../../libs/logger/logLevel-common-config';
 
 @Injectable()
 export class ApiService {
-  private readonly logger: PinoLogger;
+  private readonly logger: Logger;
 
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.WATCHER_REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
-    this.logger.setContext(ApiService.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   public async getWatchOptions(): Promise<ChainWatchOptionsDto | null> {

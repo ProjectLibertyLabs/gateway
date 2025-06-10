@@ -115,3 +115,30 @@ pre .hljs {
 .no-js .svg-embed-coal {
   display: none;
 }
+
+.title-embed {
+  display: flex;
+  align-items: last baseline;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.title-embed-light {
+  display: none;
+  width: 64px;
+  height: 64px;
+  margin-right: 8px;
+}
+
+.title-embed-coal {
+  display: flex;
+  width: 64px;
+  height: 64px;
+  margin-right: 8px;
+}
+
+.embed-number {
+  font-size: 60px;
+  font-weight: bold;
+  color: var(--color-secondary);
+}

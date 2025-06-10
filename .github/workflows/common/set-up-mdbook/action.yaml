@@ -8,16 +8,16 @@ runs:
   using: 'composite'
   steps:
     - name: Setup mdBook 📚
-      uses: jontze/action-mdbook@0765bef0c7c5792f93bf3ed3d487a0ca32c9da33
+      uses: jontze/action-mdbook@6c0be56d14c4bf16861b00af61f50ff7400ce502
       with:
         token: ${{ inputs.token }}
-        mdbook-version: '0.4.42' # Use a semver compatible string
+        mdbook-version: '0.4.51' # Use a semver compatible string
         # Optional Plugins have to be enabled
         # use-linkcheck: true
         # linkcheck-version: "~0.7.7"
         # add mdbook-mermaid plugin
         use-mermaid: true
-        mermaid-version: '0.14.1'
+        mermaid-version: '0.15.0'
 
     - name: Show mdbook version
       shell: bash

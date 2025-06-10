@@ -1,13 +1,3 @@
-/**
- * Determines appropriate log levels based on environment variables
- * - Always includes 'error', 'warn', and 'log'
- * - Adds 'debug' when DEBUG env var is present
- * - Adds 'verbose' when VERBOSE_LOGGING is true or DEBUG=verbose
- */
-export function getLogLevels(): string[] {
-  return ['error', 'warn', 'info', 'debug', 'trace'];
-}
-
 export function getCurrentLogLevel(): string {
   let level: string = 'info';
   if (process.env?.LOG_LEVEL && process.env.LOG_LEVEL !== '') {

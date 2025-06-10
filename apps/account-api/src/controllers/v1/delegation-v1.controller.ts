@@ -16,9 +16,8 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationControllerV1 {
   constructor(
-    private readonly logger: PinoLogger,
-    @InjectPinoLogger(DelegationService.name)
     private delegationService: DelegationService,
+    @InjectPinoLogger(DelegationControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Get(':msaId')

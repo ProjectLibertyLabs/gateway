@@ -33,9 +33,8 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class KeysControllerV1 {
   constructor(
     private keysService: KeysService,
-    private readonly logger: PinoLogger,
-    @InjectPinoLogger(KeysService.name)
     private enqueueService: EnqueueService,
+    @InjectPinoLogger(KeysService.name) private readonly logger: PinoLogger,
   ) {}
 
   @Post('add')

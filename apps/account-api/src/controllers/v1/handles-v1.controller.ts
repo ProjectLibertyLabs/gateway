@@ -34,13 +34,10 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class HandlesControllerV1 {
   constructor(
     private handlesService: HandlesService,
-    private readonly logger: PinoLogger,
-    @InjectPinoLogger(HandlesService.name)
     private enqueueService: EnqueueService,
     private blockchainService: BlockchainRpcQueryService,
-  ) {
-    // this.logger.setContext(this.constructor.name);
-  }
+    @InjectPinoLogger(HandlesControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   /**
    * Validates the provided handle by checking its validity using the blockchain service.

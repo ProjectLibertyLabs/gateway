@@ -142,7 +142,7 @@ export class BatchFilesDto {
 
 export class BatchAnnouncementResponseDto {
   @IsString()
-  referenceId: string;
+  referenceIds: string[];
 
   @IsArray()
   @ValidateNested({ each: true })

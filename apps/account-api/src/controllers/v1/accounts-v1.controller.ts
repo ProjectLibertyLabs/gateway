@@ -26,10 +26,8 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class AccountsControllerV1 {
   constructor(
     private accountsService: AccountsService,
-    private readonly logger: PinoLogger,
-    @InjectPinoLogger(AccountsService.name)
-    @Inject(blockchainConfig.KEY)
-    private config: IBlockchainConfig,
+    @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
+    @InjectPinoLogger(AccountsService.name) private readonly logger: PinoLogger,
     // eslint-disable-next-line no-empty-function
   ) {}
 

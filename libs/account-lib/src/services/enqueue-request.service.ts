@@ -13,8 +13,7 @@ export class EnqueueService {
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
     @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
-    @InjectPinoLogger(EnqueueService.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(EnqueueService.name) private readonly logger: PinoLogger,
   ) {}
 
   private static calculateJobId<RequestType>(jobWithoutId: RequestType): string {

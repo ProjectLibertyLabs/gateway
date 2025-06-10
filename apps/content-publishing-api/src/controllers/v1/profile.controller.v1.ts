@@ -11,8 +11,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class ProfileControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(ProfileControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(ProfileControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Put(':msaId')

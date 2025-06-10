@@ -12,8 +12,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class WebhookControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(WebhookRegistrationDto.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(WebhookRegistrationDto.name) private readonly logger: PinoLogger,
   ) {}
 
   @Post()

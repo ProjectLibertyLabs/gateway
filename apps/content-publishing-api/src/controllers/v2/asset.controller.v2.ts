@@ -16,8 +16,7 @@ export class AssetControllerV2 {
   constructor(
     private readonly apiService: ApiService,
     @Inject(apiConfig.KEY) private readonly config: IContentPublishingApiConfig,
-    @InjectPinoLogger(AssetControllerV2.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(AssetControllerV2.name) private readonly logger: PinoLogger,
   ) {}
 
   @Post('upload')

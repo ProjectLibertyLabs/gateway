@@ -27,8 +27,7 @@ export class BatchingProcessorService {
     private schedulerRegistry: SchedulerRegistry,
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private blockchainService: BlockchainService,
-    @InjectPinoLogger(BatchingProcessorService.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(BatchingProcessorService.name) private readonly logger: PinoLogger,
   ) {
     redis.defineCommand('addToBatch', {
       numberOfKeys: 2,

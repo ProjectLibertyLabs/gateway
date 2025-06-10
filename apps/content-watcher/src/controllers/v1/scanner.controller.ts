@@ -10,8 +10,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class ScanControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(ScanControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(ScanControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Post('reset')

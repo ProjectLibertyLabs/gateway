@@ -19,8 +19,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class ContentControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(ContentControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(ContentControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Post(':msaId/broadcast')

@@ -10,8 +10,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class GraphControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(GraphControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(GraphControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`

@@ -12,8 +12,7 @@ import { WebhookControllerV1 } from '#content-watcher/controllers';
 export class WebhooksControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(WebhookControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(WebhookControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Get()

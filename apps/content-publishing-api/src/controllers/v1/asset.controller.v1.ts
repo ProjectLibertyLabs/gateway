@@ -20,8 +20,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class AssetControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(AssetControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(AssetControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Put('upload')

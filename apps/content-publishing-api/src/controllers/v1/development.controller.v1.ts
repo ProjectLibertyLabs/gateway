@@ -40,8 +40,7 @@ export class DevelopmentControllerV1 {
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) updateQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) profileQueue: Queue,
     @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) tombstoneQueue: Queue,
-    @InjectPinoLogger(DevelopmentControllerV1.name)
-    private readonly logger: PinoLogger,
+    @InjectPinoLogger(DevelopmentControllerV1.name) private readonly logger: PinoLogger,
   ) {
     this.queueMapper = new Map([
       [AnnouncementTypeName.BROADCAST, broadcastQueue],

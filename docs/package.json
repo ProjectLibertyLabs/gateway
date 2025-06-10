@@ -1,0 +1,26 @@
+{
+  "name": "frequency-gateway-docs",
+  "version": "0.0.1",
+  "description": "Documentation for Frequency Gateway",
+  "license": "Apache-2.0",
+  "files": [
+    "src/",
+    "pages/",
+    "tsconfig.json",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "mdbook build -o",
+    "serve": "mdbook serve -o",
+    "watch": "mdbook watch -o",
+    "mdbook:install": "cargo install mdbook"
+  },
+  "devDependencies": {
+    "@frequency-chain/style-guide": "^0.3.0",
+    "@tailwindcss/cli": "^4.1.7",
+    "tailwindcss": "^4.1.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

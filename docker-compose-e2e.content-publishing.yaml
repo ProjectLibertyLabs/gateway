@@ -17,7 +17,8 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  DEBUG: ${DEBUG:-true}
+  LOG_LEVEL: ${LOG_LEVEL:-trace}
+  PRETTY: true
   HTTP_RESPONSE_TIMEOUT_MS: ${HTTP_RESPONSE_TIMEOUT_MS:-30000}
 
 x-content-publishing-env: &content-publishing-env
@@ -53,13 +54,13 @@ services:
       - account
   content-publishing-service-worker:
     environment:
-      <<: [*common-environment, *content-publishing-env]
+      <<: [ *common-environment, *content-publishing-env ]
     profiles:
       - content-publishing
   content-publishing-service-api:
     # It is not possible to override a single key in a map, so we replace the entire environment map
     environment:
-      <<: [*common-environment, *content-publishing-env]
+      <<: [ *common-environment, *content-publishing-env ]
     profiles:
       - content-publishing
   content-watcher-service:

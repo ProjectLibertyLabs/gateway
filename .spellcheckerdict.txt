@@ -23,6 +23,7 @@ codebase
 ConfigMap
 content-publishing-service-api
 CORS
+Ctrl-C
 cryptographic
 DaemonSet
 dapps
@@ -97,7 +98,7 @@ openapi-specs
 Parachain
 PARACHAINS
 (PASEO|Paseo)
-(Pino|pino)
+(Pino|pino(|-pretty))
 (POLKADOT|Polkadot)
 Polkadot-supported
 pre-configured

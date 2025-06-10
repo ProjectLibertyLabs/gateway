@@ -36,7 +36,6 @@ async function bootstrap() {
     strategy: new KeepAliveStrategy(),
   });
   app.useLogger(app.get(PinoLogger));
-  console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   logger.info('Nest ApplicationContext created successfully.');
 
   // Get event emitter & register a shutdown listener

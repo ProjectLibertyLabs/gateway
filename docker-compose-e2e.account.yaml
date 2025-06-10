@@ -17,7 +17,8 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  DEBUG: true
+  LOG_LEVEL: ${LOG_LEVEL:-trace}
+  PRETTY: true
 
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
@@ -26,6 +27,8 @@ x-account-service-env: &account-service-env
 
 services:
   redis:
+    profiles:
+      - e2e
 
   frequency:
     profiles:
@@ -60,12 +63,12 @@ services:
   account-service-api:
     # It is not possible to override a single key in a map, so we replace the entire environment map
     environment:
-      <<: [*common-environment, *account-service-env]
+      <<: [ *common-environment, *account-service-env ]
     profiles:
       - account
   account-service-worker:
     # It is not possible to override a single key in a map, so we replace the entire environment map
     environment:
-      <<: [*common-environment, *account-service-env]
+      <<: [ *common-environment, *account-service-env ]
     profiles:
       - account

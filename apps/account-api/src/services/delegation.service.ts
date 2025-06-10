@@ -2,15 +2,15 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {
-  RevokeDelegationPayloadResponseDto,
-  RevokeDelegationPayloadRequestDto,
-  TransactionResponse,
   PublishRevokeDelegationRequestDto,
+  RevokeDelegationPayloadRequestDto,
+  RevokeDelegationPayloadResponseDto,
+  TransactionResponse,
 } from '#types/dtos/account';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { pino, Logger } from 'pino';
+import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class DelegationService {
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
-    this.logger = pino(getBasicPinoOptions(DelegationService.name));
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   async getDelegation(msaId: string): Promise<DelegationResponse> {

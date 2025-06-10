@@ -4,15 +4,16 @@ import { DelegationRequestDto, DelegationResponseV2, ProviderDelegationRequestDt
 import { IDelegationResponseV2 } from '#types/interfaces/account/delegations.interface';
 import { Controller, Get, HttpCode, HttpStatus, Param, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '2', path: 'delegations' })
 @ApiTags('v2/delegations')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
 export class DelegationsControllerV2 {
-  private readonly logger: PinoLogger;
-
-  constructor(private delegationService: DelegationService) {}
+  constructor(
+    private delegationService: DelegationService,
+    @InjectPinoLogger(DelegationsControllerV2.name) private readonly logger: PinoLogger,
+  ) {}
 
   // eslint-disable-next-line class-methods-use-this
   @Get(':msaId')

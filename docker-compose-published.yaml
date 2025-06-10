@@ -2,7 +2,7 @@
 x-common-environment: &common-environment
   FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-wss://0.rpc.testnet.amplica.io}
   SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-https://0.rpc.testnet.amplica.io}
-  REDIS_URL: 'redis://redis:6379'
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
   PROVIDER_ID: ${PROVIDER_ID:-1}
   PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
   WEBHOOK_FAILURE_THRESHOLD: 3
@@ -59,8 +59,6 @@ services:
       - gateway-net
     volumes:
       - redis_data:/data
-    profiles:
-      - account
 
   frequency:
     image: frequencychain/standalone-node:latest
@@ -133,7 +131,7 @@ services:
     ports:
       - ${SERVICE_PORT_0}:3000
     environment:
-      <<: [*common-environment, *content-publishing-env]
+      <<: [ *common-environment, *content-publishing-env ]
     depends_on:
       - redis
     networks:
@@ -145,7 +143,7 @@ services:
     image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
     pull_policy: always
     environment:
-      <<: [*common-environment, *content-publishing-env]
+      <<: [ *common-environment, *content-publishing-env ]
       START_PROCESS: content-publishing-worker
     depends_on:
       - redis
@@ -160,7 +158,7 @@ services:
     ports:
       - ${SERVICE_PORT_1}:3000
     environment:
-      <<: [*common-environment, *content-watcher-env]
+      <<: [ *common-environment, *content-watcher-env ]
     depends_on:
       - redis
     networks:
@@ -174,7 +172,7 @@ services:
     ports:
       - ${SERVICE_PORT_2}:3000
     environment:
-      <<: [*common-environment, *graph-service-env]
+      <<: [ *common-environment, *graph-service-env ]
       START_PROCESS: graph-api
     depends_on:
       - redis
@@ -187,7 +185,7 @@ services:
     image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
     pull_policy: always
     environment:
-      <<: [*common-environment, *graph-service-env]
+      <<: [ *common-environment, *graph-service-env ]
       START_PROCESS: graph-worker
     depends_on:
       - redis
@@ -203,7 +201,7 @@ services:
       - ${SERVICE_PORT_3}:3000
     command: account-api
     environment:
-      <<: [*common-environment, *account-service-env]
+      <<: [ *common-environment, *account-service-env ]
     depends_on:
       - redis
     networks:
@@ -216,7 +214,7 @@ services:
     pull_policy: always
     command: account-worker
     environment:
-      <<: [*common-environment, *account-service-env]
+      <<: [ *common-environment, *account-service-env ]
     depends_on:
       - redis
     networks:

@@ -11,16 +11,16 @@ fullnameOverride: ""
 serviceAccount:
   create: true
   automount: true
-  annotations: { }
+  annotations: {}
   name: ""
 
 # Pod annotations and labels
-podAnnotations: { }
-podLabels: { }
+podAnnotations: {}
+podLabels: {}
 
 # Pod and container security contexts
-podSecurityContext: { }
-securityContext: { }
+podSecurityContext: {}
+securityContext: {}
 
 # Ingress configuration
 # Using nginx ingress controller,
@@ -29,7 +29,7 @@ ingress:
   enabled: false
 
 # Resource limits and requests
-resources: { }
+resources: {}
 
 # Autoscaling configuration
 autoscaling:
@@ -39,13 +39,13 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 # Additional volumes and volume mounts
-volumes: [ ]
-volumeMounts: [ ]
+volumes: []
+volumeMounts: []
 
 # Node selector, tolerations, and affinity settings
-nodeSelector: { }
-tolerations: [ ]
-affinity: { }
+nodeSelector: {}
+tolerations: []
+affinity: {}
 
 # Support vault integration
 vault:

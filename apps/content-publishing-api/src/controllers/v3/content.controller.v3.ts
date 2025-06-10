@@ -88,33 +88,30 @@ export class ContentControllerV3 {
         const uploadResults = await Promise.all(fileProcessingPromises);
 
         // Check for upload errors
-        const errors = uploadResults.filter((result) => result.error);
+        const errors = uploadResults.filter((uploadResult) => uploadResult.error);
         if (errors.length > 0) {
           throw new BadRequestException(errors[0].error || 'File upload failed');
         }
 
         // Process each file and schema ID pair
-        const batchPromises = uploadResults.map((result, index) => {
-          if (!result.cid) {
+        const batchPromises = uploadResults.map((uploadResult, index) => {
+          if (!uploadResult.cid) {
             throw new Error('Missing CID in upload result');
           }
           return this.apiService.enqueueBatchRequest({
-            cid: result.cid,
+            cid: uploadResult.cid,
             schemaId: schemaIds[index],
           });
         });
 
         // Submit all batch requests and collect responses
-        const responses = await Promise.all(batchPromises);
-
-        // Get the first reference ID as the batch reference ID
-        const batchReferenceId = responses[0].referenceId;
+        const batchResults = await Promise.all(batchPromises);
 
         resolveResponse({
-          referenceId: batchReferenceId,
-          files: uploadResults.map((result) => ({
-            cid: result.cid,
-            error: result.error,
+          referenceIds: batchResults.map((batchResult) => batchResult.referenceId),
+          files: uploadResults.map((uploadResult) => ({
+            cid: uploadResult.cid,
+            error: uploadResult.error,
           })),
         });
       } catch (error: unknown) {

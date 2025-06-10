@@ -5,14 +5,13 @@ import { Controller, HttpCode, HttpStatus, Body, Put, Res, Get, Query, Delete, P
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { WebhookControllerV1 } from '#content-watcher/controllers';
 
 @Controller({ version: '1', path: 'webhooks' })
 @ApiTags('v1/webhooks')
 export class WebhooksControllerV1 {
   constructor(
     private apiService: ApiService,
-    @InjectPinoLogger(WebhookControllerV1.name) private readonly logger: PinoLogger,
+    @InjectPinoLogger(WebhooksControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
   @Get()

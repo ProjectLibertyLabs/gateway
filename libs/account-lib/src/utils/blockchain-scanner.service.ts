@@ -5,8 +5,7 @@ import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
+import { Logger } from 'pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 

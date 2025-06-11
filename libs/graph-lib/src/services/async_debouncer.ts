@@ -8,7 +8,7 @@ import { DEBOUNCER_CACHE_KEY } from '#types/constants';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';
 import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class AsyncDebouncerService {

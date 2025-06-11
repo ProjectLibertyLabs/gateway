@@ -21,7 +21,7 @@ import { ChainEventProcessorService } from '../utils/chain-event-processor.servi
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 

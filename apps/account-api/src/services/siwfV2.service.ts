@@ -30,7 +30,7 @@ import { isNotNull } from '#utils/common/common.utils';
 import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 interface IAuthCode {
   authorizationCode?: string;

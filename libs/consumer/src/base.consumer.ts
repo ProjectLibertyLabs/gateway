@@ -4,7 +4,7 @@ import { OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
 import { delayMS } from '#utils/common/common.utils';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {
   protected logger: Logger;

@@ -22,7 +22,7 @@ import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { pino } from 'pino';
-import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;

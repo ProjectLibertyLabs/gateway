@@ -11,7 +11,7 @@ import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/de
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class DelegationService {

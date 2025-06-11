@@ -48,7 +48,7 @@ import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ContentPublisherRedisConstants } from '#types/constants';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {

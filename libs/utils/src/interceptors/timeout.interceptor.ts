@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {

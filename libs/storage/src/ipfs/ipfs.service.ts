@@ -10,7 +10,7 @@ import { createKuboRPCClient, KuboRPCClient, CID, FilesStatResult, FilesStatOpti
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
 import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '../../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class IpfsService {

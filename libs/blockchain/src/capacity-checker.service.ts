@@ -19,7 +19,7 @@ import { ICapacityInfo } from './types';
 import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 export const CAPACITY_EXHAUSTED_EVENT = 'capacity.exhausted';
 export const CAPACITY_AVAILABLE_EVENT = 'capacity.available';

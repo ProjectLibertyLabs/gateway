@@ -21,7 +21,7 @@ import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
 
 @Injectable()
 export class AccountsService {

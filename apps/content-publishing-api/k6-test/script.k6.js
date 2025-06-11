@@ -270,9 +270,9 @@ export default function () {
       const file1 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
       const file2 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
       formData.append('files', file1);
-      formData.append('schemaId', '16001');
+      formData.append('schemaId', '12');
       formData.append('files', file2);
-      formData.append('schemaId', '16001');
+      formData.append('schemaId', '12');
 
       let params = { headers: { 'Content-Type': 'multipart/form-data' } };
       let request = http.post(url, formData, params);

@@ -22,7 +22,7 @@ import httpCommonConfig from '#config/http-common.config';
 import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
 import { IPFSStorageModule } from '#storage';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '../../../libs/logger/logLevel-common-config';
+import { getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [

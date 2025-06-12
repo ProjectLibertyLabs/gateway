@@ -40,7 +40,7 @@ import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 import { PassThrough, Readable } from 'stream';
 import { FilePin, IpfsService } from '#storage';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class ApiService {

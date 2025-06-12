@@ -9,7 +9,7 @@ import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#open
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
-import { getBasicPinoOptions, getCurrentLogLevel } from '../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-api.main'));
 

@@ -15,7 +15,7 @@ import { KeysRequestDto } from '#types/dtos/account';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { verifySignature } from '#utils/common/signature.util';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class KeysService {

@@ -6,7 +6,7 @@ import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { verifySignature } from '#utils/common/signature.util';
 import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class HandlesService {

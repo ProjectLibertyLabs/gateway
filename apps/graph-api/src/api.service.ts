@@ -23,7 +23,7 @@ import {
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};

@@ -16,7 +16,7 @@ import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {

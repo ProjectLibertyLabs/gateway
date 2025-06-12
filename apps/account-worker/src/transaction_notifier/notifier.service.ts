@@ -19,7 +19,7 @@ import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class TxnNotifierService

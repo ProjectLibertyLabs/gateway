@@ -17,7 +17,7 @@ import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interfa
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '../../../libs/logger/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class ApiService {

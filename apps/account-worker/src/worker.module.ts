@@ -16,7 +16,7 @@ import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '../../../libs/logger/logLevel-common-config';
+import { getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
-import { getBasicPinoOptions, getCurrentLogLevel } from 'libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';

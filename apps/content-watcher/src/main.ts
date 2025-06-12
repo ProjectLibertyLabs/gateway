@@ -6,7 +6,7 @@ import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getBasicPinoOptions, getCurrentLogLevel } from 'libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';

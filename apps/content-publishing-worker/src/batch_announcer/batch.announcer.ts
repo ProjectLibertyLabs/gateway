@@ -12,7 +12,7 @@ import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class BatchAnnouncer {

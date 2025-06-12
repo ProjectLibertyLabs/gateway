@@ -7,7 +7,7 @@ import { DhkemX25519HkdfSha256 } from '@hpke/dhkem-x25519';
 import { hexToU8a, u8aToHex } from '@polkadot/util';
 import { HexString } from '@polkadot/util/types';
 import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib/logLevel-common-config';
+import { getBasicPinoOptions } from '#logger-lib';
 
 export class EncryptionResult {
   senderContext: HexString;

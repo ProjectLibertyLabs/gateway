@@ -1,22 +1,20 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { TransactionResponse, TransactionData } from '#types/dtos/account';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class EnqueueService {
-  private readonly logger: Logger;
-
   constructor(
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
     @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    @InjectPinoLogger(EnqueueService.name) private readonly logger: PinoLogger,
+  ) {}
 
   private static calculateJobId<RequestType>(jobWithoutId: RequestType): string {
     const stringVal = JSON.stringify(jobWithoutId);
@@ -57,8 +55,8 @@ export class EnqueueService {
     });
     this.logger.debug(`Submitted payload to the queue (${referenceId})`);
     const jobState = await job.getState();
-    this.logger.log(`Job submitted or retrieved: ${job.id} ${jobState}`);
-    this.logger.verbose(JSON.stringify(job));
+    this.logger.info(`Job submitted or retrieved: ${job.id} ${jobState}`);
+    this.logger.trace(JSON.stringify(job));
     return {
       referenceId: data.referenceId,
       state: jobState,

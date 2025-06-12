@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   generateEncodedSignedRequest,
   generateAuthenticationUrl,
@@ -29,6 +29,8 @@ import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
 import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 interface IAuthCode {
   authorizationCode?: string;
@@ -39,12 +41,13 @@ export class SiwfV2Service {
   private readonly logger: Logger;
 
   constructor(
-    @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
+    @Inject(apiConfig.KEY)
+    private readonly apiConf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(SiwfV2Service.name));
   }
 
   private static requestedCredentialTypesToFullRequest(requestCredentials: string[]): SiwfCredentialRequest[] {
@@ -177,7 +180,7 @@ export class SiwfV2Service {
       }
     }
 
-    this.logger.verbose(`Payload: ${JSON.stringify(payload)}`);
+    this.logger.trace(`Payload: ${JSON.stringify(payload)}`);
     return payload;
   }
 

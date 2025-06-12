@@ -4,7 +4,6 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Logger,
   Param,
   Body,
   UseGuards,
@@ -27,20 +26,18 @@ import { u8aToHex } from '@polkadot/util';
 import { TransactionType } from '#types/account-webhook';
 import { HandleDto, MsaIdDto } from '#types/dtos/common';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'handles' })
 @ApiTags('v1/handles')
 @UseGuards(ReadOnlyGuard)
 export class HandlesControllerV1 {
-  private readonly logger: Logger;
-
   constructor(
     private handlesService: HandlesService,
     private enqueueService: EnqueueService,
     private blockchainService: BlockchainRpcQueryService,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    @InjectPinoLogger(HandlesControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   /**
    * Validates the provided handle by checking its validity using the blockchain service.
@@ -77,7 +74,7 @@ export class HandlesControllerV1 {
       ...createHandleRequest,
       type: TransactionType.CREATE_HANDLE,
     });
-    this.logger.log(`createHandle in progress. referenceId: ${response.referenceId}`);
+    this.logger.info(`createHandle in progress. referenceId: ${response.referenceId}`);
     return response;
   }
 
@@ -101,7 +98,7 @@ export class HandlesControllerV1 {
       ...changeHandleRequest,
       type: TransactionType.CHANGE_HANDLE,
     });
-    this.logger.log(`changeHandle in progress. referenceId: ${response.referenceId}`);
+    this.logger.info(`changeHandle in progress. referenceId: ${response.referenceId}`);
     return response;
   }
 

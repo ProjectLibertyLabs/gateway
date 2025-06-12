@@ -39,6 +39,8 @@
       "#content-watcher-lib/*": ["libs/content-watcher-lib/src/*"],
       "#graph-lib": ["libs/graph-lib/src"],
       "#graph-lib/*": ["libs/graph-lib/src/*"],
+      "#logger-lib/*": ["libs/logger/src/*"],
+      "#logger-lib": ["libs/logger/src"],
       "#types": ["libs/types/src"],
       "#types/*": ["libs/types/src/*"],
       "#utils": ["libs/utils/src"],
@@ -56,7 +58,8 @@
       "#storage": ["libs/storage/src"],
       "#storage/*": ["libs/storage/src/*"],
       "#openapi": ["libs/openapi/src"],
-      "#openapi/*": ["libs/openapi/src/*"]
+      "#openapi/*": ["libs/openapi/src/*"],
+
     },
     "removeComments": true,
     "resolveJsonModule": true,

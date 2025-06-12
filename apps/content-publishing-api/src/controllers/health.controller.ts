@@ -1,19 +1,31 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiService } from '../api.service';
+import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 
 @Controller()
 @ApiTags('health')
 export class HealthController {
+  constructor(
+    private readonly apiService: ApiService,
+    // private readonly blockchainService: BlockchainRpcQueryService,
+    // eslint-disable-next-line no-empty-function
+  ) {}
+
   // Health endpoint
   // eslint-disable-next-line class-methods-use-this
   @Get('healthz')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
-  healthz() {
+  async healthz(): Promise<HealthResponseDto> {
     return {
       status: HttpStatus.OK,
       message: 'Service is healthy',
+      timestamp: Date.now(),
+      config: await this.apiService.getServiceConfig(),
+      queueStatus: await this.apiService.getQueueStatus(),
+      blockchainStatus: await this.apiService.getBlockchainStatus(),
     };
   }
 

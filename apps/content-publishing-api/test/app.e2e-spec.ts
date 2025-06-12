@@ -64,7 +64,36 @@ describe('AppController E2E request verification!', () => {
   });
 
   it('(GET) /healthz', () =>
-    request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+    request(app.getHttpServer())
+      .get('/healthz')
+      .expect(200)
+      .expect({
+        status: 200,
+        message: 'Service is healthy',
+        timestamp: expect.any(Number),
+        config: expect.objectContaining({
+          apiBodyJsonLimit: expect.any(String),
+          apiPort: expect.any(Number),
+          apiTimeoutMs: expect.any(Number),
+          fileUploadMaxSizeBytes: expect.any(Number),
+          fileUploadCountLimit: expect.any(Number),
+          providerId: expect.anything(),
+        }),
+        queueStatus: expect.arrayContaining([
+          expect.objectContaining({
+            name: expect.any(String),
+            status: expect.any(String),
+            isPaused: expect.any(Boolean),
+          }),
+        ]),
+        blockchainStatus: expect.objectContaining({
+          latestBlockHeader: expect.objectContaining({
+            blockHash: expect.any(String),
+            number: expect.any(Number),
+            parentHash: expect.any(String),
+          }),
+        }),
+      }));
 
   it('(GET) /livez', () =>
     request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));

@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -15,8 +15,6 @@ import { HexString } from '@polkadot/util/types';
 import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
-import { pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {
@@ -48,11 +46,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     private readonly capacityService: CapacityCheckerService,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
   ) {
-    super(
-      cacheManager,
-      blockchainService,
-      pino(getBasicPinoOptions(TxStatusMonitoringService.prototype.constructor.name)),
-    );
+    super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
@@ -125,7 +119,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
             await this.retryPublishJob(txStatus.referencePublishJob);
           }
         } else if (successEvent) {
-          this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+          this.logger.debug(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
         } else {
           this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }

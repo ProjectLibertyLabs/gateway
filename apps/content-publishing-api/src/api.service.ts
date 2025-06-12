@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -39,6 +39,8 @@ import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 import { PassThrough, Readable } from 'stream';
 import { FilePin, IpfsService } from '#storage';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class ApiService {
@@ -52,7 +54,7 @@ export class ApiService {
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly ipfs: IpfsService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
@@ -310,8 +312,8 @@ export class ApiService {
     hashPassThru.on('error', handleError);
 
     // Enable more logging
-    uploadPassThru.on('close', () => this.logger.verbose('uploadPassThru CLOSED'));
-    uploadPassThru.on('end', () => this.logger.verbose('uploadPassThru END'));
+    uploadPassThru.on('close', () => this.logger.trace('uploadPassThru CLOSED'));
+    uploadPassThru.on('end', () => this.logger.trace('uploadPassThru END'));
 
     stream.pipe(uploadPassThru);
     stream.pipe(hashPassThru);

@@ -31,7 +31,7 @@ export class ContentControllerV3 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post('uploadBatchAnnouncement')
+  @Post('batchAnnoucement')
   @SkipInterceptors()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiConsumes('multipart/form-data')
@@ -62,10 +62,12 @@ export class ContentControllerV3 {
     busboy.on('field', (fieldname, value) => {
       if (fieldname === 'schemaId') {
         schemaIds.push(parseInt(value, 10));
+      } else {
+        throw new BadRequestException(`Unexpected field: ${fieldname}`);
       }
     });
 
-    busboy.on('file', (_fieldname, fileStream, fileinfo) => {
+    busboy.on('file', async (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
       if (fileIndex > this.appConfig.fileUploadCountLimit) {
         fileStream.resume(); // Make sure we consume the entire file stream
@@ -73,7 +75,7 @@ export class ContentControllerV3 {
       }
 
       fileProcessingPromises.push(
-        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType),
+        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType)
       );
     });
 
@@ -94,24 +96,25 @@ export class ContentControllerV3 {
         }
 
         // Process each file and schema ID pair
-        const batchPromises = uploadResults.map((uploadResult, index) => {
+        const batchPromises = uploadResults.map((uploadResult) => {
           if (!uploadResult.cid) {
-            throw new Error('Missing CID in upload result');
+            return null;
           }
           return this.apiService.enqueueBatchRequest({
             cid: uploadResult.cid,
-            schemaId: schemaIds[index],
-          });
+            schemaId: schemaIds[uploadResults.indexOf(uploadResult)]
+          })
+          .catch(() => null);
         });
 
         // Submit all batch requests and collect responses
         const batchResults = await Promise.all(batchPromises);
 
         resolveResponse({
-          referenceIds: batchResults.map((batchResult) => batchResult.referenceId),
+          referenceIds: batchResults.filter(Boolean).map(result => result.referenceId),
           files: uploadResults.map((uploadResult) => ({
             cid: uploadResult.cid,
-            error: uploadResult.error,
+            error: uploadResult.error
           })),
         });
       } catch (error: unknown) {

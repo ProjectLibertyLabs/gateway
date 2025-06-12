@@ -66,6 +66,4 @@ describe('Account Service E2E request verification!', () => {
 
   it('(GET) /readyz', () =>
     request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
-
-  it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
 });

@@ -157,6 +157,7 @@
     "ipfs-only-hash": "^4.0.0",
     "joi": "^17.13.3",
     "kubo-rpc-client": "^5.1.0",
+    "libs": "^0.1.2",
     "mime-types": "^2.1.35",
     "multiformats": "^13.3.2",
     "nestjs-pino": "^4.4.0",

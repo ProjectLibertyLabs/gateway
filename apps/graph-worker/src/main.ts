@@ -3,7 +3,7 @@ import { WorkerModule } from './worker.module';
 import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getLogLevels } from '#logger-lib';
 
 const logger = new Logger('main');
 

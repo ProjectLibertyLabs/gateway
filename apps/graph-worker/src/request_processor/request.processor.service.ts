@@ -1,6 +1,6 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnModuleDestroy } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import {
@@ -25,6 +25,8 @@ import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
+import { pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
@@ -50,11 +52,11 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
       numberOfKeys: 1,
       lua: fs.readFileSync('lua/updateLastProcessed.lua', 'utf8'),
     });
-    this.logger = new Logger(RequestProcessorService.name);
+    this.logger = pino(getBasicPinoOptions(RequestProcessorService.name));
   }
 
   async process(job: Job<ProviderGraphUpdateJob, any, string>): Promise<void> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    this.logger.info(`Processing job ${job.id} of type ${job.name}`);
     const blockDelay = SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
     try {
       const lastProcessedDsnpId = await this.cacheManager.get(LAST_PROCESSED_DSNP_ID_KEY);

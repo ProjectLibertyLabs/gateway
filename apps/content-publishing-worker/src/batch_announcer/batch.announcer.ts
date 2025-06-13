@@ -73,16 +73,37 @@ export class BatchAnnouncer {
     // Get previously uploaded file from IPFS
     this.logger.log(`Getting info from IPFS for ${batch.cid}`);
     try {
-      const { cid, size } = await this.ipfsService.getInfo(batch.cid);
-      this.logger.debug(`Got info from IPFS: cid=${cid}, size=${size}`);
+      // First check if the file exists
+      const exists = await this.ipfsService.existsInLocalGateway(batch.cid);
+      if (!exists) {
+        throw new Error('File does not exist in IPFS network');
+      }
 
-      const response = {
-        id: batch.cid,
-        schemaId: batch.schemaId,
-        data: { cid: cid.toV1().toString(), payloadLength: size },
-      };
-      this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
-      return response;
+      // Try to get info and pin if needed
+      try {
+        const { cid, size } = await this.ipfsService.getInfo(batch.cid);
+        this.logger.debug(`Got info from IPFS: cid=${cid}, size=${size}`);
+
+        const response = {
+          id: batch.cid,
+          schemaId: batch.schemaId,
+          data: { cid: cid.toV1().toString(), payloadLength: size },
+        };
+        this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
+        return response;
+      } catch (err) {
+        // If we get here, the file exists but might need to be pinned
+        await this.ipfsService.tryPin(batch.cid);
+        const { cid, size } = await this.ipfsService.getInfo(batch.cid);
+        
+        const response = {
+          id: batch.cid,
+          schemaId: batch.schemaId,
+          data: { cid: cid.toV1().toString(), payloadLength: size },
+        };
+        this.logger.debug(`Created job to announce existing batch after pinning: ${JSON.stringify(response)}`);
+        return response;
+      }
     } catch (err: any) {
       throw new Error(`Unable to confirm batch file existence in IPFS: ${err.message}`);
     }

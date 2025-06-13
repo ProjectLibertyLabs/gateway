@@ -6,7 +6,7 @@ import apiConfig, { IGraphApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getLogLevels } from '#logger-lib';
 
 const logger = new Logger('main');
 

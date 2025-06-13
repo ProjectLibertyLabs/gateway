@@ -3,7 +3,7 @@ import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Logger } from '@nestjs/common';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getLogLevels } from '#logger-lib';
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
@@ -54,6 +54,7 @@ async function bootstrap() {
     await app.close();
   }
 }
+
 bootstrap()
   .then(() => logger.log('bootstrap exited'))
   .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));

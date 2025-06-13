@@ -1,18 +1,20 @@
 import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { WorkerModule } from './worker.module';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
+
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { pino } from 'pino';
+// use plain pino directly outside of the app.
+const logger = pino(getBasicPinoOptions('account-worker.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
 BigInt.prototype['toJSON'] = function () {
   return this.toString();
 };
-
-const logger = new Logger('worker_main');
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -31,10 +33,10 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.createMicroservice(WorkerModule, {
-    logger: getLogLevels(),
     strategy: new KeepAliveStrategy(),
   });
-  logger.log('Nest ApplicationContext created successfully.');
+  app.useLogger(app.get(PinoLogger));
+  logger.info('Nest ApplicationContext created successfully.');
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
@@ -46,7 +48,7 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
-    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
+    logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen();
   } catch (e) {
     logger.error('****** MAIN CATCH ********', e);
@@ -59,5 +61,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.log('bootstrap exited'))
+  .then(() => logger.info('bootstrap exited'))
   .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));

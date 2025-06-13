@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import axios from 'axios';
@@ -18,6 +18,8 @@ import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { pino, Logger } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class TxnNotifierService
@@ -52,7 +54,9 @@ export class TxnNotifierService
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
   ) {
-    super(cacheManager, blockchainService, new Logger(TxnNotifierService.prototype.constructor.name));
+    const logger: Logger = pino(getBasicPinoOptions(TxnNotifierService.prototype.constructor.name));
+
+    super(cacheManager, blockchainService, logger);
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),
@@ -142,7 +146,7 @@ export class TxnNotifierService
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
           this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
         } else if (successEvent) {
-          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+          this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
           const webhook = await this.getWebhook();
           let webhookResponse: Partial<TxWebhookRsp> = {};
           webhookResponse.referenceId = txStatus.referenceId;
@@ -157,7 +161,7 @@ export class TxnNotifierService
                 webhookResponse = response;
 
                 this.logger.debug(handleTxnValues.debugMsg);
-                this.logger.log(
+                this.logger.info(
                   `Handles: ${response.transactionType} finalized handle ${response.handle} for msaId ${response.msaId}.`,
                 );
               }
@@ -173,7 +177,7 @@ export class TxnNotifierService
                 });
                 webhookResponse = response;
 
-                this.logger.log(
+                this.logger.info(
                   `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
                 );
               }
@@ -188,7 +192,7 @@ export class TxnNotifierService
                 });
                 webhookResponse = response;
 
-                this.logger.log(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
+                this.logger.info(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
               }
               break;
 
@@ -202,7 +206,9 @@ export class TxnNotifierService
                 });
                 webhookResponse = response;
 
-                this.logger.log(`Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`);
+                this.logger.info(
+                  `Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`,
+                );
               }
               break;
 
@@ -262,7 +268,7 @@ export class TxnNotifierService
     // eslint-disable-next-line no-restricted-syntax
     for (const { birth, death, txHash } of pendingTxns) {
       if (death <= currentBlockNumber) {
-        this.logger.verbose(
+        this.logger.trace(
           `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`,
         );
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);

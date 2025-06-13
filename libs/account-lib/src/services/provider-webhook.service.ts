@@ -1,10 +1,12 @@
-import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
 
@@ -34,7 +36,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
     this.webhook = axios.create({
       baseURL: this.config.webhookBaseUrl.toString(),
       timeout: httpConfig.httpResponseTimeoutMS,
@@ -83,7 +85,7 @@ export class ProviderWebhookService implements OnModuleDestroy {
       );
     } else if (this.successfulHealthChecks > 0) {
       if (this.successfulHealthChecks >= this.config.healthCheckSuccessThreshold) {
-        this.logger.log(`Provider webhook responded to ${this.successfulHealthChecks} health checks; resuming queue`);
+        this.logger.info(`Provider webhook responded to ${this.successfulHealthChecks} health checks; resuming queue`);
         this.eventEmitter.emit('webhook.healthy');
       } else {
         this.logger.debug(`Provider webhook responded to health check (attempts: ${this.successfulHealthChecks})`);

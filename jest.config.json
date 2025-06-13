@@ -1,12 +1,21 @@
 {
   "verbose": false,
   "silent": true,
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "workerThreads": true,
   "rootDir": ".",
-  "setupFiles": ["dotenv/config", "<rootDir>/jest.init.ts"],
+  "setupFiles": [
+    "dotenv/config",
+    "<rootDir>/jest.init.ts"
+  ],
   "testRegex": ".*\\.spec\\.ts$",
-  "testPathIgnorePatterns": [".*\\.mock\\.spec\\.ts$"],
+  "testPathIgnorePatterns": [
+    ".*\\.mock\\.spec\\.ts$"
+  ],
   "transform": {
     "^.+\\.(t|j)s$": [
       "ts-jest",
@@ -19,11 +28,18 @@
   "transformIgnorePatterns": [
     "/node_modules/(?!(multiformats)/)"
   ],
-  "collectCoverageFrom": ["**/*.(t|j)s"],
-  "coveragePathIgnorePatterns": ["/test/"],
+  "collectCoverageFrom": [
+    "**/*.(t|j)s"
+  ],
+  "coveragePathIgnorePatterns": [
+    "/test/"
+  ],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",
-  "roots": ["<rootDir>/apps/", "<rootDir>/libs/"],
+  "roots": [
+    "<rootDir>/apps/",
+    "<rootDir>/libs/"
+  ],
   "moduleNameMapper": {
     "kubo-rpc-client": "<rootDir>/__mocks__/kubo-rpc-client.ts",
     "^#testlib(|/.*)$": "<rootDir>/testlib/$1",
@@ -43,6 +59,7 @@
     "^#cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
     "^#blockchain(|/.*)$": "<rootDir>/libs/blockchain/src/$1",
     "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1",
+    "^#logger-lib(|/.*)$": "<rootDir>/libs/logger/src/$1",
     "^#storage(|/.*)$": "<rootDir>/libs/storage/src/$1"
   }
 }

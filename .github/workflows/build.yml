@@ -108,7 +108,7 @@ jobs:
 
       - name: License Check
         # List all the licenses and error out if it is not one of the supported licenses
-        run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
+        run: npx license-report --fields=name --fields=licenseType | jq 'map(select(.licenseType | IN("MIT", "Apache-2.0", "ISC", "BSD", "BSD-3-Clause", "BSD-2-Clause", "(Apache-2.0 AND MIT)", "Apache-2.0 OR MIT") | not)) | if length == 0 then halt else halt_error(1) end'
 
   build:
     name: '[${{ matrix.service }}] Build and Test'

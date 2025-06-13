@@ -1,5 +1,5 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
-import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EnvironmentInterface, EnvironmentType, Graph } from '@projectlibertylabs/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
@@ -14,6 +14,8 @@ import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { KeysRequestDto } from '#types/dtos/account';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { verifySignature } from '#utils/common/signature.util';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class KeysService {
@@ -25,7 +27,7 @@ export class KeysService {
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
     private blockchainService: BlockchainRpcQueryService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(KeysService.name));
     const { graphEnvironmentType } = this.apiConf;
     const environment: EnvironmentInterface = { environmentType: EnvironmentType[graphEnvironmentType] };
     const graphState = new Graph(environment);

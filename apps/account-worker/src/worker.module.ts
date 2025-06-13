@@ -15,6 +15,8 @@ import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -55,6 +57,7 @@ import httpConfig from '#config/http-common.config';
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,

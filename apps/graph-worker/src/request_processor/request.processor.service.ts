@@ -25,8 +25,8 @@ import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
-import { pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { pino } from 'pino';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)

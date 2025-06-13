@@ -260,13 +260,13 @@ export default function () {
     }
   });
 
-  group('/v3/content/uploadBatchAnnouncement', () => {
+  group('/v3/content/batchAnnoucement', () => {
     // Test batch upload with multiple files
     {
-      let url = BASE_URL + `/v3/content/uploadBatchAnnouncement`;
+      let url = BASE_URL + `/v3/content/batchAnnoucement`;
       const formData = new FormData();
 
-      // Add two test files with schema IDs
+      // Add two test files with schema IDs (using id 12 here maps to dsnp-content-attribute-set schema on mainnet)
       const file1 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
       const file2 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
       formData.append('files', file1);

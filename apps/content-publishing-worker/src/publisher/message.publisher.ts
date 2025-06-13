@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ISubmittableResult } from '@polkadot/types/types';
+import { Injectable, Logger } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
@@ -13,7 +13,9 @@ import { Call } from '@polkadot/types/interfaces';
 @Injectable()
 export class MessagePublisher {
   private logger: Logger;
+
   private messageQueue: IPublisherJob[] = [];
+
   private readonly BATCH_SIZE_LIMIT = 10;
 
   constructor(private blockchainService: BlockchainService) {
@@ -55,12 +57,16 @@ export class MessagePublisher {
 
       const transactions = batchToProcess.map((message) =>
         isIpfsJob(message)
-          ? this.blockchainService.generateAddIpfsMessage(message.schemaId, message.data.cid, message.data.payloadLength)
+          ? this.blockchainService.generateAddIpfsMessage(
+              message.schemaId,
+              message.data.cid,
+              message.data.payloadLength,
+            )
           : this.blockchainService.generateAddOnchainMessage(
               message.schemaId,
               message.data.payload,
               message.data.onBehalfOf,
-            )
+            ),
       );
 
       const callVec = this.blockchainService.createType('Vec<Call>', transactions);

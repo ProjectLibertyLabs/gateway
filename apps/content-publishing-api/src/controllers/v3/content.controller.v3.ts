@@ -75,12 +75,16 @@ export class ContentControllerV3 {
       }
 
       fileProcessingPromises.push(
-        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType)
+        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType),
       );
     });
 
     busboy.on('finish', async () => {
       try {
+        if (fileIndex === 0) {
+          throw new BadRequestException('No files provided in the request');
+        }
+
         // Validate schema IDs match file count
         if (schemaIds.length !== fileProcessingPromises.length) {
           throw new BadRequestException('Number of schema IDs does not match number of files');
@@ -100,21 +104,22 @@ export class ContentControllerV3 {
           if (!uploadResult.cid) {
             return null;
           }
-          return this.apiService.enqueueBatchRequest({
-            cid: uploadResult.cid,
-            schemaId: schemaIds[uploadResults.indexOf(uploadResult)]
-          })
-          .catch(() => null);
+          return this.apiService
+            .enqueueBatchRequest({
+              cid: uploadResult.cid,
+              schemaId: schemaIds[uploadResults.indexOf(uploadResult)],
+            })
+            .catch(() => null);
         });
 
         // Submit all batch requests and collect responses
         const batchResults = await Promise.all(batchPromises);
 
         resolveResponse({
-          referenceIds: batchResults.filter(Boolean).map(result => result.referenceId),
+          referenceIds: batchResults.filter(Boolean).map((batchResult) => batchResult.referenceId),
           files: uploadResults.map((uploadResult) => ({
             cid: uploadResult.cid,
-            error: uploadResult.error
+            error: uploadResult.error,
           })),
         });
       } catch (error: unknown) {

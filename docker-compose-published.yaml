@@ -2,8 +2,7 @@
 x-common-environment: &common-environment
   FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-wss://0.rpc.testnet.amplica.io}
   SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-https://0.rpc.testnet.amplica.io}
-  REDIS_OPTIONS: ${REDIS_OPTIONS:-""}
-  REDIS_URL: 'redis://redis:6379'
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
   PROVIDER_ID: ${PROVIDER_ID:-1}
   PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
   WEBHOOK_FAILURE_THRESHOLD: 3
@@ -60,8 +59,6 @@ services:
       - gateway-net
     volumes:
       - redis_data:/data
-    profiles:
-      - account
 
   frequency:
     image: frequencychain/standalone-node:latest

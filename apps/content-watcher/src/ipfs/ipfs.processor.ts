@@ -43,7 +43,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
 
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {
     try {
-      this.logger.verbose(`IPFS Processing job ${job.id}`);
+      this.logger.trace(`IPFS Processing job ${job.id}`);
       if (!job.data.cid) {
         this.logger.error(`IPFS Job ${job.id} failed with no CID`);
         return;
@@ -52,7 +52,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
       const contentBuffer = await this.ipfsService.getPinned(cidStr, true);
 
       if (contentBuffer.byteLength === 0) {
-        this.logger.verbose(`IPFS Job ${job.id} completed with no content`);
+        this.logger.trace(`IPFS Job ${job.id} completed with no content`);
         return;
       }
 
@@ -68,7 +68,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
 
       await this.buildAndQueueDSNPAnnouncements(records, job.data);
 
-      this.logger.log(`IPFS Job ${job.id} completed`);
+      this.logger.info(`IPFS Job ${job.id} completed`);
     } catch (e) {
       this.logger.error(`IPFS Job ${job.id} failed with error: ${e}`);
       throw e;
@@ -180,7 +180,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
     const queueStats = await queue.getJobCounts();
     const queueIsFull = queueStats.waiting + queueStats.active >= highWater;
     if (queueIsFull) {
-      this.logger.log(`Queue ${queue.name} is full`);
+      this.logger.info(`Queue ${queue.name} is full`);
       // TODO: If queue is full, maybe throw a Delayed error?
       throw new Error(`Queue ${queue.name} is full`);
     }

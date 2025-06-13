@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -39,6 +39,8 @@ import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 import { PassThrough, Readable } from 'stream';
 import { FilePin, IpfsService } from '#storage';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class ApiService {
@@ -52,7 +54,7 @@ export class ApiService {
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly ipfs: IpfsService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
@@ -271,9 +273,47 @@ export class ApiService {
       return { error: `Unsupported file type (${mimetype})` };
     }
 
+    let errored = false;
+
     // Create pipes to process IPFS upload & DSNP multihash calculation in parallel
     const uploadPassThru = new PassThrough();
     const hashPassThru = new PassThrough();
+
+    // Stream error handler to make sure cleanup occurs on any stream error--
+    // but only ONCE
+    const handleError = (err: any) => {
+      if (errored) return;
+      errored = true;
+
+      this.logger.error('❌ Stream error:', err?.message || err);
+
+      // Try to destroy everything cleanly
+      [uploadPassThru, hashPassThru].forEach((s) => {
+        if (!s.destroyed) {
+          // If still readable, resume so request doesn’t hang
+          if (!s.readableEnded && !s.readableFlowing) {
+            s.removeAllListeners('readable');
+            s.resume();
+          }
+
+          // Then destroy (safe even if already ended)
+          s.destroy(err);
+        }
+      });
+
+      // Important: only destroy original stream after dependents
+      if (!stream.destroyed) {
+        stream.destroy(err);
+      }
+    };
+
+    stream.on('error', handleError);
+    uploadPassThru.on('error', handleError);
+    hashPassThru.on('error', handleError);
+
+    // Enable more logging
+    uploadPassThru.on('close', () => this.logger.trace('uploadPassThru CLOSED'));
+    uploadPassThru.on('end', () => this.logger.trace('uploadPassThru END'));
 
     stream.pipe(uploadPassThru);
     stream.pipe(hashPassThru);
@@ -287,12 +327,8 @@ export class ApiService {
         calculateIncrementalDsnpMultiHash(hashPassThru),
       ]);
     } catch (error: any) {
-      // Make sure streams are properly resumed so the main request can continue
-      // Streams will not resume properly unless there are NO 'readable' event handlers
-      uploadPassThru.removeAllListeners('readable');
-      hashPassThru.removeAllListeners('readable');
-      uploadPassThru.resume();
-      hashPassThru.resume();
+      this.logger.error('❌ Upload/hash promise error:', error.message);
+      handleError(error);
       return { error: error?.message || `Error uploading or hashing file ${filename}` };
     }
 

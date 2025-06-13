@@ -25,7 +25,7 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
   }
 
   async process(job: Job<IRequestJob, any, string>): Promise<any> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    this.logger.info(`Processing job ${job.id} of type ${job.name}`);
     this.logger.debug(job.asJSON());
     try {
       const assets: string[] = job.data.assetToMimeType ? Object.keys(job.data.assetToMimeType) : [];

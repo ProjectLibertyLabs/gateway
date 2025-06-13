@@ -4,7 +4,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
   ParseFilePipeBuilder,
   Put,
   UploadedFiles,
@@ -14,15 +13,15 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'asset' })
 @ApiTags('v1/asset')
 export class AssetControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(AssetControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   @Put('upload')
   @SkipInterceptors()
@@ -41,6 +40,9 @@ export class AssetControllerV1 {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: DSNP_VALID_MIME_TYPES,
+          // @nestjs/common@10.4.16 added the 'file-type' package, which is imported dynamically as an ESM module.
+          // This import breaks under Jest, so we skip it in test mode
+          skipMagicNumbersValidation: process.env.NODE_ENV === 'test',
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

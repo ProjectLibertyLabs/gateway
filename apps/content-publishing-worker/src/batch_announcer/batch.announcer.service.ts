@@ -35,7 +35,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
   }
 
   async process(job: Job<IBatchAnnouncerJob, any, string>): Promise<any> {
-    this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+    this.logger.info(`Processing job ${job.id} of type ${job.name}`);
     try {
       const publisherJob = await (isExistingBatch(job.data)
         ? this.ipfsPublisher.announceExistingBatch(job.data)
@@ -46,7 +46,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
         removeOnComplete: 1000,
         attempts: 3,
       });
-      this.logger.log(`Completed job ${job.id} of type ${job.name}`);
+      this.logger.info(`Completed job ${job.id} of type ${job.name}`);
       return job.data;
     } catch (e: any) {
       this.logger.error(`Error processing job ${job.id} of type ${job.name}: ${e}`, e?.stack);

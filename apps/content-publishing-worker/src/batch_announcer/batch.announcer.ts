@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
 import { ParquetWriter, ParquetSchema } from '@dsnp/parquetjs';
 import { fromDSNPSchema } from '@dsnp/schemas/parquet';
@@ -11,6 +11,8 @@ import ipfsConfig, { formIpfsUrl, IIpfsConfig } from '#storage/ipfs/ipfs.config'
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class BatchAnnouncer {
@@ -22,7 +24,7 @@ export class BatchAnnouncer {
     private blockchainService: BlockchainService,
     private ipfsService: IpfsService,
   ) {
-    this.logger = new Logger(BatchAnnouncer.name);
+    this.logger = pino(getBasicPinoOptions(BatchAnnouncer.name));
   }
 
   public async announce(batchJob: IBatchAnnouncerJobData): Promise<IPublisherJob> {
@@ -71,7 +73,7 @@ export class BatchAnnouncer {
 
   public async announceExistingBatch(batch: IBatchFile): Promise<IPublisherJob> {
     // Get previously uploaded file from IPFS
-    this.logger.log(`Getting info from IPFS for ${batch.cid}`);
+    this.logger.info(`Getting info from IPFS for ${batch.cid}`);
     try {
       // First check if the file exists
       const exists = await this.ipfsService.existsInLocalGateway(batch.cid);

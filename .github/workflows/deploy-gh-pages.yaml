@@ -22,6 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Set up mdBook 📚
         uses: ./.github/workflows/common/set-up-mdbook
         with:
@@ -32,7 +37,7 @@ jobs:
 
       - name: Build with mdBook
         working-directory: docs
-        run: mdbook build && ls book
+        run: npm i && mdbook build && ls book
 
       # Upload the mdBook output to GitHub Pages
       - name: Upload mdbook to GitHub Pages

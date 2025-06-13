@@ -2,14 +2,16 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {
-  RevokeDelegationPayloadResponseDto,
-  RevokeDelegationPayloadRequestDto,
-  TransactionResponse,
   PublishRevokeDelegationRequestDto,
+  RevokeDelegationPayloadRequestDto,
+  RevokeDelegationPayloadResponseDto,
+  TransactionResponse,
 } from '#types/dtos/account';
 import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class DelegationService {
@@ -20,7 +22,7 @@ export class DelegationService {
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   async getDelegation(msaId: string): Promise<DelegationResponse> {
@@ -34,12 +36,11 @@ export class DelegationService {
       );
 
       if (commonPrimitivesMsaDelegation) {
-        const delegationResponse: DelegationResponse = {
+        return {
           providerId: providerId.toString(),
           schemaPermissions: commonPrimitivesMsaDelegation.schemaPermissions,
           revokedAt: commonPrimitivesMsaDelegation.revokedAt,
         };
-        return delegationResponse;
       }
       throw new NotFoundException(`Failed to find the delegations for ${msaId} and ${providerId}`);
     }
@@ -80,7 +81,7 @@ export class DelegationService {
 
   async postRevokeDelegation(revokeDelegationRequest: RevokeDelegationPayloadRequestDto): Promise<TransactionResponse> {
     try {
-      this.logger.verbose(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
+      this.logger.trace(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
       const referenceId = await this.enqueueService.enqueueRequest<PublishRevokeDelegationRequestDto>({
         ...revokeDelegationRequest,
         type: TransactionType.REVOKE_DELEGATION,

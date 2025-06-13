@@ -2,6 +2,7 @@
 
 :root {
   font-size: 100% !important;
+  accent-color: var(--color-primary);
 }
 
 :target {
@@ -28,6 +29,7 @@
 
 body {
   font-size: 18px;
+  font-family: "Poppins", sans-serif;
 }
 
 .sidebar-resizing #body-container {

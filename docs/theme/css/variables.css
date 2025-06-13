@@ -40,14 +40,14 @@
   --icons-hover: var(--color-purple75);
 
   --links: var(--color-purple75);
-  --links-hover: var(--color-purple75);
+  --icons-hover: var(--color-purple50);
 
   --inline-code-color: var(--color-gray3);
 
   --theme-popup-fg: var(--sidebar-fg);
   --theme-popup-bg: var(--sidebar-bg);
   --theme-popup-border: var(--color-purple75);
-  --theme-hover: var(--color-purple25);
+  --theme-hover: var(--color-purple75);
 
   --quote-bg: hsl(234, 21%, 18%);
   --quote-border: hsl(234, 21%, 23%);
@@ -174,14 +174,14 @@ html:not(.js) {
     --icons-hover: var(--color-purple75);
 
     --links: var(--color-purple75);
-    --links-hover: var(--color-purple75);
+    --icons-hover: var(--color-purple50);
 
     --inline-code-color: var(--color-gray3);
 
     --theme-popup-fg: var(--sidebar-fg);
     --theme-popup-bg: var(--sidebar-bg);
     --theme-popup-border: var(--color-purple75);
-    --theme-hover: var(--color-purple25);
+    --theme-hover: var(--color-purple75);
 
     --quote-bg: hsl(234, 21%, 18%);
     --quote-border: hsl(234, 21%, 23%);

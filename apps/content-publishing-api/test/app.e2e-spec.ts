@@ -828,10 +828,10 @@ describe('AppController E2E request verification!', () => {
     }, 15000);
   });
 
-  describe('(POST) /v3/content/batchAnnoucement', () => {
+  describe('(POST) /v3/content/batchAnnouncement', () => {
     it('should reject request without files', async () => {
       await request(app.getHttpServer())
-        .post('/v3/content/batchAnnoucement')
+        .post('/v3/content/batchAnnouncement')
         .expect(400)
         .expect((res) => expect(res.text).toContain('No files provided'));
     }, 10000);
@@ -840,7 +840,7 @@ describe('AppController E2E request verification!', () => {
       const file1 = Buffer.from('fake image content 1');
       const file2 = Buffer.from('fake image content 2');
       await request(app.getHttpServer())
-        .post('/v3/content/batchAnnoucement')
+        .post('/v3/content/batchAnnouncement')
         .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
         .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
         .field('schemaId', '16001')
@@ -856,7 +856,7 @@ describe('AppController E2E request verification!', () => {
           acc
             .attach('files', file, { filename: `test${index}.jpg`, contentType: 'image/jpeg' })
             .field('schemaId', '16001'),
-        request(app.getHttpServer()).post('/v3/content/batchAnnoucement'),
+        request(app.getHttpServer()).post('/v3/content/batchAnnouncement'),
       );
 
       await req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count'));
@@ -866,7 +866,7 @@ describe('AppController E2E request verification!', () => {
       const imageContent = Buffer.from('fake image content');
 
       await request(app.getHttpServer())
-        .post('/v3/content/batchAnnoucement')
+        .post('/v3/content/batchAnnouncement')
         .attach('files', imageContent, { filename: 'test.jpg', contentType: 'image/jpeg' })
         .field('schemaId', '16001')
         .expect(202)
@@ -882,7 +882,7 @@ describe('AppController E2E request verification!', () => {
       const file2 = Buffer.from('fake image content 2');
 
       await request(app.getHttpServer())
-        .post('/v3/content/batchAnnoucement')
+        .post('/v3/content/batchAnnouncement')
         .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
         .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
         .field('schemaId', '16001')

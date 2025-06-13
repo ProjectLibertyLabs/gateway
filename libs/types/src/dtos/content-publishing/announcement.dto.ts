@@ -140,14 +140,20 @@ export class BatchFilesDto {
   batchFiles: BatchFileDto[];
 }
 
-export class BatchAnnouncementResponseDto {
-  @IsString()
-  referenceIds: string[];
+export class BatchAnnoucementDto {
+  referenceId: string;
 
+  @IsCidV1()
+  cid: string;
+
+  error: string;
+}
+
+export class BatchAnnouncementResponseDto {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => FileResponseDto)
-  files: FileResponseDto[];
+  @Type(() => BatchAnnoucementDto)
+  files: BatchAnnoucementDto[];
 }
 
 export type RequestTypeDto = BroadcastDto | ReplyDto | ReactionDto | UpdateDto | ProfileDto | TombstoneDto;

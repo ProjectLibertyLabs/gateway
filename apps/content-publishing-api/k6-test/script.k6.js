@@ -260,10 +260,10 @@ export default function () {
     }
   });
 
-  group('/v3/content/batchAnnoucement', () => {
+  group('/v3/content/batchAnnouncement', () => {
     // Test batch upload with multiple files
     {
-      let url = BASE_URL + `/v3/content/batchAnnoucement`;
+      let url = BASE_URL + `/v3/content/batchAnnouncement`;
       const formData = new FormData();
 
       // Add two test files with schema IDs (using id 12 here maps to dsnp-content-attribute-set schema on mainnet)

@@ -119,7 +119,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
             await this.retryPublishJob(txStatus.referencePublishJob);
           }
         } else if (successEvent) {
-          this.logger.verbose(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+          this.logger.debug(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
         } else {
           this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
         }

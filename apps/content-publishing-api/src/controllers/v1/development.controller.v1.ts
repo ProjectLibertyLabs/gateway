@@ -3,7 +3,7 @@ This is a controller providing some endpoints useful for development and testing
 */
 
 // eslint-disable-next-line max-classes-per-file
-import { Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq/dist/esm/classes/job';
@@ -25,12 +25,11 @@ import {
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { AnnouncementType, AnnouncementTypeName } from '#types/enums';
 import { calculateDsnpMultiHash } from '#utils/common/common.utils';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller('dev')
 @ApiTags('dev')
 export class DevelopmentControllerV1 {
-  private readonly logger: Logger;
-
   private readonly queueMapper: Map<AnnouncementTypeName, Queue>;
 
   constructor(
@@ -41,8 +40,8 @@ export class DevelopmentControllerV1 {
     @InjectQueue(QueueConstants.UPDATE_QUEUE_NAME) updateQueue: Queue,
     @InjectQueue(QueueConstants.PROFILE_QUEUE_NAME) profileQueue: Queue,
     @InjectQueue(QueueConstants.TOMBSTONE_QUEUE_NAME) tombstoneQueue: Queue,
+    @InjectPinoLogger(DevelopmentControllerV1.name) private readonly logger: PinoLogger,
   ) {
-    this.logger = new Logger(this.constructor.name);
     this.queueMapper = new Map([
       [AnnouncementTypeName.BROADCAST, broadcastQueue],
       [AnnouncementTypeName.REPLY, replyQueue],
@@ -56,9 +55,9 @@ export class DevelopmentControllerV1 {
   @Get('/request/:jobId')
   @ApiOperation({ summary: 'Get a Job given a jobId', description: 'ONLY enabled when ENVIRONMENT="dev".' })
   async requestJob(@Param('jobId') jobId: string) {
-    this.logger.log(jobId);
+    this.logger.info(jobId);
     const job = await this.requestQueue.getJob(jobId);
-    this.logger.log(job);
+    this.logger.info(job);
     return job;
   }
 

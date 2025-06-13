@@ -31,7 +31,7 @@ export class ContentControllerV3 {
     this.logger = new Logger(this.constructor.name);
   }
 
-  @Post('batchAnnoucement')
+  @Post('batchAnnouncement')
   @SkipInterceptors()
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiConsumes('multipart/form-data')
@@ -116,8 +116,8 @@ export class ContentControllerV3 {
         const batchResults = await Promise.all(batchPromises);
 
         resolveResponse({
-          referenceIds: batchResults.filter(Boolean).map((batchResult) => batchResult.referenceId),
-          files: uploadResults.map((uploadResult) => ({
+          files: uploadResults.map((uploadResult, index) => ({
+            referenceId: batchResults[index].referenceId,
             cid: uploadResult.cid,
             error: uploadResult.error,
           })),

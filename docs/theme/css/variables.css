@@ -37,10 +37,10 @@
   --scrollbar: var(--sidebar-fg);
 
   --icons: var(--color-cream);
-  --icons-hover: var(--color-purple75);
+  --icons-hover: var(--color-purple50);
 
   --links: var(--color-purple75);
-  --icons-hover: var(--color-purple50);
+  --links-hover: var(--color-purple75);
 
   --inline-code-color: var(--color-gray3);
 
@@ -171,10 +171,10 @@ html:not(.js) {
     --scrollbar: var(--sidebar-fg);
 
     --icons: var(--color-cream);
-    --icons-hover: var(--color-purple75);
+    --icons-hover: var(--color-purple50);
 
     --links: var(--color-purple75);
-    --icons-hover: var(--color-purple50);
+    --links-hover: var(--color-purple75);
 
     --inline-code-color: var(--color-gray3);
 

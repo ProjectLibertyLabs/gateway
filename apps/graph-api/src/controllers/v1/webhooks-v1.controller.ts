@@ -1,18 +1,18 @@
 import { ApiService } from '#graph-api/api.service';
 import { WatchGraphsDto } from '#types/dtos/graph';
 import { MsaIdDto, UrlDto } from '#types/dtos/common';
-import { Controller, HttpCode, HttpStatus, Logger, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Body, Put, Res, Get, Query, Delete, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'webhooks' })
 @ApiTags('v1/webhooks')
 export class WebhooksControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(WebhooksControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)

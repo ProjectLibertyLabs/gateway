@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDtoV2 } from '#types/dtos/content-publishing';
-import { Controller, HttpCode, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -8,18 +8,16 @@ import { Request, Response } from 'express';
 import apiConfig, { IContentPublishingApiConfig } from '../../api.config';
 import { IFileResponse, IUploadResponse } from '#types/interfaces/content-publishing';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '2', path: 'asset' })
 @ApiTags('v2/asset')
 export class AssetControllerV2 {
-  private readonly logger: Logger;
-
   constructor(
     private readonly apiService: ApiService,
     @Inject(apiConfig.KEY) private readonly config: IContentPublishingApiConfig,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    @InjectPinoLogger(AssetControllerV2.name) private readonly logger: PinoLogger,
+  ) {}
 
   @Post('upload')
   @SkipInterceptors()
@@ -32,10 +30,10 @@ export class AssetControllerV2 {
   })
   @ApiResponse({ status: '2XX', type: UploadResponseDtoV2 })
   async uploadFile(@Req() req: Request, @Res({ passthrough: true }) _res: Response): Promise<IUploadResponse> {
-    req.on('end', () => this.logger.verbose('Request ended'));
-    req.on('close', () => this.logger.verbose('Request closed'));
-    req.on('aborted', () => this.logger.verbose('Request aborted'));
-    this.logger.verbose(`uploadFile: expect Header Content-length: ${req.headers['content-length']}`);
+    req.on('end', () => this.logger.trace('Request ended'));
+    req.on('close', () => this.logger.trace('Request closed'));
+    req.on('aborted', () => this.logger.trace('Request aborted'));
+    this.logger.trace(`uploadFile: expect Header Content-length: ${req.headers['content-length']}`);
 
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
     const busboy = Busboy({ headers: req.headers });
@@ -47,9 +45,9 @@ export class AssetControllerV2 {
 
     busboy.on('file', (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
-      this.logger.verbose(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
+      this.logger.trace(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
       fileStream.on('end', () => {
-        this.logger.verbose(`Finished writing ${fileinfo.filename}`);
+        this.logger.trace(`Finished writing ${fileinfo.filename}`);
       });
       if (fileIndex > this.config.fileUploadCountLimit) {
         fileStream.resume(); // Make sure we consume the entire file stream so the rest of the request can be processed

@@ -1,14 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import apiConfig, { IGraphApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getLogLevels } from 'libs/logger/logLevel-common-config';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
-const logger = new Logger('main');
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { pino } from 'pino';
+// use plain pino directly outside of the app.
+const logger = pino(getBasicPinoOptions('account-api.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
@@ -28,9 +31,9 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
-    logger: getLogLevels(),
     rawBody: true,
   });
+  app.useLogger(app.get(PinoLogger));
 
   // Enable URL-based API versioning
   app.enableVersioning({
@@ -82,12 +85,12 @@ async function bootstrap() {
     app.useBodyParser('json', { limit: apiConf.apiBodyJsonLimit });
 
     initializeSwaggerUI(app, swaggerDoc);
-    logger.log(`Listening on port ${apiConf.apiPort}`);
-    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
+    logger.info(`Listening on port ${apiConf.apiPort}`);
+    logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen(apiConf.apiPort);
   } catch (e) {
     await app.close();
-    logger.log('****** MAIN CATCH ********');
+    logger.info('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
@@ -98,5 +101,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.log('bootstrap exited'))
+  .then(() => logger.info('bootstrap exited'))
   .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));

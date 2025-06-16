@@ -54,7 +54,7 @@ module.exports = {
     'import/order': 'off',
     'no-await-in-loop': 'off',
     'no-useless-constructor': 'off',
-    'no-empty-function': 'warn',
+    'no-empty-function': 'off',
   },
   settings: {
     'import/extensions': [

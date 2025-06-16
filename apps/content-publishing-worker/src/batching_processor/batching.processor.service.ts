@@ -1,5 +1,5 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -17,19 +17,18 @@ import BATCH_LOCK_EXPIRE_SECONDS = ContentPublisherRedisConstants.BATCH_LOCK_EXP
 import getBatchMetadataKey = ContentPublisherRedisConstants.getBatchMetadataKey;
 import getBatchDataKey = ContentPublisherRedisConstants.getBatchDataKey;
 import getBatchLockKey = ContentPublisherRedisConstants.getLockKey;
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class BatchingProcessorService {
-  private logger: Logger;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private outputQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private blockchainService: BlockchainService,
+    @InjectPinoLogger(BatchingProcessorService.name) private readonly logger: PinoLogger,
   ) {
-    this.logger = new Logger(this.constructor.name);
     redis.defineCommand('addToBatch', {
       numberOfKeys: 2,
       lua: fs.readFileSync('lua/addToBatch.lua', 'utf8'),
@@ -55,7 +54,7 @@ export class BatchingProcessorService {
   }
 
   async process(job: Job<Announcement, any, string>, queueName: string): Promise<any> {
-    this.logger.log(`Processing job ${job.id} from ${queueName}`);
+    this.logger.info(`Processing job ${job.id} from ${queueName}`);
 
     const batchId = randomUUID().toString();
     const newMetadata = JSON.stringify({
@@ -73,9 +72,9 @@ export class BatchingProcessorService {
       job.id!,
       newData,
     );
-    this.logger.log(rowCount);
+    this.logger.info(rowCount);
     if (rowCount === 1) {
-      this.logger.log(`Processing job ${job.id} with a new batch`);
+      this.logger.info(`Processing job ${job.id} with a new batch`);
       const timeout = this.config.batchIntervalSeconds * MILLISECONDS_PER_SECOND;
       this.addBatchTimeout(queueName, batchId, timeout);
     } else if (rowCount >= this.config.batchMaxCount) {
@@ -88,11 +87,11 @@ export class BatchingProcessorService {
   }
 
   async onCompleted(job: Job<Announcement, any, string>, queueName: string) {
-    this.logger.log(`Completed ${job.id} from ${queueName}`);
+    this.logger.info(`Completed ${job.id} from ${queueName}`);
   }
 
   private async closeBatch(queueName: string, batchId: string, timeout: boolean) {
-    this.logger.log(`Closing batch for ${queueName} ${batchId} ${timeout}`);
+    this.logger.info(`Closing batch for ${queueName} ${batchId} ${timeout}`);
 
     const batchMetaDataKey = getBatchMetadataKey(queueName);
     const batchDataKey = getBatchDataKey(queueName);
@@ -111,15 +110,15 @@ export class BatchingProcessorService {
     const status = response[0];
 
     if (status === 0) {
-      this.logger.log(`No meta-data for closing batch ${queueName} ${batchId}. Ignore...`);
+      this.logger.info(`No meta-data for closing batch ${queueName} ${batchId}. Ignore...`);
       return;
     }
     if (status === -2) {
-      this.logger.log(`Previous batch is still locked ${queueName}. Ignore...`);
+      this.logger.info(`Previous batch is still locked ${queueName}. Ignore...`);
       return;
     }
     if (status === -1) {
-      this.logger.log(`Previous batch is not closed for ${queueName} and we are going to close it first`);
+      this.logger.info(`Previous batch is not closed for ${queueName} and we are going to close it first`);
     }
     const batch = response[1];
     const metaData: IBatchMetadata = JSON.parse(response[2]);
@@ -154,7 +153,7 @@ export class BatchingProcessorService {
       this.logger.error(e);
     }
     if (status === -1) {
-      this.logger.log(`after closing the previous leftover locked batch now we are going to close ${queueName}`);
+      this.logger.info(`after closing the previous leftover locked batch now we are going to close ${queueName}`);
       await this.closeBatch(queueName, batchId, timeout);
     }
   }

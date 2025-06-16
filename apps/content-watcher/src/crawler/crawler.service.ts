@@ -32,7 +32,7 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
   }
 
   async process(job: Job<ContentSearchRequestDto, any, string>): Promise<void> {
-    this.logger.log(`Processing crawler job ${job.id}: ${JSON.stringify(job.data)}`);
+    this.logger.info(`Processing crawler job ${job.id}: ${JSON.stringify(job.data)}`);
 
     // we crawl the blocks in reverse because we can not determine how many blocks back
     // we can access from the node
@@ -72,7 +72,7 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
         throw new DelayedError();
       }
 
-      this.logger.log(`Finished processing job ${job.id}`);
+      this.logger.info(`Finished processing job ${job.id}`);
     } catch (error) {
       if (error instanceof DelayedError) {
         throw error;
@@ -111,7 +111,7 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
       );
 
       // Optionally add verbose log at trace level if detailed block info is needed for debugging
-      this.logger.verbose(
+      this.logger.trace(
         `Block details: ${blockSummaries.map((s) => `${s.blockNumber}(${s.messageCount})`).join(', ')}`,
       );
     }

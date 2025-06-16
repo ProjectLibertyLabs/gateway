@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
@@ -20,6 +20,8 @@ import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ApiPromise } from '@polkadot/api';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class AccountsService {
@@ -31,7 +33,7 @@ export class AccountsService {
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(AccountsService.name));
   }
 
   async getAccount(msaId: string): Promise<AccountResponseDto | null> {
@@ -42,10 +44,10 @@ export class AccountsService {
         this.logger.debug(`Found handle: ${handleResponse.base_handle.toString()} for msaId: ${msaId}`);
         return { msaId, handle: handleResponse };
       }
-      this.logger.log(`Failed to get handle for msaId: ${msaId}`);
+      this.logger.info(`Failed to get handle for msaId: ${msaId}`);
       return { msaId };
     }
-    this.logger.log(`Invalid msaId: ${msaId}`);
+    this.logger.info(`Invalid msaId: ${msaId}`);
     return null;
   }
 

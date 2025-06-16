@@ -10,7 +10,6 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Logger,
   Param,
   Inject,
   NotFoundException,
@@ -20,18 +19,17 @@ import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } fro
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'accounts' })
 @ApiTags('v1/accounts')
 export class AccountsControllerV1 {
-  private readonly logger: Logger;
-
   constructor(
     private accountsService: AccountsService,
     @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    @InjectPinoLogger(AccountsService.name) private readonly logger: PinoLogger,
+    // eslint-disable-next-line no-empty-function
+  ) {}
 
   @Get('siwf')
   @HttpCode(HttpStatus.OK)

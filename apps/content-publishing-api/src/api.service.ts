@@ -1,6 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { BulkJobOptions } from 'bullmq/dist/esm/interfaces';
@@ -18,7 +17,6 @@ import {
   BatchFileDto,
   DSNP_VALID_MIME_TYPES,
 } from '#types/dtos/content-publishing';
-import { QueueStatusDto, BlockchainStatusDto } from '#types/dtos/common';
 import {
   IRequestJob,
   IAssetMetadata,
@@ -26,7 +24,6 @@ import {
   IPublisherJob,
   IFileResponse,
 } from '#types/interfaces/content-publishing';
-import { IContentPublishingApiConfig } from './api.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import {
   calculateDsnpMultiHash,
@@ -42,7 +39,6 @@ import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 import { PassThrough, Readable } from 'stream';
 import { FilePin, IpfsService } from '#storage';
-import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ApiService {
@@ -55,7 +51,6 @@ export class ApiService {
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly ipfs: IpfsService,
-    private readonly configService: ConfigService,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -374,57 +369,6 @@ export class ApiService {
     }
 
     return { cid: uploadResult.cid };
-  }
-
-  public async getQueueStatus(): Promise<Array<QueueStatusDto>> {
-    const queues: Array<{ name: string; queue: any }> = [
-      { name: this.assetQueue.name, queue: this.assetQueue },
-      { name: this.requestQueue.name, queue: this.requestQueue },
-      { name: this.publishQueue.name, queue: this.publishQueue },
-      { name: this.batchAnnouncerQueue.name, queue: this.batchAnnouncerQueue },
-    ];
-
-    const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
-      queues.map(async ({ name, queue }) => ({
-        name,
-        status: 'Queue is running',
-        isPaused: await queue.isPaused(),
-      })),
-    );
-
-    return statusList.map((result, index) => {
-      if (result.status === 'fulfilled') {
-        return plainToInstance(QueueStatusDto, result.value);
-      }
-      return plainToInstance(QueueStatusDto, {
-        name: queues[index].name,
-        status: result.reason?.message || 'Unknown error',
-        isPaused: null,
-      });
-    });
-  }
-
-  public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
-    return plainToInstance(BlockchainStatusDto, {
-      latestBlockHeader: await this.getLatestBlockHeader(),
-    });
-  }
-
-  public async getLatestBlockHeader(): Promise<any | null> {
-    const headerStr = await this.redis.get('latestHeader');
-    if (!headerStr) {
-      return null;
-    }
-    try {
-      return JSON.parse(headerStr);
-    } catch (err) {
-      this.logger.warn('Failed to parse latestHeader from Redis:', err);
-      return null;
-    }
-  }
-
-  public getServiceConfig() {
-    return this.configService.get<IContentPublishingApiConfig>('content-publishing-api');
   }
 
   // eslint-disable-next-line class-methods-use-this

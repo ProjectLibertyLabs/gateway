@@ -1,6 +1,7 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../api.service';
+import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 
 @Controller()
@@ -8,6 +9,7 @@ import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 export class HealthController {
   constructor(
     private readonly apiService: ApiService,
+    private readonly healthCheckService: HealthCheckService,
     // private readonly blockchainService: BlockchainRpcQueryService,
     // eslint-disable-next-line no-empty-function
   ) {}
@@ -23,9 +25,9 @@ export class HealthController {
       status: HttpStatus.OK,
       message: 'Service is healthy',
       timestamp: Date.now(),
-      config: await this.apiService.getServiceConfig(),
-      queueStatus: await this.apiService.getQueueStatus(),
-      blockchainStatus: await this.apiService.getBlockchainStatus(),
+      config: this.healthCheckService.getServiceConfig('content-publishing-api'),
+      queueStatus: await this.healthCheckService.getQueueStatus([]),
+      blockchainStatus: await this.healthCheckService.getBlockchainStatus(),
     };
   }
 

@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { ApiService } from './api.service';
+import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
 import { CacheModule } from '#cache/cache.module';
@@ -71,6 +72,7 @@ import { IPFSStorageModule } from '#storage';
   ],
   providers: [
     ApiService,
+    HealthCheckService,
     // global exception handling
     {
       provide: APP_FILTER,

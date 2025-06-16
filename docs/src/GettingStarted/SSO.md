@@ -35,11 +35,7 @@ You need a **backend-only-accessible** [running instance](../Run/GatewayServices
 
 **Access to a Frequency RPC Node**
 
-- **Public Testnet Node:**
-
-  ```plaintext
-  wss://0.rpc.testnet.amplica.io
-  ```
+- Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 
 ## Overview
 

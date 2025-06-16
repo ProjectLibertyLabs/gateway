@@ -37,7 +37,7 @@
   --scrollbar: var(--sidebar-fg);
 
   --icons: var(--color-cream);
-  --icons-hover: var(--color-purple75);
+  --icons-hover: var(--color-purple50);
 
   --links: var(--color-purple75);
   --links-hover: var(--color-purple75);
@@ -47,7 +47,7 @@
   --theme-popup-fg: var(--sidebar-fg);
   --theme-popup-bg: var(--sidebar-bg);
   --theme-popup-border: var(--color-purple75);
-  --theme-hover: var(--color-purple25);
+  --theme-hover: var(--color-purple75);
 
   --quote-bg: hsl(234, 21%, 18%);
   --quote-border: hsl(234, 21%, 23%);
@@ -171,7 +171,7 @@ html:not(.js) {
     --scrollbar: var(--sidebar-fg);
 
     --icons: var(--color-cream);
-    --icons-hover: var(--color-purple75);
+    --icons-hover: var(--color-purple50);
 
     --links: var(--color-purple75);
     --links-hover: var(--color-purple75);
@@ -181,7 +181,7 @@ html:not(.js) {
     --theme-popup-fg: var(--sidebar-fg);
     --theme-popup-bg: var(--sidebar-bg);
     --theme-popup-border: var(--color-purple75);
-    --theme-hover: var(--color-purple25);
+    --theme-hover: var(--color-purple75);
 
     --quote-bg: hsl(234, 21%, 18%);
     --quote-border: hsl(234, 21%, 23%);

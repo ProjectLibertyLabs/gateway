@@ -5,7 +5,7 @@ import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { Logger } from 'pino';
+import { Logger as PinoLogger } from 'pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -38,7 +38,7 @@ export abstract class BlockchainScannerService {
   constructor(
     protected cacheManager: Redis,
     protected readonly blockchainService: BlockchainRpcQueryService,
-    protected readonly logger: Logger,
+    protected readonly logger: PinoLogger,
   ) {
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
     this.blockchainService.on('chain.disconnected', () => {

@@ -779,4 +779,8 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   ): DetectCodec<T, K> {
     return this.api.createType<T, K>(type, ...params);
   }
+
+  public async maximumCapacityBatchLength(): Promise<number> {
+    return await this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
+  }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -16,6 +16,8 @@ import { IWebhookRegistration } from '#types/dtos/content-watcher/subscription.w
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class ApiService {
@@ -26,7 +28,7 @@ export class ApiService {
     @InjectQueue(QueueConstants.WATCHER_REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   public async getWatchOptions(): Promise<ChainWatchOptionsDto | null> {

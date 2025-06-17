@@ -6,8 +6,9 @@ import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getBasicPinoOptions, getLogLevels } from '#logger-lib';
+import { getBasicPinoOptions } from '#logger-lib';
 import { pino } from 'pino';
+import { Logger as PinoLogger } from 'nestjs-pino';
 
 const logger = pino(getBasicPinoOptions('content-watcher.main'));
 
@@ -29,9 +30,9 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
-    logger: getLogLevels(),
     rawBody: true,
   });
+  app.useLogger(app.get(PinoLogger));
 
   // Enable URL-based API versioning
   app.enableVersioning({
@@ -84,7 +85,6 @@ async function bootstrap() {
 
     initializeSwaggerUI(app, swaggerDoc);
     logger.info(`Listening on port ${config.apiPort}`);
-    logger.info(`Log levels: ${getLogLevels().join(', ')}`);
     await app.listen(config.apiPort);
   } catch (e) {
     await app.close();

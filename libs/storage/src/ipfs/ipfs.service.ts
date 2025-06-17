@@ -83,9 +83,9 @@ export class IpfsService {
     try {
       // First try a direct HEAD request without cache restriction
       const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
-        method: "HEAD"
+        method: 'HEAD',
       });
-      
+
       if (response.ok) {
         return true;
       }

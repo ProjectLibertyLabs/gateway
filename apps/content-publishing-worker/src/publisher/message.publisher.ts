@@ -1,61 +1,92 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
 import { NonceConflictError } from '#blockchain/types';
 import { DelayedError } from 'bullmq';
 
 @Injectable()
-export class MessagePublisher {
+export class MessagePublisher implements OnApplicationBootstrap {
   private logger: Logger;
 
   private messageQueue: IPublisherJob[] = [];
 
-  private readonly BATCH_SIZE_LIMIT = 10;
+  private maxBatchSize: number;
 
-  constructor(private blockchainService: BlockchainService) {
+  // Tracks the current promise that's waiting to process a batch
+  // Used to ensure concurrent publish calls join the same batch
+  private batchingPromise: Promise<[SubmittableExtrinsic<'promise'>, string, number]> | null = null;
+  
+  // Reference to the current timeout that's waiting to process a batch
+  // Used to clear the timeout if we need to process early
+  private batchTimeout: NodeJS.Timeout | null = null;
+
+  constructor(
+    private blockchainRpcService: BlockchainRpcQueryService,
+    private blockchainService: BlockchainService,
+  ) {
     this.logger = new Logger(MessagePublisher.name);
   }
 
+  async onApplicationBootstrap() {
+    // Get the real batch size when the application starts
+    this.maxBatchSize = await this.blockchainRpcService.maximumCapacityBatchLength();
+  }
+
   public async publish(message: IPublisherJob): Promise<[SubmittableExtrinsic<'promise'>, string, number]> {
+    // Add the new message to our queue
     this.messageQueue.push(message);
 
-    if (this.messageQueue.length >= this.BATCH_SIZE_LIMIT) {
+    // If we've hit our batch size limit, process immediately
+    if (this.messageQueue.length >= this.maxBatchSize) {
+      // Clear any existing timeout since we're processing now
+      if (this.batchTimeout) {
+        clearTimeout(this.batchTimeout);
+        this.batchTimeout = null;
+      }
       return this.processBatch();
     }
 
-    // If this is the first message in the queue, process it immediately
-    if (this.messageQueue.length === 1) {
-      return this.processBatch();
+    // If there's already a batch waiting to be processed,
+    // return that promise so this message joins that batch
+    if (this.batchingPromise) {
+      return this.batchingPromise;
     }
 
-    // Otherwise, wait for more messages to accumulate
-    return new Promise((resolve) => {
-      setTimeout(() => {
+    // Create a new promise that will process the batch after 6 seconds
+    this.batchingPromise = new Promise((resolve) => {
+      this.batchTimeout = setTimeout(() => {
+        // Only process if we have messages
         if (this.messageQueue.length > 0) {
           this.processBatch().then(resolve);
         }
-      }, 1000); // Wait 1 second for more messages
+      }, 6000); // Wait 6 seconds to collect more messages
     });
+
+    return this.batchingPromise;
   }
 
   private async processBatch(): Promise<[SubmittableExtrinsic<'promise'>, string, number]> {
+    // Safety check - shouldn't happen due to our logic above
     if (this.messageQueue.length === 0) {
       throw new Error('No messages in queue to process');
     }
 
+    // Take all current messages and clear the queue
     const batchToProcess = [...this.messageQueue];
     this.messageQueue = [];
 
     try {
       this.logger.debug(`Processing batch of ${batchToProcess.length} messages`);
 
+      // Convert each message into a blockchain transaction
       const transactions = batchToProcess.map((message) =>
         isIpfsJob(message)
           ? this.blockchainService.generateAddIpfsMessage(
               message.schemaId,
               message.data.cid,
-              message.data.payloadLength,
+              message.data.payloadLength
             )
           : this.blockchainService.generateAddOnchainMessage(
               message.schemaId,
@@ -64,10 +95,13 @@ export class MessagePublisher {
             ),
       );
 
+      // Create a vector of all transactions and submit as a single batch
       const callVec = this.blockchainService.createType('Vec<Call>', transactions);
       return this.blockchainService.payWithCapacityBatchAll(callVec);
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
+      // If we have a nonce conflict, throw a special error that will
+      // cause the job to be retried later
       if (e instanceof NonceConflictError) {
         throw new DelayedError();
       }

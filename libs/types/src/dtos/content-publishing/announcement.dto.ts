@@ -11,7 +11,6 @@ import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decora
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IBatchFile, IBroadcast, IProfile, IReaction, IReply, ITombstone, IUpdate } from '#types/interfaces';
-import { FileResponseDto } from './common.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { IsCidV1 } from '#utils/decorators/is-cidv1.decorator';
 
@@ -143,7 +142,6 @@ export class BatchFilesDto {
 export class BatchAnnoucementDto {
   referenceId: string;
 
-  @IsCidV1()
   cid: string;
 
   error: string;

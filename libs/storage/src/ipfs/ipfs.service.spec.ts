@@ -83,6 +83,7 @@ describe('IpfsService Tests', () => {
     it('should return false if CID does not exist', async () => {
       jest.spyOn(global, 'fetch').mockReturnValueOnce({
         status: 412,
+        ok: false,
       });
 
       await expect(service.existsInLocalGateway(dummyCidV1)).resolves.toBe(false);
@@ -91,6 +92,7 @@ describe('IpfsService Tests', () => {
     it('should return true if CID exists', async () => {
       jest.spyOn(global, 'fetch').mockReturnValueOnce({
         status: 200,
+        ok: true,
       });
 
       await expect(service.existsInLocalGateway(dummyCidV0)).resolves.toBe(true);

@@ -97,7 +97,7 @@ export class BatchAnnouncer {
         // If we get here, the file exists but might need to be pinned
         await this.ipfsService.tryPin(batch.cid);
         const { cid, size } = await this.ipfsService.getInfo(batch.cid);
-        
+
         const response = {
           id: batch.cid,
           schemaId: batch.schemaId,

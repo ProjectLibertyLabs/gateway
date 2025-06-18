@@ -21,7 +21,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
   // Tracks the current promise that's waiting to process a batch
   // Used to ensure concurrent publish calls join the same batch
   private batchingPromise: Promise<[SubmittableExtrinsic<'promise'>, string, number]> | null = null;
-  
+
   // Reference to the current timeout that's waiting to process a batch
   // Used to clear the timeout if we need to process early
   private batchTimeout: NodeJS.Timeout | null = null;
@@ -90,7 +90,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
           ? this.blockchainService.generateAddIpfsMessage(
               message.schemaId,
               message.data.cid,
-              message.data.payloadLength
+              message.data.payloadLength,
             )
           : this.blockchainService.generateAddOnchainMessage(
               message.schemaId,

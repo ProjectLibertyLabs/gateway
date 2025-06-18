@@ -1,17 +1,17 @@
-import { Body, Controller, Get, Logger, NotFoundException, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '#content-watcher/api.service';
 import { ResetScannerDto } from '#types/dtos/content-watcher';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'scanner' })
 @ApiTags('v1/scanner')
 export class ScanControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(ScanControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   @Post('reset')
   @ApiOperation({ summary: 'Reset blockchain scan to a specific block number or offset from the current position' })

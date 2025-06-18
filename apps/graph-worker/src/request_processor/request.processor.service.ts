@@ -151,7 +151,7 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
   ): Promise<Action[]> {
     const dsnpKeys: DsnpKeys = await this.graphStateManager.formDsnpKeys(dsnpUserId);
     const actions: Action[] = [];
-    // this.logger.debug(`Graph connections for user ${dsnpUserId.toString()}: ${JSON.stringify(graphConnections)}`);
+    this.logger.trace(`Graph connections for user ${dsnpUserId.toString()}: ${JSON.stringify(graphConnections)}`);
     // Import DSNP public graph keys for connected users in private friendship connections
     await this.importConnectionKeys(graphConnections);
     await Promise.all(

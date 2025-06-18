@@ -30,6 +30,7 @@ async function bootstrap() {
     strategy: new KeepAliveStrategy(),
   });
   app.useLogger(app.get(PinoLogger));
+  logger.info('Nest ApplicationContext for Graph Worker created.');
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);

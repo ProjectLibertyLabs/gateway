@@ -780,6 +780,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async maximumCapacityBatchLength(): Promise<number> {
-    return await this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
+    return (await this.api.consts.frequencyTxPayment.maximumCapacityBatchLength).toNumber();
   }
 }

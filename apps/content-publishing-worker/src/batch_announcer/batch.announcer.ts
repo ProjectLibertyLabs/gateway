@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
 import { ParquetWriter, ParquetSchema } from '@dsnp/parquetjs';
 import { fromDSNPSchema } from '@dsnp/schemas/parquet';
@@ -11,8 +11,6 @@ import ipfsConfig, { formIpfsUrl, IIpfsConfig } from '#storage/ipfs/ipfs.config'
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class BatchAnnouncer {
@@ -24,7 +22,7 @@ export class BatchAnnouncer {
     private blockchainService: BlockchainService,
     private ipfsService: IpfsService,
   ) {
-    this.logger = pino(getBasicPinoOptions(BatchAnnouncer.name));
+    this.logger = new Logger(BatchAnnouncer.name);
   }
 
   public async announce(batchJob: IBatchAnnouncerJobData): Promise<IPublisherJob> {
@@ -73,7 +71,7 @@ export class BatchAnnouncer {
 
   public async announceExistingBatch(batch: IBatchFile): Promise<IPublisherJob> {
     // Get previously uploaded file from IPFS
-    this.logger.info(`Getting info from IPFS for ${batch.cid}`);
+    this.logger.log(`Getting info from IPFS for ${batch.cid}`);
     try {
       // First check if the file exists
       const exists = await this.ipfsService.existsInLocalGateway(batch.cid);
@@ -83,25 +81,25 @@ export class BatchAnnouncer {
 
       // Try to get info and pin if needed
       try {
-        const { cid, size } = await this.ipfsService.getInfo(batch.cid);
-        this.logger.debug(`Got info from IPFS: cid=${cid}, size=${size}`);
+        const info = await this.ipfsService.getInfoFromLocalNode(batch.cid);
+        this.logger.debug(`Got info from IPFS: cid=${info.cid}, size=${info.size}`);
 
         const response = {
           id: batch.cid,
           schemaId: batch.schemaId,
-          data: { cid: cid.toV1().toString(), payloadLength: size },
+          data: { cid: info.cid.toV1().toString(), payloadLength: info.size },
         };
         this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
         return response;
       } catch (err) {
         // If we get here, the file exists but might need to be pinned
         await this.ipfsService.tryPin(batch.cid);
-        const { cid, size } = await this.ipfsService.getInfo(batch.cid);
-
+        const info = await this.ipfsService.getInfoFromLocalNode(batch.cid);
+        
         const response = {
           id: batch.cid,
           schemaId: batch.schemaId,
-          data: { cid: cid.toV1().toString(), payloadLength: size },
+          data: { cid: info.cid.toV1().toString(), payloadLength: info.size },
         };
         this.logger.debug(`Created job to announce existing batch after pinning: ${JSON.stringify(response)}`);
         return response;

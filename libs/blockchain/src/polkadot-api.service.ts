@@ -1,11 +1,13 @@
 import { options } from '@frequency-chain/api-augment';
-import { Logger, OnApplicationShutdown } from '@nestjs/common';
+import { OnApplicationShutdown } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsProvider, ApiPromise, HttpProvider } from '@polkadot/api';
 import { ApiDecoration, ApiInterfaceEvents } from '@polkadot/api/types';
 import { ProviderInterface } from '@polkadot/rpc-provider/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IBlockchainNonProviderConfig } from './blockchain.config';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 export class PolkadotApiService extends EventEmitter2 implements OnApplicationShutdown {
   private provider: ProviderInterface;
@@ -47,7 +49,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     private readonly eventEmitter: EventEmitter2,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
 
     try {
       const providerUrl = this.baseConfig.frequencyApiWsUrl;
@@ -125,7 +127,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private startDisconnectedTimeout(isInit = false) {
     if (!this.disconnectedTimeout) {
-      this.logger[isInit ? 'log' : 'error'](
+      this.logger[isInit ? 'info' : 'error'](
         isInit
           ? 'Awaiting Frequency RPC node connection'
           : `Communications error with Frequency node; starting ${this.baseConfig.frequencyTimeoutSecs}-second shutdown timer`,
@@ -140,7 +142,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private stopDisconnectedTimeout() {
     if (this.disconnectedTimeout) {
-      this.logger.log('Connected to Frequency');
+      this.logger.info('Connected to Frequency');
       clearTimeout(this.disconnectedTimeout);
       this.disconnectedTimeout = undefined;
       this.emit('chain.connected');

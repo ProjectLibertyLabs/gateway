@@ -66,7 +66,7 @@ export class AssetControllerV2 {
     });
 
     busboy.on('error', (error: any) => {
-      this.logger.error(`Busboy error: `, error);
+      this.logger.error(error, `Busboy error`);
     });
 
     req.pipe(busboy);

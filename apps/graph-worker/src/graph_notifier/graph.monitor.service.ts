@@ -221,7 +221,7 @@ export class GraphMonitorService extends BlockchainScannerService {
           );
           break;
         } catch (error: any) {
-          this.logger.error(`Failed to send status to webhook: ${webhook}`, error, error?.stack);
+          this.logger.error(error, `Failed to send status to webhook: ${webhook}`);
           retries += 1;
           // eslint-disable-next-line no-await-in-loop
           await new Promise((r) => {

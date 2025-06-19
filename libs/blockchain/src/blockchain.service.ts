@@ -63,6 +63,7 @@ function getNextPossibleNonceKeys(currentNonce: string | number): string[] {
   }
   return keys;
 }
+
 @Injectable()
 export class BlockchainService extends BlockchainRpcQueryService implements OnApplicationBootstrap {
   private accountId: string;
@@ -83,7 +84,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       await this.baseIsReadyPromise;
       await this.validateProviderSeedPhrase();
       this.accountId = await addressFromSeedPhrase(this.config.providerSeedPhrase);
-      this.logger.log('Blockchain provider keys validated.');
+      this.logger.info('Blockchain provider keys validated.');
       this.readyResolve(true);
     } catch (err) {
       this.readyReject(err);

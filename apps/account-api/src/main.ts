@@ -33,17 +33,11 @@ function startShutdownTimer() {
 }
 
 async function bootstrap() {
-  process.on('uncaughtException', (error) => {
-    console.error('****** UNCAUGHT EXCEPTION ******', error);
-    process.exit(1);
-  });
-
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
     rawBody: true,
   });
 
   app.useLogger(app.get(PinoLogger));
-
   // Enable URL-based API versioning
   app.enableVersioning({
     type: VersioningType.URI,
@@ -103,9 +97,6 @@ async function bootstrap() {
   } catch (e) {
     logger.info('****** MAIN CATCH ********');
     logger.error(e);
-    if (e instanceof Error) {
-      logger.error(e.stack);
-    }
     startShutdownTimer();
     await app.close();
   }
@@ -113,4 +104,6 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => logger.info('bootstrap exited'))
-  .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));
+  .catch((err) => {
+    logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: ');
+  });

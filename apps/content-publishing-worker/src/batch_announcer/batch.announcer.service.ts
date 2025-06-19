@@ -49,7 +49,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
       this.logger.info(`Completed job ${job.id} of type ${job.name}`);
       return job.data;
     } catch (e: any) {
-      this.logger.error(`Error processing job ${job.id} of type ${job.name}: ${e}`, e?.stack);
+      this.logger.error(e, `Error processing job ${job.id} of type ${job.name}`);
       throw e;
     }
   }

@@ -285,7 +285,7 @@ export class ApiService {
       if (errored) return;
       errored = true;
 
-      this.logger.error('❌ Stream error:', err?.message || err);
+      this.logger.error(err, '❌ Stream error:');
 
       // Try to destroy everything cleanly
       [uploadPassThru, hashPassThru].forEach((s) => {
@@ -327,7 +327,7 @@ export class ApiService {
         calculateIncrementalDsnpMultiHash(hashPassThru),
       ]);
     } catch (error: any) {
-      this.logger.error('❌ Upload/hash promise error:', error.message);
+      this.logger.error(`❌ Upload/hash promise error:, ${error.message}`);
       handleError(error);
       return { error: error?.message || `Error uploading or hashing file ${filename}` };
     }

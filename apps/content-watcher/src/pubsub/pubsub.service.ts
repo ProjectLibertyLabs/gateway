@@ -1,5 +1,5 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import axios from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
@@ -9,6 +9,8 @@ import { AnnouncementResponse } from '#types/content-announcement';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import pubsubConfig, { IPubSubConfig } from './pubsub.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class PubSubService {
@@ -19,7 +21,7 @@ export class PubSubService {
     @Inject(pubsubConfig.KEY) private readonly config: IPubSubConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   async process(message: AnnouncementResponse, messageType: string) {

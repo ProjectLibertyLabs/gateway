@@ -124,7 +124,7 @@ export class ApiService implements BeforeApplicationShutdown {
       await this.redis.hset(REDIS_WEBHOOK_PREFIX, msaId, JSON.stringify([...existingWebhooks]));
       return webhookAdded;
     } catch (err: any) {
-      this.logger.error('Error adding webhook', err);
+      this.logger.error(err, 'Error adding webhook');
       throw err;
     }
   }

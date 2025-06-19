@@ -59,4 +59,4 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => logger.info('bootstrap exited'))
-  .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION: '));
+  .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

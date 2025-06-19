@@ -51,10 +51,8 @@ async function bootstrap() {
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen();
   } catch (e) {
-    logger.error('****** MAIN CATCH ********', e);
-    if (e instanceof Error) {
-      logger.error(e.stack);
-    }
+    logger.error('****** MAIN CATCH ********');
+    logger.error(e);
     startShutdownTimer();
     await app.close();
   }
@@ -62,4 +60,4 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => logger.info('bootstrap exited'))
-  .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));
+  .catch((err) => logger.error(err));

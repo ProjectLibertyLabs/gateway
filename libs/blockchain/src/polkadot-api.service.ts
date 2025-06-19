@@ -127,7 +127,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private startDisconnectedTimeout(isInit = false) {
     if (!this.disconnectedTimeout) {
-      this.logger[isInit ? 'log' : 'error'](
+      this.logger[isInit ? 'info' : 'error'](
         isInit
           ? 'Awaiting Frequency RPC node connection'
           : `Communications error with Frequency node; starting ${this.baseConfig.frequencyTimeoutSecs}-second shutdown timer`,

@@ -14,3 +14,7 @@ The Content Publishing Service allows users to create, post, and manage content 
 
 - **Metadata Management**: Always ensure metadata is correctly associated with content to maintain data integrity.
 - **Content Validation**: Validate content to prevent the submission of inappropriate or harmful material.
+- **Batch Processing**: When uploading multiple files, use the batch announcement endpoint (v3/content/batchAnnouncement) for better performance and efficiency.
+  - Ensure schema IDs match the number of files being uploaded
+  - Keep file sizes within the configured limits (see FILE_UPLOAD_MAX_SIZE_IN_BYTES)
+  - Monitor the batch processing status using the provided reference IDs

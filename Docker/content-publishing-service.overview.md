@@ -13,6 +13,7 @@ The Content Publishing Service is part of the [Gateway](https://projectlibertyla
 - **Update existing content**
 - **Delete existing content (tombstones)**
 - **Update a user profile**
+- **Upload asset files and create batch announcements** - Upload multiple files with schema IDs for efficient batch processing
 
 ### Development API
 

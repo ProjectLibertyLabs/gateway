@@ -139,5 +139,20 @@ export class BatchFilesDto {
   batchFiles: BatchFileDto[];
 }
 
+export class BatchAnnoucementDto {
+  referenceId: string;
+
+  cid: string;
+
+  error: string;
+}
+
+export class BatchAnnouncementResponseDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BatchAnnoucementDto)
+  files: BatchAnnoucementDto[];
+}
+
 export type RequestTypeDto = BroadcastDto | ReplyDto | ReactionDto | UpdateDto | ProfileDto | TombstoneDto;
 export type AssetIncludedRequestDto = BroadcastDto & ReplyDto & UpdateDto & ProfileDto & BatchFilesDto;

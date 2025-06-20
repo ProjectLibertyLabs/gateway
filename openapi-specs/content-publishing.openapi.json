@@ -541,6 +541,89 @@
           "dev"
         ]
       }
+    },
+    "/v3/content/batchAnnouncement": {
+      "post": {
+        "operationId": "ContentControllerV3_postUploadBatchAnnouncement",
+        "summary": "Upload files and create batch announcements",
+        "description": "Upload files with their corresponding schema IDs to create batch announcements. Each file must be accompanied by a schemaId field.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "The files to be uploaded and batched"
+                  },
+                  "schemaId": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "description": "Schema IDs corresponding to each uploaded file. Must match the number of files."
+                  }
+                },
+                "required": ["files", "schemaId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Files uploaded and batch announcements created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "referenceId": {
+                            "type": "string",
+                            "description": "Unique identifier for tracking the batch announcement"
+                          },
+                          "cid": {
+                            "type": "string",
+                            "description": "IPFS CID of the uploaded file"
+                          },
+                          "error": {
+                            "type": "string",
+                            "description": "Error message if the file upload or batch creation failed"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input (e.g., mismatched file and schema count, invalid schema ID)"
+          },
+          "413": {
+            "description": "Payload Too Large - File size exceeds the maximum allowed size"
+          },
+          "422": {
+            "description": "Unprocessable Entity - Invalid file type or format"
+          }
+        },
+        "tags": [
+          "v3/content"
+        ]
+      }
     }
   },
   "info": {

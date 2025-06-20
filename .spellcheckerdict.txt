@@ -13,6 +13,7 @@ backend
 backend-only-accessible
 backoff
 [Bb]alancers?
+batchAnnouncement
 BullMQ
 BullUI
 CDN
@@ -138,6 +139,7 @@ URIs
 user-centric
 [Vv]1
 [Vv]2
+[Vv]3
 VSCode
 VU
 Web2(-friendly|-like)?

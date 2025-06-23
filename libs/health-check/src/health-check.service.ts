@@ -34,7 +34,6 @@ export class HealthCheckService {
     this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
-  // TODO: Refactor to require only list of queue names
   public async getQueueStatus(queues: Array<QueueName>): Promise<Array<QueueStatusDto>> {
     this.logger.debug(`Checking status for ${queues.length} queues`);
     const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
@@ -74,7 +73,6 @@ export class HealthCheckService {
     return queue;
   }
 
-  // TODO: Expand to include which chain and other relevant details
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
     return plainToInstance(BlockchainStatusDto, {
       network: this.configService.get<string>('blockchain.providerRpcUrl'),

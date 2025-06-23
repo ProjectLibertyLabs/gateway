@@ -5,7 +5,6 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes, randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
-import { HealthCheckModule } from '#health-check/health-check.module';
 import {
   validBroadCastNoUploadedAssets,
   validContentNoUploadedAssets,
@@ -34,41 +33,8 @@ describe('AppController E2E request verification!', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [ApiModule, HealthCheckModule],
-    })
-      .overrideProvider(HealthCheckModule)
-      .useValue({
-        getQueueStatus: async () => [
-          {
-            name: 'request',
-            status: 'Queue is running',
-            isPaused: false,
-          },
-          {
-            name: 'asset',
-            status: 'Queue is running',
-            isPaused: false,
-          },
-          {
-            name: 'publish',
-            status: 'Queue is running',
-            isPaused: false,
-          },
-          {
-            name: 'batch-announcer',
-            status: 'Queue is running',
-            isPaused: false,
-          },
-        ],
-        getBlockchainStatus: async () => ({
-          latestBlockHeader: {
-            blockHash: randomFill(new Uint8Array(32), (err: any) => err && console.error(err)),
-            number: 123456,
-            parentHash: randomFill(new Uint8Array(32), (err: any) => err && console.error(err)),
-          },
-        }),
-      })
-      .compile();
+      imports: [ApiModule],
+    }).compile();
 
     app = module.createNestApplication();
 
@@ -104,6 +70,7 @@ describe('AppController E2E request verification!', () => {
       .get('/healthz')
       .expect(200)
       .then((res) => {
+        console.log('Healthz response:', res.body);
         expect(res.body).toEqual(
           expect.objectContaining({
             status: 200,

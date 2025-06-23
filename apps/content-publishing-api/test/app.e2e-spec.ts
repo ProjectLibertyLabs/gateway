@@ -35,7 +35,40 @@ describe('AppController E2E request verification!', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [ApiModule, HealthCheckModule],
-    }).compile();
+    })
+      .overrideProvider(HealthCheckModule)
+      .useValue({
+        getQueueStatus: async () => [
+          {
+            name: 'request',
+            status: 'Queue is running',
+            isPaused: false,
+          },
+          {
+            name: 'asset',
+            status: 'Queue is running',
+            isPaused: false,
+          },
+          {
+            name: 'publish',
+            status: 'Queue is running',
+            isPaused: false,
+          },
+          {
+            name: 'batch-announcer',
+            status: 'Queue is running',
+            isPaused: false,
+          },
+        ],
+        getBlockchainStatus: async () => ({
+          latestBlockHeader: {
+            blockHash: randomFill(new Uint8Array(32), (err: any) => err && console.error(err)),
+            number: 123456,
+            parentHash: randomFill(new Uint8Array(32), (err: any) => err && console.error(err)),
+          },
+        }),
+      })
+      .compile();
 
     app = module.createNestApplication();
 

@@ -60,6 +60,7 @@
     "^#blockchain(|/.*)$": "<rootDir>/libs/blockchain/src/$1",
     "^#consumer(|/.*)$": "<rootDir>/libs/consumer/src/$1",
     "^#logger-lib(|/.*)$": "<rootDir>/libs/logger/src/$1",
-    "^#storage(|/.*)$": "<rootDir>/libs/storage/src/$1"
+    "^#storage(|/.*)$": "<rootDir>/libs/storage/src/$1",
+    "^#health-check(|/.*)$": "<rootDir>/libs/health-check/src/$1"
   }
 }

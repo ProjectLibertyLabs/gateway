@@ -1,13 +1,19 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { QueueStatusDto, BlockchainStatusDto } from '#types/dtos/common';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
+import { ContentPublishingQueues } from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
+
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
+
+// TODO: Expand types to include all relevant queue names
+type QueueName = ContentPublishingQueues.QueueName;
 
 type ConfigTypeName = 'content-publishing-api';
 
@@ -19,40 +25,61 @@ export class HealthCheckService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(QueueConstants.ASSET_QUEUE_NAME) private assetQueue: Queue,
-    @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
-    @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.REQUEST_QUEUE_NAME) private requestQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.ASSET_QUEUE_NAME) private assetQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly configService: ConfigService,
   ) {
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
   // TODO: Refactor to require only list of queue names
-  public async getQueueStatus(queues: Array<{ name: string; queue: Queue }>): Promise<Array<QueueStatusDto>> {
+  public async getQueueStatus(queues: Array<QueueName>): Promise<Array<QueueStatusDto>> {
     this.logger.debug(`Checking status for ${queues.length} queues`);
     const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
-      queues.map(async ({ name, queue }) => ({
-        name,
-        status: 'Queue is running',
-        isPaused: await queue.isPaused(),
-      })),
+      queues.map(async (name) => {
+        const queue = this.getQueueByName(name);
+        return {
+          name,
+          status: 'Queue is running',
+          isPaused: await queue.isPaused(),
+        };
+      }),
     );
     return statusList.map((result, index) => {
       if (result.status === 'fulfilled') {
         return plainToInstance(QueueStatusDto, result.value);
       }
       return plainToInstance(QueueStatusDto, {
-        name: queues[index].name,
+        name: queues[index],
         status: result.reason?.message || 'Unknown error',
         isPaused: null,
       });
     });
   }
 
+  private getQueueByName(queueName: QueueName): Queue {
+    const queuesMap = {
+      [ContentPublishingQueues.ASSET_QUEUE_NAME]: this.assetQueue,
+      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: this.requestQueue,
+      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: this.publishQueue,
+      [ContentPublishingQueues.BATCH_QUEUE_NAME]: this.batchAnnouncerQueue,
+    };
+
+    const queue = queuesMap[queueName];
+    if (!queue) {
+      this.logger.warn(`Queue not found: ${queueName}`);
+    }
+    return queue;
+  }
+
   // TODO: Expand to include which chain and other relevant details
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
     return plainToInstance(BlockchainStatusDto, {
+      network: this.configService.get<string>('blockchain.providerRpcUrl'),
+      nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),
+      nodeName: this.configService.get<string>('blockchain.nodeName'),
       latestBlockHeader: await this.getLatestBlockHeader(),
     });
   }

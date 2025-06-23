@@ -5,6 +5,7 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes } from 'crypto';
 import { ApiModule } from '../src/api.module';
+import { HealthCheckModule } from '#health-check/health-check.module';
 import { validContentNoUploadedAssets, validReplyNoUploadedAssets, validOnChainContent } from './mockRequestData';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
@@ -25,7 +26,7 @@ describe('AppController E2E v2 asset upload verification', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [ApiModule],
+      imports: [ApiModule, HealthCheckModule],
     }).compile();
 
     app = module.createNestApplication();

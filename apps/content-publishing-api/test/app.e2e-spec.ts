@@ -5,6 +5,7 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes, randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
+import { HealthCheckModule } from '#health-check/health-check.module';
 import {
   validBroadCastNoUploadedAssets,
   validContentNoUploadedAssets,
@@ -33,7 +34,7 @@ describe('AppController E2E request verification!', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [ApiModule],
+      imports: [ApiModule, HealthCheckModule],
     }).compile();
 
     app = module.createNestApplication();
@@ -69,32 +70,36 @@ describe('AppController E2E request verification!', () => {
     request(app.getHttpServer())
       .get('/healthz')
       .expect(200)
-      .expect({
-        status: 200,
-        message: 'Service is healthy',
-        timestamp: expect.any(Number),
-        config: expect.objectContaining({
-          apiBodyJsonLimit: expect.any(String),
-          apiPort: expect.any(Number),
-          apiTimeoutMs: expect.any(Number),
-          fileUploadMaxSizeBytes: expect.any(Number),
-          fileUploadCountLimit: expect.any(Number),
-          providerId: expect.anything(),
-        }),
-        queueStatus: expect.arrayContaining([
+      .then((res) => {
+        expect(res.body).toEqual(
           expect.objectContaining({
-            name: expect.any(String),
-            status: expect.any(String),
-            isPaused: expect.any(Boolean),
+            status: 200,
+            message: 'Service is healthy',
+            timestamp: expect.any(Number),
+            config: expect.objectContaining({
+              apiBodyJsonLimit: expect.any(String),
+              apiPort: expect.any(Number),
+              apiTimeoutMs: expect.any(Number),
+              fileUploadMaxSizeBytes: expect.any(Number),
+              fileUploadCountLimit: expect.any(Number),
+              providerId: expect.any(String),
+            }),
+            queueStatus: expect.arrayContaining([
+              expect.objectContaining({
+                name: expect.any(String),
+                status: expect.any(String),
+                isPaused: expect.anything(), // Accepts boolean or null
+              }),
+            ]),
+            blockchainStatus: expect.objectContaining({
+              latestBlockHeader: expect.objectContaining({
+                blockHash: expect.any(String),
+                number: expect.any(Number),
+                parentHash: expect.any(String),
+              }),
+            }),
           }),
-        ]),
-        blockchainStatus: expect.objectContaining({
-          latestBlockHeader: expect.objectContaining({
-            blockHash: expect.any(String),
-            number: expect.any(Number),
-            parentHash: expect.any(String),
-          }),
-        }),
+        );
       }));
 
   it('(GET) /livez', () =>

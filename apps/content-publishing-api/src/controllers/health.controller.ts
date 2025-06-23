@@ -1,16 +1,14 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiService } from '../api.service';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
+import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 
 @Controller()
 @ApiTags('health')
 export class HealthController {
   constructor(
-    private readonly apiService: ApiService,
     private readonly healthCheckService: HealthCheckService,
-    // private readonly blockchainService: BlockchainRpcQueryService,
     // eslint-disable-next-line no-empty-function
   ) {}
 
@@ -26,7 +24,12 @@ export class HealthController {
       message: 'Service is healthy',
       timestamp: Date.now(),
       config: this.healthCheckService.getServiceConfig('content-publishing-api'),
-      queueStatus: await this.healthCheckService.getQueueStatus([]),
+      queueStatus: await this.healthCheckService.getQueueStatus([
+        QueueConstants.REQUEST_QUEUE_NAME,
+        QueueConstants.ASSET_QUEUE_NAME,
+        QueueConstants.PUBLISH_QUEUE_NAME,
+        QueueConstants.BATCH_QUEUE_NAME,
+      ]),
       blockchainStatus: await this.healthCheckService.getBlockchainStatus(),
     };
   }

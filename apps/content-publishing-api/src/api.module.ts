@@ -10,6 +10,7 @@ import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { QueueModule } from '#queue/queue.module';
@@ -23,7 +24,7 @@ import httpCommonConfig from '#config/http-common.config';
 import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
 import { IPFSStorageModule } from '#storage';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     }),
     IPFSStorageModule,
     HealthCheckModule,
+    PrometheusModule.register(createPrometheusConfig('content-publishing-api')),
   ],
   providers: [
     ApiService,

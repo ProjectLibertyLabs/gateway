@@ -28,6 +28,7 @@ validOnChainContent.payload = randomString(1024, null);
 describe('AppController E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
+
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -106,6 +107,8 @@ describe('AppController E2E request verification!', () => {
 
   it('(GET) /readyz', () =>
     request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+
+  it('(GET) /metrics', () => request(app.getHttpServer()).get('/metrics').expect(200));
 
   describe('Validate Route params', () => {
     it('invalid userDsnpId should fail', async () => {

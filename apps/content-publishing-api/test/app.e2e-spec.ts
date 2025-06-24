@@ -859,7 +859,7 @@ describe('AppController E2E request verification!', () => {
         request(app.getHttpServer()).post('/v3/content/batchAnnouncement'),
       );
 
-      await req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count'));
+      await req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count per request exceeded'));
     }, 10000);
 
     it('should accept valid files with matching schema IDs', async () => {

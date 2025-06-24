@@ -150,7 +150,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       if (error instanceof DelayedError || TransactionPublisherService.shouldRetry(job, error)) {
         job.moveToDelayed(Date.now(), job.token);
       } else {
-        this.logger.error('Unknown error encountered: ', error, error?.stack);
+        this.logger.error(error, 'Unknown error encountered');
       }
       throw error;
     }

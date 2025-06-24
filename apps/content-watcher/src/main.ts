@@ -100,4 +100,4 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => logger.info('bootstrap exited'))
-  .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));
+  .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

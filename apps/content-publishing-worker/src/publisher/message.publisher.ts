@@ -1,17 +1,19 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
 import { NonceConflictError } from '#blockchain/types';
 import { DelayedError } from 'bullmq';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
 
 @Injectable()
 export class MessagePublisher {
   private logger: Logger;
 
   constructor(private blockchainService: BlockchainService) {
-    this.logger = new Logger(MessagePublisher.name);
+    this.logger = pino(getBasicPinoOptions(MessagePublisher.name));
   }
 
   public async publish(message: IPublisherJob): ReturnType<MessagePublisher['processSingleBatch']> {

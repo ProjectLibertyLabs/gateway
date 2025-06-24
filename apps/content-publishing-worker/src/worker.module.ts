@@ -10,6 +10,7 @@ import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
 import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
@@ -70,6 +71,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     AssetProcessorModule,
     RequestProcessorModule,
     BatchingProcessorModule,
+    PrometheusModule.register(),
   ],
   providers: [IpfsService],
   exports: [IpfsService],

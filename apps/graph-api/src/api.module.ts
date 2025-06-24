@@ -9,6 +9,8 @@ import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
@@ -60,6 +62,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
+    PrometheusModule.register(),
   ],
   providers: [
     ApiService,

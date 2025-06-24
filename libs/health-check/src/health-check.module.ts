@@ -11,7 +11,6 @@ import { HealthCheckService } from './health-check.service';
   imports: [
     LoggerModule.forRoot(getPinoHttpOptions()),
     BlockchainModule.forRootAsync({ readOnly: true }),
-    // TODO: Expand for other services as needed
     QueueModule.forRoot({ enableUI: false, ...ContentPublishingQueues.CONFIGURED_QUEUES }),
   ],
   providers: [HealthCheckService],

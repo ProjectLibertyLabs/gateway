@@ -1,10 +1,11 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { QueueStatusDto, BlockchainStatusDto } from '#types/dtos/common';
+import { QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
 import { ContentPublishingQueues } from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
@@ -25,11 +26,12 @@ export class HealthCheckService {
 
   constructor(
     @InjectRedis() private redis: Redis,
-    @InjectQueue(ContentPublishingQueues.REQUEST_QUEUE_NAME) private requestQueue: Queue,
-    @InjectQueue(ContentPublishingQueues.ASSET_QUEUE_NAME) private assetQueue: Queue,
-    @InjectQueue(ContentPublishingQueues.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.REQUEST_QUEUE_NAME) private readonly requestQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.ASSET_QUEUE_NAME) private readonly assetQueue: Queue,
+    @InjectQueue(ContentPublishingQueues.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
     @InjectQueue(ContentPublishingQueues.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly configService: ConfigService,
+    private blockchainService: BlockchainRpcQueryService,
   ) {
     this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
@@ -82,15 +84,23 @@ export class HealthCheckService {
     });
   }
 
-  public async getLatestBlockHeader(): Promise<any | null> {
+  public async getLatestBlockHeader(): Promise<LatestBlockHeader | null> {
     const headerStr = await this.redis.get('latestHeader');
-    if (!headerStr) {
-      return null;
+    if (headerStr) {
+      try {
+        return JSON.parse(headerStr);
+      } catch (err) {
+        this.logger.warn('Failed to parse latestHeader from Redis:', err);
+      }
     }
+
+    // If not found in Redis, query the blockchain directly
     try {
-      return JSON.parse(headerStr);
+      const latestHeader = await this.blockchainService.getLatestHeader();
+      await this.redis.set('latestHeader', JSON.stringify(latestHeader));
+      return latestHeader;
     } catch (err) {
-      this.logger.warn('Failed to parse latestHeader from Redis:', err);
+      this.logger.error('Failed to fetch latest block header from blockchain:', err);
       return null;
     }
   }

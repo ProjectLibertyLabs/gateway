@@ -20,7 +20,7 @@ export class QueueStatusDto {
   isPaused: boolean | null;
 }
 
-class LatestBlockHeader {
+export class LatestBlockHeader {
   blockHash: string;
 
   number: number;

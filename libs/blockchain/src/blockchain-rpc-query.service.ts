@@ -44,6 +44,7 @@ import {
   RevokeDelegationPayloadResponseDto,
   TransactionData,
 } from '#types/dtos/account';
+import { IHeaderInfo } from './blockchain.service';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
@@ -154,6 +155,15 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     }
 
     return header.number.toNumber();
+  }
+
+  public async getLatestHeader(): Promise<IHeaderInfo> {
+    const latestHeader = await this.api.rpc.chain.getHeader();
+    return {
+      blockHash: latestHeader.hash.toHex(),
+      number: latestHeader.number.toNumber(),
+      parentHash: latestHeader.parentHash.toHex(),
+    };
   }
 
   public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {

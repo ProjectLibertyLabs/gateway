@@ -11,7 +11,6 @@ import { CacheModule } from '#cache/cache.module';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
 import { ConfigModule } from '@nestjs/config';
-import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import workerConfig from './worker.config';
 import scannerConfig from './graph_notifier/scanner.config';
 import graphCommonConfig from '#config/graph-common.config';
@@ -66,7 +65,6 @@ import { getPinoHttpOptions } from '#logger-lib';
     RequestProcessorModule,
     GraphUpdatePublisherModule,
     GraphNotifierModule,
-    PrometheusModule.register(),
   ],
   providers: [GraphStateManager],
   exports: [],

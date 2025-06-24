@@ -23,7 +23,7 @@ import { CrawlerModule } from '#content-watcher/crawler/crawler.module';
 import { IPFSProcessorModule } from '#content-watcher/ipfs/ipfs.processor.module';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -71,7 +71,7 @@ import { getPinoHttpOptions } from '#logger-lib';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
-    PrometheusModule.register(),
+    PrometheusModule.register(createPrometheusConfig('content-watcher')),
   ],
   providers: [
     ApiService,

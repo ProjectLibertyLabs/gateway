@@ -23,7 +23,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -62,7 +62,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
-    PrometheusModule.register(),
+    PrometheusModule.register(createPrometheusConfig('graph-api')),
   ],
   providers: [
     ApiService,

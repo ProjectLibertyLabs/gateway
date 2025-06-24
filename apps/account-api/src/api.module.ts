@@ -25,7 +25,7 @@ import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -64,7 +64,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
-    PrometheusModule.register(),
+    PrometheusModule.register(createPrometheusConfig('account-api')),
   ],
   providers: [
     AccountsService,

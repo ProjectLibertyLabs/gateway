@@ -9,7 +9,6 @@ import { TransactionPublisherModule } from './transaction_publisher/publisher.mo
 import { CacheModule } from '#cache/cache.module';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
-import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -63,7 +62,6 @@ import { getPinoHttpOptions } from '#logger-lib';
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
     TxnNotifierModule,
-    PrometheusModule.register(),
   ],
   providers: [ProviderWebhookService],
   exports: [EventEmitterModule],

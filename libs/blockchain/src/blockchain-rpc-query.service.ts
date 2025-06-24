@@ -31,6 +31,7 @@ import {
   PaginatedStorageResponse,
 } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
+import { IHeaderInfo } from './blockchain.interfaces';
 import {
   Delegation,
   HandleResponseDto,
@@ -44,7 +45,6 @@ import {
   RevokeDelegationPayloadResponseDto,
   TransactionData,
 } from '#types/dtos/account';
-import { IHeaderInfo } from './blockchain.service';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';

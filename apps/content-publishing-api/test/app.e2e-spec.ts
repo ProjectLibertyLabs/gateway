@@ -70,7 +70,6 @@ describe('AppController E2E request verification!', () => {
       .get('/healthz')
       .expect(200)
       .then((res) => {
-        console.log('Healthz response:', res.body);
         expect(res.body).toEqual(
           expect.objectContaining({
             status: 200,

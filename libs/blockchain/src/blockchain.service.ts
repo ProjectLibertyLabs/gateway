@@ -28,6 +28,7 @@ import {
   MORTAL_PERIOD,
 } from '@polkadot/api-derive/tx/constants';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
+import { IHeaderInfo } from './blockchain.interfaces';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
@@ -46,12 +47,6 @@ import { BN } from '@polkadot/util';
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
-
-export interface IHeaderInfo {
-  blockHash: HexString;
-  number: number;
-  parentHash: HexString;
-}
 
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 

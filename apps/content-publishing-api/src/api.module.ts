@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { DevelopmentControllerV1 } from './controllers/v1/development.controller.v1';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants/queue.constants';
 import { ApiService } from './api.service';
+import { HealthCheckModule } from '#health-check/health-check.module';
 import { HealthController } from './controllers/health.controller';
 import { AssetControllerV1, ContentControllerV1, ProfileControllerV1 } from './controllers/v1';
 import { CacheModule } from '#cache/cache.module';
@@ -72,6 +73,7 @@ import { getPinoHttpOptions } from '#logger-lib';
       inject: [apiConfig.KEY],
     }),
     IPFSStorageModule,
+    HealthCheckModule,
   ],
   providers: [
     ApiService,

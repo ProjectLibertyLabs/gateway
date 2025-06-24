@@ -1,5 +1,6 @@
 100kb
 [15]mb
+account-api
 account-service-api
 [Aa]dd-ons
 Ansible
@@ -47,6 +48,7 @@ Filecoin
 FRQCY
 (Frontend|frontend)
 go-ipfs
+graph-api
 graph-service-api
 hardcoding
 HashiCorp

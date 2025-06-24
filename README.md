@@ -12,8 +12,8 @@ bridging the gap between Web2 and Web3 development.
 - [🔍 Architecture Map](#-arch-maps)
 - [🔍 Frequency Developer Gateway Microservices](#gateway-microservices)
 - [💻 Getting Started](#getting-started)
-    - [🚀 Quick Start Guide](#quick-start-guide)
-    - [💻 Microservice Start Guide](#microservices-start-guide)
+  - [🚀 Quick Start Guide](#quick-start-guide)
+  - [💻 Microservice Start Guide](#microservices-start-guide)
 - [🛫 Deployment](#deployment)
 - [Logging](#logging)
 - [Metrics](#metrics)
@@ -87,7 +87,7 @@ Gateway consists of four independent microservices, each designed to handle spec
 Frequency blockchain. Below is a detailed overview of each service:
 
 | Service                    | Description                                                                                                                                                                                                    | API Documentation                                                            | README                                                  |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------|
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
 | Account Service            | Manages user accounts and authentication on the Frequency blockchain using [Sign In With Frequency](https://github.com/ProjectLibertyLabs/siwf). It handles tasks such as account creation and key management. | [API Docs](https://projectlibertylabs.github.io/gateway/account)             | [README](./developer-docs/account/README.md)            |
 | Graph Service              | Manages social connections and relationships between users on the Frequency network. It handles operations like following/unfollowing users and retrieving social graphs.                                      | [API Docs](https://projectlibertylabs.github.io/gateway/graph/)              | [README](./developer-docs/graph/README.md)              |
 | Content Publishing Service | Facilitates the creation and publication of content on the Frequency blockchain. It manages tasks such as posting messages, attachments, replies, and reactions.                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-publishing/) | [README](./developer-docs/content-publishing/README.md) |

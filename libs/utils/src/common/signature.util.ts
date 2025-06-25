@@ -2,6 +2,7 @@ import { Bytes } from '@polkadot/types';
 import { SignerResult, Signer, Registry } from '@polkadot/types/types';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
+import { EncodingType, FormatType, KeyType } from '@projectlibertylabs/siwfv2';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -24,6 +25,7 @@ export class SignatureVerificationResult {
   /** Flag to indicate if the passed data was wrapped in <Bytes>...</Bytes> */
   isWrapped: boolean;
 }
+
 export function verifySignature(
   payloadHex: string,
   signatureHex: string,
@@ -107,5 +109,21 @@ export const statefulStoragePayload = (
   return {
     ...payload,
     actions,
+  };
+};
+
+export type KeyIdentifiers = { encodingType: EncodingType; formatType: FormatType; keyType: KeyType };
+export const getTypesForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string): KeyIdentifiers => {
+  if (providerKeyUriOrPrivateKey.match(/^0x.+/i)) {
+    return {
+      encodingType: 'base16',
+      formatType: 'eip-55',
+      keyType: 'Secp256k1',
+    };
+  }
+  return {
+    encodingType: 'base58',
+    formatType: 'ss58',
+    keyType: 'Sr25519',
   };
 };

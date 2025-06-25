@@ -38,7 +38,7 @@ jest.mock('@polkadot/api', () => {
 const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
   providerId: 1n,
-  providerSeedPhrase: '//Alice',
+  providerKeyUriOrPrivateKey: '//Alice',
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   frequencyTimeoutSecs: 10,
   isDeployedReadOnly: false,

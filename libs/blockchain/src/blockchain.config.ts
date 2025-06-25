@@ -64,8 +64,8 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         seedValidation = Joi.string().trim().optional().allow(null).allow('').empty('');
         providerIdValidation = JoiUtil.bigintSchema().required();
         readOnlyValidation = Joi.boolean().default(
-          Joi.ref('providerSeedPhrase', {
-            adjust: (value: string | undefined) => !value || value.trim().length === 0, // Check if providerSeedPhrase is non-empty
+          Joi.ref('providerKeyUriOrPrivateKey', {
+            adjust: (value: string | undefined) => !value || value.trim().length === 0, // Check if providerKeyUriOrPrivateKey is non-empty
           }),
         );
 
@@ -95,7 +95,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         label: 'PROVIDER_ID',
         joi: providerIdValidation,
       },
-      providerSeedPhrase: {
+      providerKeyUriOrPrivateKey: {
         label: 'PROVIDER_ACCOUNT_SEED_PHRASE',
         joi: seedValidation,
       },

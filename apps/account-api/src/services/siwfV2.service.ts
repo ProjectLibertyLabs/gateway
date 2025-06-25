@@ -27,7 +27,7 @@ import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.re
 import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
-import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
+import { chainSignature, getTypesForKeyUriOrPrivateKey, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
@@ -245,16 +245,14 @@ export class SiwfV2Service {
     let response: WalletV2RedirectResponseDto;
     try {
       const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
-      const { providerSeedPhrase } = this.blockchainConf;
+      const { providerKeyUriOrPrivateKey } = this.blockchainConf;
+      const { encodingType, formatType, keyType } = getTypesForKeyUriOrPrivateKey(providerKeyUriOrPrivateKey);
 
-      const encodingType = 'base58';
-      const formatType = 'ss58';
-      const keyType = 'Sr25519';
       const signedRequest = await generateEncodedSignedRequest(
         encodingType,
         formatType,
         keyType,
-        providerSeedPhrase,
+        providerKeyUriOrPrivateKey,
         callbackUrl,
         permissions,
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),

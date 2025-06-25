@@ -12,9 +12,12 @@ export interface IBlockchainNonProviderConfig {
   isDeployedReadOnly: boolean;
 }
 
+// providerId:  a unique numeric identifier, typically the Provider MSA ID.
+// providerKeyUriOrPrivateKey: The URI of a key, usually a seed phrase, but may also include test accounts such as `//Alice` or `//Bob`. * @param {string} callbackUri - The URI that the user should return to after authenticating. Or the private key in hex format for Ethereum keys.
+// capacityLimit:  the maximum capacity in the Provider account referenced by `providerId`.
 export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
   providerId: bigint;
-  providerSeedPhrase: string;
+  providerKeyUriOrPrivateKey: string;
   capacityLimit: ICapacityLimits;
 }
 

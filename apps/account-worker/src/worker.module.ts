@@ -52,7 +52,7 @@ import { getPinoHttpOptions } from '#logger-lib';
         {
           ...cacheConf.redisOptions,
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${await addressFromSeedPhrase(blockchainConf.providerKeyUriOrPrivateKey)}:`,
         },
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],

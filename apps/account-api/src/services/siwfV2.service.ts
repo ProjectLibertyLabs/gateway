@@ -135,7 +135,10 @@ export class SiwfV2Service {
     if (request.authorizationPayload) {
       try {
         // Await here so the error is caught
-        payload = await validateSiwfResponse(request.authorizationPayload, loginMsgURIValidation);
+        payload = await validateSiwfResponse(request.authorizationPayload, {
+          endpoint: '',
+          loginMsgUri: loginMsgURIValidation,
+        });
         this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
       } catch (e) {
         this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
@@ -244,7 +247,13 @@ export class SiwfV2Service {
       const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
       const { providerSeedPhrase } = this.blockchainConf;
 
+      const encodingType = 'base58';
+      const formatType = 'ss58';
+      const keyType = 'Sr25519';
       const signedRequest = await generateEncodedSignedRequest(
+        encodingType,
+        formatType,
+        keyType,
         providerSeedPhrase,
         callbackUrl,
         permissions,

@@ -131,7 +131,7 @@ describe('SiwfV2Service', () => {
     });
   });
 
-  describe('swifV2Endpoint', () => {
+  describe('siwfV2Endpoint', () => {
     it('Should go to the correct redirect url', async () => {
       jest
         .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2Url', 'get')

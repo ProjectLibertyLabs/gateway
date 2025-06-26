@@ -120,7 +120,7 @@ jobs:
         with:
           url: 'http://localhost:3000/readyz'
           responseCode: '200'
-          timeout: 120000
+          timeout: 240000
           interval: 2000
 
       - name: Setup K6

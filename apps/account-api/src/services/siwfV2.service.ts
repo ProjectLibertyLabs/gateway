@@ -137,6 +137,7 @@ export class SiwfV2Service {
         // Await here so the error is caught
         payload = await validateSiwfResponse(request.authorizationPayload, {
           endpoint: '',
+          chainType: this.blockchainService.chainType,
           loginMsgUri: loginMsgURIValidation,
         });
         this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
@@ -149,6 +150,7 @@ export class SiwfV2Service {
       try {
         payload = await getLoginResult(request.authorizationCode, {
           endpoint: this.swifV2Endpoint(),
+          chainType: this.blockchainService.chainType,
           loginMsgUri: loginMsgURIValidation,
         });
         this.logger.debug(
@@ -262,6 +264,7 @@ export class SiwfV2Service {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {
           endpoint: this.swifV2Endpoint(),
+          chainType: this.blockchainService.chainType,
         }),
         frequencyRpcUrl,
       };

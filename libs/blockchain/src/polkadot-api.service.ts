@@ -8,6 +8,7 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IBlockchainNonProviderConfig } from './blockchain.config';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { ChainType } from '@frequency-chain/ethereum-utils';
 
 export class PolkadotApiService extends EventEmitter2 implements OnApplicationShutdown {
   private provider: ProviderInterface;
@@ -24,6 +25,8 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   private baseReadyResolve: (arg: boolean) => void;
 
   private baseReadyReject: (reason: any) => void;
+
+  private _chainType: ChainType;
 
   protected readonly baseIsReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.baseReadyResolve = resolve;
@@ -147,5 +150,22 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
       this.disconnectedTimeout = undefined;
       this.emit('chain.connected');
     }
+  }
+
+  /* eslint-disable no-underscore-dangle */
+  public get chainType(): ChainType {
+    if (!this._chainType) {
+      switch (this.api.genesisHash.toHex()) {
+        case '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1':
+          this._chainType = 'Mainnet-Frequency';
+          break;
+        case '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0':
+          this._chainType = 'Paseo-Testnet-Frequency';
+          break;
+        default:
+          this._chainType = 'Dev';
+      }
+    }
+    return this._chainType;
   }
 }

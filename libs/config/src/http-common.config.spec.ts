@@ -19,6 +19,20 @@ describe('HTTP config', () => {
   describe('invalid environment', () => {
     it('invalid http response timeout should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'HTTP_RESPONSE_TIMEOUT_MS', [-1, 'invalid']));
+
+    it('should fail when HTTP_RESPONSE_TIMEOUT_MS is greater than or equal to API_TIMEOUT_MS', async () => {
+      process.env.API_TIMEOUT_MS = '30000';
+      await shouldFailBadValues(ALL_ENV, 'HTTP_RESPONSE_TIMEOUT_MS', [30000, 31000]);
+    });
+
+    it('should show specific error message when HTTP_RESPONSE_TIMEOUT_MS exceeds API_TIMEOUT_MS', async () => {
+      process.env.API_TIMEOUT_MS = '30000';
+      const testEnv = { ...ALL_ENV, HTTP_RESPONSE_TIMEOUT_MS: '35000' };
+
+      await expect(setupConfigService(testEnv)).rejects.toThrow(
+        'Validation failed:\n        "HTTP_RESPONSE_TIMEOUT_MS" must be less than or equal to 29999. "HTTP_RESPONSE_TIMEOUT_MS" failed custom validation',
+      );
+    });
   });
 
   describe('default environment', () => {

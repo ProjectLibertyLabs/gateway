@@ -7,8 +7,11 @@ import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { BlockchainModule } from '#blockchain/blockchain.module';
+import { BlockInfoController } from '#blockchain/blockinfo.controller';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
@@ -21,7 +24,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -60,6 +63,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
+    PrometheusModule.register(createPrometheusConfig('graph-api')),
   ],
   providers: [
     ApiService,
@@ -72,7 +76,7 @@ import { getPinoHttpOptions } from '#logger-lib';
       useClass: AllExceptionsFilter,
     },
   ],
-  controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
+  controllers: [GraphControllerV1, WebhooksControllerV1, HealthController, BlockInfoController],
   exports: [],
 })
 export class ApiModule {}

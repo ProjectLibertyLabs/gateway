@@ -18,7 +18,7 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
   DEBUG: ${DEBUG:-true}
-  HTTP_RESPONSE_TIMEOUT_MS: ${HTTP_RESPONSE_TIMEOUT_MS:-30000}
+  HTTP_RESPONSE_TIMEOUT_MS: ${HTTP_RESPONSE_TIMEOUT_MS:-29999}
 
 x-content-publishing-env: &content-publishing-env
   START_PROCESS: content-publishing-api

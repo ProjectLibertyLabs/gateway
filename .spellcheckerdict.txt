@@ -1,5 +1,6 @@
 100kb
 [15]mb
+account-api
 account-service-api
 [Aa]dd-ons
 Ansible
@@ -23,6 +24,7 @@ codebase
 ConfigMap
 content-publishing-service-api
 CORS
+Ctrl-C
 cryptographic
 DaemonSet
 dapps
@@ -37,6 +39,7 @@ DTO
 E2E
 EC2
 (enqueueing|enqueuing)
+.env
 enum
 etcd
 extrinsics
@@ -45,6 +48,7 @@ Filecoin
 FRQCY
 (Frontend|frontend)
 go-ipfs
+graph-api
 graph-service-api
 hardcoding
 HashiCorp
@@ -81,6 +85,7 @@ mjs
 [Mm]icroservices?(-based)?
 Middleware
 MSA
+MSAs
 namespace
 NestJS
 (NGINX|Nginx)
@@ -95,6 +100,7 @@ openapi-specs
 Parachain
 PARACHAINS
 (PASEO|Paseo)
+(Pino|pino(|-pretty))
 (POLKADOT|Polkadot)
 Polkadot-supported
 pre-configured

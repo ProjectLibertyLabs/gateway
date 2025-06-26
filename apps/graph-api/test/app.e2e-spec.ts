@@ -23,12 +23,12 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-let app: NestExpressApplication;
-let testModule: TestingModule;
-let users: ChainUser[];
-let eventEmitter: EventEmitter2;
-
 describe('Graph Service E2E request verification!', () => {
+  let app: NestExpressApplication;
+  let testModule: TestingModule;
+  let users: ChainUser[];
+  let eventEmitter: EventEmitter2;
+
   beforeAll(async () => {
     ({ users } = await setupProviderAndUsers());
     testModule = await Test.createTestingModule({
@@ -63,7 +63,7 @@ describe('Graph Service E2E request verification!', () => {
     await ExtrinsicHelper.disconnect();
   });
 
-  describe('Health endpoints', () => {
+  describe('Health, metrics endpoints', () => {
     it('(GET) /healthz', () =>
       request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
 
@@ -72,6 +72,26 @@ describe('Graph Service E2E request verification!', () => {
 
     it('(GET) /readyz', () =>
       request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+
+    it('(GET) /metrics', () => request(app.getHttpServer()).get('/metrics').expect(200));
+  });
+
+  describe('Blockinfo endpoint', () => {
+    it('GET /v1/frequency/blockinfo returns block info', async () => {
+      request(app.getHttpServer())
+        .get('/v1/frequency/blockinfo')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toEqual(
+            expect.objectContaining({
+              blocknumber: expect.any(Number),
+              finalized_blocknumber: expect.any(Number),
+              genesis: expect.any(String),
+              runtime_version: expect.any(Number),
+            }),
+          );
+        });
+    });
   });
 
   describe('/graph endpoints', () => {

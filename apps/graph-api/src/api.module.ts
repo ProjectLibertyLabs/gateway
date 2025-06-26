@@ -76,12 +76,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
       useClass: AllExceptionsFilter,
     },
   ],
-  controllers: [
-    GraphControllerV1,
-    WebhooksControllerV1,
-    HealthController,
-    BlockInfoController,
-  ],
+  controllers: [GraphControllerV1, WebhooksControllerV1, HealthController, BlockInfoController],
   exports: [],
 })
 export class ApiModule {}

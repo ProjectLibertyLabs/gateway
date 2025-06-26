@@ -28,6 +28,7 @@ validOnChainContent.payload = randomString(1024, null);
 describe('AppController E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
+
   // eslint-disable-next-line no-promise-executor-return
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -66,13 +67,48 @@ describe('AppController E2E request verification!', () => {
   });
 
   it('(GET) /healthz', () =>
-    request(app.getHttpServer()).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+    request(app.getHttpServer())
+      .get('/healthz')
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            status: 200,
+            message: 'Service is healthy',
+            timestamp: expect.any(Number),
+            config: expect.objectContaining({
+              apiBodyJsonLimit: expect.any(String),
+              apiPort: expect.any(Number),
+              apiTimeoutMs: expect.any(Number),
+              fileUploadMaxSizeBytes: expect.any(Number),
+              fileUploadCountLimit: expect.any(Number),
+              providerId: expect.any(String),
+            }),
+            queueStatus: expect.arrayContaining([
+              expect.objectContaining({
+                name: expect.any(String),
+                status: expect.any(String),
+                isPaused: expect.anything(), // Accepts boolean or null
+              }),
+            ]),
+            blockchainStatus: expect.objectContaining({
+              latestBlockHeader: expect.objectContaining({
+                blockHash: expect.any(String),
+                number: expect.any(Number),
+                parentHash: expect.any(String),
+              }),
+            }),
+          }),
+        );
+      }));
 
   it('(GET) /livez', () =>
     request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
   it('(GET) /readyz', () =>
     request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+
+  it('(GET) /metrics', () => request(app.getHttpServer()).get('/metrics').expect(200));
 
   describe('Validate Route params', () => {
     it('invalid userDsnpId should fail', async () => {
@@ -859,7 +895,7 @@ describe('AppController E2E request verification!', () => {
         request(app.getHttpServer()).post('/v3/content/batchAnnouncement'),
       );
 
-      await req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count'));
+      await req.expect(400).expect((res) => expect(res.text).toContain('Max file upload count per request exceeded'));
     }, 10000);
 
     it('should accept valid files with matching schema IDs', async () => {

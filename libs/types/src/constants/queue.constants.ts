@@ -124,6 +124,22 @@ export namespace ContentPublishingQueues {
   export const TOMBSTONE_QUEUE_NAME = 'tombstoneQueue';
   export const PROFILE_QUEUE_NAME = 'profileQueue';
 
+  export const QUEUE_NAMES = [
+    ASSET_QUEUE_NAME,
+    REQUEST_QUEUE_NAME,
+    BROADCAST_QUEUE_NAME,
+    REPLY_QUEUE_NAME,
+    REACTION_QUEUE_NAME,
+    TOMBSTONE_QUEUE_NAME,
+    UPDATE_QUEUE_NAME,
+    PROFILE_QUEUE_NAME,
+    BATCH_QUEUE_NAME,
+    PUBLISH_QUEUE_NAME,
+    STATUS_QUEUE_NAME,
+  ];
+
+  export type QueueName = (typeof ContentPublishingQueues.QUEUE_NAMES)[number];
+
   /**
    * Map between queue name and its announcement type
    */

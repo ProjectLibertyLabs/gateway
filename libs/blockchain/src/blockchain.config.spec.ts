@@ -81,7 +81,7 @@ describe('Blockchain module config', () => {
     });
 
     it('should get provider account seed phrase and not be readonly', () => {
-      expect(blockchainConf.providerSeedPhrase).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
+      expect(blockchainConf.providerKeyUriOrPrivateKey).toStrictEqual(ALL_ENV.PROVIDER_ACCOUNT_SEED_PHRASE);
       expect(blockchainConf.isDeployedReadOnly).toStrictEqual(false);
     });
 

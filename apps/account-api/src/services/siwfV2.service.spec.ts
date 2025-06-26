@@ -419,7 +419,6 @@ describe('SiwfV2Service', () => {
           throw err;
         }
 
-        // await expect(siwfV2Service.queueChainActions(validSiwfNewUserResponse)).resolves.not.toThrow();
         expect(enqueueSpy).toHaveBeenCalledWith({
           calls: [
             {

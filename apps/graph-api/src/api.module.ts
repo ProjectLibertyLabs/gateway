@@ -7,6 +7,7 @@ import { ApiService } from './api.service';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { BlockchainModule } from '#blockchain/blockchain.module';
+import { BlockInfoController } from '#blockchain/blockinfo.controller';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
@@ -75,7 +76,12 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
       useClass: AllExceptionsFilter,
     },
   ],
-  controllers: [GraphControllerV1, WebhooksControllerV1, HealthController],
+  controllers: [
+    GraphControllerV1,
+    WebhooksControllerV1,
+    HealthController,
+    BlockInfoController,
+  ],
   exports: [],
 })
 export class ApiModule {}

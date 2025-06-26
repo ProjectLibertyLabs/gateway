@@ -101,7 +101,7 @@ export class WalletV2LoginResponseDto {
   @ApiPropertyOptional({
     description: "The users's Private Graph encryption key.",
     type: GraphKeySubject,
-    example: '555-867-5309',
+    example: 'f6Y86vfvou3d4RGjYJM2k5L7g1HMjVTDMAtVMDh8g67i3VLZi',
   })
   graphKey?: GraphKeySubject;
 

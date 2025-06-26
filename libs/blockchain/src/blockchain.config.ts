@@ -5,6 +5,8 @@ import { ValidationError } from 'class-validator';
 import { ICapacityLimits } from '#types/interfaces';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
+import { KeypairType } from '@polkadot/util-crypto/types';
+import { getKeyPairTypeForKeyUriOrPrivateKey } from '#utils/common/signature.util';
 
 export interface IBlockchainNonProviderConfig {
   frequencyTimeoutSecs: number;
@@ -23,7 +25,8 @@ export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
 
 export async function addressFromSeedPhrase(seed: string): Promise<string> {
   await cryptoWaitReady();
-  return new Keyring({ type: 'sr25519' }).createFromUri(seed).address;
+  const keyType: KeypairType = getKeyPairTypeForKeyUriOrPrivateKey(seed);
+  return new Keyring({ type: keyType }).createFromUri(seed).address;
 }
 
 const capacityLimitSchema = Joi.object({

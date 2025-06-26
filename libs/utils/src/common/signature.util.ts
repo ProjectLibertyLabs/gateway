@@ -3,6 +3,7 @@ import { SignerResult, Signer, Registry } from '@polkadot/types/types';
 import { hexToU8a, isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
 import { CurveType, EncodingType, FormatType } from '@projectlibertylabs/siwfv2';
+import { KeypairType } from '@polkadot/util-crypto/types';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -126,4 +127,15 @@ export const getTypesForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string
     formatType: 'ss58',
     keyType: 'Sr25519',
   };
+};
+
+// Return a KeypairType based on the formatting
+// KeypairType can be 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum',
+// but only sr25519 and ethereum are supported.
+// This assumes an Ethereum key only if provided a hex-based private key.
+export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
+  if (providerKeyUriOrPrivateKey.match(/^0x.+/i)) return 'ethereum';
+  if (providerKeyUriOrPrivateKey.split(' ').length > 1) return 'sr25519';
+  if (providerKeyUriOrPrivateKey.match(/^\/\/\w+/)) return 'sr25519';
+  throw new Error('unsupported seed or uri or key type');
 };

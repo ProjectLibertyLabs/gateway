@@ -1,5 +1,6 @@
 import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
 import { Readable } from 'stream';
+import { getKeyPairTypeForKeyUriOrPrivateKey } from '#utils/common/signature.util';
 
 const testBuffer = Buffer.from('abc');
 
@@ -14,5 +15,19 @@ describe('common utils Tests', () => {
     const bufHash = await calculateDsnpMultiHash(testBuffer);
     const mb = await calculateIncrementalDsnpMultiHash(stream);
     expect(mb).toMatch(bufHash);
+  });
+
+  it('getKeyPairTypeForKeyUriOrPrivateKey', () => {
+    const testCases = [
+      { input: '//Alice', expected: 'sr25519' },
+      { input: 'purpose dismiss lens add kid churn example force swear cherry clock brother', expected: 'sr25519' },
+      { input: '0xcb5bdff4e20f8a8b11d35628b6a48500967e88e5cdf219cf2136342347716725', expected: 'ethereum' },
+    ];
+
+    testCases.forEach((testCase) =>
+      expect(getKeyPairTypeForKeyUriOrPrivateKey(testCase.input)).toEqual(testCase.expected),
+    );
+
+    expect(() => getKeyPairTypeForKeyUriOrPrivateKey('deadbeef')).toThrowError('unsupported seed or uri or key type');
   });
 });

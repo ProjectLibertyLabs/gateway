@@ -19,6 +19,8 @@ import { QueueModule } from '#queue/queue.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import { IpfsService } from '#storage';
 import httpCommonConfig from '#config/http-common.config';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -35,7 +37,7 @@ import httpCommonConfig from '#config/http-common.config';
         {
           ...cacheConf.redisOptions,
           namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerSeedPhrase)}:`,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerKeyUriOrPrivateKey)}:`,
         },
       ],
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
@@ -60,6 +62,7 @@ import httpCommonConfig from '#config/http-common.config';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
     ScheduleModule.forRoot(),
     PublisherModule,
     BatchAnnouncerModule,

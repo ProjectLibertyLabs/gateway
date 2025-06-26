@@ -12,9 +12,12 @@ export interface IBlockchainNonProviderConfig {
   isDeployedReadOnly: boolean;
 }
 
+// providerId:  a unique numeric identifier, typically the Provider MSA ID.
+// providerKeyUriOrPrivateKey: The URI of a key, usually a seed phrase, but may also include test accounts such as `//Alice` or `//Bob`. * @param {string} callbackUri - The URI that the user should return to after authenticating. Or the private key in hex format for Ethereum keys.
+// capacityLimit:  the maximum capacity in the Provider account referenced by `providerId`.
 export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
   providerId: bigint;
-  providerSeedPhrase: string;
+  providerKeyUriOrPrivateKey: string;
   capacityLimit: ICapacityLimits;
 }
 
@@ -61,8 +64,8 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         seedValidation = Joi.string().trim().optional().allow(null).allow('').empty('');
         providerIdValidation = JoiUtil.bigintSchema().required();
         readOnlyValidation = Joi.boolean().default(
-          Joi.ref('providerSeedPhrase', {
-            adjust: (value: string | undefined) => !value || value.trim().length === 0, // Check if providerSeedPhrase is non-empty
+          Joi.ref('providerKeyUriOrPrivateKey', {
+            adjust: (value: string | undefined) => !value || value.trim().length === 0, // Check if providerKeyUriOrPrivateKey is non-empty
           }),
         );
 
@@ -92,7 +95,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
         label: 'PROVIDER_ID',
         joi: providerIdValidation,
       },
-      providerSeedPhrase: {
+      providerKeyUriOrPrivateKey: {
         label: 'PROVIDER_ACCOUNT_SEED_PHRASE',
         joi: seedValidation,
       },

@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
-import { Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
-import { getLogLevels } from '#logger-lib';
+import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
-const logger = new Logger('main');
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { pino } from 'pino';
+// use plain pino directly outside of the app.
+const logger = pino(getBasicPinoOptions('account-api.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line
@@ -25,9 +27,10 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(WorkerModule, {
-    logger: getLogLevels(),
     strategy: new KeepAliveStrategy(),
   });
+  app.useLogger(app.get(PinoLogger));
+  logger.info('Nest ApplicationContext for Graph Worker created.');
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
@@ -39,11 +42,11 @@ async function bootstrap() {
 
   try {
     app.enableShutdownHooks();
-    logger.log(`Log levels: ${getLogLevels().join(', ')}`);
+    logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen();
-    logger.log('Exiting bootstrap');
+    logger.info('Exiting bootstrap');
   } catch (e) {
-    logger.log('****** MAIN CATCH ********');
+    logger.info('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
@@ -54,5 +57,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.log('bootstrap exited'))
-  .catch((err) => logger.error('Unhandled exception in bootstrap', err, err?.stack));
+  .then(() => logger.info('bootstrap exited'))
+  .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

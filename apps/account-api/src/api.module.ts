@@ -7,6 +7,7 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import {
   AccountsControllerV1,
   AccountsControllerV2,
@@ -24,7 +25,7 @@ import apiConfig from './api.config';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
+    PrometheusModule.register(createPrometheusConfig('account-api')),
   ],
   providers: [
     AccountsService,

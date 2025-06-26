@@ -1,17 +1,17 @@
 import { ApiService } from '#graph-api/api.service';
 import { ReadOnlyDeploymentGuard } from '#graph-api/guards/read-only-deployment-guard.service';
 import { UserGraphDto, GraphsQueryParamsDto, GraphChangeResponseDto, ProviderGraphDto } from '#types/dtos/graph';
-import { Controller, Post, HttpCode, HttpStatus, Logger, Body, Put, UseGuards } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, Body, Put, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'graphs' })
 @ApiTags('v1/graphs')
 export class GraphControllerV1 {
-  private readonly logger: Logger;
-
-  constructor(private apiService: ApiService) {
-    this.logger = new Logger(this.constructor.name);
-  }
+  constructor(
+    private apiService: ApiService,
+    @InjectPinoLogger(GraphControllerV1.name) private readonly logger: PinoLogger,
+  ) {}
 
   // Fetch graphs for list of `dsnpIds` at optional `blockNumber`
   // TODO: Use HTTP QUERY method or GET with a body instead of POST (can then eliminate endpoint name, will just be GET /graph)

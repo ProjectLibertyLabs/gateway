@@ -1,11 +1,14 @@
 import { options } from '@frequency-chain/api-augment';
-import { Logger, OnApplicationShutdown } from '@nestjs/common';
+import { OnApplicationShutdown } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsProvider, ApiPromise, HttpProvider } from '@polkadot/api';
 import { ApiDecoration, ApiInterfaceEvents } from '@polkadot/api/types';
 import { ProviderInterface } from '@polkadot/rpc-provider/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IBlockchainNonProviderConfig } from './blockchain.config';
+import { Logger, pino } from 'pino';
+import { getBasicPinoOptions } from '#logger-lib';
+import { ChainType } from '@frequency-chain/ethereum-utils';
 
 export class PolkadotApiService extends EventEmitter2 implements OnApplicationShutdown {
   private provider: ProviderInterface;
@@ -22,6 +25,8 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   private baseReadyResolve: (arg: boolean) => void;
 
   private baseReadyReject: (reason: any) => void;
+
+  private _chainType: ChainType | undefined;
 
   protected readonly baseIsReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.baseReadyResolve = resolve;
@@ -47,7 +52,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     private readonly eventEmitter: EventEmitter2,
   ) {
     super();
-    this.logger = new Logger(this.constructor.name);
+    this.logger = pino(getBasicPinoOptions(this.constructor.name));
 
     try {
       const providerUrl = this.baseConfig.frequencyApiWsUrl;
@@ -125,7 +130,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private startDisconnectedTimeout(isInit = false) {
     if (!this.disconnectedTimeout) {
-      this.logger[isInit ? 'log' : 'error'](
+      this.logger[isInit ? 'info' : 'error'](
         isInit
           ? 'Awaiting Frequency RPC node connection'
           : `Communications error with Frequency node; starting ${this.baseConfig.frequencyTimeoutSecs}-second shutdown timer`,
@@ -140,10 +145,21 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private stopDisconnectedTimeout() {
     if (this.disconnectedTimeout) {
-      this.logger.log('Connected to Frequency');
+      this.logger.info('Connected to Frequency');
       clearTimeout(this.disconnectedTimeout);
       this.disconnectedTimeout = undefined;
       this.emit('chain.connected');
     }
+  }
+
+  public get chainType(): ChainType {
+    const genesis = this.api.genesisHash.toHex();
+    if (genesis === '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1') {
+      return 'Mainnet-Frequency';
+    }
+    if (genesis === '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0') {
+      return 'Paseo-Testnet-Frequency';
+    }
+    return 'Dev';
   }
 }

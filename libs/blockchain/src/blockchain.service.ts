@@ -28,6 +28,7 @@ import {
   MORTAL_PERIOD,
 } from '@polkadot/api-derive/tx/constants';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from './blockchain.config';
+import { IHeaderInfo } from './blockchain.interfaces';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
@@ -47,12 +48,6 @@ export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
 export type Sr25519Signature = { Sr25519: HexString };
 
-export interface IHeaderInfo {
-  blockHash: HexString;
-  number: number;
-  parentHash: HexString;
-}
-
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
 function getNextPossibleNonceKeys(currentNonce: string | number): string[] {
@@ -63,6 +58,7 @@ function getNextPossibleNonceKeys(currentNonce: string | number): string[] {
   }
   return keys;
 }
+
 @Injectable()
 export class BlockchainService extends BlockchainRpcQueryService implements OnApplicationBootstrap {
   private accountId: string;
@@ -81,9 +77,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   public async onApplicationBootstrap() {
     try {
       await this.baseIsReadyPromise;
-      await this.validateProviderSeedPhrase();
-      this.accountId = await addressFromSeedPhrase(this.config.providerSeedPhrase);
-      this.logger.log('Blockchain provider keys validated.');
+      await this.validateproviderKeyUriOrPrivateKey();
+      this.accountId = await addressFromSeedPhrase(this.config.providerKeyUriOrPrivateKey);
+      this.logger.info('Blockchain provider keys validated.');
       this.readyResolve(true);
     } catch (err) {
       this.readyReject(err);
@@ -185,10 +181,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     return siwfTxnValues;
   }
 
-  public async validateProviderSeedPhrase() {
-    const { providerSeedPhrase, providerId } = this.config;
-    if (providerSeedPhrase) {
-      const address = await addressFromSeedPhrase(providerSeedPhrase);
+  public async validateproviderKeyUriOrPrivateKey() {
+    const { providerKeyUriOrPrivateKey, providerId } = this.config;
+    if (providerKeyUriOrPrivateKey) {
+      const address = await addressFromSeedPhrase(providerKeyUriOrPrivateKey);
       const resolvedProviderId = await this.publicKeyToMsaId(address);
 
       if (resolvedProviderId !== providerId.toString()) {
@@ -237,7 +233,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
-    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
+    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerKeyUriOrPrivateKey);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);
@@ -265,7 +261,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
-    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerSeedPhrase);
+    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerKeyUriOrPrivateKey);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);

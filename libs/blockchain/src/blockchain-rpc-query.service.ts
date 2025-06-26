@@ -31,6 +31,7 @@ import {
   PaginatedStorageResponse,
 } from '@frequency-chain/api-augment/interfaces';
 import { HexString } from '@polkadot/util/types';
+import { IHeaderInfo } from './blockchain.interfaces';
 import {
   Delegation,
   HandleResponseDto,
@@ -56,6 +57,7 @@ import { ICapacityFeeDetails } from './types';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
+
 interface HandleTxnValues {
   msaId: string;
   handle: string;
@@ -154,6 +156,15 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     }
 
     return header.number.toNumber();
+  }
+
+  public async getLatestHeader(): Promise<IHeaderInfo> {
+    const latestHeader = await this.api.rpc.chain.getHeader();
+    return {
+      blockHash: latestHeader.hash.toHex(),
+      number: latestHeader.number.toNumber(),
+      parentHash: latestHeader.parentHash.toHex(),
+    };
   }
 
   public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {
@@ -454,7 +465,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       await tx.signAsync(signerAddress, {
         signer: {
           signRaw: (raw) => {
-            this.logger.verbose('signRaw called with [raw]:', raw);
+            this.logger.trace('signRaw called with [raw]:', raw);
             signRaw = raw;
             // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
             throw new Error('Stop here');

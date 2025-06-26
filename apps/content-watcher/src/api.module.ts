@@ -7,6 +7,7 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { ConfigModule } from '@nestjs/config';
 import apiConfig from './api.config';
@@ -21,6 +22,8 @@ import { PubSubModule } from '#content-watcher/pubsub/pubsub.module';
 import { CrawlerModule } from '#content-watcher/crawler/crawler.module';
 import { IPFSProcessorModule } from '#content-watcher/ipfs/ipfs.processor.module';
 import httpCommonConfig from '#config/http-common.config';
+import { LoggerModule } from 'nestjs-pino';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -48,6 +51,7 @@ import httpCommonConfig from '#config/http-common.config';
       useFactory: (conf: ICacheConfig) => [{ ...conf.redisOptions, keyPrefix: conf.cacheKeyPrefix }],
       inject: [cacheConfig.KEY],
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -67,6 +71,7 @@ import httpCommonConfig from '#config/http-common.config';
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
+    PrometheusModule.register(createPrometheusConfig('content-watcher')),
   ],
   providers: [
     ApiService,

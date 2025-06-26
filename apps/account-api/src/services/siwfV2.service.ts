@@ -27,7 +27,7 @@ import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.re
 import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
-import { chainSignature, statefulStoragePayload } from '#utils/common/signature.util';
+import { chainSignature, getTypesForKeyUriOrPrivateKey, statefulStoragePayload } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
@@ -135,7 +135,11 @@ export class SiwfV2Service {
     if (request.authorizationPayload) {
       try {
         // Await here so the error is caught
-        payload = await validateSiwfResponse(request.authorizationPayload, loginMsgURIValidation);
+        payload = await validateSiwfResponse(request.authorizationPayload, {
+          endpoint: '',
+          chainType: this.blockchainService.chainType,
+          loginMsgUri: loginMsgURIValidation,
+        });
         this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
       } catch (e) {
         this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
@@ -146,6 +150,7 @@ export class SiwfV2Service {
       try {
         payload = await getLoginResult(request.authorizationCode, {
           endpoint: this.swifV2Endpoint(),
+          chainType: this.blockchainService.chainType,
           loginMsgUri: loginMsgURIValidation,
         });
         this.logger.debug(
@@ -242,10 +247,14 @@ export class SiwfV2Service {
     let response: WalletV2RedirectResponseDto;
     try {
       const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
-      const { providerSeedPhrase } = this.blockchainConf;
+      const { providerKeyUriOrPrivateKey } = this.blockchainConf;
+      const { encodingType, formatType, keyType } = getTypesForKeyUriOrPrivateKey(providerKeyUriOrPrivateKey);
 
       const signedRequest = await generateEncodedSignedRequest(
-        providerSeedPhrase,
+        encodingType,
+        formatType,
+        keyType,
+        providerKeyUriOrPrivateKey,
         callbackUrl,
         permissions,
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),
@@ -255,6 +264,7 @@ export class SiwfV2Service {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {
           endpoint: this.swifV2Endpoint(),
+          chainType: this.blockchainService.chainType,
         }),
         frequencyRpcUrl,
       };

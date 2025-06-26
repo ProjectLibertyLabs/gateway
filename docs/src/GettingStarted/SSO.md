@@ -1,7 +1,8 @@
 # Fast Single Sign On with SIWF v2 with Account Service
 
 Sign In With Frequency (SIWF v2) is quick, user-friendly, decentralized authentication using the Frequency blockchain.
-Coupled with the Account Service, this provides fast and secure SSO across applications by utilizing cryptographic signatures to verify user identities without complex identity management systems.
+Coupled with the Account Service, this provides fast and secure SSO across applications by utilizing cryptographic
+signatures to verify user identities without complex identity management systems.
 
 Key benefits:
 
@@ -18,7 +19,8 @@ Resources:
 
 ## Setup Tutorial
 
-In this tutorial, you will set up a Sign In With Frequency button for use with Testnet, which will enable you to acquire onboarded, authenticated users with minimal steps.
+In this tutorial, you will set up a Sign In With Frequency button for use with Testnet, which will enable you to acquire
+onboarded, authenticated users with minimal steps.
 
 ## Prerequisites
 
@@ -28,10 +30,12 @@ Before proceeding, ensure you have completed the following steps:
 Register your application as a [Provider on Frequency Testnet](./BecomeProvider.md).
 
 **Completed the Access Form**
-Fill out the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
+Fill out
+the [Frequency Access Testnet Account Setup form](https://docs.google.com/forms/d/e/1FAIpQLScN_aNMZpYqEdchSHrAR6MhKrVI1pA3SP6wxolAQCFckYoPOA/viewform).
 
 **Set Up a Backend Instance**
-You need a **backend-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account Service.
+You need a **backend-only-accessible** [running instance](../Run/GatewayServices/RunGatewayServices.md) of the Account
+Service.
 
 **Access to a Frequency RPC Node**
 
@@ -71,7 +75,8 @@ The User will be redirected to a service for generating their signed authenticat
 
 ### Option A: Static Callback and Permissions
 
-If a static callback and permissions are all that is required, a static Signed Request may be generated and used: [Signed Request Generator Tool](https://projectlibertylabs.github.io/siwf/v2/docs/Generate.html)
+If a static callback and permissions are all that is required, a static Signed Request may be generated and
+used: [Signed Request Generator Tool](https://projectlibertylabs.github.io/siwf/v2/docs/Generate.html)
 
 ### Option B: Dynamic Callback or Permissions
 
@@ -80,7 +85,8 @@ While this is not needed for most applications, some situations require it.
 
 The Account Service provides an API to generate the Signed Request URL:
 
-- [GET `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_getRedirectUrl)
+- [GET
+  `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_getRedirectUrl)
 
 <div class="warning">
 Remember that the Account Service is NOT meant to be an externally exposed service.
@@ -96,13 +102,15 @@ curl -X GET "https://account-service.internal/v2/accounts/siwf?callbackUrl=https
 Permissions define the actions that you as the Application can perform on behalf of the user.
 They are based on Schemas published to Frequency.
 
-See list of [SIWF v2 Available Delegations](https://projectlibertylabs.github.io/siwf/v2/docs/Delegations.html#available-delegations).
+See list
+of [SIWF v2 Available Delegations](https://projectlibertylabs.github.io/siwf/v2/docs/Delegations.html#available-delegations).
 
 ### Requesting Credentials
 
 SIWF v2 supports requesting validated credentials such as a phone number, email, and private graph keys.
 
-See list of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/docs/Credentials.html#available-credentials).
+See list
+of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/docs/Credentials.html#available-credentials).
 
 ## Step 2: Forward the User for Authentication
 
@@ -111,7 +119,8 @@ See list of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/d
 The SIWF SDK provides an easy way to use your `signedRequest` and display a button for your users.
 
 The example below is with the SIWF SDK for the Web.
-Guides for Android, iOS that also support handling the callback correctly and more are available [in the SIWF SDK documentation](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Overview.html).
+Guides for Android, iOS that also support handling the callback correctly and more are
+available [in the SIWF SDK documentation](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Overview.html).
 
 ```html
 <!-- Add a button container with data attributes and replace "YOUR_ENCODED_SIGNED_REQUEST" with your "signedRequest" value -->
@@ -128,16 +137,20 @@ Redirect the user to the URL obtained from the previous step:
 window.location.href = '"https://testnet.frequencyaccess.com/siwa/start?signedRequest=eyJyZXF1ZXN0ZWRTaWduYXR1cmVzIjp7InB1YmxpY0tleSI6eyJlbmNvZGVkVmFsdWUiOiJmNmNMNHdxMUhVTngxMVRjdmRBQk5mOVVOWFhveUg0N21WVXdUNTl0elNGUlc4eURIIiwiZW5jb2RpbmciOiJiYXNlNTgiLCJmb3JtYXQiOiJzczU4IiwidHlwZSI6IlNyMjU1MTkifSwic2lnbmF0dXJlIjp7ImFsZ28iOiJTUjI1NTE5IiwiZW5jb2RpbmciOiJiYXNlMTYiLCJlbmNvZGVkVmFsdWUiOiIweDNlMTdhYzM3Yzk3ZWE3M2E3YzM1ZjBjYTJkZTcxYmY3MmE5NjlkYjhiNjQyYzU3ZTI2N2Q4N2Q1OTA3ZGM4MzVmYTJjODI4MTdlODA2YTQ5NGIyY2E5Y2U5MjJmNDM1NDY4M2U4YzAxMzY5NTNlMGZlNWExODJkMzU0NjQ2Yzg4In0sInBheWxvYWQiOnsiY2FsbGJhY2siOiJodHRwOi8vbG9jYWxob3N0OjMwMDAiLCJwZXJtaXNzaW9ucyI6WzUsNyw4LDksMTBdfX0sInJlcXVlc3RlZENyZWRlbnRpYWxzIjpbeyJ0eXBlIjoiVmVyaWZpZWRHcmFwaEtleUNyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFtZHZteGQ1NHp2ZTVraWZ5Y2dzZHRvYWhzNWVjZjRoYWwydHMzZWV4a2dvY3ljNW9jYTJ5Il19LHsiYW55T2YiOlt7InR5cGUiOiJWZXJpZmllZEVtYWlsQWRkcmVzc0NyZWRlbnRpYWwiLCJoYXNoIjpbImJjaXFlNHFvY3poZnRpY2k0ZHpmdmZiZWw3Zm80aDRzcjVncmNvM29vdnd5azZ5NHluZjQ0dHNpIl19LHsidHlwZSI6IlZlcmlmaWVkUGhvbmVOdW1iZXJDcmVkZW50aWFsIiwiaGFzaCI6WyJiY2lxanNwbmJ3cGMzd2p4NGZld2NlazVkYXlzZGpwYmY1eGppbXo1d251NXVqN2UzdnUydXducSJdfV19XX0&mode=dark"';
 ```
 
-For mobile applications, use an embedded browser to handle the redirection smoothly with minimal impact on user experience.
-SDKs for [Android](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Android.html) and [iOS](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/iOS.html) are available that handle this part for you.
+For mobile applications, use an embedded browser to handle the redirection smoothly with minimal impact on user
+experience.
+SDKs for [Android](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Android.html)
+and [iOS](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/iOS.html) are available that handle this part for you.
 
 ## Step 3: Handle the Callback
 
-After the user completes authentication, Frequency Access or other SIWF v2 Service will redirect the user to your `callbackUrl` with either an `authorizationCode` or `authorizationPayload`.
+After the user completes authentication, Frequency Access or other SIWF v2 Service will redirect the user to your
+`callbackUrl` with either an `authorizationCode` or `authorizationPayload`.
 
 The Account Service provides an API to validate and process the SIWF v2 authorization:
 
-- [POST `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_postSignInWithFrequency)
+- [POST
+  `/v2/accounts/siwf`](https://projectlibertylabs.github.io/gateway/account/#tag/v2accounts/operation/AccountsControllerV2_postSignInWithFrequency)
 
 <div class="warning">
 Remember that the Account Service is NOT meant to be an externally exposed service.
@@ -160,7 +173,7 @@ The response will include the user's credentials, control key, and more:
   "msaId": "314159265358979323846264338",
   "email": "user@example.com",
   "phoneNumber": "555-867-5309",
-  "graphKey": "555-867-5309",
+  "graphKey": "f6Y86vfvou3d4RGjYJM2k5L7g1HMjVTDMAtVMDh8g67i3VLZi",
   "rawCredentials": [
     {
       "@context": [
@@ -230,17 +243,21 @@ The response will include the user's credentials, control key, and more:
 
 There are two identifiers included with the response.
 The `controlKey` will always be returned and can be considered unique for the user for this authentication session.
-The `msaId` is the unique identifier of an account on Frequency, but it may not be available immediately if the user is new to Frequency (See Waiting for an MSA Id below).
+The `msaId` is the unique identifier of an account on Frequency, but it may not be available immediately if the user is
+new to Frequency (See Waiting for an MSA Id below).
 
 At this point the user is authenticated!
 Your application should initiate a session and follow standard session management practices.
 
 ### Waiting for an MSA Id
 
-If you want to wait for confirmation that the Account Service has (if needed) created an MSA Id for the user, you may use this pair of APIs to confirm it:
+If you want to wait for confirmation that the Account Service has (if needed) created an MSA Id for the user, you may
+use this pair of APIs to confirm it:
 
-- Get the MSA Id by `controlKey` [GET `/v1/accounts/account/{accountId}`](https://projectlibertylabs.github.io/gateway/account/#tag/v1accounts/operation/AccountsControllerV1_getAccountForAccountId)
-- Get the delegation by `msaId` and `providerId` [GET `/v2/delegations/{msaId}/{providerId}`](https://projectlibertylabs.github.io/gateway/account/#tag/delegations/operation/DelegationsControllerV2_getProviderDelegation)
+- Get the MSA Id by `controlKey` [GET
+  `/v1/accounts/account/{accountId}`](https://projectlibertylabs.github.io/gateway/account/#tag/v1accounts/operation/AccountsControllerV1_getAccountForAccountId)
+- Get the delegation by `msaId` and `providerId` [GET
+  `/v2/delegations/{msaId}/{providerId}`](https://projectlibertylabs.github.io/gateway/account/#tag/delegations/operation/DelegationsControllerV2_getProviderDelegation)
 
 ## Behind the Scenes
 

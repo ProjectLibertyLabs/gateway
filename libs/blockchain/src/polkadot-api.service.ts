@@ -26,7 +26,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private baseReadyReject: (reason: any) => void;
 
-  private _chainType: ChainType;
+  private _chainType: ChainType | undefined;
 
   protected readonly baseIsReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.baseReadyResolve = resolve;
@@ -152,20 +152,14 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     }
   }
 
-  /* eslint-disable no-underscore-dangle */
   public get chainType(): ChainType {
-    if (!this._chainType) {
-      switch (this.api.genesisHash.toHex()) {
-        case '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1':
-          this._chainType = 'Mainnet-Frequency';
-          break;
-        case '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0':
-          this._chainType = 'Paseo-Testnet-Frequency';
-          break;
-        default:
-          this._chainType = 'Dev';
-      }
+    const genesis = this.api.genesisHash.toHex();
+    if (genesis === '0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1') {
+      return 'Mainnet-Frequency';
     }
-    return this._chainType;
+    if (genesis === '0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0') {
+      return 'Paseo-Testnet-Frequency';
+    }
+    return 'Dev';
   }
 }

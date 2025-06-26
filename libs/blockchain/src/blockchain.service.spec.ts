@@ -152,6 +152,7 @@ describe('BlockchainService', () => {
   });
 
   describe('getNetworkType', () => {
+    afterEach(() => {});
     afterAll(() => {
       jest.restoreAllMocks();
     });
@@ -161,6 +162,7 @@ describe('BlockchainService', () => {
         .spyOn(mockApi.genesisHash, 'toHex')
         .mockReturnValue('0x4a587bf17a404e3572747add7aab7bbe56e805a5479c6c436f07f36fcc8d3ae1');
       expect(blockchainService.getNetworkType()).toEqual('mainnet');
+      expect(blockchainService.chainType).toEqual('Mainnet-Frequency');
     });
 
     it('should return testnet for the testnet hash', () => {
@@ -168,11 +170,13 @@ describe('BlockchainService', () => {
         .spyOn(mockApi.genesisHash, 'toHex')
         .mockReturnValue('0x203c6838fc78ea3660a2f298a58d859519c72a5efdc0f194abd6f0d5ce1838e0');
       expect(blockchainService.getNetworkType()).toEqual('testnet-paseo');
+      expect(blockchainService.chainType).toEqual('Paseo-Testnet-Frequency');
     });
 
     it('should return unknown for anything else', () => {
       jest.spyOn(mockApi.genesisHash, 'toHex').mockReturnValue('0xabcd');
       expect(blockchainService.getNetworkType()).toEqual('unknown');
+      expect(blockchainService.chainType).toEqual('Dev');
     });
   });
 });

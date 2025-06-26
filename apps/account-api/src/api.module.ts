@@ -15,6 +15,7 @@ import {
   KeysControllerV1,
   DelegationsControllerV2,
   HealthController,
+  BlockInfoController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
 import { ConfigModule } from '@nestjs/config';
@@ -86,6 +87,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     DelegationControllerV1,
     HandlesControllerV1,
     KeysControllerV1,
+    BlockInfoController,
     HealthController,
   ],
   exports: [],

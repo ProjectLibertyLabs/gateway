@@ -1,5 +1,5 @@
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Controller({ version: '1', path: 'frequency' })
@@ -12,12 +12,8 @@ export class BlockInfoController {
   @Get('blockinfo')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get information about current block' })
-  @ApiOkResponse({ description: 'Block information retrieved successfully' })
+  @ApiOkResponse({ description: 'Block information retrieved' })
   async blockInfo() {
-    return {
-      status: HttpStatus.OK,
-      message: 'Block information retrieved successfully',
-      data: await this.blockchainService.getCurrentBlockInfo(),
-    };
+    return this.blockchainService.getCurrentBlockInfo();
   }
 }

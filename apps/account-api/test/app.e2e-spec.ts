@@ -70,19 +70,18 @@ describe('Account Service E2E request verification!', () => {
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
 
   it('GET /v1/frequency/blockinfo returns block info', async () => {
-    const res = await request(app.getHttpServer()).get('/blockchain/block-info').expect(200);
-
-    expect(res.body).toEqual(
-      expect.objectContaining({
-        status: 200,
-        message: 'Block information retrieved successfully',
-        data: expect.objectContaining({
-          blocknumber: expect.any(Number),
-          finalized_blocknumber: expect.any(Number),
-          genesis: expect.any(String),
-          runtime_version: expect.anything(), // could be string or number depending on your API
-        }),
-      }),
-    );
+    await request(app.getHttpServer())
+      .get('/v1/frequency/blockinfo')
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            blocknumber: expect.any(Number),
+            finalized_blocknumber: expect.any(Number),
+            genesis: expect.any(String),
+            runtime_version: expect.any(Number),
+          }),
+        );
+      });
   });
 });

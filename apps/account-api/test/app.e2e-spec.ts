@@ -68,4 +68,20 @@ describe('Account Service E2E request verification!', () => {
     request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+
+  it('GET /v1/frequency/blockinfo returns block info', async () => {
+    await request(app.getHttpServer())
+      .get('/v1/frequency/blockinfo')
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            blocknumber: expect.any(Number),
+            finalized_blocknumber: expect.any(Number),
+            genesis: expect.any(String),
+            runtime_version: expect.any(Number),
+          }),
+        );
+      });
+  });
 });

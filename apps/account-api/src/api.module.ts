@@ -4,6 +4,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { BlockchainModule } from '#blockchain/blockchain.module';
+import { BlockInfoController } from '#blockchain/blockinfo.controller';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
@@ -89,6 +90,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     HandlesControllerV1,
     KeysControllerV1,
     HealthController,
+    BlockInfoController,
   ],
   exports: [],
 })

@@ -76,6 +76,24 @@ describe('Graph Service E2E request verification!', () => {
     it('(GET) /metrics', () => request(app.getHttpServer()).get('/metrics').expect(200));
   });
 
+  describe('Blockinfo endpoint', () => {
+    it('GET /v1/frequency/blockinfo returns block info', async () => {
+      request(app.getHttpServer())
+        .get('/v1/frequency/blockinfo')
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toEqual(
+            expect.objectContaining({
+              blocknumber: expect.any(Number),
+              finalized_blocknumber: expect.any(Number),
+              genesis: expect.any(String),
+              runtime_version: expect.any(Number),
+            }),
+          );
+        });
+    });
+  });
+
   describe('/graph endpoints', () => {
     // TODO: Re-enable this test once the setup is update to create user graphs on-chain
     describe.skip('(POST) /v1/graphs retrieves user graphs', () => {

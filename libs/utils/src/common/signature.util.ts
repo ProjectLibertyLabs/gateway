@@ -4,6 +4,9 @@ import { hexToU8a, isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
 import { CurveType, EncodingType, FormatType } from '@projectlibertylabs/siwfv2';
 import { KeypairType } from '@polkadot/util-crypto/types';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { getKeyringPairFromSecp256k1PrivateKey } from '@frequency-chain/ethereum-utils';
+import Keyring from '@polkadot/keyring';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -138,4 +141,12 @@ export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: 
   if (providerKeyUriOrPrivateKey.split(' ').length > 1) return 'sr25519';
   if (providerKeyUriOrPrivateKey.match(/^\/\/\w+/)) return 'sr25519';
   throw new Error('unsupported seed or uri or key type');
+};
+
+export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivateKey: string): KeyringPair => {
+  const keyType: KeypairType = getKeyPairTypeForKeyUriOrPrivateKey(providerSeedUriOrPrivateKey);
+  if (keyType === 'ethereum') {
+    return getKeyringPairFromSecp256k1PrivateKey(hexToU8a(providerSeedUriOrPrivateKey));
+  }
+  return new Keyring({ type: keyType }).createFromUri(providerSeedUriOrPrivateKey);
 };

@@ -17,8 +17,7 @@ export async function getApi() {
 export function createKey() {
   const mnemonic = mnemonicGenerate();
   const keyring = new Keyring({ type: 'sr25519' });
-  const keypair = keyring.createFromUri(mnemonic);
-  return keypair;
+  return keyring.createFromUri(mnemonic);
 }
 
 export function signPayloadSr25519(keys, data) {

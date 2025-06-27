@@ -1,9 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { Keyring } from '@polkadot/keyring';
 import { hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import readlineSync from 'readline-sync';
 import minimist from 'minimist';
+import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
+import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 
 /**
  * Sign a payload using keys derived from an input seed phrase/URI
@@ -29,16 +30,18 @@ async function main() {
   }
 
   if (!mnemonicUri) {
-    mnemonicUri = readlineSync.question('Seed phrase/URI to sign with: ', { hideEchoBack: true });
+    mnemonicUri = readlineSync.question('Seed phrase or URI or Ethereum private key to sign with: ', {
+      hideEchoBack: true,
+    });
   }
 
-  const keypair = new Keyring({ type: 'sr25519' }).createFromUri(mnemonicUri);
+  const keypair = getKeyringPairFromSeedOrUriOrPrivateKey(mnemonicUri);
 
   const signature = u8aToHex(keypair.sign(payload, { withType: true }));
 
   console.log('Signed payload: ', {
     payload,
-    address: keypair.address,
+    address: getUnifiedAddress(keypair),
     signature,
   });
 }

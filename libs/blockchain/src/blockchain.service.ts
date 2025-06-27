@@ -14,7 +14,6 @@
  */
 import fs from 'fs';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { Keyring } from '@polkadot/api';
 import { Call } from '@polkadot/types/interfaces';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { IMethod, ISubmittableResult } from '@polkadot/types/types';
@@ -43,6 +42,7 @@ import {
   SIWFTxnValues,
 } from './types';
 import { BN } from '@polkadot/util';
+import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -233,7 +233,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Call | IMethod | string | Uint8Array,
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacity(tx);
-    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerKeyUriOrPrivateKey);
+    const keys = getKeyringPairFromSeedOrUriOrPrivateKey(this.config.providerKeyUriOrPrivateKey);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);
@@ -261,7 +261,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     tx: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
   ): Promise<[SubmittableExtrinsic<'promise'>, HexString, number]> {
     const extrinsic = this.api.tx.frequencyTxPayment.payWithCapacityBatchAll(tx);
-    const keys = new Keyring({ type: 'sr25519' }).createFromUri(this.config.providerKeyUriOrPrivateKey);
+    const keys = getKeyringPairFromSeedOrUriOrPrivateKey(this.config.providerKeyUriOrPrivateKey);
     const nonce = await this.reserveNextNonce();
     const block = await this.getBlockForSigning();
     const blockHash = this.api.createType('Hash', block.blockHash);

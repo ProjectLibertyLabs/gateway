@@ -4,7 +4,8 @@ import * as JoiUtil from '#config/joi-utils';
 import { ValidationError } from 'class-validator';
 import { ICapacityLimits } from '#types/interfaces';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import Keyring from '@polkadot/keyring';
+import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
+import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 
 export interface IBlockchainNonProviderConfig {
   frequencyTimeoutSecs: number;
@@ -23,7 +24,8 @@ export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
 
 export async function addressFromSeedPhrase(seed: string): Promise<string> {
   await cryptoWaitReady();
-  return new Keyring({ type: 'sr25519' }).createFromUri(seed).address;
+  const keyringPair = getKeyringPairFromSeedOrUriOrPrivateKey(seed);
+  return getUnifiedAddress(keyringPair);
 }
 
 const capacityLimitSchema = Joi.object({

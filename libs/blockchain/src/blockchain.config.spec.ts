@@ -97,17 +97,17 @@ describe('Blockchain module config', () => {
   describe('addressFromSeedPhrase', () => {
     it('works with seed URI', async () => {
       const result = await addressFromSeedPhrase('//Fergie');
-      expect(result).toBeDefined();
+      expect(result).toEqual('5FBmfCcPr6edCK8kets2mQ2P49SmhEYCbVQdoBHaqoAw9GWY');
     });
     it('works with a seed phrase', async () => {
       const result = await addressFromSeedPhrase(
         'purpose dismiss lens add kid churn example force swear cherry clock brother',
       );
-      expect(result).toBeDefined();
+      expect(result).toEqual('5DczL3kuzEs5pYnxC3oyoUWA9rGEf5efhnCr8fooupzSVSXx');
     });
     it('works with an ethereum private key', async () => {
       const result = await addressFromSeedPhrase('0xcb5bdff4e20f8a8b11d35628b6a48500967e88e5cdf219cf2136342347716725');
-      expect(result).toBeDefined();
+      expect(result).toEqual('5G1kXkDCutLV95WoeVxGyJFjtJRwirNXwn1s2VVaPn7zogQP');
     });
   });
 });

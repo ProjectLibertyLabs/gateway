@@ -125,7 +125,12 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   }
 
   public async isReady(): Promise<boolean> {
-    return (await this.baseIsReadyPromise) && !!(await this.api.isReady);
+    const birp = await this.baseIsReadyPromise;
+    this.logger.debug('baseIsReadyPromise');
+    const api = await this.api.isReady;
+    this.logger.debug('api is ready');
+    return birp && !!api;
+    // return (await this.baseIsReadyPromise) && !!(await this.api.isReady);
   }
 
   private startDisconnectedTimeout(isInit = false) {

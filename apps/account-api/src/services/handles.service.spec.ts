@@ -17,7 +17,7 @@ jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
 describe('HandlesService', () => {
   let handlesService: HandlesService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const mockBlockchainConfigProvider = buildBlockchainConfigProvider('Sr25519');
     const moduleRef = await Test.createTestingModule({
       imports: [],

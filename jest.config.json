@@ -6,6 +6,9 @@
     "json",
     "ts"
   ],
+  "modulePathIgnorePatterns": [
+    "<rootDir>/apps/*/k6-test/"
+  ],
   "workerThreads": true,
   "rootDir": ".",
   "setupFiles": [

@@ -142,7 +142,6 @@
     "@polkadot/util": "^13.4.3",
     "@polkadot/util-crypto": "^13.4.3",
     "@projectlibertylabs/graph-sdk": "^2.0.1",
-    "@projectlibertylabs/siwf": "^2.2.1",
     "@projectlibertylabs/siwfv1": "npm:@projectlibertylabs/siwf@^1.1.6",
     "@projectlibertylabs/siwfv2": "npm:@projectlibertylabs/siwf@^2.2.1",
     "@songkeys/nestjs-redis": "^10.0.0",

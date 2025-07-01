@@ -29,7 +29,7 @@ export class KeysRequestPayloadDto {
    * newPublicKey in hex format
    * @example '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b'
    */
-  @IsHexValue({ minLength: 32, maxLength: 64 })
+  @IsHexValue({ minLength: 64, maxLength: 64 })
   newPublicKey: string;
 }
 

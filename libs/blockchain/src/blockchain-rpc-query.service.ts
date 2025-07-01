@@ -433,8 +433,8 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.system.events()).toArray();
   }
 
-  // it's ok to create the payload here b/c we're not verifying the signature, this is just for posting to chaain
-  // so just set th signature type correctly
+  // it's ok to create the payload here b/c we're not verifying the signature, this is just for posting to chain
+  // so just set the signature type correctly
   public async generateAddPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const txPayload = this.createAddPublicKeyToMsaPayload(payload);

@@ -7,12 +7,12 @@ import {
   KeysRequestPayloadDto,
 } from '#types/dtos/account';
 import {
-  AddItemizedAction,
-  DeleteItemizedAction,
   createAddKeyData,
   createItemizedSignaturePayloadV2,
   getUnifiedPublicKey,
   sign as signEthereum,
+  createItemizedAddAction,
+  createItemizedDeleteAction,
 } from '@frequency-chain/ethereum-utils';
 import { u8aToHex } from '@polkadot/util';
 import { KeysService } from '#account-api/services/keys.service';
@@ -23,30 +23,16 @@ import { jest } from '@jest/globals';
 import { HexString } from '@polkadot/util/types';
 import { createKeys } from '#testlib/keys.spec';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { isHexStr } from '@projectlibertylabs/siwf';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
   '#account-lib/services/enqueue-request.service',
 );
 
-// modified from ethereum-utils testing utilities
-const createItemizedAddAction = (data: HexString | Uint8Array): AddItemizedAction => {
-  const parsedData: HexString = typeof data === 'object' ? u8aToHex(data) : data;
-  expect(isHexStr(parsedData)).toBeTruthy();
-  return { actionType: 'Add', data, index: 0 } as AddItemizedAction;
-};
-
-// modified from ethereum-utils testing utilities
-export function createItemizedDeleteAction(index: number): DeleteItemizedAction {
-  expect(index).toBeLessThan(2 ** 16);
-  return { actionType: 'Delete', data: '0x', index };
-}
-
 describe('KeysService', () => {
   let keysService: KeysService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await cryptoWaitReady();
     const mockBlockchainConfigProvider = buildBlockchainConfigProvider('Sr25519');
     const moduleRef = await Test.createTestingModule({

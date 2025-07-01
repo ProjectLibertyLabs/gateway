@@ -80,7 +80,9 @@ describe('KeysService', () => {
       };
 
       const ethereumSignature1 = await signEthereum(u8aToHex(keypair.secretKey), addKeyData1, 'Dev');
-      expect(keysService.ver(ethAddr, ethereumSignature1.Ecdsa, keysRequestPayload1).isValid).toBeTruthy();
+      expect(
+        keysService.verifyOneAddKeySignature(ethAddr, ethereumSignature1.Ecdsa, keysRequestPayload1).isValid,
+      ).toBeTruthy();
     });
   });
   describe('verifyPublicKeyAgreementSignature', () => {

@@ -5,6 +5,7 @@ import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
+  ItemActionDto,
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { ItemActionType } from '#types/enums/item-action-type.enum';
@@ -20,7 +21,10 @@ import {
 } from '#utils/common/signature.util';
 import {
   createAddKeyData as createEthereumAddKeyData,
+  createItemizedAddAction,
+  createItemizedDeleteAction,
   createItemizedSignaturePayloadV2,
+  ItemizedAction,
   verifySignature as verifyEthereumSignature,
 } from '@frequency-chain/ethereum-utils';
 import { Logger, pino } from 'pino';
@@ -118,7 +122,7 @@ export class KeysService {
     const keyType = getKeyPairTypeForKeyUriOrPrivateKey(signer);
     if (keyType !== 'sr25519' && keyType !== 'ethereum') {
       this.logger.error(`Unsupported key type: ${keyType}`);
-      return false;
+      return { isValid: false, isWrapped: false };
     }
     if (keyType === 'sr25519') {
       const encodedPayload = u8aToHex(
@@ -154,11 +158,18 @@ export class KeysService {
       );
       return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
     }
+
+    const actions: ItemizedAction[] = request.payload.actions.map((action: ItemActionDto) => {
+      if (action.type === ItemActionType.ADD_ITEM) {
+        return createItemizedAddAction(action.encodedPayload as HexString);
+      }
+      return createItemizedDeleteAction(action.index);
+    });
     const ethereumPayload = createItemizedSignaturePayloadV2(
       request.payload.schemaId,
       request.payload.targetHash,
       request.payload.expiration,
-      request.payload.actions,
+      actions,
     );
     return verifyEthereumSignature(
       request.accountId as HexString,

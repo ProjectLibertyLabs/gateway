@@ -1,12 +1,13 @@
 import { Bytes } from '@polkadot/types';
 import { SignerResult, Signer, Registry } from '@polkadot/types/types';
-import { hexToU8a, isHex } from '@polkadot/util';
+import { hexToU8a, isHex, u8aToHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
-import { CurveType, EncodingType, FormatType } from '@projectlibertylabs/siwfv2';
+import { CurveType, EncodingType, FormatType, isHexStr } from '@projectlibertylabs/siwfv2';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { getKeyringPairFromSecp256k1PrivateKey } from '@frequency-chain/ethereum-utils';
 import Keyring from '@polkadot/keyring';
+import { HexString } from '@polkadot/util/types';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -161,7 +162,17 @@ export const getTypedSignatureForPayload = (address: string, signature: string) 
   };
 };
 
-export const getKeypairTypeFromRequestAddress = (unifiedAddress: string) => {
-  if (!unifiedAddress.toLowerCase().endsWith('ee'.repeat(12))) return 'sr25519';
-  return 'ethereum';
+export const getKeypairTypeFromRequestAddress = (address: string) => {
+  let convertedAddress: HexString = '0x0';
+  if (!isHexStr(address)) {
+    const keyring = new Keyring();
+    convertedAddress = u8aToHex(keyring.decodeAddress(address));
+  } else {
+    convertedAddress = address as HexString;
+  }
+  if (hexToU8a(convertedAddress).length === 20) return 'ethereum';
+  if (hexToU8a(convertedAddress).length === 32 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
+    return 'ethereum';
+  }
+  return 'sr25519';
 };

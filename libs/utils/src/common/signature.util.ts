@@ -164,7 +164,6 @@ export const getTypedSignatureForPayload = (address: string, signature: string) 
 
 export const getKeypairTypeFromRequestAddress = (address: string) => {
   let convertedAddress: HexString = '0x0';
-  const numBytes = 0;
   if (!isHexStr(address)) {
     const keyring = new Keyring();
     convertedAddress = u8aToHex(keyring.decodeAddress(address));

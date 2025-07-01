@@ -1,12 +1,13 @@
 import { Bytes } from '@polkadot/types';
 import { SignerResult, Signer, Registry } from '@polkadot/types/types';
-import { hexToU8a, isHex } from '@polkadot/util';
+import { hexToU8a, isHex, u8aToHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
-import { CurveType, EncodingType, FormatType } from '@projectlibertylabs/siwfv2';
+import { CurveType, EncodingType, FormatType, isHexStr } from '@projectlibertylabs/siwfv2';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { getKeyringPairFromSecp256k1PrivateKey } from '@frequency-chain/ethereum-utils';
 import Keyring from '@polkadot/keyring';
+import { HexString } from '@polkadot/util/types';
 
 /**
  * Returns a signer function for a given SignerResult.
@@ -136,17 +137,42 @@ export const getTypesForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string
 // KeypairType can be 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum',
 // but only sr25519 and ethereum are supported.
 // This assumes an Ethereum key only if provided a hex-based private key.
-export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
-  if (providerKeyUriOrPrivateKey.match(/^0x.+/i)) return 'ethereum';
+export const getKeypairTypeForProviderKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
+  if (providerKeyUriOrPrivateKey.startsWith('0x')) return 'ethereum';
   if (providerKeyUriOrPrivateKey.split(' ').length > 1) return 'sr25519';
   if (providerKeyUriOrPrivateKey.match(/^\/\/\w+/)) return 'sr25519';
   throw new Error('unsupported seed or uri or key type');
 };
 
 export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivateKey: string): KeyringPair => {
-  const keyType: KeypairType = getKeyPairTypeForKeyUriOrPrivateKey(providerSeedUriOrPrivateKey);
+  const keyType: KeypairType = getKeypairTypeForProviderKey(providerSeedUriOrPrivateKey);
   if (keyType === 'ethereum') {
     return getKeyringPairFromSecp256k1PrivateKey(hexToU8a(providerSeedUriOrPrivateKey));
   }
   return new Keyring({ type: keyType }).createFromUri(providerSeedUriOrPrivateKey);
+};
+
+export const getTypedSignatureForPayload = (address: string, signature: string) => {
+  const keyType = getKeypairTypeForProviderKey(address);
+  if (keyType === 'sr25519') {
+    return { Sr25519: signature };
+  }
+  return {
+    Ecdsa: signature,
+  };
+};
+
+export const getKeypairTypeFromRequestAddress = (address: string) => {
+  let convertedAddress: HexString = '0x0';
+  if (!isHexStr(address)) {
+    const keyring = new Keyring();
+    convertedAddress = u8aToHex(keyring.decodeAddress(address));
+  } else {
+    convertedAddress = address as HexString;
+  }
+  if (convertedAddress.length - 2 === 40) return 'ethereum';
+  if (convertedAddress.length - 2 === 64 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
+    return 'ethereum';
+  }
+  return 'sr25519';
 };

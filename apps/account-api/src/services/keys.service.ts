@@ -15,7 +15,7 @@ import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { KeysRequestDto, KeysRequestPayloadDto } from '#types/dtos/account';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import {
-  getKeyPairTypeForKeyUriOrPrivateKey,
+  getKeypairTypeFromRequestAddress,
   SignatureVerificationResult,
   verifySignature,
 } from '#utils/common/signature.util';
@@ -119,11 +119,7 @@ export class KeysService {
     signature: HexString,
     payload: KeysRequestPayloadDto,
   ): SignatureVerificationResult {
-    const keyType = getKeyPairTypeForKeyUriOrPrivateKey(signer);
-    if (keyType !== 'sr25519' && keyType !== 'ethereum') {
-      this.logger.error(`Unsupported key type: ${keyType}`);
-      return { isValid: false, isWrapped: false };
-    }
+    const keyType = getKeypairTypeFromRequestAddress(signer);
     if (keyType === 'sr25519') {
       const encodedPayload = u8aToHex(
         u8aWrapBytes(this.blockchainService.createAddPublicKeyToMsaPayload(payload).toU8a()),
@@ -147,11 +143,7 @@ export class KeysService {
   }
 
   verifyPublicKeyAgreementSignature(request: AddNewPublicKeyAgreementRequestDto): boolean {
-    const keyType = getKeyPairTypeForKeyUriOrPrivateKey(request.accountId);
-    if (keyType !== 'sr25519' && keyType !== 'ethereum') {
-      this.logger.error(`Unsupported key type: ${keyType}`);
-      return false;
-    }
+    const keyType = getKeypairTypeFromRequestAddress(request.accountId);
     if (keyType === 'sr25519') {
       const encodedPayload = u8aToHex(
         u8aWrapBytes(this.blockchainService.createItemizedSignaturePayloadV2Type(request.payload).toU8a()),

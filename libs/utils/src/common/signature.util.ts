@@ -136,7 +136,7 @@ export const getTypesForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string
 // KeypairType can be 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum',
 // but only sr25519 and ethereum are supported.
 // This assumes an Ethereum key only if provided a hex-based private key.
-export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
+export const getKeypairTypeForProviderKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
   if (providerKeyUriOrPrivateKey.startsWith('0x')) return 'ethereum';
   if (providerKeyUriOrPrivateKey.split(' ').length > 1) return 'sr25519';
   if (providerKeyUriOrPrivateKey.match(/^\/\/\w+/)) return 'sr25519';
@@ -144,7 +144,7 @@ export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: 
 };
 
 export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivateKey: string): KeyringPair => {
-  const keyType: KeypairType = getKeyPairTypeForKeyUriOrPrivateKey(providerSeedUriOrPrivateKey);
+  const keyType: KeypairType = getKeypairTypeForProviderKey(providerSeedUriOrPrivateKey);
   if (keyType === 'ethereum') {
     return getKeyringPairFromSecp256k1PrivateKey(hexToU8a(providerSeedUriOrPrivateKey));
   }
@@ -152,11 +152,16 @@ export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivate
 };
 
 export const getTypedSignatureForPayload = (address: string, signature: string) => {
-  const keyType = getKeyPairTypeForKeyUriOrPrivateKey(address);
+  const keyType = getKeypairTypeForProviderKey(address);
   if (keyType === 'sr25519') {
     return { Sr25519: signature };
   }
   return {
     Ecdsa: signature,
   };
+};
+
+export const getKeypairTypeFromRequestAddress = (unifiedAddress: string) => {
+  if (!unifiedAddress.toLowerCase().endsWith('ee'.repeat(12))) return 'sr25519';
+  return 'ethereum';
 };

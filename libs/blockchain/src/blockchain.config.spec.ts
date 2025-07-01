@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, expect, beforeAll } from '@jest/globals';
-import blockchainConfig, { allowReadOnly, IBlockchainConfig } from './blockchain.config';
+import blockchainConfig, { addressFromSeedPhrase, allowReadOnly, IBlockchainConfig } from './blockchain.config';
 import configSetup from '#testlib/utils.config-tests';
 
 const { setupConfigService, validateMissing, shouldFailBadValues } = configSetup<IBlockchainConfig>(blockchainConfig);
@@ -91,6 +91,23 @@ describe('Blockchain module config', () => {
 
     it('should get capacity limit', () => {
       expect(JSON.stringify(blockchainConf.capacityLimit)).toStrictEqual(ALL_ENV.CAPACITY_LIMIT!);
+    });
+  });
+
+  describe('addressFromSeedPhrase', () => {
+    it('works with seed URI', async () => {
+      const result = await addressFromSeedPhrase('//Fergie');
+      expect(result).toEqual('5FBmfCcPr6edCK8kets2mQ2P49SmhEYCbVQdoBHaqoAw9GWY');
+    });
+    it('works with a seed phrase', async () => {
+      const result = await addressFromSeedPhrase(
+        'purpose dismiss lens add kid churn example force swear cherry clock brother',
+      );
+      expect(result).toEqual('5DczL3kuzEs5pYnxC3oyoUWA9rGEf5efhnCr8fooupzSVSXx');
+    });
+    it('works with an ethereum private key', async () => {
+      const result = await addressFromSeedPhrase('0xcb5bdff4e20f8a8b11d35628b6a48500967e88e5cdf219cf2136342347716725');
+      expect(result).toEqual('5G1kXkDCutLV95WoeVxGyJFjtJRwirNXwn1s2VVaPn7zogQP');
     });
   });
 });

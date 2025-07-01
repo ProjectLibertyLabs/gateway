@@ -181,7 +181,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return {
       blocknumber: await this.getLatestBlockNumber(),
       finalized_blocknumber: await this.getLatestBlockNumber(true),
-      genesis: (await this.api.rpc.chain.getBlockHash(0)).toHex(),
+      genesis: this.api.genesisHash,
       runtime_version: (await this.api.rpc.state.getRuntimeVersion()).specVersion.toNumber(),
     };
   }

@@ -5,10 +5,11 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
 import { ContentPublishingQueues } from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
+import fs from 'fs';
 
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
@@ -33,46 +34,57 @@ export class HealthCheckService {
     private readonly configService: ConfigService,
     private blockchainService: BlockchainRpcQueryService,
   ) {
+    redis.defineCommand('queueStatus', {
+      numberOfKeys: 0,
+      lua: fs.readFileSync('lua/queueStatus.lua', 'utf8'),
+    });
     this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
-  public async getQueueStatus(queues: Array<QueueName>): Promise<Array<QueueStatusDto>> {
-    this.logger.debug(`Checking status for ${queues.length} queues`);
-    const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
-      queues.map(async (name) => {
-        const queue = this.getQueueByName(name);
-        return {
-          name,
-          status: 'Queue is running',
-          isPaused: await queue.isPaused(),
-        };
-      }),
-    );
-    return statusList.map((result, index) => {
-      if (result.status === 'fulfilled') {
-        return plainToInstance(QueueStatusDto, result.value);
-      }
-      return plainToInstance(QueueStatusDto, {
-        name: queues[index],
-        status: result.reason?.message || 'Unknown error',
-        isPaused: null,
+  public async getRedisStatus(queues: Array<QueueName>): Promise<RedisStatusDto> {
+    const queuePrefixes = queues.map((queueName) => this.QueueNameToKey(queueName)).filter((key) => !!key);
+    if (queuePrefixes.length === 0) {
+      this.logger.warn('No valid queue prefixes found for status check');
+    }
+    try {
+      // @ts-expect-error queueStatus is defined in the constructor
+      const result = await this.redis.queueStatus(queuePrefixes);
+      this.logger.debug('Lua script result:', result as string);
+      const parsed = JSON.parse(result as string);
+      return plainToInstance(RedisStatusDto, {
+        redis_version: parsed.redis_version,
+        used_memory: parsed.used_memory,
+        maxmemory: parsed.maxmemory,
+        uptime_in_seconds: parsed.uptime_in_seconds,
+        connected_clients: parsed.connected_clients,
+        queues: parsed.queues.map((queue: any) => plainToInstance(QueueStatusDto, queue)),
       });
-    });
+    } catch (error) {
+      console.error('Error executing Lua script for queue status:', error);
+      return plainToInstance(RedisStatusDto, {
+        redis_version: null,
+        used_memory: null,
+        maxmemory: null,
+        uptime_in_seconds: null,
+        connected_clients: null,
+        queues: [],
+      });
+    }
   }
 
-  private getQueueByName(queueName: QueueName): Queue {
-    const queuesMap = {
-      [ContentPublishingQueues.ASSET_QUEUE_NAME]: this.assetQueue,
-      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: this.requestQueue,
-      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: this.publishQueue,
-      [ContentPublishingQueues.BATCH_QUEUE_NAME]: this.batchAnnouncerQueue,
+  private QueueNameToKey(queueName: QueueName): string {
+    const keysMap = {
+      [ContentPublishingQueues.ASSET_QUEUE_NAME]: 'bull:assetQueue',
+      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: 'bull:requestQueue',
+      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: 'bull:publishQueue',
+      [ContentPublishingQueues.BATCH_QUEUE_NAME]: 'bull:batchQueue',
     };
 
-    const queue = queuesMap[queueName];
-    if (!queue) {
+    const redisKey = keysMap[queueName];
+    if (!redisKey) {
       this.logger.warn(`Queue not found: ${queueName}`);
     }
-    return queue;
+    return redisKey;
   }
 
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {

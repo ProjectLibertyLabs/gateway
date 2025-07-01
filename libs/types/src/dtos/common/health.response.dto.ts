@@ -4,9 +4,10 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ContentPublishingApiConfigDto } from '../content-publishing';
+import { ContentWatcherApiConfigDto } from '../content-watcher';
 
 // TODO: Expand for other config types
-type ServiceConfigDto = ContentPublishingApiConfigDto;
+type ServiceConfigDto = ContentPublishingApiConfigDto | ContentWatcherApiConfigDto;
 
 export class QueueStatusDto {
   name: string;

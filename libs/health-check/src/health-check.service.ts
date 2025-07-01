@@ -7,7 +7,7 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-import { ContentPublishingQueues } from '#types/constants/queue.constants';
+import { ContentPublishingQueues, ContentWatcherQueues } from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
 import fs from 'fs';
 
@@ -78,6 +78,14 @@ export class HealthCheckService {
       [ContentPublishingQueues.REQUEST_QUEUE_NAME]: 'bull:requestQueue',
       [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: 'bull:publishQueue',
       [ContentPublishingQueues.BATCH_QUEUE_NAME]: 'bull:batchQueue',
+      [ContentWatcherQueues.WATCHER_REQUEST_QUEUE_NAME]: 'bull:watcherRequestQueue',
+      [ContentWatcherQueues.WATCHER_BROADCAST_QUEUE_NAME]: 'bull:watcherBroadcastQueue',
+      [ContentWatcherQueues.WATCHER_REPLY_QUEUE_NAME]: 'bull:watcherReplyQueue',
+      [ContentWatcherQueues.WATCHER_REACTION_QUEUE_NAME]: 'bull:watcherReactionQueue',
+      [ContentWatcherQueues.WATCHER_UPDATE_QUEUE_NAME]: 'bull:watcherUpdateQueue',
+      [ContentWatcherQueues.WATCHER_TOMBSTONE_QUEUE_NAME]: 'bull:watcherTombstoneQueue',
+      [ContentWatcherQueues.WATCHER_PROFILE_QUEUE_NAME]: 'bull:watcherProfileQueue',
+      [ContentWatcherQueues.WATCHER_IPFS_QUEUE]: 'bull:watcherIpfsQueue',
     };
 
     const redisKey = keysMap[queueName];

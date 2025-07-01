@@ -51,6 +51,19 @@ export namespace ContentWatcherQueues {
    */
   export const WATCHER_IPFS_QUEUE = 'watcherContentIpfsQueue';
 
+  export const QUEUE_NAMES = [
+    WATCHER_REQUEST_QUEUE_NAME,
+    WATCHER_BROADCAST_QUEUE_NAME,
+    WATCHER_REPLY_QUEUE_NAME,
+    WATCHER_REACTION_QUEUE_NAME,
+    WATCHER_UPDATE_QUEUE_NAME,
+    WATCHER_TOMBSTONE_QUEUE_NAME,
+    WATCHER_PROFILE_QUEUE_NAME,
+    WATCHER_IPFS_QUEUE,
+  ];
+
+  export type QueueName = (typeof ContentWatcherQueues.QUEUE_NAMES)[number];
+
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     config: {
       defaultJobOptions: {

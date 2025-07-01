@@ -137,7 +137,7 @@ export const getTypesForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string
 // but only sr25519 and ethereum are supported.
 // This assumes an Ethereum key only if provided a hex-based private key.
 export const getKeyPairTypeForKeyUriOrPrivateKey = (providerKeyUriOrPrivateKey: string): KeypairType => {
-  if (providerKeyUriOrPrivateKey.match(/^0x.+/i)) return 'ethereum';
+  if (providerKeyUriOrPrivateKey.startsWith('0x')) return 'ethereum';
   if (providerKeyUriOrPrivateKey.split(' ').length > 1) return 'sr25519';
   if (providerKeyUriOrPrivateKey.match(/^\/\/\w+/)) return 'sr25519';
   throw new Error('unsupported seed or uri or key type');
@@ -149,4 +149,14 @@ export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivate
     return getKeyringPairFromSecp256k1PrivateKey(hexToU8a(providerSeedUriOrPrivateKey));
   }
   return new Keyring({ type: keyType }).createFromUri(providerSeedUriOrPrivateKey);
+};
+
+export const getTypedSignatureForPayload = (address: string, signature: string) => {
+  const keyType = getKeyPairTypeForKeyUriOrPrivateKey(address);
+  if (keyType === 'sr25519') {
+    return { Sr25519: signature };
+  }
+  return {
+    Ecdsa: signature,
+  };
 };

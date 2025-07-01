@@ -9,6 +9,7 @@ import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 import { TransactionType } from '#types/account-webhook';
 
+// TODO: adjust newPublicKey for Ethereum keys
 export class KeysRequestPayloadDto {
   /**
    * MSA Id of the user requesting the new key
@@ -28,10 +29,13 @@ export class KeysRequestPayloadDto {
    * newPublicKey in hex format
    * @example '0x0ed2f8c714efcac51ca2325cfe95637e5e0b898ae397aa365978b7348a717d0b'
    */
-  @IsHexValue({ minLength: 64, maxLength: 64 })
+  @IsHexValue({ minLength: 32, maxLength: 64 })
   newPublicKey: string;
 }
 
+export class EthereumRequestPayloadDto {}
+
+// TODO: ideally the signatures should have the type, should be an object w/ the type
 export class KeysRequestDto {
   /**
    * msaOwnerAddress representing the target of this request

@@ -4,9 +4,14 @@ import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
-import { verifySignature } from '#utils/common/signature.util';
+import { getKeyPairTypeForKeyUriOrPrivateKey, verifySignature } from '#utils/common/signature.util';
 import { pino, Logger } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import {
+  createClaimHandlePayload as createEthereumClaimHandlePayload,
+  verifySignature as verifyEthereumSignature,
+} from '@frequency-chain/ethereum-utils';
+import { HexString } from '@polkadot/util/types';
 
 @Injectable()
 export class HandlesService {
@@ -35,7 +40,21 @@ export class HandlesService {
   }
 
   verifyHandleRequestSignature(request: HandleRequestDto): boolean {
-    const encodedPayload = u8aToHex(u8aWrapBytes(this.encodePayload(request.payload).toU8a()));
-    return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
+    const keyType = getKeyPairTypeForKeyUriOrPrivateKey(request.accountId);
+    if (keyType === 'sr25519') {
+      const encodedPayload = u8aToHex(u8aWrapBytes(this.encodePayload(request.payload).toU8a()));
+      return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
+    }
+    if (!(keyType === 'ethereum')) {
+      this.logger.error(`Unsupported key type: ${keyType}`);
+      return false;
+    }
+    const ethereumPayload = createEthereumClaimHandlePayload(request.payload.baseHandle, request.payload.expiration);
+    return verifyEthereumSignature(
+      request.accountId as HexString,
+      request.proof,
+      ethereumPayload,
+      this.blockchainService.chainType,
+    );
   }
 }

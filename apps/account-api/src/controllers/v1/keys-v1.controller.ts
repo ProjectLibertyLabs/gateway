@@ -48,7 +48,7 @@ export class KeysControllerV1 {
    * @throws An error if no public keys can be found.
    */
   async addKey(@Body() addKeysRequest: KeysRequestDto): Promise<TransactionResponse> {
-    if (!this.keysService.verifyAddKeySignature(addKeysRequest)) {
+    if (!this.keysService.verifyAddKeySignatures(addKeysRequest)) {
       throw new BadRequestException('Provided signature is not valid for the payload!');
     }
     const response = await this.enqueueService.enqueueRequest<AddKeyRequestDto>({

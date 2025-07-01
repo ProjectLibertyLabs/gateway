@@ -4,10 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { CurveType, decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import base64url from 'base64url';
 import { SiwfV2Service } from './siwfV2.service';
-import { IAccountApiConfig } from '#account-api/api.config';
-import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import {
   validSiwfAddDelegationResponsePayload,
@@ -18,6 +15,7 @@ import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { ApiPromise } from '@polkadot/api';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { createPinoLoggerProvider } from '#testlib/mockPinoLogger';
+import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#testlib/configProviders.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -35,30 +33,6 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
-const buildBlockchainConfigProvider = (signerType: CurveType): any => {
-  const providerKeyUriOrPrivateKey =
-    signerType === 'Sr25519' ? '//Alice' : '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
-  return GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
-    capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
-    providerId: 1n,
-    providerKeyUriOrPrivateKey,
-    frequencyApiWsUrl: new URL('ws://localhost:9944'),
-    frequencyTimeoutSecs: 10,
-    isDeployedReadOnly: false,
-  });
-};
-
-const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfig>('account-api', {
-  apiBodyJsonLimit: '',
-  apiPort: 0,
-  apiTimeoutMs: 0,
-  siwfNodeRpcUrl: new URL('http://127.0.0.1:9944'),
-  graphEnvironmentType: 0,
-  siwfUrl: '',
-  siwfV2Url: 'https://www.example.com/siwf',
-  siwfV2URIValidation: ['localhost'],
-});
-
 const exampleCallback = 'https://www.example.com/callback';
 const examplePermissions = [1, 3, 5, 7, 9];
 const exampleCredentials = [
@@ -73,7 +47,7 @@ describe('SiwfV2Service', () => {
   let enqueueService: EnqueueService;
 
   ['Sr25519', 'Secp256k1'].forEach((providerType) => {
-    const mockBlockchainConfigProvider = buildBlockchainConfigProvider(providerType);
+    const mockBlockchainConfigProvider = buildBlockchainConfigProvider(providerType as CurveType);
     describe(`for ${providerType}`, () => {
       beforeAll(async () => {
         const module: TestingModule = await Test.createTestingModule({

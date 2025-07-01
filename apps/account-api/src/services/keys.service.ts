@@ -158,7 +158,7 @@ export class KeysService {
       );
       return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
     }
-
+    // create a payload that Ethereum verify can use
     const actions: ItemizedAction[] = request.payload.actions.map((action: ItemActionDto) => {
       if (action.type === ItemActionType.ADD_ITEM) {
         return createItemizedAddAction(action.encodedPayload as HexString);

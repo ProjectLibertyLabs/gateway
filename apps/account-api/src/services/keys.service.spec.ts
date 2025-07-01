@@ -8,6 +8,7 @@ import {
 } from '#types/dtos/account';
 import {
   AddItemizedAction,
+  DeleteItemizedAction,
   createAddKeyData,
   createItemizedSignaturePayloadV2,
   getUnifiedPublicKey,
@@ -29,11 +30,18 @@ jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
   '#account-lib/services/enqueue-request.service',
 );
 
+// modified from ethereum-utils testing utilities
 const createItemizedAddAction = (data: HexString | Uint8Array): AddItemizedAction => {
   const parsedData: HexString = typeof data === 'object' ? u8aToHex(data) : data;
   expect(isHexStr(parsedData)).toBeTruthy();
   return { actionType: 'Add', data, index: 0 } as AddItemizedAction;
 };
+
+// modified from ethereum-utils testing utilities
+export function createItemizedDeleteAction(index: number): DeleteItemizedAction {
+  expect(index).toBeLessThan(2 ** 16);
+  return { actionType: 'Delete', data: '0x', index };
+}
 
 describe('KeysService', () => {
   let keysService: KeysService;
@@ -97,15 +105,21 @@ describe('KeysService', () => {
         type: ItemActionType.ADD_ITEM,
       };
 
-      const addItemActionsData = createItemizedSignaturePayloadV2(64, 92187389, 199, [addItem]);
-      const addItemActionsPayload: ItemizedSignaturePayloadDto = {
-        schemaId: addItemActionsData.schemaId,
-        targetHash: addItemActionsData.targetHash,
-        expiration: addItemActionsData.expiration,
-        actions: [addItemDto],
+      const deleteItem = createItemizedDeleteAction(1);
+      const deleteItemDto: ItemActionDto = {
+        ...deleteItem,
+        type: ItemActionType.DELETE_ITEM,
       };
 
-      const ethereumSignature = await signEthereum(u8aToHex(keypair.secretKey), addItemActionsData, 'Dev');
+      const itemActionsData = createItemizedSignaturePayloadV2(64, 92187389, 199, [addItem, deleteItem]);
+      const addItemActionsPayload: ItemizedSignaturePayloadDto = {
+        schemaId: itemActionsData.schemaId,
+        targetHash: itemActionsData.targetHash,
+        expiration: itemActionsData.expiration,
+        actions: [addItemDto, deleteItemDto],
+      };
+
+      const ethereumSignature = await signEthereum(u8aToHex(keypair.secretKey), itemActionsData, 'Dev');
 
       const payload: AddNewPublicKeyAgreementRequestDto = {
         accountId: ethAddr,

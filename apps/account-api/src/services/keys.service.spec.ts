@@ -93,6 +93,7 @@ describe('KeysService', () => {
       const addItem = createItemizedAddAction('0x4444');
       const addItemDto: ItemActionDto = {
         ...addItem,
+        encodedPayload: addItem.data,
         type: ItemActionType.ADD_ITEM,
       };
 

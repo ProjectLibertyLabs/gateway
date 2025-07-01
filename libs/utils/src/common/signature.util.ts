@@ -164,14 +164,15 @@ export const getTypedSignatureForPayload = (address: string, signature: string) 
 
 export const getKeypairTypeFromRequestAddress = (address: string) => {
   let convertedAddress: HexString = '0x0';
+  const numBytes = 0;
   if (!isHexStr(address)) {
     const keyring = new Keyring();
     convertedAddress = u8aToHex(keyring.decodeAddress(address));
   } else {
     convertedAddress = address as HexString;
   }
-  if (hexToU8a(convertedAddress).length === 20) return 'ethereum';
-  if (hexToU8a(convertedAddress).length === 32 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
+  if (convertedAddress.length - 2 === 40) return 'ethereum';
+  if (convertedAddress.length - 2 === 64 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
     return 'ethereum';
   }
   return 'sr25519';

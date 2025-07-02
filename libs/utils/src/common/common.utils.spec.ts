@@ -1,6 +1,10 @@
 import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
 import { Readable } from 'stream';
-import { getKeypairTypeForProviderKey, getKeypairTypeFromRequestAddress } from '#utils/common/signature.util';
+import {
+  getKeypairTypeForProviderKey,
+  getKeypairTypeFromRequestAddress,
+  getUnifiedAddressFromAddress,
+} from '#utils/common/signature.util';
 import { createKeys } from '#testlib/keys.spec';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
@@ -54,5 +58,15 @@ describe('common utils Tests', () => {
     testCases.forEach((testCase) =>
       expect(getKeypairTypeFromRequestAddress(testCase.input)).toEqual(testCase.expected),
     );
+  });
+
+  it('getUnifiedAddressFromAddress works', async () => {
+    const ethAddr = '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac';
+    const ss58UnifiedEthAddr = '5HYRCKHYJN9z5xUtfFkyMj4JUhsAwWyvuU8vKB1FcnYTf9ZQ';
+    expect(getUnifiedAddressFromAddress(ethAddr)).toEqual(ss58UnifiedEthAddr);
+
+    const unifiedAthAddr = ethAddr + 'ee'.repeat(12);
+    expect(getUnifiedAddressFromAddress(unifiedAthAddr)).toEqual(unifiedAthAddr);
+    expect(getUnifiedAddressFromAddress(ss58UnifiedEthAddr)).toEqual(ss58UnifiedEthAddr);
   });
 });

@@ -5,7 +5,10 @@ import { signatureVerify } from '@polkadot/util-crypto';
 import { CurveType, EncodingType, FormatType, isHexStr } from '@projectlibertylabs/siwfv2';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { getKeyringPairFromSecp256k1PrivateKey } from '@frequency-chain/ethereum-utils';
+import {
+  getKeyringPairFromSecp256k1PrivateKey,
+  getSS58AccountFromEthereumAccount,
+} from '@frequency-chain/ethereum-utils';
 import Keyring from '@polkadot/keyring';
 import { HexString } from '@polkadot/util/types';
 
@@ -152,27 +155,52 @@ export const getKeyringPairFromSeedOrUriOrPrivateKey = (providerSeedUriOrPrivate
   return new Keyring({ type: keyType }).createFromUri(providerSeedUriOrPrivateKey);
 };
 
-export const getTypedSignatureForPayload = (address: string, signature: string) => {
-  const keyType = getKeypairTypeForProviderKey(address);
-  if (keyType === 'sr25519') {
-    return { Sr25519: signature };
-  }
-  return {
-    Ecdsa: signature,
-  };
-};
-
-export const getKeypairTypeFromRequestAddress = (address: string) => {
+const getKeypairTypeAndFormatFromAddress = (
+  address: string,
+): {
+  keypairType: string;
+  isUnified: boolean;
+} => {
   let convertedAddress: HexString = '0x0';
+  let keypairType = '';
+  let isUnified = false;
+
   if (!isHexStr(address)) {
     const keyring = new Keyring();
     convertedAddress = u8aToHex(keyring.decodeAddress(address));
   } else {
     convertedAddress = address as HexString;
   }
-  if (convertedAddress.length - 2 === 40) return 'ethereum';
-  if (convertedAddress.length - 2 === 64 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
-    return 'ethereum';
+
+  if (convertedAddress.length - 2 === 40) {
+    keypairType = 'ethereum';
+  } else if (convertedAddress.length - 2 === 64 && convertedAddress.toLowerCase().endsWith('ee'.repeat(12))) {
+    isUnified = true;
+    keypairType = 'ethereum';
+  } else {
+    keypairType = 'sr25519';
   }
-  return 'sr25519';
+  return { keypairType, isUnified };
+};
+
+// convert to ss58 unified address format if it's not a unified ethereum address.
+export const getUnifiedAddressFromAddress = (address: string) => {
+  const { keypairType, isUnified } = getKeypairTypeAndFormatFromAddress(address);
+  if (keypairType === 'ethereum' && !isUnified) {
+    return getSS58AccountFromEthereumAccount(address);
+  }
+  return address;
+};
+
+export const getKeypairTypeFromRequestAddress = (address: string) =>
+  getKeypairTypeAndFormatFromAddress(address).keypairType;
+
+export const getTypedSignatureForPayload = (address: string, signature: string) => {
+  const keyType = getKeypairTypeFromRequestAddress(address);
+  if (keyType === 'sr25519') {
+    return { Sr25519: signature };
+  }
+  return {
+    Ecdsa: signature,
+  };
 };

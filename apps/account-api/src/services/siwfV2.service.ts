@@ -27,7 +27,12 @@ import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.re
 import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
-import { chainSignature, getTypesForKeyUriOrPrivateKey, statefulStoragePayload } from '#utils/common/signature.util';
+import {
+  chainSignature,
+  getTypesForKeyUriOrPrivateKey,
+  getUnifiedAddressFromAddress,
+  statefulStoragePayload,
+} from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
@@ -142,7 +147,7 @@ export class SiwfV2Service {
         });
         this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
       } catch (e) {
-        this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
+        this.logger.warn(`Failed to parse "authorizationPayload" ${e.toString()}`);
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
       }
     } else if (request.authorizationCode) {
@@ -157,7 +162,7 @@ export class SiwfV2Service {
           `Retrieved payload from SIWFv2 for authorizationCode '${request.authorizationCode}' (${payload.userPublicKey.encodedValue})`,
         );
       } catch (e) {
-        this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e.toString() });
+        this.logger.error(e, 'Failed to retrieve valid payload from "authorizationCode"');
         throw new BadRequestException('Invalid response from `authorizationCode` payload fetch.');
       }
     } else {
@@ -193,7 +198,9 @@ export class SiwfV2Service {
     this.logger.debug('Generating login response');
     const response = new WalletV2LoginResponseDto();
 
-    response.controlKey = payload.userPublicKey.encodedValue;
+    response.controlKey = getUnifiedAddressFromAddress(payload.userPublicKey.encodedValue);
+
+    this.logger.trace(`controlKey = ${response.controlKey} .... response: `);
 
     // Get the MSA Id from the chain, if it exists
     const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);

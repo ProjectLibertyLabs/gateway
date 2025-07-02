@@ -19,6 +19,7 @@ import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#te
 import {
   validEthereumSiwfAddDelegationResponsePayload,
   validEthereumSiwfLoginResponsePayload,
+  validEthereumSiwfNewUserResponse,
 } from '#account-api/services/siwfV2-ethereum.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
@@ -189,8 +190,8 @@ describe('SiwfV2Service', () => {
           .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
           .mockReturnValue(['testnet.frequencyaccess.com']);
         const payloads = [
-          // validEthereumSiwfNewUserResponse,
-          // validEthereumSiwfAddDelegationResponsePayload,
+          validEthereumSiwfNewUserResponse,
+          validEthereumSiwfAddDelegationResponsePayload,
           validEthereumSiwfLoginResponsePayload,
         ];
         await Promise.all(

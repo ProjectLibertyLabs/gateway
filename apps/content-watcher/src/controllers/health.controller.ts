@@ -21,7 +21,7 @@ export class HealthController {
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
     const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig('content-publishing-api'),
+      this.healthCheckService.getServiceConfig('content-watcher-api'),
       this.healthCheckService.getRedisStatus(QueueConstants.QUEUE_NAMES),
       this.healthCheckService.getBlockchainStatus(),
     ]);

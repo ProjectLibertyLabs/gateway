@@ -6,8 +6,10 @@ import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+import { IAccountApiConfig } from '#types/interfaces/account/api-config.interface';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-import { ContentPublishingQueues, ContentWatcherQueues } from '#types/constants/queue.constants';
+import { IContentWatcherApiConfig } from '#types/interfaces/content-watcher/api-config.interface';
+import { AccountQueues, ContentPublishingQueues, ContentWatcherQueues } from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
 import fs from 'fs';
 
@@ -15,11 +17,17 @@ import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
 // TODO: Expand types to include all relevant queue names
-type QueueName = ContentPublishingQueues.QueueName;
+type QueueName = AccountQueues.QueueName | ContentPublishingQueues.QueueName | ContentWatcherQueues.QueueName;
 
-type ConfigTypeName = 'content-publishing-api';
+type ConfigTypeName = 'account-api' | 'content-publishing-api' | 'content-watcher-api';
 
-type ConfigType<T> = T extends ConfigTypeName ? IContentPublishingApiConfig : never;
+type ServiceConfigMap = {
+  'account-api': IAccountApiConfig;
+  'content-publishing-api': IContentPublishingApiConfig;
+  'content-watcher-api': IContentWatcherApiConfig;
+};
+
+type ConfigType<T> = T extends ConfigTypeName ? ServiceConfigMap[T] : never;
 
 @Injectable()
 export class HealthCheckService {
@@ -74,6 +82,7 @@ export class HealthCheckService {
 
   private QueueNameToKey(queueName: QueueName): string {
     const keysMap = {
+      [AccountQueues.TRANSACTION_PUBLISH_QUEUE]: 'bull:accountTransactionPublishQueue',
       [ContentPublishingQueues.ASSET_QUEUE_NAME]: 'bull:assetQueue',
       [ContentPublishingQueues.REQUEST_QUEUE_NAME]: 'bull:requestQueue',
       [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: 'bull:publishQueue',
@@ -125,7 +134,7 @@ export class HealthCheckService {
     }
   }
 
-  public getServiceConfig(serviceName: string): IContentPublishingApiConfig {
+  public getServiceConfig(serviceName: string): ConfigType<typeof serviceName> {
     return this.configService.get<ConfigType<typeof serviceName>>(serviceName);
   }
 }

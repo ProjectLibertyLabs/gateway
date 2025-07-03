@@ -16,6 +16,8 @@ export namespace AccountQueues {
    */
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
 
+  export type QueueName = typeof TRANSACTION_PUBLISH_QUEUE;
+
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     queues: [
       {

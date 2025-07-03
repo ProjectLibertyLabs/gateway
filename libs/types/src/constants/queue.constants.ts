@@ -64,7 +64,7 @@ export namespace ContentWatcherQueues {
     WATCHER_IPFS_QUEUE,
   ];
 
-  export type QueueName = (typeof ContentWatcherQueues.QUEUE_NAMES)[number];
+  export type QueueName = (typeof QUEUE_NAMES)[number];
 
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     config: {
@@ -153,7 +153,7 @@ export namespace ContentPublishingQueues {
     STATUS_QUEUE_NAME,
   ];
 
-  export type QueueName = (typeof ContentPublishingQueues.QUEUE_NAMES)[number];
+  export type QueueName = (typeof QUEUE_NAMES)[number];
 
   /**
    * Map between queue name and its announcement type
@@ -237,6 +237,10 @@ export namespace GraphQueues {
    * Name of the queue that publishes graph changes to Frequency blockchain
    */
   export const GRAPH_CHANGE_PUBLISH_QUEUE = 'graphChangePublish';
+
+  export const QUEUE_NAMES = [RECONNECT_REQUEST_QUEUE, GRAPH_CHANGE_REQUEST_QUEUE, GRAPH_CHANGE_PUBLISH_QUEUE];
+
+  export type QueueName = (typeof QUEUE_NAMES)[number];
 
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     queues: [

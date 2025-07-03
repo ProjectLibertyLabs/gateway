@@ -9,22 +9,33 @@ import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader 
 import { IAccountApiConfig } from '#types/interfaces/account/api-config.interface';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
 import { IContentWatcherApiConfig } from '#types/interfaces/content-watcher/api-config.interface';
-import { AccountQueues, ContentPublishingQueues, ContentWatcherQueues } from '#types/constants/queue.constants';
+import { IGraphApiConfig } from '#graph-api/api.config';
+
+import {
+  AccountQueues,
+  ContentPublishingQueues,
+  ContentWatcherQueues,
+  GraphQueues,
+} from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
 import fs from 'fs';
 
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
-// TODO: Expand types to include all relevant queue names
-type QueueName = AccountQueues.QueueName | ContentPublishingQueues.QueueName | ContentWatcherQueues.QueueName;
+type QueueName =
+  | AccountQueues.QueueName
+  | ContentPublishingQueues.QueueName
+  | ContentWatcherQueues.QueueName
+  | GraphQueues.QueueName;
 
-type ConfigTypeName = 'account-api' | 'content-publishing-api' | 'content-watcher-api';
+type ConfigTypeName = 'account-api' | 'content-publishing-api' | 'content-watcher-api' | 'graph-api';
 
 type ServiceConfigMap = {
   'account-api': IAccountApiConfig;
   'content-publishing-api': IContentPublishingApiConfig;
   'content-watcher-api': IContentWatcherApiConfig;
+  'graph-api': IGraphApiConfig;
 };
 
 type ConfigType<T> = T extends ConfigTypeName ? ServiceConfigMap[T] : never;
@@ -95,6 +106,9 @@ export class HealthCheckService {
       [ContentWatcherQueues.WATCHER_TOMBSTONE_QUEUE_NAME]: 'bull:watcherTombstoneQueue',
       [ContentWatcherQueues.WATCHER_PROFILE_QUEUE_NAME]: 'bull:watcherProfileQueue',
       [ContentWatcherQueues.WATCHER_IPFS_QUEUE]: 'bull:watcherIpfsQueue',
+      [GraphQueues.RECONNECT_REQUEST_QUEUE]: 'bull:reconnectRequestQueue',
+      [GraphQueues.GRAPH_CHANGE_REQUEST_QUEUE]: 'bull:graphChangeRequestQueue',
+      [GraphQueues.GRAPH_CHANGE_PUBLISH_QUEUE]: 'bull:graphChangePublishQueue',
     };
 
     const redisKey = keysMap[queueName];
@@ -105,6 +119,13 @@ export class HealthCheckService {
   }
 
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
+    console.log(`Fetching blockchain status...`, {
+      test: process.env.FREQUENCY_API_WS_URL || process.env.SIWF_NODE_RPC_URL,
+      network: this.configService.get<string>('blockchain.providerRpcUrl'),
+      nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),
+      nodeName: this.configService.get<string>('blockchain.nodeName'),
+      latestBlockHeader: await this.getLatestBlockHeader(),
+    });
     return plainToInstance(BlockchainStatusDto, {
       network: this.configService.get<string>('blockchain.providerRpcUrl'),
       nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),

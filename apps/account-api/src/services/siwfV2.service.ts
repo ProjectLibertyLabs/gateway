@@ -261,6 +261,7 @@ export class SiwfV2Service {
         encodingType,
         formatType,
         keyType,
+        this.blockchainService.chainType,
         providerKeyUriOrPrivateKey,
         callbackUrl,
         permissions,

@@ -1,28 +1,27 @@
 import type { SiwfResponse } from '@projectlibertylabs/siwfv2';
 import { createServer, Server, IncomingMessage, ServerResponse } from 'node:http';
-import { validEthereumSiwfLoginResponsePayload } from '#account-api/services/siwfV2-ethereum.mock.spec';
 import { URL } from 'node:url';
 
 // Mock Server Authorization Codes:
-// validSiwfAddDelegationResponsePayload
-// validSiwfLoginResponsePayload
-// validSiwfNewUserResponse
+// validEthereumSiwfAddDelegationResponsePayload
+// validEtehreumSiwfLoginResponsePayload
+// validEthereumSiwfNewUserResponse
 // Anything else? 404
 
-export const validSiwfAddDelegationResponsePayload: SiwfResponse = {
+export const validEthereumSiwfAddDelegationResponsePayload: SiwfResponse = {
   userPublicKey: {
-    encodedValue: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
-    encoding: 'base58',
-    format: 'ss58',
-    type: 'Sr25519',
+    encodedValue: '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac',
+    encoding: 'base16',
+    format: 'eip-55',
+    type: 'Secp256k1',
   },
   payloads: [
     {
       signature: {
-        algo: 'SR25519',
+        algo: 'SECP256K1',
         encoding: 'base16',
         encodedValue:
-          '0xbac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e',
+          '0xb3e41e53373649d089455965791c47f695f519eb21bd322febf04bd05f2b50b72c395c4490ac6cd0d108d0a77f625aea8b1f0096befc359936669d620f5aad7e1c',
       },
       endpoint: {
         pallet: 'msa',
@@ -110,25 +109,25 @@ export const validSiwfAddDelegationResponsePayload: SiwfResponse = {
   ],
 };
 
-export const validSiwfLoginResponsePayload: SiwfResponse = {
+export const validEthereumSiwfLoginResponsePayload = {
   userPublicKey: {
-    encodedValue: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
-    encoding: 'base58',
-    format: 'ss58',
-    type: 'Sr25519',
+    encodedValue: '0xf24ff3a9cf04c71dbc94d0b566f7a27b94566cac',
+    encoding: 'base16',
+    format: 'eip-55',
+    type: 'Secp256k1',
   },
   payloads: [
     {
       signature: {
-        algo: 'SR25519',
+        algo: 'SECP256K1',
         encoding: 'base16',
         encodedValue:
-          '0x84a4e03344b07d64087ebdf47b2c8c679aa7de78179689988992609f1b83c34f6086c7de99ef41c5325cce64d148624e716c605d355f22d1281f6d23f546f584',
+          '0xd6b4aa1d6e9ef99086d993ff5b45af15003758911b97636d81d134d5e36f6d8277bfbd687d72ca6daf8aea7d11b0ccd4eef9708ab1ee4b843b272be23937d0321b',
       },
       type: 'login',
       payload: {
         message:
-          'localhost wants you to sign in with your Frequency account:\nf6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ\n\n\n\nURI: https://testnet.frequencyaccess.com/signin/confirm\nNonce: N6rLwqyz34oUxJEXJ\nIssued At: 2024-03-05T23:18:03.041Z\nExpiration Time: 2060-03-05T23:23:03.041Z',
+          'localhost wants you to sign in with your Frequency account:\n0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac\n\n\n\nURI: https://testnet.frequencyaccess.com/signin/confirm\nNonce: N6rLwqyz34oUxJEXJ\nIssued At: 2024-03-05T23:18:03.041Z\nExpiration Time: 2060-03-05T23:23:03.041Z',
       },
     },
   ],
@@ -184,20 +183,21 @@ export const validSiwfLoginResponsePayload: SiwfResponse = {
   ],
 };
 
-export const validSiwfNewUserResponse: SiwfResponse = {
+// From siwf/docs/Src/DataStructures/Secp256k1
+export const validEthereumSiwfNewUserResponse: SiwfResponse = {
   userPublicKey: {
-    encodedValue: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
-    encoding: 'base58',
-    format: 'ss58',
-    type: 'Sr25519',
+    encodedValue: '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac',
+    encoding: 'base16',
+    format: 'eip-55',
+    type: 'Secp256k1',
   },
   payloads: [
     {
       signature: {
-        algo: 'SR25519',
+        algo: 'SECP256K1',
         encoding: 'base16',
         encodedValue:
-          '0x1a27cb6d79b508e1ffc8d6ae70af78d5b3561cdc426124a06f230d7ce70e757e1947dd1bac8f9e817c30676a5fa6b06510bae1201b698b044ff0660c60f18c8a',
+          '0xb3e41e53373649d089455965791c47f695f519eb21bd322febf04bd05f2b50b72c395c4490ac6cd0d108d0a77f625aea8b1f0096befc359936669d620f5aad7e1c',
       },
       endpoint: {
         pallet: 'msa',
@@ -212,10 +212,10 @@ export const validSiwfNewUserResponse: SiwfResponse = {
     },
     {
       signature: {
-        algo: 'SR25519',
+        algo: 'SECP256K1',
         encoding: 'base16',
         encodedValue:
-          '0x9eb338773b386ded2e3731ba68ba734c80408b3ad24f92ed3c60342d374a32293851fa8e41d722c72a5a4e765a9e401c68570a8c666ab678e4e5d94aa6825d85',
+          '0xfd1d273752f6494cf64bc7091b37fce35f1bdd861b676c7f5ee392675453764f2e322797b6a5f676e6716738c5ba8fabe82de83dbe5bf9d9e771ef717ff036241c',
       },
       endpoint: {
         pallet: 'statefulStorage',
@@ -236,10 +236,10 @@ export const validSiwfNewUserResponse: SiwfResponse = {
     },
     {
       signature: {
-        algo: 'SR25519',
+        algo: 'SECP256K1',
         encoding: 'base16',
         encodedValue:
-          '0xb004140fd8ba3395cf5fcef49df8765d90023c293fde4eaf2e932cc24f74fc51b006c0bebcf31d85565648b4881fa22115e0051a3bdb95ab5bf7f37ac66f798f',
+          '0xeaa194e6f0074d777633522370fc0f74b200d933e1f1219bc8379ace1fb42759463e7b71d796abf839f2c1f78ecd0af4872010300afac4fbdb44d584c4686e041b',
       },
       endpoint: {
         pallet: 'handles',
@@ -305,10 +305,9 @@ export const validSiwfNewUserResponse: SiwfResponse = {
 };
 
 const responseMap = new Map([
-  ['validSiwfAddDelegationResponsePayload', validSiwfAddDelegationResponsePayload],
-  ['validSiwfLoginResponsePayload', validSiwfLoginResponsePayload],
-  ['validSiwfNewUserResponse', validSiwfNewUserResponse],
+  ['validEthereumSiwfAddDelegationResponsePayload', validEthereumSiwfAddDelegationResponsePayload],
   ['validEthereumSiwfLoginResponsePayload', validEthereumSiwfLoginResponsePayload],
+  ['validEthereumSiwfNewUserResponse', validEthereumSiwfNewUserResponse],
 ]);
 
 export function createMockSiwfServer(port: number): Server {

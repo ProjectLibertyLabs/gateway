@@ -16,6 +16,11 @@ import { ApiPromise } from '@polkadot/api';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { createPinoLoggerProvider } from '#testlib/mockPinoLogger';
 import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#testlib/configProviders.mock.spec';
+import {
+  validEthereumSiwfAddDelegationResponsePayload,
+  validEthereumSiwfLoginResponsePayload,
+  validEthereumSiwfNewUserResponse,
+} from '#account-api/services/siwfV2-ethereum.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -30,6 +35,7 @@ jest.mock('@polkadot/api', () => {
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
+    Keyring: originalModule.Keyring,
   };
 });
 
@@ -131,6 +137,23 @@ describe('SiwfV2Service', () => {
     });
 
     describe('getPayload', () => {
+      beforeAll(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+          imports: [],
+          providers: [
+            SiwfV2Service,
+            BlockchainRpcQueryService,
+            mockAccountApiConfigProvider,
+            mockBlockchainConfigProvider,
+            EnqueueService,
+            createPinoLoggerProvider('PinoLogger:SiwfV2Service'),
+          ],
+        }).compile();
+
+        siwfV2Service = module.get<SiwfV2Service>(SiwfV2Service);
+        blockchainService = module.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+        enqueueService = module.get<EnqueueService>(EnqueueService);
+      });
       afterEach(() => {
         jest.clearAllMocks();
       });
@@ -160,6 +183,28 @@ describe('SiwfV2Service', () => {
 
         expect(result).toBeDefined();
         expect(result).toHaveProperty('payloads');
+      });
+
+      it('can parse and validate authorizedPayloads with Ethereum keys', async () => {
+        // the domain doesn't match in the example mock; just fake it for the purposes of this test.
+        jest
+          .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
+          .mockReturnValue(['testnet.frequencyaccess.com']);
+        const payloads = [
+          validEthereumSiwfNewUserResponse,
+          validEthereumSiwfAddDelegationResponsePayload,
+          validEthereumSiwfLoginResponsePayload,
+        ];
+        await Promise.all(
+          payloads.map(async (payload) => {
+            console.log(payload);
+            const result = await siwfV2Service.getPayload({
+              authorizationPayload: base64url(JSON.stringify(payload)),
+            });
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('payloads');
+          }),
+        );
       });
 
       it('Should throw BadRequest if there is no authorizationPayload or authorizationCode', async () => {
@@ -208,6 +253,17 @@ describe('SiwfV2Service', () => {
         ).rejects.toThrow(BadRequestException);
       });
 
+      it('Should throw BadRequest if the payload is for a different domain (Ethereum)', async () => {
+        jest
+          .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
+          .mockReturnValue(['bad.example.com']);
+        await expect(
+          siwfV2Service.getPayload({
+            authorizationPayload: base64url(JSON.stringify(validEthereumSiwfLoginResponsePayload)),
+          }),
+        ).rejects.toThrow(BadRequestException);
+      });
+
       it('Should throw BadRequest if the response is for a different domain', async () => {
         jest
           .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
@@ -229,6 +285,7 @@ describe('SiwfV2Service', () => {
       });
 
       it('Should throw BadRequest if the payload is for a different provider id', async () => {
+        // @ts-ignore
         jest.spyOn(mockBlockchainConfigProvider.useValue, 'providerId', 'get').mockReturnValue(BigInt(2222));
         await expect(
           siwfV2Service.getPayload({
@@ -239,50 +296,56 @@ describe('SiwfV2Service', () => {
     });
 
     describe('getSiwfV2LoginResponse', () => {
-      it('Should parse the control key', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
+      const email = 'john.doe@example.com';
+      const phone = '+01-234-867-5309';
+      const graphKeyPublic = '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17';
+      const graphKeyPrivate = '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87';
 
-        expect(result).toBeDefined();
-        expect(result.controlKey).toEqual('f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ');
-      });
+      const testCases = [
+        {
+          name: 'ethereum',
+          controlKey: '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac',
+          resultControlKey: '5HYRCKHYJN9z5xUtfFkyMj4JUhsAwWyvuU8vKB1FcnYTf9ZQ',
+          payload: validEthereumSiwfAddDelegationResponsePayload,
+        },
+        {
+          name: 'sr25519',
+          controlKey: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+          resultControlKey: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+          payload: validSiwfAddDelegationResponsePayload,
+        },
+      ];
 
-      it('Should parse the email', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.email).toEqual('john.doe@example.com');
-      });
-
-      it('Should parse the phone number', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.phoneNumber).toEqual('+01-234-867-5309');
-      });
-
-      it('Should parse the graph key', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.graphKey).toBeDefined();
-        expect(result.graphKey.encodedPrivateKeyValue).toEqual(
-          '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87',
-        );
-        expect(result.graphKey.encodedPublicKeyValue).toEqual(
-          '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17',
-        );
-      });
-
-      it('Should parse MSA Id', async () => {
-        jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
-
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.msaId).toEqual('123456');
-        expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
-          'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
-        );
+      testCases.forEach(async (tc) => {
+        describe(`for ${tc.name}`, () => {
+          let result;
+          beforeAll(async () => {
+            jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
+            result = await siwfV2Service.getSiwfV2LoginResponse(tc.payload);
+            expect(result).toBeDefined();
+          });
+          it('Should parse the control key', async () => {
+            expect(result.controlKey).toEqual(tc.resultControlKey);
+          });
+          it('Should parse the email', async () => {
+            expect(result.email).toEqual(email);
+          });
+          it('Should parse the phone number', async () => {
+            expect(result.phoneNumber).toEqual(phone);
+          });
+          it('Should parse the graph key', async () => {
+            expect(result.graphKey).toBeDefined();
+            expect(result.graphKey.encodedPrivateKeyValue).toEqual(graphKeyPrivate);
+            expect(result.graphKey.encodedPublicKeyValue).toEqual(graphKeyPublic);
+          });
+          it('Should parse MSA Id', async () => {
+            expect(result.msaId).toEqual('123456');
+            expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(tc.resultControlKey);
+          });
+          it('Should copy the credentials', async () => {
+            expect(result.rawCredentials).toHaveLength(3);
+          });
+        });
       });
 
       it('Should NOT return an MSA Id if there is none', async () => {
@@ -294,13 +357,6 @@ describe('SiwfV2Service', () => {
         expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
           'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
         );
-      });
-
-      it('Should copy the credentials', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.rawCredentials).toHaveLength(3);
       });
     });
 

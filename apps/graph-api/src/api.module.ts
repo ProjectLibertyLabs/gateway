@@ -8,6 +8,7 @@ import { GraphQueues as QueueConstants } from '#types/constants/queue.constants'
 import { WebhooksControllerV1 } from './controllers/v1/webhooks-v1.controller';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { BlockInfoController } from '#blockchain/blockinfo.controller';
+import { HealthCheckModule } from '#health-check/health-check.module';
 import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { CacheModule } from '#cache/cache.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
@@ -64,6 +65,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('graph-api')),
+    HealthCheckModule,
   ],
   providers: [
     ApiService,

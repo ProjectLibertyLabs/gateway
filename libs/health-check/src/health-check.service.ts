@@ -5,20 +5,40 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+import { IAccountApiConfig } from '#types/interfaces/account/api-config.interface';
 import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-import { ContentPublishingQueues } from '#types/constants/queue.constants';
+import { IContentWatcherApiConfig } from '#types/interfaces/content-watcher/api-config.interface';
+import { IGraphApiConfig } from '#graph-api/api.config';
+
+import {
+  AccountQueues,
+  ContentPublishingQueues,
+  ContentWatcherQueues,
+  GraphQueues,
+} from '#types/constants/queue.constants';
 import { plainToInstance } from 'class-transformer';
+import fs from 'fs';
 
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
-// TODO: Expand types to include all relevant queue names
-type QueueName = ContentPublishingQueues.QueueName;
+type QueueName =
+  | AccountQueues.QueueName
+  | ContentPublishingQueues.QueueName
+  | ContentWatcherQueues.QueueName
+  | GraphQueues.QueueName;
 
-type ConfigTypeName = 'content-publishing-api';
+type ConfigTypeName = 'account-api' | 'content-publishing-api' | 'content-watcher-api' | 'graph-api';
 
-type ConfigType<T> = T extends ConfigTypeName ? IContentPublishingApiConfig : never;
+type ServiceConfigMap = {
+  'account-api': IAccountApiConfig;
+  'content-publishing-api': IContentPublishingApiConfig;
+  'content-watcher-api': IContentWatcherApiConfig;
+  'graph-api': IGraphApiConfig;
+};
+
+type ConfigType<T> = T extends ConfigTypeName ? ServiceConfigMap[T] : never;
 
 @Injectable()
 export class HealthCheckService {
@@ -33,49 +53,79 @@ export class HealthCheckService {
     private readonly configService: ConfigService,
     private blockchainService: BlockchainRpcQueryService,
   ) {
+    redis.defineCommand('queueStatus', {
+      numberOfKeys: 0,
+      lua: fs.readFileSync('lua/queueStatus.lua', 'utf8'),
+    });
     this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
-  public async getQueueStatus(queues: Array<QueueName>): Promise<Array<QueueStatusDto>> {
-    this.logger.debug(`Checking status for ${queues.length} queues`);
-    const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
-      queues.map(async (name) => {
-        const queue = this.getQueueByName(name);
-        return {
-          name,
-          status: 'Queue is running',
-          isPaused: await queue.isPaused(),
-        };
-      }),
-    );
-    return statusList.map((result, index) => {
-      if (result.status === 'fulfilled') {
-        return plainToInstance(QueueStatusDto, result.value);
-      }
-      return plainToInstance(QueueStatusDto, {
-        name: queues[index],
-        status: result.reason?.message || 'Unknown error',
-        isPaused: null,
+  public async getRedisStatus(queues: Array<QueueName>): Promise<RedisStatusDto> {
+    const queuePrefixes = queues.map((queueName) => this.QueueNameToKey(queueName)).filter((key) => !!key);
+    if (queuePrefixes.length === 0) {
+      this.logger.warn('No valid queue prefixes found for status check');
+    }
+    try {
+      // @ts-expect-error queueStatus is defined in the constructor
+      const result = await this.redis.queueStatus(queuePrefixes);
+      this.logger.debug('Lua script result:', result as string);
+      const parsed = JSON.parse(result as string);
+      return plainToInstance(RedisStatusDto, {
+        redis_version: parsed.redis_version,
+        used_memory: parsed.used_memory,
+        maxmemory: parsed.maxmemory,
+        uptime_in_seconds: parsed.uptime_in_seconds,
+        connected_clients: parsed.connected_clients,
+        queues: parsed.queues.map((queue: any) => plainToInstance(QueueStatusDto, queue)),
       });
-    });
+    } catch (error) {
+      console.error('Error executing Lua script for queue status:', error);
+      return plainToInstance(RedisStatusDto, {
+        redis_version: null,
+        used_memory: null,
+        maxmemory: null,
+        uptime_in_seconds: null,
+        connected_clients: null,
+        queues: [],
+      });
+    }
   }
 
-  private getQueueByName(queueName: QueueName): Queue {
-    const queuesMap = {
-      [ContentPublishingQueues.ASSET_QUEUE_NAME]: this.assetQueue,
-      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: this.requestQueue,
-      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: this.publishQueue,
-      [ContentPublishingQueues.BATCH_QUEUE_NAME]: this.batchAnnouncerQueue,
+  private QueueNameToKey(queueName: QueueName): string {
+    const keysMap = {
+      [AccountQueues.TRANSACTION_PUBLISH_QUEUE]: 'bull:accountTransactionPublishQueue',
+      [ContentPublishingQueues.ASSET_QUEUE_NAME]: 'bull:assetQueue',
+      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: 'bull:requestQueue',
+      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: 'bull:publishQueue',
+      [ContentPublishingQueues.BATCH_QUEUE_NAME]: 'bull:batchQueue',
+      [ContentWatcherQueues.WATCHER_REQUEST_QUEUE_NAME]: 'bull:watcherRequestQueue',
+      [ContentWatcherQueues.WATCHER_BROADCAST_QUEUE_NAME]: 'bull:watcherBroadcastQueue',
+      [ContentWatcherQueues.WATCHER_REPLY_QUEUE_NAME]: 'bull:watcherReplyQueue',
+      [ContentWatcherQueues.WATCHER_REACTION_QUEUE_NAME]: 'bull:watcherReactionQueue',
+      [ContentWatcherQueues.WATCHER_UPDATE_QUEUE_NAME]: 'bull:watcherUpdateQueue',
+      [ContentWatcherQueues.WATCHER_TOMBSTONE_QUEUE_NAME]: 'bull:watcherTombstoneQueue',
+      [ContentWatcherQueues.WATCHER_PROFILE_QUEUE_NAME]: 'bull:watcherProfileQueue',
+      [ContentWatcherQueues.WATCHER_IPFS_QUEUE]: 'bull:watcherIpfsQueue',
+      [GraphQueues.RECONNECT_REQUEST_QUEUE]: 'bull:reconnectRequestQueue',
+      [GraphQueues.GRAPH_CHANGE_REQUEST_QUEUE]: 'bull:graphChangeRequestQueue',
+      [GraphQueues.GRAPH_CHANGE_PUBLISH_QUEUE]: 'bull:graphChangePublishQueue',
     };
 
-    const queue = queuesMap[queueName];
-    if (!queue) {
+    const redisKey = keysMap[queueName];
+    if (!redisKey) {
       this.logger.warn(`Queue not found: ${queueName}`);
     }
-    return queue;
+    return redisKey;
   }
 
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
+    console.log(`Fetching blockchain status...`, {
+      test: process.env.FREQUENCY_API_WS_URL || process.env.SIWF_NODE_RPC_URL,
+      network: this.configService.get<string>('blockchain.providerRpcUrl'),
+      nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),
+      nodeName: this.configService.get<string>('blockchain.nodeName'),
+      latestBlockHeader: await this.getLatestBlockHeader(),
+    });
     return plainToInstance(BlockchainStatusDto, {
       network: this.configService.get<string>('blockchain.providerRpcUrl'),
       nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),
@@ -105,7 +155,7 @@ export class HealthCheckService {
     }
   }
 
-  public getServiceConfig(serviceName: string): IContentPublishingApiConfig {
+  public getServiceConfig(serviceName: string): ConfigType<typeof serviceName> {
     return this.configService.get<ConfigType<typeof serviceName>>(serviceName);
   }
 }

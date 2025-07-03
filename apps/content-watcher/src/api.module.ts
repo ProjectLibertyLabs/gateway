@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ApiService } from './api.service';
 import { HealthController, ScanControllerV1, SearchControllerV1, WebhookControllerV1 } from './controllers';
 import { BlockchainModule } from '#blockchain/blockchain.module';
+import { HealthCheckModule } from '#health-check/health-check.module';
 import { ScannerModule } from '#content-watcher-lib/scanner/scanner.module';
 import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
@@ -72,6 +73,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
       ignoreErrors: false,
     }),
     PrometheusModule.register(createPrometheusConfig('content-watcher')),
+    HealthCheckModule,
   ],
   providers: [
     ApiService,

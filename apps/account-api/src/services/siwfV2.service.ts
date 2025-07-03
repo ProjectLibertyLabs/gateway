@@ -256,12 +256,12 @@ export class SiwfV2Service {
       const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
       const { providerKeyUriOrPrivateKey } = this.blockchainConf;
       const { encodingType, formatType, keyType } = getTypesForKeyUriOrPrivateKey(providerKeyUriOrPrivateKey);
-
+      const chainType = this.blockchainService.chainType || 'Dev';
       const signedRequest = await generateEncodedSignedRequest(
         encodingType,
         formatType,
         keyType,
-        this.blockchainService.chainType,
+        chainType,
         providerKeyUriOrPrivateKey,
         callbackUrl,
         permissions,
@@ -272,7 +272,7 @@ export class SiwfV2Service {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {
           endpoint: this.swifV2Endpoint(),
-          chainType: this.blockchainService.chainType,
+          chainType,
         }),
         frequencyRpcUrl,
       };

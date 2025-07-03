@@ -277,7 +277,7 @@ export class SiwfV2Service {
         frequencyRpcUrl,
       };
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Redrect URL request', { error: e.toString() });
+      this.logger.warn('Error during SIWF V2 Redirect URL request', { error: e.toString() });
       throw new BadRequestException('Failed to get SIWF V2 Redirect URL');
     }
     return response;

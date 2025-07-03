@@ -35,6 +35,7 @@ jest.mock('@polkadot/api', () => {
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
+    Keyring: originalModule.Keyring,
   };
 });
 

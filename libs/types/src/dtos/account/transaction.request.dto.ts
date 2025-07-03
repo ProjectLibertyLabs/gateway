@@ -27,6 +27,7 @@ export type TransactionData<
     | PublishRetireMsaRequestDto
     | PublicKeyAgreementRequestDto
     | PublishRevokeDelegationRequestDto,
+  // TODO: | PublishAddRecoveryCommitmentDto
 > = RequestType & {
   providerId: string;
   referenceId: string;

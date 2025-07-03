@@ -129,6 +129,16 @@ export class SiwfV2Service {
             )
             .toHex(),
         };
+      case 'msa.addRecoveryCommitment':
+        return {
+          pallet,
+          extrinsicName,
+          encodedExtrinsic: api.tx[pallet][extrinsicName](
+            userPublicKey,
+            chainSignature(payload.signature),
+            payload.payload,
+          ).toHex(),
+        };
       default:
         throw new Error(`Unknown payload request: ${pallet}.${extrinsicName}`);
     }

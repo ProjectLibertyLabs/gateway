@@ -466,6 +466,7 @@ describe('SiwfV2Service', () => {
               extrinsicName: 'claimHandle',
               pallet: 'handles',
             },
+            // TODO: { encodedExtrinsic: correctAddRecoveryCommitmentHash, extrinsicName: 'addRecoveryCommitment', pallet: 'msa'
           ],
           type: 'SIWF_SIGNUP',
         });

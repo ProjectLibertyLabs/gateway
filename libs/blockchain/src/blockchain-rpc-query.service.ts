@@ -54,6 +54,7 @@ import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
 import { ICapacityFeeDetails } from './types';
+import { getTypedSignatureForPayload } from '#utils/common/signature.util';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
@@ -432,14 +433,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.system.events()).toArray();
   }
 
+  // it's ok to create the payload here b/c we're not verifying the signature, this is just for posting to chain
+  // so just set the signature type correctly
   public async generateAddPublicKeyToMsa(keysRequest: KeysRequestDto): Promise<SubmittableExtrinsic<any>> {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const txPayload = this.createAddPublicKeyToMsaPayload(payload);
 
     const addKeyResponse = this.api.tx.msa.addPublicKeyToMsa(
       msaOwnerAddress,
-      { Sr25519: msaOwnerSignature },
-      { Sr25519: newKeyOwnerSignature },
+      getTypedSignatureForPayload(msaOwnerAddress, msaOwnerSignature),
+      getTypedSignatureForPayload(payload.newPublicKey, newKeyOwnerSignature),
       txPayload,
     );
     return addKeyResponse;

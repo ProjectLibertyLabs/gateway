@@ -9,6 +9,7 @@ import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 import { TransactionType } from '#types/account-webhook';
 
+// TODO: adjust newPublicKey for Ethereum keys
 export class KeysRequestPayloadDto {
   /**
    * MSA Id of the user requesting the new key
@@ -32,6 +33,9 @@ export class KeysRequestPayloadDto {
   newPublicKey: string;
 }
 
+export class EthereumRequestPayloadDto {}
+
+// TODO: ideally the signatures should have the type, should be an object w/ the type
 export class KeysRequestDto {
   /**
    * msaOwnerAddress representing the target of this request

@@ -5,15 +5,28 @@ import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
+  ItemActionDto,
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { ItemActionType } from '#types/enums/item-action-type.enum';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
-import { KeysRequestDto } from '#types/dtos/account';
+import { KeysRequestDto, KeysRequestPayloadDto } from '#types/dtos/account';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { verifySignature } from '#utils/common/signature.util';
+import {
+  getKeypairTypeFromRequestAddress,
+  SignatureVerificationResult,
+  verifySignature,
+} from '#utils/common/signature.util';
+import {
+  createAddKeyData as createEthereumAddKeyData,
+  createItemizedAddAction,
+  createItemizedDeleteAction,
+  createItemizedSignaturePayloadV2,
+  ItemizedAction,
+  verifySignature as verifyEthereumSignature,
+} from '@frequency-chain/ethereum-utils';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
@@ -87,23 +100,74 @@ export class KeysService {
     return lastFinalizedBlockNumber + 600 / BlockchainConstants.SECONDS_PER_BLOCK;
   }
 
-  verifyAddKeySignature(request: KeysRequestDto): boolean {
-    const encodedPayload = u8aToHex(
-      u8aWrapBytes(this.blockchainService.createAddPublicKeyToMsaPayload(request.payload).toU8a()),
+  verifyAddKeySignatures(request: KeysRequestDto): boolean {
+    const msaOwnerVerification = this.verifyOneAddKeySignature(
+      request.msaOwnerAddress,
+      request.msaOwnerSignature,
+      request.payload,
     );
-    const msaOwnerVerification = verifySignature(encodedPayload, request.msaOwnerSignature, request.msaOwnerAddress);
-    const keyOwnerVerification = verifySignature(
-      encodedPayload,
-      request.newKeyOwnerSignature,
+    const keyOwnerVerification = this.verifyOneAddKeySignature(
       request.payload.newPublicKey,
+      request.newKeyOwnerSignature,
+      request.payload,
     );
     return msaOwnerVerification.isValid && keyOwnerVerification.isValid;
   }
 
-  verifyPublicKeyAgreementSignature(request: AddNewPublicKeyAgreementRequestDto): boolean {
-    const encodedPayload = u8aToHex(
-      u8aWrapBytes(this.blockchainService.createItemizedSignaturePayloadV2Type(request.payload).toU8a()),
+  verifyOneAddKeySignature(
+    signer: string,
+    signature: HexString,
+    payload: KeysRequestPayloadDto,
+  ): SignatureVerificationResult {
+    const keyType = getKeypairTypeFromRequestAddress(signer);
+    if (keyType === 'sr25519') {
+      const encodedPayload = u8aToHex(
+        u8aWrapBytes(this.blockchainService.createAddPublicKeyToMsaPayload(payload).toU8a()),
+      );
+      return verifySignature(encodedPayload, signature, signer);
+    }
+    const ethereumPayload = createEthereumAddKeyData(
+      payload.msaId,
+      payload.newPublicKey as HexString,
+      payload.expiration,
     );
-    return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
+    // Note VERIFY WANTS THE ETHEREUM ADDRESS, not the public key.
+    const isWrapped = false;
+    const isValid = verifyEthereumSignature(
+      signer as HexString,
+      signature,
+      ethereumPayload,
+      this.blockchainService.chainType,
+    );
+    return { isValid, isWrapped };
+  }
+
+  verifyPublicKeyAgreementSignature(request: AddNewPublicKeyAgreementRequestDto): boolean {
+    const keyType = getKeypairTypeFromRequestAddress(request.accountId);
+    if (keyType === 'sr25519') {
+      const encodedPayload = u8aToHex(
+        u8aWrapBytes(this.blockchainService.createItemizedSignaturePayloadV2Type(request.payload).toU8a()),
+      );
+      return verifySignature(encodedPayload, request.proof, request.accountId).isValid;
+    }
+    // create a payload that Ethereum verify can use
+    const actions: ItemizedAction[] = request.payload.actions.map((action: ItemActionDto) => {
+      if (action.type === ItemActionType.ADD_ITEM) {
+        return createItemizedAddAction(action.encodedPayload as HexString);
+      }
+      return createItemizedDeleteAction(action.index);
+    });
+    const ethereumPayload = createItemizedSignaturePayloadV2(
+      request.payload.schemaId,
+      request.payload.targetHash,
+      request.payload.expiration,
+      actions,
+    );
+    return verifyEthereumSignature(
+      request.accountId as HexString,
+      request.proof,
+      ethereumPayload,
+      this.blockchainService.chainType,
+    );
   }
 }

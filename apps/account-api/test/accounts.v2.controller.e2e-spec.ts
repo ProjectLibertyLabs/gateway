@@ -224,6 +224,17 @@ describe('Accounts v2 Controller', () => {
       expect(response.body).toHaveProperty('rawCredentials');
     });
 
+    it('should process a valid SIWF v2 callback with authorizationCode = validEthereumSiwfLoginResponsePayload', async () => {
+      const mockPayload = {
+        authorizationCode: 'validEthereumSiwfLoginResponsePayload',
+      };
+
+      const response = await request(httpServer).post('/v2/accounts/siwf').send(mockPayload).expect(HttpStatus.OK);
+
+      expect(response.body).toHaveProperty('controlKey');
+      expect(response.body).toHaveProperty('rawCredentials');
+    });
+
     it('should process a valid SIWF v2 callback with authorizationCode = validSiwfNewUserResponse', async () => {
       const mockPayload = {
         authorizationCode: 'validSiwfNewUserResponse',

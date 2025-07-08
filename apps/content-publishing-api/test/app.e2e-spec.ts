@@ -102,6 +102,8 @@ describe('AppController E2E request verification!', () => {
               ]),
             }),
             blockchainStatus: expect.objectContaining({
+              frequencyApiWsUrl: expect.any(String),
+              siwfNodeRpcUrl: expect.any(String),
               latestBlockHeader: expect.objectContaining({
                 blockHash: expect.any(String),
                 number: expect.any(Number),

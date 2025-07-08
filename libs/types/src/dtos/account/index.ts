@@ -12,3 +12,4 @@ export * from './transaction.response.dto';
 export * from './wallet.login.config.response.dto';
 export * from './wallet.login.request.dto';
 export * from './wallet.login.response.dto';
+export * from './config.dto';

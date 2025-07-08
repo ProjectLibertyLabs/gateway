@@ -3,11 +3,16 @@ import { IsNotEmpty, IsRFC3339 } from 'class-validator';
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
+import { AccountApiConfigDto } from '../account';
 import { ContentPublishingApiConfigDto } from '../content-publishing';
 import { ContentWatcherApiConfigDto } from '../content-watcher';
+import { GraphApiConfigDto } from '../graph';
 
-// TODO: Expand for other config types
-type ServiceConfigDto = ContentPublishingApiConfigDto | ContentWatcherApiConfigDto;
+type ServiceConfigDto =
+  | AccountApiConfigDto
+  | ContentPublishingApiConfigDto
+  | ContentWatcherApiConfigDto
+  | GraphApiConfigDto;
 
 export class QueueStatusDto {
   name: string;
@@ -46,6 +51,10 @@ export class LatestBlockHeader {
 }
 
 export class BlockchainStatusDto {
+  frequencyApiWsUrl: string;
+
+  siwfNodeRpcUrl: string;
+
   latestBlockHeader: LatestBlockHeader | null;
 }
 

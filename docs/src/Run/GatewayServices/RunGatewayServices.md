@@ -60,25 +60,29 @@ To run this project, you need:
 11. `start.sh` uses `docker compose` to start the selected services with the provided configuration. It will print out how to access the services once they are running.
 
 ```sh
-┌──────────────────────────────────────────────────────────────────────────────────────────────┐
-│ 🔗💠📡                                                                                       │
-│ 🔗💠📡  The selected services are running.                                                   │
-│ 🔗💠📡  You can access the Gateway at the following local addresses:                         │
-│ 🔗💠📡                                                                                       │
-│ 🔗💠📡      * account-service:                                                               │
-│ 🔗💠📡          - API:              http://localhost:3013                                    │
-│ 🔗💠📡          - Queue management: http://localhost:3013/queues                             │
-│ 🔗💠📡          - Swagger UI:       http://localhost:3013/docs/swagger                       │
-│ 🔗💠📡          - Mock Webhook:     http://mock-webhook-logger:3001/webhooks/account-service │
-│ 🔗💠📡            (View log messages in docker)                                              │
-│ 🔗💠📡                                                                                       │
-│ 🔗💠📡      * graph-service:                                                                 │
-│ 🔗💠📡          - API:              http://localhost:3012                                    │
-│ 🔗💠📡          - Queue management: http://localhost:3012/queues                             │
-│ 🔗💠📡          - Swagger UI:       http://localhost:3012/docs/swagger                       │
-│ 🔗💠📡                                                                                       │
-│ 🔗💠📡                                                                                       │
-└──────────────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 🔗💠📡                                                                                              │
+│ 🔗💠📡  The selected services are running.                                                          │
+│ 🔗💠📡  You can access the Gateway at the following local addresses:                                │
+│ 🔗💠📡                                                                                              │
+│ 🔗💠📡      * account-service:                                                                      │
+│ 🔗💠📡          - API:                    http://localhost:3013                                     │
+│ 🔗💠📡          - Queue management:       http://localhost:3013/queues                              │
+│ 🔗💠📡          - Swagger UI:             http://localhost:3013/docs/swagger                        │
+│ 🔗💠📡          - Health check:           http://localhost:3013/healthz                             │
+│ 🔗💠📡          - Prometheus metrics:     http://localhost:3013/metrics                             │
+│ 🔗💠📡          - Mock Webhook:           http://mock-webhook-logger:3001/webhooks/account-service  │
+│ 🔗💠📡            (View log messages in docker)                                                     │
+│ 🔗💠📡                                                                                              │
+│ 🔗💠📡      * graph-service:                                                                        │
+│ 🔗💠📡          - API:                    http://localhost:3012                                     │
+│ 🔗💠📡          - Queue management:       http://localhost:3012/queues                              │
+│ 🔗💠📡          - Swagger UI:             http://localhost:3012/docs/swagger                        │
+│ 🔗💠📡          - Health check:           http://localhost:3013/healthz                             │
+│ 🔗💠📡          - Prometheus metrics:     http://localhost:3013/metrics                             │
+│ 🔗💠📡                                                                                              │
+│ 🔗💠📡                                                                                              │
+└────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Environment Variables

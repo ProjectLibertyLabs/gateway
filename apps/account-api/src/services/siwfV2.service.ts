@@ -137,7 +137,7 @@ export class SiwfV2Service {
   }
 
   // Parse the request from user: get authorizationPayload or authorizationCode.
-  // If authorizationCode, FrequencyAccess will check to see if this is a login or a sign up
+  // If authorizationCode, the SIWF service (such as FrequencyAccess) will check to see if this is a login or a sign up
   // and return payload, after some checks.
   async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
     let payload: SiwfResponse;

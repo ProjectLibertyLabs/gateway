@@ -79,6 +79,9 @@ export class AccountsControllerV2 {
     return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);
   }
 
+  // This posts a payload containing either a SIWF payload, or an authentication code that can be used to retrieve a SIWF payload from the registered SIWF provider. The SIWF payload may be either:
+  // - A signed SIWF login payload, which serves as the user's authentication
+  // - One or more signed payloads for submission to the chain (ie, claim handle, account delegation, recovery key)
   @Post('siwf')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Process the result of a Sign In With Frequency v2 callback' })

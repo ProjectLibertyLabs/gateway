@@ -9,7 +9,7 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import {
   validSiwfAddDelegationResponsePayload,
   validSiwfLoginResponsePayload,
-  validSiwfNewUserResponse,
+  validSiwfNewUserResponseWithRecovery,
 } from './siwfV2.mock.spec';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { ApiPromise } from '@polkadot/api';
@@ -184,7 +184,6 @@ describe('SiwfV2Service', () => {
         expect(result).toBeDefined();
         expect(result).toHaveProperty('payloads');
       });
-
       it('can parse and validate authorizedPayloads with Ethereum keys', async () => {
         // the domain doesn't match in the example mock; just fake it for the purposes of this test.
         jest
@@ -348,6 +347,14 @@ describe('SiwfV2Service', () => {
         });
       });
 
+      it('parses recovery credentials', async () => {
+        jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
+        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfNewUserResponseWithRecovery);
+        expect(result.recoverySecret).toEqual(
+          '69EC-2382-E1E6-76F3-341F-3414-9DD5-CFA5-6932-E418-9385-0358-31DF-AFEA-9828-D3B7',
+        );
+      });
+
       it('Should NOT return an MSA Id if there is none', async () => {
         jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
         const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
@@ -397,7 +404,7 @@ describe('SiwfV2Service', () => {
         expect(enqueueSpy).not.toHaveBeenCalled();
       });
 
-      it('should return correctly for the add delegation setup', async () => {
+      it('should enqueue correctly for the add delegation setup', async () => {
         const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
         const correctGrantDelegationHash =
           '0xed01043c038eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801bac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e01000000000000001405000700080009000a0018000000';
@@ -422,7 +429,7 @@ describe('SiwfV2Service', () => {
         });
       });
 
-      it('should return correctly for the new user setup', async () => {
+      it('should enqueue correctly for the new user setup', async () => {
         const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
         const correctGrantDelegationHash =
           '0xed01043c018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48011a27cb6d79b508e1ffc8d6ae70af78d5b3561cdc426124a06f230d7ce70e757e1947dd1bac8f9e817c30676a5fa6b06510bae1201b698b044ff0660c60f18c8a01000000000000001405000700080009000a0018000000';
@@ -430,6 +437,9 @@ describe('SiwfV2Service', () => {
           '0xf501043f068eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48019eb338773b386ded2e3731ba68ba734c80408b3ad24f92ed3c60342d374a32293851fa8e41d722c72a5a4e765a9e401c68570a8c666ab678e4e5d94aa6825d851c0014000000040040eea1e39d2f154584c4b1ca8f228bb49a';
         const correctClaimHandleHash =
           '0xd9010442008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801b004140fd8ba3395cf5fcef49df8765d90023c293fde4eaf2e932cc24f74fc51b006c0bebcf31d85565648b4881fa22115e0051a3bdb95ab5bf7f37ac66f798f344578616d706c6548616e646c6518000000';
+        const correctAddRecoveryCommitmentHash =
+          '0xed01043c038eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801bac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e01000000000000001405000700080009000a0018000000';
+
         jest.spyOn(blockchainService, 'getApi').mockResolvedValue(
           mockApiTxHashes([
             { pallet: 'msa', extrinsic: 'createSponsoredAccountWithDelegation', hash: correctGrantDelegationHash },
@@ -439,11 +449,12 @@ describe('SiwfV2Service', () => {
               hash: correctStatefulStorageHash,
             },
             { pallet: 'handles', extrinsic: 'claimHandle', hash: correctClaimHandleHash },
+            { pallet: 'msa', extrinsic: 'addRecoveryCommitment', hash: correctAddRecoveryCommitmentHash },
           ]) as ApiPromise,
         );
 
         try {
-          await siwfV2Service.queueChainActions(validSiwfNewUserResponse, {});
+          await siwfV2Service.queueChainActions(validSiwfNewUserResponseWithRecovery, {});
         } catch (err: any) {
           console.error(err);
           throw err;
@@ -465,6 +476,11 @@ describe('SiwfV2Service', () => {
               encodedExtrinsic: correctClaimHandleHash,
               extrinsicName: 'claimHandle',
               pallet: 'handles',
+            },
+            {
+              encodedExtrinsic: correctAddRecoveryCommitmentHash,
+              extrinsicName: 'addRecoveryCommitment',
+              pallet: 'msa',
             },
           ],
           type: 'SIWF_SIGNUP',

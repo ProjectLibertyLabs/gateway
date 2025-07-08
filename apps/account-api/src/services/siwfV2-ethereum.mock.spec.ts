@@ -1,6 +1,4 @@
 import type { SiwfResponse } from '@projectlibertylabs/siwfv2';
-import { createServer, Server, IncomingMessage, ServerResponse } from 'node:http';
-import { URL } from 'node:url';
 
 // Mock Server Authorization Codes:
 // validEthereumSiwfAddDelegationResponsePayload
@@ -303,29 +301,3 @@ export const validEthereumSiwfNewUserResponse: SiwfResponse = {
     },
   ],
 };
-
-const responseMap = new Map([
-  ['validEthereumSiwfAddDelegationResponsePayload', validEthereumSiwfAddDelegationResponsePayload],
-  ['validEthereumSiwfLoginResponsePayload', validEthereumSiwfLoginResponsePayload],
-  ['validEthereumSiwfNewUserResponse', validEthereumSiwfNewUserResponse],
-]);
-
-export function createMockSiwfServer(port: number): Server {
-  const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url, 'http://localhost');
-    const code = url.searchParams.get('authorizationCode');
-
-    // console.log('MOCK SIWF SERVER REQUEST RECEIVED', url.toString());
-
-    if (req.method === 'GET' && url.pathname === '/api/payload' && responseMap.has(code)) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(responseMap.get(code)));
-    } else {
-      res.writeHead(404);
-      res.end();
-    }
-  });
-
-  server.listen(port);
-  return server;
-}

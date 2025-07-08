@@ -108,10 +108,11 @@ export class SiwfV2Service {
       case 'handles.claimHandle':
       case 'msa.grantDelegation':
       case 'msa.createSponsoredAccountWithDelegation':
+      case 'msa.addRecoveryCommitment':
         return {
           pallet,
           extrinsicName,
-          encodedExtrinsic: api.tx[pallet][extrinsicName](
+          encodedExtrinsic: (api as ApiPromise).tx[pallet][extrinsicName](
             userPublicKey,
             chainSignature(payload.signature),
             payload.payload,
@@ -129,16 +130,6 @@ export class SiwfV2Service {
               statefulStoragePayload(api.registry, payload.payload as any),
             )
             .toHex(),
-        };
-      case 'msa.addRecoveryCommitment':
-        return {
-          pallet,
-          extrinsicName,
-          encodedExtrinsic: api.tx[pallet][extrinsicName](
-            userPublicKey,
-            chainSignature(payload.signature),
-            payload.payload,
-          ).toHex(),
         };
       default:
         throw new Error(`Unknown payload request: ${pallet}.${extrinsicName}`);

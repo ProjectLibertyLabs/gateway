@@ -28,10 +28,16 @@ const signup = (api) => {
     claimHandlePayload,
   );
 
-  // TODO:  const addRecoveryCommitmentPayload = api.registtry.createType('CommonPrimitivesMsaRecoveryCommitmentPayload',
-  //  recoveryCommitment, expiration
-  // TODO: const addRecoveryCommitmentTx = api.tx.msa.addRecoveryCommitment(
-  //  keypair.address, signPayloadSr25519(keypair, addRecoveryCommitmentPayload), addRecoveryCommitmentPayload
+  const addRecoveryCommitmentPayload = api.registtry.createType(
+    'CommonPrimitivesMsaRecoveryCommitmentPayload',
+    recoveryCommitment,
+    expiration,
+  );
+  const addRecoveryCommitmentTx = api.tx.msa.addRecoveryCommitment(
+    keypair.address,
+    signPayloadSr25519(keypair, addRecoveryCommitmentPayload),
+    addRecoveryCommitmentPayload,
+  );
 
   return {
     signUp: {
@@ -46,8 +52,11 @@ const signup = (api) => {
           extrinsicName: 'claimHandle',
           encodedExtrinsic: claimTx.toHex(),
         },
-        // TODO:
-        // { pallet: 'msa', extrinsicName: 'addRecoveryCommitment', encodedExtrinsic: addRecoveryCommitmentTx.toHex(), }
+        {
+          pallet: 'msa',
+          extrinsicName: 'addRecoveryCommitment',
+          encodedExtrinsic: addRecoveryCommitmentTx.toHex(),
+        },
       ],
     },
   };

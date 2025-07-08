@@ -79,6 +79,8 @@ export class AccountsControllerV2 {
     return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);
   }
 
+  // This posts a payload, now (theoretically) signed by the user.  If it all checks out it gets posted
+  // on chain.
   @Post('siwf')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Process the result of a Sign In With Frequency v2 callback' })

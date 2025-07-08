@@ -16,6 +16,7 @@ import {
   isPayloadLogin,
   isPayloadAddProvider,
   SiwfResponsePayload,
+  isCredentialRecoverySecret,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -144,10 +145,14 @@ export class SiwfV2Service {
     }
   }
 
+  // Parse the request from user: get authorizationPayload or authorizationCode.
+  // If authorizationCode, FrequencyAccess will check to see if this is a login or a sign up
+  // and return payload, after some checks.
   async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
     let payload: SiwfResponse;
     const loginMsgURIValidation = this.apiConf.siwfV2URIValidation;
     if (request.authorizationPayload) {
+      // this is a login authentication payload already
       try {
         // Await here so the error is caught
         payload = await validateSiwfResponse(request.authorizationPayload, {
@@ -161,7 +166,7 @@ export class SiwfV2Service {
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
       }
     } else if (request.authorizationCode) {
-      // This is used by Frequency Access
+      // This is used by Frequency Access; get the full payload from FA.
       try {
         payload = await getLoginResult(request.authorizationCode, {
           endpoint: this.swifV2Endpoint(),
@@ -179,6 +184,8 @@ export class SiwfV2Service {
       throw new BadRequestException('No `authorizationPayload` or `authorizationCode` in request.');
     }
 
+    // Find out from FrequencyAccess if this is a login or a new User.  If  new user, do some checks before
+    // returning the payload for them to sign.
     const login = payload.payloads.find(isPayloadLogin);
     const addProvider = payload.payloads.find(isPayloadAddProvider);
 
@@ -204,6 +211,8 @@ export class SiwfV2Service {
     return payload;
   }
 
+  // Return the response to the user, once their signed/submitted payload has had its extrinsics parsed, encoded
+  // and submitted on chain.
   async getSiwfV2LoginResponse(payload: SiwfResponse): Promise<WalletV2LoginResponseDto> {
     this.logger.debug('Generating login response');
     const response = new WalletV2LoginResponseDto();
@@ -227,6 +236,9 @@ export class SiwfV2Service {
     const graphKey = payload.credentials.find(isCredentialGraph)?.credentialSubject;
     if (graphKey) response.graphKey = graphKey;
 
+    const recoverySecret = payload.credentials.find(isCredentialRecoverySecret)?.credentialSubject.recoverySecret;
+    if (recoverySecret) response.recoverySecret = recoverySecret;
+
     response.rawCredentials = payload.credentials;
     return response;
   }
@@ -241,7 +253,10 @@ export class SiwfV2Service {
     try {
       const calls: PublishSIWFSignupRequestDto['calls'] = (
         await Promise.all(
-          response.payloads.map((p) => this.siwfV2PayloadToEncodedExtrinsic(p, response.userPublicKey.encodedValue)),
+          response.payloads.map((p) => {
+            this.logger.debug(`encoding extrinsic:  ${p.type}`);
+            return this.siwfV2PayloadToEncodedExtrinsic(p, response.userPublicKey.encodedValue);
+          }),
         )
       ).filter(isNotNull);
 
@@ -251,11 +266,13 @@ export class SiwfV2Service {
         authorizationCode,
       });
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e.toString() });
+      this.logger.warn(e, 'Error during SIWF V2 Chain Action Queuing');
       throw new BadRequestException('Failed to process payloads');
     }
   }
 
+  // Returns the Url that redirects to Frequency Access, containing the correct payload, signed using the
+  // provider keys configured in the environment.
   async getRedirectUrl(
     callbackUrl: string,
     permissions: number[],

@@ -159,11 +159,6 @@ describe('Account Controller', () => {
               encodedExtrinsic:
                 '0xb901044200b01b4dcafc8a8e73bff98e7558249f53cd0e0e64fa6b8f0159f0913d4874d93601225508ae2da9804c60660a150277eb32b2a0f6b9c8f6e07dd6cad799cb31ae1dfb43896f488e9c0b7ec8b530d930b3f9b690683f2765d5def3fee3fc6540d58714656e6464794d000000',
             },
-            {
-              pallet: 'msa',
-              extrinsicName: 'addRecoveryCommitment',
-              encodedExtrinsic: '0xdeadbeef',
-            },
           ],
         },
       };

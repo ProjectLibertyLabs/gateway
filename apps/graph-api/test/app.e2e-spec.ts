@@ -18,7 +18,7 @@ import {
   Direction,
   ConnectionDto,
 } from '#types/dtos/graph';
-import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
+import apiConfig, { IGraphApiConfig } from '#graph-api/api.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -40,7 +40,7 @@ describe('Graph Service E2E request verification!', () => {
     // Uncomment below to see logs when debugging tests
     // module.useLogger(new Logger());
 
-    const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    const config = app.get<IGraphApiConfig>(apiConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));

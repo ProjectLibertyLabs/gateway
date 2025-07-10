@@ -3,17 +3,6 @@ import { IsNotEmpty, IsRFC3339 } from 'class-validator';
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { AccountApiConfigDto } from '../account';
-import { ContentPublishingApiConfigDto } from '../content-publishing';
-import { ContentWatcherApiConfigDto } from '../content-watcher';
-import { GraphApiConfigDto } from '../graph';
-
-type ServiceConfigDto =
-  | AccountApiConfigDto
-  | ContentPublishingApiConfigDto
-  | ContentWatcherApiConfigDto
-  | GraphApiConfigDto;
-
 export class QueueStatusDto {
   name: string;
 
@@ -73,7 +62,18 @@ export class HealthResponseDto {
   @IsRFC3339()
   timestamp: number;
 
-  config: ServiceConfigDto;
+  @ApiProperty({
+    description: 'Configuration details - supplied by service',
+    type: 'object',
+    example: {
+      apiBodyJsonLimit: '1mb',
+      apiPort: 3000,
+      apiTimeoutMs: 5000,
+      // ...example of other config properties
+    },
+    additionalProperties: true,
+  })
+  config: unknown;
 
   redisStatus: RedisStatusDto;
 

@@ -2,9 +2,11 @@ import { JoiUtils } from '#config';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
-import { IContentWatcherApiConfig } from '#types/interfaces/content-watcher/api-config.interface';
-
-export { IContentWatcherApiConfig };
+export interface IContentWatcherApiConfig {
+  apiBodyJsonLimit: string;
+  apiPort: number;
+  apiTimeoutMs: number;
+}
 
 export default registerAs('content-watcher-api', (): IContentWatcherApiConfig => {
   const configs: JoiUtils.JoiConfig<IContentWatcherApiConfig> = JoiUtils.normalizeConfigNames({

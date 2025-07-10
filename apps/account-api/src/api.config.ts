@@ -1,10 +1,18 @@
 import { JoiUtils } from '#config';
+import { EnvironmentType } from '@projectlibertylabs/graph-sdk';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
-import { IAccountApiConfig } from '#types/interfaces/account/api-config.interface';
-
-export { IAccountApiConfig };
+export interface IAccountApiConfig {
+  apiBodyJsonLimit: string;
+  apiPort: number;
+  apiTimeoutMs: number;
+  siwfNodeRpcUrl: URL;
+  graphEnvironmentType: keyof EnvironmentType;
+  siwfUrl: string;
+  siwfV2Url?: string;
+  siwfV2URIValidation?: string[];
+}
 
 export default registerAs('account-api', (): IAccountApiConfig => {
   const configs: JoiUtils.JoiConfig<IAccountApiConfig> = JoiUtils.normalizeConfigNames({

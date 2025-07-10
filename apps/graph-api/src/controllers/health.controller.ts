@@ -3,6 +3,7 @@ import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
+import { IGraphApiConfig } from '#graph-api/api.config';
 
 @Controller()
 @ApiTags('health')
@@ -20,7 +21,7 @@ export class HealthController {
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
     const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig('graph-api'),
+      this.healthCheckService.getServiceConfig<IGraphApiConfig>('graph-api'),
       this.healthCheckService.getRedisStatus(QueueConstants.QUEUE_NAMES),
       this.healthCheckService.getBlockchainStatus(),
     ]);

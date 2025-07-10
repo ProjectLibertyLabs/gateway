@@ -3,6 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
+import { IAccountApiConfig } from '#account-api/api.config';
 
 @Controller()
 @ApiTags('health')
@@ -20,7 +21,7 @@ export class HealthController {
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
     const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig('account-api'),
+      this.healthCheckService.getServiceConfig<IAccountApiConfig>('account-api'),
       this.healthCheckService.getRedisStatus([QueueConstants.TRANSACTION_PUBLISH_QUEUE]),
       this.healthCheckService.getBlockchainStatus(),
     ]);

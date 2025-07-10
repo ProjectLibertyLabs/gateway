@@ -5,4 +5,3 @@ export * from './common.dto';
 export * from './content-search-request.dto';
 export * from './subscription.webhook.dto';
 export * from './validation.dto';
-export * from './config.dto';

@@ -2,9 +2,11 @@ import { JoiUtils } from '#config';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
-import { IGraphApiConfig } from '#types/interfaces/graph/api-config.interface';
-
-export { IGraphApiConfig };
+export interface IGraphApiConfig {
+  apiBodyJsonLimit: string;
+  apiPort: number;
+  apiTimeoutMs: number;
+}
 
 export default registerAs('graph-api', (): IGraphApiConfig => {
   const configs: JoiUtils.JoiConfig<IGraphApiConfig> = JoiUtils.normalizeConfigNames({

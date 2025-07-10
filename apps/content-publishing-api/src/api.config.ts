@@ -2,9 +2,15 @@ import { JoiUtils } from '#config';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
-import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-
-export { IContentPublishingApiConfig };
+export interface IContentPublishingApiConfig {
+  apiBodyJsonLimit: string;
+  apiPort: number;
+  apiTimeoutMs: number;
+  // NOTE: fileUploadMaxSizeBytes is to be removed once the `v1/asset/upload` endpoint is removed in favor of the v2 streaming endpoint
+  fileUploadMaxSizeBytes: number;
+  fileUploadCountLimit: number;
+  providerId: bigint;
+}
 
 export default registerAs('content-publishing-api', (): IContentPublishingApiConfig => {
   const configs: JoiUtils.JoiConfig<IContentPublishingApiConfig> = JoiUtils.normalizeConfigNames({

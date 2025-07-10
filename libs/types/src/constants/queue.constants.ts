@@ -10,6 +10,8 @@
 import { IQueueModuleOptions } from '#queue/queue.interfaces';
 import { AnnouncementTypeName } from '#types/enums/announcement-type.enum';
 
+export const QUEUE_PREFIX = 'bull';
+
 export namespace AccountQueues {
   /**
    * Name of the queue that publishes account transactions to Frequency blockchain

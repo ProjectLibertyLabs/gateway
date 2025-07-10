@@ -11,4 +11,3 @@ export * from './privacy-type.enum';
 export * from './provider-graph.dto';
 export * from './user-graph.dto';
 export * from './watch-graphs.dto';
-export * from './config.dto';

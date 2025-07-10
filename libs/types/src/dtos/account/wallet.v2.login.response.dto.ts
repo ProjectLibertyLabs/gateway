@@ -106,6 +106,13 @@ export class WalletV2LoginResponseDto {
   graphKey?: GraphKeySubject;
 
   @ApiPropertyOptional({
+    description: "The user's recovery secret.",
+    type: String,
+    example: '69EC-2382-E1E6-76F3-341F-3414-9DD5-CFA5-6932-E418-9385-0358-31DF-AFEA-9828-D3B7',
+  })
+  recoverySecret?: string;
+
+  @ApiPropertyOptional({
     description: 'Raw parsed credentials received.',
     type: [Object],
     example: [

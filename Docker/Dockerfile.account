@@ -26,27 +26,33 @@ COPY apps/account-worker ./
 # Build the application
 RUN npm run build:account && \
     rm -rf node_modules && \
-	npm ci --omit=dev
+    npm ci --omit=dev
 
 # Production stage
 FROM node:22-alpine
 
 ENV NODE_ENV=production
 
+# Create a non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S gateway -u 1001 -G nodejs
+
 WORKDIR /app
 
+# Copy all files (as root)
 COPY --from=builder /build/dist ./dist/
 COPY ./package*.json ./
 COPY lua ./lua/
 COPY scripts/account/docker-entrypoint.sh ./
 COPY --from=builder /build/node_modules ./node_modules/
-RUN chmod +x ./docker-entrypoint.sh
-RUN mkdir ./openapi-specs
 
-# We want jq and curl in the final image, but we don't need the support files
-# Install jq, curl, and tini using apk
-RUN apk add --no-cache jq curl tini
-RUN apk add libc6-compat
+# Set ownership, permissions, create directories, and install packages in one layer
+RUN chown -R gateway:nodejs /app && \
+    chmod +x ./docker-entrypoint.sh && \
+    mkdir ./openapi-specs && \
+    apk add --no-cache jq curl tini libc6-compat
+
+USER gateway
 
 EXPOSE 3000
 

@@ -18,9 +18,15 @@ spec:
       labels:
         {{- include "frequency-gateway.labels" . | nindent 8 }}
     spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         {{- if .Values.service.account.deploy }}
         - name: account-service-api
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
           ports:
             - name: http-account
@@ -52,6 +58,8 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.account.image.mode.api.args}}"]
         - name: account-service-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.account.image.repository }}:{{ .Values.account.image.tag }}"
           envFrom:
             - configMapRef:
@@ -68,6 +76,8 @@ spec:
         
         {{- if .Values.service.contentPublishing.deploy }}
         - name: content-publishing-service-api
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           ports:
             - name: http-publishing
@@ -102,6 +112,8 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.contentPublishing.image.mode.api.args}}"]
         - name: content-publishing-service-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.contentPublishing.image.repository }}:{{ .Values.contentPublishing.image.tag }}"
           envFrom:
             - configMapRef:
@@ -121,6 +133,8 @@ spec:
 
         {{- if .Values.service.contentWatcher.deploy }}
         - name: content-watcher-service
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.contentWatcher.image.repository }}:{{ .Values.contentWatcher.image.tag }}"
           ports:
             - name: http-watcher
@@ -154,6 +168,8 @@ spec:
 
         {{- if .Values.service.graph.deploy }}
         - name: graph-service-api
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
           ports:
             - name: http-graph

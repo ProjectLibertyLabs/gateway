@@ -3,6 +3,7 @@
 services:
   account-service-dev:
     pull_policy: never
+    user: "1001:1001"
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.account
@@ -14,6 +15,7 @@ services:
   account-service-api:
     pull_policy: never
     image: account-service-dev:latest
+    user: "1001:1001"
     command: ['account-api']
     ports:
       - 3000:3000
@@ -29,6 +31,7 @@ services:
   account-service-worker:
     pull_policy: never
     image: account-service-dev:latest
+    user: "1001:1001"
     command: ['account-worker']
     volumes: !reset []
     depends_on: !override

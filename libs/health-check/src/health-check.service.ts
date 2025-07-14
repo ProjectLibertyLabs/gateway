@@ -91,7 +91,6 @@ export class HealthCheckService {
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
     return plainToInstance(BlockchainStatusDto, {
       frequencyApiWsUrl: this.configService.get<string>('FREQUENCY_API_WS_URL'),
-      siwfNodeRpcUrl: this.configService.get<string>('SIWF_NODE_RPC_URL'),
       latestBlockHeader: await this.getLatestBlockHeader(),
     });
   }

@@ -52,7 +52,7 @@ RUN chown -R gateway:nodejs /app && \
     mkdir ./openapi-specs && \
     apk add --no-cache jq curl tini libc6-compat
 
-USER gateway
+USER 1001
 
 EXPOSE 3000
 

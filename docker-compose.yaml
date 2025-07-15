@@ -106,6 +106,7 @@ services:
   gateway-base:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     build:
       context: .
       dockerfile: Docker/Dockerfile.dev
@@ -118,6 +119,7 @@ services:
   content-publishing-service-api:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     ports:
       - ${SERVICE_PORT_0:-3010}:3000
     command: make start-content-publishing-api
@@ -137,6 +139,7 @@ services:
   content-publishing-service-worker:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     command: make start-content-publishing-worker
     environment:
       <<: [*common-environment, *content-publishing-env]
@@ -154,6 +157,7 @@ services:
   content-watcher-service:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     ports:
       - ${SERVICE_PORT_1:-3011}:3000
     command: make start-content-watcher
@@ -172,6 +176,7 @@ services:
   graph-service-api:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     ports:
       - ${SERVICE_PORT_2:-3012}:3000
     command: make start-graph-api
@@ -190,6 +195,7 @@ services:
   graph-service-worker:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     command: make start-graph-worker
     environment:
       <<: [*common-environment, *graph-service-env]
@@ -206,6 +212,7 @@ services:
   account-service-api:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     ports:
       - ${SERVICE_PORT_3:-3013}:3000
     environment:
@@ -223,6 +230,7 @@ services:
   account-service-worker:
     pull_policy: never
     image: gateway-dev:latest
+    user: "1001:1001"
     command: make start-account-worker
     environment:
       <<: [*common-environment, *account-service-env]
@@ -238,6 +246,7 @@ services:
   mock-webhook-logger:
     pull_policy: never
     image: mock-webhook-logger:latest
+    user: "1001:1001"
     build:
       context: .
       dockerfile: Docker/Dockerfile.mock-webhook-logger

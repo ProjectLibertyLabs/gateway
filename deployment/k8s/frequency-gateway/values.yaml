@@ -19,8 +19,21 @@ podAnnotations: {}
 podLabels: {}
 
 # Pod and container security contexts
-podSecurityContext: {}
-securityContext: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  capabilities:
+    drop:
+    - ALL
 
 # Ingress configuration
 # Using nginx ingress controller,

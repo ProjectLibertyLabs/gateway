@@ -38,6 +38,7 @@ WORKDIR /app
 # Copy all files (as root)
 COPY --from=builder /build/dist ./dist/
 COPY package*.json ./
+COPY lua ./lua/
 COPY --from=builder /build/node_modules ./node_modules/
 
 # Set ownership, permissions, create directories, and install packages in one layer

@@ -3,8 +3,15 @@ FROM node:22
 WORKDIR /app
 
 # Create a non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S gateway -u 1001 -G nodejs
+RUN groupadd -g 1001 nodejs && \
+    useradd -u 1001 -g nodejs -s /bin/bash -m gateway
+
+RUN mkdir -p /app/node_modules && \
+    chown -R gateway:nodejs /app && \
+    chmod -R 775 /app
+
+RUN echo "umask 002" >> /home/gateway/.bashrc && \
+    echo "umask 002" >> /etc/profile
 
 USER 1001
 

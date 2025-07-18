@@ -84,14 +84,25 @@ describe('AppController E2E request verification!', () => {
               fileUploadCountLimit: expect.any(Number),
               providerId: expect.any(String),
             }),
-            queueStatus: expect.arrayContaining([
-              expect.objectContaining({
-                name: expect.any(String),
-                status: expect.any(String),
-                isPaused: expect.anything(), // Accepts boolean or null
-              }),
-            ]),
+            redisStatus: expect.objectContaining({
+              connected_clients: expect.any(Number),
+              maxmemory: expect.any(Number),
+              redis_version: expect.any(String),
+              uptime_in_seconds: expect.any(Number),
+              used_memory: expect.any(Number),
+              queues: expect.arrayContaining([
+                expect.objectContaining({
+                  name: expect.any(String),
+                  waiting: expect.any(Number),
+                  active: expect.any(Number),
+                  completed: expect.any(Number),
+                  failed: expect.any(Number),
+                  delayed: expect.any(Number),
+                }),
+              ]),
+            }),
             blockchainStatus: expect.objectContaining({
+              frequencyApiWsUrl: expect.any(String),
               latestBlockHeader: expect.objectContaining({
                 blockHash: expect.any(String),
                 number: expect.any(Number),

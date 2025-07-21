@@ -1,85 +1,96 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { Queue } from 'bullmq';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
-import { IContentPublishingApiConfig } from '#types/interfaces/content-publishing/api-config.interface';
-import { ContentPublishingQueues } from '#types/constants/queue.constants';
+import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+
 import { plainToInstance } from 'class-transformer';
+import fs from 'fs';
 
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
-// TODO: Expand types to include all relevant queue names
-type QueueName = ContentPublishingQueues.QueueName;
+import {
+  QUEUE_PREFIX,
+  AccountQueues,
+  ContentPublishingQueues,
+  ContentWatcherQueues,
+  GraphQueues,
+} from '#types/constants/queue.constants';
 
-type ConfigTypeName = 'content-publishing-api';
+type QueueName =
+  | AccountQueues.QueueName
+  | ContentPublishingQueues.QueueName
+  | ContentWatcherQueues.QueueName
+  | GraphQueues.QueueName;
 
-type ConfigType<T> = T extends ConfigTypeName ? IContentPublishingApiConfig : never;
+interface RedisWithCustomCommands extends Redis {
+  queueStatus(prefixes: string[]): Promise<string>;
+}
 
 @Injectable()
 export class HealthCheckService {
   private readonly logger: Logger;
 
   constructor(
-    @InjectRedis() private redis: Redis,
-    @InjectQueue(ContentPublishingQueues.REQUEST_QUEUE_NAME) private readonly requestQueue: Queue,
-    @InjectQueue(ContentPublishingQueues.ASSET_QUEUE_NAME) private readonly assetQueue: Queue,
-    @InjectQueue(ContentPublishingQueues.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
-    @InjectQueue(ContentPublishingQueues.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
+    @InjectRedis() private redis: RedisWithCustomCommands,
     private readonly configService: ConfigService,
     private blockchainService: BlockchainRpcQueryService,
   ) {
+    this.initializeRedisCommands();
+    this.redisWithCommands = redis as RedisWithCustomCommands;
     this.logger = pino(getBasicPinoOptions(this.constructor.name));
   }
 
-  public async getQueueStatus(queues: Array<QueueName>): Promise<Array<QueueStatusDto>> {
-    this.logger.debug(`Checking status for ${queues.length} queues`);
-    const statusList: Array<PromiseSettledResult<QueueStatusDto>> = await Promise.allSettled(
-      queues.map(async (name) => {
-        const queue = this.getQueueByName(name);
-        return {
-          name,
-          status: 'Queue is running',
-          isPaused: await queue.isPaused(),
-        };
-      }),
-    );
-    return statusList.map((result, index) => {
-      if (result.status === 'fulfilled') {
-        return plainToInstance(QueueStatusDto, result.value);
-      }
-      return plainToInstance(QueueStatusDto, {
-        name: queues[index],
-        status: result.reason?.message || 'Unknown error',
-        isPaused: null,
-      });
+  private redisWithCommands: RedisWithCustomCommands;
+
+  private initializeRedisCommands(): void {
+    this.redis.defineCommand('queueStatus', {
+      numberOfKeys: 0,
+      lua: fs.readFileSync('lua/queueStatus.lua', 'utf8'),
     });
   }
 
-  private getQueueByName(queueName: QueueName): Queue {
-    const queuesMap = {
-      [ContentPublishingQueues.ASSET_QUEUE_NAME]: this.assetQueue,
-      [ContentPublishingQueues.REQUEST_QUEUE_NAME]: this.requestQueue,
-      [ContentPublishingQueues.PUBLISH_QUEUE_NAME]: this.publishQueue,
-      [ContentPublishingQueues.BATCH_QUEUE_NAME]: this.batchAnnouncerQueue,
-    };
-
-    const queue = queuesMap[queueName];
-    if (!queue) {
-      this.logger.warn(`Queue not found: ${queueName}`);
+  public async getRedisStatus(queueNames: Array<QueueName>): Promise<RedisStatusDto> {
+    const queuePrefixes = queueNames.map((queueName) => `${QUEUE_PREFIX}:${queueName}`).filter(Boolean);
+    if (queuePrefixes.length === 0) {
+      this.logger.warn('No valid queue prefixes found for status check');
     }
-    return queue;
+    try {
+      const result = await this.redisWithCommands.queueStatus(queuePrefixes);
+
+      this.logger.debug('Lua script result:', result as string);
+
+      const parsed = JSON.parse(result as string);
+      return plainToInstance(RedisStatusDto, {
+        redis_version: parsed.redis_version,
+        used_memory: parsed.used_memory,
+        maxmemory: parsed.maxmemory,
+        uptime_in_seconds: parsed.uptime_in_seconds,
+        connected_clients: parsed.connected_clients,
+        queues: parsed.queues.map((queue: any) => plainToInstance(QueueStatusDto, queue)),
+      });
+    } catch (error) {
+      console.error('Error executing Lua script for queue status:', error);
+      return HealthCheckService.createEmptyRedisStatus();
+    }
+  }
+
+  private static createEmptyRedisStatus(): RedisStatusDto {
+    return plainToInstance(RedisStatusDto, {
+      redis_version: null,
+      used_memory: null,
+      maxmemory: null,
+      uptime_in_seconds: null,
+      connected_clients: null,
+      queues: [],
+    });
   }
 
   public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
     return plainToInstance(BlockchainStatusDto, {
-      network: this.configService.get<string>('blockchain.providerRpcUrl'),
-      nodeVersion: this.configService.get<string>('blockchain.nodeVersion'),
-      nodeName: this.configService.get<string>('blockchain.nodeName'),
+      frequencyApiWsUrl: this.configService.get<string>('FREQUENCY_API_WS_URL'),
       latestBlockHeader: await this.getLatestBlockHeader(),
     });
   }
@@ -105,7 +116,7 @@ export class HealthCheckService {
     }
   }
 
-  public getServiceConfig(serviceName: string): IContentPublishingApiConfig {
-    return this.configService.get<ConfigType<typeof serviceName>>(serviceName);
+  public getServiceConfig<T = unknown>(serviceName: string): T {
+    return this.configService.get<T>(serviceName);
   }
 }

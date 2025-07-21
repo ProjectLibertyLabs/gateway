@@ -8,7 +8,7 @@ import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 import { TransactionType } from '#types/account-webhook';
 
-class HandlePayloadDto {
+export class HandlePayloadDto {
   /**
    * base handle in the request
    * @example 'handle'

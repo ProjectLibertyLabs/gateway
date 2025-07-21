@@ -4,20 +4,23 @@ import { BadRequestException } from '@nestjs/common';
 import { CurveType, decodeSignedRequest } from '@projectlibertylabs/siwfv2';
 import base64url from 'base64url';
 import { SiwfV2Service } from './siwfV2.service';
-import { IAccountApiConfig } from '#account-api/api.config';
-import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
-import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import {
   validSiwfAddDelegationResponsePayload,
   validSiwfLoginResponsePayload,
-  validSiwfNewUserResponse,
+  validSiwfNewUserResponseWithRecovery,
 } from './siwfV2.mock.spec';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { ApiPromise } from '@polkadot/api';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { createPinoLoggerProvider } from '#testlib/mockPinoLogger';
+import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#testlib/configProviders.mock.spec';
+import {
+  validEthereumSiwfAddDelegationResponsePayload,
+  validEthereumSiwfLoginResponsePayload,
+  validEthereumSiwfNewUserResponse,
+} from '#account-api/services/siwfV2-ethereum.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -32,31 +35,8 @@ jest.mock('@polkadot/api', () => {
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
+    Keyring: originalModule.Keyring,
   };
-});
-
-const buildBlockchainConfigProvider = (signerType: CurveType): any => {
-  const providerKeyUriOrPrivateKey =
-    signerType === 'Sr25519' ? '//Alice' : '0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133';
-  return GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
-    capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
-    providerId: 1n,
-    providerKeyUriOrPrivateKey,
-    frequencyApiWsUrl: new URL('ws://localhost:9944'),
-    frequencyTimeoutSecs: 10,
-    isDeployedReadOnly: false,
-  });
-};
-
-const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfig>('account-api', {
-  apiBodyJsonLimit: '',
-  apiPort: 0,
-  apiTimeoutMs: 0,
-  siwfNodeRpcUrl: new URL('http://127.0.0.1:9944'),
-  graphEnvironmentType: 0,
-  siwfUrl: '',
-  siwfV2Url: 'https://www.example.com/siwf',
-  siwfV2URIValidation: ['localhost'],
 });
 
 const exampleCallback = 'https://www.example.com/callback';
@@ -73,7 +53,7 @@ describe('SiwfV2Service', () => {
   let enqueueService: EnqueueService;
 
   ['Sr25519', 'Secp256k1'].forEach((providerType) => {
-    const mockBlockchainConfigProvider = buildBlockchainConfigProvider(providerType);
+    const mockBlockchainConfigProvider = buildBlockchainConfigProvider(providerType as CurveType);
     describe(`for ${providerType}`, () => {
       beforeAll(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -157,6 +137,23 @@ describe('SiwfV2Service', () => {
     });
 
     describe('getPayload', () => {
+      beforeAll(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+          imports: [],
+          providers: [
+            SiwfV2Service,
+            BlockchainRpcQueryService,
+            mockAccountApiConfigProvider,
+            mockBlockchainConfigProvider,
+            EnqueueService,
+            createPinoLoggerProvider('PinoLogger:SiwfV2Service'),
+          ],
+        }).compile();
+
+        siwfV2Service = module.get<SiwfV2Service>(SiwfV2Service);
+        blockchainService = module.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+        enqueueService = module.get<EnqueueService>(EnqueueService);
+      });
       afterEach(() => {
         jest.clearAllMocks();
       });
@@ -186,6 +183,27 @@ describe('SiwfV2Service', () => {
 
         expect(result).toBeDefined();
         expect(result).toHaveProperty('payloads');
+      });
+      it('can parse and validate authorizedPayloads with Ethereum keys', async () => {
+        // the domain doesn't match in the example mock; just fake it for the purposes of this test.
+        jest
+          .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
+          .mockReturnValue(['testnet.frequencyaccess.com']);
+        const payloads = [
+          validEthereumSiwfNewUserResponse,
+          validEthereumSiwfAddDelegationResponsePayload,
+          validEthereumSiwfLoginResponsePayload,
+        ];
+        await Promise.all(
+          payloads.map(async (payload) => {
+            console.log(payload);
+            const result = await siwfV2Service.getPayload({
+              authorizationPayload: base64url(JSON.stringify(payload)),
+            });
+            expect(result).toBeDefined();
+            expect(result).toHaveProperty('payloads');
+          }),
+        );
       });
 
       it('Should throw BadRequest if there is no authorizationPayload or authorizationCode', async () => {
@@ -234,6 +252,17 @@ describe('SiwfV2Service', () => {
         ).rejects.toThrow(BadRequestException);
       });
 
+      it('Should throw BadRequest if the payload is for a different domain (Ethereum)', async () => {
+        jest
+          .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
+          .mockReturnValue(['bad.example.com']);
+        await expect(
+          siwfV2Service.getPayload({
+            authorizationPayload: base64url(JSON.stringify(validEthereumSiwfLoginResponsePayload)),
+          }),
+        ).rejects.toThrow(BadRequestException);
+      });
+
       it('Should throw BadRequest if the response is for a different domain', async () => {
         jest
           .spyOn(mockAccountApiConfigProvider.useValue, 'siwfV2URIValidation', 'get')
@@ -255,6 +284,7 @@ describe('SiwfV2Service', () => {
       });
 
       it('Should throw BadRequest if the payload is for a different provider id', async () => {
+        // @ts-ignore
         jest.spyOn(mockBlockchainConfigProvider.useValue, 'providerId', 'get').mockReturnValue(BigInt(2222));
         await expect(
           siwfV2Service.getPayload({
@@ -265,49 +295,63 @@ describe('SiwfV2Service', () => {
     });
 
     describe('getSiwfV2LoginResponse', () => {
-      it('Should parse the control key', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
+      const email = 'john.doe@example.com';
+      const phone = '+01-234-867-5309';
+      const graphKeyPublic = '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17';
+      const graphKeyPrivate = '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87';
 
-        expect(result).toBeDefined();
-        expect(result.controlKey).toEqual('f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ');
+      const testCases = [
+        {
+          name: 'ethereum',
+          controlKey: '0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac',
+          resultControlKey: '5HYRCKHYJN9z5xUtfFkyMj4JUhsAwWyvuU8vKB1FcnYTf9ZQ',
+          payload: validEthereumSiwfAddDelegationResponsePayload,
+        },
+        {
+          name: 'sr25519',
+          controlKey: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+          resultControlKey: 'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+          payload: validSiwfAddDelegationResponsePayload,
+        },
+      ];
+
+      testCases.forEach(async (tc) => {
+        describe(`for ${tc.name}`, () => {
+          let result;
+          beforeAll(async () => {
+            jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
+            result = await siwfV2Service.getSiwfV2LoginResponse(tc.payload);
+            expect(result).toBeDefined();
+          });
+          it('Should parse the control key', async () => {
+            expect(result.controlKey).toEqual(tc.resultControlKey);
+          });
+          it('Should parse the email', async () => {
+            expect(result.email).toEqual(email);
+          });
+          it('Should parse the phone number', async () => {
+            expect(result.phoneNumber).toEqual(phone);
+          });
+          it('Should parse the graph key', async () => {
+            expect(result.graphKey).toBeDefined();
+            expect(result.graphKey.encodedPrivateKeyValue).toEqual(graphKeyPrivate);
+            expect(result.graphKey.encodedPublicKeyValue).toEqual(graphKeyPublic);
+          });
+          it('Should parse MSA Id', async () => {
+            expect(result.msaId).toEqual('123456');
+            expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(tc.resultControlKey);
+          });
+          it('Should copy the credentials', async () => {
+            expect(result.rawCredentials).toHaveLength(3);
+          });
+        });
       });
 
-      it('Should parse the email', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.email).toEqual('john.doe@example.com');
-      });
-
-      it('Should parse the phone number', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.phoneNumber).toEqual('+01-234-867-5309');
-      });
-
-      it('Should parse the graph key', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.graphKey).toBeDefined();
-        expect(result.graphKey.encodedPrivateKeyValue).toEqual(
-          '0xd0910c853563723253c4ed105c08614fc8aaaf1b0871375520d72251496e8d87',
-        );
-        expect(result.graphKey.encodedPublicKeyValue).toEqual(
-          '0xb5032900293f1c9e5822fd9c120b253cb4a4dfe94c214e688e01f32db9eedf17',
-        );
-      });
-
-      it('Should parse MSA Id', async () => {
+      it('parses recovery credentials', async () => {
         jest.spyOn(blockchainService, 'publicKeyToMsaId').mockResolvedValueOnce('123456');
-
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.msaId).toEqual('123456');
-        expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
-          'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
+        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfNewUserResponseWithRecovery);
+        expect(result.recoverySecret).toEqual(
+          '69EC-2382-E1E6-76F3-341F-3414-9DD5-CFA5-6932-E418-9385-0358-31DF-AFEA-9828-D3B7',
         );
       });
 
@@ -320,13 +364,6 @@ describe('SiwfV2Service', () => {
         expect(blockchainService.publicKeyToMsaId).toHaveBeenCalledWith(
           'f6akufkq9Lex6rT8RCEDRuoZQRgo5pWiRzeo81nmKNGWGNJdJ',
         );
-      });
-
-      it('Should copy the credentials', async () => {
-        const result = await siwfV2Service.getSiwfV2LoginResponse(validSiwfAddDelegationResponsePayload);
-
-        expect(result).toBeDefined();
-        expect(result.rawCredentials).toHaveLength(3);
       });
     });
 
@@ -367,7 +404,7 @@ describe('SiwfV2Service', () => {
         expect(enqueueSpy).not.toHaveBeenCalled();
       });
 
-      it('should return correctly for the add delegation setup', async () => {
+      it('should enqueue correctly for the add delegation setup', async () => {
         const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
         const correctGrantDelegationHash =
           '0xed01043c038eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801bac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e01000000000000001405000700080009000a0018000000';
@@ -392,7 +429,7 @@ describe('SiwfV2Service', () => {
         });
       });
 
-      it('should return correctly for the new user setup', async () => {
+      it('should enqueue correctly for the new user setup', async () => {
         const enqueueSpy = jest.spyOn(enqueueService, 'enqueueRequest');
         const correctGrantDelegationHash =
           '0xed01043c018eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48011a27cb6d79b508e1ffc8d6ae70af78d5b3561cdc426124a06f230d7ce70e757e1947dd1bac8f9e817c30676a5fa6b06510bae1201b698b044ff0660c60f18c8a01000000000000001405000700080009000a0018000000';
@@ -400,6 +437,9 @@ describe('SiwfV2Service', () => {
           '0xf501043f068eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48019eb338773b386ded2e3731ba68ba734c80408b3ad24f92ed3c60342d374a32293851fa8e41d722c72a5a4e765a9e401c68570a8c666ab678e4e5d94aa6825d851c0014000000040040eea1e39d2f154584c4b1ca8f228bb49a';
         const correctClaimHandleHash =
           '0xd9010442008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801b004140fd8ba3395cf5fcef49df8765d90023c293fde4eaf2e932cc24f74fc51b006c0bebcf31d85565648b4881fa22115e0051a3bdb95ab5bf7f37ac66f798f344578616d706c6548616e646c6518000000';
+        const correctAddRecoveryCommitmentHash =
+          '0xed01043c038eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4801bac399831b9e3ad464a16e62ad1252cc8344a2c52f80252b2aa450a06ae2362f6f4afcaca791a81f28eaa99080e2654bdbf1071a276213242fc153cca43cfa8e01000000000000001405000700080009000a0018000000';
+
         jest.spyOn(blockchainService, 'getApi').mockResolvedValue(
           mockApiTxHashes([
             { pallet: 'msa', extrinsic: 'createSponsoredAccountWithDelegation', hash: correctGrantDelegationHash },
@@ -409,11 +449,12 @@ describe('SiwfV2Service', () => {
               hash: correctStatefulStorageHash,
             },
             { pallet: 'handles', extrinsic: 'claimHandle', hash: correctClaimHandleHash },
+            { pallet: 'msa', extrinsic: 'addRecoveryCommitment', hash: correctAddRecoveryCommitmentHash },
           ]) as ApiPromise,
         );
 
         try {
-          await siwfV2Service.queueChainActions(validSiwfNewUserResponse, {});
+          await siwfV2Service.queueChainActions(validSiwfNewUserResponseWithRecovery, {});
         } catch (err: any) {
           console.error(err);
           throw err;
@@ -435,6 +476,11 @@ describe('SiwfV2Service', () => {
               encodedExtrinsic: correctClaimHandleHash,
               extrinsicName: 'claimHandle',
               pallet: 'handles',
+            },
+            {
+              encodedExtrinsic: correctAddRecoveryCommitmentHash,
+              extrinsicName: 'addRecoveryCommitment',
+              pallet: 'msa',
             },
           ],
           type: 'SIWF_SIGNUP',

@@ -3,6 +3,7 @@
 services:
   content-publishing-dev:
     pull_policy: never
+    user: "1001:1001"
     build:
       context: .
       dockerfile: ./Docker/Dockerfile.content-publishing
@@ -13,6 +14,7 @@ services:
   content-publishing-service-api:
     pull_policy: never
     image: content-publishing-dev:latest
+    user: "1001:1001"
     ports:
       - 3000:3000
     volumes: !reset []
@@ -23,6 +25,7 @@ services:
   content-publishing-service-worker:
     pull_policy: never
     image: content-publishing-dev:latest
+    user: "1001:1001"
     volumes: !reset []
     depends_on: !override
       - redis

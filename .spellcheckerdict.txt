@@ -43,6 +43,8 @@ EC2
 .env
 enum
 etcd
+Ethereum
+ETH
 extrinsics
 Filebase
 Filecoin

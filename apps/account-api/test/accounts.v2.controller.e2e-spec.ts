@@ -9,11 +9,10 @@ import type { Server } from 'node:http';
 import base64url from 'base64url';
 import request from 'supertest';
 import { ApiModule } from '../src/api.module';
-import { createMockSiwfServer } from '#account-api/services/siwfV2.mock.spec';
+import { createMockSiwfServer, validSiwfNewUserResponseWithRecovery } from '#account-api/services/siwfV2.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
 import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
-import { validSiwfV2Create } from './e2e-setup.mock.spec';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
@@ -191,7 +190,7 @@ describe('Accounts v2 Controller', () => {
   describe('(POST) /v2/accounts/siwf', () => {
     it('should process a valid SIWF v2 callback with authorizationPayload', async () => {
       const mockPayload = {
-        authorizationPayload: base64url(JSON.stringify(validSiwfV2Create)),
+        authorizationPayload: base64url(JSON.stringify(validSiwfNewUserResponseWithRecovery)),
       };
 
       const response = await request(httpServer).post('/v2/accounts/siwf').send(mockPayload).expect(HttpStatus.OK);
@@ -224,9 +223,31 @@ describe('Accounts v2 Controller', () => {
       expect(response.body).toHaveProperty('rawCredentials');
     });
 
+    it('should process a valid SIWF v2 callback with authorizationCode = validEthereumSiwfLoginResponsePayload', async () => {
+      const mockPayload = {
+        authorizationCode: 'validEthereumSiwfLoginResponsePayload',
+      };
+
+      const response = await request(httpServer).post('/v2/accounts/siwf').send(mockPayload).expect(HttpStatus.OK);
+
+      expect(response.body).toHaveProperty('controlKey');
+      expect(response.body).toHaveProperty('rawCredentials');
+    });
+
     it('should process a valid SIWF v2 callback with authorizationCode = validSiwfNewUserResponse', async () => {
       const mockPayload = {
         authorizationCode: 'validSiwfNewUserResponse',
+      };
+
+      // Just check for some basics.
+      const response = await request(httpServer).post('/v2/accounts/siwf').send(mockPayload).expect(HttpStatus.OK);
+
+      expect(response.body).toHaveProperty('controlKey');
+      expect(response.body).toHaveProperty('rawCredentials');
+    });
+    it('should process a valid SIWF v2 callback with authorizationCode = validSiwfNewUserResponseWithRecovery', async () => {
+      const mockPayload = {
+        authorizationCode: 'validSiwfNewUserResponseWithRecovery',
       };
 
       // Just check for some basics.

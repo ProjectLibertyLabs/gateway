@@ -2,6 +2,7 @@ import { registerDecorator, ValidationArguments, ValidationOptions } from 'class
 import { encodeAddress } from '@polkadot/keyring';
 import { hexToU8a } from '@polkadot/util';
 
+//  Needs cleanup.  See: https://github.com/ProjectLibertyLabs/gateway/issues/883
 export function IsAccountIdOrAddress(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line func-names
   return function (object: object, propertyName: string) {

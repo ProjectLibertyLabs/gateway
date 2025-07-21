@@ -16,6 +16,7 @@ import {
   isPayloadLogin,
   isPayloadAddProvider,
   SiwfResponsePayload,
+  isCredentialRecoverySecret,
 } from '@projectlibertylabs/siwfv2';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -27,7 +28,12 @@ import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.re
 import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
-import { chainSignature, getTypesForKeyUriOrPrivateKey, statefulStoragePayload } from '#utils/common/signature.util';
+import {
+  chainSignature,
+  getTypesForKeyUriOrPrivateKey,
+  getUnifiedAddressFromAddress,
+  statefulStoragePayload,
+} from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
@@ -102,10 +108,11 @@ export class SiwfV2Service {
       case 'handles.claimHandle':
       case 'msa.grantDelegation':
       case 'msa.createSponsoredAccountWithDelegation':
+      case 'msa.addRecoveryCommitment':
         return {
           pallet,
           extrinsicName,
-          encodedExtrinsic: api.tx[pallet][extrinsicName](
+          encodedExtrinsic: (api as ApiPromise).tx[pallet][extrinsicName](
             userPublicKey,
             chainSignature(payload.signature),
             payload.payload,
@@ -129,10 +136,14 @@ export class SiwfV2Service {
     }
   }
 
+  // Parse the request from user: get authorizationPayload or authorizationCode.
+  // If authorizationCode, the SIWF service (such as FrequencyAccess) will check to see if this is a login or a sign up
+  // and return payload, after some checks.
   async getPayload(request: WalletV2LoginRequestDto): Promise<SiwfResponse> {
     let payload: SiwfResponse;
     const loginMsgURIValidation = this.apiConf.siwfV2URIValidation;
     if (request.authorizationPayload) {
+      // this is a login authentication payload already
       try {
         // Await here so the error is caught
         payload = await validateSiwfResponse(request.authorizationPayload, {
@@ -142,11 +153,11 @@ export class SiwfV2Service {
         });
         this.logger.debug(`Validated payload (${payload.userPublicKey.encodedValue})`);
       } catch (e) {
-        this.logger.warn('Failed to parse "authorizationPayload"', { error: e.toString() });
+        this.logger.warn(`Failed to parse "authorizationPayload" ${e.toString()}`);
         throw new BadRequestException('Invalid `authorizationPayload` in request.');
       }
     } else if (request.authorizationCode) {
-      // This is used by Frequency Access
+      // This is used by Frequency Access; get the full payload from FA.
       try {
         payload = await getLoginResult(request.authorizationCode, {
           endpoint: this.swifV2Endpoint(),
@@ -157,13 +168,15 @@ export class SiwfV2Service {
           `Retrieved payload from SIWFv2 for authorizationCode '${request.authorizationCode}' (${payload.userPublicKey.encodedValue})`,
         );
       } catch (e) {
-        this.logger.warn('Failed to retrieve valid payload from "authorizationCode"', { error: e.toString() });
+        this.logger.error(e, 'Failed to retrieve valid payload from "authorizationCode"');
         throw new BadRequestException('Invalid response from `authorizationCode` payload fetch.');
       }
     } else {
       throw new BadRequestException('No `authorizationPayload` or `authorizationCode` in request.');
     }
 
+    // Find out from FrequencyAccess if this is a login or a new User.  If  new user, do some checks before
+    // returning the payload for them to sign.
     const login = payload.payloads.find(isPayloadLogin);
     const addProvider = payload.payloads.find(isPayloadAddProvider);
 
@@ -189,11 +202,15 @@ export class SiwfV2Service {
     return payload;
   }
 
+  // Return the response to the user, once their signed/submitted payload has had its extrinsics parsed, encoded
+  // and submitted on chain.
   async getSiwfV2LoginResponse(payload: SiwfResponse): Promise<WalletV2LoginResponseDto> {
     this.logger.debug('Generating login response');
     const response = new WalletV2LoginResponseDto();
 
-    response.controlKey = payload.userPublicKey.encodedValue;
+    response.controlKey = getUnifiedAddressFromAddress(payload.userPublicKey.encodedValue);
+
+    this.logger.trace(`controlKey = ${response.controlKey} .... response: `);
 
     // Get the MSA Id from the chain, if it exists
     const msaId = await this.blockchainService.publicKeyToMsaId(response.controlKey);
@@ -210,6 +227,9 @@ export class SiwfV2Service {
     const graphKey = payload.credentials.find(isCredentialGraph)?.credentialSubject;
     if (graphKey) response.graphKey = graphKey;
 
+    const recoverySecret = payload.credentials.find(isCredentialRecoverySecret)?.credentialSubject.recoverySecret;
+    if (recoverySecret) response.recoverySecret = recoverySecret;
+
     response.rawCredentials = payload.credentials;
     return response;
   }
@@ -224,7 +244,10 @@ export class SiwfV2Service {
     try {
       const calls: PublishSIWFSignupRequestDto['calls'] = (
         await Promise.all(
-          response.payloads.map((p) => this.siwfV2PayloadToEncodedExtrinsic(p, response.userPublicKey.encodedValue)),
+          response.payloads.map((p) => {
+            this.logger.debug(`encoding extrinsic:  ${p.type}`);
+            return this.siwfV2PayloadToEncodedExtrinsic(p, response.userPublicKey.encodedValue);
+          }),
         )
       ).filter(isNotNull);
 
@@ -234,11 +257,13 @@ export class SiwfV2Service {
         authorizationCode,
       });
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Chain Action Queuing', { error: e.toString() });
+      this.logger.warn(e, 'Error during SIWF V2 Chain Action Queuing');
       throw new BadRequestException('Failed to process payloads');
     }
   }
 
+  // Returns the Url that redirects to Frequency Access, containing the correct payload, signed using the
+  // provider keys configured in the environment.
   async getRedirectUrl(
     callbackUrl: string,
     permissions: number[],
@@ -249,11 +274,12 @@ export class SiwfV2Service {
       const { siwfNodeRpcUrl }: IAccountApiConfig = this.apiConf;
       const { providerKeyUriOrPrivateKey } = this.blockchainConf;
       const { encodingType, formatType, keyType } = getTypesForKeyUriOrPrivateKey(providerKeyUriOrPrivateKey);
-
+      const chainType = this.blockchainService.chainType || 'Dev';
       const signedRequest = await generateEncodedSignedRequest(
         encodingType,
         formatType,
         keyType,
+        chainType,
         providerKeyUriOrPrivateKey,
         callbackUrl,
         permissions,
@@ -264,12 +290,12 @@ export class SiwfV2Service {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {
           endpoint: this.swifV2Endpoint(),
-          chainType: this.blockchainService.chainType,
+          chainType,
         }),
         frequencyRpcUrl,
       };
     } catch (e) {
-      this.logger.warn('Error during SIWF V2 Redrect URL request', { error: e.toString() });
+      this.logger.warn('Error during SIWF V2 Redirect URL request', { error: e.toString() });
       throw new BadRequestException('Failed to get SIWF V2 Redirect URL');
     }
     return response;

@@ -55,3 +55,14 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
   }
   return calculateDsnpMultiHashFromRawHash(hash.digest());
 }
+
+export function validateEnvironmentVariables(logger?: any): void {
+  if ('DEBUG' in process.env) {
+    logger?.warn(
+      `
+      The DEBUG environment variable has been removed. Use the LOG_LEVEL and PRETTY environmental variables instead (see documentation).
+      Current defaults: LOG_LEVEL=info, PRETTY=false.
+      `,
+    );
+  }
+}

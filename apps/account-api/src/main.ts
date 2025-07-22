@@ -84,7 +84,6 @@ async function bootstrap() {
       new ValidationPipe({
         whitelist: true,
         transform: true,
-        enableDebugMessages: !!process.env.DEBUG,
       }),
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));

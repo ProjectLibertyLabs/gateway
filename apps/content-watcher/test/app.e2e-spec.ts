@@ -26,7 +26,48 @@ describe('Content Watcher E2E request verification!', () => {
   }, 15000);
 
   it('(GET) /healthz', () =>
-    request(WATCHER_URI).get('/healthz').expect(200).expect({ status: 200, message: 'Service is healthy' }));
+    request(WATCHER_URI)
+      .get('/healthz')
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            status: 200,
+            message: 'Service is healthy',
+            timestamp: expect.any(Number),
+            config: expect.objectContaining({
+              apiBodyJsonLimit: expect.any(String),
+              apiPort: expect.any(Number),
+              apiTimeoutMs: expect.any(Number),
+            }),
+            redisStatus: expect.objectContaining({
+              connected_clients: expect.any(Number),
+              maxmemory: expect.any(Number),
+              redis_version: expect.any(String),
+              uptime_in_seconds: expect.any(Number),
+              used_memory: expect.any(Number),
+              queues: expect.arrayContaining([
+                expect.objectContaining({
+                  name: expect.any(String),
+                  waiting: expect.any(Number),
+                  active: expect.any(Number),
+                  completed: expect.any(Number),
+                  failed: expect.any(Number),
+                  delayed: expect.any(Number),
+                }),
+              ]),
+            }),
+            blockchainStatus: expect.objectContaining({
+              frequencyApiWsUrl: expect.any(String),
+              latestBlockHeader: expect.objectContaining({
+                blockHash: expect.any(String),
+                number: expect.any(Number),
+                parentHash: expect.any(String),
+              }),
+            }),
+          }),
+        );
+      }));
 
   it('(GET) /metrics', () => {
     request(WATCHER_URI).get('/metrics').expect(200);

@@ -231,6 +231,8 @@ services:
     pull_policy: never
     image: gateway-dev:latest
     user: "1001:1001"
+    ports:
+      - "${WORKER_PORT_3:-3023}:3000"
     command: make start-account-worker
     environment:
       <<: [*common-environment, *account-service-env]

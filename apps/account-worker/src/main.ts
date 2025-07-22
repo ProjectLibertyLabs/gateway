@@ -7,6 +7,11 @@ import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import workerConfig, { IAccountWorkerConfig } from './worker.config';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-worker.main'));
 
@@ -32,7 +37,14 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.createMicroservice(WorkerModule, {
+  const app = await NestFactory.create<NestExpressApplication>(WorkerModule, {
+    rawBody: true,
+  });
+
+  // Enable versioning
+  app.enableVersioning({ type: VersioningType.URI });
+
+  app.connectMicroservice<MicroserviceOptions>({
     strategy: new KeepAliveStrategy(),
   });
   app.useLogger(app.get(PinoLogger));
@@ -46,10 +58,22 @@ async function bootstrap() {
     await app.close();
   });
 
+  const config = app.get<IAccountWorkerConfig>(workerConfig.KEY);
   try {
     app.enableShutdownHooks();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        enableDebugMessages: !!process.env.DEBUG,
+      }),
+    );
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+    logger.info(`Listening on port ${config.apiPort}`);
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
-    await app.listen();
+    await app.startAllMicroservices();
+    await app.listen(config.apiPort);
   } catch (e) {
     logger.error('****** MAIN CATCH ********');
     logger.error(e);

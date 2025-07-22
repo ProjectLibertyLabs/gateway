@@ -57,8 +57,6 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
 }
 
 export function validateEnvironmentVariables(logger?: any): void {
-  logger?.warn(`Environment variables: ${JSON.stringify(process.env, null, 2)}`);
-
   if ('DEBUG' in process.env) {
     logger?.warn(
       `

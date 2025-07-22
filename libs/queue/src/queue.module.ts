@@ -15,6 +15,15 @@ export class QueueModule {
           ...options?.config,
           connection: options?.config?.connection || cacheConf.redisOptions,
           prefix: options?.config?.prefix || `${cacheConf.cacheKeyPrefix}:bull`,
+          defaultJobOptions: {
+            removeOnComplete: 100,
+            removeOnFail: 50,
+            attempts: 3,
+            backoff: {
+              type: 'exponential',
+              delay: 2000,
+            },
+          },
         }),
         inject: [cacheConfig.KEY],
       }),

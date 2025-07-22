@@ -30,14 +30,15 @@ FROM node:22-alpine
 ENV NODE_ENV=production
 
 # Create a non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S gateway -u 1001 -G nodejs
+RUN addgroup -g 1001 nodejs && \
+    adduser -u 1001 -G nodejs -s /bin/sh -D gateway
 
 WORKDIR /app
 
 # Copy all files (as root)
 COPY --from=builder /build/dist ./dist/
 COPY package*.json ./
+COPY lua ./lua/
 COPY --from=builder /build/node_modules ./node_modules/
 
 # Set ownership, permissions, create directories, and install packages in one layer

@@ -1,9 +1,8 @@
-import { HealthCheckService } from '#health-check/health-check.service';
-import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GraphQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IGraphApiConfig } from '#graph-api/api.config';
+import { HealthCheckService } from '#health-check/health-check.service';
+import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
+import { ContentPublishingQueues } from '#types/constants/queue.constants';
 
 @Controller()
 @ApiTags('health')
@@ -20,19 +19,18 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
-    const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig<IGraphApiConfig>('graph-api'),
-      this.healthCheckService.getRedisStatus(QueueConstants.QUEUE_NAMES),
-      this.healthCheckService.getBlockchainStatus(),
-    ]);
-
     return {
       status: HttpStatus.OK,
       message: 'Service is healthy',
       timestamp: Date.now(),
-      config: configResult.status === 'fulfilled' ? configResult.value : null,
-      redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
-      blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
+      config: this.healthCheckService.getServiceConfig('content-publishing-api'),
+      redisStatus: await this.healthCheckService.getRedisStatus([
+        ContentPublishingQueues.REQUEST_QUEUE_NAME,
+        ContentPublishingQueues.ASSET_QUEUE_NAME,
+        ContentPublishingQueues.PUBLISH_QUEUE_NAME,
+        ContentPublishingQueues.BATCH_QUEUE_NAME,
+      ]),
+      blockchainStatus: await this.healthCheckService.getBlockchainStatus(),
     };
   }
 

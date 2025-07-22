@@ -87,7 +87,7 @@ To run this project, you need:
 
 ## Environment Variables
 
-For more information on environment variables, see the Build page for your selected service:
+For information on environment variables, see the Build page for your selected service:
 
 - [Account Service](../../Build/AccountService/AccountService.html)
 - [Content Publishing Service](../../Build/ContentPublishing/ContentPublishing.html)

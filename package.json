@@ -133,7 +133,7 @@
     "@nestjs/platform-express": "^10.4.18",
     "@nestjs/schedule": "^4.1.1",
     "@nestjs/swagger": "^7.4.2",
-    "@polkadot/api": "latest",
+    "@polkadot/api": "^16.3.1",
     "@polkadot/api-base": "^16.3.1",
     "@polkadot/api-derive": "^16.3.1",
     "@polkadot/keyring": "^13.5.3",

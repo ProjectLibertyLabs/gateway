@@ -286,7 +286,7 @@ export class SiwfV2Service {
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),
       );
       const frequencyRpcUrl = siwfNodeRpcUrl?.toString();
-      if (!frequencyRpcUrl || !frequencyRpcUrl.length) {
+      if (!frequencyRpcUrl) {
         this.logger.error('"SIWF_NODE_RPC_URL" required to use SIWF');
         throw new ForbiddenException('SIWF processing unavailable');
       }

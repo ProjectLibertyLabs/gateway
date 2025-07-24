@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import {
   generateEncodedSignedRequest,
   generateAuthenticationUrl,
@@ -286,6 +286,10 @@ export class SiwfV2Service {
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),
       );
       const frequencyRpcUrl = siwfNodeRpcUrl?.toString();
+      if (!frequencyRpcUrl || !frequencyRpcUrl.length) {
+        this.logger.error('"SIWF_NODE_RPC_URL" required to use SIWF');
+        throw new ForbiddenException('SIWF processing unavailable');
+      }
       response = {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {

@@ -73,10 +73,10 @@ async function bootstrap() {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
-    logger.info(`Listening on port ${config.apiPort}`);
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.startAllMicroservices();
     await app.listen(config.apiPort);
+    logger.info(`Listening on port ${config.apiPort}`);
   } catch (e) {
     logger.error('****** MAIN CATCH ********');
     logger.error(e);

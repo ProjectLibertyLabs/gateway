@@ -6,6 +6,7 @@ import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
+import { validateEnvironmentVariables } from '#utils/common/common.utils';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-api.main'));
 
@@ -29,7 +30,9 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice(WorkerModule, {
     strategy: new KeepAliveStrategy(),
   });
-  app.useLogger(app.get(PinoLogger));
+  const pinoLogger = app.get(PinoLogger);
+  app.useLogger(pinoLogger);
+  validateEnvironmentVariables(pinoLogger);
   logger.info('Nest ApplicationContext for Graph Worker created.');
 
   // Get event emitter & register a shutdown listener

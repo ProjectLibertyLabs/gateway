@@ -12,6 +12,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import workerConfig, { IAccountWorkerConfig } from './worker.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { validateEnvironmentVariables } from '#utils/common/common.utils';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-worker.main'));
 
@@ -47,7 +48,9 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     strategy: new KeepAliveStrategy(),
   });
-  app.useLogger(app.get(PinoLogger));
+  const pinoLogger = app.get(PinoLogger);
+  app.useLogger(pinoLogger);
+  validateEnvironmentVariables(pinoLogger);
   logger.info('Nest ApplicationContext for Account Worker created.');
 
   // Get event emitter & register a shutdown listener

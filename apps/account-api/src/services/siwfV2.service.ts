@@ -285,7 +285,7 @@ export class SiwfV2Service {
         permissions,
         SiwfV2Service.requestedCredentialTypesToFullRequest(requestCredentials),
       );
-      const frequencyRpcUrl = siwfNodeRpcUrl.toString();
+      const frequencyRpcUrl = siwfNodeRpcUrl?.toString();
       response = {
         signedRequest,
         redirectUrl: generateAuthenticationUrl(signedRequest, new URLSearchParams({ frequencyRpcUrl }), {

@@ -13,6 +13,7 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 import workerConfig, { IAccountWorkerConfig } from './worker.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-worker.main'));
 
@@ -53,6 +54,27 @@ async function bootstrap() {
   validateEnvironmentVariables(pinoLogger);
   logger.info('Nest ApplicationContext for Account Worker created.');
 
+  const swaggerDoc = await generateSwaggerDoc(app, {
+    title: 'Account Worker Service',
+    description: 'Account Worker Service API',
+    version: '2.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'health', tags: ['health'] },
+          { name: 'prometheus', tags: ['metrics'] },
+        ],
+      ],
+    ]),
+  });
+
+  const args = process.argv.slice(2);
+  if (args.find((v) => v === '--writeOpenApi')) {
+    writeOpenApiFile(swaggerDoc, './openapi-specs/account-worker.openapi.json');
+    process.exit(0);
+  }
+
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
@@ -75,8 +97,8 @@ async function bootstrap() {
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
     await app.startAllMicroservices();
-    await app.listen(config.apiPort);
-    logger.info(`Listening on port ${config.apiPort}`);
+    await app.listen(config.workerApiPort);
+    logger.info(`Listening on port ${config.workerApiPort}`);
   } catch (e) {
     logger.error('****** MAIN CATCH ********');
     logger.error(e);

@@ -4,7 +4,7 @@ import Joi from 'joi';
 
 export interface IAccountWorkerConfig {
   apiBodyJsonLimit: string;
-  apiPort: number;
+  workerApiPort: number;
   apiTimeoutMs: number;
   blockchainScanIntervalSeconds: number;
   healthCheckMaxRetries: number;
@@ -23,9 +23,9 @@ export default registerAs('account-worker', (): IAccountWorkerConfig => {
       label: 'API_BODY_JSON_LIMIT',
       joi: Joi.string().default('1mb'),
     },
-    apiPort: {
-      label: 'API_PORT',
-      joi: Joi.number().min(0).default(3001),
+    workerApiPort: {
+      label: 'WORKER_API_PORT',
+      joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {
       label: 'API_TIMEOUT_MS',

@@ -19,7 +19,7 @@ import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -65,7 +65,7 @@ import { getPinoHttpOptions } from '#logger-lib';
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
     TxnNotifierModule,
-    PrometheusModule,
+    PrometheusModule.register(createPrometheusConfig('account-worker')),
     HealthCheckModule,
   ],
   controllers: [HealthController],

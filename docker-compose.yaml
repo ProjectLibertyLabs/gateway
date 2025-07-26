@@ -139,6 +139,8 @@ services:
     pull_policy: never
     image: gateway-dev:latest
     user: "1001:1001"
+    ports:
+      - ${WORKER_PORT_0:-3020}:3001
     command: make start-content-publishing-worker
     environment:
       <<: [*common-environment, *content-publishing-env]
@@ -195,6 +197,8 @@ services:
     pull_policy: never
     image: gateway-dev:latest
     user: "1001:1001"
+    ports:
+      - ${WORKER_PORT_2:-3022}:3001
     command: make start-graph-worker
     environment:
       <<: [*common-environment, *graph-service-env]

@@ -18,7 +18,10 @@ import { QueueModule } from '#queue/queue.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
+import { HealthCheckModule } from '#health-check/health-check.module';
+import { HealthController } from './health_check/health.controller';
 
 @Module({
   imports: [
@@ -65,7 +68,10 @@ import { getPinoHttpOptions } from '#logger-lib';
     RequestProcessorModule,
     GraphUpdatePublisherModule,
     GraphNotifierModule,
+    PrometheusModule.register(createPrometheusConfig('account-worker')),
+    HealthCheckModule,
   ],
+  controllers: [HealthController],
   providers: [GraphStateManager],
   exports: [],
 })

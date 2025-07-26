@@ -2,8 +2,8 @@ import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
-import { ContentPublishingQueues } from '#types/constants/queue.constants';
-import { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { GraphQueues } from '#types/constants/queue.constants';
+import { IGraphWorkerConfig } from '#graph-worker/worker.config';
 
 @Controller()
 @ApiTags('health')
@@ -21,13 +21,8 @@ export class HealthController {
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
     const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig<IContentPublishingWorkerConfig>('content-publishing-worker'),
-      this.healthCheckService.getRedisStatus([
-        ContentPublishingQueues.REQUEST_QUEUE_NAME,
-        ContentPublishingQueues.ASSET_QUEUE_NAME,
-        ContentPublishingQueues.PUBLISH_QUEUE_NAME,
-        ContentPublishingQueues.BATCH_QUEUE_NAME,
-      ]),
+      this.healthCheckService.getServiceConfig<IGraphWorkerConfig>('graph-worker'),
+      this.healthCheckService.getRedisStatus(GraphQueues.QUEUE_NAMES),
       this.healthCheckService.getBlockchainStatus(),
     ]);
 

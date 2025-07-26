@@ -3,12 +3,27 @@ import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface IGraphWorkerConfig {
+  apiBodyJsonLimit: string;
+  workerApiPort: number;
+  apiTimeoutMs: number;
   webhookFailureThreshold: number;
   webhookRetryIntervalSeconds: number;
 }
 
 export default registerAs('graph-worker', (): IGraphWorkerConfig => {
   const configs: JoiUtils.JoiConfig<IGraphWorkerConfig> = JoiUtils.normalizeConfigNames({
+    apiBodyJsonLimit: {
+      label: 'API_BODY_JSON_LIMIT',
+      joi: Joi.string().default('1mb'),
+    },
+    workerApiPort: {
+      label: 'WORKER_API_PORT',
+      joi: Joi.number().min(0).default(3000),
+    },
+    apiTimeoutMs: {
+      label: 'API_TIMEOUT_MS',
+      joi: Joi.number().min(1).default(30000),
+    },
     webhookFailureThreshold: {
       label: 'WEBHOOK_FAILURE_THRESHOLD',
       joi: Joi.number().min(1).default(3),

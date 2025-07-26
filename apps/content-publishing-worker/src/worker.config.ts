@@ -3,6 +3,9 @@ import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface IContentPublishingWorkerConfig {
+  apiBodyJsonLimit: string;
+  workerApiPort: number;
+  apiTimeoutMs: number;
   blockchainScanIntervalSeconds: number;
   trustUnfinalizedBlocks: boolean;
   assetExpirationIntervalSeconds: number;
@@ -13,6 +16,18 @@ export interface IContentPublishingWorkerConfig {
 
 export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig => {
   const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = JoiUtils.normalizeConfigNames({
+    apiBodyJsonLimit: {
+      label: 'API_BODY_JSON_LIMIT',
+      joi: Joi.string().default('1mb'),
+    },
+    workerApiPort: {
+      label: 'WORKER_API_PORT',
+      joi: Joi.number().min(0).default(3000),
+    },
+    apiTimeoutMs: {
+      label: 'API_TIMEOUT_MS',
+      joi: Joi.number().min(1).default(30000),
+    },
     blockchainScanIntervalSeconds: {
       label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(6),

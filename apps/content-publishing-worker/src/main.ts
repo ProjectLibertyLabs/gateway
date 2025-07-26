@@ -7,6 +7,12 @@ import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
 import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
+import { ValidationPipe } from '@nestjs/common';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-api.main'));
 
@@ -29,12 +35,37 @@ function startShutdownTimer() {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(WorkerModule, {
+  const app = await NestFactory.create<NestExpressApplication>(WorkerModule, {
+    rawBody: true,
+  });
+
+  app.connectMicroservice<MicroserviceOptions>({
     strategy: new KeepAliveStrategy(),
   });
   const pinoLogger = app.get(PinoLogger);
   app.useLogger(pinoLogger);
   validateEnvironmentVariables(pinoLogger);
+
+  const swaggerDoc = await generateSwaggerDoc(app, {
+    title: 'Content Publishing Worker Service',
+    description: 'Content Publishing Worker Service API',
+    version: '2.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'health', tags: ['health'] },
+          { name: 'prometheus', tags: ['metrics'] },
+        ],
+      ],
+    ]),
+  });
+
+  const args = process.argv.slice(2);
+  if (args.find((v) => v === '--writeOpenApi')) {
+    writeOpenApiFile(swaggerDoc, './openapi-specs/content-publishing-worker.openapi.json');
+    process.exit(0);
+  }
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
@@ -44,10 +75,22 @@ async function bootstrap() {
     await app.close();
   });
 
+  const config = app.get<IContentPublishingWorkerConfig>(workerConfig.KEY);
   try {
     app.enableShutdownHooks();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        enableDebugMessages: !!process.env.DEBUG,
+      }),
+    );
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
-    await app.listen();
+    await app.startAllMicroservices();
+    await app.listen(config.workerApiPort);
+    logger.info(`Listening on port ${config.workerApiPort}`);
     logger.info('Exiting bootstrap');
   } catch (e) {
     logger.info('****** MAIN CATCH ********');

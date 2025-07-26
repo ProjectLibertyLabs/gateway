@@ -9,6 +9,9 @@ import { BatchingProcessorModule } from './batching_processor/batching.processor
 import { StatusMonitorModule } from './monitor/status.monitor.module';
 import { RequestProcessorModule } from './request_processor/request.processor.module';
 import { CacheModule } from '#cache/cache.module';
+import { HealthCheckModule } from '#health-check/health-check.module';
+import { HealthController } from './health_check/health.controller';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
 import cacheConfig from '#cache/cache.config';
@@ -20,7 +23,7 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import { IpfsService } from '#storage';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -70,7 +73,10 @@ import { getPinoHttpOptions } from '#logger-lib';
     AssetProcessorModule,
     RequestProcessorModule,
     BatchingProcessorModule,
+    PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
+    HealthCheckModule,
   ],
+  controllers: [HealthController],
   providers: [IpfsService],
   exports: [IpfsService],
 })

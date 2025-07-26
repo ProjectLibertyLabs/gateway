@@ -9,8 +9,10 @@ export class KeepAliveStrategy implements CustomTransportStrategy {
     }
   }
 
-  listen() {
+  listen(callback: (error?: any) => void) {
     this.wait();
+    // Notify NestJS that the microservice is ready
+    callback();
   }
 
   close() {

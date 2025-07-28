@@ -7,6 +7,12 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+const mockIpfsService = {
+  ipfsPin: jest.fn().mockResolvedValue('QmMockHash123'),
+  ipfsPinBuffer: jest.fn().mockResolvedValue('QmMockHash123'),
+  ipfsGet: jest.fn().mockResolvedValue(Buffer.from('mock data')),
+};
+
 describe('Content Publishing Worker E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
@@ -15,7 +21,10 @@ describe('Content Publishing Worker E2E request verification!', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [WorkerModule],
-    }).compile();
+    })
+      .overrideProvider('IpfsService')
+      .useValue(mockIpfsService)
+      .compile();
 
     app = module.createNestApplication();
 

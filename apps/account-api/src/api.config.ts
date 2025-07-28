@@ -7,7 +7,7 @@ export interface IAccountApiConfig {
   apiBodyJsonLimit: string;
   apiPort: number;
   apiTimeoutMs: number;
-  siwfNodeRpcUrl: URL;
+  siwfNodeRpcUrl?: URL;
   graphEnvironmentType: keyof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
@@ -30,7 +30,7 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     },
     siwfNodeRpcUrl: {
       label: 'SIWF_NODE_RPC_URL',
-      joi: Joi.string().uri().required(),
+      joi: Joi.string().uri(),
     },
     graphEnvironmentType: {
       label: 'GRAPH_ENVIRONMENT_TYPE',

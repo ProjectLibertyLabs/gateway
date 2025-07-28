@@ -22,12 +22,7 @@ export class HealthController {
   async healthz(): Promise<HealthResponseDto> {
     const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
       this.healthCheckService.getServiceConfig<IContentPublishingWorkerConfig>('content-publishing-worker'),
-      this.healthCheckService.getRedisStatus([
-        ContentPublishingQueues.REQUEST_QUEUE_NAME,
-        ContentPublishingQueues.ASSET_QUEUE_NAME,
-        ContentPublishingQueues.PUBLISH_QUEUE_NAME,
-        ContentPublishingQueues.BATCH_QUEUE_NAME,
-      ]),
+      this.healthCheckService.getRedisStatus(ContentPublishingQueues.QUEUE_NAMES),
       this.healthCheckService.getBlockchainStatus(),
     ]);
 

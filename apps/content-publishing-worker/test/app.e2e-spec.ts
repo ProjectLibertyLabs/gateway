@@ -1,17 +1,67 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { WorkerModule } from '../src/worker.module';
 import WorkerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Module, ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
+import { ConfigModule } from '@nestjs/config';
+import { HealthController } from '#content-publishing-worker/health_check/health.controller';
+import { HealthCheckService } from '#health-check/health-check.service';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
+import { createPrometheusConfig } from '#logger-lib/prometheus-common-config';
+import { CacheModule } from '#cache/cache.module';
+import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
+import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
+import cacheConfig from '#cache/cache.config';
+import { BlockchainModule } from '#blockchain/blockchain.module';
 
-const mockIpfsService = {
-  ipfsPin: jest.fn().mockResolvedValue('QmMockHash123'),
-  ipfsPinBuffer: jest.fn().mockResolvedValue('QmMockHash123'),
-  ipfsGet: jest.fn().mockResolvedValue(Buffer.from('mock data')),
-};
+// Test Module for Content Publishing Worker, to avoid managing processing queues and other dependencies
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [WorkerConfig, blockchainConfig, cacheConfig],
+    }),
+    PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
+    CacheModule.forRootAsync({
+      useFactory: (blockchainConf, cacheConf) => [
+        {
+          ...cacheConf.redisOptions,
+          keyPrefix: cacheConf.cacheKeyPrefix,
+        },
+        {
+          ...cacheConf.redisOptions,
+          namespace: NONCE_SERVICE_REDIS_NAMESPACE,
+          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerKeyUriOrPrivateKey)}:`,
+        },
+      ],
+      inject: [blockchainConfig.KEY, cacheConfig.KEY],
+    }),
+    BlockchainModule.forRootAsync(),
+    EventEmitterModule.forRoot({
+      // Use this instance throughout the application
+      global: true,
+      // set this to `true` to use wildcards
+      wildcard: false,
+      // the delimiter used to segment namespaces
+      delimiter: '.',
+      // set this to `true` if you want to emit the newListener event
+      newListener: false,
+      // set this to `true` if you want to emit the removeListener event
+      removeListener: false,
+      // the maximum amount of listeners that can be assigned to an event
+      maxListeners: 20,
+      // show event name in memory leak message when more than maximum amount of listeners is assigned
+      verboseMemoryLeak: false,
+      // disable throwing uncaughtException if an error event is emitted and it has no listeners
+      ignoreErrors: false,
+    }),
+  ],
+  controllers: [HealthController],
+  providers: [HealthCheckService],
+})
+class TestWorkerModule {}
 
 describe('Content Publishing Worker E2E request verification!', () => {
   let app: NestExpressApplication;
@@ -20,11 +70,8 @@ describe('Content Publishing Worker E2E request verification!', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [WorkerModule],
-    })
-      .overrideProvider('IpfsService')
-      .useValue(mockIpfsService)
-      .compile();
+      imports: [TestWorkerModule],
+    }).compile();
 
     app = module.createNestApplication();
 

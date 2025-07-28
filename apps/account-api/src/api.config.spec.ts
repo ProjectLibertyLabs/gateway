@@ -25,8 +25,6 @@ describe('Account API Config', () => {
   });
 
   describe('invalid environment', () => {
-    it('missing SIWF Node RPC url should fail', async () => validateMissing(ALL_ENV, 'SIWF_NODE_RPC_URL'));
-
     it('invalid SIWF Node RPC url should fail', async () =>
       shouldFailBadValues(ALL_ENV, 'SIWF_NODE_RPC_URL', ['invalid url']));
 

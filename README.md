@@ -203,7 +203,7 @@ for a colorized, more human-readable format.
 
 ## Metrics <a name="metrics"></a>
 
-For each app - account-api, content-publishing-api, content-watcher, and graph-api - Gateway exposes the default
+For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, content-watcher, graph-api, and graph-worker - Gateway exposes the default
 Prometheus metrics at `/metrics`.
 A local Prometheus server can be installed and pointed at this endpoint for debugging or other purposes.
 

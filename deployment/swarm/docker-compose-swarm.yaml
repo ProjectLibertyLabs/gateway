@@ -98,6 +98,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    ports:
+      - ${SERVICE_PORT_4:-3020}:3000
     environment:
       <<: [*common-environment, *content-publishing-env]
       START_PROCESS: content-publishing-worker
@@ -142,6 +144,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    ports:
+      - ${SERVICE_PORT_5:-3022}:3000
     environment:
       <<: [*common-environment, *graph-service-env]
       START_PROCESS: graph-worker
@@ -170,6 +174,8 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    ports:
+      - "${SERVICE_PORT_6:-3023}:3000"
     command: account-worker
     environment:
       <<: [*common-environment, *account-service-env]

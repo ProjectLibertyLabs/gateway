@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
@@ -9,7 +8,6 @@ import { pino } from 'pino';
 import { validateEnvironmentVariables } from '#utils/common/common.utils';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { MicroserviceOptions } from '@nestjs/microservices';
 import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
 import { ValidationPipe } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
@@ -39,9 +37,6 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.connectMicroservice<MicroserviceOptions>({
-    strategy: new KeepAliveStrategy(),
-  });
   const pinoLogger = app.get(PinoLogger);
   app.useLogger(pinoLogger);
   validateEnvironmentVariables(pinoLogger);
@@ -88,9 +83,8 @@ async function bootstrap() {
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
-    await app.startAllMicroservices();
-    await app.listen(config.workerApiPort);
-    logger.info(`Listening on port ${config.workerApiPort}`);
+    await app.listen(config.apiPort);
+    logger.info(`Listening on port ${config.apiPort}`);
     logger.info('Exiting bootstrap');
   } catch (e) {
     logger.info('****** MAIN CATCH ********');

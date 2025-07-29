@@ -140,7 +140,7 @@ services:
     image: gateway-dev:latest
     user: "1001:1001"
     ports:
-      - ${WORKER_PORT_0:-3020}:3001
+      - ${SERVICE_PORT_4:-3020}:3000
     command: make start-content-publishing-worker
     environment:
       <<: [*common-environment, *content-publishing-env]
@@ -198,7 +198,7 @@ services:
     image: gateway-dev:latest
     user: "1001:1001"
     ports:
-      - ${WORKER_PORT_2:-3022}:3001
+      - ${SERVICE_PORT_5:-3022}:3000
     command: make start-graph-worker
     environment:
       <<: [*common-environment, *graph-service-env]
@@ -235,7 +235,7 @@ services:
     image: gateway-dev:latest
     user: "1001:1001"
     ports:
-      - "${WORKER_PORT_3:-3023}:3001"
+      - "${SERVICE_PORT_6:-3023}:3000"
     command: make start-account-worker
     environment:
       <<: [*common-environment, *account-service-env]

@@ -24,7 +24,8 @@ export default registerAs('account-worker', (): IAccountWorkerConfig => {
       joi: Joi.string().default('1mb'),
     },
     apiPort: {
-      label: 'API_PORT',
+      label: 'WORKER_API_PORT',
+      value: process.env.WORKER_API_PORT || process.env.API_PORT,
       joi: Joi.number().min(0).default(3000),
     },
     apiTimeoutMs: {

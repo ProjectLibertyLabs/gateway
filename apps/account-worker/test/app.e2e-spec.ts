@@ -55,7 +55,7 @@ describe('Account Service E2E request verification!', () => {
       .then((res) => {
         const baseConfigExpectation: { [key: string]: any } = {
           apiBodyJsonLimit: expect.any(String),
-          workerApiPort: expect.any(Number),
+          apiPort: expect.any(Number),
           apiTimeoutMs: expect.any(Number),
           blockchainScanIntervalSeconds: expect.any(Number),
           healthCheckMaxRetries: expect.any(Number),

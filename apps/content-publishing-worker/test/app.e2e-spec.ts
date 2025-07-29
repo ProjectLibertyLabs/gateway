@@ -111,7 +111,7 @@ describe('Content Publishing Worker E2E request verification!', () => {
       .then((res) => {
         const baseConfigExpectation: { [key: string]: any } = {
           apiBodyJsonLimit: expect.any(String),
-          workerApiPort: expect.any(Number),
+          apiPort: expect.any(Number),
           apiTimeoutMs: expect.any(Number),
           blockchainScanIntervalSeconds: expect.any(Number),
           trustUnfinalizedBlocks: expect.any(Boolean),

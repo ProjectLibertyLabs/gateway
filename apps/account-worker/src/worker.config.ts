@@ -3,6 +3,9 @@ import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
 export interface IAccountWorkerConfig {
+  apiBodyJsonLimit: string;
+  apiPort: number;
+  apiTimeoutMs: number;
   blockchainScanIntervalSeconds: number;
   healthCheckMaxRetries: number;
   healthCheckMaxRetryIntervalSeconds: number;
@@ -16,6 +19,19 @@ export interface IAccountWorkerConfig {
 
 export default registerAs('account-worker', (): IAccountWorkerConfig => {
   const configs: JoiUtils.JoiConfig<IAccountWorkerConfig> = JoiUtils.normalizeConfigNames({
+    apiBodyJsonLimit: {
+      label: 'API_BODY_JSON_LIMIT',
+      joi: Joi.string().default('1mb'),
+    },
+    apiPort: {
+      label: 'WORKER_API_PORT',
+      value: process.env.WORKER_API_PORT || process.env.API_PORT,
+      joi: Joi.number().min(0).default(3000),
+    },
+    apiTimeoutMs: {
+      label: 'API_TIMEOUT_MS',
+      joi: Joi.number().min(1).default(30000),
+    },
     blockchainScanIntervalSeconds: {
       label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
       joi: Joi.number().min(1).default(6),

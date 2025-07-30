@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { RedisStatusDto, QueueStatusDto, BlockchainStatusDto, LatestBlockHeader } from '#types/dtos/common';
+import {
+  RedisStatusDto,
+  QueueStatusDto,
+  BlockchainStatusDto,
+  LatestBlockHeader,
+  HealthResponseDto,
+} from '#types/dtos/common';
 
 import { plainToInstance } from 'class-transformer';
 import fs from 'fs';
@@ -118,5 +124,21 @@ export class HealthCheckService {
 
   public getServiceConfig<T = unknown>(serviceName: string): T {
     return this.configService.get<T>(serviceName);
+  }
+
+  public async getServiceStatus(QueueNames: Array<QueueName>, Config: unknown): Promise<HealthResponseDto> {
+    const [redisResult, blockchainResult] = await Promise.allSettled([
+      this.getRedisStatus(QueueNames),
+      this.getBlockchainStatus(),
+    ]);
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Service is healthy',
+      timestamp: Date.now(),
+      config: Config,
+      redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
+      blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
+    };
   }
 }

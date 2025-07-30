@@ -3,7 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IAccountApiConfig } from '#account-api/api.config';
+import { IAccountWorkerConfig } from '#account-worker/worker.config';
 
 @Controller()
 @ApiTags('health')
@@ -14,7 +14,6 @@ export class HealthController {
   ) {}
 
   // Health endpoint
-
   // eslint-disable-next-line class-methods-use-this
   @Get('healthz')
   @HttpCode(HttpStatus.OK)
@@ -23,7 +22,7 @@ export class HealthController {
   async healthz(): Promise<HealthResponseDto> {
     return this.healthCheckService.getServiceStatus(
       [QueueConstants.TRANSACTION_PUBLISH_QUEUE],
-      this.healthCheckService.getServiceConfig<IAccountApiConfig>('account-api'),
+      this.healthCheckService.getServiceConfig<IAccountWorkerConfig>('account-worker'),
     );
   }
 

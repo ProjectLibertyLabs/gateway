@@ -3,6 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 import { ContentPublishingQueues } from '#types/constants/queue.constants';
+import { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 
 @Controller()
 @ApiTags('health')
@@ -19,19 +20,10 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
-    return {
-      status: HttpStatus.OK,
-      message: 'Service is healthy',
-      timestamp: Date.now(),
-      config: this.healthCheckService.getServiceConfig('content-publishing-api'),
-      redisStatus: await this.healthCheckService.getRedisStatus([
-        ContentPublishingQueues.REQUEST_QUEUE_NAME,
-        ContentPublishingQueues.ASSET_QUEUE_NAME,
-        ContentPublishingQueues.PUBLISH_QUEUE_NAME,
-        ContentPublishingQueues.BATCH_QUEUE_NAME,
-      ]),
-      blockchainStatus: await this.healthCheckService.getBlockchainStatus(),
-    };
+    return this.healthCheckService.getServiceStatus(
+      ContentPublishingQueues.QUEUE_NAMES,
+      this.healthCheckService.getServiceConfig<IContentPublishingWorkerConfig>('content-publishing-worker'),
+    );
   }
 
   // Live endpoint

@@ -20,20 +20,10 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
-    const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
+    return this.healthCheckService.getServiceStatus(
+      QueueConstants.QUEUE_NAMES,
       this.healthCheckService.getServiceConfig<IGraphApiConfig>('graph-api'),
-      this.healthCheckService.getRedisStatus(QueueConstants.QUEUE_NAMES),
-      this.healthCheckService.getBlockchainStatus(),
-    ]);
-
-    return {
-      status: HttpStatus.OK,
-      message: 'Service is healthy',
-      timestamp: Date.now(),
-      config: configResult.status === 'fulfilled' ? configResult.value : null,
-      redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
-      blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
-    };
+    );
   }
 
   // Live endpoint

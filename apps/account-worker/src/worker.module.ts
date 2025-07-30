@@ -7,8 +7,11 @@ import { ProviderWebhookService } from '#account-lib/services/provider-webhook.s
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 import { CacheModule } from '#cache/cache.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
+import { HealthCheckModule } from '#health-check/health-check.module';
+import { HealthController } from './controllers/health.controller';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import blockchainConfig, { addressFromSeedPhrase, IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -16,7 +19,7 @@ import { QueueModule } from '#queue/queue.module';
 import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
 @Module({
   imports: [
@@ -62,7 +65,10 @@ import { getPinoHttpOptions } from '#logger-lib';
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
     TxnNotifierModule,
+    PrometheusModule.register(createPrometheusConfig('account-worker')),
+    HealthCheckModule,
   ],
+  controllers: [HealthController],
   providers: [ProviderWebhookService],
   exports: [EventEmitterModule],
 })

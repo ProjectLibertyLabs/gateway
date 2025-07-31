@@ -29,6 +29,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 @Processor(QueueConstants.GRAPH_CHANGE_PUBLISH_QUEUE)
 export class GraphUpdatePublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
     this.worker.concurrency = this.graphWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
     await this.capacityCheckerService.checkForSufficientCapacity();
   }

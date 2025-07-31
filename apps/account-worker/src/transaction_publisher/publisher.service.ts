@@ -41,6 +41,7 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
 export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
   public async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
     await this.capacityCheckerService.checkForSufficientCapacity();
     this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
   }

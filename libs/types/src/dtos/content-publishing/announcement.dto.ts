@@ -140,14 +140,31 @@ export class BatchFilesDto {
 }
 
 export class BatchAnnoucementDto {
+  @ApiProperty({
+    description: 'Unique identifier for tracking the batch announcement',
+    example: 'batch_12345',
+  })
   referenceId: string;
 
+  @ApiProperty({
+    description: 'IPFS CID of the uploaded file',
+    example: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+  })
   cid: string;
 
-  error: string;
+  @ApiProperty({
+    description: 'Error message if the file upload or batch creation failed. Will be undefined in successful responses since this endpoint uses all-or-nothing error handling.',
+    required: false,
+    example: undefined,
+  })
+  error?: string;
 }
 
 export class BatchAnnouncementResponseDto {
+  @ApiProperty({
+    description: 'Array of batch announcement results for each uploaded file',
+    type: [BatchAnnoucementDto],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BatchAnnoucementDto)

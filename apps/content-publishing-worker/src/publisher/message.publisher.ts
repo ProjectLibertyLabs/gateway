@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
@@ -59,11 +59,13 @@ export class MessagePublisher implements OnApplicationBootstrap {
     }
 
     // Create a new promise that will process the batch after 6 seconds
-    this.batchingPromise = new Promise((resolve) => {
+    this.batchingPromise = new Promise((resolve, reject) => {
       this.batchTimeout = setTimeout(() => {
         // Only process if we have messages
         if (this.messageQueue.length > 0) {
-          this.processBatch().then(resolve);
+          this.processBatch()
+            .then(resolve)
+            .catch(reject);
         }
       }, 6000); // Wait 6 seconds to collect more messages
     });
@@ -77,9 +79,8 @@ export class MessagePublisher implements OnApplicationBootstrap {
       throw new Error('No messages in queue to process');
     }
 
-    // Take all current messages and clear the queue
+    // Keep messages in queue until successful processing to enable recovery on error
     const batchToProcess = [...this.messageQueue];
-    this.messageQueue = [];
 
     try {
       this.logger.debug(`Processing batch of ${batchToProcess.length} messages`);
@@ -101,9 +102,19 @@ export class MessagePublisher implements OnApplicationBootstrap {
 
       // Create a vector of all transactions and submit as a single batch
       const callVec = this.blockchainService.createType('Vec<Call>', transactions);
-      return this.blockchainService.payWithCapacityBatchAll(callVec);
+      const result = await this.blockchainService.payWithCapacityBatchAll(callVec);
+
+      // Only clear queue after successful processing
+      this.messageQueue = this.messageQueue.slice(batchToProcess.length);
+      this.batchingPromise = null;
+
+      return result;
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
+      
+      // Reset batching promise to allow retry
+      this.batchingPromise = null;
+      
       // If we have a nonce conflict, throw a special error that will
       // cause the job to be retried later
       if (e instanceof NonceConflictError) {

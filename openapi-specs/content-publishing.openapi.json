@@ -579,7 +579,7 @@
         },
         "responses": {
           "202": {
-            "description": "Files uploaded and batch announcements created successfully",
+            "description": "All files uploaded and batch announcements created successfully. This endpoint uses all-or-nothing error handling - if any file upload or batch creation fails, the entire request will return an error status. Successful responses will not contain error fields.",
             "content": {
               "application/json": {
                 "schema": {
@@ -600,9 +600,11 @@
                           },
                           "error": {
                             "type": "string",
-                            "description": "Error message if the file upload or batch creation failed"
+                            "description": "Error message - will be undefined in successful responses since this endpoint uses all-or-nothing error handling.",
+                            "nullable": true
                           }
-                        }
+                        },
+                        "required": ["referenceId", "cid"]
                       }
                     }
                   }

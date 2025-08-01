@@ -81,48 +81,47 @@ export class ContentControllerV3 {
 
     busboy.on('finish', async () => {
       try {
+        // Validation phase
         if (fileIndex === 0) {
           throw new BadRequestException('No files provided in the request');
         }
-
-        // Validate schema IDs match file count
         if (schemaIds.length !== fileProcessingPromises.length) {
           throw new BadRequestException('Number of schema IDs does not match number of files');
         }
 
-        // Process uploaded files
+        // Upload phase
         const uploadResults = await Promise.all(fileProcessingPromises);
 
-        // Check for upload errors
-        const errors = uploadResults.filter((uploadResult) => uploadResult.error);
-        if (errors.length > 0) {
-          throw new BadRequestException(errors[0].error || 'File upload failed');
+        // Check for any upload errors - if ANY fail, the entire request fails
+        const uploadErrors = uploadResults.filter((uploadResult) => uploadResult.error);
+        if (uploadErrors.length > 0) {
+          throw new BadRequestException(`File upload failed: ${uploadErrors[0].error}`);
         }
 
-        // Process each file and schema ID pair
-        const batchPromises = uploadResults.map((uploadResult) => {
+        // Batch creation phase
+        const batchPromises = uploadResults.map((uploadResult, index) => {
           if (!uploadResult.cid) {
-            return null;
+            throw new BadRequestException(`Upload result missing CID for file ${index + 1}`);
           }
-          return this.apiService
-            .enqueueBatchRequest({
-              cid: uploadResult.cid,
-              schemaId: schemaIds[uploadResults.indexOf(uploadResult)],
-            })
-            .catch(() => null);
+          return this.apiService.enqueueBatchRequest({
+            cid: uploadResult.cid,
+            schemaId: schemaIds[index],
+          });
         });
 
-        // Submit all batch requests and collect responses
         const batchResults = await Promise.all(batchPromises);
 
+        // Return success response only if everything succeeded
         resolveResponse({
           files: uploadResults.map((uploadResult, index) => ({
             referenceId: batchResults[index].referenceId,
             cid: uploadResult.cid,
-            error: uploadResult.error,
+            error: undefined, // No errors in success case
           })),
         });
+
       } catch (error: unknown) {
+        // Only throw for validation errors or complete failures
         if (error instanceof BadRequestException) {
           throw error;
         }

@@ -11,6 +11,13 @@ import { getRedisToken } from '@songkeys/nestjs-redis';
 import { Provider } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
+import { NonceConflictError, RpcError } from '#blockchain/types';
+
+function createNamedError(name: string, message: string): Error {
+  const err = new Error(message);
+  err.name = name;
+  return err;
+}
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -47,6 +54,7 @@ const mockNonceRedisProvider: Provider = {
   provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
   useValue: {
     defineCommand: jest.fn(),
+    get: jest.fn(),
   },
 };
 
@@ -152,7 +160,6 @@ describe('BlockchainService', () => {
   });
 
   describe('getNetworkType', () => {
-    afterEach(() => {});
     afterAll(() => {
       jest.restoreAllMocks();
     });
@@ -177,6 +184,94 @@ describe('BlockchainService', () => {
       jest.spyOn(mockApi.genesisHash, 'toHex').mockReturnValue('0xabcd');
       expect(blockchainService.getNetworkType()).toEqual('unknown');
       expect(blockchainService.chainType).toEqual('Dev');
+    });
+  });
+
+  describe('payWithCapacity', () => {
+    afterAll(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should not unreserve nonce if rejection was due to nonce conflict', async () => {
+      const unreserveSpy = jest.spyOn(blockchainService, 'unreserveNonce');
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacity').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(createNamedError('RpcError', 'Priority is too low')),
+      });
+      jest.spyOn(blockchainService, 'reserveNextNonce').mockResolvedValueOnce(1);
+      jest
+        .spyOn(blockchainService, 'getBlockForSigning')
+        .mockResolvedValueOnce({ number: 1, blockHash: '0xabcd', parentHash: '0x1234' });
+      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow(NonceConflictError);
+      expect(unreserveSpy).not.toHaveBeenCalled();
+    });
+
+    it('should unreserve nonce if rejection was due to other than nonce conflict', async () => {
+      const unreserveSpy = jest.spyOn(blockchainService, 'unreserveNonce');
+      jest.spyOn(blockchainService, 'reserveNextNonce').mockResolvedValue(1);
+      jest
+        .spyOn(blockchainService, 'getBlockForSigning')
+        .mockResolvedValue({ number: 1, blockHash: '0xabcd', parentHash: '0x1234' });
+
+      // Test with RpcError (but not NonceConflict)
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacity').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(createNamedError('RpcError', 'Some other error')),
+      });
+      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow();
+      expect(unreserveSpy).toHaveBeenCalled();
+
+      // Test with non-RpcError
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacity').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(new Error('Non-RpcError')),
+      });
+      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow();
+      expect(unreserveSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('payWithCapacityBatchAll', () => {
+    afterAll(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should not unreserve nonce if rejection was due to nonce conflict', async () => {
+      const unreserveSpy = jest.spyOn(blockchainService, 'unreserveNonce');
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacityBatchAll').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(createNamedError('RpcError', 'Priority is too low')),
+      });
+      jest.spyOn(blockchainService, 'reserveNextNonce').mockResolvedValueOnce(1);
+      jest
+        .spyOn(blockchainService, 'getBlockForSigning')
+        .mockResolvedValueOnce({ number: 1, blockHash: '0xabcd', parentHash: '0x1234' });
+      await expect(() => blockchainService.payWithCapacityBatchAll([])).rejects.toThrow(NonceConflictError);
+      expect(unreserveSpy).not.toHaveBeenCalled();
+    });
+
+    it('should unreserve nonce if rejection was due to other than nonce conflict', async () => {
+      const unreserveSpy = jest.spyOn(blockchainService, 'unreserveNonce');
+      jest.spyOn(blockchainService, 'reserveNextNonce').mockResolvedValueOnce(1);
+      jest
+        .spyOn(blockchainService, 'getBlockForSigning')
+        .mockResolvedValueOnce({ number: 1, blockHash: '0xabcd', parentHash: '0x1234' });
+
+      // Test with RpcError (but not NonceConflict)
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacityBatchAll').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(createNamedError('RpcError', 'Some other error')),
+      });
+      await expect(() => blockchainService.payWithCapacityBatchAll([])).rejects.toThrow();
+      expect(unreserveSpy).toHaveBeenCalled();
+
+      // Test with non-RpcError
+      jest.spyOn(mockApiPromise.tx.frequencyTxPayment, 'payWithCapacityBatchAll').mockReturnValueOnce({
+        toHuman: () => {},
+        signAndSend: () => Promise.reject(new Error('Non-RpcError')),
+      });
+      await expect(() => blockchainService.payWithCapacityBatchAll([])).rejects.toThrow();
+      expect(unreserveSpy).toHaveBeenCalled();
     });
   });
 });

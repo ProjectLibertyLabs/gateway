@@ -36,8 +36,17 @@ export const mockApiPromise = {
     chain: {
       getBlockHash: jest.fn(),
     },
+    system: {
+      accountNextIndex: jest.fn(),
+    }
   },
   genesisHash: {
     toHex: jest.fn(),
+  },
+  tx: {
+    frequencyTxPayment: {
+      payWithCapacity: jest.fn(),
+      payWithCapacityBatchAll: jest.fn(),
+    },
   },
 };

@@ -11,7 +11,7 @@ import { getRedisToken } from '@songkeys/nestjs-redis';
 import { Provider } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { NonceConflictError, RpcError } from '#blockchain/types';
+import { NonceConflictError } from '#blockchain/types';
 
 function createNamedError(name: string, message: string): Error {
   const err = new Error(message);

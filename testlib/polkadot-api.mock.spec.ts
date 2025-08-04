@@ -38,7 +38,7 @@ export const mockApiPromise = {
     },
     system: {
       accountNextIndex: jest.fn(),
-    }
+    },
   },
   genesisHash: {
     toHex: jest.fn(),

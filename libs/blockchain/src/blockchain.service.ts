@@ -247,8 +247,13 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       this.logger.debug(`Tx hash: ${txHash}`);
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
-      await this.unreserveNonce(nonce);
-      throw BlockchainService.createError(err);
+      const resolvedError = BlockchainService.createError(err);
+      // Don't unreserve the nonce if it was rejected due to a nonce conflict;
+      // we want future transactions to skip the duplicate nonce
+      if (!(resolvedError instanceof NonceConflictError)) {
+        await this.unreserveNonce(nonce);
+      }
+      throw resolvedError;
     }
   }
 
@@ -275,8 +280,13 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       this.logger.debug(`Tx hash: ${txHash.toString()}`);
       return [extrinsic, txHash.toHex(), block.number];
     } catch (err: any) {
-      await this.unreserveNonce(nonce);
-      throw BlockchainService.createError(err);
+      const resolvedError = BlockchainService.createError(err);
+      // Don't unreserve the nonce if it was rejected due to a nonce conflict;
+      // we want future transactions to skip the duplicate nonce
+      if (!(resolvedError instanceof NonceConflictError)) {
+        await this.unreserveNonce(nonce);
+      }
+      throw resolvedError;
     }
   }
 

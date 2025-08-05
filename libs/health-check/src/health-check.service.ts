@@ -138,7 +138,9 @@ export class HealthCheckService {
         const obj = {};
         Object.assign(obj, cfg);
         CONFIG_KEYS_TO_REDACT.forEach((key) => {
-          delete obj[key];
+          if (obj[key]) {
+            obj[key] = '***REDACTED***';
+          }
         });
         return obj;
       }),

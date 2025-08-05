@@ -23,8 +23,7 @@
     "^.+\\.(t|j)s$": [
       "ts-jest",
       {
-        "tsconfig": "tsconfig.test.json",
-        "isolatedModules": true
+        "tsconfig": "tsconfig.test.json"
       }
     ]
   },

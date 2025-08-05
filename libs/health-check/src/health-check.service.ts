@@ -25,6 +25,15 @@ interface RedisWithCustomCommands extends Redis {
   queueStatus(prefixes: string[]): Promise<string>;
 }
 
+function sortObject(obj: any) {
+  return Object.keys(obj)
+    .sort()
+    .reduce((result, key) => {
+      result[key] = obj[key];
+      return result;
+    }, {});
+}
+
 @Injectable()
 export class HealthCheckService {
   private readonly logger: Logger;
@@ -129,21 +138,22 @@ export class HealthCheckService {
       this.getBlockchainStatus(),
     ]);
 
+    const config = {};
+    this.registeredConfigs.forEach((cfg) => {
+      Object.assign(config, cfg);
+      CONFIG_KEYS_TO_REDACT.forEach((key) => {
+        if (config[key]) {
+          config[key] = '***REDACTED***';
+        }
+      });
+    });
+
     return {
       status: HttpStatus.OK,
       message: 'Service is healthy',
       timestamp: Date.now(),
       loggingConfig: this.getLogConfig(),
-      config: this.registeredConfigs.map((cfg) => {
-        const obj = {};
-        Object.assign(obj, cfg);
-        CONFIG_KEYS_TO_REDACT.forEach((key) => {
-          if (obj[key]) {
-            obj[key] = '***REDACTED***';
-          }
-        });
-        return obj;
-      }),
+      config: sortObject(config),
       redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
       blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
     };

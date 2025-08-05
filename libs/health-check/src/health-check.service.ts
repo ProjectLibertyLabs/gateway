@@ -8,7 +8,8 @@ import {
   QueueStatusDto,
   BlockchainStatusDto,
   LatestBlockHeader,
-  HealthResponseDto, LoggingConfigDto,
+  HealthResponseDto,
+  LoggingConfigDto,
 } from '#types/dtos/common';
 
 import { plainToInstance } from 'class-transformer';
@@ -29,6 +30,7 @@ function sortObject(obj: any) {
   return Object.keys(obj)
     .sort()
     .reduce((result, key) => {
+      // eslint-disable-next-line no-param-reassign
       result[key] = obj[key];
       return result;
     }, {});

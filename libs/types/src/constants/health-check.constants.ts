@@ -5,4 +5,4 @@ export const CONFIG_KEYS_TO_REDACT = [
   'providerKeyUriOrPrivateKey',
   'atRestEncryptionKeySeed',
   'ipfsBasicAuthSecret',
-]
+];

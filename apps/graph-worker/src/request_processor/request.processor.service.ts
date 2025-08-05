@@ -31,7 +31,8 @@ import { pino } from 'pino';
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
 export class RequestProcessorService extends BaseConsumer implements OnApplicationBootstrap, OnModuleDestroy {
-  public onApplicationBootstrap() {
+  public async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
     this.worker.concurrency = this.graphWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
   }
 

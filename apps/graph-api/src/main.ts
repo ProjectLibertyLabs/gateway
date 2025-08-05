@@ -12,7 +12,7 @@ import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
 import { validateEnvironmentVariables } from '#utils/common/common.utils';
 // use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('account-api.main'));
+const logger = pino(getBasicPinoOptions('graph-api.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line

@@ -793,6 +793,32 @@
           "health"
         ]
       }
+    },
+    "/v1/frequency/blockinfo": {
+      "get": {
+        "operationId": "BlockInfoController_blockInfo",
+        "summary": "Get information about current block",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Block information retrieved"
+          }
+        },
+        "tags": [
+          "/v1/frequency"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "PrometheusController_index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {
@@ -929,12 +955,17 @@
           },
           "graphKey": {
             "description": "The users's Private Graph encryption key.",
-            "example": "555-867-5309",
+            "example": "f6Y86vfvou3d4RGjYJM2k5L7g1HMjVTDMAtVMDh8g67i3VLZi",
             "allOf": [
               {
                 "$ref": "#/components/schemas/GraphKeySubject"
               }
             ]
+          },
+          "recoverySecret": {
+            "type": "string",
+            "description": "The user's recovery secret.",
+            "example": "69EC-2382-E1E6-76F3-341F-3414-9DD5-CFA5-6932-E418-9385-0358-31DF-AFEA-9828-D3B7"
           },
           "rawCredentials": {
             "description": "Raw parsed credentials received.",
@@ -1664,6 +1695,12 @@
       "name": "keys",
       "tags": [
         "v1/keys"
+      ]
+    },
+    {
+      "name": "prometheus",
+      "tags": [
+        "metrics"
       ]
     }
   ]

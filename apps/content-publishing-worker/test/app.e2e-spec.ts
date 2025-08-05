@@ -15,13 +15,21 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
 import cacheConfig from '#cache/cache.config';
 import { BlockchainModule } from '#blockchain/blockchain.module';
+import {
+  CONFIGURED_QUEUE_NAMES_PROVIDER,
+  CONFIGURED_QUEUE_PREFIX_PROVIDER,
+  ContentPublishingQueues as QueueConstants,
+  HEALTH_CONFIGS,
+} from '#types/constants';
+
+const configs = [WorkerConfig, blockchainConfig, cacheConfig];
 
 // Test Module for Content Publishing Worker, to avoid managing processing queues and other dependencies
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [WorkerConfig, blockchainConfig, cacheConfig],
+      load: configs,
     }),
     PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
     CacheModule.forRootAsync({
@@ -59,7 +67,22 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
     }),
   ],
   controllers: [HealthController],
-  providers: [HealthCheckService],
+  providers: [
+    {
+      provide: CONFIGURED_QUEUE_NAMES_PROVIDER,
+      useValue: QueueConstants.CONFIGURED_QUEUES.queues.map(({ name }) => name),
+    },
+    {
+      provide: CONFIGURED_QUEUE_PREFIX_PROVIDER,
+      useValue: 'content-publishing::bull',
+    },
+    {
+      provide: HEALTH_CONFIGS,
+      useFactory: (...registeredConfigs: any[]) => registeredConfigs,
+      inject: configs.map((c) => c.KEY),
+    },
+    HealthCheckService,
+  ],
 })
 class TestWorkerModule {}
 

@@ -12,7 +12,7 @@ import { pino } from 'pino';
 import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 import { validateEnvironmentVariables } from '#utils/common/common.utils';
 // use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('account-api.main'));
+const logger = pino(getBasicPinoOptions('content-publishing-api.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line

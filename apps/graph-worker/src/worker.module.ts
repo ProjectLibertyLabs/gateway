@@ -23,11 +23,12 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { HealthCheckModule } from '#health-check/health-check.module';
 import { HealthController } from './health_check/health.controller';
 
+const configs = [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig];
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig],
+      load: configs,
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -69,7 +70,7 @@ import { HealthController } from './health_check/health.controller';
     GraphUpdatePublisherModule,
     GraphNotifierModule,
     PrometheusModule.register(createPrometheusConfig('account-worker')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
   controllers: [HealthController],
   providers: [GraphStateManager],

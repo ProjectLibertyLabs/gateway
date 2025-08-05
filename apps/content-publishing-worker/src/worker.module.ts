@@ -25,11 +25,13 @@ import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig],
+      load: configs,
     }),
     CacheModule.forRootAsync({
       useFactory: (blockchainConf, cacheConf) => [
@@ -74,7 +76,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     RequestProcessorModule,
     BatchingProcessorModule,
     PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
   controllers: [HealthController],
   providers: [IpfsService],

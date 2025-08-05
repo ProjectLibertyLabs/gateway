@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { CurveType } from '@projectlibertylabs/siwf';
+import { CurveType } from '@projectlibertylabs/siwfv2';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { IAccountApiConfig } from '#account-api/api.config';

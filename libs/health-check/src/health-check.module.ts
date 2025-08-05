@@ -1,19 +1,30 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { LoggerModule } from 'nestjs-pino/LoggerModule';
 import { getPinoHttpOptions } from '#logger-lib';
-import { QueueModule } from '#queue/queue.module';
-import { ContentPublishingQueues } from '#types/constants';
 
 import { HealthCheckService } from './health-check.service';
+import { HEALTH_CONFIGS } from '#types/constants/health-check.constants';
 
-@Module({
-  imports: [
-    LoggerModule.forRoot(getPinoHttpOptions()),
-    BlockchainModule.forRootAsync({ readOnly: true }),
-    QueueModule.forRoot({ enableUI: false, ...ContentPublishingQueues.CONFIGURED_QUEUES }),
-  ],
-  providers: [HealthCheckService],
-  exports: [HealthCheckService],
-})
-export class HealthCheckModule {}
+export interface HealthModuleOptions {
+  // The list of config provider tokens
+  configKeys: string[];
+}
+
+@Module({})
+export class HealthCheckModule {
+  static forRoot(options: HealthModuleOptions): DynamicModule {
+    const registeredConfigsProvider: Provider = {
+      provide: HEALTH_CONFIGS,
+      useFactory: (...registeredConfigs: any[]) => registeredConfigs,
+      inject: options.configKeys,
+    };
+
+    return {
+      module: HealthCheckModule,
+      imports: [LoggerModule.forRoot(getPinoHttpOptions()), BlockchainModule.forRootAsync({ readOnly: true })],
+      providers: [registeredConfigsProvider, HealthCheckService],
+      exports: [HealthCheckService],
+    };
+  }
+}

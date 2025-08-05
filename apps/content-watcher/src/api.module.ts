@@ -26,6 +26,16 @@ import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [
+  apiConfig,
+  noProviderBlockchainConfig,
+  cacheConfig,
+  ipfsConfig,
+  scannerConfig,
+  pubsubConfig,
+  httpCommonConfig,
+];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -73,7 +83,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
       ignoreErrors: false,
     }),
     PrometheusModule.register(createPrometheusConfig('content-watcher')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map((c) => c.KEY) }),
   ],
   providers: [
     ApiService,

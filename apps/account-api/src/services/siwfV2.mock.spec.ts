@@ -454,7 +454,7 @@ export const validSiwfNewUserResponseWithRecovery: SiwfResponse = {
   ],
 };
 
-const responseMap = new Map([
+const responseMap = new Map<string, any>([
   ['validSiwfAddDelegationResponsePayload', validSiwfAddDelegationResponsePayload],
   ['validSiwfLoginResponsePayload', validSiwfLoginResponsePayload],
   ['validSiwfNewUserResponse', validSiwfNewUserResponse],

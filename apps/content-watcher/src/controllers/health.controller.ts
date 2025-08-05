@@ -3,8 +3,6 @@ import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
-import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IContentWatcherApiConfig } from '#content-watcher/api.config';
 
 @Controller()
 @ApiTags('health')
@@ -21,10 +19,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
-    return this.healthCheckService.getServiceStatus(
-      QueueConstants.QUEUE_NAMES,
-      this.healthCheckService.getServiceConfig<IContentWatcherApiConfig>('content-watcher'),
-    );
+    return this.healthCheckService.getServiceStatus();
   }
 
   // Live endpoint

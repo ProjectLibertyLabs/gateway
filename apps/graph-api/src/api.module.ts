@@ -27,11 +27,13 @@ import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphCommonConfig];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, graphCommonConfig, allowReadOnly, cacheConfig, scannerConfig],
+      load: configs,
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -65,7 +67,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('graph-api')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map((c) => c.KEY) }),
   ],
   providers: [
     ApiService,

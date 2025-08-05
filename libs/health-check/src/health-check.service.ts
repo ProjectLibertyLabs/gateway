@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { InjectRedis } from '@songkeys/nestjs-redis';
@@ -9,6 +9,7 @@ import {
   BlockchainStatusDto,
   LatestBlockHeader,
   HealthResponseDto,
+  LoggingConfigDto,
 } from '#types/dtos/common';
 
 import { plainToInstance } from 'class-transformer';
@@ -17,22 +18,22 @@ import fs from 'fs';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 
-import {
-  QUEUE_PREFIX,
-  AccountQueues,
-  ContentPublishingQueues,
-  ContentWatcherQueues,
-  GraphQueues,
-} from '#types/constants/queue.constants';
-
-type QueueName =
-  | AccountQueues.QueueName
-  | ContentPublishingQueues.QueueName
-  | ContentWatcherQueues.QueueName
-  | GraphQueues.QueueName;
+import { CONFIG_KEYS_TO_REDACT, HEALTH_CONFIGS } from '#types/constants/health-check.constants';
+import { CONFIGURED_QUEUE_NAMES_PROVIDER, CONFIGURED_QUEUE_PREFIX_PROVIDER } from '#types/constants';
+import * as process from 'node:process';
 
 interface RedisWithCustomCommands extends Redis {
   queueStatus(prefixes: string[]): Promise<string>;
+}
+
+function sortObject(obj: any) {
+  return Object.keys(obj)
+    .sort()
+    .reduce((result, key) => {
+      // eslint-disable-next-line no-param-reassign
+      result[key] = obj[key];
+      return result;
+    }, {});
 }
 
 @Injectable()
@@ -43,6 +44,9 @@ export class HealthCheckService {
     @InjectRedis() private redis: RedisWithCustomCommands,
     private readonly configService: ConfigService,
     private blockchainService: BlockchainRpcQueryService,
+    @Inject(CONFIGURED_QUEUE_NAMES_PROVIDER) private readonly queueNames: string[],
+    @Inject(CONFIGURED_QUEUE_PREFIX_PROVIDER) private readonly queuePrefix: string,
+    @Inject(HEALTH_CONFIGS) private readonly registeredConfigs: any[],
   ) {
     this.initializeRedisCommands();
     this.redisWithCommands = redis as RedisWithCustomCommands;
@@ -58,8 +62,8 @@ export class HealthCheckService {
     });
   }
 
-  public async getRedisStatus(queueNames: Array<QueueName>): Promise<RedisStatusDto> {
-    const queuePrefixes = queueNames.map((queueName) => `${QUEUE_PREFIX}:${queueName}`).filter(Boolean);
+  public async getRedisStatus(): Promise<RedisStatusDto> {
+    const queuePrefixes = this.queueNames.map((queueName) => `${this.queuePrefix}::${queueName}`).filter(Boolean);
     if (queuePrefixes.length === 0) {
       this.logger.warn('No valid queue prefixes found for status check');
     }
@@ -122,21 +126,36 @@ export class HealthCheckService {
     }
   }
 
-  public getServiceConfig<T = unknown>(serviceName: string): T {
-    return this.configService.get<T>(serviceName);
+  // eslint-disable-next-line class-methods-use-this
+  public getLogConfig(): LoggingConfigDto {
+    return {
+      logLevel: process.env?.LOG_LEVEL,
+      prettyPrint: process.env?.PRETTY === 'true' || process.env?.PRETTY === '1',
+    };
   }
 
-  public async getServiceStatus(QueueNames: Array<QueueName>, Config: unknown): Promise<HealthResponseDto> {
+  public async getServiceStatus(): Promise<HealthResponseDto> {
     const [redisResult, blockchainResult] = await Promise.allSettled([
-      this.getRedisStatus(QueueNames),
+      this.getRedisStatus(),
       this.getBlockchainStatus(),
     ]);
+
+    const config = {};
+    this.registeredConfigs.forEach((cfg) => {
+      Object.assign(config, cfg);
+      CONFIG_KEYS_TO_REDACT.forEach((key) => {
+        if (config[key]) {
+          config[key] = '***REDACTED***';
+        }
+      });
+    });
 
     return {
       status: HttpStatus.OK,
       message: 'Service is healthy',
       timestamp: Date.now(),
-      config: Config,
+      loggingConfig: this.getLogConfig(),
+      config: sortObject(config),
       redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
       blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
     };

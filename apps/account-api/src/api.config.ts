@@ -8,7 +8,7 @@ export interface IAccountApiConfig {
   apiPort: number;
   apiTimeoutMs: number;
   siwfNodeRpcUrl?: URL;
-  graphEnvironmentType: keyof EnvironmentType;
+  graphEnvironmentType: keyof typeof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
   siwfV2URIValidation?: string[];

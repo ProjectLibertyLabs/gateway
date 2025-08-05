@@ -202,7 +202,7 @@ describe('BlockchainService', () => {
       jest
         .spyOn(blockchainService, 'getBlockForSigning')
         .mockResolvedValueOnce({ number: 1, blockHash: '0xabcd', parentHash: '0x1234' });
-      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow(NonceConflictError);
+      await expect(() => blockchainService.payWithCapacity('foo')).rejects.toThrow(NonceConflictError);
       expect(unreserveSpy).not.toHaveBeenCalled();
     });
 
@@ -218,7 +218,7 @@ describe('BlockchainService', () => {
         toHuman: () => {},
         signAndSend: () => Promise.reject(createNamedError('RpcError', 'Some other error')),
       });
-      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow();
+      await expect(() => blockchainService.payWithCapacity('foo')).rejects.toThrow();
       expect(unreserveSpy).toHaveBeenCalled();
 
       // Test with non-RpcError
@@ -226,7 +226,7 @@ describe('BlockchainService', () => {
         toHuman: () => {},
         signAndSend: () => Promise.reject(new Error('Non-RpcError')),
       });
-      await expect(() => blockchainService.payWithCapacity([])).rejects.toThrow();
+      await expect(() => blockchainService.payWithCapacity('foo')).rejects.toThrow();
       expect(unreserveSpy).toHaveBeenCalled();
     });
   });

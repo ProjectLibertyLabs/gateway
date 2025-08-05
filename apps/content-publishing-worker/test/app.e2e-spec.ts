@@ -18,7 +18,8 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
 import {
   CONFIGURED_QUEUE_NAMES_PROVIDER,
   CONFIGURED_QUEUE_PREFIX_PROVIDER,
-  ContentPublishingQueues as QueueConstants, HEALTH_CONFIGS,
+  ContentPublishingQueues as QueueConstants,
+  HEALTH_CONFIGS,
 } from '#types/constants';
 
 const configs = [WorkerConfig, blockchainConfig, cacheConfig];

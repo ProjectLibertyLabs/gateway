@@ -22,7 +22,6 @@ import {
   CONFIGURED_QUEUE_PREFIX_PROVIDER,
   ContentPublishingQueues as QueueConstants,
 } from '#types/constants';
-import { HealthCheckService } from '#health-check/health-check.service';
 
 const randomString = (length: number, _unused) =>
   randomBytes(Math.ceil(length / 2))

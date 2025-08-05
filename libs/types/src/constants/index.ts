@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 
 export * from './blockchain-constants';
+export * from './health-check.constants';
 export * from './queue.constants';
 export * from './redis-keys.constants';
 

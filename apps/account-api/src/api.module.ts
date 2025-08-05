@@ -29,9 +29,10 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [apiConfig, allowReadOnly, cacheConfig];
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [apiConfig, allowReadOnly, cacheConfig] }),
+    ConfigModule.forRoot({ isGlobal: true, load: configs }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -67,7 +68,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('account-api')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map((c) => c.KEY) }),
   ],
   providers: [
     AccountsService,

@@ -26,11 +26,12 @@ import { IPFSStorageModule } from '#storage';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonConfig];
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonConfig],
+      load: configs,
     }),
     BlockchainModule.forRootAsync({ readOnly: true }),
     EventEmitterModule.forRoot({
@@ -73,7 +74,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
       inject: [apiConfig.KEY],
     }),
     IPFSStorageModule,
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map((c) => c.KEY) }),
     PrometheusModule.register(createPrometheusConfig('content-publishing-api')),
   ],
   providers: [

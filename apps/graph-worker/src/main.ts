@@ -12,7 +12,7 @@ import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 import workerConfig, { IGraphWorkerConfig } from './worker.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 // use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('account-api.main'));
+const logger = pino(getBasicPinoOptions('graph-worker.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line

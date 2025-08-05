@@ -12,7 +12,7 @@ import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
 import { ValidationPipe } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 // use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('account-api.main'));
+const logger = pino(getBasicPinoOptions('content-publishing-worker.main'));
 
 // Monkey-patch BigInt so that JSON.stringify will work
 // eslint-disable-next-line

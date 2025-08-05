@@ -21,11 +21,13 @@ import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
+const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [blockchainConfig, cacheConfig, workerConfig, httpConfig],
+      load: configs,
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -66,7 +68,7 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
     TransactionPublisherModule,
     TxnNotifierModule,
     PrometheusModule.register(createPrometheusConfig('account-worker')),
-    HealthCheckModule,
+    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
   controllers: [HealthController],
   providers: [ProviderWebhookService],

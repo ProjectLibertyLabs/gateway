@@ -11,6 +11,7 @@ import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
+import { validateEnvironmentVariables } from '#utils/common/common.utils';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-api.main'));
 
@@ -37,7 +38,9 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.useLogger(app.get(PinoLogger));
+  const pinoLogger = app.get(PinoLogger);
+  app.useLogger(pinoLogger);
+  validateEnvironmentVariables(pinoLogger);
   // Enable URL-based API versioning
   app.enableVersioning({
     type: VersioningType.URI,
@@ -84,7 +87,6 @@ async function bootstrap() {
       new ValidationPipe({
         whitelist: true,
         transform: true,
-        enableDebugMessages: !!process.env.DEBUG,
       }),
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));

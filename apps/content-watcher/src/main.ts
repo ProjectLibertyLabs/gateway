@@ -9,6 +9,7 @@ import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#open
 import { getBasicPinoOptions } from '#logger-lib';
 import { pino } from 'pino';
 import { Logger as PinoLogger } from 'nestjs-pino';
+import { validateEnvironmentVariables } from '#utils/common/common.utils';
 
 const logger = pino(getBasicPinoOptions('content-watcher.main'));
 
@@ -32,7 +33,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
     rawBody: true,
   });
-  app.useLogger(app.get(PinoLogger));
+  const pinoLogger = app.get(PinoLogger);
+  app.useLogger(pinoLogger);
+  validateEnvironmentVariables(pinoLogger);
 
   // Enable URL-based API versioning
   app.enableVersioning({

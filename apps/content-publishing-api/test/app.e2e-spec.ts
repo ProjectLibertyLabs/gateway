@@ -18,6 +18,11 @@ import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
+import {
+  CONFIGURED_QUEUE_NAMES_PROVIDER,
+  CONFIGURED_QUEUE_PREFIX_PROVIDER,
+  ContentPublishingQueues as QueueConstants,
+} from '#types/constants';
 
 const randomString = (length: number, _unused) =>
   randomBytes(Math.ceil(length / 2))
@@ -36,6 +41,16 @@ describe('AppController E2E request verification!', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [ApiModule],
+      providers: [
+        {
+          provide: CONFIGURED_QUEUE_NAMES_PROVIDER,
+          useValue: QueueConstants.CONFIGURED_QUEUES.queues.map(({ name }) => name),
+        },
+        {
+          provide: CONFIGURED_QUEUE_PREFIX_PROVIDER,
+          useValue: 'content-publishing::bull',
+        },
+      ],
     }).compile();
 
     app = module.createNestApplication();

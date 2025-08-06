@@ -17,7 +17,6 @@ x-common-environment: &common-environment
   IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
   IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
   QUEUE_HIGH_WATER: 1000
-  DEBUG: true
 
 x-content-publishing-env: &content-publishing-env
   START_PROCESS: content-publishing-api
@@ -143,6 +142,8 @@ services:
   content-publishing-service-worker:
     image: projectlibertylabs/content-publishing-service:${DOCKER_TAG:-latest}
     pull_policy: always
+    ports:
+      - ${SERVICE_PORT_4}:3000
     environment:
       <<: [*common-environment, *content-publishing-env]
       START_PROCESS: content-publishing-worker
@@ -185,6 +186,8 @@ services:
   graph-service-worker:
     image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
     pull_policy: always
+    ports:
+      - ${SERVICE_PORT_5}:3000
     environment:
       <<: [*common-environment, *graph-service-env]
       START_PROCESS: graph-worker
@@ -213,6 +216,8 @@ services:
   account-service-worker:
     image: projectlibertylabs/account-service:${DOCKER_TAG:-latest}
     pull_policy: always
+    ports:
+      - "${SERVICE_PORT_6}:3000"
     command: account-worker
     environment:
       <<: [*common-environment, *account-service-env]

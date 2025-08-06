@@ -47,6 +47,23 @@ export class BlockchainStatusDto {
   latestBlockHeader: LatestBlockHeader | null;
 }
 
+export class LoggingConfigDto {
+  @ApiProperty({
+    description: 'Log level',
+    type: 'string',
+    example: 'info',
+    enum: ['fatal', 'error', 'warn', 'info', 'debug', 'trace'],
+  })
+  logLevel: string;
+
+  @ApiProperty({
+    description: 'Whether logs are pretty-printed (true) or JSON (false)',
+    type: 'boolean',
+    example: true,
+  })
+  prettyPrint: boolean;
+}
+
 export class HealthResponseDto {
   @ApiProperty({
     description: 'Status of health response',
@@ -61,6 +78,16 @@ export class HealthResponseDto {
 
   @IsRFC3339()
   timestamp: number;
+
+  @ApiProperty({
+    description: 'Logging configuration details',
+    type: 'object',
+    example: {
+      logLevel: 'info',
+      prettyPrint: true,
+    },
+  })
+  loggingConfig: LoggingConfigDto;
 
   @ApiProperty({
     description: 'Configuration details - supplied by service',

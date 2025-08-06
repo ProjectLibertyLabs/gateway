@@ -54,8 +54,8 @@ export interface KuboRPCClient {
 export const createKuboRPCClient = jest.fn(
   (): KuboRPCClient => ({
     files: {
-      stat: jest.fn(async (path: string) => ({
-        cid,
+      stat: jest.fn(async (_path: string) => ({
+        cid: dummyCidV0,
         size: 1234,
         cumulativeSize: 5678,
         blocks: 2,

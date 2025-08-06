@@ -67,7 +67,7 @@ export class AccountsService {
     return {
       providerId: providerId.toString(),
       siwfUrl: siwfUrl.toString(),
-      frequencyRpcUrl: siwfNodeRpcUrl.toString(),
+      frequencyRpcUrl: siwfNodeRpcUrl?.toString(),
     };
   }
 

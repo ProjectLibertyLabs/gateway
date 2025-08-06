@@ -38,6 +38,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
   }
 
   public async onApplicationBootstrap() {
+    await this.blockchainService.isReady();
     this.worker.concurrency = this.cpWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 2;
     await this.capacityCheckerService.checkForSufficientCapacity();
   }

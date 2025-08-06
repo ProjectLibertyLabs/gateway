@@ -3,8 +3,6 @@ import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheckService } from '#health-check/health-check.service';
 import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
-import { ContentWatcherQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IContentWatcherApiConfig } from '#content-watcher/api.config';
 
 @Controller()
 @ApiTags('health')
@@ -21,20 +19,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the health status of the service' })
   @ApiOkResponse({ description: 'Service is healthy' })
   async healthz(): Promise<HealthResponseDto> {
-    const [configResult, redisResult, blockchainResult] = await Promise.allSettled([
-      this.healthCheckService.getServiceConfig<IContentWatcherApiConfig>('content-watcher-api'),
-      this.healthCheckService.getRedisStatus(QueueConstants.QUEUE_NAMES),
-      this.healthCheckService.getBlockchainStatus(),
-    ]);
-
-    return {
-      status: HttpStatus.OK,
-      message: 'Service is healthy',
-      timestamp: Date.now(),
-      config: configResult.status === 'fulfilled' ? configResult.value : null,
-      redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
-      blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
-    };
+    return this.healthCheckService.getServiceStatus();
   }
 
   // Live endpoint

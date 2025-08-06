@@ -17,7 +17,7 @@ export const createKeys = (keyType: KeypairType = 'sr25519'): { keyringPair: Key
     keypair = secp256k1PairFromSeed(hexToU8a(keccak256(Buffer.from(mnemonic, 'utf8'))));
     keyringPair = keyring.addFromPair(keypair, {}, keyType);
   } else {
-    keyringPair = keyring.addFromUri(mnemonic, 'sr25519');
+    keyringPair = keyring.addFromUri(mnemonic, {}, 'sr25519');
   }
   return { keyringPair, keypair };
 };

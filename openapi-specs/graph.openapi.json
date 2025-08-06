@@ -293,6 +293,32 @@
           "health"
         ]
       }
+    },
+    "/v1/frequency/blockinfo": {
+      "get": {
+        "operationId": "BlockInfoController_blockInfo",
+        "summary": "Get information about current block",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Block information retrieved"
+          }
+        },
+        "tags": [
+          "/v1/frequency"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "PrometheusController_index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {

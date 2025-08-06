@@ -1,12 +1,17 @@
 import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { KeepAliveStrategy } from '#utils/common/keepalive-strategy';
 import { WorkerModule } from './worker.module';
 import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
 
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { pino } from 'pino';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import workerConfig, { IAccountWorkerConfig } from './worker.config';
+import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 // use plain pino directly outside of the app.
 const logger = pino(getBasicPinoOptions('account-worker.main'));
 
@@ -32,11 +37,38 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.createMicroservice(WorkerModule, {
-    strategy: new KeepAliveStrategy(),
+  const app = await NestFactory.create<NestExpressApplication>(WorkerModule, {
+    rawBody: true,
   });
-  app.useLogger(app.get(PinoLogger));
+
+  // Enable versioning
+  app.enableVersioning({ type: VersioningType.URI });
+
+  const pinoLogger = app.get(PinoLogger);
+  app.useLogger(pinoLogger);
+  validateEnvironmentVariables(pinoLogger);
   logger.info('Nest ApplicationContext for Account Worker created.');
+
+  const swaggerDoc = await generateSwaggerDoc(app, {
+    title: 'Account Worker Service',
+    description: 'Account Worker Service API',
+    version: '2.0',
+    extensions: new Map<string, any>([
+      [
+        'x-tagGroups',
+        [
+          { name: 'health', tags: ['health'] },
+          { name: 'prometheus', tags: ['metrics'] },
+        ],
+      ],
+    ]),
+  });
+
+  const args = process.argv.slice(2);
+  if (args.find((v) => v === '--writeOpenApi')) {
+    writeOpenApiFile(swaggerDoc, './openapi-specs/account-worker.openapi.json');
+    process.exit(0);
+  }
 
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
@@ -46,10 +78,21 @@ async function bootstrap() {
     await app.close();
   });
 
+  const config = app.get<IAccountWorkerConfig>(workerConfig.KEY);
   try {
     app.enableShutdownHooks();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+        enableDebugMessages: !!process.env.DEBUG,
+      }),
+    );
+    app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
+    app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
     logger.info(`Log level set to ${getCurrentLogLevel()}`);
-    await app.listen();
+    await app.listen(config.apiPort);
+    logger.info(`Listening on port ${config.apiPort}`);
   } catch (e) {
     logger.error('****** MAIN CATCH ********');
     logger.error(e);

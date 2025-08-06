@@ -18,13 +18,17 @@ import { QueueModule } from '#queue/queue.module';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
+import { HealthCheckModule } from '#health-check/health-check.module';
+import { HealthController } from './health_check/health.controller';
 
+const configs = [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig];
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig],
+      load: configs,
     }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -65,7 +69,10 @@ import { getPinoHttpOptions } from '#logger-lib';
     RequestProcessorModule,
     GraphUpdatePublisherModule,
     GraphNotifierModule,
+    PrometheusModule.register(createPrometheusConfig('account-worker')),
+    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
+  controllers: [HealthController],
   providers: [GraphStateManager],
   exports: [],
 })

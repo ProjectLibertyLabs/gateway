@@ -44,19 +44,23 @@ export class ContentControllerV3 {
     description: 'Asset files',
     type: FilesUploadDto,
   })
-  @ApiResponse({ status: '2XX', type: BatchAnnouncementResponseDto })
+  @ApiResponse({ status: 200, description: 'All files uploaded and batch announcements created successfully', type: BatchAnnouncementResponseDto })
+  @ApiResponse({ status: 207, description: 'Partial success - some files uploaded successfully, others failed', type: BatchAnnouncementResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)' })
+  @ApiResponse({ status: 500, description: 'Internal server error - all uploads failed or batch creation failed', type: BatchAnnouncementResponseDto })
   async postUploadBatchAnnouncement(
     @Req() req: Request,
     @Res({ passthrough: true }) _res: Response,
   ): Promise<BatchAnnouncementResponseDto> {
-    const busboy = Busboy({ headers: req.headers });
-
-    const fileProcessingPromises: Promise<IFileResponse>[] = [];
+    let fileIndex = 0;
     let resolveResponse: (val: BatchAnnouncementResponseDto) => void;
+
+    const busboy = Busboy({ headers: req.headers });
+    const fileProcessingPromises: Promise<IFileResponse>[] = [];
     const result = new Promise<BatchAnnouncementResponseDto>((resolve) => {
       resolveResponse = resolve;
     });
-    let fileIndex = 0;
+    
     const schemaIds: number[] = [];
 
     busboy.on('field', (fieldname, value) => {
@@ -81,7 +85,6 @@ export class ContentControllerV3 {
 
     busboy.on('finish', async () => {
       try {
-        // Validation phase
         if (fileIndex === 0) {
           throw new BadRequestException('No files provided in the request');
         }
@@ -89,36 +92,73 @@ export class ContentControllerV3 {
           throw new BadRequestException('Number of schema IDs does not match number of files');
         }
 
-        // Upload phase
-        const uploadResults = await Promise.all(fileProcessingPromises);
+        const uploadResults = await Promise.allSettled(fileProcessingPromises);
 
-        // Check for any upload errors - if ANY fail, the entire request fails
-        const uploadErrors = uploadResults.filter((uploadResult) => uploadResult.error);
-        if (uploadErrors.length > 0) {
-          throw new BadRequestException(`File upload failed: ${uploadErrors[0].error}`);
+        const responseFiles: { referenceId?: string; cid?: string; error?: string }[] = [];
+        let hasFailedUploads = false;
+        let successfulUploads: { uploadResult: IFileResponse; originalIndex: number }[] = [];
+
+        uploadResults.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value.cid && !result.value.error) {
+            successfulUploads.push({ uploadResult: result.value, originalIndex: index });
+            // Placeholder - will be filled after batch creation
+            responseFiles.push({ cid: result.value.cid });
+          } else {
+            hasFailedUploads = true;
+            const error = result.status === 'rejected' 
+              ? result.reason?.message || 'Upload failed'
+              : result.value.error || 'Upload failed';
+            responseFiles.push({ error });
+          }
+        });
+
+        // Create batch announcements for successful uploads
+        if (successfulUploads.length > 0) {
+          const batchPromises = successfulUploads.map(({ uploadResult, originalIndex }) => {
+            return this.apiService.enqueueBatchRequest({
+              cid: uploadResult.cid!,
+              schemaId: schemaIds[originalIndex],
+            });
+          });
+
+          try {
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Update response files with batch results
+            successfulUploads.forEach(({ originalIndex }, batchIndex) => {
+              responseFiles[originalIndex].referenceId = batchResults[batchIndex].referenceId;
+            });
+          } catch (batchError) {
+            hasFailedUploads = true;
+            // If batch creation fails, mark all successful uploads as failed
+            successfulUploads.forEach(({ originalIndex }) => {
+              responseFiles[originalIndex] = {
+                cid: responseFiles[originalIndex].cid,
+                error: 'Upload to IPFS succeeded, but batch announcement to chainfailed'
+              };
+            });
+          }
         }
 
-        // Batch creation phase
-        const batchPromises = uploadResults.map((uploadResult, index) => {
-          if (!uploadResult.cid) {
-            throw new BadRequestException(`Upload result missing CID for file ${index + 1}`);
+        const response: BatchAnnouncementResponseDto = {
+          files: responseFiles as BatchAnnouncementResponseDto['files'] // Cast to BatchAnnouncementResponseDto['files']
+        };
+
+        // Set appropriate HTTP status and return detailed response
+        if (hasFailedUploads) {
+          if (successfulUploads.length === 0) {
+            // All files failed - return 500 Internal Server Error
+            _res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+          } else {
+            // Partial success - return 207 Multi-Status
+            _res.status(HttpStatus.MULTI_STATUS);
           }
-          return this.apiService.enqueueBatchRequest({
-            cid: uploadResult.cid,
-            schemaId: schemaIds[index],
-          });
-        });
+        } else {
+          // All succeeded - return 200 OK (default)
+          _res.status(HttpStatus.OK);
+        }
 
-        const batchResults = await Promise.all(batchPromises);
-
-        // Return success response only if everything succeeded
-        resolveResponse({
-          files: uploadResults.map((uploadResult, index) => ({
-            referenceId: batchResults[index].referenceId,
-            cid: uploadResult.cid,
-            error: undefined, // No errors in success case
-          })),
-        });
+        resolveResponse(response);
 
       } catch (error: unknown) {
         // Only throw for validation errors or complete failures

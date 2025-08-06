@@ -81,24 +81,14 @@ export class IpfsService {
   }
 
   public async existsInLocalGateway(cid: string): Promise<boolean> {
-    this.logger.debug(`Checking existence for ${cid}`);
-    try {
-      // First try a direct HEAD request without cache restriction
-      const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
-        method: 'HEAD',
-      });
-
-      if (response.ok) {
-        return true;
-      }
-
-      // If not found in gateway, check if we can get it from the IPFS network
-      const stat = await this.ipfs.block.stat(CID.parse(cid));
-      return !!stat.cid;
-    } catch (err) {
-      this.logger.debug(`Failed to verify existence of ${cid}: ${err}`);
-      return false;
-    }
+    this.logger.debug(`Requesting HEAD for ${cid}`);
+    const response = await fetch(getIpfsCidPlaceholder(cid, this.gatewayUrl), {
+      method: 'HEAD',
+      headers: {
+        'Cache-Control': 'only-if-cached',
+      },
+    });
+    return response && response.status === 200;
   }
 
   public async isPinned(cid: string): Promise<boolean> {
@@ -194,6 +184,18 @@ export class IpfsService {
     }
   }
 
+  public async tryPin(cid: string): Promise<boolean> {
+    try {
+      this.logger.debug(`Attempting to pin ${cid}`);
+      const parsedCid = CID.parse(cid);
+      await this.ipfs.pin.add(parsedCid);
+      return true;
+    } catch (err) {
+      this.logger.debug(`Failed to pin ${cid}: ${err}`);
+      return false;
+    }
+  }
+
   /**
    * Ensures the IPFS node is reachable before executing an API call.
    * Supports both Promise-based and AsyncIterable-based functions.
@@ -220,17 +222,5 @@ export class IpfsService {
         return fn();
       })
       .finally(() => clearTimeout(timeout));
-  }
-
-  public async tryPin(cid: string): Promise<boolean> {
-    try {
-      this.logger.debug(`Attempting to pin ${cid}`);
-      const parsedCid = CID.parse(cid);
-      await this.ipfs.pin.add(parsedCid);
-      return true;
-    } catch (err) {
-      this.logger.debug(`Failed to pin ${cid}: ${err}`);
-      return false;
-    }
   }
 }

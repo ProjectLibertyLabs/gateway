@@ -153,7 +153,8 @@ export class BatchAnnoucementDto {
   cid: string;
 
   @ApiProperty({
-    description: 'Error message if the file upload or batch creation failed. Will be undefined in successful responses since this endpoint uses all-or-nothing error handling.',
+    description:
+      'Error message if the file upload or batch creation failed. Will be undefined in successful responses since this endpoint uses all-or-nothing error handling.',
     required: false,
     example: undefined,
   })

@@ -44,10 +44,22 @@ export class ContentControllerV3 {
     description: 'Asset files',
     type: FilesUploadDto,
   })
-  @ApiResponse({ status: 200, description: 'All files uploaded and batch announcements created successfully', type: BatchAnnouncementResponseDto })
-  @ApiResponse({ status: 207, description: 'Partial success - some files uploaded successfully, others failed', type: BatchAnnouncementResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'All files uploaded and batch announcements created successfully',
+    type: BatchAnnouncementResponseDto,
+  })
+  @ApiResponse({
+    status: 207,
+    description: 'Partial success - some files uploaded successfully, others failed',
+    type: BatchAnnouncementResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)' })
-  @ApiResponse({ status: 500, description: 'Internal server error - all uploads failed or batch creation failed', type: BatchAnnouncementResponseDto })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error - all uploads failed or batch creation failed',
+    type: BatchAnnouncementResponseDto,
+  })
   async postUploadBatchAnnouncement(
     @Req() req: Request,
     @Res({ passthrough: true }) _res: Response,
@@ -60,7 +72,7 @@ export class ContentControllerV3 {
     const result = new Promise<BatchAnnouncementResponseDto>((resolve) => {
       resolveResponse = resolve;
     });
-    
+
     const schemaIds: number[] = [];
 
     busboy.on('field', (fieldname, value) => {
@@ -96,34 +108,35 @@ export class ContentControllerV3 {
 
         const responseFiles: { referenceId?: string; cid?: string; error?: string }[] = [];
         let hasFailedUploads = false;
-        let successfulUploads: { uploadResult: IFileResponse; originalIndex: number }[] = [];
+        const successfulUploads: { uploadResult: IFileResponse; originalIndex: number }[] = [];
 
-        uploadResults.forEach((result, index) => {
-          if (result.status === 'fulfilled' && result.value.cid && !result.value.error) {
-            successfulUploads.push({ uploadResult: result.value, originalIndex: index });
+        uploadResults.forEach((uploadResult, index) => {
+          if (uploadResult.status === 'fulfilled' && uploadResult.value.cid && !uploadResult.value.error) {
+            successfulUploads.push({ uploadResult: uploadResult.value, originalIndex: index });
             // Placeholder - will be filled after batch creation
-            responseFiles.push({ cid: result.value.cid });
+            responseFiles.push({ cid: uploadResult.value.cid });
           } else {
             hasFailedUploads = true;
-            const error = result.status === 'rejected' 
-              ? result.reason?.message || 'Upload failed'
-              : result.value.error || 'Upload failed';
+            const error =
+              uploadResult.status === 'rejected'
+                ? uploadResult.reason?.message || 'Upload failed'
+                : uploadResult.value.error || 'Upload failed';
             responseFiles.push({ error });
           }
         });
 
         // Create batch announcements for successful uploads
         if (successfulUploads.length > 0) {
-          const batchPromises = successfulUploads.map(({ uploadResult, originalIndex }) => {
-            return this.apiService.enqueueBatchRequest({
+          const batchPromises = successfulUploads.map(({ uploadResult, originalIndex }) =>
+            this.apiService.enqueueBatchRequest({
               cid: uploadResult.cid!,
               schemaId: schemaIds[originalIndex],
-            });
-          });
+            }),
+          );
 
           try {
             const batchResults = await Promise.all(batchPromises);
-            
+
             // Update response files with batch results
             successfulUploads.forEach(({ originalIndex }, batchIndex) => {
               responseFiles[originalIndex].referenceId = batchResults[batchIndex].referenceId;
@@ -134,14 +147,14 @@ export class ContentControllerV3 {
             successfulUploads.forEach(({ originalIndex }) => {
               responseFiles[originalIndex] = {
                 cid: responseFiles[originalIndex].cid,
-                error: 'Upload to IPFS succeeded, but batch announcement to chainfailed'
+                error: 'Upload to IPFS succeeded, but batch announcement to chainfailed',
               };
             });
           }
         }
 
         const response: BatchAnnouncementResponseDto = {
-          files: responseFiles as BatchAnnouncementResponseDto['files'] // Cast to BatchAnnouncementResponseDto['files']
+          files: responseFiles as BatchAnnouncementResponseDto['files'], // Cast to BatchAnnouncementResponseDto['files']
         };
 
         // Set appropriate HTTP status and return detailed response
@@ -161,7 +174,6 @@ export class ContentControllerV3 {
         }
 
         resolveResponse(response);
-
       } catch (error: unknown) {
         // Only throw for validation errors or complete failures
         if (error instanceof BadRequestException) {

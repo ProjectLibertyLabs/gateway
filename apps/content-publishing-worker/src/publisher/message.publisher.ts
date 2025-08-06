@@ -7,8 +7,6 @@ import { NonceConflictError } from '#blockchain/types';
 import { DelayedError } from 'bullmq';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
-import { Vec } from '@polkadot/types';
-import { Call } from '@polkadot/types/interfaces';
 
 @Injectable()
 export class MessagePublisher implements OnApplicationBootstrap {
@@ -63,9 +61,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
       this.batchTimeout = setTimeout(() => {
         // Only process if we have messages
         if (this.messageQueue.length > 0) {
-          this.processBatch()
-            .then(resolve)
-            .catch(reject);
+          this.processBatch().then(resolve).catch(reject);
         }
       }, 6000); // Wait 6 seconds to collect more messages
     });
@@ -111,10 +107,10 @@ export class MessagePublisher implements OnApplicationBootstrap {
       return result;
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
-      
+
       // Reset batching promise to allow retry
       this.batchingPromise = null;
-      
+
       // If we have a nonce conflict, throw a special error that will
       // cause the job to be retried later
       if (e instanceof NonceConflictError) {

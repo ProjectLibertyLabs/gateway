@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkerModule } from './worker.module';
 import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
 
-import { Logger,  PinoLogger } from 'nestjs-pino';
+import { Logger, PinoLogger } from 'nestjs-pino';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger as NestLogger, ValidationPipe, VersioningType } from '@nestjs/common';
 import workerConfig, { IAccountWorkerConfig } from './worker.config';

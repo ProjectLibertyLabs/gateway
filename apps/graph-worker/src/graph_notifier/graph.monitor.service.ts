@@ -21,8 +21,6 @@ import { REDIS_WEBHOOK_ALL, REDIS_WEBHOOK_PREFIX, SECONDS_PER_BLOCK, TXN_WATCH_L
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
-import { pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;

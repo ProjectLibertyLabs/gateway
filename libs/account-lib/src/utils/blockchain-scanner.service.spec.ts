@@ -11,8 +11,7 @@ import { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
-import { pino } from 'pino';
-import { InjectPinoLogger, LoggerModule, PinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 
 jest.mock('@polkadot/api', () => {

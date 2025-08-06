@@ -20,6 +20,7 @@ import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worke
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { pino, Logger } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TxnNotifierService
@@ -53,9 +54,8 @@ export class TxnNotifierService
     @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
+    protected readonly logger: PinoLogger,
   ) {
-    const logger: Logger = pino(getBasicPinoOptions(TxnNotifierService.prototype.constructor.name));
-
     super(cacheManager, blockchainService, logger);
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>

@@ -11,6 +11,7 @@ import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config'
 import { Readable } from 'stream';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class IpfsService {
@@ -18,13 +19,12 @@ export class IpfsService {
 
   private readonly gatewayUrl: string;
 
-  private readonly logger: Logger;
-
   constructor(
     @Inject(ipfsConfig.KEY) config: IIpfsConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(IpfsService.name));
+    this.logger.setContext(this.constructor.name);
     this.gatewayUrl = config.ipfsGatewayUrl;
     this.ipfs = createKuboRPCClient({
       url: config.ipfsEndpoint,

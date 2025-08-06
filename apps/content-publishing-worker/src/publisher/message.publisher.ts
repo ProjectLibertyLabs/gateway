@@ -7,13 +7,15 @@ import { NonceConflictError } from '#blockchain/types';
 import { DelayedError } from 'bullmq';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class MessagePublisher {
-  private logger: Logger;
-
-  constructor(private blockchainService: BlockchainService) {
-    this.logger = pino(getBasicPinoOptions(MessagePublisher.name));
+  constructor(
+    private blockchainService: BlockchainService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(this.constructor.name);
   }
 
   public async publish(message: IPublisherJob): ReturnType<MessagePublisher['processSingleBatch']> {

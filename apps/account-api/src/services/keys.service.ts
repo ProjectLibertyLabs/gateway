@@ -29,18 +29,18 @@ import {
 } from '@frequency-chain/ethereum-utils';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class KeysService {
-  private readonly logger: Logger;
-
   private readonly graphKeySchemaId: number;
 
   constructor(
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
     private blockchainService: BlockchainRpcQueryService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(KeysService.name));
+    this.logger.setContext(this.constructor.name);
     const { graphEnvironmentType } = this.apiConf;
     const environment: EnvironmentInterface = { environmentType: EnvironmentType[graphEnvironmentType] };
     const graphState = new Graph(environment);

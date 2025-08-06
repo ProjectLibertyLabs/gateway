@@ -24,6 +24,7 @@ import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.conf
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 async function hscanToObject(keyValues: string[]) {
   const result = {};
@@ -38,16 +39,15 @@ async function hscanToObject(keyValues: string[]) {
 
 @Injectable()
 export class ApiService implements BeforeApplicationShutdown {
-  private readonly logger: Logger;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE) private graphChangeRequestQueue: Queue,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private readonly asyncDebouncerService: AsyncDebouncerService,
     private readonly encryptionService: EncryptionService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   beforeApplicationShutdown(_signal?: string | undefined) {

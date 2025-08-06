@@ -12,13 +12,15 @@ import {
   verifySignature as verifyEthereumSignature,
 } from '@frequency-chain/ethereum-utils';
 import { HexString } from '@polkadot/util/types';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class HandlesService {
-  private readonly logger: Logger;
-
-  constructor(private blockchainService: BlockchainRpcQueryService) {
-    this.logger = pino(getBasicPinoOptions(HandlesService.name));
+  constructor(
+    private blockchainService: BlockchainRpcQueryService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(this.constructor.name);
   }
 
   async getHandle(msaId: string): Promise<HandleResponseDto | null> {

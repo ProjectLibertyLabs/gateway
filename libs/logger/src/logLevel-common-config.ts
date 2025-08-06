@@ -27,6 +27,7 @@ export function getPinoTransport() {
 export function getPinoHttpOptions() {
   return {
     pinoHttp: {
+      enabled: process.env.NODE_ENV !== 'test',
       level: getCurrentLogLevel(),
       customProps: () => ({
         context: 'HTTP',
@@ -48,7 +49,11 @@ export function getBasicPinoOptions(name: string) {
   // use plain pino directly outside of the app.
   return {
     name,
+    enabled: process.env.NODE_ENV !== 'test',
     level: getCurrentLogLevel(),
+    formatters: {
+      level: (label, number) => ({ level: number, levelStr: label }),
+    },
     redact: {
       paths: ['ip', '*.ip', 'ipAddress'],
     },

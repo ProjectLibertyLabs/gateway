@@ -8,6 +8,7 @@ import { BaseConsumer } from '#consumer';
 import { DsnpAnnouncementProcessor } from './dsnp.announcement.processor';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { IpfsService } from '#storage';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.REQUEST_QUEUE_NAME)
@@ -20,8 +21,9 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
     private dsnpAnnouncementProcessor: DsnpAnnouncementProcessor,
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private ipfsService: IpfsService,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async process(job: Job<IRequestJob, any, string>): Promise<any> {

@@ -9,13 +9,12 @@ import { IBlockchainNonProviderConfig } from './blockchain.config';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 import { ChainType } from '@frequency-chain/ethereum-utils';
+import { PinoLogger } from 'nestjs-pino';
 
 export class PolkadotApiService extends EventEmitter2 implements OnApplicationShutdown {
   private provider: ProviderInterface;
 
   protected readonly api: ApiPromise;
-
-  protected readonly logger: Logger;
 
   // eslint-disable-next-line no-undef
   private disconnectedTimeout: NodeJS.Timeout | undefined;
@@ -50,9 +49,10 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   constructor(
     private readonly baseConfig: IBlockchainNonProviderConfig,
     private readonly eventEmitter: EventEmitter2,
+    protected readonly logger: PinoLogger,
   ) {
     super();
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
 
     try {
       const providerUrl = this.baseConfig.frequencyApiWsUrl;

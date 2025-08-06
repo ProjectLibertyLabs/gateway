@@ -21,6 +21,7 @@ import { getBasicPinoOptions } from '#logger-lib';
 import { CONFIG_KEYS_TO_REDACT, HEALTH_CONFIGS } from '#types/constants/health-check.constants';
 import { CONFIGURED_QUEUE_NAMES_PROVIDER, CONFIGURED_QUEUE_PREFIX_PROVIDER } from '#types/constants';
 import * as process from 'node:process';
+import { PinoLogger } from 'nestjs-pino';
 
 interface RedisWithCustomCommands extends Redis {
   queueStatus(prefixes: string[]): Promise<string>;
@@ -38,8 +39,6 @@ function sortObject(obj: any) {
 
 @Injectable()
 export class HealthCheckService {
-  private readonly logger: Logger;
-
   constructor(
     @InjectRedis() private redis: RedisWithCustomCommands,
     private readonly configService: ConfigService,
@@ -47,10 +46,11 @@ export class HealthCheckService {
     @Inject(CONFIGURED_QUEUE_NAMES_PROVIDER) private readonly queueNames: string[],
     @Inject(CONFIGURED_QUEUE_PREFIX_PROVIDER) private readonly queuePrefix: string,
     @Inject(HEALTH_CONFIGS) private readonly registeredConfigs: any[],
+    private readonly logger: PinoLogger,
   ) {
     this.initializeRedisCommands();
     this.redisWithCommands = redis as RedisWithCustomCommands;
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   private redisWithCommands: RedisWithCustomCommands;

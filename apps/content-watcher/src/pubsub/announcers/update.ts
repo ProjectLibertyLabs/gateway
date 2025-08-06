@@ -6,6 +6,7 @@ import { BaseConsumer } from '#consumer';
 import { PubSubService } from '../pubsub.service';
 import { AnnouncementResponse } from '#types/content-announcement';
 import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.WATCHER_UPDATE_QUEUE_NAME, { concurrency: 2 })
@@ -17,8 +18,9 @@ export class UpdateSubscriber extends BaseConsumer implements OnApplicationBoots
   constructor(
     private readonly pubsubService: PubSubService,
     @Inject(apiConfig.KEY) private readonly config: IContentWatcherApiConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async process(job: Job<AnnouncementResponse, any, string>): Promise<any> {

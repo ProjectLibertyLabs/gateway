@@ -965,7 +965,7 @@ describe('AppController E2E request verification!', () => {
       // Mock the ApiService to simulate failure for files with specific content
       const apiService = app.get(ApiService);
       const originalUploadStreamedAsset = apiService.uploadStreamedAsset.bind(apiService);
-      
+
       // Mock to fail uploads for files with "fail" in the filename
       jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename, mimetype) => {
         if (filename.includes('fail')) {
@@ -989,12 +989,12 @@ describe('AppController E2E request verification!', () => {
           expect(res.body).toHaveProperty('file');
           expect(Array.isArray(res.body.file)).toBe(true);
           expect(res.body.file.length).toBe(2);
-          
+
           // First file should succeed
           expect(res.body.file[0]).toHaveProperty('referenceId');
           expect(res.body.file[0]).toHaveProperty('cid');
           expect(res.body.file[0]).not.toHaveProperty('error');
-          
+
           // Second file should fail
           expect(res.body.file[1]).toHaveProperty('error');
           expect(res.body.file[1].error).toBe('Simulated upload failure');
@@ -1009,9 +1009,9 @@ describe('AppController E2E request verification!', () => {
     it('should return 400 when all files fail to upload', async () => {
       // Mock the ApiService to simulate failure for all uploads
       const apiService = app.get(ApiService);
-      
+
       jest.spyOn(apiService, 'uploadStreamedAsset').mockResolvedValue({
-        error: 'All uploads failed'
+        error: 'All uploads failed',
       });
 
       const file1 = Buffer.from('fake image content 1');
@@ -1028,7 +1028,7 @@ describe('AppController E2E request verification!', () => {
           expect(res.body).toHaveProperty('files');
           expect(Array.isArray(res.body.files)).toBe(true);
           expect(res.body.files.length).toBe(2);
-          
+
           // Both files should have errors
           expect(res.body.files[0]).toHaveProperty('error');
           expect(res.body.files[0].error).toBe('All uploads failed');
@@ -1044,12 +1044,14 @@ describe('AppController E2E request verification!', () => {
       // Mock the ApiService methods
       const apiService = app.get(ApiService);
       const originalUploadStreamedAsset = apiService.uploadStreamedAsset.bind(apiService);
-      
+
       // Mock successful upload but failed batch creation
-      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename, mimetype) => {
-        return originalUploadStreamedAsset(stream, filename, mimetype);
-      });
-      
+      jest
+        .spyOn(apiService, 'uploadStreamedAsset')
+        .mockImplementation(async (stream, filename, mimetype) =>
+          originalUploadStreamedAsset(stream, filename, mimetype),
+        );
+
       jest.spyOn(apiService, 'enqueueBatchRequest').mockRejectedValue(new Error('Batch creation failed'));
 
       const file = Buffer.from('fake image content');
@@ -1063,7 +1065,7 @@ describe('AppController E2E request verification!', () => {
           expect(res.body).toHaveProperty('file');
           expect(Array.isArray(res.body.file)).toBe(true);
           expect(res.body.file.length).toBe(1);
-          
+
           // Should have CID but error due to batch failure
           expect(res.body.file[0]).toHaveProperty('cid');
           expect(res.body.file[0]).toHaveProperty('error');

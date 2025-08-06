@@ -13,6 +13,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
 import { pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -60,8 +61,12 @@ const mockEmptyBlockHash = {
 
 @Injectable()
 class ScannerService extends BlockchainScannerService {
-  constructor(@InjectRedis() redis: Redis, blockchainService: BlockchainRpcQueryService) {
-    super(redis, blockchainService, pino(getBasicPinoOptions('ScannerService')));
+  constructor(
+    @InjectRedis() redis: Redis,
+    blockchainService: BlockchainRpcQueryService,
+    protected readonly logger: PinoLogger,
+  ) {
+    super(redis, blockchainService, logger);
   }
 
   // eslint-disable-next-line

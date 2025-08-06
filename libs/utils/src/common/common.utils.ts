@@ -91,7 +91,7 @@ const logTransformer =
   };
 
 export function setupLoggingOverrides() {
-  const logger = new Logger('console-override');
+  const logger = new Logger('console');
   const transformer = logTransformer(logger);
 
   // Monkey-patch BigInt so that JSON.stringify will work

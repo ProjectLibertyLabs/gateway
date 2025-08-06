@@ -3,8 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ClientNamespace } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-// import { PinoLogger, pino } from 'pino';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 
 const REDIS_TIMEOUT_MS = 30_000;
 
@@ -31,9 +30,9 @@ export class CacheMonitorService implements OnModuleDestroy {
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
-    @InjectPinoLogger(CacheMonitorService.name) private readonly logger: PinoLogger,
+    private readonly logger: PinoLogger,
   ) {
-    // this.logger = pino(getBasicPinoOptions(CacheMonitorService.name));
+    this.logger.setContext(this.constructor.name);
     this.startConnectionTimer();
   }
 

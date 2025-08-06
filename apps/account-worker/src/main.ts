@@ -2,24 +2,17 @@ import '@frequency-chain/api-augment';
 import { NestFactory } from '@nestjs/core';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkerModule } from './worker.module';
-import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
+import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
 
-import { Logger as PinoLogger } from 'nestjs-pino';
-import { pino } from 'pino';
+import { Logger,  PinoLogger } from 'nestjs-pino';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger as NestLogger, ValidationPipe, VersioningType } from '@nestjs/common';
 import workerConfig, { IAccountWorkerConfig } from './worker.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
-import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
-// use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('account-worker.main'));
 
-// Monkey-patch BigInt so that JSON.stringify will work
-// eslint-disable-next-line
-BigInt.prototype['toJSON'] = function () {
-  return this.toString();
-};
+let logger: NestLogger;
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -38,16 +31,18 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create<NestExpressApplication>(WorkerModule, {
+    logger: new Logger(new PinoLogger(getPinoHttpOptions()), {}),
     rawBody: true,
   });
 
   // Enable versioning
   app.enableVersioning({ type: VersioningType.URI });
 
-  const pinoLogger = app.get(PinoLogger);
-  app.useLogger(pinoLogger);
-  validateEnvironmentVariables(pinoLogger);
-  logger.info('Nest ApplicationContext for Account Worker created.');
+  app.useLogger(app.get(Logger));
+  logger = new NestLogger('main');
+  validateEnvironmentVariables(logger);
+  setupLoggingOverrides();
+  logger.log('Nest ApplicationContext for Account Worker created.');
 
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Account Worker Service',
@@ -90,9 +85,9 @@ async function bootstrap() {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
-    logger.info(`Log level set to ${getCurrentLogLevel()}`);
+    logger.log(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen(config.apiPort);
-    logger.info(`Listening on port ${config.apiPort}`);
+    logger.log(`Listening on port ${config.apiPort}`);
   } catch (e) {
     logger.error('****** MAIN CATCH ********');
     logger.error(e);
@@ -102,5 +97,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.info('bootstrap exited'))
+  .then(() => logger.log('bootstrap exited'))
   .catch((err) => logger.error(err));

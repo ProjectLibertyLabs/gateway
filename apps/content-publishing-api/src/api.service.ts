@@ -41,11 +41,10 @@ import { PassThrough, Readable } from 'stream';
 import { FilePin, IpfsService } from '#storage';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class ApiService {
-  private readonly logger: Logger;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.REQUEST_QUEUE_NAME) private requestQueue: Queue,
@@ -53,8 +52,9 @@ export class ApiService {
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private publishQueue: Queue,
     @InjectQueue(QueueConstants.BATCH_QUEUE_NAME) private readonly batchAnnouncerQueue: Queue,
     private readonly ipfs: IpfsService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {

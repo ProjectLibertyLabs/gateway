@@ -18,17 +18,17 @@ import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/ann
 import { ContentSearchRequestDto } from '#types/dtos/content-watcher';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class ApiService {
-  private readonly logger: Logger;
-
   constructor(
     @InjectRedis() private redis: Redis,
     @InjectQueue(QueueConstants.WATCHER_REQUEST_QUEUE_NAME) private requestQueue: Queue,
     private readonly scannerService: ScannerService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   public async getWatchOptions(): Promise<ChainWatchOptionsDto | null> {

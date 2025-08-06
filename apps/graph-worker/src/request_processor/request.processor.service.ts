@@ -46,7 +46,7 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
     private blockchainService: BlockchainService,
     private encryptionService: EncryptionService,
     @Inject(workerConfig.KEY) private readonly graphWorkerConfig: IGraphWorkerConfig,
-    private readonly logger: PinoLogger,
+    protected readonly logger: PinoLogger,
   ) {
     super(logger);
     this.logger.setContext(this.constructor.name);

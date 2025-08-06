@@ -151,7 +151,9 @@ export class ContentControllerV3 {
             _res.status(HttpStatus.INTERNAL_SERVER_ERROR);
           } else {
             // Partial success - return 207 Multi-Status
-            _res.status(HttpStatus.MULTI_STATUS);
+            // NestJS version 10.4.20 does not support HttpStatus.MULTI_STATUS but 11.0.0 does
+            // TODO: update to HttpStatus.MULTI_STATUS when we upgrade to NestJS 11.0.0
+            _res.status(207);
           }
         } else {
           // All succeeded - return 200 OK (default)

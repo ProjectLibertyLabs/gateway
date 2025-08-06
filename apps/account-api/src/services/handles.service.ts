@@ -5,8 +5,6 @@ import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { getKeypairTypeFromRequestAddress, verifySignature } from '#utils/common/signature.util';
-import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import {
   createClaimHandlePayload as createEthereumClaimHandlePayload,
   verifySignature as verifyEthereumSignature,

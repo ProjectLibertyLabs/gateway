@@ -6,8 +6,6 @@ import { ApiDecoration, ApiInterfaceEvents } from '@polkadot/api/types';
 import { ProviderInterface } from '@polkadot/rpc-provider/types';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IBlockchainNonProviderConfig } from './blockchain.config';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { ChainType } from '@frequency-chain/ethereum-utils';
 import { PinoLogger } from 'nestjs-pino';
 

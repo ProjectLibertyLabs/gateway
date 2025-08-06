@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { getBasicPinoOptions, getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
+import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
 
 import { Logger, PinoLogger } from 'nestjs-pino';
-import { pino } from 'pino';
 import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 import { NestExpressApplication } from '@nestjs/platform-express';

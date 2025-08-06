@@ -20,8 +20,6 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';

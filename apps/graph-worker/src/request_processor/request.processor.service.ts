@@ -25,8 +25,6 @@ import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
-import { getBasicPinoOptions } from '#logger-lib';
-import { pino } from 'pino';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

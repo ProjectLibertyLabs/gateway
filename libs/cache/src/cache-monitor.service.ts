@@ -4,7 +4,6 @@ import { ClientNamespace } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 // import { PinoLogger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 const REDIS_TIMEOUT_MS = 30_000;

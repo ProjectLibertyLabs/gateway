@@ -11,8 +11,6 @@ import ipfsConfig, { formIpfsUrl, IIpfsConfig } from '#storage/ipfs/ipfs.config'
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

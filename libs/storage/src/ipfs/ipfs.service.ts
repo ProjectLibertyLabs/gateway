@@ -9,8 +9,6 @@ import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#util
 import { createKuboRPCClient, KuboRPCClient, CID, FilesStatResult, FilesStatOptions } from 'kubo-rpc-client';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

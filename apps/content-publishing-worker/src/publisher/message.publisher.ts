@@ -5,8 +5,6 @@ import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
 import { NonceConflictError } from '#blockchain/types';
 import { DelayedError } from 'bullmq';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

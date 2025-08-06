@@ -35,8 +35,6 @@ import {
   statefulStoragePayload,
 } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 interface IAuthCode {

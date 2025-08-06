@@ -15,9 +15,6 @@ import {
 import { plainToInstance } from 'class-transformer';
 import fs from 'fs';
 
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
-
 import { CONFIG_KEYS_TO_REDACT, HEALTH_CONFIGS } from '#types/constants/health-check.constants';
 import { CONFIGURED_QUEUE_NAMES_PROVIDER, CONFIGURED_QUEUE_PREFIX_PROVIDER } from '#types/constants';
 import * as process from 'node:process';

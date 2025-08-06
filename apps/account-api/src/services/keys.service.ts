@@ -27,8 +27,6 @@ import {
   ItemizedAction,
   verifySignature as verifyEthereumSignature,
 } from '@frequency-chain/ethereum-utils';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

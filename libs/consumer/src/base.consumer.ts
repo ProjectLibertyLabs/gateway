@@ -3,8 +3,6 @@ import { OnWorkerEvent, WorkerHost } from '@nestjs/bullmq';
 import { OnModuleDestroy } from '@nestjs/common';
 import { Job, Worker } from 'bullmq';
 import { delayMS } from '#utils/common/common.utils';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 export abstract class BaseConsumer<T extends Worker = Worker> extends WorkerHost<T> implements OnModuleDestroy {

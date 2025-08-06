@@ -22,8 +22,6 @@ import {
 } from '#types/constants';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 async function hscanToObject(keyValues: string[]) {

@@ -9,8 +9,6 @@ import { AnnouncementResponse } from '#types/content-announcement';
 import { IAnnouncementSubscription } from '#types/interfaces/content-watcher/announcement-subscription.interface';
 import pubsubConfig, { IPubSubConfig } from './pubsub.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

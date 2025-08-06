@@ -7,10 +7,13 @@ import { Redis } from 'ioredis';
 import { BlockchainScannerService } from './blockchain-scanner.service';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
+import { mockRedisProvider } from '#testlib';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -24,16 +27,11 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
-const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>('blockchain', {
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>(blockchainConfig.KEY, {
   frequencyTimeoutSecs: 10,
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
-
-const mockRedis = {
-  provide: getRedisToken(DEFAULT_REDIS_NAMESPACE),
-  useValue: { get: jest.fn(), set: jest.fn() },
-};
 
 const mockBlockHash = {
   toString: jest.fn(() => '0x1234'),
@@ -92,8 +90,9 @@ describe('BlockchainScannerService', () => {
           // disable throwing uncaughtException if an error event is emitted and it has no listeners
           ignoreErrors: false,
         }),
+        LoggerModule.forRoot(getPinoHttpOptions()),
       ],
-      providers: [mockRedis, mockBlockchainConfigProvider, Logger, BlockchainRpcQueryService, ScannerService],
+      providers: [mockRedisProvider(), mockBlockchainConfigProvider, Logger, BlockchainRpcQueryService, ScannerService],
     }).compile();
 
     moduleRef.enableShutdownHooks();

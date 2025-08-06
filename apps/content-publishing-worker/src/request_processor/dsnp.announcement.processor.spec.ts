@@ -7,50 +7,54 @@ import { IRequestJob } from '#types/interfaces/content-publishing';
 import { AnnouncementTypeName, TagTypeEnum } from '#types/enums';
 import { IIpfsConfig, IpfsService } from '#storage';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
-import Redis from 'ioredis-mock';
-import { getRedisToken } from '@songkeys/nestjs-redis';
+import { GenerateMockConfigProvider, GenerateMockProvider, mockRedisProvider } from '#testlib';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 const mockQueue = {
   add: jest.fn(),
 };
 
 // Mock config values
-const mockIpfsConfig: IIpfsConfig = {
+const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
   ipfsBasicAuthSecret: undefined,
   ipfsBasicAuthUser: undefined,
   ipfsEndpoint: 'http://ipfs.io',
   ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
-};
+});
 
 // Mock the IpfsService class
-const mockIpfsService = {
+const mockIpfsServiceProvider = GenerateMockProvider<IpfsService>(IpfsService, {
   getPinned: jest.fn(),
   ipfsPin: jest.fn(),
-};
+});
 
 describe('DsnpAnnouncementProcessor', () => {
   let dsnpAnnouncementProcessor: DsnpAnnouncementProcessor;
   let module: TestingModule;
+  let ipfsService: IpfsService;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
+      imports: [LoggerModule.forRoot(getPinoHttpOptions())],
       providers: [
-        { provide: ipfsConfig.KEY, useValue: mockIpfsConfig },
-        { provide: getRedisToken('default'), useValue: new Redis() },
-        { provide: IpfsService, useValue: mockIpfsService },
-        { provide: Queue, useValue: mockQueue },
-        { provide: 'BullQueue_assetQueue', useValue: mockQueue },
-        { provide: 'BullQueue_broadcastQueue', useValue: mockQueue },
-        { provide: 'BullQueue_replyQueue', useValue: mockQueue },
-        { provide: 'BullQueue_reactionQueue', useValue: mockQueue },
-        { provide: 'BullQueue_updateQueue', useValue: mockQueue },
-        { provide: 'BullQueue_profileQueue', useValue: mockQueue },
-        { provide: 'BullQueue_tombstoneQueue', useValue: mockQueue },
+        mockIpfsConfigProvider,
+        mockRedisProvider(),
+        mockIpfsServiceProvider,
+        GenerateMockProvider<Queue>(Queue, mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_assetQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_broadcastQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_replyQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_reactionQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_updateQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_profileQueue', mockQueue),
+        GenerateMockProvider<Queue>('BullQueue_tombstoneQueue', mockQueue),
         DsnpAnnouncementProcessor,
       ],
     }).compile();
 
     dsnpAnnouncementProcessor = module.get<DsnpAnnouncementProcessor>(DsnpAnnouncementProcessor);
+    ipfsService = module.get(IpfsService);
   });
 
   it('should be defined', () => {
@@ -59,8 +63,10 @@ describe('DsnpAnnouncementProcessor', () => {
 
   it('should collect and queue a broadcast announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', hash: 'mockHash', size: 123 } as unknown as any);
 
     const data: IRequestJob = {
       id: '1',
@@ -78,12 +84,17 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
+
   it('should collect and queue a reply announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest.spyOn(ipfsService, 'ipfsPin').mockResolvedValueOnce({
+      cid: 'mockCid',
+      hash: 'mockHash',
+      size: 123,
+    } as unknown as any);
 
     const data: IRequestJob = {
       id: '2',
@@ -102,13 +113,15 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a reaction announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', hash: 'mockHash', size: 123 } as any);
 
     const data: IRequestJob = {
       id: '3',
@@ -125,12 +138,15 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
+
   it('should collect and queue an update announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', hash: 'mockHash', size: 123 } as any);
 
     const data: IRequestJob = {
       id: '4',
@@ -150,13 +166,15 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a profile announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', hash: 'mockHash', size: 123 } as any);
 
     const data: IRequestJob = {
       id: '5',
@@ -179,13 +197,15 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 
   it('should collect and queue a tombstone announcement', async () => {
     // Mock the necessary dependencies' behavior
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', hash: 'mockHash', size: 123 });
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    const pinSpy = jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', hash: 'mockHash', size: 123 } as any);
 
     const data: IRequestJob = {
       id: '6',
@@ -201,6 +221,6 @@ describe('DsnpAnnouncementProcessor', () => {
 
     await dsnpAnnouncementProcessor.collectAnnouncementAndQueue(data);
 
-    expect(mockIpfsService.ipfsPin).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
+    expect(pinSpy).toHaveBeenCalledWith('application/octet-stream', expect.any(Buffer));
   });
 });

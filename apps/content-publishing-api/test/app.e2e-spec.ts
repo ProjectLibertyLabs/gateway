@@ -16,12 +16,13 @@ import {
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { Logger } from 'nestjs-pino';
+import { Logger, PinoLogger } from 'nestjs-pino';
 import {
   CONFIGURED_QUEUE_NAMES_PROVIDER,
   CONFIGURED_QUEUE_PREFIX_PROVIDER,
   ContentPublishingQueues as QueueConstants,
 } from '#types/constants';
+import { getPinoHttpOptions } from '#logger-lib';
 
 const randomString = (length: number, _unused) =>
   randomBytes(Math.ceil(length / 2))

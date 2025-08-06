@@ -1,7 +1,17 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { ValueProvider } from '@nestjs/common';
+import { InjectionToken, ValueProvider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+
+export function GenerateMockProvider<T>(
+  token: InjectionToken,
+  target: Partial<Record<keyof T, any>>,
+): ValueProvider<T> {
+  return {
+    provide: token,
+    useValue: target as T,
+  };
+}
 
 export function GenerateMockConfigProvider<T>(configName: string, target: T): ValueProvider<T> {
   const configObj = {};
@@ -14,8 +24,12 @@ export function GenerateMockConfigProvider<T>(configName: string, target: T): Va
     }),
   );
 
+  // Make sure we construct the proper token regardless of whether we're passed a base string, or the token itself.
+  // ex: many tests may pass 'ipfs'; but some (correctly) pass `ipfsConfig.KEY`
+  const provide = /^CONFIGURATION\(.*\)$/.test(configName) ? configName : `CONFIGURATION(${configName})`;
+
   return {
-    provide: `CONFIGURATION(${configName})`,
+    provide,
     useValue: configObj,
   } as ValueProvider<T>;
 }

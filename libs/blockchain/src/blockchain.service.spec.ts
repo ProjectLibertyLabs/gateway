@@ -7,8 +7,6 @@ import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CommonPrimitivesMsaProviderRegistryEntry } from '@polkadot/types/lookup';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
-import { getRedisToken } from '@songkeys/nestjs-redis';
-import { Provider } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { NonceConflictError } from '#blockchain/types';

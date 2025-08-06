@@ -398,7 +398,9 @@ describe('SiwfV2Service', () => {
               ]) as ApiPromise,
             );
 
-          await expect(siwfV2Service.queueChainActions(validSiwfAddDelegationResponsePayload, {})).resolves.not.toThrow();
+          await expect(
+            siwfV2Service.queueChainActions(validSiwfAddDelegationResponsePayload, {}),
+          ).resolves.not.toThrow();
           expect(enqueueSpy).toHaveBeenCalledWith({
             calls: [
               {

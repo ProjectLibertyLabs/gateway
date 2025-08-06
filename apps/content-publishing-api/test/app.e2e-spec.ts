@@ -5,6 +5,7 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes, randomFill } from 'crypto';
 import { ApiModule } from '../src/api.module';
+import { ApiService } from '../src/api.service';
 import {
   validBroadCastNoUploadedAssets,
   validContentNoUploadedAssets,
@@ -890,7 +891,7 @@ describe('AppController E2E request verification!', () => {
         .post('/v3/content/batchAnnouncement')
         .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
         .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
-        .field('schemaId', '16001')
+        .field('schemaId', '12')
         .expect(400)
         .expect((res) => expect(res.text).toContain('Number of schema IDs does not match'));
     }, 10000);
@@ -902,7 +903,7 @@ describe('AppController E2E request verification!', () => {
         (acc, file, index) =>
           acc
             .attach('files', file, { filename: `test${index}.jpg`, contentType: 'image/jpeg' })
-            .field('schemaId', '16001'),
+            .field('schemaId', '12'),
         request(app.getHttpServer()).post('/v3/content/batchAnnouncement'),
       );
 
@@ -915,12 +916,13 @@ describe('AppController E2E request verification!', () => {
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
         .attach('files', imageContent, { filename: 'test.jpg', contentType: 'image/jpeg' })
-        .field('schemaId', '16001')
+        .field('schemaId', '12')
         .expect(202)
         .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
-          expect(res.body.length).toBeGreaterThan(0);
-          expect(res.body[0]).toHaveProperty('referenceId');
+          expect(res.body).toHaveProperty('files');
+          expect(Array.isArray(res.body.files)).toBe(true);
+          expect(res.body.files.length).toBeGreaterThan(0);
+          expect(res.body.files[0]).toHaveProperty('referenceId');
         });
     }, 10000);
 
@@ -930,17 +932,132 @@ describe('AppController E2E request verification!', () => {
 
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
-        .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
-        .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
-        .field('schemaId', '16001')
-        .field('schemaId', '16002')
+        .attach('file', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
+        .attach('file', file2, { filename: 'test2.png', contentType: 'image/png' })
+        .field('schemaId', '12')
+        .field('schemaId', '12')
         .expect(202)
         .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
-          expect(res.body.length).toBe(2);
-          expect(res.body[0]).toHaveProperty('referenceId');
-          expect(res.body[1]).toHaveProperty('referenceId');
+          expect(res.body).toHaveProperty('file');
+          expect(Array.isArray(res.body.file)).toBe(true);
+          expect(res.body.file.length).toBe(2);
+          expect(res.body.file[0]).toHaveProperty('referenceId');
+          expect(res.body.file[1]).toHaveProperty('referenceId');
         });
+    }, 10000);
+
+    it('should handle mixed success and failure scenarios', async () => {
+      // Mock the ApiService to simulate failure for files with specific content
+      const apiService = app.get(ApiService);
+      const originalUploadStreamedAsset = apiService.uploadStreamedAsset.bind(apiService);
+      
+      // Mock to fail uploads for files with "fail" in the filename
+      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename, mimetype) => {
+        if (filename.includes('fail')) {
+          return { error: 'Simulated upload failure' };
+        }
+        // For non-failing files, call the original method
+        return originalUploadStreamedAsset(stream, filename, mimetype);
+      });
+
+      const successFile = Buffer.from('fake image content success');
+      const failFile = Buffer.from('fake image content fail');
+
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('file', successFile, { filename: 'success.jpg', contentType: 'image/jpeg' })
+        .attach('file', failFile, { filename: 'fail.png', contentType: 'image/png' })
+        .field('schemaId', '12')
+        .field('schemaId', '12')
+        .expect(207) // Multi-Status for partial success
+        .expect((res) => {
+          expect(res.body).toHaveProperty('file');
+          expect(Array.isArray(res.body.file)).toBe(true);
+          expect(res.body.file.length).toBe(2);
+          
+          // First file should succeed
+          expect(res.body.file[0]).toHaveProperty('referenceId');
+          expect(res.body.file[0]).toHaveProperty('cid');
+          expect(res.body.file[0]).not.toHaveProperty('error');
+          
+          // Second file should fail
+          expect(res.body.file[1]).toHaveProperty('error');
+          expect(res.body.file[1].error).toBe('Simulated upload failure');
+          expect(res.body.file[1]).not.toHaveProperty('referenceId');
+          expect(res.body.file[1]).not.toHaveProperty('cid');
+        });
+
+      // Restore the original method
+      jest.restoreAllMocks();
+    }, 10000);
+
+    it('should return 400 when all files fail to upload', async () => {
+      // Mock the ApiService to simulate failure for all uploads
+      const apiService = app.get(ApiService);
+      
+      jest.spyOn(apiService, 'uploadStreamedAsset').mockResolvedValue({
+        error: 'All uploads failed'
+      });
+
+      const file1 = Buffer.from('fake image content 1');
+      const file2 = Buffer.from('fake image content 2');
+
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
+        .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
+        .field('schemaId', '12')
+        .field('schemaId', '12')
+        .expect(500) // Internal Server Error when all files fail
+        .expect((res) => {
+          expect(res.body).toHaveProperty('files');
+          expect(Array.isArray(res.body.files)).toBe(true);
+          expect(res.body.files.length).toBe(2);
+          
+          // Both files should have errors
+          expect(res.body.files[0]).toHaveProperty('error');
+          expect(res.body.files[0].error).toBe('All uploads failed');
+          expect(res.body.files[1]).toHaveProperty('error');
+          expect(res.body.files[1].error).toBe('All uploads failed');
+        });
+
+      // Restore the original method
+      jest.restoreAllMocks();
+    }, 10000);
+
+    it('should handle batch announcement failures after successful uploads', async () => {
+      // Mock the ApiService methods
+      const apiService = app.get(ApiService);
+      const originalUploadStreamedAsset = apiService.uploadStreamedAsset.bind(apiService);
+      
+      // Mock successful upload but failed batch creation
+      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename, mimetype) => {
+        return originalUploadStreamedAsset(stream, filename, mimetype);
+      });
+      
+      jest.spyOn(apiService, 'enqueueBatchRequest').mockRejectedValue(new Error('Batch creation failed'));
+
+      const file = Buffer.from('fake image content');
+
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('file', file, { filename: 'test.jpg', contentType: 'image/jpeg' })
+        .field('schemaId', '12')
+        .expect(500) // Internal Server Error when batch creation fails
+        .expect((res) => {
+          expect(res.body).toHaveProperty('file');
+          expect(Array.isArray(res.body.file)).toBe(true);
+          expect(res.body.file.length).toBe(1);
+          
+          // Should have CID but error due to batch failure
+          expect(res.body.file[0]).toHaveProperty('cid');
+          expect(res.body.file[0]).toHaveProperty('error');
+          expect(res.body.file[0].error).toBe('Batch announcement failed');
+          expect(res.body.file[0]).not.toHaveProperty('referenceId');
+        });
+
+      // Restore the original method
+      jest.restoreAllMocks();
     }, 10000);
   });
 

@@ -1,7 +1,9 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
+import { DelayedError } from 'bullmq';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
+import { NonceConflictError } from '#blockchain/types';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';

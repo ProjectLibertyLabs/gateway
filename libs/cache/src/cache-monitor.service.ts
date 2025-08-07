@@ -9,7 +9,6 @@ const REDIS_TIMEOUT_MS = 30_000;
 
 @Injectable()
 export class CacheMonitorService implements OnModuleDestroy {
-
   private statusMap = new Map<ClientNamespace, boolean>();
 
   private timeout: NodeJS.Timeout | null;

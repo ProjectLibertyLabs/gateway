@@ -11,7 +11,8 @@ import { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
-import { pino } from 'pino';
+import { InjectPinoLogger, LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -74,8 +75,11 @@ const mockEmptyBlockHash = {
 
 @Injectable()
 class ScannerService extends BlockchainScannerService {
-  constructor(@InjectRedis() redis: Redis, blockchainService: BlockchainService) {
-    const logger = pino({ name: 'ScannerService' });
+  constructor(
+    @InjectRedis() redis: Redis,
+    blockchainService: BlockchainService,
+    @InjectPinoLogger('ScannerService') protected readonly logger,
+  ) {
     super(redis, blockchainService, logger);
   }
 
@@ -93,6 +97,7 @@ describe('BlockchainScannerService', () => {
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
       imports: [
+        LoggerModule.forRoot(getPinoHttpOptions()),
         EventEmitterModule.forRoot({
           // Use this instance throughout the application
           global: true,

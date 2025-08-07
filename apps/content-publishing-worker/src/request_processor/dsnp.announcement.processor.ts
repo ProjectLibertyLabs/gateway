@@ -47,13 +47,10 @@ import ipfsConfig, { formIpfsUrl } from '#storage/ipfs/ipfs.config';
 import Redis from 'ioredis';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { ContentPublisherRedisConstants } from '#types/constants';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class DsnpAnnouncementProcessor {
-  private logger: Logger;
-
   constructor(
     @InjectQueue(QueueConstants.BROADCAST_QUEUE_NAME) private broadcastQueue: Queue,
     @InjectQueue(QueueConstants.REPLY_QUEUE_NAME) private replyQueue: Queue,
@@ -64,8 +61,9 @@ export class DsnpAnnouncementProcessor {
     @InjectRedis() private readonly redis: Redis,
     @Inject(ipfsConfig.KEY) private config: IIpfsConfig,
     private ipfsService: IpfsService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(DsnpAnnouncementProcessor.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   public async collectAnnouncementAndQueue(data: IRequestJob) {

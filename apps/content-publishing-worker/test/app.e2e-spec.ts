@@ -21,6 +21,8 @@ import {
   ContentPublishingQueues as QueueConstants,
   HEALTH_CONFIGS,
 } from '#types/constants';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 const configs = [WorkerConfig, blockchainConfig, cacheConfig];
 
@@ -65,6 +67,7 @@ const configs = [WorkerConfig, blockchainConfig, cacheConfig];
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
       ignoreErrors: false,
     }),
+    LoggerModule.forRoot(getPinoHttpOptions()),
   ],
   controllers: [HealthController],
   providers: [

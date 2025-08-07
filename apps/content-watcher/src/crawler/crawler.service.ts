@@ -11,6 +11,7 @@ import { ContentSearchRequestDto } from '#types/dtos/content-watcher/content-sea
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { ChainEventProcessorService } from '#content-watcher-lib/utils/chain-event-processor.service';
 import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
+import { PinoLogger } from 'nestjs-pino';
 
 const CRAWLER_BLOCK_CHUNK_SIZE = 500;
 
@@ -27,8 +28,9 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
     private readonly chainEventService: ChainEventProcessorService,
     private readonly blockchainService: BlockchainRpcQueryService,
     @Inject(apiConfig.KEY) private readonly config: IContentWatcherApiConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async process(job: Job<ContentSearchRequestDto, any, string>): Promise<void> {

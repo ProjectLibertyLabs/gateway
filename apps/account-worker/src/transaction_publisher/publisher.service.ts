@@ -31,6 +31,7 @@ import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -63,8 +64,9 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     private capacityCheckerService: CapacityCheckerService,
     @Inject(workerConfig.KEY)
     private readonly accountWorkerConfig: IAccountWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   /**

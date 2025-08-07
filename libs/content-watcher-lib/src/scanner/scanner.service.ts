@@ -20,15 +20,12 @@ import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dt
 import { ChainEventProcessorService } from '../utils/chain-event-processor.service';
 import { IScanReset } from '#types/interfaces/content-watcher/scan-reset.interface';
 import scannerConfig, { IScannerConfig } from './scanner.config';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 const INTERVAL_SCAN_NAME = 'intervalScan';
 
 @Injectable()
 export class ScannerService implements OnApplicationBootstrap, OnApplicationShutdown {
-  private readonly logger: Logger;
-
   private scanInProgress = false;
 
   private paused = false;
@@ -44,8 +41,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
     @InjectQueue(QueueConstants.WATCHER_IPFS_QUEUE) private readonly ipfsQueue: Queue,
     private schedulerRegistry: SchedulerRegistry,
     private chainEventProcessor: ChainEventProcessorService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(ScannerService.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   async onApplicationBootstrap() {

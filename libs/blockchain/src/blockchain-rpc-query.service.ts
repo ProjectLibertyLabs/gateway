@@ -55,6 +55,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
 import { ICapacityFeeDetails } from './types';
 import { getTypedSignatureForPayload } from '#utils/common/signature.util';
+import { PinoLogger } from 'nestjs-pino';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
@@ -111,8 +112,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   constructor(
     @Inject(noProviderBlockchainConfig.KEY) baseConfig: IBlockchainNonProviderConfig,
     eventEmitter: EventEmitter2,
+    protected readonly logger: PinoLogger,
   ) {
-    super(baseConfig, eventEmitter);
+    super(baseConfig, eventEmitter, logger);
   }
 
   // ******************************** RPC methods ********************************

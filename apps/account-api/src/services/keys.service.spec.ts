@@ -23,6 +23,8 @@ import { jest } from '@jest/globals';
 import { HexString } from '@polkadot/util/types';
 import { createKeys } from '#testlib/keys.spec';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -36,7 +38,7 @@ describe('KeysService', () => {
     await cryptoWaitReady();
     const mockBlockchainConfigProvider = buildBlockchainConfigProvider('Sr25519');
     const moduleRef = await Test.createTestingModule({
-      imports: [],
+      imports: [LoggerModule.forRoot(getPinoHttpOptions())],
       providers: [KeysService, BlockchainRpcQueryService, mockBlockchainConfigProvider, mockAccountApiConfigProvider],
     }).compile();
 

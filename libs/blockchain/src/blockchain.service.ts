@@ -43,6 +43,7 @@ import {
 } from './types';
 import { BN } from '@polkadot/util';
 import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
+import { PinoLogger } from 'nestjs-pino';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -97,28 +98,16 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async updateLatestBlockHeader() {
-    const latestHeader = await this.api.rpc.chain.getHeader();
     const latestFinalizedBlock = await this.api.rpc.chain.getFinalizedHead();
     const latestFinalizedHeader = await this.api.rpc.chain.getHeader(latestFinalizedBlock);
-    await this.defaultRedis
-      .multi()
-      .set(
-        'latestHeader',
-        JSON.stringify({
-          blockHash: latestHeader.hash.toHex(),
-          number: latestHeader.number.toNumber(),
-          parentHash: latestHeader.parentHash.toHex(),
-        }),
-      )
-      .set(
-        'latestFinalizedHeader',
-        JSON.stringify({
-          blockHash: latestFinalizedHeader.hash.toHex(),
-          number: latestFinalizedHeader.number.toNumber(),
-          parentHash: latestFinalizedHeader.parentHash.toHex(),
-        }),
-      )
-      .exec();
+    await this.defaultRedis.set(
+      'latestFinalizedHeader',
+      JSON.stringify({
+        blockHash: latestFinalizedHeader.hash.toHex(),
+        number: latestFinalizedHeader.number.toNumber(),
+        parentHash: latestFinalizedHeader.parentHash.toHex(),
+      }),
+    );
   }
 
   constructor(
@@ -126,8 +115,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     @InjectRedis() private readonly defaultRedis: Redis,
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private readonly nonceRedis: Redis,
     eventEmitter: EventEmitter2,
+    protected readonly logger: PinoLogger,
   ) {
-    super(config, eventEmitter);
+    super(config, eventEmitter, logger);
     if (!this.nonceRedis) throw new Error('Unable to get NonceRedis');
     this.nonceRedis.defineCommand('incrementNonce', {
       numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,
@@ -321,24 +311,27 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
    * Gets the block hash and number of the latest block for signing. We cache this info & update asynchronously. This
    * eliminates unnecessary RPC calls to get the latest block info, since it's okay if we're a little behind in the block number/hash we
    * use for signing and mortality checking.
-   * @returns The block hash & number of the latest finalized block if the finality lag is greater than the maximum allowed, otherwise the block hash of the latest block.
+   * @returns The block hash & number of the latest finalized block
+   *
+   * NOTE: the polkadot-js logic that inspired this would fetch both the latest & latest finalized blocks, and choose
+   * between them based on the block number delta compared to MAX_FINALITY_LAG. But because we're caching this and don't
+   * really care if we're a little behind, and because issues with the fork-aware transaction pool can sometimes make this
+   * problematic, it's better to just rely on the latest finalized block. Also, eliminating the need to get both block
+   * headers cuts down on network round trips to the chain node.
    */
   public async getBlockForSigning(): Promise<IHeaderInfo> {
-    let [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+    let finalizedHeaderStr = await this.defaultRedis.get('latestFinalizedHeader');
 
-    if (!latestHeaderStr || !finalizedHeaderStr) {
+    if (!finalizedHeaderStr) {
       await this.updateLatestBlockHeader();
-      [latestHeaderStr, finalizedHeaderStr] = await this.defaultRedis.mget(['latestHeader', 'latestFinalizedHeader']);
+      finalizedHeaderStr = await this.defaultRedis.get('latestFinalizedHeader');
     }
 
-    if (!latestHeaderStr || !finalizedHeaderStr) {
-      throw new Error('Unable to get latest block header info');
+    if (!finalizedHeaderStr) {
+      throw new Error('Unable to get latest finalized block header info');
     }
 
-    const latestHeader = JSON.parse(latestHeaderStr) as IHeaderInfo;
-    const finalizedHeader = JSON.parse(finalizedHeaderStr) as IHeaderInfo;
-
-    return latestHeader.number - finalizedHeader.number > MAX_FINALITY_LAG.toNumber() ? latestHeader : finalizedHeader;
+    return JSON.parse(finalizedHeaderStr) as IHeaderInfo;
   }
 
   /**

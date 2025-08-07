@@ -76,11 +76,10 @@ export class BatchAnnouncer {
       // First check if the file exists in local gateway if not try to pin it
       let exists = await this.ipfsService.existsInLocalGateway(batch.cid);
       exists = await this.ipfsService.tryPin(batch.cid);
-      
+
       if (!exists) {
         throw new Error('File does not exist in IPFS network');
       }
-      
 
       // Try to get info and pin if needed
       try {

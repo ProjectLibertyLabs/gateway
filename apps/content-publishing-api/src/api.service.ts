@@ -326,7 +326,7 @@ export class ApiService {
         this.ipfs.ipfsPinStream(uploadPassThru),
         calculateIncrementalDsnpMultiHash(hashPassThru),
       ]);
-      
+
       this.logger.info(`Uploaded file ${filename} to IPFS with CID: ${uploadResult.cid}`);
     } catch (error: any) {
       this.logger.error(`❌ Upload/hash promise error:, ${error.message}`);

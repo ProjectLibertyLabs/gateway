@@ -67,7 +67,16 @@ export class ContentControllerV3 {
     let fileIndex = 0;
     let resolveResponse: (val: BatchAnnouncementResponseDto) => void;
 
-    const busboy = Busboy({ headers: req.headers });
+    let busboy;
+    try {
+      busboy = Busboy({ headers: req.headers });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Missing Content-Type')) {
+        throw new BadRequestException('No files provided in the request');
+      }
+      throw new InternalServerErrorException('File upload error');
+    }
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
     const result = new Promise<BatchAnnouncementResponseDto>((resolve) => {
       resolveResponse = resolve;
@@ -169,8 +178,8 @@ export class ContentControllerV3 {
             _res.status(207);
           }
         } else {
-          // All succeeded - return 200 OK (default)
-          _res.status(HttpStatus.OK);
+          // All succeeded - return 202 Accepted
+          _res.status(HttpStatus.ACCEPTED);
         }
 
         resolveResponse(response);
@@ -186,6 +195,10 @@ export class ContentControllerV3 {
 
     busboy.on('error', (error: unknown) => {
       this.logger.error('Busboy error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Missing Content-Type')) {
+        throw new BadRequestException('No files provided in the request');
+      }
       throw new InternalServerErrorException('File upload error');
     });
 

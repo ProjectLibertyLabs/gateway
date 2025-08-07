@@ -3,8 +3,6 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
-import { NonceConflictError } from '#blockchain/types';
-import { DelayedError } from 'bullmq';
 import { Logger, pino } from 'pino';
 import { getBasicPinoOptions } from '#logger-lib';
 

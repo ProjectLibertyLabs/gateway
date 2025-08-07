@@ -176,7 +176,7 @@ describe('IpfsService Tests', () => {
       const result = await service.ipfsPinStream(mockStream);
       expect(result).toEqual({
         cid: dummyCidV1,
-        cidBytes: undefined,
+        cidBytes: new Uint8Array([1, 2, 3, 4]),
         fileName: 'random-file',
         size: 456,
         hash: '',

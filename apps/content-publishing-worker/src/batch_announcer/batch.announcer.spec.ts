@@ -1,30 +1,55 @@
-import { expect, describe, jest, it, beforeEach } from '@jest/globals';
+import { expect, describe, jest, it } from '@jest/globals';
 import assert from 'assert';
 import { DSNPParquetSchema } from '@dsnp/schemas';
-import Redis from 'ioredis-mock';
 import { stringToHex } from '@polkadot/util';
 import { BatchAnnouncer } from './batch.announcer';
-import { IIpfsConfig } from '#storage';
+import { getPinoHttpOptions } from '#logger-lib';
+import { LoggerModule } from 'nestjs-pino';
+import { Test } from '@nestjs/testing';
+import ipfsConfig, { IIpfsConfig } from '#storage/ipfs/ipfs.config';
+import { GenerateMockConfigProvider, GenerateMockProvider, mockRedisProvider } from '#testlib';
+import { BlockchainService } from '#blockchain/blockchain.service';
+import { FilePin, IpfsService } from '#storage';
+import { Bytes } from '@polkadot/types';
 
 // Create a mock for the dependencies
-const mockIpfsConfig: IIpfsConfig = {
+const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
   ipfsBasicAuthSecret: undefined,
   ipfsBasicAuthUser: undefined,
   ipfsEndpoint: 'http://ipfs.io',
   ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
-};
+});
 
-const mockBlockchainService = {
+const mockBlockchainServiceProvider = GenerateMockProvider<BlockchainService>(BlockchainService, {
   getSchemaPayload: jest.fn(),
-};
+});
 
-const mockIpfsService = {
+const mockIpfsServiceProvider = GenerateMockProvider<IpfsService>(IpfsService, {
   getPinned: jest.fn(),
   ipfsPin: jest.fn(),
-};
+});
 
 describe('BatchAnnouncer', () => {
   let ipfsAnnouncer: BatchAnnouncer;
+  let blockchainService: BlockchainService;
+  let ipfsService: IpfsService;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [LoggerModule.forRoot(getPinoHttpOptions())],
+      providers: [
+        mockIpfsConfigProvider,
+        mockIpfsServiceProvider,
+        mockBlockchainServiceProvider,
+        mockRedisProvider(),
+        BatchAnnouncer,
+      ],
+    }).compile();
+
+    ipfsAnnouncer = module.get<BatchAnnouncer>(BatchAnnouncer);
+    blockchainService = module.get<BlockchainService>(BlockchainService);
+    ipfsService = module.get<IpfsService>(IpfsService);
+  });
 
   const broadcast: DSNPParquetSchema = [
     {
@@ -62,16 +87,7 @@ describe('BatchAnnouncer', () => {
       bloom_filter: false,
     },
   ];
-  const mockClient = new Redis();
 
-  beforeEach(async () => {
-    ipfsAnnouncer = new BatchAnnouncer(
-      mockClient,
-      mockIpfsConfig,
-      mockBlockchainService as any,
-      mockIpfsService as any,
-    );
-  });
   it('should be defined', () => {
     expect(ipfsAnnouncer).toBeDefined();
   });
@@ -79,9 +95,13 @@ describe('BatchAnnouncer', () => {
   // Write your test cases here
   it('should announce a batch to IPFS', async () => {
     // Mock the necessary dependencies' behavior
-    mockBlockchainService.getSchemaPayload.mockReturnValue(Buffer.from(stringToHex(JSON.stringify(broadcast))));
-    mockIpfsService.getPinned.mockReturnValue(Buffer.from('mockContentBuffer'));
-    mockIpfsService.ipfsPin.mockReturnValue({ cid: 'mockCid', size: 10, hash: 'mockHash' });
+    const schemaSpy = jest
+      .spyOn(blockchainService, 'getSchemaPayload')
+      .mockResolvedValue(Buffer.from(stringToHex(JSON.stringify(broadcast))) as unknown as Bytes);
+    jest.spyOn(ipfsService, 'getPinned').mockResolvedValueOnce(Buffer.from('mockContentBuffer'));
+    jest
+      .spyOn(ipfsService, 'ipfsPin')
+      .mockResolvedValueOnce({ cid: 'mockCid', size: 10, hash: 'mockHash' } as unknown as FilePin);
 
     const batchJob = {
       batchId: 'mockBatchId',
@@ -91,6 +111,6 @@ describe('BatchAnnouncer', () => {
 
     const result = await ipfsAnnouncer.announce(batchJob);
     assert(result);
-    expect(mockBlockchainService.getSchemaPayload).toHaveBeenCalledWith(123);
+    expect(schemaSpy).toHaveBeenCalledWith(123);
   });
 });

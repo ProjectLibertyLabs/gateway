@@ -21,8 +21,7 @@ import { REDIS_WEBHOOK_ALL, REDIS_WEBHOOK_PREFIX, SECONDS_PER_BLOCK, TXN_WATCH_L
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
-import { pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 type GraphChangeNotification = GraphServiceWebhook.Components.Schemas.GraphChangeNotificationV1;
 type GraphOperationStatus = GraphServiceWebhook.Components.Schemas.GraphOperationStatusV1;
@@ -92,8 +91,9 @@ export class GraphMonitorService
     @Inject(workerConfig.KEY) private readonly workerConf: IGraphWorkerConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConf: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
+    protected readonly logger: PinoLogger,
   ) {
-    super(cacheManager, blockchainService, pino(getBasicPinoOptions(GraphMonitorService.prototype.constructor.name)));
+    super(cacheManager, blockchainService, logger);
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),

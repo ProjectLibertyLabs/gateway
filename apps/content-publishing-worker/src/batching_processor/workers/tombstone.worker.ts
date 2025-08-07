@@ -6,6 +6,7 @@ import { Job } from 'bullmq';
 import { BaseConsumer } from '#consumer';
 import { BatchingProcessorService } from '../batching.processor.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.TOMBSTONE_QUEUE_NAME, { concurrency: 2 })
@@ -13,8 +14,9 @@ export class TombstoneWorker extends BaseConsumer implements OnApplicationBootst
   constructor(
     private batchingProcessorService: BatchingProcessorService,
     @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async onApplicationBootstrap() {

@@ -1,8 +1,6 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
-import { pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 
 export interface ISwaggerDocOptions {
   title?: string;
@@ -14,7 +12,7 @@ export interface ISwaggerDocOptions {
   extensions?: Map<string, any>;
 }
 
-const logger = pino(getBasicPinoOptions('Swagger'));
+const logger = new Logger('swagger');
 
 export async function generateSwaggerDoc(
   app: INestApplication,
@@ -49,7 +47,7 @@ export async function generateSwaggerDoc(
 }
 
 export function initializeSwaggerUI(app: INestApplication, openapiObj: OpenAPIObject, apiPath = '/docs/swagger') {
-  logger.info(`Swagger UI mounted on '${apiPath}'`);
+  logger.log(`Swagger UI mounted on '${apiPath}'`);
   SwaggerModule.setup(apiPath, app, openapiObj);
 }
 
@@ -59,5 +57,5 @@ export function writeOpenApiFile(openapiObj: OpenAPIObject, apiFile: string) {
     JSON.stringify(openapiObj, (_, v) => v, 2),
   );
 
-  logger.info(`Wrote OpenAPI spec file ${apiFile}`);
+  logger.log(`Wrote OpenAPI spec file ${apiFile}`);
 }

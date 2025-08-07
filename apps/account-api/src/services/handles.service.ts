@@ -5,20 +5,20 @@ import * as BlockchainConstants from '#types/constants/blockchain-constants';
 import { HandleRequestDto } from '#types/dtos/account';
 import { u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { getKeypairTypeFromRequestAddress, verifySignature } from '#utils/common/signature.util';
-import { pino, Logger } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
 import {
   createClaimHandlePayload as createEthereumClaimHandlePayload,
   verifySignature as verifyEthereumSignature,
 } from '@frequency-chain/ethereum-utils';
 import { HexString } from '@polkadot/util/types';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class HandlesService {
-  private readonly logger: Logger;
-
-  constructor(private blockchainService: BlockchainRpcQueryService) {
-    this.logger = pino(getBasicPinoOptions(HandlesService.name));
+  constructor(
+    private blockchainService: BlockchainRpcQueryService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(this.constructor.name);
   }
 
   async getHandle(msaId: string): Promise<HandleResponseDto | null> {

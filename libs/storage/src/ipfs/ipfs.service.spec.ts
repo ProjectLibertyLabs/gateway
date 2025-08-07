@@ -1,18 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { FilePin, IIpfsConfig, IpfsService } from '#storage';
-import { IHttpCommonConfig } from '#config/http-common.config';
+import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { dummyCidV0, dummyCidV1, FilesStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
 import { Readable } from 'stream';
+import ipfsConfig from '#storage/ipfs/ipfs.config';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
-const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>('ipfs', {
+const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
   ipfsEndpoint: 'http://localhost:5001/api/v0',
   ipfsBasicAuthUser: '',
   ipfsBasicAuthSecret: '',
   ipfsGatewayUrl: 'http://localhost:8080/ipfs/[CID]',
 });
 
-const mockHttpCommonConfigProvider = GenerateMockConfigProvider<IHttpCommonConfig>('http-common', {
+const mockHttpCommonConfigProvider = GenerateMockConfigProvider<IHttpCommonConfig>(httpCommonConfig.KEY, {
   httpResponseTimeoutMS: 3000,
 });
 
@@ -33,6 +36,7 @@ describe('IpfsService Tests', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule.forRoot(getPinoHttpOptions())],
       providers: [IpfsService, mockIpfsConfigProvider, mockHttpCommonConfigProvider],
     }).compile();
 

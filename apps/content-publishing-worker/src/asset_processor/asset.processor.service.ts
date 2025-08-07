@@ -8,6 +8,7 @@ import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { IpfsService } from '#storage';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.ASSET_QUEUE_NAME)
@@ -21,8 +22,9 @@ export class AssetProcessorService extends BaseConsumer implements OnApplication
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private ipfsService: IpfsService,
     @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async process(job: Job<IAssetJob, any, string>): Promise<void> {

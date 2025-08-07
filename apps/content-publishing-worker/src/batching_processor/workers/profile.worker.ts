@@ -6,6 +6,7 @@ import { Job } from 'bullmq';
 import { BaseConsumer } from '#consumer';
 import { BatchingProcessorService } from '../batching.processor.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.PROFILE_QUEUE_NAME)
@@ -13,8 +14,9 @@ export class ProfileWorker extends BaseConsumer implements OnApplicationBootstra
   constructor(
     private batchingProcessorService: BatchingProcessorService,
     @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async onApplicationBootstrap() {

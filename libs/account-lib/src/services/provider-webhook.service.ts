@@ -5,15 +5,12 @@ import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
 
 @Injectable()
 export class ProviderWebhookService implements OnModuleDestroy {
-  private logger: Logger;
-
   private failedHealthChecks = 0;
 
   private successfulHealthChecks = 0;
@@ -35,8 +32,9 @@ export class ProviderWebhookService implements OnModuleDestroy {
     @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(this.constructor.name));
+    this.logger.setContext(this.constructor.name);
     this.webhook = axios.create({
       baseURL: this.config.webhookBaseUrl.toString(),
       timeout: httpConfig.httpResponseTimeoutMS,

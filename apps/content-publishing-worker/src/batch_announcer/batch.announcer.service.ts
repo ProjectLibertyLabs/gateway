@@ -7,6 +7,7 @@ import { BaseConsumer } from '#consumer';
 import { ContentPublishingQueues as QueueConstants, CAPACITY_EPOCH_TIMEOUT_NAME } from '#types/constants';
 import { IBatchAnnouncerJob, isExistingBatch } from '../interfaces';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.BATCH_QUEUE_NAME)
@@ -20,8 +21,9 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
     private ipfsPublisher: BatchAnnouncer,
     private schedulerRegistry: SchedulerRegistry,
     @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async onModuleDestroy(): Promise<any> {

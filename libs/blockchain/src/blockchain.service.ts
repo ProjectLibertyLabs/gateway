@@ -43,6 +43,7 @@ import {
 } from './types';
 import { BN } from '@polkadot/util';
 import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
+import { PinoLogger } from 'nestjs-pino';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -114,8 +115,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     @InjectRedis() private readonly defaultRedis: Redis,
     @InjectRedis(NONCE_SERVICE_REDIS_NAMESPACE) private readonly nonceRedis: Redis,
     eventEmitter: EventEmitter2,
+    protected readonly logger: PinoLogger,
   ) {
-    super(config, eventEmitter);
+    super(config, eventEmitter, logger);
     if (!this.nonceRedis) throw new Error('Unable to get NonceRedis');
     this.nonceRedis.defineCommand('incrementNonce', {
       numberOfKeys: NUMBER_OF_NONCE_KEYS_TO_CHECK,

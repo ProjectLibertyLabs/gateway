@@ -1,24 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { WorkerModule } from './worker.module';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { getBasicPinoOptions, getCurrentLogLevel } from '#logger-lib';
+import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
 
-import { Logger as PinoLogger } from 'nestjs-pino';
-import { pino } from 'pino';
-import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { Logger, PinoLogger } from 'nestjs-pino';
+import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
-// use plain pino directly outside of the app.
-const logger = pino(getBasicPinoOptions('content-publishing-worker.main'));
 
-// Monkey-patch BigInt so that JSON.stringify will work
-// eslint-disable-next-line
-BigInt.prototype['toJSON'] = function () {
-  return this.toString();
-};
+let logger: NestLogger;
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -34,12 +27,14 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(WorkerModule, {
+    logger: new Logger(new PinoLogger(getPinoHttpOptions()), {}),
     rawBody: true,
   });
 
-  const pinoLogger = app.get(PinoLogger);
-  app.useLogger(pinoLogger);
-  validateEnvironmentVariables(pinoLogger);
+  app.useLogger(app.get(Logger));
+  logger = new NestLogger('main');
+  validateEnvironmentVariables(logger);
+  setupLoggingOverrides();
 
   const swaggerDoc = await generateSwaggerDoc(app, {
     title: 'Content Publishing Worker Service',
@@ -82,12 +77,12 @@ async function bootstrap() {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
-    logger.info(`Log level set to ${getCurrentLogLevel()}`);
+    logger.log(`Log level set to ${getCurrentLogLevel()}`);
     await app.listen(config.apiPort);
-    logger.info(`Listening on port ${config.apiPort}`);
-    logger.info('Exiting bootstrap');
+    logger.log(`Listening on port ${config.apiPort}`);
+    logger.log('Exiting bootstrap');
   } catch (e) {
-    logger.info('****** MAIN CATCH ********');
+    logger.log('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
@@ -98,5 +93,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.info('bootstrap exited'))
+  .then(() => logger.log('bootstrap exited'))
   .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

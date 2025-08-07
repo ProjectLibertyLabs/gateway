@@ -1,23 +1,16 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger as NestLogger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiModule } from './api.module';
 import apiConfig, { IContentWatcherApiConfig } from './api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
-import { getBasicPinoOptions } from '#logger-lib';
-import { pino } from 'pino';
-import { Logger as PinoLogger } from 'nestjs-pino';
-import { validateEnvironmentVariables } from '#utils/common/common.utils';
+import { Logger, PinoLogger } from 'nestjs-pino';
+import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
+import { getPinoHttpOptions } from '#logger-lib';
 
-const logger = pino(getBasicPinoOptions('content-watcher.main'));
-
-// Monkey-patch BigInt so that JSON.stringify will work
-// eslint-disable-next-line
-BigInt.prototype['toJSON'] = function () {
-  return this.toString();
-};
+let logger: NestLogger;
 
 /*
  * Shutdown timer will forcibly terminate the app if it doesn't complete
@@ -31,11 +24,13 @@ function startShutdownTimer() {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, {
+    logger: new Logger(new PinoLogger(getPinoHttpOptions()), {}),
     rawBody: true,
   });
-  const pinoLogger = app.get(PinoLogger);
-  app.useLogger(pinoLogger);
-  validateEnvironmentVariables(pinoLogger);
+  app.useLogger(app.get(Logger));
+  logger = new NestLogger('main');
+  validateEnvironmentVariables(logger);
+  setupLoggingOverrides();
 
   // Enable URL-based API versioning
   app.enableVersioning({
@@ -87,11 +82,11 @@ async function bootstrap() {
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
 
     initializeSwaggerUI(app, swaggerDoc);
-    logger.info(`Listening on port ${config.apiPort}`);
+    logger.log(`Listening on port ${config.apiPort}`);
     await app.listen(config.apiPort);
   } catch (e) {
     await app.close();
-    logger.info('****** MAIN CATCH ********');
+    logger.log('****** MAIN CATCH ********');
     logger.error(e);
     if (e instanceof Error) {
       logger.error(e.stack);
@@ -102,5 +97,5 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => logger.info('bootstrap exited'))
+  .then(() => logger.log('bootstrap exited'))
   .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

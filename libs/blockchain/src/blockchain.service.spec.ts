@@ -3,15 +3,16 @@
 import { describe, it, jest, expect } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from './blockchain.service';
-import { IBlockchainConfig } from './blockchain.config';
+import blockchainConfig, { IBlockchainConfig } from './blockchain.config';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CommonPrimitivesMsaProviderRegistryEntry } from '@polkadot/types/lookup';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
-import { getRedisToken } from '@songkeys/nestjs-redis';
-import { Provider } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { NonceConflictError } from '#blockchain/types';
+import { mockRedisProvider } from '#testlib';
+import { LoggerModule } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
 
 function createNamedError(name: string, message: string): Error {
   const err = new Error(message);
@@ -36,7 +37,7 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
-const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>('blockchain', {
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfig>(blockchainConfig.KEY, {
   capacityLimit: { serviceLimit: { type: 'percentage', value: 80n } },
   providerId: 1n,
   providerKeyUriOrPrivateKey: '//Alice',
@@ -44,19 +45,6 @@ const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainConfi
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
-
-const mockDefaultRedisProvider: Provider = {
-  provide: getRedisToken('default'),
-  useValue: {},
-};
-
-const mockNonceRedisProvider: Provider = {
-  provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
-  useValue: {
-    defineCommand: jest.fn(),
-    get: jest.fn(),
-  },
-};
 
 describe('BlockchainService', () => {
   let mockApi: any;
@@ -87,9 +75,15 @@ describe('BlockchainService', () => {
           // disable throwing uncaughtException if an error event is emitted and it has no listeners
           ignoreErrors: false,
         }),
+        LoggerModule.forRoot(getPinoHttpOptions()),
       ],
       controllers: [],
-      providers: [BlockchainService, mockBlockchainConfigProvider, mockNonceRedisProvider, mockDefaultRedisProvider],
+      providers: [
+        BlockchainService,
+        mockBlockchainConfigProvider,
+        mockRedisProvider(NONCE_SERVICE_REDIS_NAMESPACE),
+        mockRedisProvider(),
+      ],
     }).compile();
 
     moduleRef.enableShutdownHooks();

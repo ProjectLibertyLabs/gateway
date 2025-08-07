@@ -35,8 +35,7 @@ import {
   statefulStoragePayload,
 } from '#utils/common/signature.util';
 import { ApiPromise } from '@polkadot/api';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 interface IAuthCode {
   authorizationCode?: string;
@@ -44,16 +43,15 @@ interface IAuthCode {
 
 @Injectable()
 export class SiwfV2Service {
-  private readonly logger: Logger;
-
   constructor(
     @Inject(apiConfig.KEY)
     private readonly apiConf: IAccountApiConfig,
     @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
     private blockchainService: BlockchainRpcQueryService,
     private enqueueService: EnqueueService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(SiwfV2Service.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   private static requestedCredentialTypesToFullRequest(requestCredentials: string[]): SiwfCredentialRequest[] {

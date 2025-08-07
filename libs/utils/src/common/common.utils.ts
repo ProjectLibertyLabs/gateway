@@ -5,6 +5,7 @@ import { base32 } from 'multiformats/bases/base32';
 import { create } from 'multiformats/hashes/digest';
 import Stream from 'stream';
 import { createHash } from 'crypto';
+import { Logger } from '@nestjs/common';
 
 export async function delayMS(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -65,4 +66,59 @@ export function validateEnvironmentVariables(logger?: any): void {
       `,
     );
   }
+}
+
+const logTransformer =
+  (logger: Logger) =>
+  (type: string, ...args: any[]) => {
+    const message = args
+      .map((arg) =>
+        typeof arg === 'string'
+          ? arg
+          : // safely serialize objects / errors
+            (() => {
+              try {
+                return JSON.stringify(arg);
+              } catch {
+                return String(arg);
+              }
+            })(),
+      )
+      .join(' ');
+
+    // now call the original, so it still goes to stderr
+    logger[type](message);
+  };
+
+export function setupLoggingOverrides() {
+  const logger = new Logger('console');
+  const transformer = logTransformer(logger);
+
+  // Monkey-patch BigInt so that JSON.stringify will work
+  // eslint-disable-next-line
+  BigInt.prototype['toJSON'] = function () {
+    return this.toString();
+  };
+
+  /**
+   * Override console output so that:
+   * - All args are turned into strings (stringify objects)
+   * - They’re joined with spaces
+   * - The resulting single string is sent to the logger
+   */
+  console.error = (...args: any[]) => {
+    transformer('error', ...args);
+  };
+  console.warn = (...args: any[]) => {
+    transformer('warn', ...args);
+  };
+  console.debug = (...args: any[]) => {
+    transformer('debug', ...args);
+  };
+  console.trace = (...args: any[]) => {
+    transformer('log', ...args);
+  };
+  console.info = (...args: any[]) => {
+    transformer('info', ...args);
+  };
 }

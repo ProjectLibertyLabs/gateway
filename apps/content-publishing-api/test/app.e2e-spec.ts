@@ -903,10 +903,6 @@ describe('AppController E2E request verification!', () => {
         .expect((res) => expect(res.text).toContain('No files provided'));
     }, 30000);
 
-
-
-
-
     it('should accept valid files with matching schema IDs', async () => {
       const imageContent = Buffer.from('fake image content');
 
@@ -948,13 +944,17 @@ describe('AppController E2E request verification!', () => {
       const apiService = app.get(ApiService);
 
       // Mock to fail uploads for files with "fail" in the filename
-      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename, mimetype) => {
+      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename) => {
         // Consume the stream to prevent hanging
         const chunks: any[] = [];
-        for await (const chunk of stream) {
-          chunks.push(chunk);
+        // Convert async iterable to array to avoid for-await-of loop
+        const streamIterator = stream[Symbol.asyncIterator]();
+        let result = await streamIterator.next();
+        while (!result.done) {
+          chunks.push(result.value);
+          result = await streamIterator.next();
         }
-        
+
         if (filename.includes('fail')) {
           return { error: 'Simulated upload failure' };
         }
@@ -990,23 +990,22 @@ describe('AppController E2E request verification!', () => {
         });
     }, 30000);
 
-
-
     it('should handle batch announcement failures after successful uploads', async () => {
       // Mock the ApiService methods
       const apiService = app.get(ApiService);
 
       // Mock successful upload but failed batch creation
-      jest
-        .spyOn(apiService, 'uploadStreamedAsset')
-        .mockImplementation(async (stream, filename, mimetype) => {
-          // Consume the stream to prevent hanging
-          const chunks: any[] = [];
-          for await (const chunk of stream) {
-            chunks.push(chunk);
-          }
-          return { cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi' };
-        });
+      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream) => {
+        // Consume the stream to prevent hanging
+        const chunks: any[] = [];
+        const streamIterator = stream[Symbol.asyncIterator]();
+        let result = await streamIterator.next();
+        while (!result.done) {
+          chunks.push(result.value);
+          result = await streamIterator.next();
+        }
+        return { cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi' };
+      });
 
       jest.spyOn(apiService, 'enqueueBatchRequest').mockRejectedValue(new Error('Batch creation failed'));
 

@@ -32,7 +32,7 @@ export class MessagePublisher {
   ): ReturnType<BlockchainService['payWithCapacity']> {
     this.logger.debug(`Submitting tx of size ${tx.length}`);
     try {
-      return this.blockchainService.payWithCapacity(tx);
+      return await this.blockchainService.payWithCapacity(tx);
     } catch (e) {
       this.logger.error(`Error processing batch: ${e}`);
       if (e instanceof NonceConflictError) {

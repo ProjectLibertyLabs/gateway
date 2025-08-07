@@ -73,11 +73,14 @@ export class BatchAnnouncer {
     // Get previously uploaded file from IPFS
     this.logger.log(`Getting info from IPFS for ${batch.cid}`);
     try {
-      // First check if the file exists
-      const exists = await this.ipfsService.existsInLocalGateway(batch.cid);
+      // First check if the file exists in local gateway if not try to pin it
+      let exists = await this.ipfsService.existsInLocalGateway(batch.cid);
+      exists = await this.ipfsService.tryPin(batch.cid);
+      
       if (!exists) {
         throw new Error('File does not exist in IPFS network');
       }
+      
 
       // Try to get info and pin if needed
       try {

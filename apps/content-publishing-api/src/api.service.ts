@@ -326,6 +326,8 @@ export class ApiService {
         this.ipfs.ipfsPinStream(uploadPassThru),
         calculateIncrementalDsnpMultiHash(hashPassThru),
       ]);
+      
+      this.logger.info(`Uploaded file ${filename} to IPFS with CID: ${uploadResult.cid}`);
     } catch (error: any) {
       this.logger.error(`❌ Upload/hash promise error:, ${error.message}`);
       handleError(error);
@@ -369,7 +371,6 @@ export class ApiService {
       // If there was an error caching the metadata, it's okay--we'll just have to retrieve the file again later to compute the hash
       this.logger.warn(`Unexpected error caching asset metadata for ${filename} (${uploadResult.cid})`);
     }
-
     return { cid: uploadResult.cid };
   }
 

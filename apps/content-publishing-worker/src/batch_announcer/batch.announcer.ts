@@ -71,7 +71,7 @@ export class BatchAnnouncer {
 
   public async announceExistingBatch(batch: IBatchFile): Promise<IPublisherJob> {
     // Get previously uploaded file from IPFS
-    this.logger.log(`Getting info from IPFS for ${batch.cid}`);
+    this.logger.debug(`Getting info from IPFS for ${batch.cid}`);
     try {
       // First check if the file exists in local gateway if not try to pin it
       let exists = await this.ipfsService.existsInLocalGateway(batch.cid);

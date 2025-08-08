@@ -19,6 +19,7 @@ import { BlockchainService } from '#blockchain/blockchain.service';
 import { ICapacityInfo, NonceConflictError } from '#blockchain/types';
 import { HexString } from '@polkadot/util/types';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -51,8 +52,9 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     private blockchainService: BlockchainService,
     private capacityCheckerService: CapacityCheckerService,
     private schedulerRegistry: SchedulerRegistry,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   /**

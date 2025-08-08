@@ -19,6 +19,7 @@ import {
 import scannerConfig, { IScannerConfig } from '#content-watcher-lib/scanner/scanner.config';
 import { IpfsService } from '#storage/ipfs/ipfs.service';
 import apiConfig, { IContentWatcherApiConfig } from '#content-watcher/api.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.WATCHER_IPFS_QUEUE)
@@ -37,8 +38,9 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
     @Inject(scannerConfig.KEY) private config: IScannerConfig,
     @Inject(apiConfig.KEY) private contentWatcherApiConfig: IContentWatcherApiConfig,
     private ipfsService: IpfsService,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   async process(job: Job<IIPFSJob, any, string>): Promise<any> {

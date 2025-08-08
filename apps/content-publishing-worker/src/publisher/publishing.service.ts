@@ -19,6 +19,7 @@ import { IContentTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME)
@@ -33,8 +34,9 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     private eventEmitter: EventEmitter2,
     private capacityCheckerService: CapacityCheckerService,
     @Inject(workerConfig.KEY) private readonly cpWorkerConfig: IContentPublishingWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
   }
 
   public async onApplicationBootstrap() {

@@ -11,18 +11,18 @@ import ipfsConfig, { formIpfsUrl, IIpfsConfig } from '#storage/ipfs/ipfs.config'
 import { IpfsService } from '#storage';
 import { STORAGE_EXPIRE_UPPER_LIMIT_SECONDS } from '#types/constants';
 import { IBatchFile, IPublisherJob } from '#types/interfaces/content-publishing';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class BatchAnnouncer {
-  private logger: Logger;
-
   constructor(
     @InjectRedis() private cacheManager: Redis,
     @Inject(ipfsConfig.KEY) private readonly config: IIpfsConfig,
     private blockchainService: BlockchainService,
     private ipfsService: IpfsService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = new Logger(BatchAnnouncer.name);
+    this.logger.setContext(this.constructor.name);
   }
 
   public async announce(batchJob: IBatchAnnouncerJobData): Promise<IPublisherJob> {

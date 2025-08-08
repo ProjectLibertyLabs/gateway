@@ -5,13 +5,10 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { NonceConflictError } from '#blockchain/types';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
-import { Logger, pino } from 'pino';
-import { getBasicPinoOptions } from '#logger-lib';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class MessagePublisher implements OnApplicationBootstrap {
-  private logger: Logger;
-
   private messageQueue: IPublisherJob[] = [];
 
   private maxBatchSize: number;
@@ -27,8 +24,9 @@ export class MessagePublisher implements OnApplicationBootstrap {
   constructor(
     private blockchainRpcService: BlockchainRpcQueryService,
     private blockchainService: BlockchainService,
+    private readonly logger: PinoLogger,
   ) {
-    this.logger = pino(getBasicPinoOptions(MessagePublisher.name));
+    this.logger.setContext(this.constructor.name);
   }
 
   async onApplicationBootstrap() {

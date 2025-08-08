@@ -25,8 +25,7 @@ import { GraphStateManager } from '#graph-lib/services/graph-state-manager';
 import { LAST_PROCESSED_DSNP_ID_KEY, SECONDS_PER_BLOCK } from '#types/constants';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import workerConfig, { IGraphWorkerConfig } from '#graph-worker/worker.config';
-import { getBasicPinoOptions } from '#logger-lib';
-import { pino } from 'pino';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 @Processor(QueueConstants.GRAPH_CHANGE_REQUEST_QUEUE)
@@ -47,13 +46,14 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
     private blockchainService: BlockchainService,
     private encryptionService: EncryptionService,
     @Inject(workerConfig.KEY) private readonly graphWorkerConfig: IGraphWorkerConfig,
+    protected readonly logger: PinoLogger,
   ) {
-    super();
+    super(logger);
+    this.logger.setContext(this.constructor.name);
     cacheManager.defineCommand('updateLastProcessed', {
       numberOfKeys: 1,
       lua: fs.readFileSync('lua/updateLastProcessed.lua', 'utf8'),
     });
-    this.logger = pino(getBasicPinoOptions(RequestProcessorService.name));
   }
 
   async process(job: Job<ProviderGraphUpdateJob, any, string>): Promise<void> {

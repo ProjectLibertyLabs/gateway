@@ -2,8 +2,12 @@ export const dummyCidV0 = 'QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR';
 export const dummyCidV1 = 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi';
 
 export class CID {
-  // eslint-disable-next-line no-empty-function
-  constructor(private cidString: string) {}
+  public bytes: Uint8Array;
+
+  constructor(private cidString: string) {
+    // Mock bytes property with a simple Uint8Array
+    this.bytes = new Uint8Array([1, 2, 3, 4]);
+  }
 
   toString(): string {
     return this.cidString;
@@ -46,6 +50,7 @@ export interface KuboRPCClient {
   cat: (cid: string) => AsyncIterable<Uint8Array>;
   pin: {
     ls: (options: any) => AsyncIterable<PinLsResult>;
+    add: (cid: any) => Promise<void>;
   };
   add: (entry: any, options?: any) => Promise<any>;
   version: (options?: any) => Promise<string>;
@@ -65,8 +70,13 @@ export const createKuboRPCClient = jest.fn(
     cat: jest.fn(),
     pin: {
       ls: jest.fn(),
+      add: jest.fn(async () => {}),
     },
-    add: jest.fn(),
-    version: jest.fn(),
+    add: jest.fn(async () => ({
+      cid: new CID(dummyCidV1),
+      path: 'test-file',
+      size: 1024,
+    })),
+    version: jest.fn(async () => 'v0.13.0'),
   }),
 );

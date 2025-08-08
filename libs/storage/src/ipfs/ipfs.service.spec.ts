@@ -87,6 +87,7 @@ describe('IpfsService Tests', () => {
     it('should return false if CID does not exist', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         status: 412,
+        ok: false,
       } as Response);
 
       await expect(service.existsInLocalGateway(dummyCidV1)).resolves.toBe(false);
@@ -95,6 +96,7 @@ describe('IpfsService Tests', () => {
     it('should return true if CID exists', async () => {
       jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         status: 200,
+        ok: true,
       } as Response);
 
       await expect(service.existsInLocalGateway(dummyCidV0)).resolves.toBe(true);
@@ -178,7 +180,7 @@ describe('IpfsService Tests', () => {
       const result = await service.ipfsPinStream(mockStream);
       expect(result).toEqual({
         cid: dummyCidV1,
-        cidBytes: undefined,
+        cidBytes: new Uint8Array([1, 2, 3, 4]),
         fileName: 'random-file',
         size: 456,
         hash: '',

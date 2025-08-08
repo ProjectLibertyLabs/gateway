@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PassThrough } from 'node:stream';
 import { ParquetWriter, ParquetSchema } from '@dsnp/parquetjs';
 import { fromDSNPSchema } from '@dsnp/schemas/parquet';

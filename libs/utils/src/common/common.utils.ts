@@ -13,6 +13,15 @@ export async function delayMS(ms: number): Promise<void> {
   });
 }
 
+export function withTimeoutMs<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs);
+    }),
+  ]);
+}
+
 export async function calculateIpfsCID(buffer: Buffer): Promise<string> {
   const v0 = await ipfsHash.of(buffer);
   return CID.parse(v0).toV1().toString();

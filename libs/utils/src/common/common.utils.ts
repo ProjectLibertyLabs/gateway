@@ -71,23 +71,7 @@ export function validateEnvironmentVariables(logger?: any): void {
 const logTransformer =
   (logger: Logger) =>
   (type: string, ...args: any[]) => {
-    const message = args
-      .map((arg) =>
-        typeof arg === 'string'
-          ? arg
-          : // safely serialize objects / errors
-            (() => {
-              try {
-                return JSON.stringify(arg);
-              } catch {
-                return String(arg);
-              }
-            })(),
-      )
-      .join(' ');
-
-    // now call the original, so it still goes to stderr
-    logger[type](message);
+    logger[type](args.length === 1 ? args[0] : { payload: args });
   };
 
 export function setupLoggingOverrides() {

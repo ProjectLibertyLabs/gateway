@@ -1,4 +1,5 @@
-import { isColorSupported } from 'pino-pretty';
+// Use 'require' instead of 'import' here to get around a bug in the 'pino-pretty' package
+const { isColorSupported } = require('pino-pretty');
 
 export function getCurrentLogLevel(): string {
   let level: string = 'info';

@@ -1,3 +1,6 @@
+// Use 'require' instead of 'import' here to get around a bug in the 'pino-pretty' package
+const { isColorSupported } = require('pino-pretty');
+
 export function getCurrentLogLevel(): string {
   let level: string = 'info';
   if (process.env?.LOG_LEVEL && process.env.LOG_LEVEL !== '') {
@@ -9,15 +12,16 @@ export function getCurrentLogLevel(): string {
 }
 
 export function getPinoTransport() {
-  if (process.env.PRETTY === 'true') {
+  if (/^true|compact/.test(process.env?.PRETTY)) {
     return {
       target: 'pino-pretty',
       options: {
-        colorize: true,
-        colorizeObjects: true,
+        colorize: isColorSupported,
+        colorizeObjects: isColorSupported,
         translateTime: 'SYS:standard',
         ignore: 'hostname,context,levelStr',
         messageFormat: `[{context}] {msg}`,
+        singleLine: process.env?.PRETTY === 'compact',
       },
     };
   }

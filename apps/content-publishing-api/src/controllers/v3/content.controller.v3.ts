@@ -119,14 +119,17 @@ export class ContentControllerV3 {
         let hasFailedUploads = false;
         const successfulUploads: { uploadResult: IFileResponse; originalIndex: number }[] = [];
 
-        uploadResults.forEach(({ status, reason, value: uploadResult }, index) => {
-          if (status === 'fulfilled' && !!uploadResult.cid && !uploadResult.error) {
-            successfulUploads.push({ uploadResult, originalIndex: index });
+        uploadResults.forEach((uploadResult, index) => {
+          if (uploadResult.status === 'fulfilled' && !!uploadResult.value.cid && !uploadResult.value.error) {
+            successfulUploads.push({ uploadResult: uploadResult.value, originalIndex: index });
             // Placeholder - will be filled after batch creation
-            responseFiles.push({ cid: uploadResult.cid });
+            responseFiles.push({ cid: uploadResult.value.cid });
           } else {
             hasFailedUploads = true;
-            responseFiles.push({ error: reason?.message || uploadResult?.error || 'Upload failed' });
+            const error = uploadResult.status === 'rejected' 
+              ? uploadResult.reason?.message || 'Upload failed'
+              : uploadResult.value.error || 'Upload failed';
+            responseFiles.push({ error });
           }
         });
 

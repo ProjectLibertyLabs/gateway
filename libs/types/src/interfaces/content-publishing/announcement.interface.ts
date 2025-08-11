@@ -73,5 +73,33 @@ export interface IBatchFile {
   cid: string;
 }
 
+export interface IBatchFiles {
+  batchFiles: IBatchFile[];
+}
+
+export interface IBatchAnnouncement {
+  /**
+   * Unique identifier for tracking the batch announcement
+   */
+  referenceId: string;
+
+  /**
+   * IPFS CID of the uploaded file
+   */
+  cid: string;
+
+  /**
+   * Error message if the file upload or batch creation failed
+   */
+  error?: string;
+}
+
+export interface IBatchAnnouncementResponse {
+  /**
+   * Array of batch announcement results for each uploaded file
+   */
+  files: IBatchAnnouncement[];
+}
+
 export type IRequestType = IBroadcast | IReply | IReaction | IUpdate | IProfile | ITombstone;
 export type IAssetIncludedRequest = IBroadcast & IReply & IUpdate & IProfile;

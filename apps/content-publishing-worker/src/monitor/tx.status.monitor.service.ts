@@ -119,7 +119,21 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
             await this.retryPublishJob(txStatus.referencePublishJob);
           }
         } else if (successEvent) {
-          this.logger.debug({ txHash, currentBlockNumber }, 'Successfully found transaction in block');
+          this.logger.debug({ txHash, txIndex, currentBlockNumber }, 'Successfully found transaction in block');
+        } else if (
+          txStatus.successEvent.section === 'messages' &&
+          txStatus.successEvent.method === 'MessagesInBlock' &&
+          blockEvents.find(
+            ({ phase, event }) =>
+              phase.isApplyExtrinsic && event.section === 'messages' && event.method === 'MessagesInBlock',
+          )
+        ) {
+          // 'messages.MessagesInBlock' is only emitted for the first transaction in a block in which it's encountered,
+          // so if we don't see it in this transaction, but it didn't fail, it's probably in the block somewhere
+          this.logger.debug(
+            { txHash, txIndex, currentBlockNumber },
+            'Successfully found prior MessagesInBlock event for transaction',
+          );
         } else {
           const extrinsicEventsInBlock = extrinsicEvents.map(
             ({ event: { method, section } }) => `${section}.${method}`,

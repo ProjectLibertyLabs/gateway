@@ -143,23 +143,21 @@ export class ContentControllerV3 {
             }),
           );
 
-          try {
-            const batchResults = await Promise.all(batchPromises);
+          const batchResults = await Promise.allSettled(batchPromises);
 
-            // Update response files with batch results
-            successfulUploads.forEach(({ originalIndex }, batchIndex) => {
-              responseFiles[originalIndex].referenceId = batchResults[batchIndex].referenceId;
-            });
-          } catch (batchError) {
-            hasFailedUploads = true;
-            // If batch creation fails, mark all successful uploads as failed
-            successfulUploads.forEach(({ originalIndex }) => {
+          // Update response files with batch results
+          successfulUploads.forEach(({ originalIndex }, batchIndex) => {
+            const batchResult = batchResults[batchIndex];
+            if (batchResult.status === 'fulfilled') {
+              responseFiles[originalIndex].referenceId = batchResult.value.referenceId;
+            } else {
+              hasFailedUploads = true;
               responseFiles[originalIndex] = {
                 cid: responseFiles[originalIndex].cid,
-                error: 'Upload to IPFS succeeded, but batch announcement to chainfailed',
+                error: 'Upload to IPFS succeeded, but batch announcement to chain failed',
               };
-            });
-          }
+            }
+          });
         }
 
         const response: BatchAnnouncementResponseDto = {

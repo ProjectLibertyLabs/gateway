@@ -32,7 +32,7 @@ export class HealthController {
     return {
       status: HttpStatus.OK,
       message: 'Service is live',
-      timestamp: new Date().toISOString(),
+      timestamp: Date.now(),
     };
   }
 

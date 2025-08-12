@@ -113,10 +113,24 @@ describe('Account Service E2E request verification!', () => {
       }));
 
   it('(GET) /livez', () =>
-    request(httpServer).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+    request(httpServer)
+      .get('/livez')
+      .expect(200)
+      .then((res) =>
+        expect(res.body).toEqual(
+          expect.objectContaining({ status: 200, message: 'Service is live', timestamp: expect.any(Number) }),
+        ),
+      ));
 
   it('(GET) /readyz', () =>
-    request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+    request(httpServer)
+      .get('/readyz')
+      .expect(200)
+      .then((res) =>
+        expect(res.body).toEqual(
+          expect.objectContaining({ status: 200, message: 'Service is ready', timestamp: expect.any(Number) }),
+        ),
+      ));
 
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
 

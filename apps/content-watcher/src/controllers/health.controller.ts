@@ -31,6 +31,7 @@ export class HealthController {
     return {
       status: HttpStatus.OK,
       message: 'Service is live',
+      timestamp: Date.now(),
     };
   }
 
@@ -40,9 +41,6 @@ export class HealthController {
   @ApiOperation({ summary: 'Check the ready status of the service' })
   @ApiOkResponse({ description: 'Service is ready' })
   readyz() {
-    return {
-      status: HttpStatus.OK,
-      message: 'Service is ready',
-    };
+    return this.healthCheckService.getServiceReadiness();
   }
 }

@@ -54,9 +54,9 @@ export class ContentControllerV3 {
     description: 'Partial success - some files uploaded successfully, others failed',
     type: BatchAnnouncementResponseDto,
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)' 
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)',
   })
   @ApiResponse({
     status: 500,
@@ -138,9 +138,10 @@ export class ContentControllerV3 {
             responseFiles.push({ cid: uploadResult.value.cid });
           } else {
             hasFailedUploads = true;
-            const error = uploadResult.status === 'rejected'
-              ? uploadResult.reason?.message || 'Upload failed'
-              : uploadResult.value.error || 'Upload failed';
+            const error =
+              uploadResult.status === 'rejected'
+                ? uploadResult.reason?.message || 'Upload failed'
+                : uploadResult.value.error || 'Upload failed';
             responseFiles.push({ error });
           }
         });

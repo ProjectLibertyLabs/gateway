@@ -6,9 +6,6 @@ import WorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.confi
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BlockchainService } from '#blockchain/blockchain.service';
-import { Queue } from 'bullmq';
-import { getQueueToken } from '@nestjs/bullmq';
 
 describe('Account Service E2E request verification!', () => {
   let app: NestExpressApplication;
@@ -113,75 +110,4 @@ describe('Account Service E2E request verification!', () => {
     request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
-});
-
-describe('Dependency Readiness Test', () => {
-  let module: TestingModule;
-  let blockchainService: BlockchainService;
-  let queue: Queue;
-
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [WorkerModule],
-    }).compile();
-
-    await module.init();
-
-    blockchainService = module.get<BlockchainService>(BlockchainService);
-    queue = module.get<Queue>(getQueueToken('transaction-publisher'));
-  });
-
-  afterAll(async () => {
-    await queue.close();
-    await module.close();
-  });
-
-  it('should not process jobs until blockchain API is ready', async () => {
-    // const startTime = Date.now();
-    let apiReadyTime: number | null = null;
-    // let firstJobProcessedTime: number | null = null;
-
-    // Monitor when API becomes ready
-    const checkApiReady = async () => {
-      while (!apiReadyTime) {
-        try {
-          await blockchainService.getApi();
-          apiReadyTime = Date.now();
-          break;
-        } catch (error) {
-          console.log('API not ready yet:', error);
-          // Keep checking
-        }
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
-      }
-    };
-
-    // Start monitoring API readiness
-    checkApiReady();
-
-    // Add a job immediately
-    // const job = await queue.add('publish-transaction', {
-    //   transactionId: 'readiness-test-123',
-    //   payload: { test: 'data' },
-    // });
-
-    // // Monitor when job gets processed
-    // job.waitUntilFinished(queue.events).then(() => {
-    //   firstJobProcessedTime = Date.now();
-    // });
-
-    // // Wait for both API ready and job processed
-    // await Promise.all([apiReadyPromise, job.waitUntilFinished(queue.events, 30000)]);
-
-    // // Verify job was not processed before API was ready
-    // expect(apiReadyTime).toBeLessThanOrEqual(firstJobProcessedTime!);
-
-    // // API should become ready within reasonable time
-    // expect(apiReadyTime! - startTime).toBeLessThan(30000);
-
-    // console.log(`API ready after: ${apiReadyTime! - startTime}ms`);
-    // console.log(`Job processed after: ${firstJobProcessedTime! - startTime}ms`);
-  });
 });

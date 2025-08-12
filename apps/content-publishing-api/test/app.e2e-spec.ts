@@ -1024,7 +1024,7 @@ describe('AppController E2E request verification!', () => {
           // Should have CID but error due to batch failure
           expect(res.body.files[0]).toHaveProperty('cid');
           expect(res.body.files[0]).toHaveProperty('error');
-          expect(res.body.files[0].error).toBe('Upload to IPFS succeeded, but batch announcement to chainfailed');
+          expect(res.body.files[0].error).toBe('Upload to IPFS succeeded, but batch announcement to chain failed');
           expect(res.body.files[0]).not.toHaveProperty('referenceId');
         });
 

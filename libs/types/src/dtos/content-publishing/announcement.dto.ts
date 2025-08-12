@@ -154,14 +154,16 @@ export class BatchAnnouncementDto implements IBatchAnnouncement {
   @ApiProperty({
     description: 'Unique identifier for tracking the batch announcement',
     example: 'batch_12345',
+    required: false,
   })
-  referenceId: string;
+  referenceId?: string;
 
   @ApiProperty({
     description: 'IPFS CID of the uploaded file',
     example: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+    required: false,
   })
-  cid: string;
+  cid?: string;
 
   @ApiProperty({
     description:

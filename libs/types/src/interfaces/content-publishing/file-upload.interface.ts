@@ -36,3 +36,11 @@ export interface IUploadResponseV1 {
 export interface IFilesUpload {
   files: any[];
 }
+
+/**
+ * Interface for tracking successful file uploads with their original index
+ */
+export interface ISuccessfulUpload {
+  uploadResult: IFileResponse;
+  originalIndex: number;
+}

@@ -81,12 +81,12 @@ export interface IBatchAnnouncement {
   /**
    * Unique identifier for tracking the batch announcement
    */
-  referenceId: string;
+  referenceId?: string;
 
   /**
    * IPFS CID of the uploaded file
    */
-  cid: string;
+  cid?: string;
 
   /**
    * Error message if the file upload or batch creation failed

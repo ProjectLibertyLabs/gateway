@@ -17,7 +17,7 @@ import { FilesUploadDto, BatchAnnouncementResponseDto } from '#types/dtos/conten
 import { ApiService } from '../../api.service';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
-import { IFileResponse } from '#types/interfaces/content-publishing';
+import { IBatchAnnouncement, IFileResponse, ISuccessfulUpload } from '#types/interfaces/content-publishing';
 
 @Controller({ version: '3', path: 'content' })
 @ApiTags('v3/content')
@@ -54,7 +54,10 @@ export class ContentControllerV3 {
     description: 'Partial success - some files uploaded successfully, others failed',
     type: BatchAnnouncementResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)' })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Bad request - validation errors (no files, mismatched schema IDs, etc.)' 
+  })
   @ApiResponse({
     status: 500,
     description: 'Internal server error - all uploads failed or batch creation failed',
@@ -64,9 +67,7 @@ export class ContentControllerV3 {
     @Req() req: Request,
     @Res({ passthrough: true }) _res: Response,
   ): Promise<BatchAnnouncementResponseDto> {
-    let fileIndex = 0;
-    let resolveResponse: (val: BatchAnnouncementResponseDto) => void;
-
+    // Initialize busboy
     let busboy;
     try {
       busboy = Busboy({ headers: req.headers });
@@ -77,14 +78,19 @@ export class ContentControllerV3 {
       }
       throw new InternalServerErrorException('File upload error');
     }
+
+    // Initialize variables
+    let fileIndex = 0;
+    let resolveResponse: (val: BatchAnnouncementResponseDto) => void;
+
+    const schemaIds: number[] = [];
     const fileProcessingPromises: Promise<IFileResponse>[] = [];
     const result = new Promise<BatchAnnouncementResponseDto>((resolve) => {
       resolveResponse = resolve;
     });
 
-    const schemaIds: number[] = [];
-
     busboy.on('field', (fieldname, value) => {
+      // Handle schemaId field
       if (fieldname === 'schemaId') {
         schemaIds.push(parseInt(value, 10));
       } else {
@@ -93,19 +99,23 @@ export class ContentControllerV3 {
     });
 
     busboy.on('file', async (_fieldname, fileStream, fileinfo) => {
+      // Handle file upload
       fileIndex += 1;
       if (fileIndex > this.appConfig.fileUploadCountLimit) {
         fileStream.resume(); // Make sure we consume the entire file stream
         throw new BadRequestException('Max file upload count per request exceeded');
       }
 
+      // Upload file to IPFS
       fileProcessingPromises.push(
         this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType),
       );
     });
 
     busboy.on('finish', async () => {
+      // Handle finish event, which is emitted when all files have been streamed to IPFS
       try {
+        // Validate finish event
         if (fileIndex === 0) {
           throw new BadRequestException('No files provided in the request');
         }
@@ -113,12 +123,14 @@ export class ContentControllerV3 {
           throw new BadRequestException('Number of schema IDs does not match number of files');
         }
 
+        let hasFailedUploads = false;
         const uploadResults = await Promise.allSettled(fileProcessingPromises);
 
-        const responseFiles: { referenceId?: string; cid?: string; error?: string }[] = [];
-        let hasFailedUploads = false;
-        const successfulUploads: { uploadResult: IFileResponse; originalIndex: number }[] = [];
+        // Initialize response files
+        const responseFiles: IBatchAnnouncement[] = [];
+        const successfulUploads: ISuccessfulUpload[] = [];
 
+        // Process upload results, filtering successful uploads
         uploadResults.forEach((uploadResult, index) => {
           if (uploadResult.status === 'fulfilled' && !!uploadResult.value.cid && !uploadResult.value.error) {
             successfulUploads.push({ uploadResult: uploadResult.value, originalIndex: index });
@@ -126,7 +138,7 @@ export class ContentControllerV3 {
             responseFiles.push({ cid: uploadResult.value.cid });
           } else {
             hasFailedUploads = true;
-            const error = uploadResult.status === 'rejected' 
+            const error = uploadResult.status === 'rejected'
               ? uploadResult.reason?.message || 'Upload failed'
               : uploadResult.value.error || 'Upload failed';
             responseFiles.push({ error });

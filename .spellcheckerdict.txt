@@ -165,3 +165,4 @@ ElastiCache
 VPC
 Auto-Failover
 auto-failover
+testnet

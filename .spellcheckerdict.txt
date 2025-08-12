@@ -133,7 +133,7 @@ Supertest
 svg-embed
 TCP
 Terraform
-(Testnet|TestNet)
+(Testnet|TestNet|testnet)
 TestnetPaseo
 TLS
 Traefik

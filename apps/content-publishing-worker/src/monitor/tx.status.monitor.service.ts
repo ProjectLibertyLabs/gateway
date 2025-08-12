@@ -108,7 +108,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
           const { dispatchError } = failureEvent.data;
           const moduleThatErrored = dispatchError.asModule;
           const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-          this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+          this.logger.error({ err: moduleError }, 'Extrinsic failed');
           const errorReport = this.handleMessagesFailure(moduleError);
 
           if (errorReport.pause) {
@@ -119,9 +119,36 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
             await this.retryPublishJob(txStatus.referencePublishJob);
           }
         } else if (successEvent) {
-          this.logger.debug(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+          this.logger.debug({ txHash, txIndex, currentBlockNumber }, 'Successfully found transaction in block');
+        } else if (
+          txStatus.successEvent.section === 'messages' &&
+          txStatus.successEvent.method === 'MessagesInBlock' &&
+          blockEvents.find(
+            ({ phase, event }) =>
+              phase.isApplyExtrinsic && event.section === 'messages' && event.method === 'MessagesInBlock',
+          )
+        ) {
+          // 'messages.MessagesInBlock' is only emitted for the first transaction in a block in which it's encountered,
+          // so if we don't see it in this transaction, but it didn't fail, it's probably in the block somewhere
+          this.logger.debug(
+            { txHash, txIndex, currentBlockNumber },
+            'Successfully found prior MessagesInBlock event for transaction',
+          );
         } else {
-          this.logger.error(`Watched transaction ${txHash} found, but neither success nor error???`);
+          const extrinsicEventsInBlock = extrinsicEvents.map(
+            ({ event: { method, section } }) => `${section}.${method}`,
+          );
+          this.logger.error(
+            {
+              txHash,
+              txIndexInBlock: txIndex,
+              encodedExtrinsic: currentBlock.block.extrinsics[txIndex].toHex(),
+              block: { hash: currentBlock.block.header.hash.toHex(), number: currentBlockNumber },
+              targetEvent: `${successEvent.section}.${successEvent.method}`,
+              extrinsicEventsInBlock,
+            },
+            'Watched transaction found, but neither success nor error???',
+          );
         }
 
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list

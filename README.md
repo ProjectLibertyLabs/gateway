@@ -12,8 +12,8 @@ bridging the gap between Web2 and Web3 development.
 - [🔍 Architecture Map](#-arch-maps)
 - [🔍 Frequency Developer Gateway Microservices](#gateway-microservices)
 - [💻 Getting Started](#getting-started)
-  - [🚀 Quick Start Guide](#quick-start-guide)
-  - [💻 Microservice Start Guide](#microservices-start-guide)
+    - [🚀 Quick Start Guide](#quick-start-guide)
+    - [💻 Microservice Start Guide](#microservices-start-guide)
 - [🛫 Deployment](#deployment)
 - [Logging](#logging)
 - [Metrics](#metrics)
@@ -56,7 +56,8 @@ Visit our Live API Documentation to start exploring the Gateway services.
 ### Overview Gateway Services
 
 ```mermaid
-flowchart LR;
+flowchart LR
+;
     subgraph Custom Logic
         C[Client] --> S(Server)
     end
@@ -87,7 +88,7 @@ Gateway consists of four independent microservices, each designed to handle spec
 Frequency blockchain. Below is a detailed overview of each service:
 
 | Service                    | Description                                                                                                                                                                                                    | API Documentation                                                            | README                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------|
 | Account Service            | Manages user accounts and authentication on the Frequency blockchain using [Sign In With Frequency](https://github.com/ProjectLibertyLabs/siwf). It handles tasks such as account creation and key management. | [API Docs](https://projectlibertylabs.github.io/gateway/account)             | [README](./developer-docs/account/README.md)            |
 | Graph Service              | Manages social connections and relationships between users on the Frequency network. It handles operations like following/unfollowing users and retrieving social graphs.                                      | [API Docs](https://projectlibertylabs.github.io/gateway/graph/)              | [README](./developer-docs/graph/README.md)              |
 | Content Publishing Service | Facilitates the creation and publication of content on the Frequency blockchain. It manages tasks such as posting messages, attachments, replies, and reactions.                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-publishing/) | [README](./developer-docs/content-publishing/README.md) |
@@ -132,15 +133,17 @@ Follow these steps to quickly get all Gateway services up and running:
   cd gateway
 ```
 
-3. **Start all Services**
+3. **Start all Services (local and testnet development only)**
 
 ```sh
   ./start.sh
 ```
 
 This script will start all Gateway microservices using Docker.
+It is **not designed to run against mainnet;** it's intended for local development or testing against Paseo Testnet.
+If you run a local Frequency node via start.sh, it will be its own isolated chain, not connected to mainnet or testnet.
 
-4. **Stop all Services**
+4. **Stop all Services (local and testnet development only)**
 
 ```sh
   ./stop.sh
@@ -184,10 +187,13 @@ our [Social App Template](https://github.com/ProjectLibertyLabs/social-app-templ
 
 ## Deployment <a name="deployment"></a>
 
-Deployment of the Gateway services have various options. See
+To prepare for deployment, you can use the start and stop scripts against a local node and Paseo testnet.
+For deployment, it is recommended to set up your mainnet Gateway instance in a cloud environment.
+
+Deployment of each Gateway _service_ has various options. See
 the [Live Docs](https://projectlibertylabs.github.io/gateway/) for more details.
 
-Deployment of the Gateway documentation occurs via merge to `main` branch via GitHub Actions.
+Deployment of the Gateway _documentation_ occurs via merge to `main` branch via GitHub Actions.
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
@@ -203,7 +209,8 @@ for a colorized, more human-readable format.
 
 ## Metrics <a name="metrics"></a>
 
-For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, content-watcher, graph-api, and graph-worker - Gateway exposes the default
+For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, content-watcher,
+graph-api, and graph-worker - Gateway exposes the default
 Prometheus metrics at `/metrics`.
 A local Prometheus server can be installed and pointed at this endpoint for debugging or other purposes.
 

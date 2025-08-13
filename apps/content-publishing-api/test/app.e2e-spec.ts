@@ -129,24 +129,10 @@ describe('AppController E2E request verification!', () => {
       }));
 
   it('(GET) /livez', () =>
-    request(app.getHttpServer())
-      .get('/livez')
-      .expect(200)
-      .then((res) =>
-        expect(res.body).toEqual(
-          expect.objectContaining({ status: 200, message: 'Service is live', timestamp: expect.any(Number) }),
-        ),
-      ));
+    request(app.getHttpServer()).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
   it('(GET) /readyz', () =>
-    request(app.getHttpServer())
-      .get('/readyz')
-      .expect(200)
-      .then((res) =>
-        expect(res.body).toEqual(
-          expect.objectContaining({ status: 200, message: 'Service is ready', timestamp: expect.any(Number) }),
-        ),
-      ));
+    request(app.getHttpServer()).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   it('(GET) /metrics', () => request(app.getHttpServer()).get('/metrics').expect(200));
 

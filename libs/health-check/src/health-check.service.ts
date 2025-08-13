@@ -198,18 +198,16 @@ export class HealthCheckService {
 
   public async getServiceReadiness(): Promise<ReadinessResponseDto> {
     const dependenciesReady = await this.dependenciesReady();
+    let status = HttpStatus.OK;
+    let message = 'Service is ready';
     if (!dependenciesReady) {
-      return {
-        status: HttpStatus.SERVICE_UNAVAILABLE,
-        message: 'Service is not ready',
-        timestamp: Date.now(),
-      };
+      status = HttpStatus.SERVICE_UNAVAILABLE;
+      message = 'Service is not ready';
     }
 
     return {
-      status: HttpStatus.OK,
-      message: 'Service is ready',
-      timestamp: Date.now(),
+      status,
+      message,
     };
   }
 }

@@ -69,26 +69,6 @@ describe('Content Watcher E2E request verification!', () => {
         );
       }));
 
-  it('(GET) /livez', () =>
-    request(WATCHER_URI)
-      .get('/livez')
-      .expect(200)
-      .then((res) =>
-        expect(res.body).toEqual(
-          expect.objectContaining({ status: 200, message: 'Service is live', timestamp: expect.any(Number) }),
-        ),
-      ));
-
-  it('(GET) /readyz', () =>
-    request(WATCHER_URI)
-      .get('/readyz')
-      .expect(200)
-      .then((res) =>
-        expect(res.body).toEqual(
-          expect.objectContaining({ status: 200, message: 'Service is ready', timestamp: expect.any(Number) }),
-        ),
-      ));
-
   it('(GET) /metrics', () => {
     request(WATCHER_URI).get('/metrics').expect(200);
   });

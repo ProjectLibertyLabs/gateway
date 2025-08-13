@@ -118,7 +118,4 @@ export class ReadinessResponseDto {
 
   @IsNotEmpty()
   message: string;
-
-  @IsRFC3339()
-  timestamp: number;
 }

@@ -31,7 +31,6 @@ export class HealthController {
     return {
       status: HttpStatus.OK,
       message: 'Service is live',
-      timestamp: Date.now(),
     };
   }
 

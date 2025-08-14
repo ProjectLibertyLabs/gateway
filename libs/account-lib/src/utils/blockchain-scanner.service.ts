@@ -42,10 +42,15 @@ export abstract class BlockchainScannerService {
   ) {
     this.logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
+
+    // These listeners are still present when the chain.disconnected event is received.
+    // However it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
     this.blockchainService.on('chain.disconnected', () => {
+      this.logger.info('Chain is disconnected.  Pausing blockchain-scanner service.');
       this.paused = true;
     });
     this.blockchainService.on('chain.connected', () => {
+      this.logger.info('Chain reconnected.  Unpausing blockchain-scanner service.');
       this.paused = false;
     });
   }
@@ -83,9 +88,11 @@ export abstract class BlockchainScannerService {
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
 
-      const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
-      currentBlockNumber = lastSeenBlockNumber + 1;
-      currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+      if (!this.paused) {
+        const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
+        currentBlockNumber = lastSeenBlockNumber + 1;
+        currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+      }
 
       if (!currentBlockHash.some((byte) => byte !== 0)) {
         this.scanInProgress = false;

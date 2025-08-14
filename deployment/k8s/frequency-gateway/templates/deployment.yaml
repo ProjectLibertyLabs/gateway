@@ -46,14 +46,14 @@ spec:
             httpGet:
               path: {{ .Values.account.image.healthCheckPath }}
               port: {{ .Values.account.env.API_PORT }}
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           readinessProbe:
             httpGet:
               path: {{ .Values.account.image.readinessProbePath }}
               port: {{ .Values.account.env.API_PORT }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.account.image.mode.api.args}}"]
@@ -100,14 +100,14 @@ spec:
             httpGet:
               path: {{ .Values.contentPublishing.image.healthCheckPath }}
               port: {{ .Values.contentPublishing.env.API_PORT }}
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           readinessProbe:
             httpGet:
               path: {{ .Values.contentPublishing.image.readinessProbePath }}
               port: {{ .Values.contentPublishing.env.API_PORT }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.contentPublishing.image.mode.api.args}}"]
@@ -154,14 +154,14 @@ spec:
             httpGet:
               path: {{ .Values.contentWatcher.image.healthCheckPath }}
               port: {{ .Values.contentWatcher.env.API_PORT }}
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           readinessProbe:
             httpGet:
               path: {{ .Values.contentWatcher.image.readinessProbePath }}
               port: {{ .Values.contentWatcher.env.API_PORT }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
@@ -192,14 +192,14 @@ spec:
             httpGet:
               path: {{ .Values.graph.image.healthCheckPath }}
               port: {{ .Values.graph.env.API_PORT }}
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
           readinessProbe:
             httpGet:
               path: {{ .Values.graph.image.readinessProbePath }}
               port: {{ .Values.graph.env.API_PORT }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }} 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           args: ["{{ .Values.graph.image.mode.api.args}}"]

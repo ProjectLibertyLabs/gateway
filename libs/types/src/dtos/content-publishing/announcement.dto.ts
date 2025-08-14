@@ -10,7 +10,18 @@ import { IsDsnpContentURI } from '#utils/decorators/is-dsnp-content-uri.decorato
 import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IBatchFile, IBroadcast, IProfile, IReaction, IReply, ITombstone, IUpdate } from '#types/interfaces';
+import {
+  IBatchFile,
+  IBatchFiles,
+  IBatchAnnouncement,
+  IBatchAnnouncementResponse,
+  IBroadcast,
+  IProfile,
+  IReaction,
+  IReply,
+  ITombstone,
+  IUpdate,
+} from '#types/interfaces';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { IsCidV1 } from '#utils/decorators/is-cidv1.decorator';
 
@@ -132,11 +143,46 @@ export class BatchFileDto implements IBatchFile {
   cid: string;
 }
 
-export class BatchFilesDto {
+export class BatchFilesDto implements IBatchFiles {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BatchFileDto)
   batchFiles: BatchFileDto[];
+}
+
+export class BatchAnnouncementDto implements IBatchAnnouncement {
+  @ApiProperty({
+    description: 'Unique identifier for tracking the batch announcement',
+    example: 'batch_12345',
+    required: false,
+  })
+  referenceId?: string;
+
+  @ApiProperty({
+    description: 'IPFS CID of the uploaded file',
+    example: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+    required: false,
+  })
+  cid?: string;
+
+  @ApiProperty({
+    description:
+      'Error message if the file upload or batch creation failed. Will be undefined in successful responses since this endpoint uses all-or-nothing error handling.',
+    required: false,
+    example: undefined,
+  })
+  error?: string;
+}
+
+export class BatchAnnouncementResponseDto implements IBatchAnnouncementResponse {
+  @ApiProperty({
+    description: 'Array of batch announcement results for each uploaded file',
+    type: [BatchAnnouncementDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BatchAnnouncementDto)
+  files: BatchAnnouncementDto[];
 }
 
 export type RequestTypeDto = BroadcastDto | ReplyDto | ReactionDto | UpdateDto | ProfileDto | TombstoneDto;

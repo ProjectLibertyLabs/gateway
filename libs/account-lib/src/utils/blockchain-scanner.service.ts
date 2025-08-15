@@ -37,21 +37,21 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainService,
+    protected readonly blockchainService: BlockchainService, // <<--- different
     protected readonly logger: PinoLogger,
   ) {
-    this.logger.setContext(this.constructor.name);
+    logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
 
     // These listeners are still present when the chain.disconnected event is received.
-    // However it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
-    this.blockchainService.on('chain.disconnected', () => {
-      this.logger.info('Chain is disconnected.  Pausing blockchain-scanner service.');
-      this.paused = true;
-    });
-    this.blockchainService.on('chain.connected', () => {
-      this.logger.info('Chain reconnected.  Unpausing blockchain-scanner service.');
+    // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
+    blockchainService.on('chain.connected', () => {
+      this.logger.info('Chain connected.  Unpausing blockchain-scanner service.');
       this.paused = false;
+    });
+    blockchainService.on('chain.disconnected', () => {
+      this.logger.info('Chain disconnected.  Pausing blockchain-scanner service.');
+      this.paused = true;
     });
   }
 
@@ -75,12 +75,12 @@ export abstract class BlockchainScannerService {
   }
 
   public async scan(): Promise<void> {
-    if (this.scanInProgress) {
-      this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
-      return;
-    }
     if (!this.blockchainService.connected) {
       this.logger.error('Disconnected: skipping scan');
+      return;
+    }
+    if (this.scanInProgress) {
+      this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
     try {
@@ -99,6 +99,7 @@ export abstract class BlockchainScannerService {
         this.scanInProgress = false;
         return;
       }
+      this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
@@ -126,10 +127,11 @@ export abstract class BlockchainScannerService {
       }
 
       // Don't throw if scan paused; that's WHY it's paused
-      if (!this.paused) {
-        this.logger.error(JSON.stringify(e));
-        throw e;
+      if (this.paused) {
+        this.logger.error(e);
+        return;
       }
+      throw e;
     } finally {
       this.scanInProgress = false;
     }

@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
-import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { PinoLogger } from 'nestjs-pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -38,8 +38,9 @@ export abstract class BlockchainScannerService {
   constructor(
     protected cacheManager: Redis,
     protected readonly blockchainService: BlockchainRpcQueryService,
-    protected readonly logger: Logger,
+    protected readonly logger: PinoLogger,
   ) {
+    logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
     blockchainService.on('chain.connected', () => {
       this.paused = false;
@@ -74,7 +75,7 @@ export abstract class BlockchainScannerService {
       return;
     }
     if (this.scanInProgress) {
-      this.logger.verbose('Scheduled blockchain scan skipped due to previous scan still in progress');
+      this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
     try {
@@ -85,7 +86,6 @@ export abstract class BlockchainScannerService {
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
 
-      // don't spam the logs
       const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
       currentBlockNumber = lastSeenBlockNumber + 1;
       currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
@@ -94,7 +94,7 @@ export abstract class BlockchainScannerService {
         this.scanInProgress = false;
         return;
       }
-      this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
+      this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {

@@ -89,8 +89,8 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async onApplicationShutdown() {
+    this.logger.info('received shutdown event');
     clearInterval(this.headerInterval);
-    super.onApplicationShutdown();
   }
 
   public async isReady(): Promise<boolean> {
@@ -98,16 +98,18 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async updateLatestBlockHeader() {
-    const latestFinalizedBlock = await this.api.rpc.chain.getFinalizedHead();
-    const latestFinalizedHeader = await this.api.rpc.chain.getHeader(latestFinalizedBlock);
-    await this.defaultRedis.set(
-      'latestFinalizedHeader',
-      JSON.stringify({
-        blockHash: latestFinalizedHeader.hash.toHex(),
-        number: latestFinalizedHeader.number.toNumber(),
-        parentHash: latestFinalizedHeader.parentHash.toHex(),
-      }),
-    );
+    if (this.connected) {
+      const latestFinalizedBlock = await this.api.rpc.chain.getFinalizedHead();
+      const latestFinalizedHeader = await this.api.rpc.chain.getHeader(latestFinalizedBlock);
+      await this.defaultRedis.set(
+        'latestFinalizedHeader',
+        JSON.stringify({
+          blockHash: latestFinalizedHeader.hash.toHex(),
+          number: latestFinalizedHeader.number.toNumber(),
+          parentHash: latestFinalizedHeader.parentHash.toHex(),
+        }),
+      );
+    }
   }
 
   constructor(

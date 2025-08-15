@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { BlockchainScannerService } from '#graph-lib/utils/blockchain-scanner.service';
+import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';

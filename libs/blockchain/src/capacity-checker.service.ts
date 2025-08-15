@@ -63,12 +63,14 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
   }
 
   private async updateCachedCapacity() {
-    try {
-      const { providerId } = this.config;
-      const capacityInfo = await this.blockchainService.capacityInfo(providerId);
-      await this.redis.set(CURRENT_CHAIN_CAPACITY_KEY, JSON.stringify(capacityInfo));
-    } catch (err: any) {
-      this.logger.error(err, 'Caught error in updateCachedCapacity');
+    if (this.blockchainService.connected) {
+      try {
+        const { providerId } = this.config;
+        const capacityInfo = await this.blockchainService.capacityInfo(providerId);
+        await this.redis.set(CURRENT_CHAIN_CAPACITY_KEY, JSON.stringify(capacityInfo));
+      } catch (err: any) {
+        this.logger.error(err, 'Caught error in updateCachedCapacity');
+      }
     }
   }
 

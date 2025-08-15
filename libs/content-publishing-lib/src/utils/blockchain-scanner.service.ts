@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
-import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { PinoLogger } from 'nestjs-pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -14,6 +14,7 @@ export interface IBlockchainScanParameters {
 }
 
 export class EndOfChainError extends Error {}
+
 export class SkipBlockError extends Error {}
 
 function eventName({ event: { section, method } }: FrameSystemEventRecord) {
@@ -37,8 +38,9 @@ export abstract class BlockchainScannerService {
   constructor(
     protected cacheManager: Redis,
     protected readonly blockchainService: BlockchainRpcQueryService,
-    protected readonly logger: Logger,
+    protected readonly logger: PinoLogger,
   ) {
+    logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
     blockchainService.on('chain.connected', () => {
       this.paused = false;
@@ -68,11 +70,14 @@ export abstract class BlockchainScannerService {
   }
 
   public async scan(): Promise<void> {
-    if (this.scanInProgress) {
-      this.logger.verbose('Scheduled blockchain scan skipped due to previous scan still in progress');
+    if (!this.blockchainService.connected) {
+      this.logger.error('disconnected: skipping scan');
       return;
     }
-
+    if (this.scanInProgress) {
+      this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
+      return;
+    }
     try {
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
@@ -89,7 +94,7 @@ export abstract class BlockchainScannerService {
         this.scanInProgress = false;
         return;
       }
-      this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
+      this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
@@ -115,8 +120,7 @@ export abstract class BlockchainScannerService {
       if (e instanceof EndOfChainError) {
         return;
       }
-
-      this.logger.error(JSON.stringify(e));
+      this.logger.error(e);
       // Don't propagate the error if scan is paused; it's WHY the scan is paused
       if (this.paused) {
         return;

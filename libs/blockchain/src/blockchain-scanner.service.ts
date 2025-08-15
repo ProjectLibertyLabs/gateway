@@ -2,7 +2,7 @@
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service'; // different
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { PinoLogger } from 'nestjs-pino';
@@ -40,13 +40,18 @@ export abstract class BlockchainScannerService {
     protected readonly blockchainService: BlockchainRpcQueryService,
     protected readonly logger: PinoLogger,
   ) {
-    this.logger.setContext(this.constructor.name);
+    logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
-    this.blockchainService.on('chain.disconnected', () => {
-      this.paused = true;
-    });
-    this.blockchainService.on('chain.connected', () => {
+
+    // These listeners are still present when the chain.disconnected event is received.
+    // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
+    blockchainService.on('chain.connected', () => {
+      this.logger.info('Chain connected. Unpausing blockchain-scanner service.');
       this.paused = false;
+    });
+    blockchainService.on('chain.disconnected', () => {
+      this.logger.info('Chain disconnected. Pausing blockchain-scanner service.');
+      this.paused = true;
     });
   }
 
@@ -70,11 +75,14 @@ export abstract class BlockchainScannerService {
   }
 
   public async scan(): Promise<void> {
+    if (!this.blockchainService.connected) {
+      this.logger.error('Disconnected: skipping scan');
+      return;
+    }
     if (this.scanInProgress) {
       this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
-
     try {
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
@@ -119,10 +127,11 @@ export abstract class BlockchainScannerService {
       }
 
       // Don't throw if scan paused; that's WHY it's paused
-      if (!this.paused) {
-        this.logger.error(JSON.stringify(e));
-        throw e;
+      if (this.paused) {
+        this.logger.error(e);
+        return;
       }
+      throw e;
     } finally {
       this.scanInProgress = false;
     }

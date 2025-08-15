@@ -17,6 +17,7 @@ export class ChainEventProcessorService {
     blockNumber: number,
     filter?: ChainWatchOptionsDto,
   ): Promise<MessageResponseWithSchemaId[]> {
+    console.warn('about to getBlockHash');
     const blockHash = await this.blockchainService.getBlockHash(blockNumber);
     if (blockHash.isEmpty) {
       return [];

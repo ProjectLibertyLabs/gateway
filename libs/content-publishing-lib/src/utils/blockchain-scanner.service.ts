@@ -14,6 +14,7 @@ export interface IBlockchainScanParameters {
 }
 
 export class EndOfChainError extends Error {}
+
 export class SkipBlockError extends Error {}
 
 function eventName({ event: { section, method } }: FrameSystemEventRecord) {
@@ -68,11 +69,14 @@ export abstract class BlockchainScannerService {
   }
 
   public async scan(): Promise<void> {
+    if (!this.blockchainService.connected) {
+      this.logger.error('disconnected: skipping scan');
+      return;
+    }
     if (this.scanInProgress) {
       this.logger.verbose('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
-
     try {
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
@@ -81,6 +85,7 @@ export abstract class BlockchainScannerService {
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
 
+      // don't spam the logs
       const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
       currentBlockNumber = lastSeenBlockNumber + 1;
       currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
@@ -115,8 +120,7 @@ export abstract class BlockchainScannerService {
       if (e instanceof EndOfChainError) {
         return;
       }
-
-      this.logger.error(JSON.stringify(e));
+      this.logger.error(e);
       // Don't propagate the error if scan is paused; it's WHY the scan is paused
       if (this.paused) {
         return;

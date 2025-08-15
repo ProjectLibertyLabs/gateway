@@ -74,6 +74,10 @@ export abstract class BlockchainScannerService {
       this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
+    if (!this.blockchainService.connected) {
+      this.logger.error('Disconnected. Skipping scan.');
+      return;
+    }
 
     try {
       // Only scan blocks if initial conditions met
@@ -85,6 +89,7 @@ export abstract class BlockchainScannerService {
 
       const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
       currentBlockNumber = lastSeenBlockNumber + 1;
+      this.logger.debug('about to getBlockHash in scanner service');
       currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
 
       if (!currentBlockHash.some((byte) => byte !== 0)) {
@@ -111,6 +116,7 @@ export abstract class BlockchainScannerService {
 
         // Move to the next block
         currentBlockNumber += 1;
+        this.logger.warn('about to getBlockHash in scanner service, and I think we are not paused');
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
     } catch (e) {

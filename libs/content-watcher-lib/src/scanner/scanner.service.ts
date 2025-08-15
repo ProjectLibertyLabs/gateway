@@ -90,6 +90,9 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       if (this.scanInProgress) {
         return;
       }
+      if (!this.blockchainService.connected) {
+        this.logger.error('Disconnected: skipping scan');
+      }
 
       const registeredWebhook = await this.cache.get(REGISTERED_WEBHOOK_KEY);
       if (!registeredWebhook) {

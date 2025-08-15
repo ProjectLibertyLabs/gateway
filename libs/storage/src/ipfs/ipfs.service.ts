@@ -182,6 +182,18 @@ export class IpfsService {
     }
   }
 
+  public async tryPin(cid: string): Promise<boolean> {
+    try {
+      this.logger.debug(`Attempting to pin ${cid}`);
+      const parsedCid = CID.parse(cid);
+      await this.ipfs.pin.add(parsedCid);
+      return true;
+    } catch (err) {
+      this.logger.debug(`Failed to pin ${cid}: ${err}`);
+      return false;
+    }
+  }
+
   /**
    * Ensures the IPFS node is reachable before executing an API call.
    * Supports both Promise-based and AsyncIterable-based functions.

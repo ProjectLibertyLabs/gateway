@@ -106,3 +106,16 @@ export class HealthResponseDto {
 
   blockchainStatus: BlockchainStatusDto;
 }
+
+export class ReadinessResponseDto {
+  @ApiProperty({
+    description: 'Status of readiness response',
+    example: 200,
+    enum: HttpStatus,
+    enumName: 'HttpStatus',
+  })
+  status: HttpStatus;
+
+  @IsNotEmpty()
+  message: string;
+}

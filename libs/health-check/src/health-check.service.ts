@@ -10,6 +10,7 @@ import {
   LatestBlockHeader,
   HealthResponseDto,
   LoggingConfigDto,
+  ReadinessResponseDto,
 } from '#types/dtos/common';
 
 import { plainToInstance } from 'class-transformer';
@@ -19,6 +20,7 @@ import { CONFIG_KEYS_TO_REDACT, HEALTH_CONFIGS } from '#types/constants/health-c
 import { CONFIGURED_QUEUE_NAMES_PROVIDER, CONFIGURED_QUEUE_PREFIX_PROVIDER } from '#types/constants';
 import * as process from 'node:process';
 import { PinoLogger } from 'nestjs-pino';
+import { withTimeoutMs } from '#utils/common/common.utils';
 
 interface RedisWithCustomCommands extends Redis {
   queueStatus(prefixes: string[]): Promise<string>;
@@ -59,7 +61,7 @@ export class HealthCheckService {
     });
   }
 
-  public async getRedisStatus(): Promise<RedisStatusDto> {
+  private async getRedisStatus(): Promise<RedisStatusDto> {
     const queuePrefixes = this.queueNames.map((queueName) => `${this.queuePrefix}::${queueName}`).filter(Boolean);
     if (queuePrefixes.length === 0) {
       this.logger.warn('No valid queue prefixes found for status check');
@@ -95,14 +97,25 @@ export class HealthCheckService {
     });
   }
 
-  public async getBlockchainStatus(): Promise<BlockchainStatusDto> {
+  private async isRedisConnected(): Promise<boolean> {
+    try {
+      const pingResponse = await this.redis.ping();
+      this.logger.debug(`Redis ping response: ${pingResponse}`);
+      return pingResponse === 'PONG';
+    } catch (error) {
+      this.logger.error('Redis connection error:', error);
+      return false;
+    }
+  }
+
+  private async getBlockchainStatus(): Promise<BlockchainStatusDto> {
     return plainToInstance(BlockchainStatusDto, {
       frequencyApiWsUrl: this.configService.get<string>('FREQUENCY_API_WS_URL'),
       latestBlockHeader: await this.getLatestBlockHeader(),
     });
   }
 
-  public async getLatestBlockHeader(): Promise<LatestBlockHeader | null> {
+  private async getLatestBlockHeader(): Promise<LatestBlockHeader | null> {
     const headerStr = await this.redis.get('latestHeader');
     if (headerStr) {
       try {
@@ -124,11 +137,36 @@ export class HealthCheckService {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public getLogConfig(): LoggingConfigDto {
+  private getLogConfig(): LoggingConfigDto {
     return {
       logLevel: process.env?.LOG_LEVEL,
       prettyPrint: process.env?.PRETTY === 'true' || process.env?.PRETTY === '1',
     };
+  }
+
+  private async dependenciesReady(): Promise<boolean> {
+    try {
+      // Run checks in parallel with timeouts
+      const [redisResult, blockchainResult] = await Promise.allSettled([
+        withTimeoutMs(this.isRedisConnected(), 2000),
+        withTimeoutMs(this.blockchainService.isReady(), 2000),
+      ]);
+
+      const isRedisConnected = redisResult.status === 'fulfilled' ? redisResult.value : false;
+      const isBlockchainReady = blockchainResult.status === 'fulfilled' ? blockchainResult.value : false;
+
+      if (redisResult.status === 'rejected') {
+        this.logger.warn('Redis readiness check failed or timed out:', redisResult.reason);
+      }
+      if (blockchainResult.status === 'rejected') {
+        this.logger.warn('Blockchain readiness check failed or timed out:', blockchainResult.reason);
+      }
+
+      return isRedisConnected && isBlockchainReady;
+    } catch (error) {
+      this.logger.error('Dependencies readiness check failed:', error);
+      return false;
+    }
   }
 
   public async getServiceStatus(): Promise<HealthResponseDto> {
@@ -155,6 +193,21 @@ export class HealthCheckService {
       config: sortObject(config),
       redisStatus: redisResult.status === 'fulfilled' ? redisResult.value : null,
       blockchainStatus: blockchainResult.status === 'fulfilled' ? blockchainResult.value : null,
+    };
+  }
+
+  public async getServiceReadiness(): Promise<ReadinessResponseDto> {
+    const dependenciesReady = await this.dependenciesReady();
+    let status = HttpStatus.OK;
+    let message = 'Service is ready';
+    if (!dependenciesReady) {
+      status = HttpStatus.SERVICE_UNAVAILABLE;
+      message = 'Service is not ready';
+    }
+
+    return {
+      status,
+      message,
     };
   }
 }

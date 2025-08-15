@@ -9,6 +9,8 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class MessagePublisher implements OnApplicationBootstrap {
+  private static readonly BATCH_PROCESS_WINDOW_MS = 6000;
+  
   private messageQueue: IPublisherJob[] = [];
 
   private maxBatchSize: number;
@@ -61,7 +63,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
         if (this.messageQueue.length > 0) {
           this.processBatch().then(resolve).catch(reject);
         }
-      }, 6000); // Wait 6 seconds to collect more messages
+      }, MessagePublisher.BATCH_PROCESS_WINDOW_MS); // Wait 6 seconds to collect more messages
     });
 
     return this.batchingPromise;

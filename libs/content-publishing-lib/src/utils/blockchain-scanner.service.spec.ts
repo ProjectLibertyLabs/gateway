@@ -11,7 +11,7 @@ import blockchainConfig, { IBlockchainNonProviderConfig } from '#blockchain/bloc
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule, PinoLogger } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { mockRedisProvider } from '#testlib';
 
@@ -57,7 +57,7 @@ const mockEmptyBlockHash = {
 @Injectable()
 class ScannerService extends BlockchainScannerService {
   constructor(@InjectRedis() redis: Redis, blockchainService: BlockchainRpcQueryService) {
-    super(redis, blockchainService, new Logger('ScannerService'));
+    super(redis, blockchainService, new PinoLogger(getPinoHttpOptions()));
   }
   // eslint-disable-next-line
   protected processCurrentBlock = jest.fn((_currentBlock: SignedBlock, _blockEvents: FrameSystemEventRecord[]) => {

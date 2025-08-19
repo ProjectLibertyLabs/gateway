@@ -1,7 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { DelayedError } from 'bullmq';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { NonceConflictError } from '#blockchain/types';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
@@ -24,7 +23,6 @@ export class MessagePublisher implements OnApplicationBootstrap {
   private batchTimeout: NodeJS.Timeout | null = null;
 
   constructor(
-    private blockchainRpcService: BlockchainRpcQueryService,
     private blockchainService: BlockchainService,
     private readonly logger: PinoLogger,
   ) {
@@ -32,11 +30,9 @@ export class MessagePublisher implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    // Get the real batch size when the application starts
-    this.maxBatchSize = await this.blockchainRpcService.maximumCapacityBatchLength();
-
-    // Wait for blockchain service to be ready to ensure we get actual chain block time
+    // Await blockchain service to be ready before setting batch size and window ms
     await this.blockchainService.isReady();
+    this.maxBatchSize = await this.blockchainService.maximumCapacityBatchLength();
     this.batchProcessWindowMs = this.blockchainService.blockTimeMs;
   }
 

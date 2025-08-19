@@ -9,8 +9,6 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class MessagePublisher implements OnApplicationBootstrap {
-
-
   private messageQueue: IPublisherJob[] = [];
 
   private maxBatchSize: number;

@@ -1,7 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 import { DelayedError } from 'bullmq';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { NonceConflictError } from '#blockchain/types';
 import { IPublisherJob, isIpfsJob } from '#types/interfaces/content-publishing';
@@ -13,6 +12,8 @@ export class MessagePublisher implements OnApplicationBootstrap {
 
   private maxBatchSize: number;
 
+  private batchProcessWindowMs: number;
+
   // Tracks the current promise that's waiting to process a batch
   // Used to ensure concurrent publish calls join the same batch
   private batchingPromise: Promise<[SubmittableExtrinsic<'promise'>, string, number]> | null = null;
@@ -22,7 +23,6 @@ export class MessagePublisher implements OnApplicationBootstrap {
   private batchTimeout: NodeJS.Timeout | null = null;
 
   constructor(
-    private blockchainRpcService: BlockchainRpcQueryService,
     private blockchainService: BlockchainService,
     private readonly logger: PinoLogger,
   ) {
@@ -30,8 +30,10 @@ export class MessagePublisher implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap() {
-    // Get the real batch size when the application starts
-    this.maxBatchSize = await this.blockchainRpcService.maximumCapacityBatchLength();
+    // Await blockchain service to be ready before setting batch size and window ms
+    await this.blockchainService.isReady();
+    this.maxBatchSize = await this.blockchainService.maximumCapacityBatchLength();
+    this.batchProcessWindowMs = this.blockchainService.blockTimeMs;
   }
 
   public async publish(message: IPublisherJob): Promise<[SubmittableExtrinsic<'promise'>, string, number]> {
@@ -61,7 +63,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
         if (this.messageQueue.length > 0) {
           this.processBatch().then(resolve).catch(reject);
         }
-      }, 6000); // Wait 6 seconds to collect more messages
+      }, this.batchProcessWindowMs); // Wait for block time to collect more messages
     });
 
     return this.batchingPromise;

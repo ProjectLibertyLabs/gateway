@@ -34,6 +34,9 @@ export class MessagePublisher implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     // Get the real batch size when the application starts
     this.maxBatchSize = await this.blockchainRpcService.maximumCapacityBatchLength();
+
+    // Wait for blockchain service to be ready to ensure we get actual chain block time
+    await this.blockchainService.isReady();
     this.batchProcessWindowMs = this.blockchainService.blockTimeMs;
   }
 

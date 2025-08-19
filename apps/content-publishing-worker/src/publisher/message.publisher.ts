@@ -9,11 +9,13 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class MessagePublisher implements OnApplicationBootstrap {
-  private static readonly BATCH_PROCESS_WINDOW_MS = 6000;
+
 
   private messageQueue: IPublisherJob[] = [];
 
   private maxBatchSize: number;
+
+  private batchProcessWindowMs: number;
 
   // Tracks the current promise that's waiting to process a batch
   // Used to ensure concurrent publish calls join the same batch
@@ -34,6 +36,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     // Get the real batch size when the application starts
     this.maxBatchSize = await this.blockchainRpcService.maximumCapacityBatchLength();
+    this.batchProcessWindowMs = this.blockchainService.blockTimeMs;
   }
 
   public async publish(message: IPublisherJob): Promise<[SubmittableExtrinsic<'promise'>, string, number]> {
@@ -63,7 +66,7 @@ export class MessagePublisher implements OnApplicationBootstrap {
         if (this.messageQueue.length > 0) {
           this.processBatch().then(resolve).catch(reject);
         }
-      }, MessagePublisher.BATCH_PROCESS_WINDOW_MS); // Wait 6 seconds to collect more messages
+      }, this.batchProcessWindowMs); // Wait for block time to collect more messages
     });
 
     return this.batchingPromise;

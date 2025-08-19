@@ -81,7 +81,6 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     this.wrapOnce(type, listener);
   }
 
-  // should check the websocket connection directly?
   get connected(): boolean {
     return !this.disconnectedTimeout;
   }

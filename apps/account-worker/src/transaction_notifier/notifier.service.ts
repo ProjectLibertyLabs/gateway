@@ -7,7 +7,7 @@ import axios from 'axios';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { BlockchainScannerService } from '#account-lib/utils/blockchain-scanner.service';
+import { AccountBlockchainScannerService } from '#account-lib/utils/account-blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
@@ -22,7 +22,7 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TxnNotifierService
-  extends BlockchainScannerService
+  extends AccountBlockchainScannerService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   async onApplicationBootstrap() {

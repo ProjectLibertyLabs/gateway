@@ -2,9 +2,9 @@
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockchainService } from '#blockchain/blockchain.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { PinoLogger } from 'nestjs-pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
@@ -21,7 +21,7 @@ function eventName({ event: { section, method } }: FrameSystemEventRecord) {
   return `${section}.${method}`;
 }
 
-export abstract class BlockchainScannerService {
+export abstract class AccountBlockchainScannerService {
   private scanIsPaused = false;
 
   protected scanInProgress = false;
@@ -37,15 +37,20 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainRpcQueryService,
+    protected readonly blockchainService: BlockchainService, // <<--- NOTE! Not BlockchainScannerService!
     protected readonly logger: PinoLogger,
   ) {
     logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
+
+    // These listeners are still present when the chain.disconnected event is received.
+    // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
     blockchainService.on('chain.connected', () => {
+      this.logger.info('Chain connected.  Unpausing blockchain-scanner service.');
       this.paused = false;
     });
     blockchainService.on('chain.disconnected', () => {
+      this.logger.info('Chain disconnected.  Pausing blockchain-scanner service.');
       this.paused = true;
     });
   }
@@ -71,7 +76,7 @@ export abstract class BlockchainScannerService {
 
   public async scan(): Promise<void> {
     if (!this.blockchainService.connected) {
-      this.logger.error('disconnected: skipping scan');
+      this.logger.error('Disconnected: skipping scan');
       return;
     }
     if (this.scanInProgress) {
@@ -120,12 +125,12 @@ export abstract class BlockchainScannerService {
       if (e instanceof EndOfChainError) {
         return;
       }
-      this.logger.error(e);
-      // Don't propagate the error if scan is paused; it's WHY the scan is paused
-      if (this.paused) {
-        return;
+
+      // Don't throw if scan paused; that's WHY it's paused
+      if (!this.paused) {
+        this.logger.error(JSON.stringify(e));
+        throw e;
       }
-      throw e;
     } finally {
       this.scanInProgress = false;
     }

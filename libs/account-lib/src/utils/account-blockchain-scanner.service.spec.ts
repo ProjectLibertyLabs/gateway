@@ -1,37 +1,56 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { BlockHash, BlockNumber, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { InjectRedis } from '@songkeys/nestjs-redis';
+import { DEFAULT_REDIS_NAMESPACE, getRedisToken, InjectRedis } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
-import { BlockchainScannerService } from './blockchain-scanner.service';
+import { AccountBlockchainScannerService } from './account-blockchain-scanner.service';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import blockchainConfig, { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
+import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
+import { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
-import { LoggerModule, PinoLogger } from 'nestjs-pino';
+import { InjectPinoLogger, LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
-import { mockRedisProvider } from '#testlib';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
   return {
     __esModules: true,
-    WsProvider: jest.fn().mockImplementation(() => originalModule.WsProvider),
+    WsProvider: jest.fn().mockImplementation(() => ({
+      disconnect: jest.fn(),
+      ...originalModule.WsProvider,
+    })),
     ApiPromise: jest.fn().mockImplementation(() => ({
+      consts: {},
+      disconnect: jest.fn(),
       ...originalModule.ApiPromise,
       ...mockApiPromise,
     })),
   };
 });
-
-const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>(blockchainConfig.KEY, {
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>('blockchain', {
   frequencyTimeoutSecs: 10,
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
 });
+
+const mockRedis = {
+  get: jest.fn(),
+  set: jest.fn(),
+  defineCommand: jest.fn(),
+};
+
+const mockDefaultRedisProvider = {
+  provide: getRedisToken(DEFAULT_REDIS_NAMESPACE),
+  useValue: mockRedis,
+};
+
+const mockNonceRedisProvider = {
+  provide: getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE),
+  useValue: mockRedis,
+};
 
 const mockBlockHash = {
   toString: jest.fn(() => '0x1234'),
@@ -55,10 +74,15 @@ const mockEmptyBlockHash = {
 } as unknown as BlockHash;
 
 @Injectable()
-class ScannerService extends BlockchainScannerService {
-  constructor(@InjectRedis() redis: Redis, blockchainService: BlockchainRpcQueryService) {
-    super(redis, blockchainService, new PinoLogger(getPinoHttpOptions()));
+class ScannerService extends AccountBlockchainScannerService {
+  constructor(
+    @InjectRedis() redis: Redis,
+    blockchainService: BlockchainService,
+    @InjectPinoLogger('ScannerService') protected readonly logger,
+  ) {
+    super(redis, blockchainService, logger);
   }
+
   // eslint-disable-next-line
   protected processCurrentBlock = jest.fn((_currentBlock: SignedBlock, _blockEvents: FrameSystemEventRecord[]) => {
     return Promise.resolve();
@@ -67,11 +91,13 @@ class ScannerService extends BlockchainScannerService {
 
 describe('BlockchainScannerService', () => {
   let service: ScannerService;
-  let blockchainService: BlockchainRpcQueryService;
+  let blockchainService: BlockchainService;
+  let moduleRef: TestingModule;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
+    moduleRef = await Test.createTestingModule({
       imports: [
+        LoggerModule.forRoot(getPinoHttpOptions()),
         EventEmitterModule.forRoot({
           // Use this instance throughout the application
           global: true,
@@ -90,17 +116,20 @@ describe('BlockchainScannerService', () => {
           // disable throwing uncaughtException if an error event is emitted and it has no listeners
           ignoreErrors: false,
         }),
-        LoggerModule.forRoot(getPinoHttpOptions()),
       ],
-      providers: [mockRedisProvider(), mockBlockchainConfigProvider, Logger, BlockchainRpcQueryService, ScannerService],
+      providers: [
+        mockDefaultRedisProvider,
+        mockNonceRedisProvider,
+        mockBlockchainConfigProvider,
+        Logger,
+        BlockchainService,
+        ScannerService,
+      ],
     }).compile();
-
     moduleRef.enableShutdownHooks();
-
     service = moduleRef.get<ScannerService>(ScannerService);
-    blockchainService = moduleRef.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     const mockApi: any = await blockchainService.getApi();
-
     jest.spyOn(blockchainService, 'getBlock').mockResolvedValue(mockSignedBlock as unknown as SignedBlock);
     jest
       .spyOn(blockchainService, 'getBlockHash')
@@ -109,8 +138,11 @@ describe('BlockchainScannerService', () => {
       );
     jest.spyOn(blockchainService, 'getLatestBlockNumber');
     jest.spyOn(blockchainService, 'getEvents').mockResolvedValue([]);
-
     mockApi.emit('connected'); // keeps the test suite from hanging when finished
+  });
+
+  afterAll(async () => {
+    moduleRef.close();
   });
 
   describe('scan', () => {

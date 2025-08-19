@@ -126,7 +126,7 @@ export abstract class BlockchainScannerService {
         return;
       }
 
-      // Don't throw if scan paused; that's WHY it's paused
+      // Don't throw if scan paused; just log the error.
       if (this.paused) {
         this.logger.error(e);
         return;

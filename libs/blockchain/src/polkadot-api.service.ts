@@ -82,7 +82,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   }
 
   get connected(): boolean {
-    return !this.disconnectedTimeout;
+    return this.disconnectedTimeout === undefined;
   }
 
   private wrapOnce(event: ApiInterfaceEvents, listener: () => void) {

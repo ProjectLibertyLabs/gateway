@@ -40,18 +40,17 @@ export abstract class BlockchainScannerService {
     protected readonly blockchainService: BlockchainRpcQueryService,
     protected readonly logger: PinoLogger,
   ) {
-    logger.setContext(this.constructor.name);
-    this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
-
     // These listeners are still present when the chain.disconnected event is received.
     // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
-    blockchainService.on('chain.connected', () => {
-      this.logger.info('Chain connected. Unpausing blockchain-scanner service.');
-      this.paused = false;
-    });
-    blockchainService.on('chain.disconnected', () => {
-      this.logger.info('Chain disconnected. Pausing blockchain-scanner service.');
+    this.logger.setContext(this.constructor.name);
+    this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
+    this.blockchainService.on('chain.disconnected', () => {
+      this.logger.debug('Chain disconnected. Pausing blockchain-scanner service.');
       this.paused = true;
+    });
+    this.blockchainService.on('chain.connected', () => {
+      this.logger.debug('Chain connected. Unpausing blockchain-scanner service.');
+      this.paused = false;
     });
   }
 
@@ -126,9 +125,9 @@ export abstract class BlockchainScannerService {
         return;
       }
 
+      this.logger.error(e);
       // Don't throw if scan paused; just log the error.
       if (this.paused) {
-        this.logger.error(e);
         return;
       }
       throw e;

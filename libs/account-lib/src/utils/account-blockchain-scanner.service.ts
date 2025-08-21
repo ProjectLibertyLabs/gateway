@@ -122,12 +122,7 @@ export abstract class AccountBlockchainScannerService {
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
     } catch (e) {
-      if (e instanceof EndOfChainError) {
-        return;
-      }
-
-      // Don't throw if scan paused; that's WHY it's paused
-      if (!this.paused) {
+      if (!(e instanceof EndOfChainError) && !this.paused) {
         this.logger.error(JSON.stringify(e));
         throw e;
       }

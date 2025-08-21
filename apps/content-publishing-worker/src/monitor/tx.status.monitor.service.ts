@@ -16,7 +16,6 @@ import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {
@@ -47,8 +46,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
+    protected readonly logger: PinoLogger,
   ) {
-    super(cacheManager, blockchainService, new PinoLogger(getPinoHttpOptions()));
+    super(cacheManager, blockchainService, logger);
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),

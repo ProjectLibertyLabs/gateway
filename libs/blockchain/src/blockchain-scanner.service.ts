@@ -125,12 +125,11 @@ export abstract class BlockchainScannerService {
         return;
       }
 
-      this.logger.error(e);
       // Don't throw if scan paused; just log the error.
-      if (this.paused) {
-        return;
+      if (!this.paused) {
+        this.logger.error(JSON.stringify(e));
+        throw e;
       }
-      throw e;
     } finally {
       this.scanInProgress = false;
     }

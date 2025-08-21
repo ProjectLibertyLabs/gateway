@@ -89,8 +89,9 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
   }
 
   public async onApplicationShutdown() {
-    this.logger.info('received shutdown event');
+    this.logger.debug('Processing application shutdown');
     clearInterval(this.headerInterval);
+    super.onApplicationShutdown();
   }
 
   public async isReady(): Promise<boolean> {

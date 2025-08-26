@@ -21,7 +21,7 @@ function eventName({ event: { section, method } }: FrameSystemEventRecord) {
   return `${section}.${method}`;
 }
 
-export abstract class BlockchainScannerService {
+export abstract class AccountBlockchainScannerService {
   private scanIsPaused = false;
 
   protected scanInProgress = false;
@@ -37,16 +37,21 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainService,
+    protected readonly blockchainService: BlockchainService, // <<--- NOTE! Not BlockchainScannerService!
     protected readonly logger: PinoLogger,
   ) {
-    this.logger.setContext(this.constructor.name);
+    logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
-    this.blockchainService.on('chain.disconnected', () => {
-      this.paused = true;
-    });
-    this.blockchainService.on('chain.connected', () => {
+
+    // These listeners are still present when the chain.disconnected event is received.
+    // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
+    blockchainService.on('chain.connected', () => {
+      this.logger.info('Chain connected.  Unpausing blockchain-scanner service.');
       this.paused = false;
+    });
+    blockchainService.on('chain.disconnected', () => {
+      this.logger.info('Chain disconnected.  Pausing blockchain-scanner service.');
+      this.paused = true;
     });
   }
 
@@ -74,23 +79,27 @@ export abstract class BlockchainScannerService {
       this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
-
     try {
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
 
+      // assume we are starting the scan.
       this.scanInProgress = true;
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
 
-      const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
-      currentBlockNumber = lastSeenBlockNumber + 1;
-      currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
-
+      // on a disconnect this gets skipped, a scan in progress will be set to false
+      // in the next block of code, and we exit early.
+      if (!this.paused) {
+        const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
+        currentBlockNumber = lastSeenBlockNumber + 1;
+        currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+      }
       if (!currentBlockHash.some((byte) => byte !== 0)) {
         this.scanInProgress = false;
         return;
       }
+      this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
@@ -113,12 +122,7 @@ export abstract class BlockchainScannerService {
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
     } catch (e) {
-      if (e instanceof EndOfChainError) {
-        return;
-      }
-
-      // Don't throw if scan paused; that's WHY it's paused
-      if (!this.paused) {
+      if (!(e instanceof EndOfChainError) && !this.paused) {
         this.logger.error(JSON.stringify(e));
         throw e;
       }

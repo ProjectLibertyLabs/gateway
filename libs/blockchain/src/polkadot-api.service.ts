@@ -23,8 +23,6 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
 
   private baseReadyReject: (reason: any) => void;
 
-  private _chainType: ChainType | undefined;
-
   protected readonly baseIsReadyPromise = new Promise<boolean>((resolve, reject) => {
     this.baseReadyResolve = resolve;
     this.baseReadyReject = reject;
@@ -53,16 +51,9 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
     this.logger.setContext(this.constructor.name);
 
     try {
-      const providerUrl = this.baseConfig.frequencyApiWsUrl;
-      if (/^ws[s]?:/.test(providerUrl.toString())) {
-        this.provider = new WsProvider(this.baseConfig.frequencyApiWsUrl.toString());
-      } else if (/^http[s]?:/.test(providerUrl.toString())) {
-        this.provider = new HttpProvider(this.baseConfig.frequencyApiWsUrl.toString());
-      } else {
-        throw new Error('Unrecognized chain URL type', { cause: providerUrl.toJSON() });
-      }
+      this.setupChainProvider();
 
-      this.api = new ApiPromise({ ...options, provider: this.provider, noInitWarn: false });
+      this.api = new ApiPromise({ ...options, provider: this.provider, noInitWarn: true });
       // From https://github.com/polkadot-js/api/blob/700812aa6075c85d8306451ce062d8c06b161e2b/packages/api/src/promise/Api.ts#L157C1-L159C1
       // Swallow any rejections on isReadyOrError
       // (in Node 15.x this creates issues, when not being looked at)
@@ -88,6 +79,10 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   public registerApiListenerOnce(type: ApiInterfaceEvents, listener: () => void) {
     this.apiListeners.push([type, listener]);
     this.wrapOnce(type, listener);
+  }
+
+  get connected(): boolean {
+    return this.disconnectedTimeout === undefined;
   }
 
   private wrapOnce(event: ApiInterfaceEvents, listener: () => void) {
@@ -134,7 +129,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
           : `Communications error with Frequency node; starting ${this.baseConfig.frequencyTimeoutSecs}-second shutdown timer`,
       );
       this.disconnectedTimeout = setTimeout(() => {
-        this.logger.error('Failed to reconnect to Frequency node; terminating application');
+        this.logger.error('Failed to reconnect to Frequency node; sending shutdown event.');
         this.eventEmitter.emit('shutdown');
       }, this.baseConfig.frequencyTimeoutSecs * MILLISECONDS_PER_SECOND);
       this.emit('chain.disconnected');
@@ -147,6 +142,22 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
       clearTimeout(this.disconnectedTimeout);
       this.disconnectedTimeout = undefined;
       this.emit('chain.connected');
+    }
+  }
+
+  // configure the connection to the chain based on the configured URL.
+  private setupChainProvider() {
+    const webSocketConnection = /^ws[s]?:/;
+    const HttpConnection = /^http[s]?:/;
+    const providerUrl = this.baseConfig.frequencyApiWsUrl;
+    const providerUrlString = providerUrl.toString();
+    if (webSocketConnection.test(providerUrl.protocol)) {
+      const autoConnectMs = 1000; // How often to retry the connection to the chain. Valid only for WSProvider.
+      this.provider = new WsProvider(providerUrlString, autoConnectMs);
+    } else if (HttpConnection.test(providerUrl.protocol)) {
+      this.provider = new HttpProvider(providerUrlString);
+    } else {
+      throw new Error('Unrecognized chain URL type', { cause: providerUrl.toJSON() });
     }
   }
 

@@ -1,6 +1,8 @@
 # Content Publisher Service
 
-The Content Publisher Service is a crucial component of the Gateway suite, providing a familiar REST API for uploading content and publishing announcements to the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
+The Content Publisher Service is a crucial component of the Gateway suite, providing a familiar REST API for uploading
+content and publishing announcements to the Frequency blockchain. This document provides an overview of the service, its
+architecture, and guides for setup and usage.
 
 ## 📗 Table of Contents
 
@@ -16,7 +18,9 @@ The Content Publisher Service is a crucial component of the Gateway suite, provi
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Content Publisher Service is part of the Gateway suite that provides a Web2-friendly interface for blockchain content operations. It handles all necessary blockchain interactions, allowing clients to use familiar REST API patterns for publishing and managing content on the Frequency chain.
+The Content Publisher Service is part of the Gateway suite that provides a Web2-friendly interface for blockchain
+content operations. It handles all necessary blockchain interactions, allowing clients to use familiar REST API patterns
+for publishing and managing content on the Frequency chain.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
@@ -87,7 +91,12 @@ Ensure you have the following installed:
    docker compose up -d frequency redis ipfs
    ```
 
-5. Start the application services:
+5. Set up with account data:
+   ```bash
+   make setup-account
+   ```
+
+6. Start the application services:
 
    API Service:
 
@@ -99,11 +108,6 @@ Ensure you have the following installed:
 
    ```bash
    npm run start:content-publishing-worker:dev
-   ```
-
-6. Set up with account data:
-   ```bash
-   make setup-account
    ```
 
 ### Alternative: Docker Setup
@@ -177,13 +181,15 @@ npm run format
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
 **Q: Can I use this service in my production social app?**
 
-_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on Frequency._
+_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on
+Frequency._
 
 ## 📝 License <a name="license"></a>
 

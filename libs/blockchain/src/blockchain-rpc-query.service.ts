@@ -128,7 +128,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async getBlockByNumber(blockNumber: AnyNumber | BlockNumber): Promise<SignedBlock> {
-    const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
+    const blockHash = await this.getBlockHash(blockNumber);
     return this.api.rpc.chain.getBlock(blockHash);
   }
 

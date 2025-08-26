@@ -68,7 +68,7 @@ async function bootstrap() {
   // Get event emitter & register a shutdown listener
   const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
   eventEmitter.on('shutdown', async () => {
-    logger.warn('Received shutdown event');
+    logger.warn('Main Received shutdown event');
     startShutdownTimer();
     await app.close();
   });
@@ -98,4 +98,4 @@ async function bootstrap() {
 
 bootstrap()
   .then(() => logger.log('bootstrap exited'))
-  .catch((err) => logger.error(err));
+  .catch((err) => logger.error(err, 'UNHANDLED EXCEPTION IN BOOTSTRAP: '));

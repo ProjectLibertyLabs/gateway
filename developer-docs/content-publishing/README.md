@@ -12,6 +12,7 @@ architecture, and guides for setup and usage.
 - [💻 Getting Started](#getting-started)
 - [🚀 API Documentation](#api-documentation)
 - [🛠 Development](#development)
+- [BullMQ Queues list](#bullmq-queues)
 - [🤝 Contributing](#contributing)
 - [❓ FAQ](#faq)
 - [📝 License](#license)
@@ -168,6 +169,31 @@ Auto-format code:
 ```bash
 npm run format
 ```
+
+## BullMQ Queues
+
+Each content publishing queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
+
+### Queues for creating and storing batches for specific DSNP message types:
+
+These queues handle their respective announcement types by taking messages in the queue,
+then processing by creating and storing batch files (e.g. parquet files) off chain.
+
+* broadcastQueue: `BroadcastDto`
+* replyQueue: `ReplyDto`
+* reactionQueue: `ReactionDto`
+* updateQueue: `UpdateDto`
+* tombstoneQueue: `TombstoneDto`
+* profileQueue: `ProfileDto`
+
+### Other Queues
+
+* assetQueue is used for pinning assets in storage (currently only IPFS). No DTO used.
+* batchQueue is for announcing batch files on Frequency: `BatchFileDto`
+* publishQueue is for publishing on-chain content associated with an MSA:  `OnChainContentDto`
+* requestQueue: a generic queue available for any announcement type, including DSNP: `RequestTypeDto`
+* statusQueue: for all the jobs that need to run periodically, and items that need their status checked: No DTO used.
+  <TODO: is statusQueue used at all?>
 
 ### Built With
 

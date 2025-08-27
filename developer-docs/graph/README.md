@@ -1,6 +1,8 @@
 # Graph Service
 
-The Graph Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP private and public graphs on the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
+The Graph Service is a crucial component of the Gateway suite, enabling easy interaction with DSNP private and public
+graphs on the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for
+setup and usage.
 
 ## 📗 Table of Contents
 
@@ -10,13 +12,16 @@ The Graph Service is a crucial component of the Gateway suite, enabling easy int
 - [💻 Getting Started](#getting-started)
 - [🚀 API Documentation](#api-documentation)
 - [🛠 Development](#development)
+- [BullMQ Queues list](#bullmq-queues)
 - [🤝 Contributing](#contributing)
 - [❓ FAQ](#faq)
 - [📝 License](#license)
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Graph Service simplifies the management and interaction with DSNP (Decentralized Social Networking Protocol) private and public graphs on the Frequency blockchain. It provides an easy-to-use interface for fetching, updating, and watching graphs.
+The Graph Service simplifies the management and interaction with DSNP (Decentralized Social Networking Protocol) private
+and public graphs on the Frequency blockchain. It provides an easy-to-use interface for fetching, updating, and watching
+graphs.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
@@ -117,11 +122,13 @@ If you prefer to run services locally for development:
 - Access Swagger UI: [http://localhost:3000/docs/swagger](http://localhost:3000/docs/swagger)
 - View and manage queues: [http://localhost:3000/queues](http://localhost:3000/queues)
 
-For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to our [comprehensive documentation](#).
+For more detailed setup instructions, environment variable configuration, and advanced usage, please refer to
+our [comprehensive documentation](#).
 
 ## 🚀 API Documentation <a name="api-documentation"></a>
 
-Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway) for detailed information on endpoints and usage.
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway) for detailed information on endpoints
+and usage.
 
 ## 🛠 Development <a name="development"></a>
 
@@ -149,6 +156,12 @@ To automatically fix linting issues:
 npm run format
 ```
 
+## BullMQ Queues
+
+* reconnectRequest TODO: seems to be unused
+* graphChangeRequest builds a new graph from requests to follow, unfollow: ProviderGraphDto, GraphChangeResponseDto
+* graphChangePublish for publishing updated graphs on Frequency: no DTO
+
 ### Built With
 
 - **Framework**: NestJS
@@ -158,17 +171,20 @@ npm run format
 - **API Documentation**: Swagger
 - **Containerization**: Docker, Docker Compose
 
-For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full documentation.
+For a complete list of technologies used, please refer to the [Tech Stack](#tech-stack) section in the full
+documentation.
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/graph-service/issues).
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/graph-service/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
 **Q: What is the difference between Reconnection Service and Graph Service?**
 
-_The Reconnection Service is designed for providers who have users migrating to DSNP, whereas the Graph Service is for users who are already on DSNP or don't need to migrate pre-DSNP users._
+_The Reconnection Service is designed for providers who have users migrating to DSNP, whereas the Graph Service is for
+users who are already on DSNP or don't need to migrate pre-DSNP users._
 
 ## 📝 License <a name="license"></a>
 

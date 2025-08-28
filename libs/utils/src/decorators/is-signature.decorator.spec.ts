@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { validate } from 'class-validator';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 

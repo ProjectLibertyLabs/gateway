@@ -4,12 +4,10 @@ import {
   createRandomKey as createRandomEthereumKey,
   sign as signEthereum,
 } from '@frequency-chain/ethereum-utils';
-import { u8aToHex } from '@polkadot/util';
 import { Test } from '@nestjs/testing';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#testlib/configProviders.mock.spec';
 import { jest } from '@jest/globals';
-import { HexString } from '@polkadot/util/types';
 import { HandlesService } from '#account-api/services/handles.service';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { InjectionToken, ValueProvider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';

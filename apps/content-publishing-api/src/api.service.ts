@@ -96,7 +96,7 @@ export class ApiService {
       jobId: data.id,
       removeOnFail: false,
       removeOnComplete: 2000,
-    }); // TODO: should come from queue configs
+    }); // Issue #940
     this.logger.debug(`Enqueued Request Job: ${job.id}`);
     return {
       referenceId: data.id,
@@ -115,7 +115,7 @@ export class ApiService {
       delay: 3000,
       removeOnFail: false,
       removeOnComplete: 2000,
-    }); // TODO: should come from queue configs
+    }); // Issue #940
     this.logger.debug(`Enqueued Batch Request Job: ${job.id}`);
     return { referenceId: data.id };
   }

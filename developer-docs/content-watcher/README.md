@@ -1,6 +1,8 @@
 # Content Watcher Service
 
-The Content Watcher Service is a crucial component of the Gateway suite, providing a familiar callback API to retrieve content and publishing announcements from the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
+The Content Watcher Service is a crucial component of the Gateway suite, providing a familiar callback API to retrieve
+content and publishing announcements from the Frequency blockchain. This document provides an overview of the service,
+its architecture, and guides for setup and usage.
 
 ## 📗 Table of Contents
 
@@ -10,15 +12,20 @@ The Content Watcher Service is a crucial component of the Gateway suite, providi
 - [💻 Getting Started](#getting-started)
 - [🚀 API Documentation](#api-documentation)
 - [🛠 Development](#development)
+- [BullMQ Queues list](#bullmq-queues)
 - [🤝 Contributing](#contributing)
 - [❓ FAQ](#faq)
 - [📝 License](#license)
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Content Watcher Service is part of the [Gateway](https://github.com/ProjectLibertyLabs/gateway) suite that provides a Web2-friendly interface for monitoring and retrieving blockchain announcements through a webhook system.
+The Content Watcher Service is part of the [Gateway](https://github.com/ProjectLibertyLabs/gateway) suite that provides
+a Web2-friendly interface for monitoring and retrieving blockchain announcements through a webhook system.
 
-On Frequency, announcements about content (posts, replies, reactions) are stored on-chain, while the content itself is stored off-chain. The Content Watcher Service simplifies the process of monitoring these announcements by automatically watching the blockchain, processing new announcements as they appear, and delivering them to your application in a familiar format through webhooks.
+On Frequency, announcements about content (posts, replies, reactions) are stored on-chain, while the content itself is
+stored off-chain. The Content Watcher Service simplifies the process of monitoring these announcements by automatically
+watching the blockchain, processing new announcements as they appear, and delivering them to your application in a
+familiar format through webhooks.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
@@ -171,6 +178,20 @@ Auto-format code:
 npm run format
 ```
 
+## BullMQ Queues
+
+These queues are where off-chain batch file metadata for each DSNP message type live, once they have been announced on
+Frequency. ChainEventProcessorService queues the jobs, and IPFSContentProcessor processes the jobs. The watcher queues
+do not use DTOs .
+
+1. **watcherReplyQueue** for Reply requests
+2. **watcherReactionQueue** for Reaction requests
+3. **watcherUpdateQueue** for Update requests
+4. **watcherTombstoneQueue** for Tombstone requests
+5. **watcherProfileQueue** for Profile requests
+6. **watcherContentIpfsQueue** watches for pinned IPFS content
+7. **watcherRequestQueue** is a generic request queue for all announcement types, including non-DSNP types.
+
 ### Built With
 
 - **Server Framework**: NestJS, Node.js, TypeScript
@@ -183,21 +204,26 @@ npm run format
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](https://github.com/ProjectLibertyLabs/gateway/blob/main/CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
+We welcome contributions! Please check
+our [Contributing Guidelines](https://github.com/ProjectLibertyLabs/gateway/blob/main/CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
 **Q: Can I use this service in my production social app?**
 
-_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your social media app using DSNP on Frequency._
+_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your social media app using DSNP on
+Frequency._
 
 **Q: Does this service index content?**
 
-_No. This can be used by your own indexing service to get access to the content, but the service is intentionally limited to getting the content and further customization is open to you._
+_No. This can be used by your own indexing service to get access to the content, but the service is intentionally
+limited to getting the content and further customization is open to you._
 
 **Q: Does this service filter content?**
 
-_No. This can be used by your own content filtering service to get new content and then have your custom service process them._
+_No. This can be used by your own content filtering service to get new content and then have your custom service process
+them._
 
 ## 📝 License <a name="license"></a>
 

@@ -180,16 +180,17 @@ npm run format
 
 ## BullMQ Queues
 
-These queues are for processing off-chain batch file metadata from various announcement types once they have been
-stored, and announcing them on Frequency. Only batches stored via IPFS are supported.
+These queues are where off-chain batch file metadata for each DSNP message type live, once they have been announced on
+Frequency. ChainEventProcessorService queues the jobs, and IPFSContentProcessor processes the jobs. The watcher queues
+do not use DTOs.
 
-* watcherReplyQueue for Reply requests
-* watcherReactionQueue for Reaction requests
-* watcherUpdateQueue for Update requests
-* watcherTombstoneQueue for Tombstone requests
-* watcherProfileQueue for Profile requests
-* watcherContentIpfsQueue watches for pinned IPFS content
-* watcherRequestQueue is a generic request queue for all announcement types, including non-DSNP types.
+1. **watcherReplyQueue** for Reply requests
+2. **watcherReactionQueue** for Reaction requests
+3. **watcherUpdateQueue** for Update requests
+4. **watcherTombstoneQueue** for Tombstone requests
+5. **watcherProfileQueue** for Profile requests
+6. **watcherContentIpfsQueue** watches for pinned IPFS content
+7. **watcherRequestQueue** is a generic request queue for all announcement types, including non-DSNP types.
 
 ### Built With
 

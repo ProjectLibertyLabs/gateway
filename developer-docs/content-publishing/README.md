@@ -172,12 +172,12 @@ npm run format
 
 ## BullMQ Queues
 
-Each content publishing queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
+Each queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
 
 ### Queues for creating and storing batches for specific DSNP message types:
 
-These queues handle their respective announcement types by taking messages in the queue,
-then processing by creating and storing batch files (e.g. parquet files) off chain.
+These queues contain individual DSNP message data. `DsnpAnnouncementProcessor`
+enqueues these jobs, and `RequestProcessorService` processes the jobs.
 
 * broadcastQueue: `BroadcastDto`
 * replyQueue: `ReplyDto`
@@ -188,12 +188,18 @@ then processing by creating and storing batch files (e.g. parquet files) off cha
 
 ### Other Queues
 
-* assetQueue is used for pinning assets in storage (currently only IPFS). No DTO used.
-* batchQueue is for announcing batch files on Frequency: `BatchFileDto`
-* publishQueue is for publishing on-chain content associated with an MSA:  `OnChainContentDto`
-* requestQueue: a generic queue available for any announcement type, including DSNP: `RequestTypeDto`
-* statusQueue: for all the jobs that need to run periodically, and items that need their status checked: No DTO used.
-  <TODO: is statusQueue used at all?>
+These jobs are enqueued within Content Publisher's `ApiService`, triggered by an API call, **except for _statusQueue_**
+
+* **assetQueue** contains metadata about stored assets. , and `AssetProcessor` processes the jobs. No DTO is used.
+* **batchQueue** holds batch file metadata for announcing batch files on Frequency. `BatchProcessor` processes the jobs.
+  DTOs:
+  `BatchFileDto`.
+* **publishQueue** stores on-chain content associated with an MSA, for the purpose of publishing the content on
+  Frequency. `PublishingService` processes the jobs. DTOs: `OnChainContentDto`
+* **requestQueue**: a generic queue available for any announcement type, including DSNP. `RequestProcessorService`
+  processes the jobs. DTOs: `RequestTypeDto`
+
+* **statusQueue**: stores jobs that need to run periodically, and items that need their status checked: No DTO used.
 
 ### Built With
 

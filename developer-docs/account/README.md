@@ -205,6 +205,8 @@ preferred debugger.
 
 ## BullMQ Queues
 
+Each queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
+
 * transactionPublish - the sole queue for all Account operations, with
   related [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object).
     * Managing handles: `CreateHandleRequest`, `ChangeHandleRequest`

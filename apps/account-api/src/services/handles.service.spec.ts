@@ -1,5 +1,9 @@
 import { HandlePayloadDto, HandleRequestDto } from '#types/dtos/account';
-import { createClaimHandlePayload, sign as signEthereum } from '@frequency-chain/ethereum-utils';
+import {
+  createClaimHandlePayload,
+  createRandomKey as createRandomEthereumKey,
+  sign as signEthereum,
+} from '@frequency-chain/ethereum-utils';
 import { u8aToHex } from '@polkadot/util';
 import { Test } from '@nestjs/testing';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
@@ -7,7 +11,6 @@ import { buildBlockchainConfigProvider, mockAccountApiConfigProvider } from '#te
 import { jest } from '@jest/globals';
 import { HexString } from '@polkadot/util/types';
 import { HandlesService } from '#account-api/services/handles.service';
-import { createKeys } from '#testlib/keys.spec';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 
@@ -34,8 +37,8 @@ describe('HandlesService', () => {
     handlesService = moduleRef.get(HandlesService);
   });
   it('verifyHandleRequestSignature works with ethereum keys', async () => {
-    const { keyringPair, keypair } = createKeys('ethereum');
-    const ethAddr = keyringPair.address as HexString;
+    // @ts-ignore
+    const keyPair = createRandomEthereumKey();
 
     const handleKeyData = createClaimHandlePayload('Howdy Doody', 100);
     const handleKeyDataPayload: HandlePayloadDto = {
@@ -43,9 +46,9 @@ describe('HandlesService', () => {
       expiration: handleKeyData.expiration,
     };
 
-    const ethereumSignature = await signEthereum(u8aToHex(keypair.secretKey), handleKeyData, 'Dev');
+    const ethereumSignature = await signEthereum(keyPair.privateKey, handleKeyData, 'Dev');
     const payload: HandleRequestDto = {
-      accountId: ethAddr,
+      accountId: keyPair.address.ethereumAddress,
       payload: handleKeyDataPayload,
       proof: ethereumSignature.Ecdsa,
     };

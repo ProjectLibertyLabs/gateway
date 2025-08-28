@@ -7,6 +7,11 @@ import { TransactionResponse, TransactionData } from '#types/dtos/account';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
+export interface RequestObject {
+  calls: Array<unknown>;
+  type: string;
+}
+
 @Injectable()
 export class EnqueueService {
   constructor(
@@ -21,7 +26,7 @@ export class EnqueueService {
     return createHash('sha1').update(stringVal).digest('base64url');
   }
 
-  async enqueueRequest<RequestType extends Object>(request: RequestType): Promise<TransactionResponse> {
+  async enqueueRequest<RequestType extends RequestObject>(request: RequestType): Promise<TransactionResponse> {
     const { providerId } = this.config;
     // Best-effort attempt at de-duping payloads that are submitted multiple times.
     // For payloads submitted via authorization code, we can de-dupe on that.

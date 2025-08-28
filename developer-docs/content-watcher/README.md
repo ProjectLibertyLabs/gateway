@@ -182,7 +182,7 @@ npm run format
 
 These queues are where off-chain batch file metadata for each DSNP message type live, once they have been announced on
 Frequency. ChainEventProcessorService queues the jobs, and IPFSContentProcessor processes the jobs. The watcher queues
-do not use DTOs.
+do not use DTOs .
 
 1. **watcherReplyQueue** for Reply requests
 2. **watcherReactionQueue** for Reaction requests

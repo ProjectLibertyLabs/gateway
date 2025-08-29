@@ -117,7 +117,7 @@ describe('Account Controller', () => {
       const { body } = await request(httpServer).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
         msaId: user.msaId?.toString(),
       });
-      expect(body).not.toContain('handle');
+      expect(body).not.toHaveProperty('handle');
     });
 
     it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {

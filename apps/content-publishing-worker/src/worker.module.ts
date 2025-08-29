@@ -76,7 +76,7 @@ const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCo
     RequestProcessorModule,
     BatchingProcessorModule,
     PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
-    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
+    HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY.toString()) }),
   ],
   controllers: [HealthController],
   providers: [IpfsService],

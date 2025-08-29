@@ -1,5 +1,3 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, jest, expect } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainService, NONCE_SERVICE_REDIS_NAMESPACE } from './blockchain.service';

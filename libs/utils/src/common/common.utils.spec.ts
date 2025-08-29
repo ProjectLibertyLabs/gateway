@@ -38,7 +38,10 @@ describe('common utils Tests', () => {
 
     testCases.forEach((testCase) => expect(getKeypairTypeForProviderKey(testCase.input)).toEqual(testCase.expected));
 
-    expect(() => getKeypairTypeForProviderKey('deadbeef')).toThrowError('unsupported seed or uri or key type');
+    // https://jestjs.io/docs/snapshot-testing#inline-snapshots
+    expect(() => getKeypairTypeForProviderKey('deadbeef')).toThrowErrorMatchingInlineSnapshot(
+      `"unsupported seed or uri or key type"`,
+    );
   });
 
   it('getKeypairTypeFromRequestAddress', async () => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';

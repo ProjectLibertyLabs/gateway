@@ -81,7 +81,7 @@ export class HealthResponseDto {
 
   @ApiProperty({
     description: 'Logging configuration details',
-    type: 'object',
+    type: Object,
     example: {
       logLevel: 'info',
       prettyPrint: true,
@@ -91,7 +91,7 @@ export class HealthResponseDto {
 
   @ApiProperty({
     description: 'Configuration details - supplied by service',
-    type: 'object',
+    type: Object,
     example: {
       apiBodyJsonLimit: '1mb',
       apiPort: 3000,

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import httpConfig, { IHttpCommonConfig } from './http-common.config';
 import configSetup from '#testlib/utils.config-tests';

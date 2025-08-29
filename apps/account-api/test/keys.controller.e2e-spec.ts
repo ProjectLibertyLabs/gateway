@@ -1,7 +1,4 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-undef */
+/* eslint-disable unused-imports/no-unused-vars */
 import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -51,7 +48,7 @@ describe('Keys Controller', () => {
         (await generateAddPublicKeyExtrinsic(users[0], newKey0, currentBlockNumber))(),
         (await generateAddPublicKeyExtrinsic(users[1], newKey1, currentBlockNumber))(),
       ]).signAndSend();
-    } catch (e) {
+    } catch (_e) {
       // no-op
     }
 

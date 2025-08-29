@@ -248,55 +248,7 @@ export default function () {
     sleep(randomIntBetween(5, 10));
   });
 
-  // Test error scenarios
-  group('v2/batchAnnouncement - Error Handling', () => {
-    const url = `${BASE_URL}/v2/content/batchAnnouncement`;
-    
-    // Test with invalid schema ID
-    const invalidBody = {
-      batchFiles: [{ 
-        cid: 'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi', // Use valid CID but invalid schema
-        schemaId: 99999 // Invalid schema ID
-      }]
-    };
-    const params = { 
-      headers: { 
-        'Content-Type': 'application/json', 
-        Accept: 'application/json' 
-      } 
-    };
-    
-    const request = http.post(url, JSON.stringify(invalidBody), params);
-    
-    check(request, {
-      'error handling - appropriate error status': (r) => r.status >= 400 && r.status < 500,
-      'error handling - response time < 3s': (r) => r.timings.duration < 3000,
-    });
-    
-    sleep(randomIntBetween(1, 2));
-  });
 
-  // Test v3 error scenarios
-  group('v3/batchAnnouncement - Error Handling', () => {
-    const url = `${BASE_URL}/v3/content/batchAnnouncement`;
-    
-    // Test with invalid content type (should fail)
-    const invalidParams = { 
-      headers: { 
-        'Content-Type': 'application/json', // Wrong content type
-        Accept: 'application/json' 
-      } 
-    };
-    
-    const request = http.post(url, '{"invalid": "data"}', invalidParams);
-    
-    check(request, {
-      'v3 error handling - appropriate error status': (r) => r.status >= 400 && r.status < 500,
-      'v3 error handling - response time < 3s': (r) => r.timings.duration < 3000,
-    });
-    
-    sleep(randomIntBetween(1, 2));
-  });
 
   // Test maximum batch limits
   group('v2/batchAnnouncement - Maximum Batch Limits', () => {

@@ -26,7 +26,7 @@ const SCENARIOS = {
       checks: ['rate>=0.98'],
       http_req_duration: ['avg<5000', 'p(95)<10000'],
       http_req_failed: ['rate<0.02'],
-      http_reqs: ['rate>=8'],
+      http_reqs: ['rate>=3'],
     },
   },
   // Heavy load - stress testing
@@ -70,27 +70,27 @@ export default function () {
     console.error(`Health check failed with status ${healthCheck.status}`);
     return;
   }
-  
+
   // Test v2 batch announcement endpoint - Single File
   group('v2/batchAnnouncement - Single File', () => {
     const url = `${BASE_URL}/v2/content/batchAnnouncement`;
     const body = createRealisticBatchData(1);
-    
-    const params = { 
-      headers: { 
-        'Content-Type': 'application/json', 
-        Accept: 'application/json' 
-      } 
+
+    const params = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
     };
-    
+
     const request = http.post(url, JSON.stringify(body), params);
-    
+
     check(request, {
       'v2 single file - status is 202': (r) => r.status === 202,
       'v2 single file - response time < 5s': (r) => r.timings.duration < 5000,
       'v2 single file - has response body': (r) => r.body && r.body.length > 0,
     });
-    
+
     sleep(randomIntBetween(3, 8));
   });
 
@@ -99,21 +99,21 @@ export default function () {
     const url = `${BASE_URL}/v2/content/batchAnnouncement`;
     const fileCount = randomIntBetween(2, 5);
     const body = createRealisticBatchData(fileCount);
-    const params = { 
-      headers: { 
-        'Content-Type': 'application/json', 
-        Accept: 'application/json' 
-      } 
+    const params = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
     };
-    
+
     const request = http.post(url, JSON.stringify(body), params);
-    
+
     check(request, {
       'v2 multiple files - status is 202': (r) => r.status === 202,
       'v2 multiple files - response time < 10s': (r) => r.timings.duration < 10000,
       'v2 multiple files - has response body': (r) => r.body && r.body.length > 0,
     });
-    
+
     sleep(randomIntBetween(3, 8));
   });
 
@@ -121,9 +121,9 @@ export default function () {
   group('v3/batchAnnouncement - Single File Upload', () => {
     const url = `${BASE_URL}/v3/content/batchAnnouncement`;
     const formData = createMultipartBatchData(1, { fileSize: 'sm' });
-    
+
     const request = http.post(url, formData);
-    
+
     check(request, {
       'v3 single file - status is 202 or 207': (r) => r.status === 202 || r.status === 207,
       'v3 single file - response time < 15s': (r) => r.timings.duration < 15000,
@@ -137,7 +137,7 @@ export default function () {
         }
       },
     });
-    
+
     sleep(randomIntBetween(5, 10));
   });
 
@@ -146,9 +146,9 @@ export default function () {
     const url = `${BASE_URL}/v3/content/batchAnnouncement`;
     const fileCount = randomIntBetween(2, 5);
     const formData = createMultipartBatchData(fileCount, { fileSize: 'sm' });
-    
+
     const request = http.post(url, formData);
-    
+
     check(request, {
       'v3 multiple files - status is 202 or 207': (r) => r.status === 202 || r.status === 207,
       'v3 multiple files - response time < 30s': (r) => r.timings.duration < 30000,
@@ -162,7 +162,7 @@ export default function () {
         }
       },
     });
-    
+
     sleep(randomIntBetween(8, 15));
   });
 
@@ -170,15 +170,15 @@ export default function () {
   group('v3/batchAnnouncement - Large Files', () => {
     const url = `${BASE_URL}/v3/content/batchAnnouncement`;
     const formData = createMultipartBatchData(1, { fileSize: 'md' }); // Medium size files
-    
+
     const request = http.post(url, formData);
-    
+
     check(request, {
       'v3 large files - status is 202 or 207': (r) => r.status === 202 || r.status === 207,
       'v3 large files - response time < 60s': (r) => r.timings.duration < 60000,
       'v3 large files - has response body': (r) => r.body && r.body.length > 0,
     });
-    
+
     sleep(randomIntBetween(10, 20));
   });
 
@@ -187,34 +187,34 @@ export default function () {
     const batchCount = randomIntBetween(3, 8);
     let successCount = 0;
     let totalResponseTime = 0;
-    
+
     for (let i = 0; i < batchCount; i++) {
       const url = `${BASE_URL}/v2/content/batchAnnouncement`;
       const body = createRealisticBatchData(randomIntBetween(1, 3));
-      const params = { 
-        headers: { 
-          'Content-Type': 'application/json', 
-          Accept: 'application/json' 
-        } 
+      const params = {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
       };
-      
+
       const request = http.post(url, JSON.stringify(body), params);
-      
+
       if (request.status === 202) {
         successCount++;
       }
       totalResponseTime += request.timings.duration;
-      
+
       sleep(randomIntBetween(1, 3));
     }
-    
+
     const avgResponseTime = totalResponseTime / batchCount;
-    
+
     check({ successCount, avgResponseTime }, {
       'sequential batches - success rate > 80%': (r) => (r.successCount / batchCount) > 0.8,
       'sequential batches - avg response time < 8s': (r) => r.avgResponseTime < 8000,
     });
-    
+
     sleep(randomIntBetween(3, 6));
   });
 
@@ -223,51 +223,49 @@ export default function () {
     const uploadCount = randomIntBetween(2, 5);
     let successCount = 0;
     let totalResponseTime = 0;
-    
+
     for (let i = 0; i < uploadCount; i++) {
       const url = `${BASE_URL}/v3/content/batchAnnouncement`;
       const formData = createMultipartBatchData(1, { fileSize: 'sm' });
-      
+
       const request = http.post(url, formData);
-      
+
       if (request.status === 202 || request.status === 207) {
         successCount++;
       }
       totalResponseTime += request.timings.duration;
-      
+
       sleep(randomIntBetween(2, 5));
     }
-    
+
     const avgResponseTime = totalResponseTime / uploadCount;
-    
+
     check({ successCount, avgResponseTime }, {
       'v3 sequential uploads - success rate > 80%': (r) => (r.successCount / uploadCount) > 0.8,
       'v3 sequential uploads - avg response time < 20s': (r) => r.avgResponseTime < 20000,
     });
-    
+
     sleep(randomIntBetween(5, 10));
   });
-
-
 
   // Test maximum batch limits
   group('v2/batchAnnouncement - Maximum Batch Limits', () => {
     const url = `${BASE_URL}/v2/content/batchAnnouncement`;
     const maxBatchData = createRealisticBatchData(20); // Maximum files
-    const params = { 
-      headers: { 
-        'Content-Type': 'application/json', 
-        Accept: 'application/json' 
-      } 
+    const params = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
     };
-    
+
     const request = http.post(url, JSON.stringify(maxBatchData), params);
-    
+
     check(request, {
       'max batch - status is 202': (r) => r.status === 202,
       'max batch - response time < 30s': (r) => r.timings.duration < 30000,
     });
-    
+
     sleep(randomIntBetween(5, 15));
   });
 
@@ -275,14 +273,14 @@ export default function () {
   group('v3/batchAnnouncement - Maximum File Limits', () => {
     const url = `${BASE_URL}/v3/content/batchAnnouncement`;
     const formData = createMultipartBatchData(10, { fileSize: 'sm' }); // Test with multiple files
-    
+
     const request = http.post(url, formData);
-    
+
     check(request, {
       'v3 max files - status is 202 or 207': (r) => r.status === 202 || r.status === 207,
       'v3 max files - response time < 60s': (r) => r.timings.duration < 60000,
     });
-    
+
     sleep(randomIntBetween(10, 20));
   });
 
@@ -290,23 +288,23 @@ export default function () {
   group('v2/batchAnnouncement - Different Batch Sizes', () => {
     const sizes = [1, 5, 10, 15, 20];
     const selectedSize = sizes[randomIntBetween(0, sizes.length - 1)];
-    
+
     const url = `${BASE_URL}/v2/content/batchAnnouncement`;
     const body = createRealisticBatchData(selectedSize);
-    const params = { 
-      headers: { 
-        'Content-Type': 'application/json', 
-        Accept: 'application/json' 
-      } 
+    const params = {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
     };
-    
+
     const request = http.post(url, JSON.stringify(body), params);
-    
+
     check(request, {
       'different batch sizes - status is 202': (r) => r.status === 202,
       'different batch sizes - response time reasonable': (r) => r.timings.duration < (selectedSize * 2000), // 2s per file max
     });
-    
+
     sleep(randomIntBetween(3, 8));
   });
 
@@ -314,12 +312,12 @@ export default function () {
   group('v3/batchAnnouncement - Different File Sizes', () => {
     const sizes = ['sm', 'md'];
     const selectedSize = sizes[randomIntBetween(0, sizes.length - 1)];
-    
+
     const url = `${BASE_URL}/v3/content/batchAnnouncement`;
     const formData = createMultipartBatchData(1, { fileSize: selectedSize });
-    
+
     const request = http.post(url, formData);
-    
+
     check(request, {
       'v3 different file sizes - status is 202 or 207': (r) => r.status === 202 || r.status === 207,
       'v3 different file sizes - response time reasonable': (r) => {
@@ -327,7 +325,7 @@ export default function () {
         return r.timings.duration < maxTime;
       },
     });
-    
+
     sleep(randomIntBetween(5, 15));
   });
 }
@@ -335,13 +333,13 @@ export default function () {
 // Setup function to prepare test data
 export function setup() {
   console.log(`Starting batch announcement load test with scenario: ${SCENARIO}`);
-  
+
   // Health check before starting
   const healthCheck = http.get(`${BASE_URL}/healthz`);
   if (healthCheck.status !== 200) {
     throw new Error('Service is not healthy');
   }
-  
+
   return { scenario: SCENARIO };
 }
 

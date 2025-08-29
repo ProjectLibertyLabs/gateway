@@ -344,48 +344,71 @@ export function handleSummary(data) {
   const testStartTime = new Date().toISOString();
   const testEndTime = new Date().toISOString();
   
-  console.log('Completing batch announcement stress test...');
+  console.log('\n' + '='.repeat(80));
+  console.log('BATCH ANNOUNCEMENT STRESS TEST SUMMARY');
+  console.log('='.repeat(80));
+  
+  console.log(`Test Type: batch-announcement-stress`);
+  console.log(`Timestamp: ${new Date().toISOString()}`);
   console.log(`Test started at: ${testStartTime}`);
   console.log(`Test completed at: ${testEndTime}`);
+  console.log('');
   
   // Get metrics from data
   const successfulCount = data.metrics.successful_requests?.values?.count || 0;
   const failedCount = data.metrics.failed_requests?.values?.count || 0;
   const avgResponseTime = data.metrics.response_time?.values?.avg || 0;
-  
-  console.log(`Total successful requests: ${successfulCount}`);
-  console.log(`Total failed requests: ${failedCount}`);
-  
   const totalRequests = successfulCount + failedCount;
   const successRate = totalRequests > 0 ? (successfulCount / totalRequests * 100).toFixed(2) : '0.00';
   
-  console.log(`Average response time: ${avgResponseTime.toFixed(2)}ms`);
+  // Basic summary
+  console.log('BASIC METRICS');
+  console.log('-'.repeat(40));
+  console.log(`Total successful requests: ${successfulCount}`);
+  console.log(`Total failed requests: ${failedCount}`);
+  console.log(`Total requests: ${totalRequests}`);
   console.log(`Success rate: ${successRate}%`);
+  console.log(`Average response time: ${avgResponseTime.toFixed(2)}ms`);
+  console.log('');
   
-  return {
-    'batch-announcement-stress-summary.json': JSON.stringify({
-      testType: 'batch-announcement-stress',
-      timestamp: new Date().toISOString(),
-      metrics: {
-        http_req_duration: data.metrics.http_req_duration,
-        http_req_failed: data.metrics.http_req_failed,
-        http_reqs: data.metrics.http_reqs,
-        checks: data.metrics.checks,
-        successful_requests: data.metrics.successful_requests,
-        failed_requests: data.metrics.failed_requests,
-        response_time: data.metrics.response_time,
-      },
-      thresholds: {
-        passed: data.thresholds?.passed || [],
-        failed: data.thresholds?.failed || [],
-      },
-      summary: {
-        successfulRequests: successfulCount,
-        failedRequests: failedCount,
-        totalRequests,
-        successRate: parseFloat(successRate),
-        avgResponseTime,
-      }
-    }, null, 2),
-  };
+  // Detailed HTTP metrics
+  console.log('HTTP METRICS');
+  console.log('-'.repeat(40));
+  if (data.metrics.http_req_duration) {
+    const duration = data.metrics.http_req_duration.values;
+    console.log(`HTTP Request Duration:`);
+    console.log(`  Average: ${duration.avg?.toFixed(2)}ms`);
+    console.log(`  Median: ${duration.med?.toFixed(2)}ms`);
+    console.log(`  P95: ${duration['p(95)']?.toFixed(2)}ms`);
+    console.log(`  P99: ${duration['p(99)']?.toFixed(2)}ms`);
+    console.log(`  Min: ${duration.min?.toFixed(2)}ms`);
+    console.log(`  Max: ${duration.max?.toFixed(2)}ms`);
+  }
+  
+  if (data.metrics.http_reqs) {
+    const reqs = data.metrics.http_reqs.values;
+    console.log(`HTTP Requests:`);
+    console.log(`  Rate: ${reqs.rate?.toFixed(2)} req/s`);
+    console.log(`  Count: ${reqs.count}`);
+  }
+  
+  if (data.metrics.http_req_failed) {
+    const failed = data.metrics.http_req_failed.values;
+    console.log(`HTTP Request Failures:`);
+    console.log(`  Rate: ${failed.rate?.toFixed(2)} failed/s`);
+    console.log(`  Percentage: ${(failed.rate / (data.metrics.http_reqs?.values?.rate || 1) * 100).toFixed(2)}%`);
+  }
+  console.log('');
+  
+  if ((!data.thresholds?.passed || data.thresholds.passed.length === 0) && 
+      (!data.thresholds?.failed || data.thresholds.failed.length === 0)) {
+    console.log('No thresholds defined');
+  }
+  console.log('');
+  console.log('='.repeat(80));
+  console.log('SUMMARY COMPLETE');
+  console.log('='.repeat(80) + '\n');
+  
+  // Return empty object to prevent file generation
+  return {};
 }

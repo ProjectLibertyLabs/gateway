@@ -8,7 +8,7 @@ import { randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
 validOnChainContent.payload = `0x${randomString(1024, 'abcdef0123456789')}`;
 
-export const mockAsset = (size, extension = 'jpg', mimetype = 'image/jpeg') => {
+export const createMockFile = (size = 'sm', extension = 'jpg', mimetype = 'image/jpeg', fileName = null) => {
   let fileSize;
   switch (size) {
     case 'sm':
@@ -26,6 +26,7 @@ export const mockAsset = (size, extension = 'jpg', mimetype = 'image/jpeg') => {
     default:
       fileSize = 0.5 * 1000 * 1000; // 0.5MB
   }
+  
   let arrayBuf = randomBytes(fileSize);
   let u8;
 
@@ -52,14 +53,23 @@ export const mockAsset = (size, extension = 'jpg', mimetype = 'image/jpeg') => {
 
     default:
   }
-  const buffer = b64encode(arrayBuf, 'utf-8');
+  
+  // Generate filename if not provided
+  if (!fileName) {
+    if (mimetype === 'application/vnd.apache.parquet') {
+      fileName = `batch-file-${randomIntBetween(1000, 9999)}.parquet`;
+    } else {
+      fileName = `file1.${extension}`;
+    }
+  }
+  
   return {
-    files: http.file(arrayBuf, `file1.${extension}`, mimetype),
+    files: http.file(arrayBuf, fileName, mimetype),
   };
 };
 
 export const getReferenceId = (baseUrl, extension = 'jpg', mimetype = 'image/jpeg') => {
-  const asset = mockAsset('sm', extension, mimetype);
+  const asset = createMockFile('sm', extension, mimetype);
   // Send the PUT request
   const assetRequest = http.put(baseUrl + `/v1/asset/upload`, asset);
   let referenceId = '';
@@ -106,11 +116,12 @@ const VALID_CIDS = [
 ];
 
 // Export common constants
+// TODO: Ask Wes about the constants
 export const BATCH_CONSTANTS = {
   MAX_FILES_PER_BATCH: 20,
   MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
   SUPPORTED_SCHEMA_IDS: [12, 13], // Valid schema IDs
-  SUPPORTED_FILE_TYPES: ['parquet', 'jpg', 'png'], // TODO: Add all file types relevantIDs
+  SUPPORTED_FILE_TYPES: ['parquet', 'jpg', 'png'], // TODO: Add all mime types relevantIDs
   EXPECTED_RESPONSE_TIMES: {
     singleFile: 5000,    // 5s
     multipleFiles: 10000, // 10s
@@ -158,44 +169,7 @@ export const BATCH_SCENARIOS = {
   }
 };
 
-// Helper function to create mock file data
-export const createMockFileData = (size = 'sm') => {
-  let fileSize;
-  switch (size) {
-    case 'sm':
-      fileSize = 0.5 * 1000 * 1000; // 0.5MB
-      break;
-    case 'md':
-      fileSize = 15 * 1000 * 1000; // 15MB
-      break;
-    case 'lg':
-      fileSize = 50 * 1000 * 1000; // 50MB
-      break;
-    case 'xl':
-      fileSize = 100 * 1000 * 1000; // 100MB
-      break;
-    default:
-      fileSize = 0.5 * 1000 * 1000; // 0.5MB
-  }
 
-  const arrayBuf = randomBytes(fileSize);
-  const u8 = new Uint8Array(arrayBuf);
-  
-  // Set Parquet file magic number (PAR1)
-  u8.set([0x50, 0x41, 0x52, 0x31], 0);
-  
-  return arrayBuf;
-};
-
-// Enhanced mock asset creation for batch testing
-export const createMockFile = (size = 'sm') => {
-  const fileData = createMockFileData(size);
-  const fileName = `batch-file-${randomIntBetween(1000, 9999)}.parquet`;
-  
-  return {
-    files: http.file(fileData, fileName, 'application/vnd.apache.parquet'),
-  };
-};
 
 // Create realistic batch data with different schemas
 export const createRealisticBatchData = (fileCount = 1, options = {}) => {
@@ -213,7 +187,7 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
     
     if (useRealUploads) {
       // Use actual upload process
-      const asset = createMockFile(fileSize);
+      const asset = createMockFile(fileSize, 'parquet', 'application/vnd.apache.parquet');
       const uploadResponse = http.put(`${baseUrl}/v1/asset/upload`, asset);
       
       if (uploadResponse.status === 202) {
@@ -255,7 +229,7 @@ export const createMultipartBatchData = (fileCount = 1, options = {}) => {
   
   // Add files to the form data
   for (let i = 0; i < fileCount; i++) {
-    const asset = mockAsset(fileSize, 'parquet', 'application/vnd.apache.parquet');
+    const asset = createMockFile(fileSize, 'parquet', 'application/vnd.apache.parquet');
     formData[`files`] = asset.files;
   }
   

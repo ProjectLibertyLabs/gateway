@@ -150,6 +150,7 @@ user-centric
 [Vv]3
 VSCode
 VU
+VUs
 Web2(-friendly|-like)?
 Web3
 WEBHOOK_BASE_URL
@@ -161,6 +162,12 @@ ws
 XRQCY
 YAML
 AOF
+k6
+loadtest
+stress-test
+virtual-users
+[Pp]re
+EOF
 filesystem
 failover
 ElastiCache

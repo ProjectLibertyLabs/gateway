@@ -12,7 +12,7 @@ Before running k6 tests, ensure you have:
 
 1. **k6 installed**: Download from [k6.io](https://k6.io/docs/getting-started/installation/)
 2. **Gateway services running**: Use `./start.sh` to start all services locally
-3. **Node.js (v18+)**: Required for generating test data and running helper scripts
+3. **Node.js (version 18 or higher)**: Required for generating test data and running helper scripts
 
 ## Port Configuration
 
@@ -36,12 +36,12 @@ The Gateway services use different ports when running in Docker containers:
 
 ### Account Service (`apps/account-api/k6-test/`)
 
-| Test File | Description | Purpose |
-|-----------|-------------|---------|
-| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability |
-| `new-sign-up.k6.js` | User registration flow testing | Test account creation performance |
-| `account-service-load.k6.js` | Comprehensive API load testing | Full service load testing (currently skipped) |
-| `signups.gen.js` | Generated test data | Pre-generated signup payloads |
+| Test File | Description | Purpose | Port |
+|-----------|-------------|---------|------|
+| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability | 3000 |
+| `new-sign-up.k6.js` | User registration flow testing | Test account creation performance | 3000 |
+| `account-service-load.k6.js` | Comprehensive API load testing | Full service load testing (currently skipped) | 3000 |
+| `signups.gen.js` | Generated test data | Pre generated signup payloads | N/A |
 
 **Key Features:**
 - Test data generation with `npm run generate:signup`
@@ -68,13 +68,13 @@ The Gateway services use different ports when running in Docker containers:
 
 **Port Configuration:**
 - **Port 3000**: Standard API endpoints (v1), health checks, and file upload tests
-- **Port 3010**: v2 and v3 batch announcement endpoints (mapped from Docker container port)
+- **Port 3010**: v2 batch announcement endpoints (mapped from Docker container port)
 
 ### Content Watcher Service (`apps/content-watcher/k6-test/`)
 
-| Test File | Description | Purpose |
-|-----------|-------------|---------|
-| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability |
+| Test File | Description | Purpose | Port |
+|-----------|-------------|---------|------|
+| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability | 3000 |
 
 **Key Features:**
 - Simple health check validation
@@ -82,10 +82,10 @@ The Gateway services use different ports when running in Docker containers:
 
 ### Graph Service (`apps/graph-api/k6-test/`)
 
-| Test File | Description | Purpose |
-|-----------|-------------|---------|
-| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability |
-| `script.js` | Standard API load testing | General service performance |
+| Test File | Description | Purpose | Port |
+|-----------|-------------|---------|------|
+| `health-check.k6.js` | Basic health check endpoint testing | Verify service availability | 3000 |
+| `script.js` | Standard API load testing | General service performance | 3000 |
 
 **Key Features:**
 - Social graph operation testing
@@ -99,35 +99,35 @@ The content publishing service includes predefined load testing scenarios:
 
 #### Light Load
 - **VUs**: 5
-- **Duration**: 30s
+- **Duration**: 30 seconds
 - **Purpose**: Basic functionality testing
-- **Thresholds**: 99% success rate, <2s avg response time
+- **Thresholds**: 99% success rate, less than 2 seconds average response time
 
 #### Medium Load
 - **VUs**: 20
-- **Duration**: 60s
+- **Duration**: 60 seconds
 - **Purpose**: Normal operation testing
-- **Thresholds**: 98% success rate, <5s avg response time
+- **Thresholds**: 98% success rate, less than 5 seconds average response time
 
 #### Heavy Load
 - **VUs**: 200
-- **Duration**: 120s
+- **Duration**: 120 seconds
 - **Purpose**: Stress testing
-- **Thresholds**: 90% success rate, <10s avg response time
+- **Thresholds**: 90% success rate, less than 10 seconds average response time
 
 #### Burst Load
 - **Stages**: Ramp up → Spike → Ramp down
 - **Purpose**: Spike testing
-- **Thresholds**: 90% success rate, <15s avg response time
+- **Thresholds**: 90% success rate, less than 15 seconds average response time
 
 ### Stress Testing Phases
 
 The stress testing includes multiple phases:
 
-1. **Ramp-up Phase**: Gradual increase from 1 to 10 VUs over 90s
+1. **Ramp-up Phase**: Gradual increase from 1 to 10 VUs over 90 seconds
 2. **Sustained Load**: Constant 10 VUs for 2 minutes
-3. **Spike Testing**: Arrival rate testing with up to 25 requests/second
-4. **Burst Testing**: High-intensity burst of 50 requests/second for 1 minute
+3. **Spike Testing**: Arrival rate testing with up to 25 requests per second
+4. **Burst Testing**: High-intensity burst of 50 requests per second for 1 minute
 
 ## Running Tests
 
@@ -183,7 +183,7 @@ The service includes helper functions in `helpers.js` for generating realistic t
 ### k6 Options
 
 Each test file includes configurable options:
-- Virtual Users (VUs)
+- VUs
 - Test duration
 - Performance thresholds
 - Connection settings
@@ -192,9 +192,9 @@ Each test file includes configurable options:
 ## Performance Thresholds
 
 ### Standard Thresholds
-- **Success Rate**: ≥90-99% depending on scenario
-- **Response Time**: <2-15s average depending on scenario
-- **Error Rate**: <1-20% depending on scenario
+- **Success Rate**: 90% to 99% depending on scenario
+- **Response Time**: Less than 2 to 15 seconds average depending on scenario
+- **Error Rate**: Less than 1% to 20% depending on scenario
 - **Request Rate**: Varies by test type
 
 ### Custom Metrics
@@ -210,7 +210,27 @@ The project includes CI/CD tools in `tools/ci-k6/` for automated testing:
 - Automated test execution
 - Performance reporting
 
+## Best Practices
+
+1. **Start with Health Checks**: Always run health checks before load testing
+2. **Use Realistic Data**: Generate test data that mimics real usage patterns
+3. **Monitor Resources**: Watch system resources during stress testing
+4. **Gradual Scaling**: Start with light loads and gradually increase
+5. **Environment Isolation**: Run tests against dedicated test environments
+6. **Result Analysis**: Review k6 output for performance insights
+
 ## Troubleshooting
+
+### Common Issues
+
+1. **Connection Errors**: Ensure services are running and accessible
+2. **Port Configuration Errors**: Verify you're targeting the correct port for each test type
+   - Standard API tests: Port 3000
+   - v2 batch announcement tests: Port 3010
+   - File upload tests: Port 3000
+3. **EOF Errors**: May occur with file uploads; tests include connection settings to handle these
+4. **Timeout Errors**: Adjust k6 timeouts for large file uploads
+5. **Memory Issues**: Monitor system resources during heavy load testing
 
 ### Debug Mode
 Run tests with verbose output:

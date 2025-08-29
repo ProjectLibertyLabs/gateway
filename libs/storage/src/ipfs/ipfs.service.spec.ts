@@ -9,10 +9,14 @@ import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
+  mode: 'ipfs',
   ipfsEndpoint: 'http://localhost:5001/api/v0',
   ipfsBasicAuthUser: '',
   ipfsBasicAuthSecret: '',
   ipfsGatewayUrl: 'http://localhost:8080/ipfs/[CID]',
+  clusterReplicationMin: 0,
+  clusterReplicationMax: 0,
+  clusterPinExpiration: '',
 });
 
 const mockHttpCommonConfigProvider = GenerateMockConfigProvider<IHttpCommonConfig>(httpCommonConfig.KEY, {
@@ -42,6 +46,10 @@ describe('IpfsService Tests', () => {
 
     service = module.get<IpfsService>(IpfsService);
     ipfs = (service as unknown as any).ipfs;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {

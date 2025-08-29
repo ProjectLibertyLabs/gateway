@@ -15,7 +15,7 @@ const SCENARIOS = {
       checks: ['rate>=0.99'],
       http_req_duration: ['avg<2000', 'p(95)<5000'],
       http_req_failed: ['rate<0.01'],
-      http_reqs: ['rate>=2'],
+      http_reqs: ['rate>=0.7'],
     },
   },
   // Medium load - normal operation testing

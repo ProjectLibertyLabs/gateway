@@ -74,6 +74,8 @@ jobs:
         id: should
         run: echo "RUN=${{ needs.service-matrix.outputs.run-all == 'true' || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
+      # We want to avoid running load:medium and stress tests on PRs
+      # Rather we want to run load:light and leave the above for release  
       - name: Determine Test Type
         id: test-type
         run: |

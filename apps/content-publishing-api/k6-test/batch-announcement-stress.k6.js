@@ -91,8 +91,6 @@ const responseTime = new Trend('response_time');
 export default function () {
   const scenario = __ENV.SCENARIO || 'stress';
   
-
-  
   // Test v2 batch announcement with different scenarios
   group('v2/batchAnnouncement - Stress Testing', () => {
     const scenarios = ['small', 'medium', 'large', 'mixed'];
@@ -112,8 +110,6 @@ export default function () {
     };
     
     const request = http.post(url, JSON.stringify(batchData), params);
-    
-
     
     // Track metrics
     if (request.status === 202) {

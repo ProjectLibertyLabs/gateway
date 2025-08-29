@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, group } from 'k6';
-import { mockAsset } from './helpers.js';
+import { createMockFile } from './helpers.js';
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -21,7 +21,7 @@ export default function () {
     let url = BASE_URL + `/v1/asset/upload`;
     // Request No. 1: ApiController_assetUpload small files
     {
-      const data = mockAsset('sm');
+      const data = createMockFile('sm');
       // Send the PUT request
       const request = http.put(url, data);
       check(request, {

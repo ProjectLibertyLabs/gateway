@@ -17,6 +17,7 @@ bridging the gap between Web2 and Web3 development.
 - [🛫 Deployment](#deployment)
 - [Logging](#logging)
 - [Metrics](#metrics)
+- [Load and Stress Testing](#load-testing)
 - [🤝 Contributing](#-contributing)
 - [🙏 Acknowledgments](#-acknowledgments)
 - [📝 License](#-license)
@@ -213,6 +214,30 @@ For each app - account-api, account-worker, content-publishing-api, content-publ
 graph-api, and graph-worker - Gateway exposes the default
 Prometheus metrics at `/metrics`.
 A local Prometheus server can be installed and pointed at this endpoint for debugging or other purposes.
+
+## Load and Stress Testing <a name="load-testing"></a>
+
+Gateway includes comprehensive k6 load and stress testing capabilities across all microservices to ensure reliability, performance, and scalability under various load conditions.
+
+**Key Features:**
+- **Health Check Testing**: Basic service availability validation
+- **Load Testing**: Multiple scenarios (light, medium, heavy, burst) for performance validation
+- **Stress Testing**: Advanced stress scenarios with multiple phases
+- **File Upload Testing**: Size-specific testing for content publishing
+- **Test Data Generation**: Realistic data generation to avoid blockchain interaction
+
+**Quick Start:**
+```bash
+# Run health check for any service
+cd apps/[service-name]/k6-test
+k6 run health-check.k6.js
+
+# Run load testing with specific scenario
+cd apps/content-publishing-api/k6-test
+SCENARIO=heavy k6 run batch-announcement-load.k6.js
+```
+
+For detailed information about available tests, configuration options, and best practices, see our **[Comprehensive k6 Testing Documentation](./docs/k6-load-testing.md)**.
 
 <!-- CONTRIBUTING -->
 

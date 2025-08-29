@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+  release:
+    types: [published]
 
 jobs:
   service-matrix:
@@ -72,6 +74,19 @@ jobs:
         id: should
         run: echo "RUN=${{ needs.service-matrix.outputs.run-all == 'true' || contains(fromJson(needs.service-matrix.outputs.changes), matrix.service) }}" >> "$GITHUB_OUTPUT"
 
+      - name: Determine Test Type
+        id: test-type
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "test_type=release" >> "$GITHUB_OUTPUT"
+            echo "batch_scenario=medium" >> "$GITHUB_OUTPUT"
+            echo "run_stress=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "test_type=pr" >> "$GITHUB_OUTPUT"
+            echo "batch_scenario=light" >> "$GITHUB_OUTPUT"
+            echo "run_stress=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/checkout@v4
@@ -126,12 +141,40 @@ jobs:
       - name: Setup K6
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: grafana/setup-k6-action@v1
-      - name: Run k6 Tests
-        if: ${{ steps.should.outputs.RUN == 'true' }}
+
+      - name: Run k6 Tests - PR Mode (Light Load Only)
+        if: ${{ steps.should.outputs.RUN == 'true' && steps.test-type.outputs.test_type == 'pr' }}
         run: |
           for test_file in apps/${{ matrix.service }}/k6-test/*.k6.js; do
-            k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
+            # Skip stress tests for PRs
+            if [[ "$test_file" == *"stress"* ]]; then
+              echo "Skipping stress test: $test_file (PR mode)"
+              continue
+            fi
+            # Run batch announcement tests with light scenario
+            if [[ "$test_file" == *"batch-announcement-load"* ]]; then
+              echo "Running batch announcement test with light scenario: $test_file"
+              k6 run --no-color --quiet --no-usage-report -e SCENARIO=light "$test_file" || exit 1
+            else
+              echo "Running test: $test_file"
+              k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
+            fi
           done
+
+      - name: Run k6 Tests - Release Mode (Medium Load + Stress Tests)
+        if: ${{ steps.should.outputs.RUN == 'true' && steps.test-type.outputs.test_type == 'release' }}
+        run: |
+          for test_file in apps/${{ matrix.service }}/k6-test/*.k6.js; do
+            # Run batch announcement tests with medium scenario
+            if [[ "$test_file" == *"batch-announcement-load"* ]]; then
+              echo "Running batch announcement test with medium scenario: $test_file"
+              k6 run --no-color --quiet --no-usage-report -e SCENARIO=medium "$test_file" || exit 1
+            else
+              echo "Running test: $test_file"
+              k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1
+            fi
+          done
+
       - name: Stop Docker Compose
         if: ${{ steps.should.outputs.RUN == 'true' || failure() }}
         run: docker compose -f docker-compose.yaml -f docker-compose-k6.${{ matrix.service }}.yaml down

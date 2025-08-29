@@ -8,7 +8,7 @@ import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.conf
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 export interface RequestObject {
-  calls: Array<unknown>;
+  calls?: Array<unknown>;
   type: string;
 }
 

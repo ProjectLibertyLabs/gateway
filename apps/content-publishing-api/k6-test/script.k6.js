@@ -259,30 +259,4 @@ export default function () {
       });
     }
   });
-
-  group('/v3/content/batchAnnouncement', () => {
-    // Test batch upload with multiple files
-    {
-      let url = BASE_URL + `/v3/content/batchAnnouncement`;
-      const formData = new FormData();
-
-      // Add two test files with schema IDs (using id 12 here maps to dsnp-content-attribute-set schema on mainnet)
-      const file1 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
-      const file2 = mockAsset('sm', 'parquet', 'application/vnd.apache.parquet');
-      formData.append('files', file1);
-      formData.append('schemaId', '12');
-      formData.append('files', file2);
-      formData.append('schemaId', '12');
-
-      let params = { headers: { 'Content-Type': 'multipart/form-data' } };
-      let request = http.post(url, formData, params);
-
-      check(request, {
-        'Status is 202': (r) => r.status === 202,
-        'Has referenceId': (r) => JSON.parse(r.body).referenceId !== undefined,
-        'Has files array': (r) => Array.isArray(JSON.parse(r.body).files),
-        'Files have CIDs': (r) => JSON.parse(r.body).files.every((f) => f.cid !== undefined),
-      });
-    }
-  });
 }

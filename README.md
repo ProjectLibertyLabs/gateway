@@ -217,7 +217,7 @@ A local Prometheus server can be installed and pointed at this endpoint for debu
 
 ## Load and Stress Testing <a name="load-testing"></a>
 
-Gateway includes comprehensive k6 load and stress testing capabilities across all microservices to ensure reliability, performance, and scalability under various load conditions.
+Gateway includes [Grafana k6](https://k6.io/) load and stress testing capabilities across microservices to ensure reliability, performance, and scalability under various load conditions.
 
 **Key Features:**
 - **Health Check Testing**: Basic service availability validation
@@ -237,7 +237,7 @@ cd apps/content-publishing-api/k6-test
 SCENARIO=heavy k6 run batch-announcement-load.k6.js
 ```
 
-For detailed information about available tests, configuration options, and best practices, see our **[Comprehensive k6 Testing Documentation](./docs/k6-load-testing.md)**.
+Detailed information, configuration options, and best practices, are included in our **[k6 testing documentation](./docs/k6/k6-documentation.md)**.
 
 <!-- CONTRIBUTING -->
 

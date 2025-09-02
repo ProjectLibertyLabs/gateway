@@ -1,5 +1,4 @@
 import { validContentNoUploadedAssets, validOnChainContent } from '../test/mockRequestData.ts';
-import { b64encode } from 'k6/encoding';
 import http from 'k6/http';
 import { check } from 'k6';
 import { randomBytes } from 'k6/crypto';
@@ -57,9 +56,9 @@ export const createMockFile = (size = 'sm', extension = 'jpg', mimetype = 'image
   // Generate filename if not provided
   if (!fileName) {
     if (mimetype === 'application/vnd.apache.parquet') {
-      fileName = `batch-file-${randomIntBetween(1000, 9999)}.parquet`;
+      fileName = `batch-file-${randomIntBetween(100000, 999999)}.parquet`;
     } else {
-      fileName = `file1.${extension}`;
+      fileName = `file-${randomIntBetween(100000, 999999)}.${extension}`;
     }
   }
   
@@ -102,21 +101,11 @@ export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'i
 // ============================================================================
 
 // Valid CID v1 examples for testing
-const VALID_CIDS = [
-  'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi',
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi',
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi',
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi',
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeihs2f53wuxypxctus6m5egrcxdruykhps5v6bwz3y6wbsxstxwjdi',
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-];
+const generateValidCid = () => {
+  return 'bafybei' + randomString(52, 'abcdefghijklmnopqrstuvwxyz0123456789');
+};
 
 // Export common constants
-// TODO: Ask Wes about the constants
 export const BATCH_CONSTANTS = {
   MAX_FILES_PER_BATCH: 20,
   MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
@@ -196,15 +185,15 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
           cid = response.assetIds[0];
         } catch {
           // Use valid CID from our list as fallback
-          cid = VALID_CIDS[randomIntBetween(0, VALID_CIDS.length - 1)];
+          cid = generateValidCid();
         }
       } else {
         // Use valid CID from our list as fallback
-        cid = VALID_CIDS[randomIntBetween(0, VALID_CIDS.length - 1)];
+        cid = generateValidCid();
       }
     } else {
       // Use valid CID from our list
-      cid = VALID_CIDS[randomIntBetween(0, VALID_CIDS.length - 1)];
+      cid = generateValidCid();
     }
     
     batchFiles.push({
@@ -246,7 +235,7 @@ export const createErrorScenarios = () => {
     // Invalid schema ID
     invalidSchema: {
       batchFiles: [{ 
-        cid: VALID_CIDS[0], 
+        cid: generateValidCid(), 
         schemaId: 99999 
       }]
     },
@@ -267,7 +256,7 @@ export const createErrorScenarios = () => {
     // Missing required fields
     missingFields: {
       batchFiles: [{ 
-        cid: VALID_CIDS[0]
+        cid: generateValidCid(),
         // Missing schemaId
       }]
     },
@@ -275,7 +264,7 @@ export const createErrorScenarios = () => {
     // Too many files
     tooManyFiles: {
       batchFiles: Array.from({ length: 25 }, (_, i) => ({
-        cid: VALID_CIDS[i % VALID_CIDS.length],
+        cid: generateValidCid(),
         schemaId: 12
       }))
     }

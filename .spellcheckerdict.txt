@@ -63,6 +63,7 @@ Filecoin
 [Ff]rontend
 FRQCY
 go-ipfs
+Grafana
 graph-api
 graphChangePublish
 graphChangeRequest

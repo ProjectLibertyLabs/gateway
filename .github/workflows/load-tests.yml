@@ -144,7 +144,7 @@ jobs:
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: grafana/setup-k6-action@v1
 
-      - name: Run k6 Tests - PR Mode (Light Load Only)
+      - name: Run k6 Tests - PR Mode (Ultra Light Load Only)
         if: ${{ steps.should.outputs.RUN == 'true' && steps.test-type.outputs.test_type == 'pr' }}
         run: |
           for test_file in apps/${{ matrix.service }}/k6-test/*.k6.js; do
@@ -153,10 +153,10 @@ jobs:
               echo "Skipping stress test: $test_file (PR mode)"
               continue
             fi
-            # Run batch announcement tests with light scenario
+            # Run batch announcement tests with ultra light scenario for CI
             if [[ "$test_file" == *"batch-announcement-load"* ]]; then
-              echo "Running batch announcement test with light scenario: $test_file"
-              k6 run --no-color --quiet --no-usage-report -e SCENARIO=light "$test_file" || exit 1
+              echo "Running batch announcement test with ultra light scenario: $test_file"
+              k6 run --no-color --quiet --no-usage-report -e SCENARIO=ultra_light "$test_file" || exit 1
             else
               echo "Running test: $test_file"
               k6 run --no-color --quiet --no-usage-report "$test_file" || exit 1

@@ -2,19 +2,25 @@
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
 // eslint-disable-next-line max-classes-per-file
-import { IFileResponse, IUploadResponse } from '#types/interfaces';
+import {
+  IFileResponse,
+  IUploadResponse,
+  IAnnouncementResponse,
+  IUploadResponseV1,
+  IFilesUpload,
+} from '#types/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray } from 'class-validator';
 
-export class AnnouncementResponseDto {
+export class AnnouncementResponseDto implements IAnnouncementResponse {
   referenceId: string;
 }
 
-export class UploadResponseDto {
+export class UploadResponseDto implements IUploadResponseV1 {
   assetIds: string[];
 }
 
-export class FilesUploadDto {
+export class FilesUploadDto implements IFilesUpload {
   @IsArray()
   @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
   files: any[];

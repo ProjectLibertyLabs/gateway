@@ -62,7 +62,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError();
       }
-      this.logger.info(`Processing job ${job.id} of type ${job.name}`);
+      this.logger.debug(`Processing job ${job.id} of type ${job.name}`);
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
@@ -75,19 +75,25 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
           throw new UnrecoverableError('No valid delegation for schema');
         }
       }
+
+      // The messagePublisher.publish handles batching internally
       const [tx, txHash, currentBlockNumber] = await this.messagePublisher.publish(jobData);
 
+      // Store transaction status
       const status: IContentTxStatus = {
-        txHash,
+        txHash: txHash as `0x${string}`,
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),
         death: tx.era.asMortalEra.death(currentBlockNumber),
         referencePublishJob: jobData,
       };
+
+      // Store in Redis with the transaction hash as the key
       const obj = {};
       obj[txHash.toString()] = JSON.stringify(status);
       await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
-      this.logger.trace(`Successfully completed job ${job.id}`);
+
+      this.logger.debug(`Successfully completed job ${job.id}`);
     } catch (e) {
       if (e instanceof DelayedError) {
         job.moveToDelayed(Date.now(), job.token);

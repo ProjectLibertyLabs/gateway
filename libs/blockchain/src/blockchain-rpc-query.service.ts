@@ -128,7 +128,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async getBlockByNumber(blockNumber: AnyNumber | BlockNumber): Promise<SignedBlock> {
-    const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
+    const blockHash = await this.getBlockHash(blockNumber);
     return this.api.rpc.chain.getBlock(blockHash);
   }
 
@@ -802,5 +802,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     ...params: unknown[]
   ): DetectCodec<T, K> {
     return this.api.createType<T, K>(type, ...params);
+  }
+
+  public async maximumCapacityBatchLength(): Promise<number> {
+    return (await this.api.consts.frequencyTxPayment.maximumCapacityBatchLength).toNumber();
   }
 }

@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
-import { Logger } from '@nestjs/common';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { PinoLogger } from 'nestjs-pino';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -14,6 +14,7 @@ export interface IBlockchainScanParameters {
 }
 
 export class EndOfChainError extends Error {}
+
 export class SkipBlockError extends Error {}
 
 function eventName({ event: { section, method } }: FrameSystemEventRecord) {
@@ -37,14 +38,19 @@ export abstract class BlockchainScannerService {
   constructor(
     protected cacheManager: Redis,
     protected readonly blockchainService: BlockchainRpcQueryService,
-    protected readonly logger: Logger,
+    protected readonly logger: PinoLogger,
   ) {
+    // These listeners are still present when the chain.disconnected event is received.
+    // However, it is polkadot-api.service isn't emitting a chain.connected event when the node starts back up.
+    this.logger.setContext(this.constructor.name);
     this.lastSeenBlockNumberKey = `${this.constructor.name}:${LAST_SEEN_BLOCK_NUMBER_KEY}`;
-    blockchainService.on('chain.connected', () => {
-      this.paused = false;
-    });
-    blockchainService.on('chain.disconnected', () => {
+    this.blockchainService.on('chain.disconnected', () => {
+      this.logger.debug('Chain disconnected. Pausing blockchain-scanner service.');
       this.paused = true;
+    });
+    this.blockchainService.on('chain.connected', () => {
+      this.logger.debug('Chain connected. Unpausing blockchain-scanner service.');
+      this.paused = false;
     });
   }
 
@@ -69,27 +75,30 @@ export abstract class BlockchainScannerService {
 
   public async scan(): Promise<void> {
     if (this.scanInProgress) {
-      this.logger.verbose('Scheduled blockchain scan skipped due to previous scan still in progress');
+      this.logger.trace('Scheduled blockchain scan skipped due to previous scan still in progress');
       return;
     }
-
     try {
       // Only scan blocks if initial conditions met
       await this.checkInitialScanParameters();
 
+      // assume we are starting the scan.
       this.scanInProgress = true;
       let currentBlockNumber: number;
       let currentBlockHash: BlockHash;
 
-      const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
-      currentBlockNumber = lastSeenBlockNumber + 1;
-      currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
-
+      // on a disconnect this gets skipped, a scan in progress will be set to false
+      // in the next block of code, and we exit early.
+      if (!this.paused) {
+        const lastSeenBlockNumber = await this.getLastSeenBlockNumber();
+        currentBlockNumber = lastSeenBlockNumber + 1;
+        currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
+      }
       if (!currentBlockHash.some((byte) => byte !== 0)) {
         this.scanInProgress = false;
         return;
       }
-      this.logger.verbose(`Starting scan from block #${currentBlockNumber}`);
+      this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
       // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
@@ -112,16 +121,10 @@ export abstract class BlockchainScannerService {
         currentBlockHash = await this.blockchainService.getBlockHash(currentBlockNumber);
       }
     } catch (e) {
-      if (e instanceof EndOfChainError) {
-        return;
+      if (!(e instanceof EndOfChainError) && !this.paused) {
+        this.logger.error(JSON.stringify(e));
+        throw e;
       }
-
-      this.logger.error(JSON.stringify(e));
-      // Don't propagate the error if scan is paused; it's WHY the scan is paused
-      if (this.paused) {
-        return;
-      }
-      throw e;
     } finally {
       this.scanInProgress = false;
     }

@@ -1,6 +1,8 @@
 # Content Publisher Service
 
-The Content Publisher Service is a crucial component of the Gateway suite, providing a familiar REST API for uploading content and publishing announcements to the Frequency blockchain. This document provides an overview of the service, its architecture, and guides for setup and usage.
+The Content Publisher Service is a crucial component of the Gateway suite, providing a familiar REST API for uploading
+content and publishing announcements to the Frequency blockchain. This document provides an overview of the service, its
+architecture, and guides for setup and usage.
 
 ## 📗 Table of Contents
 
@@ -10,13 +12,16 @@ The Content Publisher Service is a crucial component of the Gateway suite, provi
 - [💻 Getting Started](#getting-started)
 - [🚀 API Documentation](#api-documentation)
 - [🛠 Development](#development)
+- [BullMQ Queues list](#bullmq-queues)
 - [🤝 Contributing](#contributing)
 - [❓ FAQ](#faq)
 - [📝 License](#license)
 
 ## 📖 About the Project <a name="about-project"></a>
 
-The Content Publisher Service is part of the Gateway suite that provides a Web2-friendly interface for blockchain content operations. It handles all necessary blockchain interactions, allowing clients to use familiar REST API patterns for publishing and managing content on the Frequency chain.
+The Content Publisher Service is part of the Gateway suite that provides a Web2-friendly interface for blockchain
+content operations. It handles all necessary blockchain interactions, allowing clients to use familiar REST API patterns
+for publishing and managing content on the Frequency chain.
 
 ## 🔍 Architecture Overview <a name="architecture-overview"></a>
 
@@ -87,7 +92,12 @@ Ensure you have the following installed:
    docker compose up -d frequency redis ipfs
    ```
 
-5. Start the application services:
+5. Set up with account data:
+   ```bash
+   make setup-account
+   ```
+
+6. Start the application services:
 
    API Service:
 
@@ -99,11 +109,6 @@ Ensure you have the following installed:
 
    ```bash
    npm run start:content-publishing-worker:dev
-   ```
-
-6. Set up with account data:
-   ```bash
-   make setup-account
    ```
 
 ### Alternative: Docker Setup
@@ -165,6 +170,37 @@ Auto-format code:
 npm run format
 ```
 
+## BullMQ Queues
+
+Each queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
+
+### Queues for creating and storing batches for specific DSNP message types:
+
+These queues contain individual DSNP message data. `DsnpAnnouncementProcessor`
+enqueues these jobs, and `RequestProcessorService` processes the jobs.
+
+* broadcastQueue: `BroadcastDto`
+* replyQueue: `ReplyDto`
+* reactionQueue: `ReactionDto`
+* updateQueue: `UpdateDto`
+* tombstoneQueue: `TombstoneDto`
+* profileQueue: `ProfileDto`
+
+### Other Queues
+
+These jobs are enqueued within Content Publisher's `ApiService`, triggered by an API call, **except for _statusQueue_**
+
+* **assetQueue** contains metadata about stored assets. , and `AssetProcessor` processes the jobs. No DTO is used.
+* **batchQueue** holds batch file metadata for announcing batch files on Frequency. `BatchProcessor` processes the jobs.
+  DTOs:
+  `BatchFileDto`.
+* **publishQueue** stores on-chain content associated with an MSA, for the purpose of publishing the content on
+  Frequency. `PublishingService` processes the jobs. DTOs: `OnChainContentDto`
+* **requestQueue**: a generic queue available for any announcement type, including DSNP. `RequestProcessorService`
+  processes the jobs. DTOs: `RequestTypeDto`
+
+* **statusQueue**: stores jobs that need to run periodically, and items that need their status checked: No DTO used.
+
 ### Built With
 
 - **Server Framework**: NestJS, Node.js, TypeScript
@@ -177,13 +213,15 @@ npm run format
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md) and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
+We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
 **Q: Can I use this service in my production social app?**
 
-_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on Frequency._
+_Yes, Gateway Services are designed to be ready-to-use out of the box as part of your own social media app using DSNP on
+Frequency._
 
 ## 📝 License <a name="license"></a>
 

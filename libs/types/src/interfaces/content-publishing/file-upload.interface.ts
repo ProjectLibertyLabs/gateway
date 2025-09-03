@@ -15,3 +15,32 @@ export interface IFileResponse {
 export interface IUploadResponse {
   files: IFileResponse[];
 }
+
+/**
+ * Response for content publishing announcement endpoint
+ */
+export interface IAnnouncementResponse {
+  referenceId: string;
+}
+
+/**
+ * Upload response containing asset IDs
+ */
+export interface IUploadResponseV1 {
+  assetIds: string[];
+}
+
+/**
+ * Files upload request DTO interface
+ */
+export interface IFilesUpload {
+  files: any[];
+}
+
+/**
+ * Interface for tracking successful file uploads with their original index
+ */
+export interface ISuccessfulUpload {
+  uploadResult: IFileResponse;
+  originalIndex: number;
+}

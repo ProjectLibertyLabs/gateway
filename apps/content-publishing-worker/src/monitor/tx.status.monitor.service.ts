@@ -1,13 +1,13 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ContentPublishingQueues as QueueConstants, SECONDS_PER_BLOCK, TXN_WATCH_LIST_KEY } from '#types/constants';
-import { BlockchainScannerService } from '#content-publishing-lib/utils/blockchain-scanner.service';
+import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
@@ -15,6 +15,7 @@ import { HexString } from '@polkadot/util/types';
 import { IContentTxStatus, IPublisherJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class TxStatusMonitoringService extends BlockchainScannerService {
@@ -45,8 +46,9 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     @Inject(workerConfig.KEY) private readonly config: IContentPublishingWorkerConfig,
     private readonly capacityService: CapacityCheckerService,
     @InjectQueue(QueueConstants.PUBLISH_QUEUE_NAME) private readonly publishQueue: Queue,
+    protected readonly logger: PinoLogger,
   ) {
-    super(cacheManager, blockchainService, new Logger(TxStatusMonitoringService.prototype.constructor.name));
+    super(cacheManager, blockchainService, logger);
     this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
     this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
       this.capacityService.checkForSufficientCapacity(),

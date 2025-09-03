@@ -62,6 +62,20 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
       describe: 'Duration after which pins expire, e.g. 72h or 30m. Default is no expiration',
       joi: Joi.string().isoDate().allow('').empty('').default(''),
     },
+
+    // // Common settings
+    // requestTimeoutMs: {
+    //   label: 'IPFS_REQUEST_TIMEOUT_MS',
+    //   joi: Joi.number().positive().default(30000),
+    // },
+    // retryAttempts: {
+    //   label: 'IPFS_RETRY_ATTEMPTS',
+    //   joi: Joi.number().min(0).default(3),
+    // },
+    // enableHealthChecks: {
+    //   label: 'IPFS_ENABLE_HEALTH_CHECKS',
+    //   joi: Joi.boolean().default(true),
+    // },
   });
 
   return JoiUtils.validate<IIpfsConfig>(configs);

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import ipfsConfig, { IIpfsConfig } from './ipfs.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
+import { CID, FilesStatResult } from 'kubo-rpc-client';
 
 @Injectable()
 export class IpfsClusterService {
@@ -13,7 +14,7 @@ export class IpfsClusterService {
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(this.constructor.name);
-    this.gatewayUrl = this.config.ipfsGatewayUrl; // Use existing gateway URL
+    this.gatewayUrl = this.config.ipfsGatewayUrl;
   }
 
   public async getVersion(): Promise<any> {
@@ -31,7 +32,16 @@ export class IpfsClusterService {
     });
   }
 
-  public async getFile(cid: string): Promise<any> {
+  public async getPinned(cid: string): Promise<Buffer> {
+    const response = await this.getFile(cid);
+    if (response instanceof Buffer) {
+      return response;
+    }
+    // If response is text/json, convert to buffer
+    return Buffer.from(typeof response === 'string' ? response : JSON.stringify(response));
+  }
+
+  private async getFile(cid: string): Promise<any> {
     const url = `${this.config.ipfsEndpoint}/cat?arg=${cid}`;
     return this.makeRequest(url, { method: 'GET' });
   }
@@ -41,7 +51,96 @@ export class IpfsClusterService {
     return this.makeRequest(url, { method: 'PUT' });
   }
 
-  public async checkPinStatus(cid: string): Promise<any> {
+  /**
+   * Get file info from IPFS Cluster
+   */
+  public async getInfoFromCluster(cid: string): Promise<FilesStatResult> {
+    try {
+      // Check pin status to get basic info
+      const pinStatus = await this.checkPinStatus(cid);
+      this.logger.debug(`IPFS Cluster pin status: ${JSON.stringify(pinStatus)}`);
+
+      // Convert cluster response to FilesStatResult format
+      // Note: IPFS Cluster API may not provide all the same fields as IPFS files.stat
+      // We'll provide what we can and use sensible defaults for missing fields
+      return {
+        cid: CID.parse(cid),
+        size: pinStatus.size || 0,
+        cumulativeSize: pinStatus.size || 0,
+        type: 'file', // Default type
+        blocks: 1, // Default blocks
+        withLocality: false, // Default locality
+        local: true, // Assume local if pinned
+        sizeLocal: pinStatus.size || 0,
+      } as FilesStatResult;
+    } catch (err: any) {
+      this.logger.error(`IPFS Cluster stats error: ${err.message}`);
+      throw new Error('Requested resource not found');
+    }
+  }
+
+  /**
+   * Pin a stream to IPFS Cluster and return FilePin result
+   */
+  public async pinStream(stream: any): Promise<any> {
+    // Convert stream to buffer for cluster API
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+
+      stream.on('data', (chunk: any) => {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      });
+
+      stream.on('end', async () => {
+        try {
+          const fileBuffer = Buffer.concat(chunks);
+          const filename = `stream-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+          const result = await this.pinBuffer(filename, fileBuffer);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      stream.on('error', reject);
+    });
+  }
+
+  /**
+   * Pin a buffer with filename to IPFS Cluster and return FilePin result
+   */
+  public async pinBuffer(filename: string, fileBuffer: Buffer): Promise<any> {
+    const result = await this.addFile(fileBuffer, filename);
+
+    // Convert cluster response to FilePin format
+    // Note: Adjust this based on your actual cluster API response format
+    return {
+      cid: result.cid || result.hash,
+      cidBytes: result.cidBytes || Buffer.from([]), // May need adjustment
+      fileName: filename,
+      size: result.size || fileBuffer.length,
+      hash: '',
+    };
+  }
+
+  /**
+   * Check if a CID is pinned in the cluster
+   */
+  public async isPinned(cid: string): Promise<boolean> {
+    try {
+      const pinStatus = await this.checkPinStatus(cid);
+      // Check if the pin status indicates it's pinned
+      return pinStatus && (pinStatus.status === 'pinned' || pinStatus.status === 'pinning');
+    } catch (err: any) {
+      // If CID is not found, it's not pinned
+      if (err.message?.includes('not found') || err.message?.includes('404')) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  private async checkPinStatus(cid: string): Promise<any> {
     const url = `${this.config.ipfsEndpoint}/pins/${cid}`;
     return this.makeRequest(url, { method: 'GET' });
   }

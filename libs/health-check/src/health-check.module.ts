@@ -8,7 +8,7 @@ import { HEALTH_CONFIGS } from '#types/constants/health-check.constants';
 
 export interface HealthModuleOptions {
   // The list of config provider tokens
-  configKeys: (string | symbol)[];
+  configKeys: ConfigFactoryKeyHost['KEY'][];
 }
 
 @Module({})

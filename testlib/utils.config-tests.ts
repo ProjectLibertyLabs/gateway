@@ -1,5 +1,5 @@
 import { InjectionToken, ValueProvider } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigFactoryKeyHost, ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 
 export function GenerateMockProvider<T>(

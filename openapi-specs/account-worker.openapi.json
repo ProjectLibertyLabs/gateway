@@ -4,13 +4,13 @@
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
-        "summary": "Check the health status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is healthy"
           }
         },
+        "summary": "Check the health status of the service",
         "tags": [
           "health"
         ]
@@ -19,13 +19,13 @@
     "/livez": {
       "get": {
         "operationId": "HealthController_livez",
-        "summary": "Check the live status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is live"
           }
         },
+        "summary": "Check the live status of the service",
         "tags": [
           "health"
         ]
@@ -34,13 +34,13 @@
     "/readyz": {
       "get": {
         "operationId": "HealthController_readyz",
-        "summary": "Check the ready status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is ready"
           }
         },
+        "summary": "Check the ready status of the service",
         "tags": [
           "health"
         ]
@@ -54,7 +54,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Prometheus"
+        ]
       }
     }
   },

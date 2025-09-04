@@ -5,6 +5,7 @@ import { getPinoHttpOptions } from '#logger-lib';
 
 import { HealthCheckService } from './health-check.service';
 import { HEALTH_CONFIGS } from '#types/constants/health-check.constants';
+import { ConfigFactoryKeyHost } from '@nestjs/config';
 
 export interface HealthModuleOptions {
   // The list of config provider tokens

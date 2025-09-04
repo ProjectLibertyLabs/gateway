@@ -15,7 +15,6 @@ export class DelegationsControllerV2 {
     @InjectPinoLogger(DelegationsControllerV2.name) private readonly logger: PinoLogger,
   ) {}
 
-  // eslint-disable-next-line class-methods-use-this
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all delegation information associated with an MSA Id' })
@@ -24,7 +23,6 @@ export class DelegationsControllerV2 {
     return this.delegationService.getDelegationV2(msaId);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   @Get(':msaId/:providerId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Get an MSA's delegation information for a specific provider" })

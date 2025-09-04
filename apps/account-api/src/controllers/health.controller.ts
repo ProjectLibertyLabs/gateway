@@ -6,14 +6,10 @@ import { HealthResponseDto } from '#types/dtos/common/health.response.dto';
 @Controller()
 @ApiTags('health')
 export class HealthController {
-  constructor(
-    private readonly healthCheckService: HealthCheckService,
-    // eslint-disable-next-line no-empty-function
-  ) {}
+  constructor(private readonly healthCheckService: HealthCheckService) {}
 
   // Health endpoint
 
-  // eslint-disable-next-line class-methods-use-this
   @Get('healthz')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the health status of the service' })
@@ -23,7 +19,7 @@ export class HealthController {
   }
 
   // Live endpoint
-  // eslint-disable-next-line class-methods-use-this
+
   @Get('livez')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the live status of the service' })
@@ -36,7 +32,7 @@ export class HealthController {
   }
 
   // Ready endpoint
-  // eslint-disable-next-line class-methods-use-this
+
   @Get('readyz')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Check the ready status of the service' })

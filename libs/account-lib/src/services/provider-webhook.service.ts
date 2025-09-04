@@ -50,11 +50,10 @@ export class ProviderWebhookService implements OnModuleDestroy {
   private async checkProviderWebhook() {
     // Check webhook
     try {
-      // eslint-disable-next-line no-await-in-loop
       await this.webhook.get(`/health`);
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;
-    } catch (e) {
+    } catch (_e) {
       // Reset healthCheckSuccesses to 0 on failure. We will not go out of waiting for recovery until there
       // are a number of sequential healthy responses equaling healthCheckSuccessesThreshold.
       this.successfulHealthChecks = 0;

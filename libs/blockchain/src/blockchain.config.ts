@@ -42,7 +42,6 @@ const capacityLimitsSchema = Joi.object({
   totalLimit: capacityLimitSchema,
 });
 
-// eslint-disable-next-line no-shadow
 enum ChainMode {
   PROVIDER_SEED_REQUIRED,
   PROVIDER_SEED_OPTIONAL,

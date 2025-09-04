@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { OmitType } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';

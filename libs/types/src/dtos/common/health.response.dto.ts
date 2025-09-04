@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { IsNotEmpty, IsRFC3339 } from 'class-validator';
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';

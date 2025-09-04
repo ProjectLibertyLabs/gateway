@@ -25,7 +25,6 @@ export const bigintSchema = (options?: IBigIntOptions) =>
 export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {
   const updatedConfig = { ...config };
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const key in updatedConfig) {
     if (Object.prototype.hasOwnProperty.call(updatedConfig, key)) {
       if (updatedConfig[key]?.label) {
@@ -51,7 +50,7 @@ export const jsonObjectSchema = Joi.string()
       if (typeof parsed !== 'object' || Array.isArray(parsed)) {
         return helpers.error('jsonObject.nonObject');
       }
-    } catch (err: any) {
+    } catch (_err: any) {
       return helpers.error('jsonObject.invalid');
     }
     return parsed;

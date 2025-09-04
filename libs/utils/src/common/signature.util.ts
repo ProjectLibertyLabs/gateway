@@ -49,7 +49,7 @@ export const verifySignature = (
       isValid,
       isWrapped,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       isValid: false,
       isWrapped: false,

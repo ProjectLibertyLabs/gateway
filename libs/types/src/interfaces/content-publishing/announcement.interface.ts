@@ -1,7 +1,5 @@
-// eslint-disable-next-line max-classes-per-file
 import { INoteActivity, IProfileActivity } from './activity.interface';
 
-// eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementType {
   BROADCAST = 'broadcast',
   REPLY = 'reply',

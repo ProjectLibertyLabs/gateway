@@ -30,7 +30,6 @@ function sortObject(obj: any) {
   return Object.keys(obj)
     .sort()
     .reduce((result, key) => {
-      // eslint-disable-next-line no-param-reassign
       result[key] = obj[key];
       return result;
     }, {});
@@ -136,7 +135,6 @@ export class HealthCheckService {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private getLogConfig(): LoggingConfigDto {
     return {
       logLevel: process.env?.LOG_LEVEL,

@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { IsNotEmpty, IsString, IsUrl, MinLength } from 'class-validator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';

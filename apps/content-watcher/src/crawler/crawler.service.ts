@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
 import Redis from 'ioredis';
@@ -46,11 +45,10 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
         this.logger.debug(`No starting block specified; starting from end of chain at block ${upperBoundBlock}`);
       }
       upperBoundBlock = Math.min(upperBoundBlock, latestBlock);
-      // eslint-disable-next-line no-param-reassign
+
       job.data.upperBoundBlock = upperBoundBlock;
       // Make sure blockCount is not longer than the current chain length
       if (job.data.blockCount >= upperBoundBlock) {
-        // eslint-disable-next-line no-param-reassign
         job.data.blockCount = upperBoundBlock;
       }
       this.logger.debug(`Searching backwards from ${upperBoundBlock} for ${job.data.blockCount} blocks!`);
@@ -67,7 +65,6 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
       blockList = blockList.slice(CRAWLER_BLOCK_CHUNK_SIZE);
 
       if (blockList.length > 0) {
-        // eslint-disable-next-line no-param-reassign
         job.data.blockCount = blockList.length;
         await job.updateData(job.data);
         await job.moveToDelayed(Date.now());
@@ -100,7 +97,7 @@ export class CrawlerService extends BaseConsumer implements OnApplicationBootstr
         const messages = await this.chainEventService.getMessagesInBlock(blockNumber, filters);
         if (messages.length > 0) {
           blockSummaries.push({ blockNumber, messageCount: messages.length });
-          // eslint-disable-next-line no-await-in-loop
+
           await ChainEventProcessorService.queueIPFSJobs(messages, this.ipfsQueue, clientReferenceId, webHookUrl);
         }
       }),

@@ -60,7 +60,7 @@ describe('Timeout Interceptor Tests', () => {
   );
 
   it('(GET) /timeout should log the route if a timeout exception is thrown', async () => {
-    const logger: Logger = (interceptor as unknown as any).logger;
+    const { logger } = interceptor as unknown as any;
     const logSpy = jest.spyOn(logger, 'error');
     await request(httpServer).get('/timeout');
     expect(logSpy).toHaveBeenCalledWith(expect.any(String), expect.stringMatching('GET /timeout'));

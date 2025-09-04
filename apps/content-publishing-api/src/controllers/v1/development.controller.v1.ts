@@ -2,7 +2,6 @@
 This is a controller providing some endpoints useful for development and testing.
 */
 
-// eslint-disable-next-line max-classes-per-file
 import { Controller, Get, Param, Post } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -65,7 +64,7 @@ export class DevelopmentControllerV1 {
   @ApiOperation({ summary: 'Create dummy announcement data', description: 'ONLY enabled when ENVIRONMENT="dev".' })
   async populate(@Param('queueType') queueType: AnnouncementTypeName, @Param('count') count: number) {
     const promises: Promise<Job>[] = [];
-    // eslint-disable-next-line no-plusplus
+
     for (let i = 0; i < count; i++) {
       let data:
         | BroadcastAnnouncement
@@ -74,7 +73,7 @@ export class DevelopmentControllerV1 {
         | ReplyAnnouncement
         | ReactionAnnouncement
         | TombstoneAnnouncement;
-      // eslint-disable-next-line default-case
+
       const fromId = `${Math.floor(Math.random() * 100000000)}`;
       const hash = `${Math.floor(Math.random() * 100000000)}`;
       switch (queueType) {
@@ -115,7 +114,7 @@ export class DevelopmentControllerV1 {
         default:
           throw new Error('Announcement type not supported');
       }
-      // eslint-disable-next-line no-await-in-loop
+
       const jobId = await calculateDsnpMultiHash(Buffer.from(JSON.stringify(data)));
       const queue = this.queueMapper.get(queueType);
       if (queue) {

@@ -1,4 +1,5 @@
 // Use 'require' instead of 'import' here to get around a bug in the 'pino-pretty' package
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { isColorSupported } = require('pino-pretty');
 
 export function getCurrentLogLevel(): string {

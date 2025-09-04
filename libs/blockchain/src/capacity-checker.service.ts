@@ -46,7 +46,6 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
     }
   }
 
-  // eslint-disable-next-line no-useless-constructor
   constructor(
     private readonly blockchainService: BlockchainRpcQueryService,
     @Inject(blockchainConfig.KEY) private readonly config: IBlockchainConfig,

@@ -11,6 +11,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class WebhooksControllerV1 {
   constructor(
     private apiService: ApiService,
+
     @InjectPinoLogger(WebhooksControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 

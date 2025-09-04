@@ -2,7 +2,7 @@ import { FilesUploadDto, UploadResponseDtoV2 } from '#types/dtos/content-publish
 import { Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiService } from '../../api.service';
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import Busboy from 'busboy';
 import { Request, Response } from 'express';
 import apiConfig, { IContentPublishingApiConfig } from '../../api.config';

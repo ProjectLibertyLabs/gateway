@@ -55,7 +55,7 @@ export class BatchAnnouncer {
       publishStream as any,
       writerOptions,
     );
-    // eslint-disable-next-line no-restricted-syntax
+
     for await (const announcement of announcements) {
       await writer.appendRow(announcement);
     }
@@ -93,7 +93,7 @@ export class BatchAnnouncer {
         };
         this.logger.debug(`Created job to announce existing batch: ${JSON.stringify(response)}`);
         return response;
-      } catch (err) {
+      } catch (_err) {
         // If we get here, the file exists but might need to be pinned
         await this.ipfsService.tryPin(batch.cid);
         const info = await this.ipfsService.getInfoFromLocalNode(batch.cid);

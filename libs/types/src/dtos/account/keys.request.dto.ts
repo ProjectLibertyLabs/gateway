@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { HexString } from '@polkadot/util/types';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';

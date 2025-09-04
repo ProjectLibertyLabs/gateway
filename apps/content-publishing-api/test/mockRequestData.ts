@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/extensions, import/no-unresolved
 // import { randomString } from 'https://jslib.k6.io/k6-utils/1.6.0/index.js';
 
 export const validLocation = {

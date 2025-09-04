@@ -59,7 +59,6 @@ export async function calculateIncrementalDsnpMultiHash(stream: Stream | AsyncIt
   }
 
   // Else, handle an async byte array (such as fetched from IPFS)
-  // eslint-disable-next-line no-restricted-syntax
   for await (const chunk of stream) {
     hash.update(chunk);
   }

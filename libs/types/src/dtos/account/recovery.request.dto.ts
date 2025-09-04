@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { IsHexValue } from '#utils/decorators';
 import { HexString } from '@polkadot/util/types';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';

@@ -50,7 +50,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
   }
@@ -95,7 +95,6 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           break;
         }
         case TransactionType.SIWF_SIGNUP: {
-          // eslint-disable-next-line prettier/prettier
           const txns = job.data.calls?.map((x) => this.blockchainService.createTxFromEncoded(x.encodedExtrinsic));
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
           [tx, txHash, blockNumber] = await this.processBatchTxn(callVec);
@@ -301,7 +300,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     );
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
 

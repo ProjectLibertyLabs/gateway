@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow
 export enum AnnouncementType {
   Tombstone = 0,
   Broadcast = 2,
@@ -8,7 +7,6 @@ export enum AnnouncementType {
   Update = 6,
 }
 
-// eslint-disable-next-line no-shadow
 export enum AnnouncementTypeName {
   TOMBSTONE = 'tombstone',
   BROADCAST = 'broadcast',

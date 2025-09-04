@@ -35,7 +35,6 @@ describe('HandlesService', () => {
     handlesService = moduleRef.get(HandlesService);
   });
   it('verifyHandleRequestSignature works with ethereum keys', async () => {
-    // @ts-ignore
     const keyPair = createRandomEthereumKey();
 
     const handleKeyData = createClaimHandlePayload('Howdy Doody', 100);

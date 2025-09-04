@@ -3,7 +3,7 @@ import { registerDecorator, ValidationOptions, ValidationArguments } from 'class
 
 export function IsSchemaName(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line func-names
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'IsSchemaName',
       target: object.constructor,

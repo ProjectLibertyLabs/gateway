@@ -266,7 +266,6 @@ describe('SiwfV2Service', () => {
         });
 
         it('Should throw BadRequest if the payload is for a different provider id', async () => {
-          // @ts-ignore
           jest.spyOn(mockBlockchainConfigProvider.useValue, 'providerId', 'get').mockReturnValue(BigInt(2222));
           await expect(
             siwfV2Service.getPayload({

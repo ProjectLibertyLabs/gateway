@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { HexString } from '@polkadot/util/types';
 import { RetireMsaPayloadResponseDto } from './accounts.response.dto';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';

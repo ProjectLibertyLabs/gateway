@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { GraphKeyPairDto } from '#types/dtos/graph/graph-key-pair.dto';
 import graphCommonConfig, { IGraphCommonConfig } from '#config/graph-common.config';

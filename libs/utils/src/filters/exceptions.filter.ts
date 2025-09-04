@@ -30,7 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const errorReference = this.uid.rnd();
     if (exception instanceof InternalServerErrorException || !(exception instanceof HttpException)) {
-      // @ts-ignore
+      // @ts-expect-error internal server or other non http exception
       this.logger.error(`ErrorReference [${errorReference}] : ${exception.stack}`);
     } else {
       this.logger.error(`ErrorReference [${errorReference}] : ${exception}`);
@@ -55,8 +55,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     httpAdapter.reply(ctx.getResponse(), extendedBody, httpStatus);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  extractErrorResponse(response: object | String): object {
+  extractErrorResponse(response: object | string): object {
     if (typeof response === 'string') {
       return {
         message: response,

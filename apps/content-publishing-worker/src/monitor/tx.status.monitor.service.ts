@@ -89,12 +89,11 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
         return sum;
       }, 0n);
 
-      // eslint-disable-next-line no-restricted-syntax
       for (const [txHash, txIndex] of extrinsicIndices) {
         const extrinsicEvents = events.filter(
           ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
         );
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         const txStatusStr = (await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash))!;
         const txStatus = JSON.parse(txStatusStr) as IContentTxStatus;
         const successEvent = extrinsicEvents.find(
@@ -162,7 +161,7 @@ export class TxStatusMonitoringService extends BlockchainScannerService {
     }
 
     // Now check all pending transactions for expiration as of this block
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const { birth, death, txHash, referencePublishJob } of pendingTxns) {
       if (death <= currentBlockNumber) {
         this.logger.warn(

@@ -12,7 +12,7 @@ export function validateCidV1(value: unknown): boolean {
     if (cid.version !== 1) {
       return false;
     }
-  } catch (err: any) {
+  } catch (_err: any) {
     return false;
   }
   return true;

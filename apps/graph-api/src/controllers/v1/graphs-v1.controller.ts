@@ -10,6 +10,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class GraphControllerV1 {
   constructor(
     private apiService: ApiService,
+
     @InjectPinoLogger(GraphControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 

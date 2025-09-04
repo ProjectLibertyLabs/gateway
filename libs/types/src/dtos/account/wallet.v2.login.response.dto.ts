@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class GraphKeySubject {
@@ -166,5 +165,5 @@ export class WalletV2LoginResponseDto {
       },
     ],
   })
-  rawCredentials?: Object[];
+  rawCredentials?: object[];
 }

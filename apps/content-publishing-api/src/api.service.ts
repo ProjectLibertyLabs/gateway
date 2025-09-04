@@ -167,7 +167,6 @@ export class ApiService {
     return map;
   }
 
-  // eslint-disable-next-line no-undef
   async addAssets(files: Express.Multer.File[]): Promise<UploadResponseDto> {
     // calculate ipfs cid references
     const referencePromises: Promise<string>[] = files.map((file) => calculateIpfsCID(file.buffer));
@@ -365,14 +364,13 @@ export class ApiService {
         STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
         JSON.stringify(assetCache),
       );
-    } catch (error: any) {
+    } catch (_error: any) {
       // If there was an error caching the metadata, it's okay--we'll just have to retrieve the file again later to compute the hash
       this.logger.warn(`Unexpected error caching asset metadata for ${filename} (${uploadResult.cid})`);
     }
     return { cid: uploadResult.cid };
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private calculateJobId(jobWithoutId: unknown): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');

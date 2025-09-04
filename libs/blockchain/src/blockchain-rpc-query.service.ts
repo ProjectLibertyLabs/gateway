@@ -1,5 +1,3 @@
-/* eslint-disable new-cap */
-/* eslint-disable no-underscore-dangle */
 /*
  * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
  *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
@@ -426,7 +424,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async getEvents(blockHash?: Uint8Array | string): Promise<FrameSystemEventRecord[]> {
-    // eslint-disable-next-line prefer-destructuring
     let api: ApiPromise | ApiDecoration<'promise'> = this.api;
     if (blockHash) {
       api = await this.api.at(blockHash);
@@ -468,11 +465,10 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  // eslint-disable-next-line consistent-return, class-methods-use-this
+  // eslint-disable-next-line consistent-return
   public async getRawPayloadForSigning(
     tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
     signerAddress: string,
-    // eslint-disable-next-line consistent-return
   ): Promise<SignerPayloadRaw> {
     let signRaw;
     try {

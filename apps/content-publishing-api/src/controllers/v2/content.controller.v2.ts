@@ -30,7 +30,6 @@ export class ContentControllerV2 {
     @Inject(apiConfig.KEY) private readonly appConfig: IContentPublishingApiConfig,
     private readonly apiService: ApiService,
     private readonly blockchainService: BlockchainRpcQueryService,
-    // eslint-disable-next-line no-empty-function
   ) {}
 
   @Post(':msaId/on-chain')

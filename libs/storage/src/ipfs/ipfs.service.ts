@@ -52,7 +52,7 @@ export class IpfsService {
     }
     const bytesIter = this.ipfs.cat(cid);
     const chunks = [];
-    // eslint-disable-next-line no-restricted-syntax
+
     for await (const chunk of bytesIter) {
       chunks.push(chunk);
     }
@@ -96,7 +96,7 @@ export class IpfsService {
     this.logger.trace(`Requesting pin info from IPFS for ${cid} (${v0Cid})`);
     try {
       const r = this.ipfs.pin.ls({ paths: v0Cid, type: 'all' });
-      // eslint-disable-next-line no-restricted-syntax
+
       for await (const pin of r) {
         if (pin.cid.toString() === v0Cid) {
           return true;

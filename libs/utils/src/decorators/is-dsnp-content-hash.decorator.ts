@@ -23,7 +23,7 @@ export function validateContentHash(contentHash: unknown): boolean {
     if (!(hex.startsWith('0x1e20') || hex.startsWith('0x1220'))) {
       return false;
     }
-  } catch (err: any) {
+  } catch (_err: any) {
     return false;
   }
   return true;

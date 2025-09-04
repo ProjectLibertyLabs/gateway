@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import { BlockchainService } from '#blockchain/blockchain.service';
@@ -100,7 +99,6 @@ export abstract class AccountBlockchainScannerService {
       }
       this.logger.trace(`Starting scan from block #${currentBlockNumber}`);
 
-      // eslint-disable-next-line no-constant-condition
       while (!this.paused) {
         try {
           await this.checkScanParameters(currentBlockNumber, currentBlockHash); // throws when end-of-chain reached
@@ -138,12 +136,10 @@ export abstract class AccountBlockchainScannerService {
     await this.cacheManager.set(this.lastSeenBlockNumberKey, b);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected checkInitialScanParameters(): Promise<void> {
     return Promise.resolve();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected async checkScanParameters(blockNumber: number, blockHash: BlockHash): Promise<void> {
     if (blockHash.isEmpty) {
       throw new EndOfChainError(`Empty block hash encountered; end of chain at block ${blockNumber}`);

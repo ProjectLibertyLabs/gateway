@@ -64,7 +64,7 @@ export class IPFSContentProcessor extends BaseConsumer implements OnApplicationB
       let record = await cursor.next();
       while (record) {
         records.push(record);
-        // eslint-disable-next-line no-await-in-loop
+
         record = await cursor.next();
       }
 

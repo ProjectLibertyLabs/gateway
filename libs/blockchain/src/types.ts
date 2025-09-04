@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 /*
  * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
  *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-

@@ -1,5 +1,3 @@
-/* eslint-disable new-cap */
-/* eslint-disable no-underscore-dangle */
 /*
  * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
  *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
@@ -291,7 +289,6 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
       await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS / 2, nonce);
     }
     const keys = getNextPossibleNonceKeys(nonce);
-    // @ts-ignore
     const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
       this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
@@ -343,11 +340,10 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
    * @returns The default mortality period for transactions.
    */
   public get defaultMortalityPeriod(): number {
+    const blockTime = this.blockTimeMs ? new BN(this.blockTimeMs) : FALLBACK_PERIOD;
     return Math.min(
       this.api.consts.system?.blockHashCount?.toNumber() || FALLBACK_MAX_HASH_COUNT,
-      MORTAL_PERIOD.div(new BN(this.blockTimeMs) || FALLBACK_PERIOD)
-        .iadd(MAX_FINALITY_LAG)
-        .toNumber(),
+      MORTAL_PERIOD.div(blockTime).iadd(MAX_FINALITY_LAG).toNumber(),
     );
   }
 }

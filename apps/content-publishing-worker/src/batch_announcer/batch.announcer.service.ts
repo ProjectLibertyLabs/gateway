@@ -29,7 +29,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
   async onModuleDestroy(): Promise<any> {
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (e) {
+    } catch (_e) {
       // 💀 //
     }
     // calling in the end for graceful shutdowns
@@ -42,7 +42,7 @@ export class BatchAnnouncementService extends BaseConsumer implements OnApplicat
       const publisherJob = await (isExistingBatch(job.data)
         ? this.ipfsPublisher.announceExistingBatch(job.data)
         : this.ipfsPublisher.announce(job.data));
-      // eslint-disable-next-line no-promise-executor-return
+
       await this.publishQueue.add(publisherJob.id, publisherJob, {
         jobId: publisherJob.id,
         removeOnComplete: 1000,

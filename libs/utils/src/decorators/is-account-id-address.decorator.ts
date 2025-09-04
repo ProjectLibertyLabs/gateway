@@ -30,7 +30,7 @@ export function IsAccountIdOrAddress(validationOptions?: ValidationOptions) {
               encodeAddress(value);
               return true;
             }
-          } catch (error) {
+          } catch (_error) {
             // invalid account throws error
           }
           return false;

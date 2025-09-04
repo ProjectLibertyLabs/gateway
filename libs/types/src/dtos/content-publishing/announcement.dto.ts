@@ -1,7 +1,7 @@
 /**
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
-// eslint-disable-next-line max-classes-per-file
+
 import { IsArray, IsEnum, IsNotEmpty, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
@@ -25,7 +25,6 @@ import {
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { IsCidV1 } from '#utils/decorators/is-cidv1.decorator';
 
-// eslint-disable-next-line no-shadow
 export enum ModifiableAnnouncementType {
   BROADCAST = 'broadcast',
   REPLY = 'reply',

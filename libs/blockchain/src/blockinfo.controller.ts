@@ -8,7 +8,7 @@ export class BlockInfoController {
   constructor(private blockchainService: BlockchainRpcQueryService) {}
 
   // BlockInfo endpoint
-  // eslint-disable-next-line class-methods-use-this
+
   @Get('blockinfo')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get information about current block' })

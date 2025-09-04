@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { HexString } from '@polkadot/util/types';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';

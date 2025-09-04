@@ -95,9 +95,8 @@ export class ApiService implements BeforeApplicationShutdown {
   async watchGraphs(watchGraphsDto: WatchGraphsDto): Promise<boolean> {
     let itemsAdded = false;
     const ids = watchGraphsDto?.dsnpIds || [REDIS_WEBHOOK_ALL];
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const dsnpId of ids) {
-      // eslint-disable-next-line no-await-in-loop
       const result = await this.watchGraphForMsa(dsnpId, watchGraphsDto.webhookEndpoint);
       itemsAdded = itemsAdded || result;
     }
@@ -198,9 +197,8 @@ export class ApiService implements BeforeApplicationShutdown {
     const { dsnpIds, privacyType, connectionType } = queryParams;
     const graphKeyPairs = queryParams.graphKeyPairs || [];
     const graphs: UserGraphDto[] = [];
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const dsnpId of dsnpIds) {
-      // eslint-disable-next-line no-await-in-loop
       try {
         const graphEdges = await this.asyncDebouncerService.getGraphForDsnpId(
           dsnpId,
@@ -222,7 +220,6 @@ export class ApiService implements BeforeApplicationShutdown {
     return graphs;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   private calculateJobId(jobWithoutId: ProviderGraphDto): string {
     const stringVal = JSON.stringify(jobWithoutId);
     return createHash('sha1').update(stringVal).digest('base64url');

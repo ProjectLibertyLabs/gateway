@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import { UnitTypeEnum } from '#types/enums/unit-type.enum';
 import { TagTypeEnum } from '#types/enums/tag-type.enum';
 

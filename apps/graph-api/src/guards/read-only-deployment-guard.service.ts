@@ -3,7 +3,6 @@ import { Injectable, CanActivate, ExecutionContext, Inject } from '@nestjs/commo
 
 @Injectable()
 export class ReadOnlyDeploymentGuard implements CanActivate {
-  // eslint-disable-next-line no-useless-constructor, no-empty-function
   constructor(@Inject(blockchainConfig.KEY) private config: IBlockchainConfig) {}
 
   canActivate(context: ExecutionContext): boolean {

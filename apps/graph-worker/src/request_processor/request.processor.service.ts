@@ -63,7 +63,7 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
       const lastProcessedDsnpId = await this.cacheManager.get(LAST_PROCESSED_DSNP_ID_KEY);
       if (lastProcessedDsnpId && lastProcessedDsnpId === job.data.dsnpId) {
         this.logger.debug(`Delaying processing of job ${job.id} for ${blockDelay}ms`);
-        // eslint-disable-next-line no-await-in-loop
+
         await new Promise((r) => {
           setTimeout(r, blockDelay);
         });
@@ -113,7 +113,7 @@ export class RequestProcessorService extends BaseConsumer implements OnApplicati
         // @ts-expect-error updateLastProcessed is defined in the constructor
         await this.cacheManager.updateLastProcessed(LAST_PROCESSED_DSNP_ID_KEY, dsnpId.toString(), blockDelay);
         this.logger.debug(`Re-imported bundles for ${dsnpId.toString()}`);
-        // eslint-disable-next-line no-await-in-loop
+
         const userGraphExists = this.graphStateManager.graphContainsUser(dsnpId.toString());
         if (!userGraphExists) {
           throw new Error(`User graph does not exist for ${dsnpId.toString()}`);

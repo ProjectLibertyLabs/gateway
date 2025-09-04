@@ -16,8 +16,10 @@ export const ISO8601_REGEX =
 export const DSNP_EMOJI_REGEX = /^[\u{2000}-\u{2BFF}\u{E000}-\u{FFFF}\u{1F000}-\u{FFFFF}]+$/u;
 /**
  * Activity Stream Duration based on https://www.w3.org/TR/activitystreams-vocabulary/#dfn-duration
+ * Enforce strict ISO 8601 duration format
  */
-export const DURATION_REGEX = /^-?P(([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T([0-9]+H)?([0-9]+M)?([0-9]+(\.[0-9]+)?S)?)?)+$/;
+export const DURATION_REGEX =
+  /^-?P(?:\d+Y(?:\d+M(?:\d+D)?)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|\d+M(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|\d+D(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|T(?:\d+H(?:\d+M(?:\d+(?:\.\d+)?S)?)?|\d+M(?:\d+(?:\.\d+)?S)?|\d+(?:\.\d+)?S))$/;
 /**
  * Dsnp attachments mime types
  */

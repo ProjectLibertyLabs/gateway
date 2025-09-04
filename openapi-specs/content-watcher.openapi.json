@@ -3,8 +3,7 @@
   "paths": {
     "/v1/scanner/reset": {
       "post": {
-        "operationId": "ScanControllerV1_resetScanner",
-        "summary": "Reset blockchain scan to a specific block number or offset from the current position",
+        "operationId": "ScanControllerV1_resetScanner_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -21,6 +20,7 @@
             "description": ""
           }
         },
+        "summary": "Reset blockchain scan to a specific block number or offset from the current position",
         "tags": [
           "v1/scanner"
         ]
@@ -28,8 +28,7 @@
     },
     "/v1/scanner/options": {
       "get": {
-        "operationId": "ScanControllerV1_getWatchOptions",
-        "summary": "Get the current watch options for the blockchain content event scanner",
+        "operationId": "ScanControllerV1_getWatchOptions_v1",
         "parameters": [],
         "responses": {
           "200": {
@@ -43,13 +42,13 @@
             }
           }
         },
+        "summary": "Get the current watch options for the blockchain content event scanner",
         "tags": [
           "v1/scanner"
         ]
       },
       "post": {
-        "operationId": "ScanControllerV1_setWatchOptions",
-        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA Ids",
+        "operationId": "ScanControllerV1_setWatchOptions_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -66,6 +65,7 @@
             "description": ""
           }
         },
+        "summary": "Set watch options to filter the blockchain content scanner by schemas or MSA Ids",
         "tags": [
           "v1/scanner"
         ]
@@ -73,14 +73,14 @@
     },
     "/v1/scanner/pause": {
       "post": {
-        "operationId": "ScanControllerV1_pauseScanner",
-        "summary": "Pause the blockchain scanner",
+        "operationId": "ScanControllerV1_pauseScanner_v1",
         "parameters": [],
         "responses": {
           "201": {
             "description": ""
           }
         },
+        "summary": "Pause the blockchain scanner",
         "tags": [
           "v1/scanner"
         ]
@@ -88,8 +88,7 @@
     },
     "/v1/scanner/start": {
       "post": {
-        "operationId": "ScanControllerV1_startScanner",
-        "summary": "Resume the blockchain content event scanner",
+        "operationId": "ScanControllerV1_startScanner_v1",
         "parameters": [
           {
             "name": "immediate",
@@ -106,6 +105,7 @@
             "description": ""
           }
         },
+        "summary": "Resume the blockchain content event scanner",
         "tags": [
           "v1/scanner"
         ]
@@ -113,8 +113,7 @@
     },
     "/v1/search": {
       "post": {
-        "operationId": "SearchControllerV1_search",
-        "summary": "Search for DSNP content by id and filters, starting from `upperBound` block and going back for `blockCount` number of blocks",
+        "operationId": "SearchControllerV1_search_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -138,6 +137,7 @@
             }
           }
         },
+        "summary": "Search for DSNP content by id and filters, starting from `upperBound` block and going back for `blockCount` number of blocks",
         "tags": [
           "v1/search"
         ]
@@ -145,8 +145,7 @@
     },
     "/v1/webhooks": {
       "post": {
-        "operationId": "WebhookControllerV1_registerWebhook",
-        "summary": "Register a webhook to be called when new content is encountered on the chain",
+        "operationId": "WebhookControllerV1_registerWebhook_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -163,26 +162,26 @@
             "description": ""
           }
         },
+        "summary": "Register a webhook to be called when new content is encountered on the chain",
         "tags": [
           "v1/webhooks"
         ]
       },
       "delete": {
-        "operationId": "WebhookControllerV1_clearAllWebHooks",
-        "summary": "Clear all previously registered webhooks",
+        "operationId": "WebhookControllerV1_clearAllWebHooks_v1",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
         },
+        "summary": "Clear all previously registered webhooks",
         "tags": [
           "v1/webhooks"
         ]
       },
       "get": {
-        "operationId": "WebhookControllerV1_getRegisteredWebhooks",
-        "summary": "Get the list of currently registered webhooks",
+        "operationId": "WebhookControllerV1_getRegisteredWebhooks_v1",
         "parameters": [],
         "responses": {
           "200": {
@@ -196,6 +195,7 @@
             }
           }
         },
+        "summary": "Get the list of currently registered webhooks",
         "tags": [
           "v1/webhooks"
         ]
@@ -204,13 +204,13 @@
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
-        "summary": "Check the health status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is healthy"
           }
         },
+        "summary": "Check the health status of the service",
         "tags": [
           "health"
         ]
@@ -219,13 +219,13 @@
     "/livez": {
       "get": {
         "operationId": "HealthController_livez",
-        "summary": "Check the live status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is live"
           }
         },
+        "summary": "Check the live status of the service",
         "tags": [
           "health"
         ]
@@ -234,13 +234,13 @@
     "/readyz": {
       "get": {
         "operationId": "HealthController_readyz",
-        "summary": "Check the ready status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is ready"
           }
         },
+        "summary": "Check the ready status of the service",
         "tags": [
           "health"
         ]
@@ -254,7 +254,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Prometheus"
+        ]
       }
     }
   },
@@ -301,6 +304,8 @@
               1,
               19
             ],
+            "minItems": 1,
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "type": "number"
@@ -312,6 +317,8 @@
               "10074",
               "100001"
             ],
+            "minItems": 1,
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "type": "string"
@@ -351,7 +358,8 @@
           "webhookUrl": {
             "type": "string",
             "description": "A webhook URL to be notified of the results of this search",
-            "example": "https://example.com"
+            "example": "https://example.com",
+            "format": "uri"
           }
         },
         "required": [
@@ -361,7 +369,6 @@
       },
       "HttpStatus": {
         "type": "number",
-        "description": "Status of webhook registration response",
         "enum": [
           100,
           101,
@@ -374,6 +381,9 @@
           204,
           205,
           206,
+          207,
+          208,
+          210,
           300,
           301,
           302,
@@ -402,23 +412,33 @@
           418,
           421,
           422,
+          423,
           424,
           428,
           429,
+          456,
           500,
           501,
           502,
           503,
           504,
-          505
-        ]
+          505,
+          507,
+          508
+        ],
+        "description": "Status of search response"
       },
       "SearchResponseDto": {
         "type": "object",
         "properties": {
           "status": {
+            "description": "Status of search response",
             "example": 200,
-            "$ref": "#/components/schemas/HttpStatus"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HttpStatus"
+              }
+            ]
           },
           "jobId": {
             "type": "string",
@@ -433,7 +453,6 @@
       },
       "AnnouncementTypeName": {
         "type": "string",
-        "description": "Announcement types to send to the webhook",
         "enum": [
           "tombstone",
           "broadcast",
@@ -441,16 +460,19 @@
           "reaction",
           "profile",
           "update"
-        ]
+        ],
+        "description": "Announcement types to send to the webhook"
       },
       "WebhookRegistrationDto": {
         "type": "object",
         "properties": {
           "announcementTypes": {
+            "minItems": 1,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AnnouncementTypeName"
             },
+            "description": "Announcement types to send to the webhook",
             "example": [
               "broadcast",
               "reaction",
@@ -462,7 +484,8 @@
           "url": {
             "type": "string",
             "description": "Webhook URL",
-            "example": "https://example.com/webhook"
+            "example": "https://example.com/webhook",
+            "format": "uri"
           }
         },
         "required": [
@@ -474,8 +497,13 @@
         "type": "object",
         "properties": {
           "status": {
+            "description": "Status of webhook registration response",
             "example": 200,
-            "$ref": "#/components/schemas/HttpStatus"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HttpStatus"
+              }
+            ]
           },
           "registeredWebhooks": {
             "description": "List of registered webhooks",

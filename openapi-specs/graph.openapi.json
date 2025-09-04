@@ -3,8 +3,7 @@
   "paths": {
     "/v1/graphs/getGraphs": {
       "post": {
-        "operationId": "GraphControllerV1_getGraphs",
-        "summary": "Fetch graphs for specified MSA Ids and Block Number",
+        "operationId": "GraphControllerV1_getGraphs_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -31,6 +30,7 @@
             }
           }
         },
+        "summary": "Fetch graphs for specified MSA Ids and Block Number",
         "tags": [
           "v1/graphs"
         ]
@@ -38,8 +38,7 @@
     },
     "/v1/graphs": {
       "put": {
-        "operationId": "GraphControllerV1_updateGraph",
-        "summary": "Request an update to a given user's graph",
+        "operationId": "GraphControllerV1_updateGraph_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -63,6 +62,7 @@
             }
           }
         },
+        "summary": "Request an update to a given user's graph",
         "tags": [
           "v1/graphs"
         ]
@@ -70,21 +70,20 @@
     },
     "/v1/webhooks": {
       "get": {
-        "operationId": "WebhooksControllerV1_getAllWebhooks",
-        "summary": "Get all registered webhooks",
+        "operationId": "WebhooksControllerV1_getAllWebhooks_v1",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Retrieved all registered webhooks"
           }
         },
+        "summary": "Get all registered webhooks",
         "tags": [
           "v1/webhooks"
         ]
       },
       "put": {
-        "operationId": "WebhooksControllerV1_watchGraphs",
-        "summary": "Watch graphs for specified dsnpIds and receive updates",
+        "operationId": "WebhooksControllerV1_watchGraphs_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -101,19 +100,20 @@
             "description": "Successfully started watching graphs"
           }
         },
+        "summary": "Watch graphs for specified dsnpIds and receive updates",
         "tags": [
           "v1/webhooks"
         ]
       },
       "delete": {
-        "operationId": "WebhooksControllerV1_deleteAllWebhooks",
-        "summary": "Delete all registered webhooks",
+        "operationId": "WebhooksControllerV1_deleteAllWebhooks_v1",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Removed all registered webhooks"
           }
         },
+        "summary": "Delete all registered webhooks",
         "tags": [
           "v1/webhooks"
         ]
@@ -121,8 +121,7 @@
     },
     "/v1/webhooks/users/{msaId}": {
       "get": {
-        "operationId": "WebhooksControllerV1_getWebhooksForMsa",
-        "summary": "Get all registered webhooks for a specific MSA Id",
+        "operationId": "WebhooksControllerV1_getWebhooksForMsa_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -160,13 +159,13 @@
             }
           }
         },
+        "summary": "Get all registered webhooks for a specific MSA Id",
         "tags": [
           "v1/webhooks"
         ]
       },
       "delete": {
-        "operationId": "WebhooksControllerV1_deleteWebhooksForMsa",
-        "summary": "Delete all webhooks registered for a specific MSA",
+        "operationId": "WebhooksControllerV1_deleteWebhooksForMsa_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -184,6 +183,7 @@
             "description": "Removed all registered webhooks for the specified MSA"
           }
         },
+        "summary": "Delete all webhooks registered for a specific MSA",
         "tags": [
           "v1/webhooks"
         ]
@@ -191,8 +191,7 @@
     },
     "/v1/webhooks/urls": {
       "get": {
-        "operationId": "WebhooksControllerV1_getWebhooksForUrl",
-        "summary": "Get all webhooks registered to the specified URL",
+        "operationId": "WebhooksControllerV1_getWebhooksForUrl_v1",
         "parameters": [
           {
             "name": "url",
@@ -200,6 +199,7 @@
             "in": "query",
             "description": "URL related to the request",
             "schema": {
+              "format": "uri",
               "example": "http://localhost/webhook",
               "type": "string"
             }
@@ -220,13 +220,13 @@
             }
           }
         },
+        "summary": "Get all webhooks registered to the specified URL",
         "tags": [
           "v1/webhooks"
         ]
       },
       "delete": {
-        "operationId": "WebhooksControllerV1_deleteAllWebhooksForUrl",
-        "summary": "Delete all MSA webhooks registered with the given URL",
+        "operationId": "WebhooksControllerV1_deleteAllWebhooksForUrl_v1",
         "parameters": [
           {
             "name": "url",
@@ -234,6 +234,7 @@
             "in": "query",
             "description": "URL related to the request",
             "schema": {
+              "format": "uri",
               "example": "http://localhost/webhook",
               "type": "string"
             }
@@ -244,6 +245,7 @@
             "description": "Removed all webhooks registered to the specified URL"
           }
         },
+        "summary": "Delete all MSA webhooks registered with the given URL",
         "tags": [
           "v1/webhooks"
         ]
@@ -252,13 +254,13 @@
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
-        "summary": "Check the health status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is healthy"
           }
         },
+        "summary": "Check the health status of the service",
         "tags": [
           "health"
         ]
@@ -267,13 +269,13 @@
     "/livez": {
       "get": {
         "operationId": "HealthController_livez",
-        "summary": "Check the live status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is live"
           }
         },
+        "summary": "Check the live status of the service",
         "tags": [
           "health"
         ]
@@ -282,13 +284,13 @@
     "/readyz": {
       "get": {
         "operationId": "HealthController_readyz",
-        "summary": "Check the ready status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is ready"
           }
         },
+        "summary": "Check the ready status of the service",
         "tags": [
           "health"
         ]
@@ -296,14 +298,14 @@
     },
     "/v1/frequency/blockinfo": {
       "get": {
-        "operationId": "BlockInfoController_blockInfo",
-        "summary": "Get information about current block",
+        "operationId": "BlockInfoController_blockInfo_v1",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Block information retrieved"
           }
         },
+        "summary": "Get information about current block",
         "tags": [
           "/v1/frequency"
         ]
@@ -317,7 +319,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Prometheus"
+        ]
       }
     }
   },
@@ -333,33 +338,38 @@
     "schemas": {
       "PrivacyType": {
         "type": "string",
-        "description": "Indicator connection type (public or private)",
         "enum": [
           "private",
           "public"
-        ]
+        ],
+        "description": "Graph type to query (public or private)"
       },
       "ConnectionType": {
         "type": "string",
-        "description": "Indicator of the type of connection (follow or friendship)",
         "enum": [
           "follow",
           "friendship"
-        ]
+        ],
+        "description": "Graph connection type to query (follow or friendship)"
       },
       "KeyType": {
         "type": "string",
-        "description": "Key type of graph encryption keypair (currently only X25519 supported)",
         "enum": [
           "X25519"
-        ]
+        ],
+        "description": "Key type of graph encryption keypair (currently only X25519 supported)"
       },
       "GraphKeyPairDto": {
         "type": "object",
         "properties": {
           "keyType": {
+            "description": "Key type of graph encryption keypair (currently only X25519 supported)",
             "example": "X25519",
-            "$ref": "#/components/schemas/KeyType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KeyType"
+              }
+            ]
           },
           "publicKey": {
             "type": "string",
@@ -382,12 +392,22 @@
         "type": "object",
         "properties": {
           "privacyType": {
+            "description": "Graph type to query (public or private)",
             "example": "public",
-            "$ref": "#/components/schemas/PrivacyType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PrivacyType"
+              }
+            ]
           },
           "connectionType": {
+            "description": "Graph connection type to query (follow or friendship)",
             "example": "follow",
-            "$ref": "#/components/schemas/ConnectionType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionType"
+              }
+            ]
           },
           "dsnpIds": {
             "description": "Array of MSA Ids for which to query graphs",
@@ -397,6 +417,8 @@
               "4",
               "5"
             ],
+            "minItems": 1,
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "type": "string"
@@ -461,28 +483,43 @@
       },
       "Direction": {
         "type": "string",
-        "description": "Indicator of the direction of this connection",
         "enum": [
           "connectionTo",
           "connectionFrom",
           "bidirectional",
           "disconnect"
-        ]
+        ],
+        "description": "Indicator of the direction of this connection"
       },
       "ConnectionDto": {
         "type": "object",
         "properties": {
           "privacyType": {
+            "description": "Indicator connection type (public or private)",
             "example": "public",
-            "$ref": "#/components/schemas/PrivacyType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PrivacyType"
+              }
+            ]
           },
           "direction": {
+            "description": "Indicator of the direction of this connection",
             "example": "connectionTo",
-            "$ref": "#/components/schemas/Direction"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Direction"
+              }
+            ]
           },
           "connectionType": {
+            "description": "Indicator of the type of connection (follow or friendship)",
             "example": "follow",
-            "$ref": "#/components/schemas/ConnectionType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionType"
+              }
+            ]
           },
           "dsnpId": {
             "type": "string",
@@ -502,6 +539,7 @@
         "properties": {
           "data": {
             "description": "Wrapper object for array of connections",
+            "minItems": 1,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ConnectionDto"
@@ -538,7 +576,8 @@
           "webhookUrl": {
             "type": "string",
             "description": "Optional URL of a webhook to invoke when the request is complete",
-            "example": "http://localhost/webhook"
+            "example": "http://localhost/webhook",
+            "format": "uri"
           }
         },
         "required": [
@@ -571,6 +610,7 @@
               "4",
               "5"
             ],
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "type": "string"
@@ -579,7 +619,8 @@
           "webhookEndpoint": {
             "type": "string",
             "description": "Webhook URL to call when graph changes for the referenced MSAs are detected",
-            "example": "http://localhost/webhook"
+            "example": "http://localhost/webhook",
+            "format": "uri"
           }
         },
         "required": [

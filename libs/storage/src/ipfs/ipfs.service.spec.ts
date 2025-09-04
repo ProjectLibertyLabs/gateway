@@ -28,7 +28,6 @@ async function* bufferGenerator(values: number[]): AsyncIterable<Uint8Array> {
 }
 
 async function* pinLsGenerator(pins: PinLsResult[]): AsyncIterable<PinLsResult> {
-  // eslint-disable-next-line no-restricted-syntax
   for (const pin of pins) {
     yield pin;
   }

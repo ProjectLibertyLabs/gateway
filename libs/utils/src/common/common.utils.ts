@@ -14,12 +14,21 @@ export async function delayMS(ms: number): Promise<void> {
 }
 
 export function withTimeoutMs<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs);
-    }),
-  ]);
+  return new Promise<T>((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`Operation timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        clearTimeout(timeoutId);
+        resolve(value);
+      })
+      .catch((err) => {
+        clearTimeout(timeoutId);
+        reject(err);
+      });
+  });
 }
 
 export async function calculateIpfsCID(buffer: Buffer): Promise<string> {

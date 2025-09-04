@@ -1,4 +1,4 @@
-import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash } from '#utils/common/common.utils';
+import { calculateDsnpMultiHash, calculateIncrementalDsnpMultiHash, withTimeoutMs } from '#utils/common/common.utils';
 import { Readable } from 'stream';
 import {
   getKeypairTypeForProviderKey,
@@ -68,5 +68,18 @@ describe('common utils Tests', () => {
     const unifiedAthAddr = ethAddr + 'ee'.repeat(12);
     expect(getUnifiedAddressFromAddress(unifiedAthAddr)).toEqual(unifiedAthAddr);
     expect(getUnifiedAddressFromAddress(ss58UnifiedEthAddr)).toEqual(ss58UnifiedEthAddr);
+  });
+
+  it('withTimeoutMs resolves without leaving hanging timers', async () => {
+    jest.useFakeTimers();
+    const unhandledRejection = jest.fn();
+    process.on('unhandledRejection', unhandledRejection);
+
+    await expect(withTimeoutMs(Promise.resolve('done'), 1000)).resolves.toBe('done');
+    jest.advanceTimersByTime(1000);
+
+    expect(unhandledRejection).not.toHaveBeenCalled();
+    process.off('unhandledRejection', unhandledRejection);
+    jest.useRealTimers();
   });
 });

@@ -12,7 +12,7 @@ export function GenerateMockProvider<T>(
   };
 }
 
-export function GenerateMockConfigProvider<T>(configName: string | symbol, target: T): ValueProvider<T> {
+export function GenerateMockConfigProvider<T>(configName: ConfigFactoryKeyHost['KEY'], target: T): ValueProvider<T> {
   const configObj = {};
   // Create a dynamic class from the plain object
   Object.keys(target).forEach((key) =>

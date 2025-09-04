@@ -75,7 +75,6 @@ module.exports = defineConfig([
       'no-param-reassign': 'error',
       'no-promise-executor-return': 'error',
       'no-redeclare': 'error',
-      'no-restricted-syntax': 'error',
       'no-restricted-exports': 'error',
       'no-shadow': 'off',
       'no-underscore-dangle': 'error',

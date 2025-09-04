@@ -6,13 +6,11 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 
 @Controller()
 class TestController {
-  // eslint-disable-next-line class-methods-use-this
   @Get('/timeout')
   public async timeoutTest() {
     jest.advanceTimersByTime(5000);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   @Get('/notimeout')
   public notimeout() {}
 }
@@ -62,7 +60,6 @@ describe('Timeout Interceptor Tests', () => {
   );
 
   it('(GET) /timeout should log the route if a timeout exception is thrown', async () => {
-    // eslint-disable-next-line prefer-destructuring
     const logger: Logger = (interceptor as unknown as any).logger;
     const logSpy = jest.spyOn(logger, 'error');
     await request(httpServer).get('/timeout');

@@ -1,5 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable no-undef */
 import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -119,7 +117,7 @@ describe('Account Controller', () => {
       const { body } = await request(httpServer).get(`/v1/accounts/${validMsaId}`).expect(200).expect({
         msaId: user.msaId?.toString(),
       });
-      expect(body).not.toContain('handle');
+      expect(body).not.toHaveProperty('handle');
     });
 
     it('(GET) /v1/accounts/:msaId with invalid msaId', async () => {

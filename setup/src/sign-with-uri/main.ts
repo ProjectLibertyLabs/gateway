@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import readlineSync from 'readline-sync';

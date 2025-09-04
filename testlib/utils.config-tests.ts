@@ -1,6 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { InjectionToken, ValueProvider } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigFactoryKeyHost, ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 
 export function GenerateMockProvider<T>(
@@ -13,7 +12,7 @@ export function GenerateMockProvider<T>(
   };
 }
 
-export function GenerateMockConfigProvider<T>(configName: string, target: T): ValueProvider<T> {
+export function GenerateMockConfigProvider<T>(configName: ConfigFactoryKeyHost['KEY'], target: T): ValueProvider<T> {
   const configObj = {};
   // Create a dynamic class from the plain object
   Object.keys(target).forEach((key) =>
@@ -26,7 +25,8 @@ export function GenerateMockConfigProvider<T>(configName: string, target: T): Va
 
   // Make sure we construct the proper token regardless of whether we're passed a base string, or the token itself.
   // ex: many tests may pass 'ipfs'; but some (correctly) pass `ipfsConfig.KEY`
-  const provide = /^CONFIGURATION\(.*\)$/.test(configName) ? configName : `CONFIGURATION(${configName})`;
+  const configNameStr = configName.toString();
+  const provide = /^CONFIGURATION\(.*\)$/.test(configNameStr) ? configNameStr : `CONFIGURATION(${configNameStr})`;
 
   return {
     provide,

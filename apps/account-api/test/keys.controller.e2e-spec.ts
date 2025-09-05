@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -204,6 +204,10 @@ export namespace ContentPublishingQueues {
           attempts: 1,
           removeOnComplete: true,
           removeOnFail: false,
+          backoff: {
+            type: 'exponential',
+            delay: 6000,
+          }
         },
       },
       {

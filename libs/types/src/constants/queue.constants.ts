@@ -72,6 +72,7 @@ export namespace ContentWatcherQueues {
         attempts: 3,
         backoff: {
           type: 'exponential',
+          delay: 1000,
         },
         removeOnComplete: true,
         removeOnFail: false,
@@ -199,6 +200,7 @@ export namespace ContentPublishingQueues {
           attempts: 1,
           backoff: {
             type: 'exponential',
+            delay: 1000,
           },
           removeOnComplete: true,
           removeOnFail: false,
@@ -210,6 +212,7 @@ export namespace ContentPublishingQueues {
           attempts: 1,
           backoff: {
             type: 'exponential',
+            delay: 6000,
           },
           removeOnComplete: true,
           removeOnFail: false,

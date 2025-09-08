@@ -3,9 +3,8 @@
   "paths": {
     "/v1/asset/upload": {
       "put": {
-        "operationId": "AssetControllerV1_assetUpload",
-        "summary": "Upload asset files [deprecated; use `POST /v2/asset/upload` instead]",
         "deprecated": true,
+        "operationId": "AssetControllerV1_assetUpload_v1",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -33,6 +32,7 @@
             }
           }
         },
+        "summary": "Upload asset files [deprecated; use `POST /v2/asset/upload` instead]",
         "tags": [
           "v1/asset"
         ]
@@ -40,8 +40,7 @@
     },
     "/v2/asset/upload": {
       "post": {
-        "operationId": "AssetControllerV2_uploadFile",
-        "summary": "Upload asset files",
+        "operationId": "AssetControllerV2_uploadFile_v2",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -66,6 +65,7 @@
             }
           }
         },
+        "summary": "Upload asset files",
         "tags": [
           "v2/asset"
         ]
@@ -73,8 +73,7 @@
     },
     "/v1/content/{msaId}/broadcast": {
       "post": {
-        "operationId": "ContentControllerV1_broadcast",
-        "summary": "Create DSNP Broadcast for user",
+        "operationId": "ContentControllerV1_broadcast_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -109,6 +108,7 @@
             }
           }
         },
+        "summary": "Create DSNP Broadcast for user",
         "tags": [
           "v1/content"
         ]
@@ -116,8 +116,7 @@
     },
     "/v1/content/{msaId}/reply": {
       "post": {
-        "operationId": "ContentControllerV1_reply",
-        "summary": "Create DSNP Reply for user",
+        "operationId": "ContentControllerV1_reply_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -152,6 +151,7 @@
             }
           }
         },
+        "summary": "Create DSNP Reply for user",
         "tags": [
           "v1/content"
         ]
@@ -159,8 +159,7 @@
     },
     "/v1/content/{msaId}/reaction": {
       "post": {
-        "operationId": "ContentControllerV1_reaction",
-        "summary": "Create DSNP Reaction for user",
+        "operationId": "ContentControllerV1_reaction_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -195,6 +194,7 @@
             }
           }
         },
+        "summary": "Create DSNP Reaction for user",
         "tags": [
           "v1/content"
         ]
@@ -202,8 +202,7 @@
     },
     "/v1/content/{msaId}": {
       "put": {
-        "operationId": "ContentControllerV1_update",
-        "summary": "Update DSNP Content for user",
+        "operationId": "ContentControllerV1_update_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -238,14 +237,14 @@
             }
           }
         },
+        "summary": "Update DSNP Content for user",
         "tags": [
           "v1/content"
         ]
       },
       "delete": {
-        "operationId": "ContentControllerV1_delete",
-        "summary": "Delete DSNP Content for user [deprecated; use `POST /v2/content/{msaId}/tombstones` instead]",
         "deprecated": true,
+        "operationId": "ContentControllerV1_delete_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -280,6 +279,7 @@
             }
           }
         },
+        "summary": "Delete DSNP Content for user [deprecated; use `POST /v2/content/{msaId}/tombstones` instead]",
         "tags": [
           "v1/content"
         ]
@@ -287,8 +287,7 @@
     },
     "/v2/content/{msaId}/on-chain": {
       "post": {
-        "operationId": "ContentControllerV2_postContent",
-        "summary": "Create on-chain content for a given schema",
+        "operationId": "ContentControllerV2_postContent_v2",
         "parameters": [
           {
             "name": "msaId",
@@ -323,6 +322,7 @@
             }
           }
         },
+        "summary": "Create on-chain content for a given schema",
         "tags": [
           "v2/content"
         ]
@@ -330,8 +330,7 @@
     },
     "/v2/content/batchAnnouncement": {
       "post": {
-        "operationId": "ContentControllerV2_postBatches",
-        "summary": "Create off-chain batch content announcements",
+        "operationId": "ContentControllerV2_postBatches_v2",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -355,6 +354,7 @@
             }
           }
         },
+        "summary": "Create off-chain batch content announcements",
         "tags": [
           "v2/content"
         ]
@@ -362,8 +362,7 @@
     },
     "/v2/content/{msaId}/tombstones": {
       "post": {
-        "operationId": "ContentControllerV2_postTombstone",
-        "summary": "Post an announcement that previously-announced content is invalid/revoked",
+        "operationId": "ContentControllerV2_postTombstone_v2",
         "parameters": [
           {
             "name": "msaId",
@@ -398,6 +397,7 @@
             }
           }
         },
+        "summary": "Post an announcement that previously-announced content is invalid/revoked",
         "tags": [
           "v2/content"
         ]
@@ -405,8 +405,7 @@
     },
     "/v1/profile/{msaId}": {
       "put": {
-        "operationId": "ProfileControllerV1_profile",
-        "summary": "Update a user's Profile",
+        "operationId": "ProfileControllerV1_profile_v1",
         "parameters": [
           {
             "name": "msaId",
@@ -434,6 +433,7 @@
             "description": ""
           }
         },
+        "summary": "Update a user's Profile",
         "tags": [
           "v1/profile"
         ]
@@ -442,13 +442,13 @@
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
-        "summary": "Check the health status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is healthy"
           }
         },
+        "summary": "Check the health status of the service",
         "tags": [
           "health"
         ]
@@ -457,13 +457,13 @@
     "/livez": {
       "get": {
         "operationId": "HealthController_livez",
-        "summary": "Check the live status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is live"
           }
         },
+        "summary": "Check the live status of the service",
         "tags": [
           "health"
         ]
@@ -472,13 +472,13 @@
     "/readyz": {
       "get": {
         "operationId": "HealthController_readyz",
-        "summary": "Check the ready status of the service",
         "parameters": [],
         "responses": {
           "200": {
             "description": "Service is ready"
           }
         },
+        "summary": "Check the ready status of the service",
         "tags": [
           "health"
         ]
@@ -486,9 +486,8 @@
     },
     "/dev/request/{jobId}": {
       "get": {
-        "operationId": "DevelopmentControllerV1_requestJob",
-        "summary": "Get a Job given a jobId",
         "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "operationId": "DevelopmentControllerV1_requestJob",
         "parameters": [
           {
             "name": "jobId",
@@ -504,6 +503,7 @@
             "description": ""
           }
         },
+        "summary": "Get a Job given a jobId",
         "tags": [
           "dev"
         ]
@@ -511,9 +511,8 @@
     },
     "/dev/dummy/announcement/{queueType}/{count}": {
       "post": {
-        "operationId": "DevelopmentControllerV1_populate",
-        "summary": "Create dummy announcement data",
         "description": "ONLY enabled when ENVIRONMENT=\"dev\".",
+        "operationId": "DevelopmentControllerV1_populate",
         "parameters": [
           {
             "name": "queueType",
@@ -537,93 +536,9 @@
             "description": ""
           }
         },
+        "summary": "Create dummy announcement data",
         "tags": [
           "dev"
-        ]
-      }
-    },
-    "/v3/content/batchAnnouncement": {
-      "post": {
-        "operationId": "ContentControllerV3_postUploadBatchAnnouncement",
-        "summary": "Upload files and create batch announcements",
-        "description": "Upload files with their corresponding schema IDs to create batch announcements. Each file must be accompanied by a schemaId field.",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "files": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    },
-                    "description": "The files to be uploaded and batched"
-                  },
-                  "schemaId": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 1
-                    },
-                    "description": "Schema IDs corresponding to each uploaded file. Must match the number of files."
-                  }
-                },
-                "required": ["files", "schemaId"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "All files uploaded and batch announcements created successfully. This endpoint uses all-or-nothing error handling - if any file upload or batch creation fails, the entire request will return an error status. Successful responses will not contain error fields.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "files": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "referenceId": {
-                            "type": "string",
-                            "description": "Unique identifier for tracking the batch announcement"
-                          },
-                          "cid": {
-                            "type": "string",
-                            "description": "IPFS CID of the uploaded file"
-                          },
-                          "error": {
-                            "type": "string",
-                            "description": "Error message - will be undefined in successful responses since this endpoint uses all-or-nothing error handling.",
-                            "nullable": true
-                          }
-                        },
-                        "required": ["referenceId", "cid"]
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid input (e.g., mismatched file and schema count, invalid schema ID)"
-          },
-          "413": {
-            "description": "Payload Too Large - File size exceeds the maximum allowed size"
-          },
-          "422": {
-            "description": "Unprocessable Entity - Invalid file type or format"
-          }
-        },
-        "tags": [
-          "v3/content"
         ]
       }
     },
@@ -635,7 +550,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Prometheus"
+        ]
       }
     }
   },
@@ -742,6 +660,8 @@
             "example": false
           },
           "references": {
+            "minItems": 1,
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AssetReferenceDto"
@@ -757,24 +677,30 @@
             "type": "string",
             "description": "The URL for the given content",
             "example": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Wilhelm_Scream.ogg",
-            "minLength": 1
+            "minLength": 1,
+            "format": "uri"
           }
         }
       },
       "TagTypeEnum": {
         "type": "string",
-        "description": "Identifies the tag type",
         "enum": [
           "mention",
           "hashtag"
-        ]
+        ],
+        "description": "Identifies the tag type"
       },
       "TagDto": {
         "type": "object",
         "properties": {
           "type": {
+            "description": "Identifies the tag type",
             "example": "mention",
-            "$ref": "#/components/schemas/TagTypeEnum"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TagTypeEnum"
+              }
+            ]
           },
           "name": {
             "type": "string",
@@ -794,7 +720,6 @@
       },
       "UnitTypeEnum": {
         "type": "string",
-        "description": "The units for radius and altitude (defaults to meters)",
         "enum": [
           "cm",
           "m",
@@ -802,14 +727,20 @@
           "inches",
           "feet",
           "miles"
-        ]
+        ],
+        "description": "The units for radius and altitude (defaults to meters)"
       },
       "LocationDto": {
         "type": "object",
         "properties": {
           "units": {
+            "description": "The units for radius and altitude (defaults to meters)",
             "example": "m",
-            "$ref": "#/components/schemas/UnitTypeEnum"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnitTypeEnum"
+              }
+            ]
           },
           "name": {
             "type": "string",
@@ -958,18 +889,23 @@
       },
       "ModifiableAnnouncementType": {
         "type": "string",
-        "description": "Target announcement type",
         "enum": [
           "broadcast",
           "reply"
-        ]
+        ],
+        "description": "Target announcement type"
       },
       "UpdateDto": {
         "type": "object",
         "properties": {
           "targetAnnouncementType": {
+            "description": "Target announcement type",
             "example": "broadcast",
-            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifiableAnnouncementType"
+              }
+            ]
           },
           "targetContentHash": {
             "type": "string",
@@ -990,8 +926,13 @@
         "type": "object",
         "properties": {
           "targetAnnouncementType": {
+            "description": "Target announcement type",
             "example": "broadcast",
-            "$ref": "#/components/schemas/ModifiableAnnouncementType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModifiableAnnouncementType"
+              }
+            ]
           },
           "targetContentHash": {
             "type": "string",
@@ -1065,6 +1006,7 @@
         "type": "object",
         "properties": {
           "icon": {
+            "uniqueItems": true,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AssetReferenceDto"

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import scannerConfig, { IScannerConfig } from './scanner.config';
 import configSetup from '#testlib/utils.config-tests';
 

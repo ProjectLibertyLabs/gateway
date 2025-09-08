@@ -10,13 +10,14 @@ bridging the gap between Web2 and Web3 development.
 - [📖 About the Project](#about-project)
 - [🚀 Live OpenAPI Docs](#-live-docs)
 - [🔍 Architecture Map](#-arch-maps)
-- [🔍 Frequency Developer Gateway Microservices](#gateway-microservices)
+- [🔍 Gateway Microservices](#gateway-microservices)
 - [💻 Getting Started](#getting-started)
     - [🚀 Quick Start Guide](#quick-start-guide)
-    - [💻 Microservice Start Guide](#microservices-start-guide)
+    - [💻 Getting Started with Microservices](#microservices-start-guide)
 - [🛫 Deployment](#deployment)
-- [Logging](#logging)
-- [Metrics](#metrics)
+- [📝 Logging](#logging)
+- [📊 Metrics](#metrics)
+- [⚡ Load and Stress Testing](#load-testing)
 - [🤝 Contributing](#-contributing)
 - [🙏 Acknowledgments](#-acknowledgments)
 - [📝 License](#-license)
@@ -82,7 +83,7 @@ flowchart LR
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
-## Gateway Microservices <a name="gateway-microservices"></a>
+## 🔍 Gateway Microservices <a name="gateway-microservices"></a>
 
 Gateway consists of four independent microservices, each designed to handle specific aspects of interaction with the
 Frequency blockchain. Below is a detailed overview of each service:
@@ -170,7 +171,7 @@ Use this script when you need to stop all running Gateway services.
   mdbook serve
 ```
 
-### Getting Started with Microservices <a name="microservices-start-guide"></a>
+### 💻 Getting Started with Microservices <a name="microservices-start-guide"></a>
 
 To begin using these microservices:
 
@@ -185,7 +186,7 @@ our [Social App Template](https://github.com/ProjectLibertyLabs/social-app-templ
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
-## Deployment <a name="deployment"></a>
+## 🛫 Deployment <a name="deployment"></a>
 
 To prepare for deployment, you can use the start and stop scripts against a local node and Paseo testnet.
 For deployment, it is recommended to set up your mainnet Gateway instance in a cloud environment.
@@ -197,7 +198,7 @@ Deployment of the Gateway _documentation_ occurs via merge to `main` branch via 
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
-## Logging <a name="logging"></a>
+## 📝 Logging <a name="logging"></a>
 
 Gateway uses Pino for logging. By default, the log output is JSON formatted.
 
@@ -207,16 +208,40 @@ Default is `info`.
 In addition, if PRETTY=true is set in the .env file for a given app, this applies the pino-pretty decorator in the logs,
 for a colorized, more human-readable format.
 
-## Metrics <a name="metrics"></a>
+## 📊 Metrics <a name="metrics"></a>
 
 For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, content-watcher,
 graph-api, and graph-worker - Gateway exposes the default
 Prometheus metrics at `/metrics`.
 A local Prometheus server can be installed and pointed at this endpoint for debugging or other purposes.
 
+## ⚡ Load and Stress Testing <a name="load-testing"></a>
+
+Gateway includes [Grafana k6](https://k6.io/) load and stress testing capabilities across microservices to ensure reliability, performance, and scalability under various load conditions.
+
+**Key Features:**
+- **Health Check Testing**: Basic service availability validation
+- **Load Testing**: Multiple scenarios (light, medium, heavy, burst) for performance validation
+- **Stress Testing**: Advanced stress scenarios with multiple phases
+- **File Upload Testing**: Size-specific testing for content publishing
+- **Test Data Generation**: Realistic data generation to avoid blockchain interaction
+
+**Quick Start:**
+```bash
+# Run health check for any service
+cd apps/[service-name]/k6-test
+k6 run health-check.k6.js
+
+# Run load testing with specific scenario
+cd apps/content-publishing-api/k6-test
+SCENARIO=heavy k6 run batch-announcement-load.k6.js
+```
+
+Detailed information, configuration options, and best practices, are included in our **[k6 testing documentation](./docs/k6/k6-documentation.md)**.
+
 <!-- CONTRIBUTING -->
 
-## 🤝 Contributing
+## 🤝 Contributing <a name="-contributing"></a>
 
 Contributions, issues, and feature requests are welcome!
 
@@ -228,7 +253,7 @@ Contributions, issues, and feature requests are welcome!
 
 <!-- ACKNOWLEDGMENTS -->
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgments <a name="-acknowledgments"></a>
 
 Thank you to [Frequency](https://www.frequency.xyz) for assistance and documentation making this possible.
 
@@ -236,7 +261,7 @@ Thank you to [Frequency](https://www.frequency.xyz) for assistance and documenta
 
 <!-- LICENSE -->
 
-## 📝 License
+## 📝 License <a name="-license"></a>
 
 This project is [Apache 2.0](./LICENSE) licensed.
 

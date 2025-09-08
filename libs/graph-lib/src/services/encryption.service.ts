@@ -33,9 +33,8 @@ export class EncryptionService implements OnModuleInit {
       kdf: new HkdfSha256(),
       aead: new Aes256Gcm(),
     });
-    this.encryptionKey = await this.suite.kem.deriveKeyPair(
-      new TextEncoder().encode(this.config.atRestEncryptionKeySeed),
-    );
+    const encodedSeed = new TextEncoder().encode(this.config.atRestEncryptionKeySeed);
+    this.encryptionKey = await this.suite.kem.deriveKeyPair(encodedSeed.buffer);
   }
 
   /**
@@ -52,7 +51,7 @@ export class EncryptionService implements OnModuleInit {
       const encryptedKeyPairs: GraphKeyPairDto[] = [];
       for (let i = 0; i < graphKeyPairs.length; i += 1) {
         const keyPair = structuredClone(graphKeyPairs[i]);
-        const encryptedBuffer = await sender.seal(hexToU8a(keyPair.privateKey).buffer);
+        const encryptedBuffer = await sender.seal(hexToU8a(keyPair.privateKey).buffer as ArrayBuffer);
         keyPair.privateKey = u8aToHex(new Uint8Array(encryptedBuffer));
         encryptedKeyPairs.push(keyPair);
       }
@@ -85,16 +84,19 @@ export class EncryptionService implements OnModuleInit {
           `Encryption key (${encryptionPublicKeyHex}) is different from what is set in the service ${servicePublicKey}`,
         );
       }
+
+      const enc = hexToU8a(senderContextHex).buffer as ArrayBuffer;
       const recipient = await this.suite.createRecipientContext({
         recipientKey: this.encryptionKey.privateKey,
-        enc: hexToU8a(senderContextHex).buffer,
+        enc,
       });
 
       const decryptedKeyPairs: GraphKeyPairDto[] = [];
       for (let i = 0; i < graphKeyPairs.length; i += 1) {
         const keyPair = structuredClone(graphKeyPairs[i]);
         try {
-          const plainBuffer = await recipient.open(hexToU8a(keyPair.privateKey).buffer);
+          const privKeyBuf = hexToU8a(keyPair.privateKey).buffer;
+          const plainBuffer = await recipient.open(privKeyBuf as ArrayBuffer);
           keyPair.privateKey = u8aToHex(new Uint8Array(plainBuffer));
           decryptedKeyPairs.push(keyPair);
         } catch (err) {

@@ -35,7 +35,8 @@ export class QueueModule {
             removeOnComplete: 100,
             removeOnFail: 50,
             attempts: 3,
-            backoff: {
+            ...options?.config?.defaultJobOptions,
+            backoff: options?.config?.defaultJobOptions?.backoff || {
               type: 'exponential',
               delay: 2000,
             },

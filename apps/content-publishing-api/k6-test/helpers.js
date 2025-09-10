@@ -100,22 +100,9 @@ export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'i
 // BATCH ANNOUNCEMENT HELPERS
 // ============================================================================
 
-// Valid CID v1 examples for testing (these are real, valid CIDv1 hashes)
-const VALID_CIDS = [
-  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeibhqavlasjc7dvyjklpfyti6wxd2aaiafbixe2ux4ljq4qr4j62sq',
-  'bafybeicj7r3kqlojp2dnwygfm3aw4xvzmf2n7jmmxb4zlxkh4fkhrvvhmu',
-  'bafybeifjb2d7ywvnkaxaavdwakwz5cgyp7v7pf3wumjpgkl4hqaopjmm4e',
-  'bafybeids6z3s5qy5jiqvrsmsj6kefv6ksqf7k7k5a5vt4b5q3vgj5l6f5y',
-  'bafybeigcsf3s2hfqhuhomjg6j4z2kcsaycdqpumzhllkfhq6mfwwzk4a3y',
-  'bafybeieggpllbhd2nfgrnyks7v7j6wvzclpvkvwpgqkmw6p4iugp5g2vdq',
-  'bafybeie4o6qzfvkbthqovpkxufucxcbcnewq33y2lqvdpnwk75rq2qj6zq',
-  'bafybeifz4vfnjtxkj73dmw6vt7f5qzmrb3pq6k5h32qukm2s54fhgnvpvq',
-  'bafybeig7vwmvl5zqtgc7uu4d7z2v43ytrqnqhf6qxoaaxhmfwlmhfvnzpy'
-];
-
+// Valid CID v1 examples for testing
 const generateValidCid = () => {
-  return VALID_CIDS[Math.floor(Math.random() * VALID_CIDS.length)];
+  return 'bafybei' + randomString(52, 'abcdefghijklmnopqrstuvwxyz0123456789');
 };
 
 // Export common constants

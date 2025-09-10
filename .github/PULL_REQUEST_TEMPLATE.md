@@ -8,7 +8,7 @@ Closes <!-- issue # -->
 
 A short description of what you have done to implement/fix the above mentioned feature or bug
 
-@ any other developers who who worked on the PR with you
+@ any other developers who worked on the PR with you
 
 ### Change summary
 
@@ -28,7 +28,7 @@ A short description of what you have done to implement/fix the above mentioned f
 items that don't apply can be marked NA or deleted
 
 - [ ] Unit tests added
-- [ ] Integration/e2e tests added
+- [ ] Integration/end-to-end tests added
 - [ ] Documentation added or updated (where applicable)
 - [ ] API endpoints added or changed? Swagger docs regenerated
 

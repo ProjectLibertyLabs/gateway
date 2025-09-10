@@ -7,7 +7,7 @@
 [Aa]utoscal(er|ing)
 account-api
 account-service-api
-[Aa]ssignee
+[Aa]ssignees?
 Ansible
 AOF
 APIs

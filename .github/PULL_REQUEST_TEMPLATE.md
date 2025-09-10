@@ -27,9 +27,6 @@ A short description of what you have done to implement/fix the above mentioned f
 
 items that don't apply can be marked NA or deleted
 
-- [ ] Code is written and well
-- [ ] Code is self-documenting
-- [ ] Code is tested
 - [ ] Unit tests added
 - [ ] Integration/e2e tests added
 - [ ] Documentation added or updated (where applicable)

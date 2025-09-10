@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDto } from '#types/dtos/content-publishing';
-import { DSNP_VALID_MIME_TYPES } from '#types/dtos/content-publishing/validation';
+import { DSNP_VALID_MIME_TYPES_EXTENDED as DSNP_VALID_MIME_TYPES } from '#validation';
 import {
   Controller,
   HttpCode,

@@ -6,6 +6,7 @@ labels: enhancement
 assignees: ''
 
 ---
+Thanks for requesting an improvement!
 
 ### Context
 Why is this important? 

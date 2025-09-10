@@ -70,10 +70,6 @@ export namespace ContentWatcherQueues {
     config: {
       defaultJobOptions: {
         attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
-        },
         removeOnComplete: true,
         removeOnFail: false,
       },
@@ -198,10 +194,6 @@ export namespace ContentPublishingQueues {
         name: BATCH_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
-          backoff: {
-            type: 'exponential',
-            delay: 1000,
-          },
           removeOnComplete: true,
           removeOnFail: false,
         },
@@ -210,12 +202,12 @@ export namespace ContentPublishingQueues {
         name: PUBLISH_QUEUE_NAME,
         defaultJobOptions: {
           attempts: 1,
+          removeOnComplete: true,
+          removeOnFail: false,
           backoff: {
             type: 'exponential',
             delay: 6000,
-          },
-          removeOnComplete: true,
-          removeOnFail: false,
+          }
         },
       },
       {

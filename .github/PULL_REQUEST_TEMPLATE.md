@@ -1,22 +1,41 @@
-# Problem
+# Purpose
 
-problem statement, including
-Link to GitHub Issue(s):
+The goal of this PR is <!-- insert goal here -->
 
-# Solution
+Closes <!-- issue # -->
 
-What I/we did to solve this problem
+## Solution
 
-with @pairperson1
+A short description of what you have done to implement/fix the above mentioned feature or bug
 
-## Steps to Verify:
+@ any other developers who who worked on the PR with you
 
-1. A setup step / beginning state
-1. What to do next
-1. Any other instructions
-1. Expected behavior
-1. Suggestions for testing
+### Change summary
 
-## Screenshots (optional):
+* A detailed list of bulleted
+* changes that go into detail about
+* the specifics of the changes
+* to the codebase
 
-Show-n-tell images/animations here
+### Steps to Verify
+
+1. A numbered list of steps
+2. To verify that this feature/bug
+3. is now working
+
+### Checklist
+
+items that don't apply can be marked NA or deleted
+
+- [ ] Code is written and well
+- [ ] Code is self-documenting
+- [ ] Code is tested
+- [ ] Unit tests added
+- [ ] Integration/e2e tests added
+- [ ] Documentation added or updated (where applicable)
+- [ ] API endpoints added or changed? Swagger docs regenerated
+
+## Additional details / screenshot
+
+- Any supplemental pictures or material
+- ![Screenshot]()

@@ -100,8 +100,7 @@ module.exports = defineConfig([
           caughtErrors: 'all',
           caughtErrorsIgnorePattern: '^_',
           destructuredArrayIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          ignoreRestSiblings: true,
+          ignoreRestSiblings: true, // ignores ...foo after _bar
         },
       ],
     },

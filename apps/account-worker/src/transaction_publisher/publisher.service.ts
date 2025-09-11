@@ -301,7 +301,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     );
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
 

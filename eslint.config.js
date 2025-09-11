@@ -6,13 +6,17 @@ const { fixupConfigRules, fixupPluginRules } = require('@eslint/compat');
 
 const tsParser = require('@typescript-eslint/parser');
 const typescriptEslint = require('@typescript-eslint/eslint-plugin');
-// eslint-disable-next-line no-underscore-dangle
+
 const _import = require('eslint-plugin-import');
 const unusedImports = require('eslint-plugin-unused-imports');
 const prettier = require('eslint-plugin-prettier');
 const js = require('@eslint/js');
 
 const { FlatCompat } = require('@eslint/eslintrc');
+
+// Project-specific rule collections
+const bestPractices = require('./eslint-rules/best_practices');
+const nodeConfigs = require('./eslint-rules/node');
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
@@ -35,7 +39,7 @@ module.exports = defineConfig([
       },
     },
 
-    extends: fixupConfigRules(compat.extends('plugin:import/typescript', 'prettier')),
+    extends: [fixupConfigRules(compat.extends('plugin:import/typescript', 'prettier'))],
 
     plugins: {
       '@typescript-eslint': typescriptEslint,
@@ -45,6 +49,9 @@ module.exports = defineConfig([
     },
 
     rules: {
+      ...bestPractices.rules,
+      ...nodeConfigs.rules,
+
       'no-console': 'off',
 
       'import/extensions': [
@@ -73,22 +80,6 @@ module.exports = defineConfig([
       'import/no-extraneous-dependencies': 0,
       'import/no-relative-packages': 2,
       'import/prefer-default-export': 'off',
-      indent: 'off',
-      'methods-use-this': 'off',
-      'no-await-in-loop': 'off',
-      'no-constant-condition': 'error',
-      'no-empty-function': 'off',
-      'no-param-reassign': 'error',
-      'no-useless-constructor': 'off',
-      'no-promise-executor-return': 'error',
-      'no-redeclare': 'error',
-      'no-restricted-exports': 'error',
-      'no-shadow': 'off',
-      'no-underscore-dangle': 'error',
-      'no-use-before-define': 'off', // disabled for @typescript-eslint rule
-      'no-undef': 'off', // turn off for @typescript-eslint rule
-      'no-unused-vars': 'off', // has to be turned off for the @typescript-eslint rules to work
-      'max-classes-per-file': 'off',
       'prettier/prettier': 2,
       '@typescript-eslint/no-empty-object-type': [
         'error',

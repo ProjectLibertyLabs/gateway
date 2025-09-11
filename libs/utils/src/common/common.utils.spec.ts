@@ -72,4 +72,8 @@ describe('common utils Tests', () => {
     expect(getUnifiedAddressFromAddress(unifiedAthAddr)).toEqual(unifiedAthAddr);
     expect(getUnifiedAddressFromAddress(ss58UnifiedEthAddr)).toEqual(ss58UnifiedEthAddr);
   });
+  it('some test that fails linting', () => {
+    const someAry = ['foo', 'bar', 'bazz'];
+    console.log(someAry.join(' '));
+  });
 });

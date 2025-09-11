@@ -29,13 +29,14 @@ module.exports = defineConfig([
     languageOptions: {
       globals: {
         ...globals.browser,
+        ...globals.node,
       },
 
       parser: tsParser,
       sourceType: 'module',
 
       parserOptions: {
-        project: './tsconfig.json',
+        project: ['./tsconfig.json', './apps/*/tsconfig.json', './libs/*/tsconfig.json'],
       },
     },
 
@@ -123,7 +124,7 @@ module.exports = defineConfig([
 
       'import/resolver': {
         typescript: {
-          directory: './tsconfig.json',
+          project: ['./tsconfig.json', './apps/*/tsconfig.json', './libs/*/tsconfig.json'],
         },
 
         node: {

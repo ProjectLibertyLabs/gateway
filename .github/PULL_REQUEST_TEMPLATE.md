@@ -31,6 +31,7 @@ items that don't apply can be marked NA or deleted
 - [ ] Integration/end-to-end tests added
 - [ ] Documentation added or updated (where applicable)
 - [ ] API endpoints added or changed? Swagger docs regenerated
+- [ ] Breaking changes? "breaking changes" label added
 
 ## Additional details / screenshot
 

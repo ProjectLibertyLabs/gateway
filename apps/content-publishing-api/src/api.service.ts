@@ -10,13 +10,11 @@ import {
   RequestTypeDto,
   AnnouncementResponseDto,
   AssetIncludedRequestDto,
-  isImage,
   UploadResponseDto,
   OnChainContentDto,
-  isParquet,
   BatchFileDto,
-  DSNP_VALID_MIME_TYPES,
 } from '#types/dtos/content-publishing';
+import { DSNP_VALID_MIME_TYPES_BASIC, isImage, isParquet } from '#validation';
 import {
   IRequestJob,
   IAssetMetadata,
@@ -266,7 +264,7 @@ export class ApiService {
   public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string): Promise<IFileResponse> {
     this.logger.debug(`Processing file: ${filename} (${mimetype})`);
 
-    if (!DSNP_VALID_MIME_TYPES.test(mimetype)) {
+    if (!DSNP_VALID_MIME_TYPES_BASIC.test(mimetype)) {
       this.logger.warn(`Skipping file: ${filename} due to unsupported file type (${mimetype}).`);
       return { error: `Unsupported file type (${mimetype})` };
     }

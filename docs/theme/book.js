@@ -12,11 +12,11 @@ function playground_text(playground, hidden = true) {
   if (window.ace && code_block.classList.contains("editable")) {
     const editor = window.ace.edit(code_block);
     return editor.getValue();
-  } else if (hidden) {
+  } if (hidden) {
     return code_block.textContent;
-  } else {
+  } 
     return code_block.innerText;
-  }
+  
 }
 
 (function codeSnippets() {
@@ -39,7 +39,7 @@ function playground_text(playground, hidden = true) {
       .then((response) => response.json())
       .then((response) => {
         // get list of crates available in the rust playground
-        const playground_crates = response.crates.map((item) => item["id"]);
+        const playground_crates = response.crates.map((item) => item.id);
         playgrounds.forEach((block) => handle_crate_list_update(block, playground_crates));
       });
   }
@@ -85,7 +85,7 @@ function playground_text(playground, hidden = true) {
     const re = /extern\s+crate\s+([a-zA-Z_0-9]+)\s*;/g;
     const snippet_crates = [];
     let item;
-    // eslint-disable-next-line no-cond-assign
+     
     while ((item = re.exec(txt))) {
       snippet_crates.push(item[1]);
     }
@@ -301,7 +301,7 @@ aria-label="Show hidden lines"></button>';
       });
     }
   });
-})();
+}());
 
 (function themes() {
   const html = document.querySelector("html");
@@ -349,7 +349,7 @@ aria-label="Show hidden lines"></button>';
     let theme = null;
     try {
       theme = localStorage.getItem("mdbook-theme");
-    } catch (e) {
+    } catch (_e) {
       // ignore error.
     }
     return theme;
@@ -368,9 +368,9 @@ aria-label="Show hidden lines"></button>';
         return default_theme;
       }
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
-    } else {
+    } 
       return theme;
-    }
+    
   }
 
   let previousTheme = default_theme;
@@ -402,7 +402,7 @@ aria-label="Show hidden lines"></button>';
     if (store) {
       try {
         localStorage.setItem("mdbook-theme", theme);
-      } catch (e) {
+      } catch (_e) {
         // ignore error.
       }
     }
@@ -503,7 +503,7 @@ aria-label="Show hidden lines"></button>';
         break;
     }
   });
-})();
+}());
 
 // MOD: Sidebar is now dependent on the checkbox, so had to adjust how the js responds
 (function sidebar() {
@@ -624,7 +624,7 @@ aria-label="Show hidden lines"></button>';
     },
     { passive: true },
   );
-})();
+}());
 
 (function chapterNavigation() {
   document.addEventListener("keydown", function (e) {
@@ -714,7 +714,7 @@ aria-label="Show hidden lines"></button>';
         break;
     }
   });
-})();
+}());
 
 (function clipboard() {
   const clipButtons = document.querySelectorAll(".clip-button");
@@ -751,7 +751,7 @@ aria-label="Show hidden lines"></button>';
   clipboardSnippets.on("error", function (e) {
     showTooltip(e.trigger, "Clipboard error!");
   });
-})();
+}());
 
 (function scrollToTop() {
   const menuTitle = document.querySelector(".menu-title");
@@ -759,7 +759,7 @@ aria-label="Show hidden lines"></button>';
   menuTitle.addEventListener("click", function () {
     document.scrollingElement.scrollTo({ top: 0, behavior: "smooth" });
   });
-})();
+}());
 
 // Not needed
 // (function controllMenu() {...

@@ -14,7 +14,7 @@ import { HealthController } from './health_check/health.controller';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
-import cacheConfig from '#cache/cache.config';
+import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
@@ -24,6 +24,9 @@ import { IpfsService } from '#storage';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
 
 const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig];
 
@@ -68,6 +71,40 @@ const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCo
       ignoreErrors: false,
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (rateLimitConfig: IRateLimitingConfig, cacheConf: ICacheConfig) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: rateLimitConfig.ttl,
+            limit: rateLimitConfig.limit,
+          },
+        ],
+        storage: new ThrottlerStorageRedisService({
+          host: cacheConf.redisOptions.host,
+          port: cacheConf.redisOptions.port,
+          ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
+          ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
+          keyPrefix: rateLimitConfig.keyPrefix,
+        }),
+        skipIf: (context) => {
+          const response = context.switchToHttp().getResponse();
+
+          // Apply configurable skip rules
+          if (rateLimitConfig.skipSuccessfulRequests && response.statusCode < 400) {
+            return true;
+          }
+
+          if (rateLimitConfig.skipFailedRequests && response.statusCode >= 400) {
+            return true;
+          }
+
+          return false;
+        },
+      }),
+      inject: [createRateLimitingConfig('content-publishing-worker').KEY, cacheConfig.KEY],
+    }),
     ScheduleModule.forRoot(),
     PublisherModule,
     BatchAnnouncerModule,

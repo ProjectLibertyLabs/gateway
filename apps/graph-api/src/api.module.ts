@@ -26,6 +26,9 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
 const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphCommonConfig];
 
@@ -64,6 +67,40 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphComm
       inject: [cacheConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (rateLimitConfig: IRateLimitingConfig, cacheConf: ICacheConfig) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: rateLimitConfig.ttl,
+            limit: rateLimitConfig.limit,
+          },
+        ],
+        storage: new ThrottlerStorageRedisService({
+          host: cacheConf.redisOptions.host,
+          port: cacheConf.redisOptions.port,
+          ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
+          ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
+          keyPrefix: rateLimitConfig.keyPrefix,
+        }),
+        skipIf: (context) => {
+          const response = context.switchToHttp().getResponse();
+
+          // Apply configurable skip rules
+          if (rateLimitConfig.skipSuccessfulRequests && response.statusCode < 400) {
+            return true;
+          }
+
+          if (rateLimitConfig.skipFailedRequests && response.statusCode >= 400) {
+            return true;
+          }
+
+          return false;
+        },
+      }),
+      inject: [createRateLimitingConfig('graph').KEY, cacheConfig.KEY],
+    }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('graph-api')),

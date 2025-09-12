@@ -30,7 +30,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
-const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphCommonConfig];
+const configs = [
+  apiConfig,
+  allowReadOnly,
+  cacheConfig,
+  scannerConfig,
+  graphCommonConfig,
+  createRateLimitingConfig('graph'),
+];
 
 @Module({
   imports: [

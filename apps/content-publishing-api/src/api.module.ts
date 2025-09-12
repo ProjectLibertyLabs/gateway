@@ -30,7 +30,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
-const configs = [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonConfig];
+const configs = [
+  apiConfig,
+  allowReadOnly,
+  cacheConfig,
+  ipfsConfig,
+  httpCommonConfig,
+  createRateLimitingConfig('content-publishing'),
+];
 @Module({
   imports: [
     ConfigModule.forRoot({

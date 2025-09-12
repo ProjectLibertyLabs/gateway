@@ -28,7 +28,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
 
-const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig];
+const configs = [
+  blockchainConfig,
+  cacheConfig,
+  ipfsConfig,
+  workerConfig,
+  httpCommonConfig,
+  createRateLimitingConfig('content-publishing-worker'),
+];
 
 @Module({
   imports: [

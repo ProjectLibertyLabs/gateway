@@ -37,6 +37,7 @@ const configs = [
   scannerConfig,
   pubsubConfig,
   httpCommonConfig,
+  createRateLimitingConfig('content-watcher'),
 ];
 
 @Module({

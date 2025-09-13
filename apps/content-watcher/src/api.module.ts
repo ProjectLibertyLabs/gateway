@@ -42,18 +42,7 @@ const configs = [
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [
-        apiConfig,
-        noProviderBlockchainConfig,
-        cacheConfig,
-        ipfsConfig,
-        scannerConfig,
-        pubsubConfig,
-        httpCommonConfig,
-      ],
-    }),
+    ConfigModule.forRoot({ isGlobal: true, load: configs }),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync({
       readOnly: true,

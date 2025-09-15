@@ -22,7 +22,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from './validation.dto';
+import { DSNP_USER_URI_REGEX, DURATION_REGEX, ISO8601_REGEX } from '#validation';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // eslint-disable-next-line no-shadow

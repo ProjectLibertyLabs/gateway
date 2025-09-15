@@ -25,7 +25,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DURATION_REGEX } from './validation';
+import { DURATION_REGEX } from '#validation';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';

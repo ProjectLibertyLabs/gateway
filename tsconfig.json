@@ -60,7 +60,9 @@
       "#openapi": ["libs/openapi/src"],
       "#openapi/*": ["libs/openapi/src/*"],
       "#health-check": ["libs/health-check/src"],
-      "#health-check/*": ["libs/health-check/src/*"]
+      "#health-check/*": ["libs/health-check/src/*"],
+      "#validation": ["libs/types/src/validation"],
+      "#validation/*": ["libs/types/src/validation/*"]
     },
     "removeComments": true,
     "resolveJsonModule": true,

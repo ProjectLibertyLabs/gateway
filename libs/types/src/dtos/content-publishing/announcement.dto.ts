@@ -5,7 +5,7 @@
 import { IsArray, IsEnum, IsNotEmpty, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
-import { DSNP_EMOJI_REGEX } from './validation';
+import { DSNP_EMOJI_REGEX } from '#validation';
 import { IsDsnpContentURI } from '#utils/decorators/is-dsnp-content-uri.decorator';
 import { IsDsnpContentHash } from '#utils/decorators/is-dsnp-content-hash.decorator';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';

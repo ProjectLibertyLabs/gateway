@@ -14,7 +14,7 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { QueueModule } from '#queue/queue.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { ContentControllerV2 } from './controllers/v2';
 import { ContentControllerV3 } from './controllers/v3';
@@ -26,9 +26,8 @@ import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
 import { IPFSStorageModule } from '#storage';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
 
 const configs = [
   apiConfig,
@@ -95,6 +94,11 @@ const configs = [
   ],
   providers: [
     ApiService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

@@ -11,7 +11,6 @@ import { AccountQueues as QueueConstants } from '#types/constants/queue.constant
 import { CacheModule } from '#cache/cache.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import {
   AccountsControllerV1,
   AccountsControllerV2,
@@ -26,7 +25,7 @@ import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import apiConfig from './api.config';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config/rate-limiting.config';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config/rate-limiting.config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';

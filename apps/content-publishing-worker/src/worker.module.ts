@@ -14,7 +14,7 @@ import { HealthController } from './health_check/health.controller';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { ConfigModule } from '@nestjs/config';
 import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
-import cacheConfig, { ICacheConfig } from '#cache/cache.config';
+import cacheConfig from '#cache/cache.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import workerConfig from './worker.config';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
@@ -24,9 +24,9 @@ import { IpfsService } from '#storage';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
 const configs = [
   blockchainConfig,
@@ -94,7 +94,14 @@ const configs = [
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY.toString()) }),
   ],
   controllers: [HealthController],
-  providers: [IpfsService],
+  providers: [
+    IpfsService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [IpfsService],
 })
 export class WorkerModule {}

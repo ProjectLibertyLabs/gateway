@@ -21,14 +21,13 @@ import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
 
 const configs = [
   apiConfig,
@@ -89,6 +88,11 @@ const configs = [
     GraphStateManager,
     AsyncDebouncerService,
     EncryptionService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

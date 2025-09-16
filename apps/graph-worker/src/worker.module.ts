@@ -22,9 +22,9 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { HealthCheckModule } from '#health-check/health-check.module';
 import { HealthController } from './health_check/health.controller';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
 const configs = [
   workerConfig,
@@ -89,7 +89,14 @@ const configs = [
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY.toString()) }),
   ],
   controllers: [HealthController],
-  providers: [GraphStateManager],
+  providers: [
+    GraphStateManager,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [],
 })
 export class WorkerModule {}

@@ -20,9 +20,9 @@ import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
-import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
 const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, createRateLimitingConfig('account-worker')];
 
@@ -79,7 +79,14 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, create
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
   controllers: [HealthController],
-  providers: [ProviderWebhookService],
+  providers: [
+    ProviderWebhookService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [EventEmitterModule],
 })
 export class WorkerModule {}

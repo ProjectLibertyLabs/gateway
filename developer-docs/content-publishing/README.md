@@ -13,6 +13,7 @@ architecture, and guides for setup and usage.
 - [🚀 API Documentation](#api-documentation)
 - [🛠 Development](#development)
 - [BullMQ Queues list](#bullmq-queues)
+- [Sequence Diagrams](#sequence-diagrams)
 - [🤝 Contributing](#contributing)
 - [❓ FAQ](#faq)
 - [📝 License](#license)
@@ -210,6 +211,10 @@ These jobs are enqueued within Content Publisher's `ApiService`, triggered by an
 - **Testing**: Jest, Supertest
 - **Documentation**: Swagger
 - **Containerization**: Docker, Docker Compose
+
+## Sequence Diagrams
+
+* Content Publishing V3 Batch File Upload [SVG](./content-publishing-v3.svg) [PUML](./content-publishing-v3.puml)
 
 ## 🤝 Contributing <a name="contributing"></a>
 

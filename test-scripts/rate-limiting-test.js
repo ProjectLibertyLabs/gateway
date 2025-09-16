@@ -3,7 +3,7 @@
 /**
  * Rate Limiting Test Script
  *
- * This script tests the rate limiting functionality of the Account API service.
+ * This script tests a service's rate limiting.
  * It's designed to run independently and is NOT included in CI.
  *
  * Usage:

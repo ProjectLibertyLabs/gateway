@@ -22,7 +22,7 @@ import httpConfig from '#config/http-common.config';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
-import { createRateLimitingConfig, IRateLimitingConfig } from '#config';
+import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config';
 
 const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, createRateLimitingConfig('account-worker')];
 
@@ -68,36 +68,7 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, create
     LoggerModule.forRoot(getPinoHttpOptions()),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (rateLimitConfig: IRateLimitingConfig, cacheConf: ICacheConfig) => ({
-        throttlers: [
-          {
-            name: 'default',
-            ttl: rateLimitConfig.ttl,
-            limit: rateLimitConfig.limit,
-          },
-        ],
-        storage: new ThrottlerStorageRedisService({
-          host: cacheConf.redisOptions.host,
-          port: cacheConf.redisOptions.port,
-          ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
-          ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
-          keyPrefix: rateLimitConfig.keyPrefix,
-        }),
-        skipIf: (context) => {
-          const response = context.switchToHttp().getResponse();
-
-          // Apply configurable skip rules
-          if (rateLimitConfig.skipSuccessfulRequests && response.statusCode < 400) {
-            return true;
-          }
-
-          if (rateLimitConfig.skipFailedRequests && response.statusCode >= 400) {
-            return true;
-          }
-
-          return false;
-        },
-      }),
+      useFactory: createThrottlerConfig,
       inject: [createRateLimitingConfig('account-worker').KEY, cacheConfig.KEY],
     }),
     ScheduleModule.forRoot(),

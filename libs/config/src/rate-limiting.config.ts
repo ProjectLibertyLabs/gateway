@@ -1,4 +1,6 @@
 import { registerAs } from '@nestjs/config';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import type { ICacheConfig } from '#cache/cache.config';
 import Joi from 'joi';
 import { JoiUtils } from '#config';
 
@@ -65,5 +67,42 @@ export const createRateLimitingConfig = (serviceName: string) => {
     return JoiUtils.validate<IRateLimitingConfig>(configs);
   });
 };
+
+/**
+ * Creates ThrottlerModule configuration factory function
+ * @param rateLimitConfig - Rate limiting configuration
+ * @param cacheConf - Cache configuration for Redis connection
+ * @returns ThrottlerModule configuration object
+ */
+export const createThrottlerConfig = (rateLimitConfig: IRateLimitingConfig, cacheConf: ICacheConfig) => ({
+  throttlers: [
+    {
+      name: 'default',
+      ttl: rateLimitConfig.ttl,
+      limit: rateLimitConfig.limit,
+    },
+  ],
+  storage: new ThrottlerStorageRedisService({
+    host: cacheConf.redisOptions.host,
+    port: cacheConf.redisOptions.port,
+    ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
+    ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
+    keyPrefix: rateLimitConfig.keyPrefix,
+  }),
+  skipIf: (context) => {
+    const response = context.switchToHttp().getResponse();
+
+    // Apply configurable skip rules
+    if (rateLimitConfig.skipSuccessfulRequests && response.statusCode < 400) {
+      return true;
+    }
+
+    if (rateLimitConfig.skipFailedRequests && response.statusCode >= 400) {
+      return true;
+    }
+
+    return false;
+  },
+});
 
 export default createRateLimitingConfig;

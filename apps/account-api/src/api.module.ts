@@ -26,7 +26,7 @@ import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import apiConfig from './api.config';
-import { createRateLimitingConfig, IRateLimitingConfig } from '#config/rate-limiting.config';
+import { createRateLimitingConfig, createThrottlerConfig, IRateLimitingConfig } from '#config/rate-limiting.config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
@@ -70,36 +70,7 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig
     LoggerModule.forRoot(getPinoHttpOptions()),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (rateLimitConfig: IRateLimitingConfig, cacheConf: ICacheConfig) => ({
-        throttlers: [
-          {
-            name: 'default',
-            ttl: rateLimitConfig.ttl,
-            limit: rateLimitConfig.limit,
-          },
-        ],
-        storage: new ThrottlerStorageRedisService({
-          host: cacheConf.redisOptions.host,
-          port: cacheConf.redisOptions.port,
-          ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
-          ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
-          keyPrefix: rateLimitConfig.keyPrefix,
-        }),
-        skipIf: (context) => {
-          const response = context.switchToHttp().getResponse();
-
-          // Apply configurable skip rules
-          if (rateLimitConfig.skipSuccessfulRequests && response.statusCode < 400) {
-            return true;
-          }
-
-          if (rateLimitConfig.skipFailedRequests && response.statusCode >= 400) {
-            return true;
-          }
-
-          return false;
-        },
-      }),
+      useFactory: createThrottlerConfig,
       inject: [createRateLimitingConfig('account').KEY, cacheConfig.KEY],
     }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),

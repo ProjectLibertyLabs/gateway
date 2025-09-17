@@ -34,8 +34,8 @@ API.
 
 ### Monorepo Structure:
 
-- Apps (9 services): API endpoints and background workers
-- Libs (16 libraries): Shared functionality and utilities
+- Applications (9 services): API endpoints and background workers
+- Libraries (16 libraries): Shared functionality and utilities
 
 ### API Services & Workers
 
@@ -58,7 +58,7 @@ API.
 - Framework: NestJS with TypeScript
 - Blockchain: Polkadot API for Frequency chain
 - Storage: IPFS, file system
-- Caching: Redis with IORedis
+- Caching: Redis with Ioredis
 - Queues: BullMQ for background jobs
 - Documentation: OpenAPI/Swagger
 - Testing: Jest

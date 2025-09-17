@@ -214,7 +214,7 @@ These jobs are enqueued within Content Publisher's `ApiService`, triggered by an
 
 ## Sequence Diagrams
 
-* Content Publishing V3 Batch File Upload [SVG](./content-publishing-v3.svg) [PUML](./content-publishing-v3.puml)
+* [Content Publishing V3 Batch File Upload](CONTENT_PUBLISHING_V3.md)
 
 ## 🤝 Contributing <a name="contributing"></a>
 

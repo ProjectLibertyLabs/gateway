@@ -145,4 +145,7 @@ dist
 # Ignore Terraform variables files
 *.tfvars
 
+# Ignore AI configs
+CLAUDE.local.md
+
 .DS_Store

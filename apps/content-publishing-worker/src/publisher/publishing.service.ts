@@ -127,7 +127,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
           blocksRemaining * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND,
         ),
       );
-    } catch (err) {
+    } catch (_err) {
       // ignore duplicate timeout
     }
   }
@@ -141,7 +141,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     await this.publishQueue.resume();
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
   }

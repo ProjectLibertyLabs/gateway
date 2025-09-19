@@ -39,7 +39,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     await this.graphChangePublishQueue.close();
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
   }
@@ -178,7 +178,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
         CAPACITY_EPOCH_TIMEOUT_NAME,
         setTimeout(() => this.capacityCheckerService.checkForSufficientCapacity(), epochTimeout),
       );
-    } catch (err) {
+    } catch (_err) {
       // Ignore non-existent timeout
     }
   }
@@ -203,7 +203,7 @@ export class GraphUpdatePublisherService extends BaseConsumer implements OnAppli
     );
     try {
       this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
 

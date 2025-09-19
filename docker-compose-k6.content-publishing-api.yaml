@@ -18,6 +18,11 @@ services:
     ports:
       - 3000:3000
     volumes: !reset []
+    environment:
+      # Optimized batch processing for k6 tests
+      BATCH_INTERVAL_SECONDS: 3
+      BATCH_MAX_COUNT: 10
+      API_TIMEOUT_MS: 30000
     depends_on: !override
       - redis
       - ipfs
@@ -27,6 +32,11 @@ services:
     image: content-publishing-dev:latest
     user: "1001:1001"
     volumes: !reset []
+    environment:
+      # Optimized batch processing for k6 tests
+      BATCH_INTERVAL_SECONDS: 3
+      BATCH_MAX_COUNT: 10
+      API_TIMEOUT_MS: 30000
     depends_on: !override
       - redis
       - ipfs

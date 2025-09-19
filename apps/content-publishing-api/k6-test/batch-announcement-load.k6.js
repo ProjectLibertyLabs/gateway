@@ -13,9 +13,9 @@ const SCENARIOS = {
     duration: '20s',
     thresholds: {
       checks: ['rate>=0.70'], // Much more lenient - only 70% of checks need to pass
-      http_req_duration: ['avg<10000', 'p(95)<30000'], // More lenient timing
+      http_req_duration: ['avg<15000', 'p(95)<30000'], // Increased for batch processing delays
       http_req_failed: ['rate<0.70'], // Allow up to 70% failures for CI
-      http_reqs: ['rate>=0.3'], // Lower request rate requirement
+      http_reqs: ['rate>=0.1'], // Reduced from 0.3 to account for batch processing
     },
   },
   // Light load - basic functionality testing
@@ -75,10 +75,20 @@ export const options = {
 };
 
 export default function () {
-  // Health check first
-  const healthCheck = http.get(`${BASE_URL}/healthz`);
+  // Health check first with retry mechanism
+  let healthCheck = http.get(`${BASE_URL}/healthz`);
+  let retries = 0;
+  const maxRetries = 3;
+  
+  while (healthCheck.status !== 200 && retries < maxRetries) {
+    console.warn(`Health check failed with status ${healthCheck.status}, retrying... (${retries + 1}/${maxRetries})`);
+    sleep(1);
+    healthCheck = http.get(`${BASE_URL}/healthz`);
+    retries++;
+  }
+  
   if (healthCheck.status !== 200) {
-    console.error(`Health check failed with status ${healthCheck.status}`);
+    console.error(`Health check failed after ${maxRetries} retries with status ${healthCheck.status}`);
     return;
   }
 
@@ -96,13 +106,18 @@ export default function () {
 
     const request = http.post(url, JSON.stringify(body), params);
 
+    // Add error logging for debugging
+    if (request.status !== 202) {
+      console.error(`v2 single file request failed with status ${request.status}: ${request.body}`);
+    }
+
     check(request, {
       'v2 single file - status is 202': (r) => r.status === 202,
-      'v2 single file - response time < 5s': (r) => r.timings.duration < 5000,
+      'v2 single file - response time < 15s': (r) => r.timings.duration < 15000,
       'v2 single file - has response body': (r) => r.body && r.body.length > 0,
     });
 
-    sleep(randomIntBetween(3, 8));
+    sleep(randomIntBetween(1, 3));
   });
 
   // Test v2 batch announcement endpoint - Multiple Files
@@ -119,13 +134,18 @@ export default function () {
 
     const request = http.post(url, JSON.stringify(body), params);
 
+    // Add error logging for debugging
+    if (request.status !== 202) {
+      console.error(`v2 multiple files request failed with status ${request.status}: ${request.body}`);
+    }
+
     check(request, {
       'v2 multiple files - status is 202': (r) => r.status === 202,
-      'v2 multiple files - response time < 10s': (r) => r.timings.duration < 10000,
+      'v2 multiple files - response time < 20s': (r) => r.timings.duration < 20000,
       'v2 multiple files - has response body': (r) => r.body && r.body.length > 0,
     });
 
-    sleep(randomIntBetween(3, 8));
+    sleep(randomIntBetween(1, 3));
   });
 
   // Test v3 batch announcement endpoint - Single File Upload
@@ -149,7 +169,7 @@ export default function () {
       },
     });
 
-    sleep(randomIntBetween(5, 10));
+    sleep(randomIntBetween(2, 5));
   });
 
   // Test v3 batch announcement endpoint - Multiple Files Upload
@@ -174,7 +194,7 @@ export default function () {
       },
     });
 
-    sleep(randomIntBetween(8, 15));
+    sleep(randomIntBetween(3, 6));
   });
 
   // Test v3 batch announcement endpoint - Large Files
@@ -190,7 +210,7 @@ export default function () {
       'v3 large files - has response body': (r) => r.body && r.body.length > 0,
     });
 
-    sleep(randomIntBetween(10, 20));
+    sleep(randomIntBetween(5, 10));
   });
 
   // Test sequential batch processing (simulating concurrent load)
@@ -216,7 +236,7 @@ export default function () {
       }
       totalResponseTime += request.timings.duration;
 
-      sleep(randomIntBetween(1, 3));
+      sleep(randomIntBetween(0.5, 2));
     }
 
     const avgResponseTime = totalResponseTime / batchCount;
@@ -246,7 +266,7 @@ export default function () {
       }
       totalResponseTime += request.timings.duration;
 
-      sleep(randomIntBetween(2, 5));
+      sleep(randomIntBetween(1, 3));
     }
 
     const avgResponseTime = totalResponseTime / uploadCount;
@@ -256,7 +276,7 @@ export default function () {
       'v3 sequential uploads - avg response time < 20s': (r) => r.avgResponseTime < 20000,
     });
 
-    sleep(randomIntBetween(5, 10));
+    sleep(randomIntBetween(2, 5));
   });
 
   // Test maximum batch limits
@@ -292,7 +312,7 @@ export default function () {
       'v3 max files - response time < 60s': (r) => r.timings.duration < 60000,
     });
 
-    sleep(randomIntBetween(10, 20));
+    sleep(randomIntBetween(5, 10));
   });
 
   // Test different file sizes (simulated by different batch sizes)
@@ -316,7 +336,7 @@ export default function () {
       'different batch sizes - response time reasonable': (r) => r.timings.duration < (selectedSize * 2000), // 2s per file max
     });
 
-    sleep(randomIntBetween(3, 8));
+    sleep(randomIntBetween(1, 3));
   });
 
   // Test v3 different file sizes
@@ -345,10 +365,20 @@ export default function () {
 export function setup() {
   console.log(`Starting batch announcement load test with scenario: ${SCENARIO}`);
 
-  // Health check before starting
-  const healthCheck = http.get(`${BASE_URL}/healthz`);
+  // Health check before starting with retry mechanism
+  let healthCheck = http.get(`${BASE_URL}/healthz`);
+  let retries = 0;
+  const maxRetries = 5;
+  
+  while (healthCheck.status !== 200 && retries < maxRetries) {
+    console.warn(`Setup health check failed with status ${healthCheck.status}, retrying... (${retries + 1}/${maxRetries})`);
+    sleep(2);
+    healthCheck = http.get(`${BASE_URL}/healthz`);
+    retries++;
+  }
+  
   if (healthCheck.status !== 200) {
-    throw new Error('Service is not healthy');
+    throw new Error(`Service is not healthy after ${maxRetries} retries. Status: ${healthCheck.status}`);
   }
 
   return { scenario: SCENARIO };

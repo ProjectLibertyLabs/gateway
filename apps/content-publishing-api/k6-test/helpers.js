@@ -100,9 +100,21 @@ export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'i
 // BATCH ANNOUNCEMENT HELPERS
 // ============================================================================
 
-// Valid CID v1 examples for testing
+// Valid CID v1 examples for testing - these are known to pass multiformats validation
 const generateValidCid = () => {
-  return 'bafybei' + randomString(52, 'abcdefghijklmnopqrstuvwxyz0123456789');
+  // Use only the CIDs that are confirmed to be valid from the codebase
+  const validCids = [
+    'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi', // From mock file
+    'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy', // From test file
+    'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu'  // From openapi spec
+  ];
+  return validCids[randomIntBetween(0, validCids.length - 1)];
+};
+
+// Generate more realistic CIDs that are more likely to be accepted
+const generateRealisticCid = () => {
+  // For now, just use the same valid CIDs to ensure they pass validation
+  return generateValidCid();
 };
 
 // Export common constants
@@ -170,6 +182,7 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
   } = options;
 
   const batchFiles = [];
+  const usedCids = new Set(); // Track used CIDs to avoid duplicates
   
   for (let i = 0; i < fileCount; i++) {
     let cid;
@@ -192,8 +205,12 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
         cid = generateValidCid();
       }
     } else {
-      // Use valid CID from our list
-      cid = generateValidCid();
+      // Use valid CID for better test reliability
+      // Ensure we don't use the same CID twice in the same batch
+      do {
+        cid = generateValidCid();
+      } while (usedCids.has(cid) && usedCids.size < 3); // Only avoid duplicates if we have enough unique CIDs
+      usedCids.add(cid);
     }
     
     batchFiles.push({

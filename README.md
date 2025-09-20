@@ -30,11 +30,48 @@ Gateway is a collection of services designed to simplify interactions with the F
 between Web2 and Web3, allowing developers to interact with Frequency as easily as they would with any traditional Web2
 API.
 
-Key features:
+## Architecture Summary
+
+### Monorepo Structure:
+
+- Applications (9 services): API endpoints and background workers
+- Libraries (16 libraries): Shared functionality and utilities
+
+### API Services & Workers
+
+- Account (account-api + account-worker): User account management and blockchain interactions
+- Content Publishing (content-publishing-api + content-publishing-worker): Content creation and publishing to blockchain
+- Graph (graph-api + graph-worker): Social graph and relationship management
+- Content Watcher (content-watcher): Monitors blockchain for content changes
+
+### Shared Libraries
+
+- Blockchain: Polkadot/Frequency chain interactions
+- Queue: BullMQ job processing
+- Cache: Redis caching layer
+- Storage: File/IPFS storage
+- Config: Environment configuration
+- Types: Shared TypeScript definitions
+
+### Technology Stack
+
+- Framework: NestJS with TypeScript
+- Blockchain: Polkadot API for Frequency chain
+- Storage: IPFS, file system
+- Caching: Redis with Ioredis
+- Queues: BullMQ for background jobs
+- Documentation: OpenAPI/Swagger
+- Testing: Jest
+- Infrastructure: Docker, Kubernetes ready
+
+### Key Features
 
 - Modular architecture: Use each service independently to fit your specific needs
 - Simplified blockchain interactions: Abstract away complex blockchain operations
 - Web2-like experience: Familiar REST API patterns for Web2 developers
+- Background Processing: Async job queues for blockchain operations
+- Monitoring: Prometheus metrics and structured logging
+- Developer-Friendly: Comprehensive documentation and testing
 
 For a practical implementation example, check out our **Social App Template
 ** [here](https://github.com/ProjectLibertyLabs/social-app-template), which demonstrates how to integrate these services
@@ -217,9 +254,11 @@ A local Prometheus server can be installed and pointed at this endpoint for debu
 
 ## ⚡ Load and Stress Testing <a name="load-testing"></a>
 
-Gateway includes [Grafana k6](https://k6.io/) load and stress testing capabilities across microservices to ensure reliability, performance, and scalability under various load conditions.
+Gateway includes [Grafana k6](https://k6.io/) load and stress testing capabilities across microservices to ensure
+reliability, performance, and scalability under various load conditions.
 
 **Key Features:**
+
 - **Health Check Testing**: Basic service availability validation
 - **Load Testing**: Multiple scenarios (light, medium, heavy, burst) for performance validation
 - **Stress Testing**: Advanced stress scenarios with multiple phases
@@ -227,6 +266,7 @@ Gateway includes [Grafana k6](https://k6.io/) load and stress testing capabiliti
 - **Test Data Generation**: Realistic data generation to avoid blockchain interaction
 
 **Quick Start:**
+
 ```bash
 # Run health check for any service
 cd apps/[service-name]/k6-test
@@ -237,7 +277,8 @@ cd apps/content-publishing-api/k6-test
 SCENARIO=heavy k6 run batch-announcement-load.k6.js
 ```
 
-Detailed information, configuration options, and best practices, are included in our **[k6 testing documentation](./docs/k6/k6-documentation.md)**.
+Detailed information, configuration options, and best practices, are included in our *
+*[k6 testing documentation](./docs/k6/k6-documentation.md)**.
 
 <!-- CONTRIBUTING -->
 

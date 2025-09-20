@@ -20,8 +20,11 @@ import workerConfig from './worker.config';
 import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
 import httpConfig from '#config/http-common.config';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
-const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig];
+const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, createRateLimitingConfig('account-worker')];
 
 @Module({
   imports: [
@@ -63,6 +66,11 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig];
       inject: [blockchainConfig.KEY, cacheConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('account-worker').KEY, cacheConfig.KEY],
+    }),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
@@ -71,7 +79,14 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig];
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),
   ],
   controllers: [HealthController],
-  providers: [ProviderWebhookService],
+  providers: [
+    ProviderWebhookService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [EventEmitterModule],
 })
 export class WorkerModule {}

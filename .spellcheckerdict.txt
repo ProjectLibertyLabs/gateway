@@ -1,4 +1,7 @@
 100kb
+2xx
+4xx
+5xx
 [15]mb
 [Aa]dd-ons
 [Aa]pi

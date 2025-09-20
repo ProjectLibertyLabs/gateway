@@ -10,6 +10,7 @@ import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { CacheModule } from '#cache/cache.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import {
   AccountsControllerV1,
   AccountsControllerV2,
@@ -24,12 +25,13 @@ import { ConfigModule } from '@nestjs/config';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import apiConfig from './api.config';
-import { APP_FILTER } from '@nestjs/core';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config/rate-limiting.config';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 
-const configs = [apiConfig, allowReadOnly, cacheConfig];
+const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig('account')];
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configs }),
@@ -65,6 +67,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig];
     }),
     // just use default pino options
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('account').KEY, cacheConfig.KEY],
+    }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('account-api')),
@@ -77,6 +84,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig];
     HandlesService,
     KeysService,
     SiwfV2Service,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

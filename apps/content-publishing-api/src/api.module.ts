@@ -14,7 +14,7 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import apiConfig, { IContentPublishingApiConfig } from './api.config';
 import cacheConfig, { ICacheConfig } from '#cache/cache.config';
 import { QueueModule } from '#queue/queue.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { ContentControllerV2 } from './controllers/v2';
 import { ContentControllerV3 } from './controllers/v3';
@@ -26,8 +26,17 @@ import { AssetControllerV2 } from './controllers/v2/asset.controller.v2';
 import { IPFSStorageModule } from '#storage';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
 
-const configs = [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonConfig];
+const configs = [
+  apiConfig,
+  allowReadOnly,
+  cacheConfig,
+  ipfsConfig,
+  httpCommonConfig,
+  createRateLimitingConfig('content-publishing'),
+];
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -63,6 +72,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonCo
       inject: [cacheConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('content-publishing').KEY, cacheConfig.KEY],
+    }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     MulterModule.registerAsync({
@@ -80,6 +94,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, ipfsConfig, httpCommonCo
   ],
   providers: [
     ApiService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

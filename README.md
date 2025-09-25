@@ -193,7 +193,7 @@ Use this script when you need to stop all running Gateway services.
 
 ```sh
   # First time installation only
-  cargo install mdbook@0.4.51
+  cargo install mdbook@0.4.52
   cargo install mdbook-mermaid@0.15.0
 
   cd docs

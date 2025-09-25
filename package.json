@@ -103,6 +103,7 @@
     "test:k6:content-publishing": "for t in apps/content-publishing-api/k6-test/*.k6.js ; do k6 run ${t} ; done",
     "test:k6:content-publishing:batch": "k6 run apps/content-publishing-api/k6-test/batch-announcement-load.k6.js",
     "test:k6:content-publishing:batch:stress": "k6 run apps/content-publishing-api/k6-test/batch-announcement-stress.k6.js",
+    "test:k6:content-publishing:batch:ultra-light": "SCENARIO=ultra_light k6 run apps/content-publishing-api/k6-test/batch-announcement-load.k6.js",
     "test:k6:content-publishing:batch:light": "SCENARIO=light k6 run apps/content-publishing-api/k6-test/batch-announcement-load.k6.js",
     "test:k6:content-publishing:batch:heavy": "SCENARIO=heavy k6 run apps/content-publishing-api/k6-test/batch-announcement-load.k6.js",
     "test:bats-install": "cd node_modules/bats && sudo ./install.sh /usr/local",

@@ -34,8 +34,8 @@ API.
 
 ### Monorepo Structure:
 
-- Applications (9 services): API endpoints and background workers
-- Libraries (16 libraries): Shared functionality and utilities
+- Applications (7 services): 3 APIs, 3 workers and 1 watcher
+- Libraries (14 libraries): Shared functionality and utilities
 
 ### API Services & Workers
 

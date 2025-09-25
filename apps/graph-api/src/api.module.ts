@@ -21,13 +21,22 @@ import { QueueModule } from '#queue/queue.module';
 import scannerConfig from '#graph-worker/graph_notifier/scanner.config';
 import { AsyncDebouncerService } from '#graph-lib/services/async_debouncer';
 import graphCommonConfig from '#config/graph-common.config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { EncryptionService } from '#graph-lib/services/encryption.service';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
 
-const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphCommonConfig];
+const configs = [
+  apiConfig,
+  allowReadOnly,
+  cacheConfig,
+  scannerConfig,
+  graphCommonConfig,
+  createRateLimitingConfig('graph'),
+];
 
 @Module({
   imports: [
@@ -64,6 +73,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphComm
       inject: [cacheConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('graph').KEY, cacheConfig.KEY],
+    }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     ScheduleModule.forRoot(),
     PrometheusModule.register(createPrometheusConfig('graph-api')),
@@ -74,6 +88,11 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, scannerConfig, graphComm
     GraphStateManager,
     AsyncDebouncerService,
     EncryptionService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

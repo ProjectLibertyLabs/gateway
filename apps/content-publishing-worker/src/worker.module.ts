@@ -24,8 +24,18 @@ import { IpfsService } from '#storage';
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
-const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCommonConfig];
+const configs = [
+  blockchainConfig,
+  cacheConfig,
+  ipfsConfig,
+  workerConfig,
+  httpCommonConfig,
+  createRateLimitingConfig('content-publishing-worker'),
+];
 
 @Module({
   imports: [
@@ -68,6 +78,11 @@ const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCo
       ignoreErrors: false,
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('content-publishing-worker').KEY, cacheConfig.KEY],
+    }),
     ScheduleModule.forRoot(),
     PublisherModule,
     BatchAnnouncerModule,
@@ -79,7 +94,14 @@ const configs = [blockchainConfig, cacheConfig, ipfsConfig, workerConfig, httpCo
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY.toString()) }),
   ],
   controllers: [HealthController],
-  providers: [IpfsService],
+  providers: [
+    IpfsService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [IpfsService],
 })
 export class WorkerModule {}

@@ -29,13 +29,14 @@ export function getPinoTransport() {
 }
 
 const customLogLevel = (req, res, err) => {
-  if (req.url === '/metrics') {
+  if (req.url === '/metrics' && res.statusCode < 300) {
     return 'silent';
   }
-  if (res.statusCode >= 400 || err) {
+  if (res.statusCode >= 400 && res.statusCode < 500) {
+    return 'warn';
+  } else if (res.statusCode >= 500 || err) {
     return 'error';
-  }
-  if (res.statusCode >= 200 && res.statusCode < 400) {
+  } else if (res.statusCode >= 300 && res.statusCode < 400) {
     return 'silent';
   }
   return 'info';

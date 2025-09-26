@@ -24,13 +24,11 @@ fi
 if [[ "$CMD" != "doctor" ]] && [[ "$CMD" != "flame" ]] ; then
   cat << EOF
 
-    Usage: clinic [command] [test-script] [target]
+    Usage: clinic [command]
 
     runs clinic <command> memory profiling tool against a nodejs target.
 
     - command: optional, defaults to 'doctor'
-    - test-script: optional, defaults to ./dist/apps/content-publishing-api/k6-test/script_sm_files.k6.js
-    - target: optional, defaults to ./apps/content-publishing-api/k6-test/script_sm_files.k6.js
 
 EOF
 exit 0

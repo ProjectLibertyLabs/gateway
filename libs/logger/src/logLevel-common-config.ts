@@ -28,10 +28,24 @@ export function getPinoTransport() {
   return undefined;
 }
 
+const customLogLevel = (req, res, err) => {
+  if (req.url === '/metrics') {
+    return 'silent';
+  }
+  if (res.statusCode >= 400 || err) {
+    return 'error';
+  }
+  if (res.statusCode >= 200 && res.statusCode < 400) {
+    return 'silent';
+  }
+  return 'info';
+};
+
 export function getPinoHttpOptions() {
   return {
     pinoHttp: {
       enabled: process.env.NODE_ENV !== 'test',
+      customLogLevel,
       level: getCurrentLogLevel(),
       customProps: () => ({
         context: 'HTTP',

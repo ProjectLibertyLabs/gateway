@@ -24,7 +24,7 @@ export namespace AccountQueues {
         name: TRANSACTION_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: 20,
-          removeOnFail: false,
+          removeOnFail: 1000,
           attempts: 1,
         },
       },
@@ -71,7 +71,7 @@ export namespace ContentWatcherQueues {
       defaultJobOptions: {
         attempts: 3,
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: 1000,
       },
     },
     queues: [
@@ -195,7 +195,7 @@ export namespace ContentPublishingQueues {
         defaultJobOptions: {
           attempts: 1,
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: 1000,
         },
       },
       {
@@ -203,7 +203,7 @@ export namespace ContentPublishingQueues {
         defaultJobOptions: {
           attempts: 1,
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: 1000,
           backoff: {
             type: 'exponential',
             delay: 6000,
@@ -243,7 +243,7 @@ export namespace GraphQueues {
         name: GRAPH_CHANGE_REQUEST_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: 1000,
           attempts: 3,
         },
       },
@@ -251,15 +251,15 @@ export namespace GraphQueues {
         name: GRAPH_CHANGE_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: 1000,
           attempts: 1,
         },
       },
       {
         name: RECONNECT_REQUEST_QUEUE,
         defaultJobOptions: {
-          removeOnComplete: false,
-          removeOnFail: false,
+          removeOnComplete: 100,
+          removeOnFail: 1000,
           attempts: 3,
         },
       },

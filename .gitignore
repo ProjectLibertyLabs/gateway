@@ -148,4 +148,7 @@ dist
 # Ignore AI configs
 CLAUDE.local.md
 
+# Ignore Clinic.js output
+.clinic
+
 .DS_Store

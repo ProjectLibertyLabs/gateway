@@ -11,6 +11,10 @@ import { NonceConflictError } from '#blockchain/types';
 import { mockRedisProvider } from '#testlib';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
+import { getRedisToken } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { NonceConstants } from '#types/constants';
+import getNonceKey = NonceConstants.getNonceKey;
 
 function createNamedError(name: string, message: string): Error {
   const err = new Error(message);
@@ -49,6 +53,7 @@ describe('BlockchainService', () => {
   let blockchainService: BlockchainService;
   let blockchainConf: IBlockchainConfig;
   let moduleRef: TestingModule;
+  let nonceRedis: Redis;
 
   beforeAll(async () => {
     // const foo = await import('@polkadot/api');
@@ -89,6 +94,8 @@ describe('BlockchainService', () => {
     blockchainService = moduleRef.get<BlockchainService>(BlockchainService);
     mockApi = await blockchainService.getApi();
     blockchainConf = moduleRef.get<IBlockchainConfig>(mockBlockchainConfigProvider.provide);
+    nonceRedis = moduleRef.get<Redis>(getRedisToken(NONCE_SERVICE_REDIS_NAMESPACE));
+    (nonceRedis as any).incrementNonce = jest.fn();
 
     await cryptoWaitReady();
     mockApi.emit('connected'); // keeps the test suite from hanging when finished
@@ -264,6 +271,34 @@ describe('BlockchainService', () => {
       });
       await expect(() => blockchainService.payWithCapacityBatchAll([])).rejects.toThrow();
       expect(unreserveSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('reserveNextNonce', () => {
+    it('should not fetch from node if current nonce is in cache', async () => {
+      jest.spyOn(nonceRedis, 'get').mockResolvedValueOnce('1');
+      const chainSpy = jest.spyOn(blockchainService, 'getNonce').mockResolvedValueOnce(1);
+      await blockchainService.reserveNextNonce();
+      expect(chainSpy).not.toHaveBeenCalled();
+    });
+
+    it('should fetch nonce from node if not in cache', async () => {
+      jest.spyOn(nonceRedis, 'get').mockResolvedValueOnce(null);
+      const chainSpy = jest.spyOn(blockchainService, 'getNonce').mockResolvedValueOnce(1);
+      await blockchainService.reserveNextNonce();
+      expect(chainSpy).toHaveBeenCalled();
+    });
+
+    it('next possible nonce keys should not include current nonce', async () => {
+      const nextKeys = BlockchainService.getNextPossibleNonceKeys(1);
+      expect(nextKeys).not.toContain(getNonceKey('1'));
+    });
+
+    it('should return the next possible nonce', async () => {
+      jest.spyOn(nonceRedis, 'get').mockResolvedValueOnce('1');
+      jest.spyOn(nonceRedis as any, 'incrementNonce').mockResolvedValueOnce(1);
+      const result = await blockchainService.reserveNextNonce();
+      expect(result).toBe(2);
     });
   });
 });

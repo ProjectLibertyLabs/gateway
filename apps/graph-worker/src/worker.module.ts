@@ -22,8 +22,19 @@ import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
 import { HealthCheckModule } from '#health-check/health-check.module';
 import { HealthController } from './health_check/health.controller';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { APP_GUARD } from '@nestjs/core';
 
-const configs = [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig, scannerConfig, httpCommonConfig];
+const configs = [
+  workerConfig,
+  graphCommonConfig,
+  blockchainConfig,
+  cacheConfig,
+  scannerConfig,
+  httpCommonConfig,
+  createRateLimitingConfig('graph-worker'),
+];
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -64,6 +75,11 @@ const configs = [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig,
       inject: [cacheConfig.KEY, blockchainConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('graph-worker').KEY, cacheConfig.KEY],
+    }),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync(),
     RequestProcessorModule,
@@ -73,7 +89,14 @@ const configs = [workerConfig, graphCommonConfig, blockchainConfig, cacheConfig,
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY.toString()) }),
   ],
   controllers: [HealthController],
-  providers: [GraphStateManager],
+  providers: [
+    GraphStateManager,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [],
 })
 export class WorkerModule {}

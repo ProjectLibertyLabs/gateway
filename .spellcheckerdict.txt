@@ -1,4 +1,7 @@
 100kb
+2xx
+4xx
+5xx
 [15]mb
 [Aa]dd-ons
 [Aa]pi
@@ -12,6 +15,7 @@ Ansible
 AOF
 APIs
 assetQueue
+[Aa]sync
 autoscaling.
 auto-failover
 Auto-Failover
@@ -30,6 +34,8 @@ CLI
 Cloudflare
 CloudWatch
 codebase
+config
+content-publishing-api
 ConfigMap
 content-publishing-service-api
 CORS
@@ -82,6 +88,7 @@ ie
 ipfs
 IPFS('s)?
 IPFSContentProcessor
+Joi
 JSDoc
 (JSON|json)
 JWT
@@ -107,6 +114,7 @@ Middleware
 mjs
 [Mm]ainnet
 [Mm]icroservices?(-based)?
+[Mm]onorepo
 MSA
 MSAs
 namespace
@@ -143,7 +151,7 @@ repo
 RPCs?
 S3-compatible
 scalable
-Schemas
+[Ss]chemas
 SDK
 SDKs
 signin
@@ -153,6 +161,7 @@ SIWF_V2_URI_VALIDATION
 src
 SSL
 SSO
+SVG
 statusQueue
 stress-test
 Supertest

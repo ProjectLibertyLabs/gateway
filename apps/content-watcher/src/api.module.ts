@@ -16,7 +16,7 @@ import { noProviderBlockchainConfig } from '#blockchain/blockchain.config';
 import { QueueModule } from '#queue/queue.module';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
 import scannerConfig from '#content-watcher-lib/scanner/scanner.config';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import pubsubConfig from '#content-watcher/pubsub/pubsub.config';
 import { PubSubModule } from '#content-watcher/pubsub/pubsub.module';
@@ -25,6 +25,8 @@ import { IPFSProcessorModule } from '#content-watcher/ipfs/ipfs.processor.module
 import httpCommonConfig from '#config/http-common.config';
 import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { createRateLimitingConfig, createThrottlerConfig } from '#config';
 
 const configs = [
   apiConfig,
@@ -34,22 +36,12 @@ const configs = [
   scannerConfig,
   pubsubConfig,
   httpCommonConfig,
+  createRateLimitingConfig('content-watcher'),
 ];
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [
-        apiConfig,
-        noProviderBlockchainConfig,
-        cacheConfig,
-        ipfsConfig,
-        scannerConfig,
-        pubsubConfig,
-        httpCommonConfig,
-      ],
-    }),
+    ConfigModule.forRoot({ isGlobal: true, load: configs }),
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync({
       readOnly: true,
@@ -63,6 +55,11 @@ const configs = [
       inject: [cacheConfig.KEY],
     }),
     LoggerModule.forRoot(getPinoHttpOptions()),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: createThrottlerConfig,
+      inject: [createRateLimitingConfig('content-watcher').KEY, cacheConfig.KEY],
+    }),
     QueueModule.forRoot({ enableUI: true, ...QueueConstants.CONFIGURED_QUEUES }),
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
@@ -87,6 +84,11 @@ const configs = [
   ],
   providers: [
     ApiService,
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // global exception handling
     {
       provide: APP_FILTER,

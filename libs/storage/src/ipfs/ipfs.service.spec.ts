@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
-import { FilePin, IIpfsConfig, IpfsService } from '#storage';
+import { FilePin, IIpfsConfig, IpfsService, IpfsClusterService } from '#storage';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { dummyCidV0, dummyCidV1, FilesStatResult, CID, KuboRPCClient, PinLsResult } from '__mocks__/kubo-rpc-client';
 import { Readable } from 'stream';
@@ -40,7 +40,7 @@ describe('IpfsService Tests', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [LoggerModule.forRoot(getPinoHttpOptions())],
-      providers: [IpfsService, mockIpfsConfigProvider, mockHttpCommonConfigProvider],
+      providers: [IpfsService, IpfsClusterService, mockIpfsConfigProvider, mockHttpCommonConfigProvider],
     }).compile();
 
     service = module.get<IpfsService>(IpfsService);

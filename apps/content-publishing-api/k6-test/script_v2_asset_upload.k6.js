@@ -1,6 +1,6 @@
 import http from 'k6/http';
 import { check, group } from 'k6';
-import { mockAsset } from './helpers.js';
+import { createMockFile } from './helpers.js';
 
 export const options = {
   vus: 100,
@@ -18,7 +18,7 @@ export const options = {
 export default function () {
   group('/v2/asset/upload large files', () => {
     const url = 'http://localhost:3000/v2/asset/upload';
-    const data = mockAsset('lg', 'image/jpg');
+    const data = createMockFile('lg', 'image/jpg');
     const request = http.post(url, data, { 'Content-type': 'multipart/form-data', accept: 'application/json' });
     check(request, {
       '': (r) => r.status === 202,

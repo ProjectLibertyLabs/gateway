@@ -90,6 +90,8 @@
     "test:libs:utils": "jest 'libs/utils'",
     "test:libs": "dotenvx run -f env-files/graph.template.env -f env-files/content-publishing.template.env -- jest 'libs/'",
     "test": "npm run test:account ; npm run test:content-publishing ; npm run test:content-watcher ; npm run test:graph ; npm run test:libs",
+    "demo:ipfs-cluster": "npx ts-node ipfs-cluster-demo.ts",
+    "demo:ipfs-cluster-simple": "node ipfs-cluster-demo-simple.js",
     "test:verbose": "jest --coverage --verbose",
     "test:e2e:account": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-api/.*\\.e2e-spec\\.ts'",
     "test:e2e:account-worker": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-worker/.*\\.e2e-spec\\.ts'",

@@ -252,7 +252,7 @@ export class ApiService {
     const dataOps = await dataTransaction.exec();
     ApiService.checkTransactionResult(dataOps);
     const queuedJobs = await this.assetQueue.addBulk(jobs);
-    this.logger.debug('Add Assets Job');
+    this.logger.debug(queuedJobs, 'Add Assets Job');
     const metaDataOps = await metadataTransaction.exec();
     ApiService.checkTransactionResult(metaDataOps);
 

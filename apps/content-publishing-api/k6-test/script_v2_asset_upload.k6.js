@@ -18,7 +18,7 @@ export const options = {
 export default function () {
   group('/v2/asset/upload large files', () => {
     const url = 'http://localhost:3000/v2/asset/upload';
-    const data = createMockFile('lg', 'image/jpg');
+    const data = createMockFile('lg', 'jpg', 'image/jpeg');
     const request = http.post(url, data, { 'Content-type': 'multipart/form-data', accept: 'application/json' });
     check(request, {
       '': (r) => r.status === 202,

@@ -139,7 +139,7 @@ Ensure you have the following installed:
 
 ## 🚀 API Documentation <a name="api-documentation"></a>
 
-- [Live API Documentation](https://projectlibertylabs.github.io/gateway)
+- [Live API Documentation](https://projectlibertylabs.github.io/gateway/content-publishing/)
 
 ## 🛠 Development <a name="development"></a>
 
@@ -218,7 +218,7 @@ These jobs are enqueued within Content Publisher's `ApiService`, triggered by an
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+We welcome contributions! Please check our [Contributing Guidelines](../../CONTRIBUTING.md)
 and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
@@ -230,6 +230,6 @@ Frequency._
 
 ## 📝 License <a name="license"></a>
 
-This project is licensed under the [Apache 2.0 License](./LICENSE).
+This project is licensed under the [Apache 2.0 License](../../LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

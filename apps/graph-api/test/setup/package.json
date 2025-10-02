@@ -22,6 +22,6 @@
     "loglevel": "1.9.2"
   },
   "devDependencies": {
-    "tsx": "^4.19.3"
+    "tsx": "4.19.3"
   }
 }

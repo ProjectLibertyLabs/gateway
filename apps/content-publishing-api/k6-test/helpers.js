@@ -100,21 +100,30 @@ export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'i
 // BATCH ANNOUNCEMENT HELPERS
 // ============================================================================
 
-// Valid CID v1 examples for testing - these are known to pass multiformats validation
-const generateValidCid = () => {
-  // Use only the CIDs that are confirmed to be valid from the codebase
-  const validCids = [
-    'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi', // From mock file
-    'bafybeiap642764aat6txaap4qex4empkdtpjv7uabv47w1pdih3nflajpy', // From test file
-    'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu'  // From openapi spec
-  ];
-  return validCids[randomIntBetween(0, validCids.length - 1)];
+// CID v1 format with the bafybei prefix and 52-character base32 encoding
+const VALID_CIDS = [
+  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+  'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu',
+  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+  'bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxqvyb4m',
+  'bafybeib6j6onkl5n3nqnt7bfj62xgsp2oursry4nd2w577ro2nw3s2c3yq',
+  'bafybeicovjpmtwtvn5ldu2htp7g6m4exb3sxli66hybm2whe3oa7md7nmi',
+  'bafybeidbzsbjkakzwg2lo7aggl3tw4ykq3xynqk4dwcvgdjvdvappcoame',
+  'bafybeih2xgatf23jws7urisg4ly3c2ddeq4tfq62ntt5z6f6d4y7n2w3a',
+  'bafybeig6j5fb5wez5usy6yd4xprnd3akj6nzxpeok3iqj2fn7fgw63awu',
+  'bafybeibmec6pvsq2kvur46ow7iguq7h6yblzf6z7fp42l7u7spnng7cllq'
+];
+
+const VALID_CIDS_COUNT = VALID_CIDS.length;
+
+const randomMockCid = () => {
+  return VALID_CIDS[randomIntBetween(0, VALID_CIDS_COUNT - 1)];
 };
 
 // Generate more realistic CIDs that are more likely to be accepted
 const generateRealisticCid = () => {
   // For now, just use the same valid CIDs to ensure they pass validation
-  return generateValidCid();
+  return randomMockCid();
 };
 
 // Export common constants
@@ -197,19 +206,19 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
           const response = JSON.parse(uploadResponse.body);
           cid = response.assetIds[0];
         } catch {
-          // Use valid CID from our list as fallback
-          cid = generateValidCid();
+        // Use valid CID from our list as fallback
+        cid = randomMockCid();
         }
       } else {
         // Use valid CID from our list as fallback
-        cid = generateValidCid();
+        cid = randomMockCid();
       }
     } else {
       // Use valid CID for better test reliability
       // Ensure we don't use the same CID twice in the same batch
       do {
-        cid = generateValidCid();
-      } while (usedCids.has(cid) && usedCids.size < 3); // Only avoid duplicates if we have enough unique CIDs
+        cid = randomMockCid();
+      } while (usedCids.has(cid) && usedCids.size < VALID_CIDS_COUNT); // Only avoid duplicates if we have enough unique CIDs
       usedCids.add(cid);
     }
     
@@ -252,7 +261,7 @@ export const createErrorScenarios = () => {
     // Invalid schema ID
     invalidSchema: {
       batchFiles: [{ 
-        cid: generateValidCid(), 
+        cid: randomMockCid(), 
         schemaId: 99999 
       }]
     },
@@ -273,7 +282,7 @@ export const createErrorScenarios = () => {
     // Missing required fields
     missingFields: {
       batchFiles: [{ 
-        cid: generateValidCid(),
+        cid: randomMockCid(),
         // Missing schemaId
       }]
     },
@@ -281,7 +290,7 @@ export const createErrorScenarios = () => {
     // Too many files
     tooManyFiles: {
       batchFiles: Array.from({ length: 25 }, (_, i) => ({
-        cid: generateValidCid(),
+        cid: randomMockCid(),
         schemaId: 12
       }))
     }

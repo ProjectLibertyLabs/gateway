@@ -105,13 +105,6 @@ const VALID_CIDS = [
   'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
   'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu',
   'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
-  'bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxqvyb4m',
-  'bafybeib6j6onkl5n3nqnt7bfj62xgsp2oursry4nd2w577ro2nw3s2c3yq',
-  'bafybeicovjpmtwtvn5ldu2htp7g6m4exb3sxli66hybm2whe3oa7md7nmi',
-  'bafybeidbzsbjkakzwg2lo7aggl3tw4ykq3xynqk4dwcvgdjvdvappcoame',
-  'bafybeih2xgatf23jws7urisg4ly3c2ddeq4tfq62ntt5z6f6d4y7n2w3a',
-  'bafybeig6j5fb5wez5usy6yd4xprnd3akj6nzxpeok3iqj2fn7fgw63awu',
-  'bafybeibmec6pvsq2kvur46ow7iguq7h6yblzf6z7fp42l7u7spnng7cllq'
 ];
 
 const VALID_CIDS_COUNT = VALID_CIDS.length;

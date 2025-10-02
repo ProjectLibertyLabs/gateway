@@ -14,9 +14,9 @@
     "@types/k6": "^0.51.0"
   },
   "dependencies": {
-    "@polkadot/api": "^12.3.1",
-    "@polkadot/types": "^12.3.1",
-    "@polkadot/util": "^13.0.2",
-    "@polkadot/util-crypto": "^13.0.2"
+    "@polkadot/api": "12.3.1",
+    "@polkadot/types": "12.3.1",
+    "@polkadot/util": "13.0.2",
+    "@polkadot/util-crypto": "13.0.2"
   }
 }

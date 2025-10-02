@@ -95,7 +95,7 @@ Ensure you have the following installed:
 2. Set up environment variables:
 
    ```bash
-   cp env-files/content-watcher.template .env.content-watcher
+   cp env-files/content-watcher.template.env .env.content-watcher
    ```
 
    Configure the environment variables according to your needs.
@@ -134,8 +134,8 @@ Ensure you have the following installed:
 
 #### Docker Setup
 
-- Access Swagger UI: [http://localhost:3011/api/docs/swagger](http://localhost:3014/api/docs/swagger)
-- View and manage queues: [http://localhost:3011/queues](http://localhost:3014/queues)
+- Access Swagger UI: [http://localhost:3011/api/docs/swagger](http://localhost:3011/api/docs/swagger)
+- View and manage queues: [http://localhost:3011/queues](http://localhost:3011/queues)
 
 #### Local Development Setup
 
@@ -144,7 +144,7 @@ Ensure you have the following installed:
 
 ## 🚀 API Documentation <a name="api-documentation"></a>
 
-- [Live API Documentation](https://projectlibertylabs.github.io/gateway/)
+- [Live API Documentation](https://projectlibertylabs.github.io/gateway/content-watcher/)
 
 ## 🛠 Development <a name="development"></a>
 
@@ -227,6 +227,6 @@ them._
 
 ## 📝 License <a name="license"></a>
 
-This project is licensed under the [Apache 2.0 License](./LICENSE).
+This project is licensed under the [Apache 2.0 License](../../LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

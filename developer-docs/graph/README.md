@@ -127,7 +127,7 @@ our [comprehensive documentation](#).
 
 ## 🚀 API Documentation <a name="api-documentation"></a>
 
-Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway) for detailed information on endpoints
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway/graph/) for detailed information on endpoints
 and usage.
 
 ## 🛠 Development <a name="development"></a>
@@ -183,8 +183,8 @@ documentation.
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
-and [open issues](https://github.com/ProjectLibertyLabs/graph-service/issues).
+We welcome contributions! Please check our [Contributing Guidelines](../../CONTRIBUTING.md)
+and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
 
@@ -195,6 +195,6 @@ users who are already on DSNP or don't need to migrate pre-DSNP users._
 
 ## 📝 License <a name="license"></a>
 
-This project is licensed under the [Apache 2.0 License](./LICENSE).
+This project is licensed under the [Apache 2.0 License](../../LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

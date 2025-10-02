@@ -67,7 +67,7 @@ Ensure you have the following installed:
    ```
 
    Ensure that the `.env.account` file is correctly configured for your environment. For more information, refer to
-   the [Environment Variables](ENVIRONMENT.md) section in the full documentation. Specifically, you will need to set the
+   the [Environment Variables](./ENVIRONMENT.md) section in the full documentation. Specifically, you will need to set the
    `FREQUENCY_API_WS_URL`, etc., to the correct network (e.g., `wss://0.rpc.testnet.amplica.io`).
 
 3. Install dependencies:
@@ -136,7 +136,7 @@ our [comprehensive documentation](#).
 
 ### Live OpenAPI Docs
 
-Explore our [Live API Documentation](https://projectlibertylabs.github.io/account-service) for detailed information on
+Explore our [Live API Documentation](https://projectlibertylabs.github.io/gateway/account/) for detailed information on
 endpoints and usage.
 
 ## 🛠 Development <a name="development"></a>
@@ -148,7 +148,7 @@ This section covers testing, debugging, linting, and information about the techn
 Run E2E tests:
 
 ```bash
-make test-e2e-account
+npm run test:e2e:account
 ```
 
 Access Swagger UI: [http://localhost:3000/api/docs/swagger](http://localhost:3000/api/docs/swagger)
@@ -224,12 +224,12 @@ Each queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) 
 - **API Documentation**: Swagger
 - **Containerization**: Docker, Docker Compose
 
-For a complete list of technologies used, please refer to the [Tech Stack](/README.md#tech-stack) section in the full
+For a complete list of technologies used, please refer to the [Tech Stack](/README.md#technology-stack) section in the full
 documentation.
 
 ## 🤝 Contributing <a name="contributing"></a>
 
-We welcome contributions! Please check our [Contributing Guidelines](./CONTRIBUTING.md)
+We welcome contributions! Please check our [Contributing Guidelines](https://github.com/LibertyDSNP/meta/blob/main/CONTRIBUTING.md)
 and [open issues](https://github.com/ProjectLibertyLabs/gateway/issues).
 
 ## ❓ FAQ <a name="faq"></a>
@@ -245,6 +245,6 @@ necessary._
 
 ## 📝 License <a name="license"></a>
 
-This project is licensed under the [Apache 2.0 License](./LICENSE).
+This project is licensed under the [Apache 2.0 License](../../LICENSE).
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>

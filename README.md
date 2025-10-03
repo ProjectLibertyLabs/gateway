@@ -34,8 +34,8 @@ API.
 
 ### Monorepo Structure:
 
-- Applications (9 services): API endpoints and background workers
-- Libraries (16 libraries): Shared functionality and utilities
+- Applications (7 services): 3 APIs, 3 workers and 1 watcher
+- Libraries (14 libraries): Shared functionality and utilities
 
 ### API Services & Workers
 
@@ -193,7 +193,7 @@ Use this script when you need to stop all running Gateway services.
 
 ```sh
   # First time installation only
-  cargo install mdbook@0.4.51
+  cargo install mdbook@0.4.52
   cargo install mdbook-mermaid@0.15.0
 
   cd docs

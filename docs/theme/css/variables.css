@@ -26,10 +26,10 @@
 
 .coal {
   --bg: var(--color-black);
-  --fg: var(--color-cream);
-  --headers: var(--color-cream);
+  --fg: var(--color-white);
+  --headers: var(--color-white);
 
-  --sidebar-bg: var(--color-cream);
+  --sidebar-bg: var(--color-white);
   --sidebar-fg: var(--color-darkPurple);
   --sidebar-non-existant: var(--sidebar-fg);
   --sidebar-active: var(--color-primary);
@@ -37,7 +37,7 @@
 
   --scrollbar: var(--sidebar-fg);
 
-  --icons: var(--color-cream);
+  --icons: var(--color-white);
   --icons-hover: var(--color-purple50);
 
   --links: var(--color-purple75);
@@ -57,9 +57,9 @@
 
   --table-border-color: var(--color-gray1);
   --table-header-bg: var(--color-gray1);
-  --table-header-fg: var(--color-cream);
+  --table-header-fg: var(--color-white);
   --table-alternate-bg: var(--color-gray1);
-  --table-alternate-fg: var(--color-cream);
+  --table-alternate-fg: var(--color-white);
 
   --searchbar-border-color: #aaa;
   --searchbar-bg: var(--color-white);
@@ -76,14 +76,14 @@
   --page-nav-bg: var(--sidebar-bg);
 
   /* Nav button variant */
-  --button-nav-bg: var(--color-cream);
+  --button-nav-bg: var(--color-white);
   --button-nav-fg: var(--color-black);
   --button-nav-hover-fg: var(--white);
   --button-nav-hover-bg: var(--color-purple50);
   /* Outlined button variant */
   --button-outlined-bg: none;
-  --button-outlined-text: var(--color-cream);
-  --button-outlined-border: var(--color-cream);
+  --button-outlined-text: var(--color-white);
+  --button-outlined-border: var(--color-white);
   --button-outlined-hover-text: var(--color-purple50);
   --button-outlined-hover-border: var(--color-purple50);
 
@@ -177,18 +177,18 @@ html:not(.js) {
 @media (prefers-color-scheme: dark) {
   html:not(.js) {
     --bg: var(--color-black);
-    --fg: var(--color-cream);
-    --headers: var(--color-cream);
+    --fg: var(--color-white);
+    --headers: var(--color-white);
 
     --sidebar-bg: var(--color-darkPurple);
-    --sidebar-fg: var(--color-cream);
+    --sidebar-fg: var(--color-white);
     --sidebar-non-existant: var(--sidebar-fg);
     --sidebar-active: var(--color-purple75);
     --sidebar-spacer: var(--sidebar-bg);
 
     --scrollbar: var(--sidebar-fg);
 
-    --icons: var(--color-cream);
+    --icons: var(--color-white);
     --icons-hover: var(--color-purple50);
 
     --links: var(--color-purple75);
@@ -208,9 +208,9 @@ html:not(.js) {
 
     --table-border-color: var(--color-gray1);
     --table-header-bg: var(--color-gray1);
-    --table-header-fg: var(--color-cream);
+    --table-header-fg: var(--color-white);
     --table-alternate-bg: var(--color-gray1);
-    --table-alternate-fg: var(--color-cream);
+    --table-alternate-fg: var(--color-white);
 
     --searchbar-border-color: #aaa;
     --searchbar-bg: var(--color-white);
@@ -227,14 +227,14 @@ html:not(.js) {
     --page-nav-bg: var(--sidebar-bg);
 
     /* Nav button variant */
-    --button-nav-bg: var(--color-cream);
+    --button-nav-bg: var(--color-white);
     --button-nav-fg: var(--color-black);
     --button-nav-hover-fg: var(--white);
     --button-nav-hover-bg: var(--color-purple50);
     /* Outlined button variant */
     --button-outlined-bg: none;
-    --button-outlined-text: var(--color-cream);
-    --button-outlined-border: var(--color-cream);
+    --button-outlined-text: var(--color-white);
+    --button-outlined-border: var(--color-white);
     --button-outlined-hover-text: var(--color-purple50);
     --button-outlined-hover-border: var(--color-purple50);
 

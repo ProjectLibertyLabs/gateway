@@ -16,7 +16,7 @@
     "mdbook:install": "cargo install mdbook"
   },
   "devDependencies": {
-    "@frequency-chain/style-guide": "0.3.0",
+    "@frequency-chain/style-guide": "0.4.1",
     "@tailwindcss/cli": "4.1.7",
     "tailwindcss": "4.1.7"
   },

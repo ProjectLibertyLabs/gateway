@@ -107,6 +107,8 @@ pre .hljs {
 }
 .svg-embed-coal {
   display: block;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .no-js .svg-embed-light {

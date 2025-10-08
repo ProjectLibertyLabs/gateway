@@ -2,9 +2,7 @@
 
 This guide will walk you through the steps required to set up and configure an IPFS (InterPlanetary File System) node, manage ingress and egress traffic, and explore third-party pinning services. IPFS is a distributed file system that enables decentralized data storage and sharing across peer-to-peer networks.
 
----
-
-## **Table of Contents**
+## Table of Contents
 
 - [IPFS Setup Guide](#ipfs-setup-guide)
   - [**Table of Contents**](#table-of-contents)
@@ -26,8 +24,6 @@ This guide will walk you through the steps required to set up and configure an I
   - [5. Verifying and Managing IPFS Node](#5-verifying-and-managing-ipfs-node)
   - [Conclusion](#conclusion)
 
----
-
 ## Prerequisites
 
 Make sure you have installed the following:
@@ -40,7 +36,7 @@ You can also run IPFS on **Windows** or **MacOS**. Refer to the [official IPFS i
 
 ---
 
-## 1. Installing IPFS
+## **1. Installing IPFS**
 
 There are two primary ways to install IPFS:
 
@@ -69,7 +65,7 @@ ipfs --version
 
 ---
 
-## 2. Setting Up IPFS Node
+## **2. Setting Up IPFS Node**
 
 ### 2.1. Initialize IPFS
 
@@ -93,7 +89,7 @@ Your node is now running and part of the global IPFS network. By default, it lis
 
 ---
 
-## 3. IPFS Ingress and Egress
+## **3. IPFS Ingress and Egress**
 
 ### 3.1. Managing Ingress Traffic
 
@@ -127,7 +123,7 @@ For a more detailed network configuration, refer to [IPFS's networking documenta
 
 ---
 
-## 4. Using Third-Party Pinning Services
+## **4. Using Third-Party Pinning Services**
 
 Pinning services allow you to store and replicate content across multiple IPFS nodes, ensuring data persists even if your local node goes offline.
 
@@ -163,7 +159,7 @@ To use Filebase:
 
 ---
 
-## 5. Verifying and Managing IPFS Node
+## **5. Verifying and Managing IPFS Node**
 
 To ensure your IPFS node is running correctly, check the status of your node:
 
@@ -183,7 +179,7 @@ For additional management tasks like **peer discovery**, **publishing content**,
 
 ---
 
-## Conclusion
+## **Conclusion**
 
 By following this guide, you've successfully set up an IPFS node, configured ingress and egress, and learned about third-party pinning services for enhanced data availability. With IPFS, you are now part of a decentralized network for distributed storage and sharing.
 

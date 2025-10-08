@@ -2,7 +2,7 @@
 // Use console.error, not console.log
 //
 // Button Links for Child Pages:
-// - Replaces `{{#button-links}}` with the child links of that page in button form
+// - Replaces `{{#button-links-outlined}}` with the child links of that page in button form
 
 function makeButtonLink({ Chapter }, parentPath) {
   // Remove any part of the path that the parent already has.
@@ -19,8 +19,8 @@ function generateButtonLinks(parent) {
   );
 }
 function replaceButtonLinks(chapter) {
-  if (chapter.sub_items && chapter.content.includes("{{#button-links}}")) {
-    chapter.content = chapter.content.replace("{{#button-links}}", generateButtonLinks(chapter));
+  if (chapter.sub_items && chapter.content.includes("{{#button-links-outlined}}")) {
+    chapter.content = chapter.content.replace("{{#button-links-outlined}}", generateButtonLinks(chapter));
   }
 
   if (chapter.sub_items) {

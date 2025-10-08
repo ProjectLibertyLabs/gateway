@@ -17,8 +17,9 @@
   --page-padding: 15px;
   --content-max-width: 1080px;
   --menu-bar-height: 50px;
-  --mono-font: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
-  --code-font-size: 0.875em /* please adjust the ace font size accordingly in editor.js */;
+  --mono-font: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo,
+    "DejaVu Sans Mono", monospace, monospace;
+  --code-font-size: 12px;
 }
 
 /* Themes */
@@ -74,15 +75,24 @@
   --page-nav-fg: var(--headers);
   --page-nav-bg: var(--sidebar-bg);
 
+  /* Nav button variant */
   --button-nav-bg: var(--color-cream);
   --button-nav-fg: var(--color-black);
   --button-nav-hover-fg: var(--white);
   --button-nav-hover-bg: var(--color-purple50);
+  /* Outlined button variant */
+  --button-outlined-bg: none;
+  --button-outlined-text: var(--color-cream);
+  --button-outlined-border: var(--color-cream);
+  --button-outlined-hover-text: var(--color-purple50);
+  --button-outlined-hover-border: var(--color-purple50);
 
   /* Same as `--icons` */
-  --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg) brightness(87%) contrast(82%);
+  --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg)
+    brightness(87%) contrast(82%);
   /* Same as `--sidebar-active` */
-  --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%) hue-rotate(167deg) brightness(98%) contrast(89%);
+  --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%)
+    hue-rotate(167deg) brightness(98%) contrast(89%);
 
   --footnote-highlight: var(--links);
 
@@ -141,15 +151,23 @@ html:not(.js) {
   --page-nav-fg: var(--headers);
   --page-nav-bg: var(--sidebar-bg);
 
+  /* Nav button variant */
   --button-nav-bg: var(--color-black);
   --button-nav-fg: var(--color-white);
   --button-nav-hover-fg: var(--color-white);
   --button-nav-hover-bg: var(--color-primary);
+  /* Outlined button variant */
+  --button-outlined-bg: none;
+  --button-outlined-text: var(--color-black);
+  --button-outlined-border: var(--color-black);
+  --button-outlined-hover-text: var(--color-primary);
+  --button-outlined-hover-border: var(--color-primary);
 
   /* Same as `--icons` */
   --copy-button-filter: invert(45.49%);
   /* Same as `--sidebar-active` */
-  --copy-button-filter-hover: invert(14%) sepia(93%) saturate(4250%) hue-rotate(243deg) brightness(99%) contrast(130%);
+  --copy-button-filter-hover: invert(14%) sepia(93%) saturate(4250%)
+    hue-rotate(243deg) brightness(99%) contrast(130%);
 
   --footnote-highlight: var(--links);
 
@@ -208,15 +226,24 @@ html:not(.js) {
     --page-nav-fg: var(--headers);
     --page-nav-bg: var(--sidebar-bg);
 
+    /* Nav button variant */
     --button-nav-bg: var(--color-cream);
     --button-nav-fg: var(--color-black);
     --button-nav-hover-fg: var(--white);
     --button-nav-hover-bg: var(--color-purple50);
+    /* Outlined button variant */
+    --button-outlined-bg: none;
+    --button-outlined-text: var(--color-cream);
+    --button-outlined-border: var(--color-cream);
+    --button-outlined-hover-text: var(--color-purple50);
+    --button-outlined-hover-border: var(--color-purple50);
 
     /* Same as `--icons` */
-    --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg) brightness(87%) contrast(82%);
+    --copy-button-filter: invert(26%) sepia(8%) saturate(575%)
+      hue-rotate(169deg) brightness(87%) contrast(82%);
     /* Same as `--sidebar-active` */
-    --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%) hue-rotate(167deg) brightness(98%) contrast(89%);
+    --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%)
+      hue-rotate(167deg) brightness(98%) contrast(89%);
 
     --footnote-highlight: var(--links);
 

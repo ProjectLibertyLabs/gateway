@@ -2,11 +2,11 @@
 
 This document provides comprehensive information about the k6 load and stress testing setup for the Frequency Developer Gateway microservices.
 
-## Overview
+## **Overview**
 
 The Gateway project includes extensive k6 load and stress testing capabilities across all microservices. These tests help ensure the reliability, performance, and scalability of the Gateway services under various load conditions.
 
-## Prerequisites
+## **Prerequisites**
 
 Before running k6 tests, ensure you have:
 
@@ -14,7 +14,7 @@ Before running k6 tests, ensure you have:
 2. **Gateway services running**: Use `./start.sh` to start all services locally
 3. **Node.js (version 18 or higher)**: Required for generating test data and running helper scripts
 
-## Port Configuration
+## **Port Configuration**
 
 The Gateway services use different ports when running in Docker containers:
 
@@ -32,7 +32,7 @@ The Gateway services use different ports when running in Docker containers:
 - **v2 batch announcement tests** target port 3010 (Docker external port)
 - **File upload tests** target port 3000 (internal container port)
 
-## Available Test Suites
+## **Available Test Suites**
 
 ### Account Service (`apps/account-api/k6-test/`)
 
@@ -91,7 +91,7 @@ The Gateway services use different ports when running in Docker containers:
 - Social graph operation testing
 - Relationship management performance testing
 
-## Test Scenarios
+## **Test Scenarios**
 
 ### Load Testing Scenarios
 
@@ -129,7 +129,7 @@ The stress testing includes multiple phases:
 3. **Spike Testing**: Arrival rate testing with up to 25 requests per second
 4. **Burst Testing**: High-intensity burst of 50 requests per second for 1 minute
 
-## Running Tests
+## **Running Tests**
 
 ### Basic Health Check
 ```bash
@@ -157,7 +157,7 @@ k6 run script_md_files.k6.js  # Medium files
 k6 run script_lg_files.k6.js  # Large files
 ```
 
-## Test Data Generation
+## **Test Data Generation**
 
 ### Account Service
 ```bash
@@ -173,7 +173,7 @@ The service includes helper functions in `helpers.js` for generating realistic t
 - `createMultipartBatchData()`: Creates multipart form data for file uploads
 - Various file size scenarios and error conditions
 
-## Configuration Options
+## **Configuration Options**
 
 ### Environment Variables
 
@@ -189,7 +189,7 @@ Each test file includes configurable options:
 - Connection settings
 - Custom metrics
 
-## Performance Thresholds
+## **Performance Thresholds**
 
 ### Standard Thresholds
 - **Success Rate**: 90% to 99% depending on scenario
@@ -203,14 +203,14 @@ Each test file includes configurable options:
 - Response time trends
 - Scenario-specific error rates
 
-## CI/CD Integration
+## **CI/CD Integration**
 
 The project includes CI/CD tools in `tools/ci-k6/` for automated testing:
 - Chain setup scripts for testnet testing
 - Automated test execution
 - Performance reporting
 
-## Best Practices
+## **Best Practices**
 
 1. **Start with Health Checks**: Always run health checks before load testing
 2. **Use Realistic Data**: Generate test data that mimics real usage patterns
@@ -219,7 +219,7 @@ The project includes CI/CD tools in `tools/ci-k6/` for automated testing:
 5. **Environment Isolation**: Run tests against dedicated test environments
 6. **Result Analysis**: Review k6 output for performance insights
 
-## Troubleshooting
+## **Troubleshooting**
 
 ### Common Issues
 

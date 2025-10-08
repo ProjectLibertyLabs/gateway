@@ -1,6 +1,6 @@
 # Frequency Networks
 
-## Mainnet
+## **Mainnet**
 
 The Frequency Mainnet is the primary, production-level network where real transactions and interactions occur. It is fully secure and operational, designed to support live applications and services. Users and developers interact with the Mainnet for all production activities, ensuring that all data and transactions are immutable and transparent.
 
@@ -18,7 +18,7 @@ The Frequency Mainnet is the primary, production-level network where real transa
   - `1.rpc.frequency.xyz`
 - [Polkadot.js Block Explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F1.rpc.frequency.xyz#/explorer)
 
-## Testnet
+## **Testnet**
 
 The Frequency Testnet is a testing environment that mirrors the Mainnet. It allows developers to test their applications and services in a safe environment without risking real tokens. The Testnet is crucial for identifying and fixing issues before deploying to the Mainnet.
 
@@ -36,7 +36,7 @@ The Frequency Testnet is a testing environment that mirrors the Mainnet. It allo
 - [Polkadot.js Block Explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F0.rpc.testnet.amplica.io#/explorer)
 - [Testnet Token Faucet](https://faucet.testnet.frequency.xyz)
 
-## Local
+## **Local**
 
 The Local network setup is a private, local instance of the Frequency blockchain that developers can run on their own machines. It is used for development, debugging, and testing in a controlled environment. The Local network setup provides the flexibility to experiment with new features and configurations without affecting the Testnet or Mainnet.
 
@@ -54,22 +54,22 @@ The Local network setup is a private, local instance of the Frequency blockchain
 - **GitHub Repository:** [Frequency GitHub](https://github.com/frequency-chain/frequency)
 - **Project Website:** [Frequency Website](https://www.frequency.xyz/)
 
-## Using Polkadot.js Explorer
+## **Using Polkadot.js Explorer**
 
 To interact with the Frequency networks using the Polkadot.js Explorer, follow these steps:
 
-1. **Open Polkadot.js Explorer:**
+**1. Open Polkadot.js Explorer:**
 
    - Go to [Polkadot.js Explorer](https://polkadot.js.org/apps/#/explorer).
 
-2. **Select Frequency Network:**
+**2. Select Frequency Network:**
 
    - Click on the network selection dropdown at the top left corner of the page.
    - Choose "POLKADOT & PARACHAINS -> Frequency Polkadot Parachain" for the main network.
    - Choose "TEST PASEO & PARACHAINS -> Frequency Paseo Parachain" for the test network.
    - For local development, connect to your local node by selecting "DEVELOPMENT -> Local Node or Custom Endpoint" and entering the URL of your local node (e.g., `http://localhost:9933`).
 
-3. **Connect Your Wallet:**
+**3. Connect Your Wallet:**
    - Ensure your Polkadot-supported wallet is connected.
    - You will be able to see and interact with your accounts and transactions on the selected Frequency network.
 

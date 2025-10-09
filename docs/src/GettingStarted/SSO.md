@@ -17,12 +17,12 @@ Resources:
 - [SIWF v2 SDKs](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Overview.html)
 - [Account Service Documentation](../Build/AccountService/AccountService.md)
 
-## Setup Tutorial
+## **Setup Tutorial**
 
 In this tutorial, you will set up a Sign In With Frequency button for use with Testnet, which will enable you to acquire
 onboarded, authenticated users with minimal steps.
 
-## Prerequisites
+## **Prerequisites**
 
 Before proceeding, ensure you have completed the following steps:
 
@@ -41,7 +41,7 @@ Service.
 
 - Public Testnet Node: `wss://0.rpc.testnet.amplica.io`
 
-## Overview
+## **Overview**
 
 1. Application creates a signed request SIWF URL that contains a callback URL.
 2. User clicks a button that uses the signed request URL.
@@ -69,7 +69,7 @@ sequenceDiagram
     App ->> User: User logged in
 ```
 
-## Step 1: Generate a SIWF v2 Signed Request
+## **Step 1: Generate a SIWF v2 Signed Request**
 
 The User will be redirected to a service for generating their signed authentication.
 
@@ -112,7 +112,7 @@ SIWF v2 supports requesting validated credentials such as a phone number, email,
 See list
 of [SIWF v2 Credentials](https://projectlibertylabs.github.io/siwf/v2/docs/Credentials.html#available-credentials).
 
-## Step 2: Forward the User for Authentication
+## **Step 2: Forward the User for Authentication**
 
 ### Option A: SIWF Button SDK
 
@@ -142,7 +142,7 @@ experience.
 SDKs for [Android](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/Android.html)
 and [iOS](https://projectlibertylabs.github.io/siwf/v2/docs/SDK/iOS.html) are available that handle this part for you.
 
-## Step 3: Handle the Callback
+## **Step 3: Handle the Callback**
 
 After the user completes authentication, Frequency Access or other SIWF v2 Service will redirect the user to your
 `callbackUrl` with either an `authorizationCode` or `authorizationPayload`.
@@ -239,7 +239,7 @@ The response will include the user's credentials, control key, and more:
 }
 ```
 
-## Step 4: Initiate a User Session
+## **Step 4: Initiate a User Session**
 
 There are two identifiers included with the response.
 The `controlKey` will always be returned and can be considered unique for the user for this authentication session.
@@ -259,7 +259,7 @@ use this pair of APIs to confirm it:
 - Get the delegation by `msaId` and `providerId` [GET
   `/v2/delegations/{msaId}/{providerId}`](https://projectlibertylabs.github.io/gateway/account/#tag/delegations/operation/DelegationsControllerV2_getProviderDelegation)
 
-## Behind the Scenes
+## **Behind the Scenes**
 
 What's happening in each of these systems?
 

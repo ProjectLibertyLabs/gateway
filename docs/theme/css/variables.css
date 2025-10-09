@@ -17,26 +17,27 @@
   --page-padding: 15px;
   --content-max-width: 1080px;
   --menu-bar-height: 50px;
-  --mono-font: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
-  --code-font-size: 0.875em /* please adjust the ace font size accordingly in editor.js */;
+  --mono-font: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo,
+    "DejaVu Sans Mono", monospace, monospace;
+  --code-font-size: 12px;
 }
 
 /* Themes */
 
 .coal {
   --bg: var(--color-black);
-  --fg: var(--color-cream);
-  --headers: var(--color-cream);
+  --fg: var(--white);
+  --headers: var(--white);
 
-  --sidebar-bg: var(--color-cream);
+  --sidebar-bg: var(--white);
   --sidebar-fg: var(--color-darkPurple);
   --sidebar-non-existant: var(--sidebar-fg);
   --sidebar-active: var(--color-primary);
-  --sidebar-spacer: var(--sidebar-bg);
+  --sidebar-spacer: var(--color-purple75);
 
   --scrollbar: var(--sidebar-fg);
 
-  --icons: var(--color-cream);
+  --icons: var(--color-white);
   --icons-hover: var(--color-purple50);
 
   --links: var(--color-purple75);
@@ -56,13 +57,13 @@
 
   --table-border-color: var(--color-gray1);
   --table-header-bg: var(--color-gray1);
-  --table-header-fg: var(--color-cream);
+  --table-header-fg: var(--color-white);
   --table-alternate-bg: var(--color-gray1);
-  --table-alternate-fg: var(--color-cream);
+  --table-alternate-fg: var(--color-white);
 
   --searchbar-border-color: #aaa;
-  --searchbar-bg: var(--color-white);
-  --searchbar-fg: var(--color-darkPurple);
+  --searchbar-bg: var(--white);
+  --searchbar-fg: var(--color-black);
   --searchbar-shadow-color: #aaa;
   --searchresults-header-fg: var(--headers);
   --searchresults-border-color: var(--headers);
@@ -74,15 +75,24 @@
   --page-nav-fg: var(--headers);
   --page-nav-bg: var(--sidebar-bg);
 
-  --button-nav-bg: var(--color-cream);
+  /* Nav button variant */
+  --button-nav-bg: var(--color-white);
   --button-nav-fg: var(--color-black);
   --button-nav-hover-fg: var(--white);
   --button-nav-hover-bg: var(--color-purple50);
+  /* Outlined button variant */
+  --button-outlined-bg: none;
+  --button-outlined-text: var(--color-white);
+  --button-outlined-border: var(--color-white);
+  --button-outlined-hover-text: var(--color-purple50);
+  --button-outlined-hover-border: var(--color-purple50);
 
   /* Same as `--icons` */
-  --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg) brightness(87%) contrast(82%);
+  --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg)
+    brightness(87%) contrast(82%);
   /* Same as `--sidebar-active` */
-  --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%) hue-rotate(167deg) brightness(98%) contrast(89%);
+  --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%)
+    hue-rotate(167deg) brightness(98%) contrast(89%);
 
   --footnote-highlight: var(--links);
 
@@ -96,10 +106,10 @@ html:not(.js) {
   --headers: var(--color-darkPurple);
 
   --sidebar-bg: var(--color-black);
-  --sidebar-fg: #fff;
+  --sidebar-fg: var(--white);
   --sidebar-non-existant: var(--sidebar-fg);
   --sidebar-active: var(--color-purple75);
-  --sidebar-spacer: var(--sidebar-bg);
+  --sidebar-spacer: var(--color-gray1);
 
   --scrollbar: var(--sidebar-fg);
 
@@ -128,8 +138,8 @@ html:not(.js) {
   --table-alternate-bg: var(--color-gray3);
 
   --searchbar-border-color: #aaa;
-  --searchbar-bg: var(--color-white);
-  --searchbar-fg: var(--color-darkPurple);
+  --searchbar-bg: var(--white);
+  --searchbar-fg: var(--color-black);
   --searchbar-shadow-color: #aaa;
   --searchresults-header-fg: var(--headers);
   --searchresults-border-color: var(--headers);
@@ -141,15 +151,23 @@ html:not(.js) {
   --page-nav-fg: var(--headers);
   --page-nav-bg: var(--sidebar-bg);
 
+  /* Nav button variant */
   --button-nav-bg: var(--color-black);
   --button-nav-fg: var(--color-white);
   --button-nav-hover-fg: var(--color-white);
   --button-nav-hover-bg: var(--color-primary);
+  /* Outlined button variant */
+  --button-outlined-bg: none;
+  --button-outlined-text: var(--color-black);
+  --button-outlined-border: var(--color-black);
+  --button-outlined-hover-text: var(--color-primary);
+  --button-outlined-hover-border: var(--color-primary);
 
   /* Same as `--icons` */
   --copy-button-filter: invert(45.49%);
   /* Same as `--sidebar-active` */
-  --copy-button-filter-hover: invert(14%) sepia(93%) saturate(4250%) hue-rotate(243deg) brightness(99%) contrast(130%);
+  --copy-button-filter-hover: invert(14%) sepia(93%) saturate(4250%)
+    hue-rotate(243deg) brightness(99%) contrast(130%);
 
   --footnote-highlight: var(--links);
 
@@ -159,18 +177,18 @@ html:not(.js) {
 @media (prefers-color-scheme: dark) {
   html:not(.js) {
     --bg: var(--color-black);
-    --fg: var(--color-cream);
-    --headers: var(--color-cream);
+    --fg: var(--white);
+    --headers: var(--white);
 
     --sidebar-bg: var(--color-darkPurple);
-    --sidebar-fg: var(--color-cream);
+    --sidebar-fg: var(--white);
     --sidebar-non-existant: var(--sidebar-fg);
     --sidebar-active: var(--color-purple75);
-    --sidebar-spacer: var(--sidebar-bg);
+    --sidebar-spacer: var(-color-gray1);
 
     --scrollbar: var(--sidebar-fg);
 
-    --icons: var(--color-cream);
+    --icons: var(--color-white);
     --icons-hover: var(--color-purple50);
 
     --links: var(--color-purple75);
@@ -190,13 +208,13 @@ html:not(.js) {
 
     --table-border-color: var(--color-gray1);
     --table-header-bg: var(--color-gray1);
-    --table-header-fg: var(--color-cream);
+    --table-header-fg: var(--color-white);
     --table-alternate-bg: var(--color-gray1);
-    --table-alternate-fg: var(--color-cream);
+    --table-alternate-fg: var(--color-white);
 
     --searchbar-border-color: #aaa;
-    --searchbar-bg: var(--color-white);
-    --searchbar-fg: var(--color-darkPurple);
+    --searchbar-bg: var(--white);
+    --searchbar-fg: var(--color-black);
     --searchbar-shadow-color: #aaa;
     --searchresults-header-fg: var(--headers);
     --searchresults-border-color: var(--headers);
@@ -208,15 +226,24 @@ html:not(.js) {
     --page-nav-fg: var(--headers);
     --page-nav-bg: var(--sidebar-bg);
 
-    --button-nav-bg: var(--color-cream);
+    /* Nav button variant */
+    --button-nav-bg: var(--color-white);
     --button-nav-fg: var(--color-black);
     --button-nav-hover-fg: var(--white);
     --button-nav-hover-bg: var(--color-purple50);
+    /* Outlined button variant */
+    --button-outlined-bg: none;
+    --button-outlined-text: var(--color-white);
+    --button-outlined-border: var(--color-white);
+    --button-outlined-hover-text: var(--color-purple50);
+    --button-outlined-hover-border: var(--color-purple50);
 
     /* Same as `--icons` */
-    --copy-button-filter: invert(26%) sepia(8%) saturate(575%) hue-rotate(169deg) brightness(87%) contrast(82%);
+    --copy-button-filter: invert(26%) sepia(8%) saturate(575%)
+      hue-rotate(169deg) brightness(87%) contrast(82%);
     /* Same as `--sidebar-active` */
-    --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%) hue-rotate(167deg) brightness(98%) contrast(89%);
+    --copy-button-filter-hover: invert(36%) sepia(70%) saturate(503%)
+      hue-rotate(167deg) brightness(98%) contrast(89%);
 
     --footnote-highlight: var(--links);
 

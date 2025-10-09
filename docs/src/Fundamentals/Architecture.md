@@ -2,7 +2,7 @@
 
 {{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
 
-## Authentication
+## **Authentication**
 
 Gateway and Frequency provide authentication, but not session management.
 Using cryptographic signatures, you will get proof the user is authenticated without passwords or other complex identity systems to implement.
@@ -24,7 +24,7 @@ Your application still must manage sessions as is best for your custom needs.
 
 The Account Service in Gateway handles user account management, including creating accounts, managing keys, and delegating permissions. This service replaces traditional user models with decentralized identities and provides a robust framework for user authentication and authorization.
 
-## Data Storage
+## **Data Storage**
 
 ### What does it mean for Frequency?
 
@@ -47,7 +47,7 @@ The [Frequency](https://www.frequency.xyz) blockchain stores metadata and transa
 
 For efficiency and performance, certain data may be stored locally or within application-specific storage systems. This allows for quick access and manipulation of frequently used data while ensuring that critical information remains secure on the blockchain.
 
-## Application / Middleware
+## **Application / Middleware**
 
 ### Hooking Up All the Microservices
 
@@ -59,7 +59,7 @@ Developers can integrate their custom code within this modular framework, extend
 
 ### Standard Services Gateway Uses
 
-## Redis
+## **Redis**
 
 [Redis](https://redis.io) is a key-value store used for caching and fast data retrieval. It is often employed in microservices architectures to manage state and session data efficiently.
 
@@ -73,7 +73,7 @@ Developers can integrate their custom code within this modular framework, extend
 - **Structure for Redis Queues**: BullMQ enhances Redis by providing a reliable and scalable way to manage background jobs and task queues, ensuring that tasks are processed efficiently and reliably.
 - **Usage in Gateway:** BullMQ can be used to handle background processing tasks such as sending notifications, processing user actions, and managing content updates.
 
-## IPFS Kubo API
+## **IPFS Kubo API**
 
 [Kubo](https://docs.ipfs.tech/install/command-line/) is an IPFS implementation and standard API designed for high performance and scalability.
 

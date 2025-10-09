@@ -3,16 +3,16 @@
 The Account Service provides functionalities related to user accounts on the Frequency network.
 It includes endpoints for managing user authentication, account details, delegation, keys, and handles.
 
-## API Reference
+## **API Reference**
 
 - [REST API](./Api.md) (<a target="_blank" href="https://projectlibertylabs.github.io/gateway/account">Full docs</a>)
 - [Webhooks](./Webhooks.md) (<a target="_blank" href="https://projectlibertylabs.github.io/gateway/account/webhooks.html">Full docs</a>)
 
-## Configuration
+## **Configuration**
 
 {{#include ../../../../developer-docs/account/ENVIRONMENT.md:2:}}
 
-## Best Practices
+## **Best Practices**
 
 - **Secure Authentication**: Always use secure methods (e.g., JWT tokens) for authentication to protect user data.
 - **Validate Inputs**: Ensure all input data is validated to prevent injection attacks and other vulnerabilities.

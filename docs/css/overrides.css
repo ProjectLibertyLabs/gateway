@@ -28,7 +28,7 @@
 }
 
 body {
-  font-size: 18px;
+  @apply docsBodyText;
   font-family: "Poppins", sans-serif;
 }
 
@@ -287,7 +287,7 @@ body#sidebar {
 #content {
   overflow-y: auto;
   min-height: 100vh;
-  padding: 32px 45px 128px 6px;
+  padding: 16px 45px 128px 6px;
 }
 
 #content .nav-wrapper {
@@ -296,8 +296,8 @@ body#sidebar {
 }
 
 #content .mobile-nav-chapters {
+  @apply docsSubHeaderText;
   display: block;
-  font-size: 1em;
   font-weight: 700;
   text-align: center;
   text-decoration: none;

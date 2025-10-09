@@ -6,7 +6,7 @@ This will give you a quick introduction to a working integration with Gateway Se
 
 Expected Time: ~5 minutes
 
-## Step 1: Prerequisites
+## **Step 1: Prerequisites**
 
 Before you begin, ensure you have the following installed on your machine:
 
@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed on your machine:
 - [Node.js](https://nodejs.org)
 - A Web3 Polkadot wallet (_e.g._ [Polkadot extension](https://polkadot.js.org/extension/))
 
-## Step 2: Register on Testnet
+## **Step 2: Register on Testnet**
 
 To have your application interact on Frequency Testnet, you will need to register as a Provider.
 This will enable users to delegate to you, and your chain actions to be free via [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html).
@@ -47,7 +47,7 @@ Creating your provider account is easy via the [Provider Dashboard](https://prov
 
 ![Provider Dashboard Example](./Provider-Dashboard.png)
 
-## Step 3: Configure and Run the Example
+## **Step 3: Configure and Run the Example**
 
 ### Clone the Example Repository
 
@@ -76,7 +76,7 @@ Use default values when uncertain.
   - No if this is just a test run
   - Yes, if you want to use an [IPFS pinning service](https://docs.ipfs.tech/how-to/work-with-pinning-services/#use-a-third-party-pinning-service)
 
-## Step 4: Done & What Happened?
+## **Step 4: Done & What Happened?**
 
 You should now be able to access the Social App Template at [http://localhost:3000](http://localhost:3000)!
 
@@ -87,7 +87,7 @@ You should now be able to access the Social App Template at [http://localhost:30
 All the different services needed were started in Docker (Docker Desktop Screenshot):
 ![Docker Desktop Screenshot](./DockerDesktop.png)
 
-## Step 5: Shutdown
+## **Step 5: Shutdown**
 
 Stop all the Docker services via the script (with the option to remove saved data), or just use Docker Desktop.
 
@@ -95,7 +95,7 @@ Stop all the Docker services via the script (with the option to remove saved dat
 ./stop.sh
 ```
 
-## What's Next?
+## **What's Next?**
 
 - Open the OpenAPI/Swagger Documentation for each service
   - Account Service: [Local](http://localhost:3013/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/account/)

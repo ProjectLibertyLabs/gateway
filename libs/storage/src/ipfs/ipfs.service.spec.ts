@@ -36,15 +36,22 @@ async function* pinLsGenerator(pins: PinLsResult[]): AsyncIterable<PinLsResult> 
 describe('IpfsService Tests', () => {
   let service: IpfsService;
   let ipfs: KuboRPCClient;
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [LoggerModule.forRoot(getPinoHttpOptions())],
       providers: [IpfsService, IpfsClusterService, mockIpfsConfigProvider, mockHttpCommonConfigProvider],
     }).compile();
 
     service = module.get<IpfsService>(IpfsService);
     ipfs = (service as unknown as any).ipfs;
+  });
+
+  afterAll(async () => {
+    if (module) {
+      await module.close();
+    }
   });
 
   afterEach(() => {

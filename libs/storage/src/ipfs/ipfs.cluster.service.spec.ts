@@ -132,8 +132,8 @@ describe('IpfsClusterService - Unit Tests', () => {
 
         expect(mockFetch).toHaveBeenCalledWith(`http://localhost:8080/ipfs/[CID]/ipfs/${TestData.cid}`);
 
-        // When getFile throws an error, it returns null, which getPinned converts to "null" string in Buffer
-        expect(result).toEqual(Buffer.from('null'));
+        // When getFile throws an error, it returns an empty Buffer
+        expect(result).toEqual(Buffer.from(''));
       });
 
       it('should handle getPinned errors', async () => {

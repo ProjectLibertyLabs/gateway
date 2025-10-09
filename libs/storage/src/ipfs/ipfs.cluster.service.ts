@@ -281,9 +281,13 @@ export class IpfsClusterService {
    */
   private createTimeoutSignal(): AbortSignal {
     const controller = new AbortController();
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       controller.abort();
     }, this.httpConfig.httpResponseTimeoutMS);
+    
+    // Use unref() to prevent the timer from keeping the process alive
+    timeoutId.unref();
+    
     return controller.signal;
   }
 

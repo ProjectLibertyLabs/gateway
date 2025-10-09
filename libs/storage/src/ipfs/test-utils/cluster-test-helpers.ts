@@ -157,7 +157,7 @@ export const TestAssertions = {
  * Error test helpers
  */
 export const ErrorHelpers = {
-  createHttpError: (status: number, message = 'Error') => 
+  createHttpError: (status: number, message = 'Error') =>
     createMockFetchResponse(message, { status, headers: { 'content-type': 'text/plain' } }),
 
   expectHttpError: async (promise: Promise<any>, expectedStatus: number) => {

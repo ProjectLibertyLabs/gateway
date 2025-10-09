@@ -433,7 +433,7 @@ ul#searchresults span.teaser em {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   background-color: var(--sidebar-bg);
-  color: var(--sidebar-fg);
+  color: var(--white);
 }
 .sidebar-iframe-inner {
   --padding: 10px;

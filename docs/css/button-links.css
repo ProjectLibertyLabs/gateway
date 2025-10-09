@@ -14,6 +14,15 @@
   gap: 24px;
 }
 
+/* center when there's only one child */
+.button-links:has(> :only-child),
+.button-links-outlined:has(> :only-child) {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  margin: 0;
+  max-width: 400px;
+}
+
 .button-links > p,
 .button-links-outlined > p {
   width: 100%;

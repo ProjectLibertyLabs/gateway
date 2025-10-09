@@ -26,14 +26,14 @@
 
 .coal {
   --bg: var(--color-black);
-  --fg: var(--color-white);
-  --headers: var(--color-white);
+  --fg: var(--white);
+  --headers: var(--white);
 
-  --sidebar-bg: var(--color-white);
+  --sidebar-bg: var(--white);
   --sidebar-fg: var(--color-darkPurple);
   --sidebar-non-existant: var(--sidebar-fg);
   --sidebar-active: var(--color-primary);
-  --sidebar-spacer: var(--sidebar-bg);
+  --sidebar-spacer: var(--color-purple75);
 
   --scrollbar: var(--sidebar-fg);
 
@@ -62,8 +62,8 @@
   --table-alternate-fg: var(--color-white);
 
   --searchbar-border-color: #aaa;
-  --searchbar-bg: var(--color-white);
-  --searchbar-fg: var(--color-darkPurple);
+  --searchbar-bg: var(--white);
+  --searchbar-fg: var(--color-black);
   --searchbar-shadow-color: #aaa;
   --searchresults-header-fg: var(--headers);
   --searchresults-border-color: var(--headers);
@@ -106,10 +106,10 @@ html:not(.js) {
   --headers: var(--color-darkPurple);
 
   --sidebar-bg: var(--color-black);
-  --sidebar-fg: #fff;
+  --sidebar-fg: var(--white);
   --sidebar-non-existant: var(--sidebar-fg);
   --sidebar-active: var(--color-purple75);
-  --sidebar-spacer: var(--sidebar-bg);
+  --sidebar-spacer: var(--color-gray1);
 
   --scrollbar: var(--sidebar-fg);
 
@@ -138,8 +138,8 @@ html:not(.js) {
   --table-alternate-bg: var(--color-gray3);
 
   --searchbar-border-color: #aaa;
-  --searchbar-bg: var(--color-white);
-  --searchbar-fg: var(--color-darkPurple);
+  --searchbar-bg: var(--white);
+  --searchbar-fg: var(--color-black);
   --searchbar-shadow-color: #aaa;
   --searchresults-header-fg: var(--headers);
   --searchresults-border-color: var(--headers);
@@ -177,14 +177,14 @@ html:not(.js) {
 @media (prefers-color-scheme: dark) {
   html:not(.js) {
     --bg: var(--color-black);
-    --fg: var(--color-white);
-    --headers: var(--color-white);
+    --fg: var(--white);
+    --headers: var(--white);
 
     --sidebar-bg: var(--color-darkPurple);
-    --sidebar-fg: var(--color-white);
+    --sidebar-fg: var(--white);
     --sidebar-non-existant: var(--sidebar-fg);
     --sidebar-active: var(--color-purple75);
-    --sidebar-spacer: var(--sidebar-bg);
+    --sidebar-spacer: var(-color-gray1);
 
     --scrollbar: var(--sidebar-fg);
 
@@ -213,8 +213,8 @@ html:not(.js) {
     --table-alternate-fg: var(--color-white);
 
     --searchbar-border-color: #aaa;
-    --searchbar-bg: var(--color-white);
-    --searchbar-fg: var(--color-darkPurple);
+    --searchbar-bg: var(--white);
+    --searchbar-fg: var(--color-black);
     --searchbar-shadow-color: #aaa;
     --searchresults-header-fg: var(--headers);
     --searchresults-border-color: var(--headers);

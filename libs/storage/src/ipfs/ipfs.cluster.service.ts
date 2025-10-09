@@ -34,16 +34,92 @@ export class IpfsClusterService {
 
   public async getPinned(cid: string): Promise<Buffer> {
     const response = await this.getFile(cid);
+    this.logger.debug('Response from getFile:', response);
+
     if (response instanceof Buffer) {
       return response;
     }
+
+    if (response && response.data instanceof Buffer) {
+      return response.data;
+    }
+
     // If response is text/json, convert to buffer
-    return Buffer.from(typeof response === 'string' ? response : JSON.stringify(response));
+    return Buffer.from(typeof response === 'string' ? response : JSON.stringify(response || 'null'));
   }
 
   private async getFile(cid: string): Promise<any> {
-    const url = `${this.config.ipfsEndpoint}/cat?arg=${cid}`;
-    return this.makeRequest(url, { method: 'GET' });
+    // Try gateway approach first (like demo), fallback to cluster API
+    const gatewayUrl = `${this.gatewayUrl}/ipfs/${cid}`;
+    const clusterUrl = `${this.config.ipfsEndpoint}/cat?arg=${cid}`;
+
+    console.log(`🎯 Trying gateway URL: ${gatewayUrl}`);
+    const gatewayResult = await this.fetchFile(gatewayUrl);
+    if (gatewayResult) {
+      console.log(`✅ Success with gateway URL`);
+      return gatewayResult;
+    }
+
+    console.log(`❌ Gateway failed, trying cluster API: ${clusterUrl}`);
+    return this.makeRequest(clusterUrl, { method: 'GET' });
+  }
+
+  private async fetchFile(url: string, visitedUrls: Set<string> = new Set(), maxRedirects = 5): Promise<Buffer | null> {
+    // Prevent infinite loops by tracking visited URLs
+    if (visitedUrls.has(url)) {
+      this.logger.error(`Infinite redirect loop detected for URL: ${url}`);
+      return null;
+    }
+
+    // Check maximum redirect limit
+    if (visitedUrls.size >= maxRedirects) {
+      this.logger.error(`Maximum redirect limit (${maxRedirects}) exceeded`);
+      return null;
+    }
+
+    visitedUrls.add(url);
+    this.logger.debug(`Fetching: ${url} (attempt: ${visitedUrls.size}/${maxRedirects})`);
+
+    try {
+      const response = await fetch(url, {
+        redirect: 'manual', // Handle redirects manually
+        signal: this.createTimeoutSignal(),
+      });
+
+      // If we get the data directly, convert to Buffer
+      if (response.status === 200) {
+        this.logger.debug('File retrieved successfully (direct)');
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+      }
+
+      // Handle redirects manually
+      if (response.status >= 300 && response.status < 400) {
+        const redirectUrl = response.headers.get('location');
+        this.logger.debug(`Redirect detected to: ${redirectUrl}`);
+
+        if (redirectUrl) {
+          // Check if it's a subdomain redirect that we need to convert
+          const subdomainMatch = redirectUrl.match(/^https?:\/\/([^.]+)\.ipfs\.localhost:(\d+)\//);
+          if (subdomainMatch) {
+            const [, hash, port] = subdomainMatch;
+            const convertedUrl = `http://localhost:${port}/ipfs/${hash}`;
+            this.logger.debug(`Converting subdomain redirect to path-based: ${convertedUrl}`);
+            return this.fetchFile(convertedUrl, visitedUrls, maxRedirects);
+          } else {
+            // Follow normal redirects
+            this.logger.debug(`Following normal redirect: ${redirectUrl}`);
+            return this.fetchFile(redirectUrl, visitedUrls, maxRedirects);
+          }
+        }
+      }
+
+      this.logger.error(`HTTP error! status: ${response.status}`);
+      return null;
+    } catch (error: any) {
+      this.logger.error(`Error fetching file: ${error.message}`);
+      return null;
+    }
   }
 
   public async pinFile(cid: string): Promise<any> {
@@ -113,12 +189,11 @@ export class IpfsClusterService {
     const result = await this.addFile(fileBuffer, filename);
 
     // Convert cluster response to FilePin format
-    // Note: Adjust this based on your actual cluster API response format
     return {
-      cid: result.cid || result.hash,
-      cidBytes: result.cidBytes || Buffer.from([]), // May need adjustment
+      cid: result.data?.cid || result.data?.hash,
+      cidBytes: result.data?.cidBytes || Buffer.from([]),
       fileName: filename,
-      size: result.size || fileBuffer.length,
+      size: result.data?.size || fileBuffer.length,
       hash: '',
     };
   }
@@ -129,8 +204,7 @@ export class IpfsClusterService {
   public async isPinned(cid: string): Promise<boolean> {
     try {
       const pinStatus = await this.checkPinStatus(cid);
-      // Check if the pin status indicates it's pinned
-      return pinStatus && (pinStatus.status === 'pinned' || pinStatus.status === 'pinning');
+      return this.isPinnedInCluster(pinStatus.data);
     } catch (err: any) {
       // If CID is not found, it's not pinned
       if (err.message?.includes('not found') || err.message?.includes('404')) {
@@ -138,6 +212,29 @@ export class IpfsClusterService {
       }
       throw err;
     }
+  }
+
+  /**
+   * Check if any peers in the peer_map have status 'pinned' or 'pinning'
+   */
+  private isPinnedInCluster(clusterData: any): boolean {
+    if (!clusterData || !clusterData.peer_map) {
+      return false;
+    }
+
+    const peerMap = clusterData.peer_map;
+
+    // Iterate through all peer entries in the peer_map
+    for (const peerId in peerMap) {
+      const peerInfo = peerMap[peerId];
+      if (peerInfo && (peerInfo.status === 'pinned' || peerInfo.status === 'pinning')) {
+        this.logger.debug(`Found pinned peer: ${peerId} with status: ${peerInfo.status}`);
+        return true;
+      }
+    }
+
+    this.logger.debug('No pinned peers found in peer_map');
+    return false;
   }
 
   private async checkPinStatus(cid: string): Promise<any> {
@@ -150,7 +247,7 @@ export class IpfsClusterService {
    */
   private async makeRequest(
     url: string,
-    options: RequestInit = {},
+    options: RequestInit & { skipAuth?: boolean } = {},
   ): Promise<{
     status: number;
     statusText: string;
@@ -164,6 +261,7 @@ export class IpfsClusterService {
         Authorization: `Basic ${Buffer.from(
           `${this.config.ipfsBasicAuthUser}:${this.config.ipfsBasicAuthSecret}`,
         ).toString('base64')}`,
+        'Access-Control-Allow-Origin': '*',
         ...options.headers,
       };
 
@@ -173,7 +271,10 @@ export class IpfsClusterService {
         ...options,
         headers,
         signal: this.createTimeoutSignal(),
+        redirect: 'manual', // Handle redirects manually like demo
       });
+
+      this.logger.debug(`Response status: ${response.status}, final URL: ${response.url}`);
 
       const contentType = response.headers.get('content-type') || '';
       let data;
@@ -191,6 +292,8 @@ export class IpfsClusterService {
 
       this.logger.debug(`Request completed with status: ${response.status}`);
 
+      this.logger.debug(`Request completed with status: ${response.status}`);
+
       return {
         status: response.status,
         statusText: response.statusText,
@@ -198,7 +301,8 @@ export class IpfsClusterService {
         data,
       };
     } catch (error: any) {
-      this.logger.error(`Request failed: ${error?.message}`);
+      this.logger.error(`Request failed for URL ${url}: ${error?.message}`);
+      this.logger.error(`Error stack: ${error?.stack}`);
       return {
         status: 0,
         statusText: 'Request Failed',
@@ -225,18 +329,16 @@ export class IpfsClusterService {
    * Create multipart form data for file uploads
    */
   private static createFormData(
-    content: string | Buffer,
+    content: Buffer,
     filename = 'file.txt',
   ): { body: string; headers: Record<string, string> } {
-    const boundary = `----formdata-boundary-${Math.random().toString(36)}`;
-    const contentString = content instanceof Buffer ? content.toString() : content;
-
+    const boundary = `----WebKitFormBoundary${Math.random().toString(36).substring(2)}`;
     const formData = [
       `--${boundary}`,
       `Content-Disposition: form-data; name="file"; filename="${filename}"`,
-      'Content-Type: text/plain',
+      'Content-Type: application/octet-stream',
       '',
-      contentString,
+      content.toString('binary'),
       `--${boundary}--`,
     ].join('\r\n');
 
@@ -276,7 +378,7 @@ export class IpfsClusterService {
     }
 
     // Check URL patterns for IPFS content retrieval
-    const binaryEndpoints = ['/cat', '/ipfs/'];
+    const binaryEndpoints = ['/add', '/cat', '/ipfs/'];
     return binaryEndpoints.some((endpoint) => url.includes(endpoint));
   }
 }

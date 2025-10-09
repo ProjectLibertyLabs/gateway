@@ -10,6 +10,7 @@ import { createKuboRPCClient, KuboRPCClient, CID, FilesStatResult, FilesStatOpti
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { Readable } from 'stream';
 import { PinoLogger } from 'nestjs-pino';
+import { IpfsClusterService } from './ipfs.cluster.service';
 
 @Injectable()
 export class IpfsService {
@@ -18,19 +19,20 @@ export class IpfsService {
   private readonly gatewayUrl: string;
 
   constructor(
-    @Inject(ipfsConfig.KEY) config: IIpfsConfig,
+    @Inject(ipfsConfig.KEY) private readonly config: IIpfsConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly logger: PinoLogger,
+    private readonly clusterService: IpfsClusterService,
   ) {
     this.logger.setContext(this.constructor.name);
-    this.gatewayUrl = config.ipfsGatewayUrl;
+    this.gatewayUrl = this.config.ipfsGatewayUrl;
     this.ipfs = createKuboRPCClient({
-      url: config.ipfsEndpoint,
+      url: this.config.ipfsEndpoint,
       timeout: httpConfig.httpResponseTimeoutMS,
       headers: {
         Authorization:
-          config.ipfsBasicAuthUser && config.ipfsBasicAuthSecret
-            ? `Basic ${Buffer.from(`${config.ipfsBasicAuthUser}:${config.ipfsBasicAuthSecret}`).toString('base64')}`
+          this.config.ipfsBasicAuthUser && this.config.ipfsBasicAuthSecret
+            ? `Basic ${Buffer.from(`${this.config.ipfsBasicAuthUser}:${this.config.ipfsBasicAuthSecret}`).toString('base64')}`
             : '',
         Accept: '*/*',
         Connection: 'keep-alive',
@@ -50,6 +52,10 @@ export class IpfsService {
     if (checkExistence && !(await this.existsInLocalGateway(cid))) {
       return Promise.resolve(Buffer.alloc(0));
     }
+    if (this.config.mode === 'cluster') {
+      this.logger.debug(`Fetching pinned content from IPFS Cluster for CID: ${cid}`);
+      return this.clusterService.getPinned(cid);
+    }
     const bytesIter = this.ipfs.cat(cid);
     const chunks = [];
     // eslint-disable-next-line no-restricted-syntax
@@ -60,6 +66,11 @@ export class IpfsService {
   }
 
   public async getInfoFromLocalNode(cid: string): Promise<FilesStatResult> {
+    if (this.config.mode === 'cluster') {
+      this.logger.debug(`Requesting IPFS Cluster stats for ${cid}`);
+      return this.clusterService.getInfoFromCluster(cid);
+    }
+
     this.logger.debug(`Requesting IPFS stats for ${cid}`);
     // Specify 'offline: true' to return immediately with an error
     // if the file is not in the local node's cache.
@@ -90,6 +101,11 @@ export class IpfsService {
   }
 
   public async isPinned(cid: string): Promise<boolean> {
+    if (this.config.mode === 'cluster') {
+      this.logger.debug(`Checking pin status in IPFS Cluster for CID: ${cid}`);
+      return this.clusterService.isPinned(cid);
+    }
+
     const parsedCid = CID.parse(cid);
     const v0Cid = parsedCid.toV0().toString();
 
@@ -120,6 +136,16 @@ export class IpfsService {
     }
 
     this.logger.debug(`Requesting IPFS resource ${cid} for hashing`);
+
+    if (this.config.mode === 'cluster') {
+      const fileBuffer = await this.clusterService.getPinned(cid);
+      return calculateIncrementalDsnpMultiHash(
+        (async function* () {
+          yield fileBuffer;
+        })(),
+      );
+    }
+
     const bytes = this.ipfs.cat(cid);
     return calculateIncrementalDsnpMultiHash(bytes);
   }
@@ -142,6 +168,10 @@ export class IpfsService {
   private async ipfsPinBuffer(filename: string, contentType: string, fileBuffer: Buffer): Promise<FilePin> {
     this.logger.info(`Making IPFS pinning request for ${filename} (${contentType})`);
 
+    if (this.config.mode === 'cluster') {
+      return this.clusterService.pinBuffer(filename, fileBuffer);
+    }
+
     try {
       const result = await this.ipfs.add(fileBuffer, {
         cidVersion: 0,
@@ -163,6 +193,10 @@ export class IpfsService {
 
   public async ipfsPinStream(stream: Readable): Promise<FilePin> {
     this.logger.trace(`Making IPFS pinning request for uploaded content`);
+
+    if (this.config.mode === 'cluster') {
+      return this.clusterService.pinStream(stream);
+    }
 
     try {
       const result = await this.withConnectionCheck(() =>

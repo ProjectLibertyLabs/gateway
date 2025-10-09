@@ -4,7 +4,7 @@ import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
 import { noProviderBlockchainConfig, IBlockchainNonProviderConfig } from './blockchain.config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
-import { LoggerModule, PinoLogger } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 
@@ -38,33 +38,30 @@ describe('BlockchainRpcQueryService - wrapRpcCall', () => {
   let service: BlockchainRpcQueryService;
   let moduleRef: TestingModule;
 
-  beforeEach(
-    async () => {
-      moduleRef = await Test.createTestingModule({
-        imports: [
-          EventEmitterModule.forRoot({
-            global: true,
-            wildcard: false,
-            delimiter: '.',
-            newListener: false,
-            removeListener: false,
-            maxListeners: 10,
-            verboseMemoryLeak: false,
-            ignoreErrors: false,
-          }),
-          LoggerModule.forRoot(getPinoHttpOptions()),
-        ],
-        providers: [BlockchainRpcQueryService, mockNoProviderConfigProvider],
-      }).compile();
+  beforeEach(async () => {
+    moduleRef = await Test.createTestingModule({
+      imports: [
+        EventEmitterModule.forRoot({
+          global: true,
+          wildcard: false,
+          delimiter: '.',
+          newListener: false,
+          removeListener: false,
+          maxListeners: 10,
+          verboseMemoryLeak: false,
+          ignoreErrors: false,
+        }),
+        LoggerModule.forRoot(getPinoHttpOptions()),
+      ],
+      providers: [BlockchainRpcQueryService, mockNoProviderConfigProvider],
+    }).compile();
 
-      service = moduleRef.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
+    service = moduleRef.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
 
-      // Emit connected event to unblock the connection wait
-      const mockApi: any = await service.getApi();
-      mockApi.emit('connected');
-    },
-    10000,
-  );
+    // Emit connected event to unblock the connection wait
+    const mockApi: any = await service.getApi();
+    mockApi.emit('connected');
+  }, 10000);
 
   afterEach(async () => {
     await moduleRef.close();
@@ -154,12 +151,9 @@ describe('BlockchainRpcQueryService - wrapRpcCall', () => {
       jest.spyOn(mockApi.rpc.system, 'accountNextIndex').mockRejectedValueOnce(originalError);
       const loggerSpy = jest.spyOn((service as any).logger, 'error');
 
-      await expect(service.getNonce('test-account')).rejects.toThrow(
-        '[rpc.system.accountNextIndex] Account not found',
-      );
+      await expect(service.getNonce('test-account')).rejects.toThrow('[rpc.system.accountNextIndex] Account not found');
 
       expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.system.accountNextIndex', 'Account not found');
     });
   });
 });
-

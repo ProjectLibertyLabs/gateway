@@ -12,6 +12,9 @@ on:
         description: 'Release tag ([servicename-]v#.#.#[-rc#])'
         required: true
 
+permissions:
+  contents: read
+
 env:
   FULL_TAG: ${{ github.event.release.tag_name || github.event.inputs.release-tag}}
   DOCKER_HUB_PROFILE: projectlibertylabs

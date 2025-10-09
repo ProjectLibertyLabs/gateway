@@ -1,6 +1,6 @@
 # Community Resources
 
-## Frequency Developer Gateway
+## **Frequency Developer Gateway**
 
 All Frequency Developer Gateway code is open source, and you are welcome to participate in its development.
 
@@ -10,7 +10,7 @@ Many of the Gateway related tools are also open source:
 
 - [Social App Template on GitHub](https://github.com/ProjectLibertyLabs/social-app-template)
 
-## Frequency
+## **Frequency**
 
 Frequency is built using the Polkadot SDK.
 Most Polkadot SDK (also called Substrate) tooling works with Frequency.
@@ -25,7 +25,7 @@ Most Polkadot SDK (also called Substrate) tooling works with Frequency.
   - [Polkadot.js Extension Wallet](https://polkadot.js.org/extension/)
 - [Frequency/Polkadot Wallets](https://polkadot.com/get-started/wallets)
 
-## IPFS
+## **IPFS**
 
 IPFS (the InterPlanetary File System) is a peer-to-peer network and protocol designed to make the web faster, safer, and more open.
 It uses "content-based addressing" which allows content to move to different servers and act as a distributed CDN on demand.
@@ -34,14 +34,14 @@ While most users rely on providers to maintain the availability of files, users 
 - [Learn more about IPFS](https://ipfs.tech)
 - [Hosted IPFS Services (Pinning Services)](https://docs.ipfs.tech/concepts/persistence/#pinning-services)
 
-## DSNP
+## **DSNP**
 
 Frequency Developer Gateway is built using DSNP (Decentralized Social Media Protocol).
 
 - [DSNP Homepage](https://dsnp.org)
 - [DSNP Specification](https://spec.dsnp.org/)
 
-## Project Liberty
+## **Project Liberty**
 
 Project Liberty is a contributor to the Frequency ecosystem and the maintainer of the open source Gateway tool.
 

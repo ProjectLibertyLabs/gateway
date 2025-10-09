@@ -8,7 +8,7 @@ We will examine the logs from the services configured for the default setup runn
 
 Some of these troubleshooting steps assume that the social-app-template is running your front end. If you have implemented your own front end, the Gateway service message flow will be similar.
 
-## Registering Users
+## **Registering Users**
 
 ### Registration Process
 
@@ -62,7 +62,7 @@ Here are the steps:
 
 What happens if I don't get the expected response?
 
-## Behind the Scenes
+## **Behind the Scenes**
 
 ### Logs from the Account Service API and Worker containers
 

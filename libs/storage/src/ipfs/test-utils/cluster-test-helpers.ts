@@ -63,9 +63,16 @@ export const createMockFetchResponse = (
     ok,
     status,
     statusText: ok ? 'OK' : 'Error',
-    headers: new Map(Object.entries(headers)),
+    headers: {
+      get: (key: string) => headers[key] || null,
+      entries: () => Object.entries(headers),
+    },
     json: () => Promise.resolve(data),
-    arrayBuffer: () => Promise.resolve(Buffer.from(typeof data === 'string' ? data : JSON.stringify(data)).buffer),
+    arrayBuffer: () => {
+      const content = typeof data === 'string' ? data : JSON.stringify(data);
+      // Return a simple mock that behaves like ArrayBuffer for the service
+      return Promise.resolve(Buffer.from(content));
+    },
     text: () => Promise.resolve(typeof data === 'string' ? data : JSON.stringify(data)),
   };
 };
@@ -150,11 +157,8 @@ export const TestAssertions = {
  * Error test helpers
  */
 export const ErrorHelpers = {
-  createHttpError: (status: number, message = 'Error') => ({
-    ok: false,
-    status,
-    statusText: message,
-  }),
+  createHttpError: (status: number, message = 'Error') => 
+    createMockFetchResponse(message, { status, headers: { 'content-type': 'text/plain' } }),
 
   expectHttpError: async (promise: Promise<any>, expectedStatus: number) => {
     await expect(promise).rejects.toThrow(`HTTP error! status: ${expectedStatus}`);

@@ -40,85 +40,53 @@ export class IpfsClusterService {
       return response;
     }
 
-    if (response && response.data instanceof Buffer) {
-      return response.data;
+    if (response && (response as any).data instanceof Buffer) {
+      return (response as any).data;
     }
 
     // If response is text/json, convert to buffer
     return Buffer.from(typeof response === 'string' ? response : JSON.stringify(response || 'null'));
   }
 
-  private async getFile(cid: string): Promise<any> {
-    // Try gateway approach first (like demo), fallback to cluster API
-    const gatewayUrl = `${this.gatewayUrl}/ipfs/${cid}`;
-    const clusterUrl = `${this.config.ipfsEndpoint}/cat?arg=${cid}`;
-
-    console.log(`🎯 Trying gateway URL: ${gatewayUrl}`);
-    const gatewayResult = await this.fetchFile(gatewayUrl);
-    if (gatewayResult) {
-      console.log(`✅ Success with gateway URL`);
-      return gatewayResult;
-    }
-
-    console.log(`❌ Gateway failed, trying cluster API: ${clusterUrl}`);
-    return this.makeRequest(clusterUrl, { method: 'GET' });
-  }
-
-  private async fetchFile(url: string, visitedUrls: Set<string> = new Set(), maxRedirects = 5): Promise<Buffer | null> {
-    // Prevent infinite loops by tracking visited URLs
-    if (visitedUrls.has(url)) {
-      this.logger.error(`Infinite redirect loop detected for URL: ${url}`);
-      return null;
-    }
-
-    // Check maximum redirect limit
-    if (visitedUrls.size >= maxRedirects) {
-      this.logger.error(`Maximum redirect limit (${maxRedirects}) exceeded`);
-      return null;
-    }
-
-    visitedUrls.add(url);
-    this.logger.debug(`Fetching: ${url} (attempt: ${visitedUrls.size}/${maxRedirects})`);
-
+  private async getFile(cid: string): Promise<Buffer> {
+    const url = `${this.config.ipfsGatewayUrl}/ipfs/${cid}`;
     try {
-      const response = await fetch(url, {
-        redirect: 'manual', // Handle redirects manually
-        signal: this.createTimeoutSignal(),
-      });
+      const response = await fetch(url);
 
-      // If we get the data directly, convert to Buffer
       if (response.status === 200) {
-        this.logger.debug('File retrieved successfully (direct)');
-        const arrayBuffer = await response.arrayBuffer();
-        return Buffer.from(arrayBuffer);
-      }
+        this.logger.debug('✅ File retrieved successfully (direct)');
 
-      // Handle redirects manually
-      if (response.status >= 300 && response.status < 400) {
-        const redirectUrl = response.headers.get('location');
-        this.logger.debug(`Redirect detected to: ${redirectUrl}`);
+        const chunks: Buffer[] = [];
+        const reader = response.body?.getReader();
 
-        if (redirectUrl) {
-          // Check if it's a subdomain redirect that we need to convert
-          const subdomainMatch = redirectUrl.match(/^https?:\/\/([^.]+)\.ipfs\.localhost:(\d+)\//);
-          if (subdomainMatch) {
-            const [, hash, port] = subdomainMatch;
-            const convertedUrl = `http://localhost:${port}/ipfs/${hash}`;
-            this.logger.debug(`Converting subdomain redirect to path-based: ${convertedUrl}`);
-            return this.fetchFile(convertedUrl, visitedUrls, maxRedirects);
-          } else {
-            // Follow normal redirects
-            this.logger.debug(`Following normal redirect: ${redirectUrl}`);
-            return this.fetchFile(redirectUrl, visitedUrls, maxRedirects);
-          }
+        if (!reader) {
+          // Fallback to arrayBuffer if streaming not available
+          const arrayBuffer = await response.arrayBuffer();
+          return Buffer.from(arrayBuffer);
         }
-      }
 
-      this.logger.error(`HTTP error! status: ${response.status}`);
-      return null;
+        try {
+          // eslint-disable-next-line no-restricted-syntax
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (value) {
+              chunks.push(Buffer.from(value));
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+
+        return Buffer.concat(chunks);
+      }
     } catch (error: any) {
-      this.logger.error(`Error fetching file: ${error.message}`);
-      return null;
+      if (error.response) {
+        console.error(`❌ HTTP error! status: ${error.response.status}`, error.response.data);
+      } else {
+        console.error('❌ Error fetching file:', error.message);
+      }
+      return Buffer.from([]);
     }
   }
 
@@ -247,7 +215,7 @@ export class IpfsClusterService {
    */
   private async makeRequest(
     url: string,
-    options: RequestInit & { skipAuth?: boolean } = {},
+    options: RequestInit = {},
   ): Promise<{
     status: number;
     statusText: string;
@@ -261,7 +229,6 @@ export class IpfsClusterService {
         Authorization: `Basic ${Buffer.from(
           `${this.config.ipfsBasicAuthUser}:${this.config.ipfsBasicAuthSecret}`,
         ).toString('base64')}`,
-        'Access-Control-Allow-Origin': '*',
         ...options.headers,
       };
 
@@ -271,10 +238,7 @@ export class IpfsClusterService {
         ...options,
         headers,
         signal: this.createTimeoutSignal(),
-        redirect: 'manual', // Handle redirects manually like demo
       });
-
-      this.logger.debug(`Response status: ${response.status}, final URL: ${response.url}`);
 
       const contentType = response.headers.get('content-type') || '';
       let data;
@@ -289,8 +253,6 @@ export class IpfsClusterService {
         // Handle text content
         data = await response.text();
       }
-
-      this.logger.debug(`Request completed with status: ${response.status}`);
 
       this.logger.debug(`Request completed with status: ${response.status}`);
 

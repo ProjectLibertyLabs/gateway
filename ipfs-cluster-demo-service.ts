@@ -65,15 +65,15 @@ class IpfsClusterServiceLocal {
   }
 
   public async getPinned(cid: string): Promise<Buffer> {
-    const response = await this.getFile(cid);
+    const response = await this.getFile2(cid);
     console.log('TEST: Response from getFile:', response);
 
     if (response instanceof Buffer) {
       return response;
     }
 
-    if (response && response.data instanceof Buffer) {
-      return response.data;
+    if (response && (response as any).data instanceof Buffer) {
+      return (response as any).data;
     }
 
     // If response is text/json, convert to buffer (with your bug fix)
@@ -87,9 +87,7 @@ class IpfsClusterServiceLocal {
 
   private async fetchFile(url: string): Promise<Buffer | null> {
     try {
-      const response = await fetch(url, {
-        redirect: 'manual',
-      });
+      const response = await fetch(url);
 
       // If we get the data directly, convert to Buffer
       if (response.status === 200) {
@@ -98,12 +96,55 @@ class IpfsClusterServiceLocal {
         return Buffer.from(arrayBuffer);
       }
     } catch (error: any) {
-      // Handle redirects manually
-      if (error.response && error.response.status >= 300 && error.response.status < 400) {
-        const redirectUrl = error.response.headers.location;
-        console.log('🔄 Redirect detected to:', redirectUrl);
-        return this.fetchFile(redirectUrl);
-      } else if (error.response) {
+      if (error.response) {
+        console.error(`❌ HTTP error! status: ${error.response.status}`, error.response.data);
+      } else {
+        console.error('❌ Error fetching file:', error.message);
+      }
+      return null;
+    }
+  }
+
+  private async getFile2(cid: string): Promise<Buffer> {
+    const url = `${this.config.ipfsGatewayUrl}/ipfs/${cid}`;
+    try {
+      const response = await fetch(url);
+
+      if (response.status === 200) {
+        console.log('✅ File retrieved successfully (direct)');
+
+        // More direct equivalent to the IPFS pattern
+        // const bytesIter = this.ipfs.cat(cid); -> HTTP stream
+        // const chunks = []; -> same
+        // for await (const chunk of bytesIter) -> for await (const chunk of stream)
+        // return Buffer.concat(chunks); -> same
+
+        const chunks: Buffer[] = [];
+        const reader = response.body?.getReader();
+
+        if (!reader) {
+          // Fallback to arrayBuffer if streaming not available
+          const arrayBuffer = await response.arrayBuffer();
+          return Buffer.from(arrayBuffer);
+        }
+
+        try {
+          // eslint-disable-next-line no-restricted-syntax
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (value) {
+              chunks.push(Buffer.from(value));
+            }
+          }
+        } finally {
+          reader.releaseLock();
+        }
+
+        return Buffer.concat(chunks);
+      }
+    } catch (error: any) {
+      if (error.response) {
         console.error(`❌ HTTP error! status: ${error.response.status}`, error.response.data);
       } else {
         console.error('❌ Error fetching file:', error.message);
@@ -198,7 +239,6 @@ class IpfsClusterServiceLocal {
         ...options,
         headers,
         signal: this.createTimeoutSignal(),
-        redirect: 'manual',
       });
 
       this.logger.debug(`Response status: ${response.status}, final URL: ${response.url}`);

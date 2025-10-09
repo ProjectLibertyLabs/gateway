@@ -107,9 +107,10 @@ export const TestData = {
   clusterVersion: { version: '1.1.4', commit: 'abc123' },
 
   addFileResponse: {
-    cid: { '/': 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi' },
+    cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
     name: 'test-file.txt',
-    size: '19',
+    size: 19,
+    allocations: [],
   },
 
   filePin: {

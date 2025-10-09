@@ -2,14 +2,14 @@
 
 This guide explains how to set up monitoring for the Frequency-Gateway application using AWS CloudWatch for logging and metrics collection. CloudWatch offers in-depth metrics for system performance, container health, and more through Container Insights. For further details on CloudWatch setup, see the [AWS CloudWatch Agent on Kubernetes documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-CloudWatch-Agent.html).
 
-## Prerequisites
+## **Prerequisites**
 
 1. **CloudWatch Agent**: [Install the CloudWatch Agent](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-metrics.html) in your Kubernetes cluster, typically as a DaemonSet, to ensure metrics are collected from each node.
 2. **IAM Roles**: Ensure your cluster has the required permissions to write metrics and logs to AWS CloudWatch. Use [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html) for service accounts or AWS IAM roles to attach permissions.
 
 ---
 
-## Step 1: Define CloudWatch Configuration in `values.yaml`
+## **Step 1: Define CloudWatch Configuration in `values.yaml`**
 
 Customize your Helm chart's `values.yaml` file to enable CloudWatch and specify required parameters. Example:
 

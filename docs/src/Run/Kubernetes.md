@@ -1,11 +1,8 @@
 # Frequency Developer Gateway Kubernetes Deployment Guide
 
-This guide will help you set up, configure, and test your Kubernetes services on Ubuntu using **MicroK8s** and **kubectl
-**.
+This guide will help you set up, configure, and test your Kubernetes services on Ubuntu using **MicroK8s** and **kubectl**.
 
----
-
-## **Table of Contents**
+## Table of Contents
 
 - [Frequency Developer Gateway Kubernetes Deployment Guide](#frequency-developer-gateway-kubernetes-deployment-guide)
     - [**Table of Contents**](#table-of-contents)
@@ -28,8 +25,6 @@ This guide will help you set up, configure, and test your Kubernetes services on
     - [9. Tearing Down the Deployment](#9-tearing-down-the-deployment)
     - [10. Conclusion](#10-conclusion)
 
----
-
 ## Prerequisites
 
 Before starting, ensure the following:
@@ -47,7 +42,7 @@ on [installing MicroK8s](https://microk8s.io/docs) and [installing Helm](https:/
 
 ---
 
-## 1. Installing MicroK8s
+## **1. Installing MicroK8s**
 
 Install MicroK8s using the following command:
 
@@ -63,7 +58,7 @@ microk8s status --wait-ready
 
 ---
 
-## 2. Setting Up MicroK8s
+## **2. Setting Up MicroK8s**
 
 To manage MicroK8s as a regular user, you need to add your user to the `microk8s` group:
 
@@ -86,7 +81,7 @@ microk8s status --wait-ready
 
 ---
 
-## 3. Enable Kubernetes Add-ons in MicroK8s
+## **3. Enable Kubernetes Add-ons in MicroK8s**
 
 To enhance your cluster functionality, you can enable the following MicroK8s add-ons:
 
@@ -101,7 +96,7 @@ sudo microk8s enable dns ingress storage helm3
 
 ---
 
-## 4. (Optional) Installing `kubectl`
+## **4. (Optional) Installing `kubectl`**
 
 If `kubectl` isn't already installed, you can use the following command to install it:
 
@@ -111,7 +106,7 @@ sudo snap install kubectl --classic
 
 ---
 
-## 5. Deploying Frequency Developer Gateway
+## **5. Deploying Frequency Developer Gateway**
 
 ### 5.1. Prepare Helm Chart
 
@@ -174,7 +169,7 @@ You should see the status as `deployed`.
 
 ---
 
-## 6. Accessing Kubernetes Services
+## **6. Accessing Kubernetes Services**
 
 By default, Kubernetes services are exposed on `localhost`. Here's how to access them:
 
@@ -225,7 +220,7 @@ Access Swagger UI at `http://<host-ip>:3013/docs/swagger`
 
 ---
 
-## 7. Finding the Host Machine's IP Address
+## **7. Finding the Host Machine's IP Address**
 
 If you need to access the services externally from another machine on the same network, you need the host machine's IP.
 
@@ -248,7 +243,7 @@ http://<host-ip>:8083
 
 ---
 
-## 8. Verifying and Troubleshooting
+## **8. Verifying and Troubleshooting**
 
 ### Check Pods and Services
 
@@ -274,7 +269,7 @@ sudo microk8s kubectl describe service <service-name>
 
 ---
 
-## 9. Tearing Down the Deployment
+## **9. Tearing Down the Deployment**
 
 To delete the Helm release and clean up:
 
@@ -290,7 +285,7 @@ sudo microk8s kubectl delete all --all
 
 ---
 
-## 10. Conclusion
+## **10. Conclusion**
 
 You've successfully deployed `Frequency Developer Gateway` on Kubernetes and Helm, exposing the services via NodePorts
 for local access. You can also expand this setup by using Ingress for broader network access or by setting up a

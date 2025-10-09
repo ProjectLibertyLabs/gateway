@@ -1,16 +1,14 @@
 # Frequency Developer Gateway Guides
 
-## Quick Start
+## **Quick Start**
 
 Walk through all the steps to get Gateway and the Social Application Template running in 5 minutes.
 
-<div class="button-links button-links-small">
-
-[Follow the Quick Start Guide](./QuickStart.md)
-
+<div class="button-links-outlined">
+  <a href="./QuickStart.md">Follow the Quick Start Guide</a>
 </div>
 
-## Single Sign-On
+## **Single Sign-On**
 
 Learn how to use the Frequency Developer Gateway to quickly add Sign In with:
 
@@ -19,18 +17,14 @@ Learn how to use the Frequency Developer Gateway to quickly add Sign In with:
 
 to your application.
 
-<div class="button-links button-links-small">
-
-[Follow the SSO Guide](./SSO.md)
-
+<div class="button-links-outlined">
+  <a href="./SSO.md">Follow the SSO Guide</a>
 </div>
 
-## Become a Provider
+## **Become a Provider**
 
 Learn how to setup your Provider Account to represent your application on Frequency.
 
-<div class="button-links button-links-small">
-
-[Follow the Become a Provider Guide](./BecomeProvider.md)
-
+<div class="button-links-outlined">
+  <a href="./BecomeProvider.md">Follow the Become a Provider Guide</a>
 </div>

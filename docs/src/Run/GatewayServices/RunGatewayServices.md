@@ -1,12 +1,12 @@
 # Running Frequency Developer Gateway Services
 
-## Prerequisites
+## **Prerequisites**
 
 To run this project, you need:
 
 - [Docker](https://docs.docker.com/get-docker/)
 
-## Quick Start
+## **Quick Start**
 
 ### Clone the repository
 
@@ -85,7 +85,7 @@ To run this project, you need:
 └────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Environment Variables
+## **Environment Variables**
 
 For information on environment variables, see the Build page for your selected service:
 

@@ -2,7 +2,7 @@
 
 Getting started building on Decentralized Social is as easy as deploying a Web2 API.
 
-## Build What You Want
+## **Build What You Want**
 
 Frequency Developer Gateway offers a suite of tools you can pick and choose from to build the best applications for your users.
 
@@ -13,14 +13,14 @@ Frequency Developer Gateway offers a suite of tools you can pick and choose from
 - Read, write, and interact with social media content
 - More coming...
 
-## Web2 API Simplicity with Decentralized Power
+## **Web2 API Simplicity with Decentralized Power**
 
 - Build your applications faster
 - Own your infrastructure
 - OpenAPI/Swagger out of the box
 - Optimized Docker images
 
-## Basic Architecture
+## **Basic Architecture**
 
 Frequency Developer Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
 
@@ -30,7 +30,7 @@ These microservices are completely independent of one another, so you can use on
 
 {{#svg-embed ./src/TopLevel.svg Gateway Application Microservice Diagram}}
 
-## Key Microservices
+## **Key Microservices**
 
 ### Account Service
 
@@ -70,9 +70,9 @@ The Content Watcher Service enables client applications to process content found
 - Filterable webhooks
 - Scanning control
 
-## Get Started
+## **Get Started**
 
-<div class="button-links">
+<div class="button-links-outlined">
   <a href="./Fundamentals/">Fundamentals</a>
   <a href="./GettingStarted/">Quick Start Tutorial</a>
   <a href="./Build/">Build</a>

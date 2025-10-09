@@ -1,15 +1,59 @@
 .button-links,
-.button-links > p {
-  display: flex;
-  justify-content: space-around;
-  align-content: center;
-  align-items: stretch;
-  flex-wrap: wrap;
+.button-links-outlined {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.button-links > p {
-  width: 100%;
+.button-links,
+.button-links > p,
+.button-links-outlined,
+.button-links-outlined > p {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  gap: 24px;
+}
+
+/* center when there's only one child */
+.button-links:has(> :only-child),
+.button-links-outlined:has(> :only-child) {
+  grid-template-columns: 1fr;
+  justify-items: center;
   margin: 0;
+  max-width: 400px;
+}
+
+.button-links > p,
+.button-links-outlined > p {
+  width: 100%;
+}
+
+.button-links a,
+.button-links > p a,
+.button-links a:link,
+.button-links > p a:link,
+.button-links a:visited,
+.button-links > p a:visited,
+.button-links-outlined a,
+.button-links-outlined > p a,
+.button-links-outlined a:link,
+.button-links-outlined > p a:link,
+.button-links-outlined a:visited,
+.button-links-outlined > p a:visited {
+  @apply docsBodyText;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 9999px;
+  user-select: none;
+  display: flex;
+  flex: 0.5;
+  transition: none;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 388px;
+  width: 100%;
 }
 
 .button-links a,
@@ -18,46 +62,41 @@
 .button-links > p a:link,
 .button-links a:visited,
 .button-links > p a:visited {
-  text-decoration: none;
-  box-sizing: content-box;
-  font-weight: 700;
+  padding: 12px 10%;
   color: var(--button-nav-fg);
   background-color: var(--button-nav-bg);
-  border-radius: 9999px;
-  user-select: none;
-  padding: 20px 10%;
-  margin: 10px;
-  display: flex;
-  font-size: 20px;
-  flex: 0.5;
-  transition: none;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  white-space: nowrap;
+}
+
+.button-links-outlined a,
+.button-links-outlined > p a,
+.button-links-outlined a:link,
+.button-links-outlined > p a:link,
+.button-links-outlined a:visited,
+.button-links-outlined > p a:visited {
+  padding: 8px 10%;
+  color: var(--button-outlined-text);
+  border: 2px solid var(--button-outlined-border);
+  background: var(--button-outlined-bg);
+}
+
+@media screen and (max-width: 1080px) {
+  .button-links,
+  .button-links > p,
+  .button-links-outlined,
+  .button-links-outlined > p {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media screen and (max-width: 1080px) {
   .button-links a,
   .button-links > p a,
   .button-links a:link,
-  .button-links > p a:link {
-    box-sizing: border-box;
-    margin: 10px 6px;
-    flex: 0 0 90%;
-    width: 100%;
-    white-space: normal;
-  }
-}
-
-@media screen and (max-width: 400px) {
-  .button-links a,
-  .button-links > p a,
-  .button-links a:link,
-  .button-links > p a:link {
-    box-sizing: border-box;
-    margin: 10px 6px;
-    flex: 0 0 100%;
+  .button-links > p a:link,
+  .button-links-outlined a,
+  .button-links-outlined > p a,
+  .button-links-outlined a:link,
+  .button-links-outlined > p a:link {
     width: 100%;
     white-space: normal;
   }
@@ -70,4 +109,13 @@
   text-decoration: none;
   color: var(--button-nav-hover-fg);
   background: var(--button-nav-hover-bg);
+}
+
+.button-links-outlined a:hover,
+.button-links-outlined > p a:hover,
+.button-links-outlined a:visited:hover,
+.button-links-outlined > p a:visited:hover {
+  text-decoration: none;
+  color: var(--button-outlined-hover-text);
+  border: 2px solid var(--button-outlined-hover-border);
 }

@@ -1,3 +1,5 @@
+import { PinoLogger } from 'nestjs-pino';
+
 /**
  * Decorator that wraps RPC method calls with error handling and logging.
  * Automatically logs the RPC method name when errors occur and enhances error messages.
@@ -20,9 +22,17 @@ export function RpcCall(rpcMethodName: string) {
       try {
         return await originalMethod.apply(this, args);
       } catch (error: any) {
-        // Log the error with RPC method context
-        if (this.logger) {
-          this.logger.error(`RPC call failed: ${rpcMethodName}`, error?.message || error);
+        // Log the error with RPC method context using PinoLogger
+        const logger: PinoLogger | undefined = this.logger;
+        if (logger && typeof logger.error === 'function') {
+          logger.error(
+            {
+              rpcMethod: rpcMethodName,
+              errorMessage: error?.message,
+              errorName: error?.name,
+            },
+            `RPC call failed: ${rpcMethodName}`,
+          );
         }
 
         // Enhance the error message with RPC method name

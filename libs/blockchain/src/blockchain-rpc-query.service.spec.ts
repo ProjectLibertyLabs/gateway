@@ -100,7 +100,14 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
 
       await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Original error message');
 
-      expect(testService.logger.error).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Original error message');
+      expect(testService.logger.error).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.test.method',
+          errorMessage: 'Original error message',
+          errorName: 'Error',
+        },
+        'RPC call failed: rpc.test.method',
+      );
     });
 
     it('should preserve error type when enhancing error message', async () => {
@@ -149,7 +156,14 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
 
       await expect(testService.testMethod()).rejects.toEqual(nonErrorObject);
 
-      expect(testService.logger.error).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Server error');
+      expect(testService.logger.error).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.test.method',
+          errorMessage: 'Server error',
+          errorName: undefined,
+        },
+        'RPC call failed: rpc.test.method',
+      );
     });
 
     it('should work without logger', async () => {
@@ -175,7 +189,14 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
 
       await expect(service.getBlockHash(1)).rejects.toThrow('[rpc.chain.getBlockHash] Connection timeout');
 
-      expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.chain.getBlockHash', 'Connection timeout');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.chain.getBlockHash',
+          errorMessage: 'Connection timeout',
+          errorName: 'Error',
+        },
+        'RPC call failed: rpc.chain.getBlockHash',
+      );
     });
 
     it('should wrap getNonce RPC call and enhance errors', async () => {
@@ -186,7 +207,14 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
 
       await expect(service.getNonce('test-account')).rejects.toThrow('[rpc.system.accountNextIndex] Account not found');
 
-      expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.system.accountNextIndex', 'Account not found');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.system.accountNextIndex',
+          errorMessage: 'Account not found',
+          errorName: 'Error',
+        },
+        'RPC call failed: rpc.system.accountNextIndex',
+      );
     });
   });
 });

@@ -7,6 +7,7 @@ import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
+import { RpcCall } from './decorators/rpc-call.decorator';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -34,7 +35,7 @@ const mockNoProviderConfigProvider = GenerateMockConfigProvider<IBlockchainNonPr
   },
 );
 
-describe('BlockchainRpcQueryService - wrapRpcCall', () => {
+describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
   let service: BlockchainRpcQueryService;
   let moduleRef: TestingModule;
 
@@ -67,28 +68,39 @@ describe('BlockchainRpcQueryService - wrapRpcCall', () => {
     await moduleRef.close();
   });
 
-  describe('wrapRpcCall', () => {
+  describe('@RpcCall decorator', () => {
     it('should return the result of a successful RPC call', async () => {
-      const expectedResult = { data: 'test-data' };
-      const mockRpcCall = jest.fn<() => Promise<any>>().mockResolvedValue(expectedResult);
+      // Create a test class to verify decorator behavior
+      class TestService {
+        logger = { error: jest.fn() };
 
-      const result = await (service as any).wrapRpcCall('rpc.test.method', mockRpcCall);
+        @RpcCall('rpc.test.method')
+        async testMethod() {
+          return { data: 'test-data' };
+        }
+      }
 
-      expect(result).toEqual(expectedResult);
-      expect(mockRpcCall).toHaveBeenCalledTimes(1);
+      const testService = new TestService();
+      const result = await testService.testMethod();
+
+      expect(result).toEqual({ data: 'test-data' });
     });
 
     it('should log error and enhance error message on RPC failure', async () => {
-      const originalError = new Error('Original error message');
-      const mockRpcCall = jest.fn<() => Promise<any>>().mockRejectedValue(originalError);
-      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+      class TestService {
+        logger = { error: jest.fn() };
 
-      await expect((service as any).wrapRpcCall('rpc.test.method', mockRpcCall)).rejects.toThrow(
-        '[rpc.test.method] Original error message',
-      );
+        @RpcCall('rpc.test.method')
+        async testMethod() {
+          throw new Error('Original error message');
+        }
+      }
 
-      expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Original error message');
-      expect(mockRpcCall).toHaveBeenCalledTimes(1);
+      const testService = new TestService();
+
+      await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Original error message');
+
+      expect(testService.logger.error).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Original error message');
     });
 
     it('should preserve error type when enhancing error message', async () => {
@@ -99,11 +111,19 @@ describe('BlockchainRpcQueryService - wrapRpcCall', () => {
         }
       }
 
-      const originalError = new CustomError('Custom error');
-      const mockRpcCall = jest.fn<() => Promise<any>>().mockRejectedValue(originalError);
+      class TestService {
+        logger = { error: jest.fn() };
+
+        @RpcCall('rpc.test.method')
+        async testMethod() {
+          throw new CustomError('Custom error');
+        }
+      }
+
+      const testService = new TestService();
 
       try {
-        await (service as any).wrapRpcCall('rpc.test.method', mockRpcCall);
+        await testService.testMethod();
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(CustomError);
@@ -115,21 +135,34 @@ describe('BlockchainRpcQueryService - wrapRpcCall', () => {
 
     it('should handle non-Error objects thrown by RPC calls', async () => {
       const nonErrorObject = { code: 500, message: 'Server error' };
-      const mockRpcCall = jest.fn<() => Promise<any>>().mockRejectedValue(nonErrorObject);
-      const loggerSpy = jest.spyOn((service as any).logger, 'error');
 
-      await expect((service as any).wrapRpcCall('rpc.test.method', mockRpcCall)).rejects.toEqual(nonErrorObject);
+      class TestService {
+        logger = { error: jest.fn() };
 
-      expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Server error');
+        @RpcCall('rpc.test.method')
+        async testMethod() {
+          throw nonErrorObject;
+        }
+      }
+
+      const testService = new TestService();
+
+      await expect(testService.testMethod()).rejects.toEqual(nonErrorObject);
+
+      expect(testService.logger.error).toHaveBeenCalledWith('RPC call failed: rpc.test.method', 'Server error');
     });
 
-    it('should handle RPC calls that reject with undefined or null', async () => {
-      const mockRpcCall = jest.fn<() => Promise<any>>().mockRejectedValue(undefined);
-      const loggerSpy = jest.spyOn((service as any).logger, 'error');
+    it('should work without logger', async () => {
+      class TestService {
+        @RpcCall('rpc.test.method')
+        async testMethod() {
+          throw new Error('Test error');
+        }
+      }
 
-      await expect((service as any).wrapRpcCall('rpc.test.method', mockRpcCall)).rejects.toBeUndefined();
+      const testService = new TestService();
 
-      expect(loggerSpy).toHaveBeenCalledWith('RPC call failed: rpc.test.method', undefined);
+      await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Test error');
     });
   });
 

@@ -56,6 +56,7 @@ import { ApiPromise } from '@polkadot/api';
 import { ICapacityFeeDetails } from './types';
 import { getTypedSignatureForPayload } from '#utils/common/signature.util';
 import { PinoLogger } from 'nestjs-pino';
+import { RpcCall } from './decorators/rpc-call.decorator';
 
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
@@ -117,74 +118,59 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     super(baseConfig, eventEmitter, logger);
   }
 
-  /**
-   * Wraps RPC calls with error handling and logging to provide better context for debugging.
-   * Adds the RPC method name to error messages and logs failures with context.
-   * @param rpcMethodName The name of the RPC method being called (e.g., 'rpc.chain.getBlockHash')
-   * @param rpcCall The RPC call function to execute
-   * @returns The result of the RPC call
-   * @throws The original error with enhanced message containing the RPC method name
-   */
-  protected async wrapRpcCall<T>(rpcMethodName: string, rpcCall: () => Promise<T>): Promise<T> {
-    try {
-      return await rpcCall();
-    } catch (error: any) {
-      this.logger.error(`RPC call failed: ${rpcMethodName}`, error?.message || error);
-      if (error instanceof Error) {
-        error.message = `[${rpcMethodName}] ${error.message}`;
-      }
-      throw error;
-    }
-  }
-
   // ******************************** RPC methods ********************************
 
+  @RpcCall('rpc.chain.getBlockHash')
   public getBlockHash(block: BlockNumber | AnyNumber): Promise<BlockHash> {
-    return this.wrapRpcCall('rpc.chain.getBlockHash', () => this.api.rpc.chain.getBlockHash(block));
+    return this.api.rpc.chain.getBlockHash(block);
   }
 
+  @RpcCall('rpc.chain.getBlock')
   public getBlock(block?: BlockHash): Promise<SignedBlock> {
-    return this.wrapRpcCall('rpc.chain.getBlock', () => this.api.rpc.chain.getBlock(block));
+    return this.api.rpc.chain.getBlock(block);
   }
 
   public async getBlockByNumber(blockNumber: AnyNumber | BlockNumber): Promise<SignedBlock> {
     const blockHash = await this.getBlockHash(blockNumber);
-    return this.wrapRpcCall('rpc.chain.getBlock', () => this.api.rpc.chain.getBlock(blockHash));
+    return this.getBlock(blockHash);
   }
 
+  @RpcCall('rpc.statefulStorage.getItemizedStorage')
   public async getItemizedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<ItemizedStoragePageResponse> {
-    return this.wrapRpcCall('rpc.statefulStorage.getItemizedStorage', () =>
-      this.api.rpc.statefulStorage.getItemizedStorage(msaId, schemaId),
-    );
+    return this.api.rpc.statefulStorage.getItemizedStorage(msaId, schemaId);
   }
 
+  @RpcCall('rpc.statefulStorage.getPaginatedStorage')
   public async getPaginatedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<PaginatedStorageResponse[]> {
-    const response: Vec<PaginatedStorageResponse> = await this.wrapRpcCall(
-      'rpc.statefulStorage.getPaginatedStorage',
-      () => this.api.rpc.statefulStorage.getPaginatedStorage(msaId, schemaId),
+    const response: Vec<PaginatedStorageResponse> = await this.api.rpc.statefulStorage.getPaginatedStorage(
+      msaId,
+      schemaId,
     );
 
     return response.toArray();
   }
 
+  @RpcCall('rpc.chain.getFinalizedHead')
   public getLatestFinalizedBlockHash(): Promise<BlockHash> {
-    return this.wrapRpcCall('rpc.chain.getFinalizedHead', () => this.api.rpc.chain.getFinalizedHead());
+    return this.api.rpc.chain.getFinalizedHead();
   }
 
+  @RpcCall('rpc.chain.getHeader')
   public async getLatestBlockNumber(finalized = true): Promise<number> {
     let header: Header;
     if (finalized) {
       const blockHash = await this.getLatestFinalizedBlockHash();
-      header = await this.wrapRpcCall('rpc.chain.getHeader', () => this.api.rpc.chain.getHeader(blockHash));
+      header = await this.api.rpc.chain.getHeader(blockHash);
     } else {
-      header = await this.wrapRpcCall('rpc.chain.getHeader', () => this.api.rpc.chain.getHeader());
+      header = await this.api.rpc.chain.getHeader();
     }
 
     return header.number.toNumber();
   }
 
+  @RpcCall('rpc.chain.getHeader')
   public async getLatestHeader(): Promise<IHeaderInfo> {
-    const latestHeader = await this.wrapRpcCall('rpc.chain.getHeader', () => this.api.rpc.chain.getHeader());
+    const latestHeader = await this.api.rpc.chain.getHeader();
     return {
       blockHash: latestHeader.hash.toHex(),
       number: latestHeader.number.toNumber(),
@@ -192,8 +178,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
+  @RpcCall('rpc.chain.getHeader')
   public async getBlockNumberForHash(hash: string | Uint8Array | BlockHash): Promise<number | undefined> {
-    const header = await this.wrapRpcCall('rpc.chain.getHeader', () => this.api.rpc.chain.getHeader(hash));
+    const header = await this.api.rpc.chain.getHeader(hash);
     if (header) {
       return header.number.toNumber();
     }
@@ -202,14 +189,13 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return undefined;
   }
 
+  @RpcCall('rpc.state.getRuntimeVersion')
   public async getCurrentBlockInfo() {
     return {
       blocknumber: await this.getLatestBlockNumber(),
       finalized_blocknumber: await this.getLatestBlockNumber(true),
       genesis: this.api.genesisHash,
-      runtime_version: (
-        await this.wrapRpcCall('rpc.state.getRuntimeVersion', () => this.api.rpc.state.getRuntimeVersion())
-      ).specVersion.toNumber(),
+      runtime_version: (await this.api.rpc.state.getRuntimeVersion()).specVersion.toNumber(),
     };
   }
 
@@ -219,26 +205,25 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
    * @param {string} baseHandle - The base handle to be validated.
    * @returns {Promise<bool>} - A promise that resolves to a bool indicating whether the handle is valid.
    */
+  @RpcCall('rpc.handles.validateHandle')
   public async isValidHandle(baseHandle: string): Promise<bool> {
-    return this.wrapRpcCall('rpc.handles.validateHandle', () => this.api.rpc.handles.validateHandle(baseHandle));
+    return this.api.rpc.handles.validateHandle(baseHandle);
   }
 
+  @RpcCall('rpc.system.accountNextIndex')
   public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {
-    return (
-      await this.wrapRpcCall('rpc.system.accountNextIndex', () => this.api.rpc.system.accountNextIndex(account))
-    ).toNumber();
+    return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
 
+  @RpcCall('rpc.msa.getKeysByMsaId')
   public async getKeysByMsa(msaId: string): Promise<KeyInfoResponse | null> {
-    return this.handleOptionResult(
-      this.wrapRpcCall('rpc.msa.getKeysByMsaId', () => this.api.rpc.msa.getKeysByMsaId(msaId)),
-      `No keys found for msaId: ${msaId}`,
-    );
+    return this.handleOptionResult(this.api.rpc.msa.getKeysByMsaId(msaId), `No keys found for msaId: ${msaId}`);
   }
 
+  @RpcCall('rpc.handles.getHandleForMsa')
   public async getHandleForMsa(msaId: AnyNumber): Promise<HandleResponseDto | null> {
     const handleResponse = await this.handleOptionResult(
-      this.wrapRpcCall('rpc.handles.getHandleForMsa', () => this.api.rpc.handles.getHandleForMsa(msaId)),
+      this.api.rpc.handles.getHandleForMsa(msaId),
       `getHandleForMsa: No handle found for msaId: ${msaId}`,
     );
 
@@ -273,13 +258,10 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return response;
   }
 
+  @RpcCall('rpc.msa.checkDelegations')
   public async checkCurrentDelegation(msaId: AnyNumber, schemaId: AnyNumber, providerId: AnyNumber): Promise<boolean> {
-    const header = await this.wrapRpcCall('rpc.chain.getHeader', () => this.api.rpc.chain.getHeader());
-    const delegation = (
-      await this.wrapRpcCall('rpc.msa.checkDelegations', () =>
-        this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), schemaId),
-      )
-    )
+    const header = await this.api.rpc.chain.getHeader();
+    const delegation = (await this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), schemaId))
       .toArray()
       .find(([delegatorId, _]) => delegatorId.toString() === (typeof msaId === 'string' ? msaId : msaId.toString()));
 
@@ -355,10 +337,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return (await api.query.capacity.epochLength()).toNumber();
   }
 
+  @RpcCall('rpc.frequencyTxPayment.computeCapacityFeeDetails')
   public async getCapacityCostForExt(enocdedExt: HexString): Promise<ICapacityFeeDetails> {
-    const feeDetails = await this.wrapRpcCall('rpc.frequencyTxPayment.computeCapacityFeeDetails', () =>
-      this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null),
-    );
+    const feeDetails = await this.api.rpc.frequencyTxPayment.computeCapacityFeeDetails(enocdedExt, null);
     if (feeDetails.inclusionFee.isSome) {
       const inclusionFee = feeDetails.inclusionFee.unwrap();
       return {
@@ -379,10 +360,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
+  @RpcCall('rpc.messages.getBySchemaId')
   public async getMessagesBySchemaId(schemaId: AnyNumber, pagination: IBlockPaginationRequest) {
-    return this.wrapRpcCall('rpc.messages.getBySchemaId', () =>
-      this.api.rpc.messages.getBySchemaId(schemaId, pagination),
-    );
+    return this.api.rpc.messages.getBySchemaId(schemaId, pagination);
   }
 
   // ********************************* Query methods (accept optional block hash for "at" queries) *********************************

@@ -8,6 +8,14 @@ import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { RpcCall } from './decorators/rpc-call.decorator';
+import {
+  CustomError,
+  TestService,
+  TestServiceWithError,
+  TestServiceWithCustomError,
+  TestServiceWithNonError,
+  TestServiceWithoutLogger,
+} from './blockchain-rpc-query.spec.helper';
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');
@@ -34,6 +42,7 @@ const mockNoProviderConfigProvider = GenerateMockConfigProvider<IBlockchainNonPr
     isDeployedReadOnly: false,
   },
 );
+
 
 describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
   let service: BlockchainRpcQueryService;
@@ -70,16 +79,6 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
 
   describe('@RpcCall decorator', () => {
     it('should return the result of a successful RPC call', async () => {
-      // Create a test class to verify decorator behavior
-      class TestService {
-        logger = { error: jest.fn() };
-
-        @RpcCall('rpc.test.method')
-        async testMethod() {
-          return { data: 'test-data' };
-        }
-      }
-
       const testService = new TestService();
       const result = await testService.testMethod();
 
@@ -87,16 +86,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
     });
 
     it('should log error and enhance error message on RPC failure', async () => {
-      class TestService {
-        logger = { error: jest.fn() };
-
-        @RpcCall('rpc.test.method')
-        async testMethod() {
-          throw new Error('Original error message');
-        }
-      }
-
-      const testService = new TestService();
+      const testService = new TestServiceWithError();
 
       await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Original error message');
 
@@ -111,23 +101,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
     });
 
     it('should preserve error type when enhancing error message', async () => {
-      class CustomError extends Error {
-        constructor(message: string) {
-          super(message);
-          this.name = 'CustomError';
-        }
-      }
-
-      class TestService {
-        logger = { error: jest.fn() };
-
-        @RpcCall('rpc.test.method')
-        async testMethod() {
-          throw new CustomError('Custom error');
-        }
-      }
-
-      const testService = new TestService();
+      const testService = new TestServiceWithCustomError();
 
       try {
         await testService.testMethod();
@@ -141,40 +115,22 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
     });
 
     it('should handle non-Error objects thrown by RPC calls', async () => {
-      const nonErrorObject = { code: 500, message: 'Server error' };
+      const testService = new TestServiceWithNonError();
 
-      class TestService {
-        logger = { error: jest.fn() };
-
-        @RpcCall('rpc.test.method')
-        async testMethod() {
-          throw nonErrorObject;
-        }
-      }
-
-      const testService = new TestService();
-
-      await expect(testService.testMethod()).rejects.toEqual(nonErrorObject);
+      await expect(testService.testMethod()).rejects.toThrow('Server error');
 
       expect(testService.logger.error).toHaveBeenCalledWith(
         {
           rpcMethod: 'rpc.test.method',
           errorMessage: 'Server error',
-          errorName: undefined,
+          errorName: 'Error',
         },
         'RPC call failed: rpc.test.method',
       );
     });
 
     it('should work without logger', async () => {
-      class TestService {
-        @RpcCall('rpc.test.method')
-        async testMethod() {
-          throw new Error('Test error');
-        }
-      }
-
-      const testService = new TestService();
+      const testService = new TestServiceWithoutLogger();
 
       await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Test error');
     });

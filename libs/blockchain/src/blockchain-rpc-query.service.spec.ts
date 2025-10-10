@@ -7,7 +7,6 @@ import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
-import { RpcCall } from './decorators/rpc-call.decorator';
 import {
   CustomError,
   TestService,
@@ -42,7 +41,6 @@ const mockNoProviderConfigProvider = GenerateMockConfigProvider<IBlockchainNonPr
     isDeployedReadOnly: false,
   },
 );
-
 
 describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
   let service: BlockchainRpcQueryService;

@@ -11,6 +11,8 @@ import {
   CustomError,
   TestService,
   TestServiceWithError,
+  TestServiceWithArgs,
+  TestServiceWithComplexArgs,
   TestServiceWithCustomError,
   TestServiceWithNonError,
   TestServiceWithoutLogger,
@@ -91,6 +93,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       expect(testService.logger.error).toHaveBeenCalledWith(
         {
           rpcMethod: 'rpc.test.method',
+          rpcArgs: [],
           errorMessage: 'Original error message',
           errorName: 'Error',
         },
@@ -120,6 +123,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       expect(testService.logger.error).toHaveBeenCalledWith(
         {
           rpcMethod: 'rpc.test.method',
+          rpcArgs: [],
           errorMessage: 'Server error',
           errorName: 'Error',
         },
@@ -131,6 +135,38 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       const testService = new TestServiceWithoutLogger();
 
       await expect(testService.testMethod()).rejects.toThrow('[rpc.test.method] Test error');
+    });
+
+    it('should log RPC arguments when method fails', async () => {
+      const testService = new TestServiceWithArgs();
+
+      await expect(testService.getBlockHash(12345, true)).rejects.toThrow('[rpc.chain.getBlockHash] Block not found');
+
+      expect(testService.logger.error).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.chain.getBlockHash',
+          rpcArgs: [12345, true],
+          errorMessage: 'Block not found',
+          errorName: 'Error',
+        },
+        'RPC call failed: rpc.chain.getBlockHash',
+      );
+    });
+
+    it('should log complex RPC arguments when method fails', async () => {
+      const testService = new TestServiceWithComplexArgs();
+
+      await expect(testService.getKeysByMsa('test-msa-123', false, 50)).rejects.toThrow('[rpc.msa.getKeysByMsaId] MSA not found');
+
+      expect(testService.logger.error).toHaveBeenCalledWith(
+        {
+          rpcMethod: 'rpc.msa.getKeysByMsaId',
+          rpcArgs: ['test-msa-123', false, 50],
+          errorMessage: 'MSA not found',
+          errorName: 'Error',
+        },
+        'RPC call failed: rpc.msa.getKeysByMsaId',
+      );
     });
   });
 
@@ -146,6 +182,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       expect(loggerSpy).toHaveBeenCalledWith(
         {
           rpcMethod: 'rpc.chain.getBlockHash',
+          rpcArgs: [1],
           errorMessage: 'Connection timeout',
           errorName: 'Error',
         },
@@ -164,6 +201,7 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       expect(loggerSpy).toHaveBeenCalledWith(
         {
           rpcMethod: 'rpc.system.accountNextIndex',
+          rpcArgs: ['test-account'],
           errorMessage: 'Account not found',
           errorName: 'Error',
         },

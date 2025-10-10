@@ -197,7 +197,7 @@
     "@nestjs/cli": "11.0.10",
     "@nestjs/schematics": "11.0.7",
     "@nestjs/testing": "11.1.6",
-    "@projectlibertylabs/frequency-scenario-template": "1.1.12",
+    "@projectlibertylabs/frequency-scenario-template": "1.1.13",
     "@types/base64url": "2.0.7",
     "@types/busboy": "1.5.4",
     "@types/jest": "30.0.0",

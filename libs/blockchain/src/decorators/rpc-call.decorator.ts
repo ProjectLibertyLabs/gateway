@@ -22,7 +22,6 @@ export function RpcCall(rpcMethodName: string) {
       try {
         return await originalMethod.apply(this, args);
       } catch (error: any) {
-        // Log the error with RPC method context using PinoLogger
         const logger: PinoLogger | undefined = this.logger;
         if (logger && typeof logger.error === 'function') {
           logger.error(
@@ -35,7 +34,7 @@ export function RpcCall(rpcMethodName: string) {
           );
         }
 
-        // Enhance the error message with RPC method name
+        // Add error message with RPC method name if there is an Error object
         if (error instanceof Error) {
           error.message = `[${rpcMethodName}] ${error.message}`;
         }

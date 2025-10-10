@@ -24,36 +24,29 @@ export function RpcCall(rpcMethodName: string) {
       } catch (error: any) {
         const logger: PinoLogger | undefined = this.logger;
         if (logger && typeof logger.error === 'function') {
-          // Safely serialize arguments, handling circular references and large objects
-          const serializedArgs = args.map((arg, index) => {
+          // Simple argument serialization
+          const serializedArgs = args.map((arg) => {
             try {
-              // Handle common blockchain types
-              if (arg && typeof arg === 'object') {
-                if (arg.toHex && typeof arg.toHex === 'function') {
-                  return { type: 'HexString', value: arg.toHex() };
-                }
-                if (arg.toNumber && typeof arg.toNumber === 'function') {
-                  return { type: 'Number', value: arg.toNumber() };
-                }
-                if (arg.toString && typeof arg.toString === 'function' && arg.constructor.name !== 'Object') {
-                  return { type: arg.constructor.name, value: arg.toString() };
-                }
-                // For plain objects, limit depth and size
-                return JSON.parse(JSON.stringify(arg, (key, value) => {
-                  if (typeof value === 'object' && value !== null) {
-                    if (value.toHex && typeof value.toHex === 'function') {
-                      return { type: 'HexString', value: value.toHex() };
-                    }
-                    if (value.toNumber && typeof value.toNumber === 'function') {
-                      return { type: 'Number', value: value.toNumber() };
-                    }
-                  }
-                  return value;
-                }));
+              // Handle primitive types directly
+              if (arg === null || arg === undefined || typeof arg !== 'object') {
+                return arg;
               }
-              return arg;
-            } catch (serializationError) {
-              return { type: 'SerializationError', message: 'Could not serialize argument' };
+              
+              // Handle blockchain types with common methods
+              if (arg.toHex && typeof arg.toHex === 'function') {
+                return arg.toHex();
+              }
+              if (arg.toNumber && typeof arg.toNumber === 'function') {
+                return arg.toNumber();
+              }
+              if (arg.toString && typeof arg.toString === 'function') {
+                return arg.toString();
+              }
+              
+              // For other objects, use JSON.stringify with error handling
+              return JSON.stringify(arg);
+            } catch {
+              return '[Unserializable]';
             }
           });
 

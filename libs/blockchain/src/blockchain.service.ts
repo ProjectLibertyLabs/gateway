@@ -44,6 +44,7 @@ import {
 import { BN } from '@polkadot/util';
 import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
 import { PinoLogger } from 'nestjs-pino';
+import { RpcCall } from './decorators/rpc-call.decorator';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
 
@@ -98,6 +99,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     return (await this.baseIsReadyPromise) && (await this.isReadyPromise) && !!(await this.api.isReady);
   }
 
+  @RpcCall('rpc.chain.getFinalizedHead')
   public async updateLatestBlockHeader() {
     if (this.connected) {
       const latestFinalizedBlock = await this.api.rpc.chain.getFinalizedHead();

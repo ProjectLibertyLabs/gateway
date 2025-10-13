@@ -161,13 +161,13 @@ npm run format
 These queues store information about social graph changes. Each queue lists
 the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
 
-* graphChangeRequest contains jobs for requests to follow, unfollow. Jobs are enqueued in the Graph's `ApiService`,
+- graphChangeRequest contains jobs for requests to follow, unfollow. Jobs are enqueued in the Graph's `ApiService`,
   triggered by an API call, and processed by Graph's `RequestProcessorService`. DTOs: `ProviderGraphDto`,
   `GraphChangeResponseDto`
-* graphChangePublish for publishing updated graphs on Frequency. Jobs are enequeued by both GraphMonitorService
+- graphChangePublish for publishing updated graphs on Frequency. Jobs are enequeued by both GraphMonitorService
   and `GraphUpdatePublisherService`. They are not processed by the app, but may be consumed via registered webhook. No
   DTOs
-* reconnectRequest: **TODO**
+- reconnectRequest: **TODO**
 
 ### Built With
 

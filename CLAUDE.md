@@ -9,16 +9,19 @@ This is the **Frequency Developer Gateway** - a NestJS monorepo containing micro
 ### Architecture
 
 **Monorepo Structure:**
+
 - **Apps** (9 services): Independent microservices with API endpoints and background workers
 - **Libs** (16 libraries): Shared functionality and utilities
 
 **Core Services:**
+
 - **Account** (`account-api` + `account-worker`): User account management, authentication via Sign In With Frequency
 - **Content Publishing** (`content-publishing-api` + `content-publishing-worker`): Content creation, file upload, IPFS storage, blockchain publishing
 - **Graph** (`graph-api` + `graph-worker`): Social graph relationships, following/unfollowing
 - **Content Watcher** (`content-watcher`): Blockchain monitoring for content changes
 
 **Key Libraries:**
+
 - **blockchain**: Polkadot API integration, Frequency chain interactions
 - **queue**: BullMQ job processing with Redis
 - **cache**: Redis caching layer
@@ -28,6 +31,7 @@ This is the **Frequency Developer Gateway** - a NestJS monorepo containing micro
 ## Development Commands
 
 ### Building
+
 ```bash
 # Build all services
 npm run build
@@ -41,6 +45,7 @@ npm run build:libs
 ```
 
 ### Running Services
+
 ```bash
 # Start individual services in development mode
 npm run start:account-api:dev
@@ -55,6 +60,7 @@ npm run start:graph-worker:dev
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npm test
@@ -81,6 +87,7 @@ jest path/to/test.spec.ts
 ```
 
 ### Linting and Formatting
+
 ```bash
 # Lint all code
 npm run lint
@@ -101,6 +108,7 @@ npm run spellcheck
 ```
 
 ### OpenAPI Documentation Generation
+
 ```bash
 # Generate all OpenAPI specs
 npm run generate:openapi
@@ -115,6 +123,7 @@ npm run generate:swagger-ui
 ```
 
 ### Load Testing
+
 ```bash
 # Run k6 load tests
 npm run test:k6:account
@@ -127,7 +136,9 @@ SCENARIO=light k6 run apps/content-publishing-api/k6-test/batch-announcement-loa
 ## Architecture Patterns
 
 ### Import Path Aliases
+
 Uses `#` prefix for internal module resolution:
+
 - `#account-api/*` → `apps/account-api/src/*`
 - `#content-publishing-lib/*` → `libs/content-publishing-lib/src/*`
 - `#blockchain` → `libs/blockchain/src`
@@ -136,33 +147,39 @@ Uses `#` prefix for internal module resolution:
 - `#validation` → `libs/types/src/validation`
 
 ### Queue Architecture
+
 Each service uses BullMQ with Redis for background job processing:
 
 **Content Publishing Queues:**
+
 - `REQUEST_QUEUE_NAME`: Incoming announcement requests
 - `ASSET_QUEUE_NAME`: File upload processing
 - `BATCH_QUEUE_NAME`: Batching announcements for efficiency
 - `PUBLISH_QUEUE_NAME`: Publishing to blockchain
 
 **Queue Processing Flow:**
+
 1. API receives request → enqueues job
 2. Worker processes job → transforms data
 3. Publishes to blockchain via batch transactions
 4. Monitors transaction status
 
 ### Service Communication
+
 - **API Layer**: REST endpoints with OpenAPI/Swagger documentation
 - **Worker Layer**: Background job processors using BullMQ
 - **Blockchain Layer**: Polkadot API integration for Frequency chain
 - **Storage Layer**: IPFS for content, Redis for caching, file system for temporary storage
 
 ### Configuration Management
+
 - Environment-specific `.env` files for each service
 - Template files in `env-files/` directory
 - Joi validation schemas for configuration
 - Service-specific config modules in each app
 
 ### Database/Storage Architecture
+
 - **No traditional database** - leverages blockchain as source of truth
 - **Redis**: Caching, job queues, temporary data storage
 - **IPFS**: Persistent content storage
@@ -171,32 +188,38 @@ Each service uses BullMQ with Redis for background job processing:
 ## Testing Architecture
 
 ### Test Structure
+
 - **Unit tests**: `.spec.ts` files alongside source code
 - **E2E tests**: `.e2e-spec.ts` files in each app's test directory
 - **Load tests**: k6 scripts in each app's `k6-test/` directory
 - **Mocks**: Shared mocks in `__mocks__/` directory
 
 ### Module Path Mapping
+
 Jest configuration maps `#` aliases to actual paths, matching TypeScript configuration.
 
 ## Key Development Practices
 
 ### Error Handling
+
 - Use NestJS HTTP exceptions (`BadRequestException`, `InternalServerErrorException`)
 - Blockchain errors are wrapped and handled gracefully
 - Queue job failures use exponential backoff retry strategies
 
 ### Logging
+
 - Uses Pino logger with structured JSON output
 - Set `PRETTY=true` for human-readable development logs
 - Log levels: `error`, `warn`, `info`, `debug`, `trace`
 
 ### Capacity Management
+
 - Services check Frequency blockchain capacity before operations
 - Automatic pausing/resuming of queues based on capacity
 - Graceful handling of capacity exhaustion
 
 ### Transaction Monitoring
+
 - All blockchain transactions are monitored for finality
 - Status tracking via Redis with transaction hash keys
 - Automatic cleanup of completed/failed transactions
@@ -204,6 +227,7 @@ Jest configuration maps `#` aliases to actual paths, matching TypeScript configu
 ## File Organization Patterns
 
 ### Apps Structure
+
 ```
 apps/[service-name]/
 ├── src/
@@ -218,6 +242,7 @@ apps/[service-name]/
 ```
 
 ### Libs Structure
+
 ```
 libs/[lib-name]/
 ├── src/

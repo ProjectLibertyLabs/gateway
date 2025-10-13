@@ -134,12 +134,6 @@ class IpfsClusterServiceLocal {
       if (response.status === 200) {
         console.log('✅ File retrieved successfully (direct)');
 
-        // More direct equivalent to the IPFS pattern
-        // const bytesIter = this.ipfs.cat(cid); -> HTTP stream
-        // const chunks = []; -> same
-        // for await (const chunk of bytesIter) -> for await (const chunk of stream)
-        // return Buffer.concat(chunks); -> same
-
         const chunks: Buffer[] = [];
         const reader = response.body?.getReader();
 
@@ -202,13 +196,53 @@ class IpfsClusterServiceLocal {
 
     // Add expiration if configured
     if (this.config.clusterPinExpiration && this.config.clusterPinExpiration.trim() !== '') {
-      params.append('expire-at', this.config.clusterPinExpiration);
-      this.logger.debug(`Using cluster pin expiration: ${this.config.clusterPinExpiration}`);
+      try {
+        const expirationTimestamp = this.parseDurationToTimestamp(this.config.clusterPinExpiration);
+        params.append('expire-at', expirationTimestamp);
+        this.logger.debug(`Using cluster pin expiration: ${this.config.clusterPinExpiration} → ${expirationTimestamp}`);
+      } catch (error: any) {
+        this.logger.warn(`Invalid pin expiration format: ${this.config.clusterPinExpiration}. ${error.message}`);
+      }
     }
 
     const queryString = params.toString();
     this.logger.debug(`Built cluster pin query params: ${queryString}`);
     return queryString;
+  }
+
+  /**
+   * Convert duration string (e.g., "72h", "30m", "7d") to RFC3339 timestamp
+   * @param duration Duration string in format like "72h", "30m", "7d"
+   * @returns RFC3339 formatted timestamp
+   */
+  private parseDurationToTimestamp(duration: string): string {
+    const now = new Date();
+    const match = duration.match(/^(\d+)([hdm])$/);
+
+    if (!match) {
+      throw new Error(`Invalid duration format: ${duration}. Expected format like "72h", "30m", "7d"`);
+    }
+
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+
+    let milliseconds = 0;
+    switch (unit) {
+      case 'h':
+        milliseconds = value * 60 * 60 * 1000;
+        break;
+      case 'd':
+        milliseconds = value * 24 * 60 * 60 * 1000;
+        break;
+      case 'm':
+        milliseconds = value * 60 * 1000;
+        break;
+      default:
+        throw new Error(`Unsupported duration unit: ${unit}. Supported units: h (hours), d (days), m (minutes)`);
+    }
+
+    const expirationTime = new Date(now.getTime() + milliseconds);
+    return expirationTime.toISOString();
   }
 
   public async isPinned(cid: string): Promise<boolean> {
@@ -518,7 +552,7 @@ class IpfsClusterServiceDemo {
           console.log(`   → replication-max=${mockIpfsConfig.clusterReplicationMax}`);
         }
         if (mockIpfsConfig.clusterPinExpiration) {
-          console.log(`   → expire-at=${mockIpfsConfig.clusterPinExpiration}`);
+          console.log(`   → expire-at=${mockIpfsConfig.clusterPinExpiration} (converted to timestamp)`);
         }
       }
 

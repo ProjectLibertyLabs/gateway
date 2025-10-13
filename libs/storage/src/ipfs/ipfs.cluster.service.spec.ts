@@ -147,15 +147,31 @@ describe('IpfsClusterService - Unit Tests', () => {
         // Verify that the API call includes cluster configuration parameters
         expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('replication-min=2'), expect.any(Object));
         expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('replication-max=4'), expect.any(Object));
-        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('expire-at=72h'), expect.any(Object));
-
         // Also verify the full URL contains all expected parameters
         const callUrl = mockFetch.mock.calls[0][0];
         expect(callUrl).toMatch(/pin=true/);
         expect(callUrl).toMatch(/stream-channels=false/);
         expect(callUrl).toMatch(/replication-min=2/);
         expect(callUrl).toMatch(/replication-max=4/);
-        expect(callUrl).toMatch(/expire-at=72h/);
+
+        // Verify expire-at parameter is present (URL encoded format)
+        expect(callUrl).toContain('expire-at=');
+
+        // Extract and decode the timestamp
+        const expireMatch = callUrl.match(/expire-at=([^&]+)/);
+        expect(expireMatch).toBeTruthy();
+
+        const expireTimestamp = decodeURIComponent(expireMatch![1]);
+
+        // Verify it's a valid ISO timestamp format
+        expect(expireTimestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+
+        // Verify it's a valid future date (72h from now for this test)
+        const expireDate = new Date(expireTimestamp);
+        const now = new Date();
+        const diffHours = (expireDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        expect(diffHours).toBeGreaterThan(70); // Should be approximately 72 hours
+        expect(diffHours).toBeLessThan(74);
 
         await clusterModule.close();
       });
@@ -177,6 +193,76 @@ describe('IpfsClusterService - Unit Tests', () => {
         expect(callUrl).not.toMatch(/replication-min/);
         expect(callUrl).not.toMatch(/replication-max/);
         expect(callUrl).not.toMatch(/expire-at/);
+      });
+
+      it('should convert duration strings to proper RFC3339 timestamps', async () => {
+        const testCases = [
+          { duration: '1h', expectedMs: 60 * 60 * 1000 },
+          { duration: '72h', expectedMs: 72 * 60 * 60 * 1000 },
+          { duration: '7d', expectedMs: 7 * 24 * 60 * 60 * 1000 },
+          { duration: '30m', expectedMs: 30 * 60 * 1000 },
+        ];
+
+        for (const testCase of testCases) {
+          const testModule = await createClusterServiceTestModule({
+            clusterPinExpiration: testCase.duration,
+          });
+          const testService = testModule.get<IpfsClusterService>(IpfsClusterService);
+
+          const mockResponse = createMockFetchResponse(TestData.addFileResponse, {
+            headers: { 'content-type': 'application/json' },
+          });
+          mockFetch.mockResolvedValueOnce(mockResponse);
+
+          const beforeTime = new Date().getTime();
+          await testService.addFile(TestData.fileContent, TestData.filename);
+          const afterTime = new Date().getTime();
+
+          // Extract the expire-at timestamp from the URL
+          const callUrl = mockFetch.mock.calls[mockFetch.mock.calls.length - 1][0];
+          const expireMatch = callUrl.match(/expire-at=([^&]+)/);
+          expect(expireMatch).toBeTruthy();
+
+          const expireTimestamp = decodeURIComponent(expireMatch![1]);
+          const expireDate = new Date(expireTimestamp);
+
+          // Verify it's a valid ISO timestamp
+          expect(expireDate.toISOString()).toBe(expireTimestamp);
+
+          // Verify the timestamp is approximately the expected duration from now
+          const expectedTime = beforeTime + testCase.expectedMs;
+          const actualTime = expireDate.getTime();
+
+          // Allow for some variance due to test execution time (within 1 minute)
+          expect(actualTime).toBeGreaterThanOrEqual(expectedTime - 60000);
+          expect(actualTime).toBeLessThanOrEqual(afterTime + testCase.expectedMs + 60000);
+
+          await testModule.close();
+        }
+      });
+
+      it('should handle invalid duration formats gracefully', async () => {
+        const invalidDurations = ['invalid', '72x', '72', 'h72', ''];
+
+        for (const duration of invalidDurations) {
+          const testModule = await createClusterServiceTestModule({
+            clusterPinExpiration: duration,
+          });
+          const testService = testModule.get<IpfsClusterService>(IpfsClusterService);
+
+          const mockResponse = createMockFetchResponse(TestData.addFileResponse, {
+            headers: { 'content-type': 'application/json' },
+          });
+          mockFetch.mockResolvedValueOnce(mockResponse);
+
+          await testService.addFile(TestData.fileContent, TestData.filename);
+
+          // For invalid formats, expire-at should not be included
+          const callUrl = mockFetch.mock.calls[mockFetch.mock.calls.length - 1][0];
+          expect(callUrl).not.toMatch(/expire-at/);
+
+          await testModule.close();
+        }
       });
     });
 
@@ -500,7 +586,7 @@ describe('IpfsService - Cluster Mode Integration Tests', () => {
 
         expect(result.healthy).toBe(true);
         expect(result.details.version).toBe('health checks disabled');
-        
+
         await disabledModule.close();
       });
 
@@ -568,11 +654,11 @@ describe('IpfsService - Cluster Mode Integration Tests', () => {
           requestTimeoutMs: 10000,
         });
         const retryService = retryModule.get<IpfsClusterService>(IpfsClusterService);
-        
+
         // Verify the service was created successfully with retry config
         expect(retryService).toBeDefined();
         expect(retryService).toBeInstanceOf(IpfsClusterService);
-        
+
         await retryModule.close();
       });
     });

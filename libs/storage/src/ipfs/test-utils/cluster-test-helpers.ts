@@ -20,7 +20,7 @@ export const createMockClusterConfig = (overrides: Partial<IIpfsConfig> = {}) =>
     clusterReplicationMin: 0, // 0 means don't use (cluster default)
     clusterReplicationMax: 0, // 0 means don't use (cluster default)
     clusterPinExpiration: '', // empty means no expiration
-    requestTimeoutMs: 5000, // Shorter timeout for tests
+    requestTimeoutMs: 5000,
     retryAttempts: 1, // Fewer retries for faster tests
     enableHealthChecks: true,
     ...overrides,

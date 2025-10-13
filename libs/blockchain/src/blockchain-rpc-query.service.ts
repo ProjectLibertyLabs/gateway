@@ -151,7 +151,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   @RpcCall('rpc.chain.getFinalizedHead')
-  public getLatestFinalizedBlockHash(): Promise<BlockHash> {
+  public getFinalizedHead(): Promise<BlockHash> {
     return this.api.rpc.chain.getFinalizedHead();
   }
 
@@ -175,6 +175,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       blockHash: latestHeader.hash.toHex(),
       number: latestHeader.number.toNumber(),
       parentHash: latestHeader.parentHash.toHex(),
+    };
+  }
+
+  @RpcCall('rpc.chain.getHeader')
+  public async getHeaderByHash(blockHash: BlockHash): Promise<IHeaderInfo> {
+    const header = await this.api.rpc.chain.getHeader(blockHash);
+    return {
+      blockHash: header.hash.toHex(),
+      number: header.number.toNumber(),
+      parentHash: header.parentHash.toHex(),
     };
   }
 

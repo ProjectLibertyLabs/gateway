@@ -156,7 +156,9 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
     it('should log complex RPC arguments when method fails', async () => {
       const testService = new TestServiceWithComplexArgs();
 
-      await expect(testService.getKeysByMsa('test-msa-123', false, 50)).rejects.toThrow('[rpc.msa.getKeysByMsaId] MSA not found');
+      await expect(testService.getKeysByMsa('test-msa-123', false, 50)).rejects.toThrow(
+        '[rpc.msa.getKeysByMsaId] MSA not found',
+      );
 
       expect(testService.logger.error).toHaveBeenCalledWith(
         {

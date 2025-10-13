@@ -159,7 +159,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   public async getLatestBlockNumber(finalized = true): Promise<number> {
     let header: Header;
     if (finalized) {
-      const blockHash = await this.getLatestFinalizedBlockHash();
+      const blockHash = await this.getFinalizedHead();
       header = await this.api.rpc.chain.getHeader(blockHash);
     } else {
       header = await this.api.rpc.chain.getHeader();

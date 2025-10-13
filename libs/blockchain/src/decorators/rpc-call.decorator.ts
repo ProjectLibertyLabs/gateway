@@ -28,7 +28,6 @@ export function RpcCall(rpcMethodName: string) {
           const serializedArgs = args.map((arg) => {
             if (arg?.toHex) return arg.toHex();
             if (arg?.toNumber) return arg.toNumber();
-            if (arg?.toString) return arg.toString();
             return arg;
           });
 

@@ -24,37 +24,12 @@ export function RpcCall(rpcMethodName: string) {
       } catch (error: any) {
         const logger: PinoLogger | undefined = this.logger;
         if (logger && typeof logger.error === 'function') {
-          // Safely serialize arguments, handling circular references and large objects
-          const serializedArgs = args.map((arg, index) => {
-            try {
-              // Handle common blockchain types
-              if (arg && typeof arg === 'object') {
-                if (arg.toHex && typeof arg.toHex === 'function') {
-                  return { type: 'HexString', value: arg.toHex() };
-                }
-                if (arg.toNumber && typeof arg.toNumber === 'function') {
-                  return { type: 'Number', value: arg.toNumber() };
-                }
-                if (arg.toString && typeof arg.toString === 'function' && arg.constructor.name !== 'Object') {
-                  return { type: arg.constructor.name, value: arg.toString() };
-                }
-                // For plain objects, limit depth and size
-                return JSON.parse(JSON.stringify(arg, (key, value) => {
-                  if (typeof value === 'object' && value !== null) {
-                    if (value.toHex && typeof value.toHex === 'function') {
-                      return { type: 'HexString', value: value.toHex() };
-                    }
-                    if (value.toNumber && typeof value.toNumber === 'function') {
-                      return { type: 'Number', value: value.toNumber() };
-                    }
-                  }
-                  return value;
-                }));
-              }
-              return arg;
-            } catch (serializationError) {
-              return { type: 'SerializationError', message: 'Could not serialize argument' };
-            }
+          // Convert blockchain SCALE encoded types, let Pino handle the rest
+          const serializedArgs = args.map((arg) => {
+            if (arg?.toHex) return arg.toHex();
+            if (arg?.toNumber) return arg.toNumber();
+            if (arg?.toString) return arg.toString();
+            return arg;
           });
 
           logger.error(

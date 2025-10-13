@@ -25,6 +25,9 @@ const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfi
   clusterReplicationMin: 0,
   clusterReplicationMax: 0,
   clusterPinExpiration: '',
+  requestTimeoutMs: 5000,
+  retryAttempts: 2,
+  enableHealthChecks: true,
 });
 
 // Mock the IpfsService class

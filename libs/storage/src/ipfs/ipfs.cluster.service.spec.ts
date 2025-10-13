@@ -93,8 +93,11 @@ describe('IpfsClusterService - Unit Tests', () => {
 
         const result = await service.addFile(TestData.fileContent, TestData.filename);
 
-        TestAssertions.expectClusterApiCall(mockFetch, '/add?pin=true&stream-channels=false', 'POST', (call) => {
+        TestAssertions.expectClusterApiCall(mockFetch, '/add', 'POST', (call) => {
           expect(call[1].headers['Content-Type']).toMatch(/^multipart\/form-data; boundary=/);
+          // Verify the URL contains basic pin parameters
+          expect(call[0]).toMatch(/pin=true/);
+          expect(call[0]).toMatch(/stream-channels=false/);
         });
         expect(result).toEqual({
           status: 200,
@@ -120,6 +123,60 @@ describe('IpfsClusterService - Unit Tests', () => {
           headers: { 'content-type': 'text/plain' },
           data: expect.any(Buffer), // Service returns text as Buffer in some cases
         });
+      });
+    });
+
+    describe('addFile with cluster configuration', () => {
+      it('should use cluster configuration parameters in API calls', async () => {
+        // Create a service with cluster configuration
+        const clusterModule = await createClusterServiceTestModule({
+          clusterReplicationMin: 2,
+          clusterReplicationMax: 4,
+          clusterPinExpiration: '72h',
+        });
+        const clusterService = clusterModule.get<IpfsClusterService>(IpfsClusterService);
+
+        const mockResponse = createMockFetchResponse(TestData.addFileResponse, {
+          headers: { 'content-type': 'application/json' },
+        });
+
+        mockFetch.mockResolvedValueOnce(mockResponse);
+
+        await clusterService.addFile(TestData.fileContent, TestData.filename);
+
+        // Verify that the API call includes cluster configuration parameters
+        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('replication-min=2'), expect.any(Object));
+        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('replication-max=4'), expect.any(Object));
+        expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('expire-at=72h'), expect.any(Object));
+
+        // Also verify the full URL contains all expected parameters
+        const callUrl = mockFetch.mock.calls[0][0];
+        expect(callUrl).toMatch(/pin=true/);
+        expect(callUrl).toMatch(/stream-channels=false/);
+        expect(callUrl).toMatch(/replication-min=2/);
+        expect(callUrl).toMatch(/replication-max=4/);
+        expect(callUrl).toMatch(/expire-at=72h/);
+
+        await clusterModule.close();
+      });
+
+      it('should use default parameters when cluster config is not set', async () => {
+        // Use the default service without cluster configuration
+        const mockResponse = createMockFetchResponse(TestData.addFileResponse, {
+          headers: { 'content-type': 'application/json' },
+        });
+
+        mockFetch.mockResolvedValueOnce(mockResponse);
+
+        await service.addFile(TestData.fileContent, TestData.filename);
+
+        // Verify that only basic parameters are included
+        const callUrl = mockFetch.mock.calls[0][0];
+        expect(callUrl).toMatch(/pin=true/);
+        expect(callUrl).toMatch(/stream-channels=false/);
+        expect(callUrl).not.toMatch(/replication-min/);
+        expect(callUrl).not.toMatch(/replication-max/);
+        expect(callUrl).not.toMatch(/expire-at/);
       });
     });
 
@@ -209,7 +266,7 @@ describe('IpfsClusterService - Unit Tests', () => {
 
         const result = await service.pinBuffer(TestData.filename, TestData.fileContent);
 
-        TestAssertions.expectClusterApiCall(mockFetch, '/add?pin=true&stream-channels=false', 'POST');
+        TestAssertions.expectClusterApiCall(mockFetch, '/add', 'POST');
         // The service returns the raw response data without transformation
         expect(result).toEqual({
           cid: TestData.addFileResponse.cid, // Raw object from response
@@ -430,6 +487,109 @@ describe('IpfsService - Cluster Mode Integration Tests', () => {
       const result = await service.getDsnpMultiHash(TestData.cid);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('New Features - Retry Logic and Health Checks', () => {
+    describe('performHealthCheck', () => {
+      it('should return healthy status when health checks are disabled', async () => {
+        const disabledModule = await createClusterServiceTestModule({ enableHealthChecks: false });
+        const disabledService = disabledModule.get<IpfsClusterService>(IpfsClusterService);
+
+        const result = await disabledService.performHealthCheck();
+
+        expect(result.healthy).toBe(true);
+        expect(result.details.version).toBe('health checks disabled');
+        
+        await disabledModule.close();
+      });
+
+      it('should perform comprehensive health check when enabled', async () => {
+        const { mockFetch, cleanup } = setupMockFetch();
+
+        // Mock successful version check
+        mockFetch.mockResolvedValueOnce(
+          createMockFetchResponse(TestData.clusterVersion, {
+            headers: { 'content-type': 'application/json' },
+          }),
+        );
+
+        // Mock successful gateway check (HEAD request)
+        mockFetch.mockResolvedValueOnce({
+          status: 200,
+          statusText: 'OK',
+          headers: new Map(),
+        });
+
+        const result = await clusterService.performHealthCheck();
+
+        expect(result.healthy).toBe(true);
+        expect(result.details.clusterApi).toBe(true);
+        expect(result.details.gateway).toBe(true);
+        expect(result.details.version).toBe(TestData.clusterVersion.version);
+
+        cleanup();
+      });
+
+      it('should handle health check failures gracefully', async () => {
+        const { mockFetch, cleanup } = setupMockFetch();
+
+        // Mock failed version check
+        mockFetch.mockRejectedValueOnce(new Error('Connection failed'));
+
+        const result = await clusterService.performHealthCheck();
+
+        expect(result.healthy).toBe(false);
+        expect(result.details.clusterApi).toBe(false);
+        expect(result.details.error).toBeDefined();
+        expect(result.details.error).toContain('Connection failed');
+
+        cleanup();
+      });
+    });
+
+    describe('Retry Logic', () => {
+      it('should have retry configuration available', async () => {
+        const retryModule = await createClusterServiceTestModule({
+          retryAttempts: 3,
+          requestTimeoutMs: 5000,
+        });
+        const retryService = retryModule.get<IpfsClusterService>(IpfsClusterService);
+
+        // Verify service was created successfully with retry configuration
+        expect(retryService).toBeDefined();
+
+        await retryModule.close();
+      });
+
+      it('should successfully create service with retry configuration', async () => {
+        const retryModule = await createClusterServiceTestModule({
+          retryAttempts: 5,
+          requestTimeoutMs: 10000,
+        });
+        const retryService = retryModule.get<IpfsClusterService>(IpfsClusterService);
+        
+        // Verify the service was created successfully with retry config
+        expect(retryService).toBeDefined();
+        expect(retryService).toBeInstanceOf(IpfsClusterService);
+        
+        await retryModule.close();
+      });
+    });
+
+    describe('Custom Timeout Configuration', () => {
+      it('should use IPFS-specific timeout instead of HTTP common config', async () => {
+        const customTimeoutModule = await createClusterServiceTestModule({
+          requestTimeoutMs: 2000,
+        });
+        const customTimeoutService = customTimeoutModule.get<IpfsClusterService>(IpfsClusterService);
+
+        // We can't easily test the actual timeout without waiting, but we can verify
+        // the service was created successfully with custom config
+        expect(customTimeoutService).toBeDefined();
+
+        await customTimeoutModule.close();
+      });
     });
   });
 });

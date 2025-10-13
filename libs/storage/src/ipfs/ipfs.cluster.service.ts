@@ -19,11 +19,11 @@ export class IpfsClusterService {
 
   public async getVersion(): Promise<any> {
     const url = `${this.config.ipfsEndpoint}/version`;
-    return this.makeRequest(url, { method: 'GET' });
+    return this.makeRequestWithRetry(url, { method: 'GET' });
   }
 
   public async addFile(content: Buffer, filename: string): Promise<any> {
-    const url = `${this.config.ipfsEndpoint}/add?pin=true&stream-channels=false`;
+    const url = `${this.config.ipfsEndpoint}/add?${this.buildPinQueryParams()}`;
     const formData = IpfsClusterService.createFormData(content, filename);
     return this.makeRequest(url, {
       method: 'POST',
@@ -91,8 +91,40 @@ export class IpfsClusterService {
   }
 
   public async pinFile(cid: string): Promise<any> {
-    const url = `${this.config.ipfsEndpoint}/pins/${cid}`;
-    return this.makeRequest(url, { method: 'PUT' });
+    const url = `${this.config.ipfsEndpoint}/pins/${cid}?${this.buildPinQueryParams()}`;
+    return this.makeRequestWithRetry(url, { method: 'PUT' });
+  }
+
+  /**
+   * Build query parameters for pin operations based on cluster configuration
+   */
+  private buildPinQueryParams(): string {
+    const params = new URLSearchParams();
+
+    // Always enable pinning
+    params.append('pin', 'true');
+    params.append('stream-channels', 'false');
+
+    // Add replication settings if configured
+    if (this.config.clusterReplicationMin > 0) {
+      params.append('replication-min', this.config.clusterReplicationMin.toString());
+      this.logger.debug(`Using cluster replication-min: ${this.config.clusterReplicationMin}`);
+    }
+
+    if (this.config.clusterReplicationMax > 0) {
+      params.append('replication-max', this.config.clusterReplicationMax.toString());
+      this.logger.debug(`Using cluster replication-max: ${this.config.clusterReplicationMax}`);
+    }
+
+    // Add expiration if configured
+    if (this.config.clusterPinExpiration && this.config.clusterPinExpiration.trim() !== '') {
+      params.append('expire-at', this.config.clusterPinExpiration);
+      this.logger.debug(`Using cluster pin expiration: ${this.config.clusterPinExpiration}`);
+    }
+
+    const queryString = params.toString();
+    this.logger.debug(`Built cluster pin query params: ${queryString}`);
+    return queryString;
   }
 
   /**
@@ -207,7 +239,127 @@ export class IpfsClusterService {
 
   private async checkPinStatus(cid: string): Promise<any> {
     const url = `${this.config.ipfsEndpoint}/pins/${cid}`;
-    return this.makeRequest(url, { method: 'GET' });
+    return this.makeRequestWithRetry(url, { method: 'GET' });
+  }
+
+  /**
+   * Execute request with retry logic and exponential backoff
+   */
+  private async makeRequestWithRetry(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<{
+    status: number;
+    statusText: string;
+    headers: Record<string, string>;
+    data: any;
+    error?: string;
+    stack?: string;
+  }> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= this.config.retryAttempts; attempt++) {
+      try {
+        this.logger.debug(`Attempt ${attempt + 1}/${this.config.retryAttempts + 1} for ${url}`);
+        return await this.makeRequest(url, options);
+      } catch (error) {
+        lastError = error as Error;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        
+        // Don't retry on the last attempt
+        if (attempt < this.config.retryAttempts) {
+          const delay = Math.min(Math.pow(2, attempt) * 100, 5000); // Cap at 5 seconds
+          this.logger.debug(`Request failed, retrying in ${delay}ms: ${errorMessage}`);
+          await this.delay(delay);
+        } else {
+          this.logger.error(`All ${this.config.retryAttempts + 1} attempts failed for ${url}: ${errorMessage}`);
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  /**
+   * Delay utility for retry backoff
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Perform health check on IPFS Cluster service
+   */
+  public async performHealthCheck(): Promise<{
+    healthy: boolean;
+    details: {
+      clusterApi: boolean;
+      gateway: boolean;
+      version?: string;
+      error?: string;
+    };
+  }> {
+    if (!this.config.enableHealthChecks) {
+      return {
+        healthy: true,
+        details: {
+          clusterApi: true,
+          gateway: true,
+          version: 'health checks disabled',
+        },
+      };
+    }
+
+    const details = {
+      clusterApi: false,
+      gateway: false,
+      version: undefined as string | undefined,
+      error: undefined as string | undefined,
+    };
+
+    try {
+      // Check cluster API responsiveness
+      this.logger.debug('Health check: Testing cluster API connection');
+      const versionResult = await this.getVersion();
+      
+      if (versionResult.status === 200) {
+        details.clusterApi = true;
+        details.version = versionResult.data?.version || 'unknown';
+        this.logger.debug(`Health check: Cluster API healthy, version ${details.version}`);
+      } else {
+        // API responded but with error status
+        details.clusterApi = false;
+        details.error = versionResult.error || `HTTP ${versionResult.status}: ${versionResult.statusText}`;
+        this.logger.debug(`Health check: Cluster API unhealthy - ${details.error}`);
+      }
+
+      // Check gateway accessibility with a test CID
+      try {
+        this.logger.debug('Health check: Testing gateway connection');
+        const testUrl = this.gatewayUrl.replace('[CID]', 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG');
+        const gatewayResponse = await fetch(testUrl, { 
+          method: 'HEAD',
+          signal: this.createTimeoutSignal(5000) // Quick 5s timeout for health check
+        });
+        
+        // Gateway is healthy if it responds (even with 404 for non-existent content)
+        details.gateway = gatewayResponse.status < 500;
+        this.logger.debug(`Health check: Gateway ${details.gateway ? 'healthy' : 'unhealthy'} (status: ${gatewayResponse.status})`);
+      } catch (gatewayError) {
+        this.logger.debug(`Health check: Gateway check failed: ${gatewayError instanceof Error ? gatewayError.message : String(gatewayError)}`);
+        details.gateway = false;
+      }
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Health check failed: ${errorMessage}`);
+      details.error = errorMessage;
+    }
+
+    const healthy = details.clusterApi && details.gateway;
+    this.logger.debug(`Health check complete: ${healthy ? 'HEALTHY' : 'UNHEALTHY'}`);
+
+    return { healthy, details };
   }
 
   /**
@@ -279,15 +431,17 @@ export class IpfsClusterService {
   /**
    * Create a timeout signal for requests
    */
-  private createTimeoutSignal(): AbortSignal {
+  private createTimeoutSignal(timeoutMs?: number): AbortSignal {
     const controller = new AbortController();
+    const timeout = timeoutMs || this.config.requestTimeoutMs;
+    
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, this.httpConfig.httpResponseTimeoutMS);
-    
+    }, timeout);
+
     // Use unref() to prevent the timer from keeping the process alive
     timeoutId.unref();
-    
+
     return controller.signal;
   }
 

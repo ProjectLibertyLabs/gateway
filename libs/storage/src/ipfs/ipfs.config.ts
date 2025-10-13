@@ -11,6 +11,9 @@ export interface IIpfsConfig {
   clusterReplicationMin: number;
   clusterReplicationMax: number;
   clusterPinExpiration: string;
+  requestTimeoutMs: number;
+  retryAttempts: number;
+  enableHealthChecks: boolean;
 }
 
 export function getIpfsCidPlaceholder(cid: string, gatewayUrl: string): string {
@@ -60,22 +63,29 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
     clusterPinExpiration: {
       label: 'IPFS_CLUSTER_PIN_EXPIRATION',
       describe: 'Duration after which pins expire, e.g. 72h or 30m. Default is no expiration',
-      joi: Joi.string().isoDate().allow('').empty('').default(''),
+      joi: Joi.string()
+        .pattern(/^(\d+[smhd])?$/)
+        .allow('')
+        .empty('')
+        .default(''),
     },
 
-    // // Common settings
-    // requestTimeoutMs: {
-    //   label: 'IPFS_REQUEST_TIMEOUT_MS',
-    //   joi: Joi.number().positive().default(30000),
-    // },
-    // retryAttempts: {
-    //   label: 'IPFS_RETRY_ATTEMPTS',
-    //   joi: Joi.number().min(0).default(3),
-    // },
-    // enableHealthChecks: {
-    //   label: 'IPFS_ENABLE_HEALTH_CHECKS',
-    //   joi: Joi.boolean().default(true),
-    // },
+    // Common settings
+    requestTimeoutMs: {
+      label: 'IPFS_REQUEST_TIMEOUT_MS',
+      describe: 'Timeout for IPFS requests in milliseconds',
+      joi: Joi.number().positive().default(30000),
+    },
+    retryAttempts: {
+      label: 'IPFS_RETRY_ATTEMPTS',
+      describe: 'Number of retry attempts for failed IPFS operations',
+      joi: Joi.number().min(0).default(3),
+    },
+    enableHealthChecks: {
+      label: 'IPFS_ENABLE_HEALTH_CHECKS',
+      describe: 'Enable periodic health monitoring of IPFS services',
+      joi: Joi.boolean().default(true),
+    },
   });
 
   return JoiUtils.validate<IIpfsConfig>(configs);

@@ -17,9 +17,12 @@ export const createMockClusterConfig = (overrides: Partial<IIpfsConfig> = {}) =>
     ipfsBasicAuthUser: 'user',
     ipfsBasicAuthSecret: 'secret',
     ipfsGatewayUrl: 'http://localhost:8080/ipfs/[CID]',
-    clusterReplicationMin: 1,
-    clusterReplicationMax: 3,
-    clusterPinExpiration: '24h',
+    clusterReplicationMin: 0, // 0 means don't use (cluster default)
+    clusterReplicationMax: 0, // 0 means don't use (cluster default)
+    clusterPinExpiration: '', // empty means no expiration
+    requestTimeoutMs: 5000, // Shorter timeout for tests
+    retryAttempts: 1, // Fewer retries for faster tests
+    enableHealthChecks: true,
     ...overrides,
   });
 
@@ -136,8 +139,9 @@ export const TestAssertions = {
     method = 'GET',
     additionalChecks?: (call: any) => void,
   ) => {
+    // More flexible URL matching - just check that the endpoint is contained
     expect(mockFetch).toHaveBeenCalledWith(
-      `http://localhost:9094${endpoint}`,
+      expect.stringContaining(`http://localhost:9094${endpoint}`),
       expect.objectContaining({
         method,
         headers: expect.objectContaining(TestData.authHeaders),

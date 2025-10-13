@@ -22,6 +22,9 @@ const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfi
   clusterPinExpiration: '24h',
   clusterReplicationMax: 0,
   clusterReplicationMin: 0,
+  requestTimeoutMs: 5000,
+  retryAttempts: 2,
+  enableHealthChecks: true,
 });
 
 const mockBlockchainServiceProvider = GenerateMockProvider<BlockchainService>(BlockchainService, {

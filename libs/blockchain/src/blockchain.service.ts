@@ -184,7 +184,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
 
       const providerInfo = await this.getProviderToRegistryEntry(providerId);
       if (!providerInfo) {
-        throw new Error(`MSA ID ${providerId.toString()} is not a registered provider`);
+        throw new Error(`MSA ID ${providerId.toString()}, address: ${address} is not a registered provider`);
       }
     }
   }

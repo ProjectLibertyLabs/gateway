@@ -19,7 +19,7 @@ const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://127.0.0.1
 
 const CAPACITY_AMOUNT_TO_STAKE = 2000000000000000n;
 
-const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
+const BASE_SEED_PHRASE = process.env.PROVIDER_ACCOUNT_SEED_PHRASE || '//Alice';
 
 async function main() {
   await cryptoWaitReady();
@@ -107,7 +107,7 @@ async function main() {
     }
   }
 
-  console.log(`Created Provider ${provider.msaId?.toString()} as Alice`);
+  console.log(`Created Provider ${provider.msaId?.toString()} as Alice with key ${provider.keypair.address}`);
   console.log(
     'Created delegated MSAs: ',
     delegators.map((d) => d.msaId!.toString()),

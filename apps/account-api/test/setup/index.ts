@@ -1,3 +1,4 @@
+import '@frequency-chain/api-augment';
 import {
   ChainEventHandler,
   ChainUser,

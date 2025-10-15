@@ -12,6 +12,7 @@
  *          - return some sane default for an empty value
  *          - throw an error if an empty value is encountered
  */
+import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
@@ -281,9 +282,12 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   public async getProviderToRegistryEntry(
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaProviderRegistryEntry | null> {
-    const providerRegistry = await this.api.query.msa.providerToRegistryEntryV2(providerId);
-    if (providerRegistry.isSome) return providerRegistry.unwrap();
-    return null;
+    const providerRegistry = (await this.api.call.msa.getProviderApplicationContext(
+      providerId,
+      null,
+      null,
+    )) as Option<CommonPrimitivesMsaProviderRegistryEntry>;
+    return providerRegistry.isSome ? providerRegistry.unwrap() : null;
   }
 
   public async publicKeyToMsaId(publicKey: string | Uint8Array | AccountId32): Promise<string | null> {

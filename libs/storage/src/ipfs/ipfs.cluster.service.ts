@@ -82,9 +82,9 @@ export class IpfsClusterService {
       }
     } catch (error: any) {
       if (error.response) {
-        console.error(`❌ HTTP error! status: ${error.response.status}`, error.response.data);
+        this.logger.error(`❌ HTTP error! status: ${error.response.status}`, error.response.data);
       } else {
-        console.error('❌ Error fetching file:', error.message);
+        this.logger.error('❌ Error fetching file:', error.message);
       }
       return Buffer.from([]);
     }

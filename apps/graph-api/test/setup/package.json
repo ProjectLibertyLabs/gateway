@@ -11,14 +11,14 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@projectlibertylabs/frequency-scenario-template": "1.1.11",
+    "@projectlibertylabs/frequency-scenario-template": "1.1.13",
     "@projectlibertylabs/graph-sdk": "2.0.1",
-    "@frequency-chain/api-augment": "1.15.4",
-    "@polkadot/api": "16.4.8",
-    "@polkadot/keyring": "13.5.3",
-    "@polkadot/types": "16.4.8",
-    "@polkadot/util": "13.5.3",
-    "@polkadot/util-crypto": "13.5.3",
+    "@frequency-chain/api-augment": "1.17.5",
+    "@polkadot/api": "16.4.3",
+    "@polkadot/keyring": "13.5.4",
+    "@polkadot/types": "16.4.3",
+    "@polkadot/util": "13.5.4",
+    "@polkadot/util-crypto": "13.5.4",
     "loglevel": "1.9.2"
   },
   "devDependencies": {

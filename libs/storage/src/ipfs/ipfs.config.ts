@@ -64,7 +64,7 @@ const ipfsConfig = registerAs('ipfs', (): IIpfsConfig => {
       label: 'IPFS_CLUSTER_PIN_EXPIRATION',
       describe: 'Duration after which pins expire, e.g. 72h or 30m. Default is no expiration',
       joi: Joi.string()
-        .pattern(/^(\d+[smhd])?$/)
+        .pattern(/^(\d+[mhd])?$/)
         .allow('')
         .empty('')
         .default(''),

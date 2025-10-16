@@ -21,6 +21,7 @@ auto-failover
 Auto-Failover
 backend-only-accessible
 backoff
+Backoff
 batchAnnouncement
 batchQueue
 [Bb]ackend
@@ -88,6 +89,8 @@ ie
 ipfs
 IPFS('s)?
 IPFSContentProcessor
+IpfsClusterService
+IpfsService
 Joi
 JSDoc
 (JSON|json)
@@ -148,6 +151,7 @@ RECONNECTION_SERVICE_REQUIRED
 redis
 Redocly
 repo
+RFC3339
 RPCs?
 S3-compatible
 scalable

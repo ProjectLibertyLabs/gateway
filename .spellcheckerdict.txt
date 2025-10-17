@@ -21,6 +21,8 @@ auto-failover
 Auto-Failover
 backend-only-accessible
 backoff
+batchability
+batchable
 batchAnnouncement
 batchQueue
 [Bb]ackend
@@ -29,12 +31,15 @@ batchQueue
 BullMQ
 BullUI
 CDN
+canHandle
 ChainEventProcessorService
+class-validator
 CLI
 Cloudflare
 CloudWatch
 codebase
 config
+configs
 content-publishing-api
 ConfigMap
 content-publishing-service-api
@@ -106,6 +111,8 @@ LoadBalancer
 localhost
 LTS
 MacOS
+maxSize
+maxWaitMs
 mdbook
 mdBook
 MetaMask
@@ -133,11 +140,14 @@ Parachain
 PARACHAINS
 (PASEO|Paseo)
 (Pino|pino(|-pretty))
+pluggable
 (POLKADOT|Polkadot)
 Polkadot-supported
 [Pp]re
 pre-configured
 pre-DSNP
+pre-format
+pre-formatted
 prebuilt
 [Pp]reprocessors
 [Pp]rovisioners
@@ -148,6 +158,7 @@ RECONNECTION_SERVICE_REQUIRED
 redis
 Redocly
 repo
+rollout
 RPCs?
 S3-compatible
 scalable
@@ -179,6 +190,7 @@ unfollow(ing|s)?
 URI
 URIs
 user-centric
+Validators
 virtual-users
 VPC
 VSCode

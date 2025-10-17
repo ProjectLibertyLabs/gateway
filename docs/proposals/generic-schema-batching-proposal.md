@@ -62,7 +62,7 @@ We propose two complementary solutions:
 - Support for non-DSNP schemas (AT Protocol, custom)
 
 **Should Have**:
-- Generic validation framework (diffrent issue/PR?)
+- Generic validation framework (different issue/PR?)
 - Gradual migration path (and/or backwards compatibility)
 - Plugin architecture for complex (non-DSNP)schemas
 - Comprehensive API documentation on how to use this feature

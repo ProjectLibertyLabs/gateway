@@ -14,7 +14,7 @@ Before you begin, ensure you have the following installed on your machine:
 
 - [Git](https://git-scm.com)
 - [Docker](https://www.docker.com)
-- [Node.js](https://nodejs.org) (v18 or higher recommended)
+- [Node.js](https://nodejs.org) (v22 or higher recommended)
 - A Web3 Polkadot wallet (_e.g._ [Polkadot extension](https://polkadot.js.org/extension/))
 
 > **Note:** This setup uses **Sign In With Frequency (SIWF) v2**, which integrates with [Frequency Access](https://frequencyaccess.com/) to provide easy, custodial wallet authentication for your users. SIWF v1 is deprecated. Learn more in the [SSO Guide](./SSO.md).

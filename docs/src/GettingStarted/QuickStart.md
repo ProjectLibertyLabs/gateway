@@ -22,7 +22,7 @@ Before you begin, ensure you have the following installed on your machine:
 ## **Step 2: Register on Testnet**
 
 To have your application interact on Frequency Testnet, you will need to register as a Provider.
-This will enable users to delegate to you, and your chain actions to be free via [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html).
+This will enable users to delegate to you, and you can use [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html) to fund your chain actions.
 
 ### Create an Application Account in a Wallet
 
@@ -77,7 +77,7 @@ Use default values when uncertain.
 - `Enter Provider ID` This is Provider Id from the Provider Dashboard
 - `Enter Provider Seed Phrase` This is the seed phrase saved from the wallet setup
 - `Do you want to change the IPFS settings?`
-  - No if this is just a test run
+  - No, if this is just a test run
   - Yes, if you want to use an [IPFS pinning service](https://docs.ipfs.tech/how-to/work-with-pinning-services/#use-a-third-party-pinning-service)
 
 > **Configuration Note:** The setup automatically configures SIWF v2 authentication with Frequency Access. The Frequency RPC endpoint used is `wss://0.rpc.testnet.amplica.io` for Testnet Paseo.

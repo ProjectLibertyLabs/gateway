@@ -20,7 +20,9 @@ export function RpcCall(rpcMethodName: string) {
 
     descriptor.value = async function (...args: any[]) {
       try {
-        return await originalMethod.apply(this, args);
+        // await value vs. just returning the Promise so that rejections are thrown & caught here
+        const retval = await originalMethod.apply(this, args);
+        return retval;
       } catch (error: any) {
         const logger: PinoLogger | undefined = this.logger;
         if (logger && typeof logger.error === 'function') {

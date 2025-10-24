@@ -7,7 +7,7 @@ Gateway Services v1.5+ includes 7 microservices with SIWF v2 authentication supp
 To run this project, you need:
 
 - [Docker](https://docs.docker.com/get-docker/)
-- [Node.js](https://nodejs.org) (v18 or higher recommended, for local development)
+- [Node.js](https://nodejs.org) (v22 or higher recommended, for local development)
 
 ## **Quick Start**
 

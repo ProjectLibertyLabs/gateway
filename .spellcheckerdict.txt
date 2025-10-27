@@ -22,6 +22,7 @@ Auto-Failover
 backend-only-accessible
 backoff
 batchability
+Batchability
 batchable
 batchAnnouncement
 batchQueue
@@ -38,6 +39,7 @@ CLI
 Cloudflare
 CloudWatch
 codebase
+Config
 config
 configs
 content-publishing-api
@@ -112,7 +114,9 @@ localhost
 LTS
 MacOS
 maxSize
+maxSize=1000
 maxWaitMs
+maxWaitMs=5000
 mdbook
 mdBook
 MetaMask
@@ -148,6 +152,8 @@ pre-configured
 pre-DSNP
 pre-format
 pre-formatted
+pre-load
+Pre-load
 prebuilt
 [Pp]reprocessors
 [Pp]rovisioners

@@ -10,12 +10,12 @@ Walk through all the steps to get Gateway and the Social Application Template ru
 
 ## **Single Sign-On**
 
-Learn how to use the Frequency Developer Gateway to quickly add Sign In with:
+Learn how to use the Frequency Developer Gateway to quickly add Sign In With Frequency (SIWF) v2 authentication to your application:
 
-- Frequency Access (v2), an easy-to-use custodial social wallet for users on Frequency
-- <del>or Frequency, a single sign-on powered by Frequency, or</del> (v1, _deprecated_)
+- **Frequency Access (SIWF v2)**: An easy-to-use custodial social wallet for users on Frequency with support for W3C Verifiable Credentials
+- <del>Sign In With Frequency v1</del> (_deprecated_)
 
-to your application.
+SIWF v2 provides enhanced security, better user experience, and support for verified credentials including email, phone numbers, and private graph keys.
 
 <div class="button-links-outlined">
   <a href="./SSO.md">Follow the SSO Guide</a>

@@ -185,8 +185,12 @@ VSCode
 VU
 VUs
 [Vv]1
+[Vv]1.5
 [Vv]2
 [Vv]3
+[Vv]22
+v18
+W3C
 watcherContentIpfsQueue
 watcherProfileQueue
 watcherReactionQueue

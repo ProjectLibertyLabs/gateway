@@ -6,19 +6,23 @@ This will give you a quick introduction to a working integration with Gateway Se
 
 Expected Time: ~5 minutes
 
+> **Version Compatibility:** This guide uses Gateway Services v1.5+ which includes Sign In With Frequency (SIWF) v2 support, enhanced credential management with W3C Verifiable Credentials, and improved microservice architecture with dedicated worker services. If you're using the Social App Template, ensure it's compatible with Gateway v1.5+.
+
 ## **Step 1: Prerequisites**
 
 Before you begin, ensure you have the following installed on your machine:
 
 - [Git](https://git-scm.com)
 - [Docker](https://www.docker.com)
-- [Node.js](https://nodejs.org)
+- [Node.js](https://nodejs.org) (v22 or higher recommended)
 - A Web3 Polkadot wallet (_e.g._ [Polkadot extension](https://polkadot.js.org/extension/))
+
+> **Note:** This setup uses **Sign In With Frequency (SIWF) v2**, which integrates with [Frequency Access](https://frequencyaccess.com/) to provide easy, custodial wallet authentication for your users. SIWF v1 is deprecated. Learn more in the [SSO Guide](./SSO.md).
 
 ## **Step 2: Register on Testnet**
 
 To have your application interact on Frequency Testnet, you will need to register as a Provider.
-This will enable users to delegate to you, and your chain actions to be free via [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html).
+This will enable users to delegate to you, and you can use [Capacity](https://docs.frequency.xyz/Tokenomics/ProviderIncentives.html) to fund your chain actions.
 
 ### Create an Application Account in a Wallet
 
@@ -73,8 +77,10 @@ Use default values when uncertain.
 - `Enter Provider ID` This is Provider Id from the Provider Dashboard
 - `Enter Provider Seed Phrase` This is the seed phrase saved from the wallet setup
 - `Do you want to change the IPFS settings?`
-  - No if this is just a test run
+  - No, if this is just a test run
   - Yes, if you want to use an [IPFS pinning service](https://docs.ipfs.tech/how-to/work-with-pinning-services/#use-a-third-party-pinning-service)
+
+> **Configuration Note:** The setup automatically configures SIWF v2 authentication with Frequency Access. The Frequency RPC endpoint used is `wss://0.rpc.testnet.amplica.io` for Testnet Paseo.
 
 ## **Step 4: Done & What Happened?**
 
@@ -84,7 +90,15 @@ You should now be able to access the Social App Template at [http://localhost:30
 
 ### What happened in the background?
 
-All the different services needed were started in Docker (Docker Desktop Screenshot):
+All the different services needed were started in Docker. Gateway Services consists of **7 microservices** working together:
+
+- **Account API & Worker**: User account management and authentication with SIWF v2
+- **Content Publishing API & Worker**: Content creation and publishing to blockchain
+- **Graph API & Worker**: Social graph and relationship management
+- **Content Watcher**: Monitors blockchain for content changes and updates
+
+Each service has dedicated API and worker components for better scalability and performance.
+
 ![Docker Desktop Screenshot](./DockerDesktop.png)
 
 ## **Step 5: Shutdown**
@@ -97,10 +111,31 @@ Stop all the Docker services via the script (with the option to remove saved dat
 
 ## **What's Next?**
 
-- Open the OpenAPI/Swagger Documentation for each service
-  - Account Service: [Local](http://localhost:3013/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/account/)
-  - Graph Service: [Local](http://localhost:3012/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/graph/)
-  - Content Publishing Service: [Local](http://localhost:3010/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-publishing/)
-  - Content Watcher Service: [Local](http://localhost:3011/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-watcher/)
+### Explore the API Documentation
+
+Open the OpenAPI/Swagger Documentation for each service:
+
+- **Account Service**: [Local](http://localhost:3013/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/account/)
+  - Account Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/account-worker/)
+- **Graph Service**: [Local](http://localhost:3012/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/graph/)
+  - Graph Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/graph-worker/)
+- **Content Publishing Service**: [Local](http://localhost:3010/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-publishing/)
+  - Content Publishing Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/content-publishing-worker/)
+- **Content Watcher Service**: [Local](http://localhost:3011/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-watcher/)
+
+### Learn More
+
 - [Learn about each service](../Build/)
 - [Read about Running in Production](../Run/)
+- [SIWF v2 Documentation](https://projectlibertylabs.github.io/siwf/v2/docs) - Deep dive into authentication
+- [Frequency Access](https://frequencyaccess.com/) - User-friendly custodial wallet
+- [Troubleshooting Guide](../Troubleshooting.md) - Common issues and solutions
+
+### New Features in Gateway v1.5+
+
+- **SIWF v2 Authentication**: Enhanced security and user experience with Frequency Access integration
+- **W3C Verifiable Credentials**: Support for email, phone number, and private graph key credentials
+- **7 Microservices Architecture**: Complete suite including dedicated worker services for improved scalability
+- **Enhanced Webhooks**: Real-time updates for account and graph changes
+- **Schema-Based Permissions**: Granular delegation control based on Frequency schemas
+- **Improved Performance**: Optimized background job processing with BullMQ workers

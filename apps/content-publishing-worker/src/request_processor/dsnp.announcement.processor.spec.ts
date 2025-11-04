@@ -17,10 +17,17 @@ const mockQueue = {
 
 // Mock config values
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
+  mode: 'ipfs',
   ipfsBasicAuthSecret: undefined,
   ipfsBasicAuthUser: undefined,
   ipfsEndpoint: 'http://ipfs.io',
   ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
+  clusterReplicationMin: 0,
+  clusterReplicationMax: 0,
+  clusterPinExpiration: '',
+  requestTimeoutMs: 5000,
+  retryAttempts: 2,
+  enableHealthChecks: true,
 });
 
 // Mock the IpfsService class

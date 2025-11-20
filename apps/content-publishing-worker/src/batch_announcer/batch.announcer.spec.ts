@@ -14,10 +14,17 @@ import { Bytes } from '@polkadot/types';
 
 // Create a mock for the dependencies
 const mockIpfsConfigProvider = GenerateMockConfigProvider<IIpfsConfig>(ipfsConfig.KEY, {
+  mode: 'ipfs',
   ipfsBasicAuthSecret: undefined,
   ipfsBasicAuthUser: undefined,
   ipfsEndpoint: 'http://ipfs.io',
   ipfsGatewayUrl: 'http://ipfs.io/ipfs/[CID]',
+  clusterPinExpiration: '24h',
+  clusterReplicationMax: 0,
+  clusterReplicationMin: 0,
+  requestTimeoutMs: 5000,
+  retryAttempts: 2,
+  enableHealthChecks: true,
 });
 
 const mockBlockchainServiceProvider = GenerateMockProvider<BlockchainService>(BlockchainService, {

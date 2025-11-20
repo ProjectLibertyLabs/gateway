@@ -30,7 +30,7 @@ items that don't apply can be marked NA or deleted
 - [ ] Unit tests added
 - [ ] Integration/end-to-end tests added
 - [ ] Documentation added or updated (where applicable)
-- [ ] API endpoints added or changed? Swagger docs regenerated
+- [ ] API endpoints added or changed? Added the endpoints in main.ts and regenerated Swagger docs
 - [ ] Breaking changes? "breaking changes" label added
 
 ## Additional details / screenshot

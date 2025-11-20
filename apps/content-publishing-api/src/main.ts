@@ -50,7 +50,7 @@ async function bootstrap() {
         'x-tagGroups',
         [
           { name: 'asset', tags: ['v1/asset', 'v2/asset'] },
-          { name: 'content', tags: ['v1/content', 'v2/content'] },
+          { name: 'content', tags: ['v1/content', 'v2/content', 'v3/content'] },
           { name: 'health', tags: ['health'] },
           { name: 'profile', tags: ['v1/profile'] },
         ],

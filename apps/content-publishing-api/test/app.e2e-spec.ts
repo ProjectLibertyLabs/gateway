@@ -80,7 +80,7 @@ describe('AppController E2E request verification', () => {
     await app.init();
   });
 
-  it('(GET) /healthz', () =>
+  it('(GET) /healthz', async () =>
     request(app.getHttpServer())
       .get('/healthz')
       .expect(200)

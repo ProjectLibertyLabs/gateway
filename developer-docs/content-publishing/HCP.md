@@ -54,7 +54,7 @@ the content-publishing-worker will process the jobs as usual.
 
 Attachments are included as part of the request and processed similarly to ContentControllerV3.
 
-### `v3/hcp/addHcpPublicKey`
+### `v1/hcp/addHcpPublicKey`
 
 ```
     @Post(':accountId/addHcpPublicKey')

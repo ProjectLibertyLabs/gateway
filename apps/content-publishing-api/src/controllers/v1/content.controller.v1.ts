@@ -23,7 +23,7 @@ export class ContentControllerV1 {
   ) {}
 
   @Post(':msaId/broadcast')
-  @ApiOperation({ summary: 'Crete DSNP Broadcast for user' })
+  @ApiOperation({ summary: 'Create DSNP Broadcast for user' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   async broadcast(@Param() { msaId }: MsaIdDto, @Body() broadcastDto: BroadcastDto): Promise<AnnouncementResponseDto> {

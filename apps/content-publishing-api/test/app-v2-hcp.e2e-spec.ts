@@ -76,7 +76,7 @@ describe('Hcp Controller', () => {
         .expect(202);
     }, 5_000);
 
-    it('validates accountId param', async () => {
+    it('validates accountId param format', async () => {
       const badId = 1234;
       let expectedError =
         'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!';
@@ -90,6 +90,9 @@ describe('Hcp Controller', () => {
           expect(actualError).toEqual(expectedError);
         });
     }, 5_000);
+
+    it('validates accountId exists on chain', async () => {});
+
     it('validates schemaId', async () => {
       const invalidaddHcpPublicKeyBody = {
         schemaId: 'xyz',

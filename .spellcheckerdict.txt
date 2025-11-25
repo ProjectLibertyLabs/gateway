@@ -78,6 +78,8 @@ GraphMonitorService
 graph-service-api
 hardcoding
 HashiCorp
+HCP
+hcp
 HPA
 http
 HTTPS

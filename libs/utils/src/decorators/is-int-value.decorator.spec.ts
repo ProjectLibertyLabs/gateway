@@ -13,135 +13,54 @@ class TestDtoNoOptions {
 }
 
 describe('IsIntValue Decorator', () => {
-  describe('with valid values', () => {
-    it('should accept valid number within range', async () => {
+  describe('with min/max validation options', () => {
+    it.each([
+      { value: 50, description: 'valid number within range' },
+      { value: 0, description: 'valid number at min boundary' },
+      { value: 100, description: 'valid number at max boundary' },
+      { value: '50', description: 'valid string number within range' },
+    ])('accepts $description', async ({ value }) => {
       const dto = new TestDto();
-      dto.value = 50;
+      (dto.value as any) = value;
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
 
-    it('should accept valid number at min boundary', async () => {
+    it.each([
+      { value: 'Hello', description: 'non-numeric string', expectedMessage: 'should be a number' },
+      { value: -5, description: 'value below minimum' },
+      { value: '-5', description: 'negative number as string' },
+      { value: 150, description: 'value above maximum' },
+      { value: null, description: 'null value' },
+      { value: undefined, description: 'undefined value' },
+      { value: { foo: 'bar' }, description: 'object value' },
+      { value: [1, 2, 3], description: 'array value' },
+      { value: '50.5', description: 'decimal number string' },
+      { value: '999999999999999999', description: 'large BigInt-compatible number as string (exceeds maxValue)' },
+    ])('rejects $description', async ({ value, expectedMessage }) => {
       const dto = new TestDto();
-      dto.value = 0;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(0);
-    });
-
-    it('should accept valid number at max boundary', async () => {
-      const dto = new TestDto();
-      dto.value = 100;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(0);
-    });
-
-    it('should accept valid string number within range', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = '50';
-      const errors = await validate(dto);
-      expect(errors.length).toBe(0);
-    });
-
-    it('should accept large BigInt-compatible number as string', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = '999999999999999999';
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1); // Should fail because it's > maxValue
-      expect(errors[0].property).toBe('value');
-    });
-  });
-
-  describe('with invalid values', () => {
-    it('should reject non-numeric string', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = 'Hello';
+      (dto.value as any) = value;
       const errors = await validate(dto);
       expect(errors.length).toBe(1);
       expect(errors[0].property).toBe('value');
-      expect(errors[0].constraints?.IsIntValue).toContain('should be a number');
-    });
-
-    it('should reject value below minimum', async () => {
-      const dto = new TestDto();
-      dto.value = -5;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject negative number as string', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = '-5';
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject value above maximum', async () => {
-      const dto = new TestDto();
-      dto.value = 150;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject null value', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = null;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject undefined value', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = undefined;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject object value', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = { foo: 'bar' };
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject array value', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = [1, 2, 3];
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
-    });
-
-    it('should reject decimal number string', async () => {
-      const dto = new TestDto();
-      (dto.value as any) = '50.5';
-      const errors = await validate(dto);
-      expect(errors.length).toBe(1);
-      expect(errors[0].property).toBe('value');
+      if (expectedMessage) {
+        expect(errors[0].constraints?.IsIntValue).toContain(expectedMessage);
+      }
     });
   });
 
   describe('without validation options', () => {
-    it('should accept any valid integer when no min/max specified', async () => {
+    it.each([
+      { value: 999999, description: 'any valid integer when no min/max specified' },
+      { value: -999, description: 'negative numbers when no min specified' },
+    ])('accepts $description', async ({ value }) => {
       const dto = new TestDtoNoOptions();
-      dto.value = 999999;
+      dto.value = value;
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
 
-    it('should accept negative numbers when no min specified', async () => {
-      const dto = new TestDtoNoOptions();
-      dto.value = -999;
-      const errors = await validate(dto);
-      expect(errors.length).toBe(0);
-    });
-
-    it('should still reject non-numeric string when no min/max specified', async () => {
+    it('rejects non-numeric string when no min/max specified', async () => {
       const dto = new TestDtoNoOptions();
       (dto.value as any) = 'Hello';
       const errors = await validate(dto);

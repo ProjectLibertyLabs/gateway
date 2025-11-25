@@ -115,9 +115,9 @@ const configs = [
           AssetControllerV2,
           ContentControllerV1,
           ContentControllerV2,
+          HcpControllerV1,
           ProfileControllerV1,
           HealthController,
-          HcpControllerV1,
           DevelopmentControllerV1,
         ]
       : [
@@ -126,9 +126,9 @@ const configs = [
           ContentControllerV1,
           ContentControllerV2,
           ContentControllerV3,
+          HcpControllerV1,
           ProfileControllerV1,
           HealthController,
-          HcpControllerV1,
         ],
   exports: [],
 })

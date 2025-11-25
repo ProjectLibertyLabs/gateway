@@ -19,7 +19,7 @@ describe('IsAccountIdOrAddress', () => {
     });
   });
 
-  it('fails fo invalid address types', async () => {
+  it('fails for invalid address types', async () => {
     const badAddr: TestClass = new TestClass();
     badAddr.accountIdAddress = '0x5551212';
     const errors = await validate(badAddr);

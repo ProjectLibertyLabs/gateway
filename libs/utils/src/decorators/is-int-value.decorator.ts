@@ -26,10 +26,10 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
             }
 
             let result = true;
-            if (validationOptions.minValue !== undefined) {
+            if (validationOptions?.minValue !== undefined) {
               result = validationOptions.minValue <= numberValue;
             }
-            if (validationOptions.maxValue !== undefined) {
+            if (validationOptions?.maxValue !== undefined) {
               result = result && validationOptions.maxValue >= numberValue;
             }
             return result;
@@ -38,13 +38,16 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
           return false;
         },
         defaultMessage(args?: ValidationArguments): string {
-          if (validationOptions.maxValue === undefined && validationOptions.minValue !== undefined) {
+          if (validationOptions?.maxValue === undefined && validationOptions?.minValue !== undefined) {
             return `${args.property} should be a number greater than or equal to ${validationOptions.minValue}!`;
           }
-          if (validationOptions.maxValue !== undefined && validationOptions.minValue === undefined) {
+          if (validationOptions?.maxValue !== undefined && validationOptions?.minValue === undefined) {
             return `${args.property} should be a number less than or equal to ${validationOptions.maxValue}!`;
           }
-          return `${args.property} should be a number between ${validationOptions.minValue} and ${validationOptions.maxValue}!`;
+          if (validationOptions?.minValue !== undefined && validationOptions?.maxValue !== undefined) {
+            return `${args.property} should be a number between ${validationOptions.minValue} and ${validationOptions.maxValue}!`;
+          }
+          return `${args.property} should be a valid integer!`;
         },
       },
     });

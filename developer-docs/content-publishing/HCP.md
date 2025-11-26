@@ -29,87 +29,56 @@ import { IsSchemaId } from './is-schema-id.decorator';
 
 export class UpsertPagePayloadDto extends ItemizedSignaturePayloadDto {
   @IsPageId()
-  schemaId: number;
-
-  @IsContextItemId()
-  contextItemId: number;
-
-  @IsContextItemTag()
-  contextItemTag: string;
-
-  @IsEncryptedKey()
-  encryptedKey: Uint8Array;
-
-  @IsEncryptedContent()
-  encryptedContext: Uint8Array;
+  pageId: number;
 }
 ```
 
-## HCP is a part of the content-publishing-api microservice
+## HCP is a part of the account-api microservice
 
-Because the HCP operations are a kind of content publishing, a new controller will be added to content-publishing-api to
-handle HCP operations. The base endpoint is `v1/hcp/`. On
-a successful submission to the API, content-publishing-api will submit a job to the correct queue for the operation, and
-the content-publishing-worker will process the jobs as usual.
+For MVI, so that we need to stand up only a single service, and because the siwa endpoint will be called, HCP endpoints
+will be part of the account-api microservice.
 
-Attachments are included as part of the request and processed similarly to ContentControllerV3.
+Attachments are not supported as of this writing and not included in this proposal/update
 
-### `v1/hcp/addHcpPublicKey`
+### `v1/hcp/publishAll`
+
+This endpoint requires a body of type `HcpPublishAllRequestDto`, which contains all 3 of the payloads to publish
+on-chain.
 
 ```
+    export class HcpPublishAllRequestDto {
+    addHcpPublicKeyPayload: ItemizedSignaturePayloadDto;
+    addContextGroupPRIDEntryPayload: ItemizedSignaturePayloadDto;
+    addContetGroupMetadataPayload: UpsertPagePayloadDto;
+    }
+    
     @Post(':accountId/addHcpPublicKey')
     @HttpCode(HttpStatus.ACCEPTED)
-    async addHcpPublicKey( @Param() { accountId }: AccountIdDto, 
-                           @Body() payload: ItemizedSignaturePayloadDto
-                         ): Promise <AnnouncementResponseDto > {
-      // there could be some other validation here, perhaps checking that 
-      // accountId exists.                       
-      return this.apiService.enqueueHcpRequest(
-        HcpRequestType.ADD_HCP_PUBLIC_KEY, accountId, payload)
-      );
-    }
-```
-
-### `v1/hcp/addContextGroupPRID`
-
-```
-    @Post(':accountId/addContextGroupPRID')
-    @HttpCode(HttpStatus.ACCEPTED)
-    async addContextGroupPRID( @Param() { accountId }: AccountIdDto, 
-                               @Body() payload: ItemizedSignaturePayloadDto
-                             ): Promise <AnnouncementResponseDto > {
-      // there could be some other validation here, perhaps checking that 
-      // accountId exists.                       
-      return this.apiService.enqueueHcpRequest(
-        HcpRequestType.ADD_CONTEXT_GROUP_PRID, accountId, payload)
-      );
-    }
-```
-
-### `v1/hcp/addContextGroupMetadata`
-
-```
-    @Post(':accountId/addContextItem')
-    @HttpCode(HttpStatus.ACCEPTED)
-    async addContextGroupMetadata( @Param() { accountId }: AccountIdDto, 
-                               @Body() payload: UpsertPagePayloadDto
-                             ): Promise <AnnouncementResponseDto > {
-      // there could be some other validation here, perhaps checking that 
-      // accountId exists.                       
-      return this.apiService.enqueueHcpRequest(
-        HcpRequestType.ADD_CONTEXT_GROUP_METADATA, accountId, payload)
-      );
+    async publishAll( 
+      @Param() { accountId }: AccountIdDto, 
+      @Body() payload: HcpPublishAllRequestDto): Promise <AnnouncementResponseDto > {
+      
+        // check that the accountId has an MSA on chain as a fast, early failure.
+        // it's not necessary to deserialize the payload to verify the id matches
+        const api = await this.blockchainService.getApi();
+        const res = await api.query.msa.publicKeyToMsaId(accountId);
+        if (res.isNone) {
+          throw new NotFoundException(`MSA ID for account ${accountId} not found`);
+        }
+        return this.apiService.enqueueHcpRequest(
+        HcpRequestType.ADD_HCP_PUBLIC_KEY, accountId, payload);
     }
 ```
 
 ## enqueuing HCP requests
 
 ```
-  async enqueueHcpRequest(
-                            hcpRequestType: HCPRequestType,
-                            accountId: string,
-                            payload: UpsertPagePayloadDto
-                          ) {}
+
+async enqueueHcpRequest(
+hcpRequestType: HCPRequestType,
+accountId: string,
+payload: UpsertPagePayloadDto
+) {}
 
 ```
 
@@ -117,14 +86,5 @@ Attachments are included as part of the request and processed similarly to Conte
 
 There will be a new request processor service for HCP jobs, `hcpRequest.processor.service.ts`
 
-There will be a new queue for adding HCP keys and PRIDs. These will call `payWithCapacityBatchAll`, batching
-`apply_item_actions_with_signature_v2` calls.
-
-There will be a new queue for adding ContextGroupMetadata. It will collect data for adding new context items and once
-the queue is full, it will:
-
-1. create batch files with the context data
-2. post the batch files to MCP Batch storage
-3. Call the Storage API and supply the batch file location
-4. Call upsert_page_with_signature_v2 for each context item in the batch file using `payWithCapacityBatchAll` and
-   `upsert_page_with_signature_v2`
+There will be a new queue for adding HCP keys and PRIDs. These will call `payWithCapacityBatchAll`, batching all HCP
+calls.

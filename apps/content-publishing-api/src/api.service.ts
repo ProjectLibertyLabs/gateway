@@ -1,5 +1,3 @@
-import { ItemizedSignaturePayloadDto } from '#types/dtos/account';
-import { AccountIdDto } from '#types/dtos/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
@@ -40,7 +38,7 @@ import {
   ContentPublisherRedisConstants,
   STORAGE_EXPIRE_UPPER_LIMIT_SECONDS,
 } from '#types/constants/redis-keys.constants';
-import { AnnouncementTypeName, AttachmentType, HcpRequestTypeName } from '#types/enums';
+import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 import getAssetDataKey = ContentPublisherRedisConstants.getAssetDataKey;
 import { PassThrough, Readable } from 'stream';
@@ -106,17 +104,6 @@ export class ApiService {
     this.logger.debug(`Enqueued Request Job: ${job.id}`);
     return {
       referenceId: data.id,
-    };
-  }
-
-  async enqueueHcpRequest(
-    hcpAnnouncementType: HcpRequestTypeName,
-    accountId: string,
-    payload: ItemizedSignaturePayloadDto,
-  ): Promise<AnnouncementResponseDto> {
-    const referenceId = '12345';
-    return {
-      referenceId,
     };
   }
 

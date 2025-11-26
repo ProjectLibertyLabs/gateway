@@ -3,6 +3,7 @@ import {
   ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
+import { HexString } from '@polkadot/util/types';
 
 // export interface PaginatedUpsertSignaturePayloadV2 {
 //   schemaId?: u16;
@@ -22,4 +23,14 @@ export class HcpPublishAllRequestDto {
   addHcpPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
   addContextGroupPRIDEntryPayload: AddNewPublicKeyAgreementRequestDto;
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
+}
+
+/**
+ * Job data for HCP batch publishing queue
+ */
+export interface HcpPublishJob {
+  accountId: string;
+  referenceId: string;
+  providerId: string;
+  encodedExtrinsics: HexString[];
 }

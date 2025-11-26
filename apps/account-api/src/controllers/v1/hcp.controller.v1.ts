@@ -1,29 +1,15 @@
-import { HcpService } from '#account-api/services/hcp.service';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
-import { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { EnqueueService } from '#account-lib/services/enqueue-request.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { NonceConflictError } from '#blockchain/types';
 import { AddNewPublicKeyAgreementRequestDto, HcpPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
 import { AccountIdDto } from '#types/dtos/common';
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Inject,
-  NotFoundException,
-  Param,
-  Post,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
+import { Body, Controller, HttpCode, HttpStatus, Inject, NotFoundException, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPromise } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
-import { Vec } from '@polkadot/types';
-import { AccountId, Call } from '@polkadot/types/interfaces';
-import { IMethod, ISubmittableResult } from '@polkadot/types/types';
+import { ISubmittableResult } from '@polkadot/types/types';
 import { HexString } from '@polkadot/util/types';
-import { DelayedError } from 'bullmq';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '1', path: 'hcp' })
@@ -31,23 +17,21 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 export class HcpControllerV1 {
   constructor(
     private readonly blockchainService: BlockchainService,
+    private readonly enqueueService: EnqueueService,
     @InjectPinoLogger(HcpControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
-  /// WIP This will get moved to a service and a separate queue like graph publisher,
-  // to handle capacity running out events
   @Post(':accountId/publishAll')
   @HttpCode(HttpStatus.ACCEPTED)
   async publishAll(
     @Param() { accountId }: AccountIdDto,
     @Body() payloads: HcpPublishAllRequestDto,
-  ): Promise<HexString> {
+  ): Promise<{ referenceId: string }> {
     // check that the accountId has an MSA on chain as a fast, early failure.
     // it's not necessary to deserialize the payload to verify the id matches.
-    this.verifyAccountHasMsa(accountId);
-    // FA will check access control as soon as symmetric key is requested,
-    // so ensure that there is no delay in a payWithCapacityBatchAll call.
-    return this.publishHcpMessages(accountId, payloads);
+    await this.verifyAccountHasMsa(accountId);
+    const referenceId = await this.buildAndEnqueueHcpBatchTxns(accountId, payloads);
+    return { referenceId };
   }
 
   async verifyAccountHasMsa(accountId: string): Promise<void> {
@@ -56,18 +40,6 @@ export class HcpControllerV1 {
     if (res.isNone) {
       throw new NotFoundException(`MSA ID for account ${accountId} not found`);
     }
-  }
-
-  async publishHcpMessages(accountId: string, payloads: HcpPublishAllRequestDto): Promise<HexString> {
-    const api = (await this.blockchainService.getApi()) as ApiPromise;
-    let txns: Array<SubmittableExtrinsic<'promise', ISubmittableResult>> = [];
-    const callVec = this.blockchainService.createType('Vec<Call>', txns);
-    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addHcpPublicKeyPayload, api));
-    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addContextGroupPRIDEntryPayload, api));
-    txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
-    let [_tx, txHash, _blockNumber] = await this.processBatchTxn(callVec);
-    this.logger.debug(`txns: ${txns}`);
-    return txHash;
   }
 
   buildApplyItemActionExtrinsic(
@@ -90,21 +62,23 @@ export class HcpControllerV1 {
     return api.tx.statefulStorage.upsertPageWithSignatureV2(accountId, { Sr25519: payload.proof }, payload.payload);
   }
 
-  processBatchTxn(
-    callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
-  ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.trace(
-      'processBatchTxn: callVec: ',
-      callVec.map((c) => c.toHuman()),
-    );
-    try {
-      return this.blockchainService.payWithCapacityBatchAll(callVec);
-    } catch (error: any) {
-      this.logger.error(`Error processing batch transaction: ${error}`);
-      if (error instanceof NonceConflictError) {
-        throw new DelayedError();
-      }
-      throw error;
-    }
+  async buildAndEnqueueHcpBatchTxns(accountId: string, payloads: HcpPublishAllRequestDto): Promise<string> {
+    const api = (await this.blockchainService.getApi()) as ApiPromise;
+    const txns: Array<SubmittableExtrinsic<'promise', ISubmittableResult>> = [];
+
+    // Build the three extrinsics
+    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addHcpPublicKeyPayload, api));
+    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addContextGroupPRIDEntryPayload, api));
+    txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
+
+    // Encode the extrinsics as hex strings
+    const encodedExtrinsics: HexString[] = txns.map((tx) => tx.toHex());
+
+    this.logger.debug(`Enqueueing HCP batch with ${encodedExtrinsics.length} extrinsics`);
+    // use a proof to generate jobId
+    const seed = payloads.addHcpPublicKeyPayload.proof;
+    const { referenceId } = await this.enqueueService.enqueueHcpBatch(accountId, seed, encodedExtrinsics);
+
+    return referenceId;
   }
 }

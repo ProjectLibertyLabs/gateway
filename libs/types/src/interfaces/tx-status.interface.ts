@@ -33,3 +33,9 @@ export interface IGraphTxStatus extends ITxStatusBase {
 
   referenceJob: ProviderGraphUpdateJob;
 }
+
+export interface IHcpTxStatus extends ITxStatusBase {
+  // Make required
+  providerId: string;
+  referenceId: string;
+}

@@ -6,6 +6,7 @@ import { BlockchainModule } from '#blockchain/blockchain.module';
 import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
+import { HcpPublisherModule } from './hcp_publisher/hcp.publisher.module';
 import { CacheModule } from '#cache/cache.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { ConfigModule } from '@nestjs/config';
@@ -74,6 +75,7 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, create
     ScheduleModule.forRoot(),
     BlockchainModule.forRootAsync(),
     TransactionPublisherModule,
+    HcpPublisherModule,
     TxnNotifierModule,
     PrometheusModule.register(createPrometheusConfig('account-worker')),
     HealthCheckModule.forRoot({ configKeys: configs.map(({ KEY }) => KEY) }),

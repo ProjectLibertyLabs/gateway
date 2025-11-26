@@ -16,12 +16,27 @@ export namespace AccountQueues {
    */
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
 
-  export type QueueName = typeof TRANSACTION_PUBLISH_QUEUE;
+  /**
+   * Name of the queue that publishes HCP batch transactions to Frequency blockchain
+   */
+  export const HCP_PUBLISH_QUEUE = 'hcpPublish';
+
+  export const QUEUE_NAMES = [TRANSACTION_PUBLISH_QUEUE, HCP_PUBLISH_QUEUE];
+
+  export type QueueName = (typeof QUEUE_NAMES)[number];
 
   export const CONFIGURED_QUEUES: IQueueModuleOptions = {
     queues: [
       {
         name: TRANSACTION_PUBLISH_QUEUE,
+        defaultJobOptions: {
+          removeOnComplete: 20,
+          removeOnFail: 1000,
+          attempts: 1,
+        },
+      },
+      {
+        name: HCP_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: 20,
           removeOnFail: 1000,

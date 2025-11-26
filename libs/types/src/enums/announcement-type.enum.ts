@@ -17,11 +17,3 @@ export enum AnnouncementTypeName {
   PROFILE = 'profile',
   UPDATE = 'update',
 }
-
-export enum HcpRequestType {
-  ADD_HCP_PUBLIC_KEY = 0,
-}
-
-export enum HcpRequestTypeName {
-  ADD_HCP_PUBLIC_KEY = 'addHcpPublicKey',
-}

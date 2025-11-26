@@ -4,6 +4,7 @@ export * from './delegation.request.dto';
 export * from './delegation.response.dto';
 export * from './graphs.request.dto';
 export * from './handles.request.dto';
+export * from './hcp.request.dto';
 export * from './keys.request.dto';
 export * from './keys.response.dto';
 export * from './revokeDelegation.request.dto';

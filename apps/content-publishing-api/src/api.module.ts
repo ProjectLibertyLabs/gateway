@@ -18,7 +18,6 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { ContentControllerV2 } from './controllers/v2';
 import { ContentControllerV3 } from './controllers/v3';
-import { HcpControllerV1 } from '#content-publishing-api/controllers/v1/hcp.controller.v1';
 import { BlockchainModule } from '#blockchain/blockchain.module';
 import { allowReadOnly } from '#blockchain/blockchain.config';
 import ipfsConfig from '#storage/ipfs/ipfs.config';
@@ -115,7 +114,6 @@ const configs = [
           AssetControllerV2,
           ContentControllerV1,
           ContentControllerV2,
-          HcpControllerV1,
           ProfileControllerV1,
           HealthController,
           DevelopmentControllerV1,
@@ -126,7 +124,6 @@ const configs = [
           ContentControllerV1,
           ContentControllerV2,
           ContentControllerV3,
-          HcpControllerV1,
           ProfileControllerV1,
           HealthController,
         ],

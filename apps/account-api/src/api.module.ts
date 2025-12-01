@@ -1,4 +1,5 @@
 import '@frequency-chain/api-augment';
+import { HcpControllerV1 } from '#account-api/controllers/v1/hcp.controller.v1';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -104,8 +105,9 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig
     DelegationControllerV1,
     HandlesControllerV1,
     KeysControllerV1,
-    HealthController,
+    HcpControllerV1,
     BlockInfoController,
+    HealthController,
   ],
   exports: [],
 })

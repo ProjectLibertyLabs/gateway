@@ -6,6 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from 'nestjs-pino';
+import { todo } from 'node:test';
 import request from 'supertest';
 
 describe('Hcp Controller', () => {
@@ -22,8 +23,6 @@ describe('Hcp Controller', () => {
       providers: [],
     }).compile();
     app = module.createNestApplication();
-    // Uncomment below to see logs when debugging tests
-    // module.useLogger(new Logger());
 
     const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });
@@ -63,7 +62,7 @@ describe('Hcp Controller', () => {
       type: 'ADD_ITEM',
       encodedPayload: '0x1122',
     };
-    const validaddHcpPublicKeyBody = {
+    const validAddHcpPublicKeyBody = {
       schemaId: 1234,
       targetHash: 1_344_333,
       expiration: 1_333_333,
@@ -73,7 +72,7 @@ describe('Hcp Controller', () => {
       it('happy path', async () => {
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
-          .send(validaddHcpPublicKeyBody)
+          .send(validAddHcpPublicKeyBody)
           .expect(202);
       }, 5_000);
 
@@ -84,7 +83,7 @@ describe('Hcp Controller', () => {
 
         await request(app.getHttpServer())
           .post(`/v1/hcp/${badId}/publishAll`)
-          .send(validaddHcpPublicKeyBody)
+          .send(validAddHcpPublicKeyBody)
           .expect(400)
           .expect((res) => {
             const actualError = res.body.message.toString();
@@ -92,10 +91,12 @@ describe('Hcp Controller', () => {
           });
       }, 5_000);
 
-      it('validates accountId exists on chain', async () => {});
+      it('validates accountId exists on chain', async () => {
+        todo('Not implemented');
+      });
 
       it('validates schemaId', async () => {
-        const invalidaddHcpPublicKeyBody = {
+        const invalidAddHcpPublicKeyBody = {
           schemaId: 'xyz',
           targetHash: '5',
           expiration: '3838383',
@@ -104,7 +105,7 @@ describe('Hcp Controller', () => {
 
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
-          .send(invalidaddHcpPublicKeyBody)
+          .send(invalidAddHcpPublicKeyBody)
           .expect(400)
           .expect((res) => {
             const actualError = res.body.message.toString();
@@ -128,10 +129,6 @@ describe('Hcp Controller', () => {
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidaddHcpPublicKeyBody);
 
-        console.log('Response status:', response.status);
-        console.log('Response body:', JSON.stringify(response.body, null, 2));
-        console.log('Response text:', response.text);
-
         expect(response.status).toBe(400);
         const actualError = response.body.message.toString();
         expect(actualError).toEqual('actions.0.type must be one of the following values: ADD_ITEM, DELETE_ITEM');
@@ -140,7 +137,7 @@ describe('Hcp Controller', () => {
       it('refuses targetHash and expiration with non-numeric string', async () => {
         const nonNumericVal = 'Hello';
         const invalidTargetHashBody = {
-          ...validaddHcpPublicKeyBody,
+          ...validAddHcpPublicKeyBody,
           targetHash: nonNumericVal,
         };
 
@@ -154,7 +151,7 @@ describe('Hcp Controller', () => {
           });
 
         const invalidExpirationBody = {
-          ...validaddHcpPublicKeyBody,
+          ...validAddHcpPublicKeyBody,
           expiration: nonNumericVal,
         };
 

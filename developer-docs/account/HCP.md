@@ -4,22 +4,23 @@ The 3 different payload types for these operations already are described in DTOs
 
 ## HCP Add Public Key Payload
 
-We will use apply_item_actions_with_signature_v2 to add HCP pub key.
-The schema is **Itemized, SignatureRequired and AppendOnly**
+We will use `apply_item_actions_with_signature_v2` to add HCP pub key.
+The schema is **Itemized, `SignatureRequired` and `AppendOnly`**
 
 The body DTO is `ItemizedSignaturePayloadDto`.
 
-## Add ContextGroup PRID entry
+## Add `ContextGroup` PRID entry
 
-We will use apply_item_actions_with_signature_v2 to add ContextGroup PRID for the provider.
-The schema is **Itemized and SignatureRequired**.
+We will use `apply_item_actions_with_signature_v2` to add `ContextGroup` PRID for the provider.
+The schema is **`Itemized` and `SignatureRequired`**.
 
 The body DTO is `ItemizedSignaturePayloadDto`
 
-## Add ContextGroup Metadata
+## Add `ContextGroup` Metadata
 
-We will use existing extrinsic upsert_page_with_signature_v2 to store ContextGroup Metadata on a chain. The schema is *
-*Paginated, SignatureRequired.**
+We will use existing extrinsic `upsert_page_with_signature_v2` to store `ContextGroup` Metadata on a chain. The schema
+is *
+*`Paginated`, `SignatureRequired`.**
 
 The body DTO is a new one, `UpsertPagePayloadDto`
 
@@ -33,10 +34,11 @@ export class UpsertPagePayloadDto extends ItemizedSignaturePayloadDto {
 }
 ```
 
-## HCP is a part of the account-api microservice
+## HCP is a part of the `account-api` microservice
 
-For MVI, so that we need to stand up only a single service, and because the siwa endpoint will be called, HCP endpoints
-will be part of the account-api microservice.
+For MVI, so that we need to stand up only a single service, and because `account-api`'s `siwa` endpoint will be called,
+HCP endpoints
+will be part of the `account-api` microservice.
 
 Attachments are not supported as of this writing and not included in this proposal/update
 
@@ -82,7 +84,7 @@ payload: UpsertPagePayloadDto
 
 ```
 
-## content-publishing-worker: Processing HCP jobs
+## `content-publishing-worker`: Processing HCP jobs
 
 There will be a new request processor service for HCP jobs, `hcpRequest.processor.service.ts`
 

@@ -82,7 +82,6 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig
     AccountsService,
     DelegationService,
     EnqueueService,
-    // HcpService,
     HandlesService,
     KeysService,
     SiwfV2Service,

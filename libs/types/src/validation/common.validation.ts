@@ -47,16 +47,26 @@ export const DURATION_REGEX =
   /^-?P(?:\d+Y(?:\d+M(?:\d+D)?)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|\d+M(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|\d+D(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?|T(?:\d+H(?:\d+M(?:\d+(?:\.\d+)?S)?)?|\d+M(?:\d+(?:\.\d+)?S)?|\d+(?:\.\d+)?S))$/;
 
 /**
- * DSNP attachments mime types (basic set - content-watcher)
+ * DSNP attachments mime types (basic set - MIME types allowed as resources/attachments by the DSNP spec)
  */
-export const DSNP_VALID_MIME_TYPES_BASIC =
+export const DSNP_VALID_MIME_TYPES_REGEX =
   /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm)$/;
 
 /**
- * DSNP attachments mime types (extended set - includes parquet for content-publishing)
+ * Regex for valid DSNP image asset MIME types
  */
-export const DSNP_VALID_MIME_TYPES_EXTENDED =
+export const DSNP_VALID_IMAGE_MIME_TYPES_REGEX = /^image\/(jpeg|png|svg\+xml|webp|gif)$/;
+
+/**
+ * MIME types accepted for asset upload (extended set - includes DSNP asset types + parquet for batch files)
+ */
+export const VALID_UPLOAD_MIME_TYPES_REGEX =
   /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm|application\/vnd.apache.parquet|application\/x-parquet)$/;
+
+/**
+ * MIME types accepted for batch files
+ */
+export const VALID_BATCH_MIME_TYPES_REGEX = /application\/vnd.apache.parquet|application\/x-parquet/;
 
 /**
  * Validation utility functions

@@ -14,7 +14,13 @@ import {
   OnChainContentDto,
   BatchFileDto,
 } from '#types/dtos/content-publishing';
-import { DSNP_VALID_MIME_TYPES_BASIC, isImage, isParquet } from '#validation';
+import {
+  VALID_UPLOAD_MIME_TYPES_REGEX,
+  isImage,
+  isParquet,
+  DSNP_VALID_IMAGE_MIME_TYPES_REGEX,
+  DSNP_VALID_MIME_TYPES_REGEX, VALID_BATCH_MIME_TYPES_REGEX,
+} from '#validation';
 import {
   IRequestJob,
   IAssetMetadata,
@@ -121,22 +127,22 @@ export class ApiService {
   async validateAssetsAndFetchMetadata(
     content: AssetIncludedRequestDto,
   ): Promise<IRequestJob['assetToMimeType'] | undefined> {
-    const checkingList: { onlyImage: boolean; referenceId: string }[] = [];
+    const checkingList: { allowedMimeTypesRegex: RegExp, referenceId: string }[] = [];
     if (content.profile) {
       content.profile.icon?.forEach((reference) =>
-        checkingList.push({ onlyImage: true, referenceId: reference.referenceId }),
+        checkingList.push({ allowedMimeTypesRegex: DSNP_VALID_IMAGE_MIME_TYPES_REGEX, referenceId: reference.referenceId }),
       );
     } else if (content.content) {
       content.content.assets?.forEach((asset) =>
         asset.references?.forEach((reference) =>
           checkingList.push({
-            onlyImage: false,
+            allowedMimeTypesRegex: DSNP_VALID_MIME_TYPES_REGEX,
             referenceId: reference.referenceId,
           }),
         ),
       );
     } else if (content.batchFiles) {
-      content.batchFiles.forEach((batchFile) => checkingList.push({ onlyImage: false, referenceId: batchFile.cid }));
+      content.batchFiles.forEach((batchFile) => checkingList.push({ allowedMimeTypesRegex: VALID_BATCH_MIME_TYPES_REGEX, referenceId: batchFile.cid }));
     }
 
     const redisResults = await Promise.all(
@@ -153,9 +159,9 @@ export class ApiService {
         const metadata: IAssetMetadata = JSON.parse(res);
         map[checkingList[index].referenceId] = { mimeType: metadata.mimeType, attachmentType: metadata.type };
 
-        // checks if attached asset is an image
-        if (checkingList[index].onlyImage && !isImage(metadata.mimeType)) {
-          errors.push(`profile.icon.referenceId ${checkingList[index].referenceId} is not an image!`);
+        // checks that the MIME type is allowed for this type of asset
+        if (!checkingList[index].allowedMimeTypesRegex.test(metadata.mimeType)) {
+          errors.push(`Uploaded asset referenceId ${checkingList[index].referenceId} has invalid MIME type ${metadata.mimeType}!`);
         }
       }
     });
@@ -264,7 +270,7 @@ export class ApiService {
   public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string): Promise<IFileResponse> {
     this.logger.debug(`Processing file: ${filename} (${mimetype})`);
 
-    if (!DSNP_VALID_MIME_TYPES_BASIC.test(mimetype)) {
+    if (!VALID_UPLOAD_MIME_TYPES_REGEX.test(mimetype)) {
       this.logger.warn(`Skipping file: ${filename} due to unsupported file type (${mimetype}).`);
       return { error: `Unsupported file type (${mimetype})` };
     }

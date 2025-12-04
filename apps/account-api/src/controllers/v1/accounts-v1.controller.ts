@@ -1,17 +1,6 @@
 import { AccountsService } from '#account-api/services/accounts.service';
 import { AccountResponseDto, RetireMsaPayloadResponseDto } from '#types/dtos/account/accounts.response.dto';
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Inject,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, HttpCode, HttpStatus, Param, Inject, NotFoundException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';

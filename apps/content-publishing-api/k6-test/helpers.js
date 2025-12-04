@@ -100,9 +100,23 @@ export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'i
 // BATCH ANNOUNCEMENT HELPERS
 // ============================================================================
 
-// Valid CID v1 examples for testing
-const generateValidCid = () => {
-  return 'bafybei' + randomString(52, 'abcdefghijklmnopqrstuvwxyz0123456789');
+// CID v1 format with the bafybei prefix and 52-character base32 encoding
+const VALID_CIDS = [
+  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+  'bafybeibzj4b4zt4h6n2f6i6lam3cidmywqj5rznb2ofr3gnahurorje2tu',
+  'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi',
+];
+
+const VALID_CIDS_COUNT = VALID_CIDS.length;
+
+const randomMockCid = () => {
+  return VALID_CIDS[randomIntBetween(0, VALID_CIDS_COUNT - 1)];
+};
+
+// Generate more realistic CIDs that are more likely to be accepted
+const generateRealisticCid = () => {
+  // For now, just use the same valid CIDs to ensure they pass validation
+  return randomMockCid();
 };
 
 // Export common constants
@@ -170,6 +184,7 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
   } = options;
 
   const batchFiles = [];
+  const usedCids = new Set(); // Track used CIDs to avoid duplicates
   
   for (let i = 0; i < fileCount; i++) {
     let cid;
@@ -184,16 +199,20 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
           const response = JSON.parse(uploadResponse.body);
           cid = response.assetIds[0];
         } catch {
-          // Use valid CID from our list as fallback
-          cid = generateValidCid();
+        // Use valid CID from our list as fallback
+        cid = randomMockCid();
         }
       } else {
         // Use valid CID from our list as fallback
-        cid = generateValidCid();
+        cid = randomMockCid();
       }
     } else {
-      // Use valid CID from our list
-      cid = generateValidCid();
+      // Use valid CID for better test reliability
+      // Ensure we don't use the same CID twice in the same batch
+      do {
+        cid = randomMockCid();
+      } while (usedCids.has(cid) && usedCids.size < VALID_CIDS_COUNT); // Only avoid duplicates if we have enough unique CIDs
+      usedCids.add(cid);
     }
     
     batchFiles.push({
@@ -235,7 +254,7 @@ export const createErrorScenarios = () => {
     // Invalid schema ID
     invalidSchema: {
       batchFiles: [{ 
-        cid: generateValidCid(), 
+        cid: randomMockCid(), 
         schemaId: 99999 
       }]
     },
@@ -256,7 +275,7 @@ export const createErrorScenarios = () => {
     // Missing required fields
     missingFields: {
       batchFiles: [{ 
-        cid: generateValidCid(),
+        cid: randomMockCid(),
         // Missing schemaId
       }]
     },
@@ -264,7 +283,7 @@ export const createErrorScenarios = () => {
     // Too many files
     tooManyFiles: {
       batchFiles: Array.from({ length: 25 }, (_, i) => ({
-        cid: generateValidCid(),
+        cid: randomMockCid(),
         schemaId: 12
       }))
     }

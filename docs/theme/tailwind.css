@@ -25,11 +25,15 @@
   }
 }
 
+.content {
+  @apply docsBodyText;
+}
+
 /* Lots adding back in defaults that tailwind removes */
 .content h1 {
+  @apply docsHeaderText;
   margin-block-start: 0.67em;
   margin-block-end: 0.67em;
-  font-weight: bold;
 }
 
 /* Reset the margins for the first header in the contents */
@@ -38,34 +42,14 @@
   margin-top: 0;
 }
 
-.content h2 {
+.content h2, .content h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply docsSubHeaderText;
   margin-block-start: 0.83em;
   margin-block-end: 0.83em;
-  font-weight: bold;
-}
-
-.content h3 {
-  margin-block-start: 1em;
-  margin-block-end: 1em;
-  font-weight: bold;
-}
-
-.content h4 {
-  margin-block-start: 1.33em;
-  margin-block-end: 1.33em;
-  font-weight: bold;
-}
-
-.content h5 {
-  margin-block-start: 1.67em;
-  margin-block-end: 1.67em;
-  font-weight: bold;
-}
-
-.content h6 {
-  margin-block-start: 2.33em;
-  margin-block-end: 2.33em;
-  font-weight: bold;
 }
 
 .content ol {
@@ -86,6 +70,11 @@
 
 .content strong {
   font-weight: 600;
+}
+
+.content li > p:first-child {
+  margin-top: 0;
+  display: inline;
 }
 
 .content p {

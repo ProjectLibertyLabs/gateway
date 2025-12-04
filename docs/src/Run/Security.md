@@ -20,7 +20,7 @@ Note: refer to this [guide](./Nginx.md) for setting up NGINX Ingress in Kubernet
 
 ---
 
-## 1. Using NGINX as a Reverse Proxy
+## **1. Using NGINX as a Reverse Proxy**
 
 NGINX can act as an entry point for your APIs, providing a layer of security by:
 
@@ -50,7 +50,7 @@ nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
 
 ---
 
-## 2. Using Load Balancers for Scalability and Security
+## **2. Using Load Balancers for Scalability and Security**
 
 A load balancer ensures even distribution of traffic across multiple instances of your services. It also contributes to security by:
 
@@ -89,7 +89,7 @@ In this example, the LoadBalancer listens on port 443 for TLS traffic and forwar
 
 ---
 
-## 3. Best Practices for API Security
+## **3. Best Practices for API Security**
 
 - **Rate Limiting**: Ensure NGINX or your gateway implements rate limiting to avoid API abuse.
 - **Authentication and Authorization**: Use tokens (e.g., OAuth2, JWT) to verify clients and their permissions before granting access.
@@ -116,6 +116,6 @@ curl -i http://<your-nginx-address>/account/docs/swagger
 
 ---
 
-## 4. Conclusion
+## **4. Conclusion**
 
 A layered approach to securing API access, using NGINX as a reverse proxy, a load balancer for scaling and TLS termination, along with proper CORS and security configurations, ensures robust protection for your services. Proper testing and regular monitoring further enhance the reliability of your setup.

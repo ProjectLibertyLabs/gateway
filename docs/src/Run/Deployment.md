@@ -53,8 +53,6 @@ Terraform examples to automate the deployments in a cloud-agnostic manner.
             - [Option 2: Use Configuration Management Tools](#option-2-use-configuration-management-tools)
     - [Conclusion](#conclusion)
 
----
-
 ## Prerequisites
 
 - **AWS Account**: Access to create EC2 instances.
@@ -70,7 +68,7 @@ Terraform examples to automate the deployments in a cloud-agnostic manner.
 
 ---
 
-## Part 1: Deploying with Docker Swarm
+## **Part 1: Deploying with Docker Swarm**
 
 ### 1.1 Setting Up AWS EC2 Instances
 
@@ -231,7 +229,7 @@ docker inspect <container-id>
 
 ---
 
-## Part 2: Deploying with Kubernetes
+## **Part 2: Deploying with Kubernetes**
 
 ### 2.1 Setting Up AWS EC2 Instances
 
@@ -426,7 +424,7 @@ kubectl get services
 
 ---
 
-## Part 3: Automating with Terraform
+## **Part 3: Automating with Terraform**
 
 ### 3.1 Terraform Configuration
 
@@ -553,7 +551,7 @@ For more complex setups, consider using tools like Ansible, Chef, or Puppet in c
 
 ---
 
-## Conclusion
+## **Conclusion**
 
 This guide walked you through deploying the Gateway services using Docker Swarm and Kubernetes on AWS EC2 instances. It
 also provided Terraform examples to automate the infrastructure provisioning in a cloud-agnostic way. By following these

@@ -6,13 +6,11 @@ Every deployment and production environment is unique. Therefore, we recommend t
 
 Look for the Quick Start guide in the Run Gateway Services section to get started with Gateway Services in less than 5 minutes.
 
-<div class="button-links">
-
-[Running Frequency Developer Gateway Services](./GatewayServices/RunGatewayServices.md)
-
+<div class="button-links-outlined">
+  <a href="./GatewayServices/RunGatewayServices.md">Running Frequency Developer Gateway Services</a>
 </div>
 
-## DevOps Deployment Quick Reference
+## ** *DevOps Deployment Quick Reference* **
 
 Refer to the following sections to get a quick overview of the minimum requirements for deploying individual Gateway Services in different environments.
 
@@ -49,6 +47,7 @@ Some services require a connection to an IPFS instance. See the [IPFS Setup Guid
 See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gateway/blob/main/deployment/swarm/docker-compose-swarm.yaml) for examples of redis and ipfs services.
 
 ---
+<br />
 
 | **Account Service**            | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
@@ -66,7 +65,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 |                                | CACHE_KEY_PREFIX                                                                                  |
 |                                | SIWF_V2_URI_VALIDATION                                                                            |
 
----
+<br />
 
 | **Graph Service**              | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
@@ -83,7 +82,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 |                                | CACHE_KEY_PREFIX                                                                                  |
 |                                | AT_REST_ENCRYPTION_KEY_SEED                                                                       |
 
----
+<br />
 
 | **Content Publishing Service** | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
@@ -103,7 +102,7 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 |                                | ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS                                                           |
 |                                | CACHE_KEY_PREFIX                                                                                  |
 
----
+<br />
 
 | **Content Watcher Service**    | **Details**                                                                                       |
 |--------------------------------|---------------------------------------------------------------------------------------------------|
@@ -118,9 +117,9 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 |                                | WEBHOOK_FAILURE_THRESHOLD                                                                         |
 |                                | CACHE_KEY_PREFIX                                                                                  |
 
----
+<br />
 
-## Other Deployment Guides
+## **Other Deployment Guides**
 
 - [Configuring and Managing Scalability](./Scalability.md)
 - [Deployment on AWS](./Deployment.md)

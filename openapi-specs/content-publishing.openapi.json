@@ -1063,7 +1063,8 @@
       "name": "content",
       "tags": [
         "v1/content",
-        "v2/content"
+        "v2/content",
+        "v3/content"
       ]
     },
     {

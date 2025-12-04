@@ -1,12 +1,15 @@
 # Running Frequency Developer Gateway Services
 
-## Prerequisites
+Gateway Services v1.5+ includes 7 microservices with SIWF v2 authentication support, W3C Verifiable Credentials, and enhanced scalability through dedicated worker services.
+
+## **Prerequisites**
 
 To run this project, you need:
 
 - [Docker](https://docs.docker.com/get-docker/)
+- [Node.js](https://nodejs.org) (v22 or higher recommended, for local development)
 
-## Quick Start
+## **Quick Start**
 
 ### Clone the repository
 
@@ -39,16 +42,21 @@ To run this project, you need:
 
 4. Select the Gateway Services you want to start by answering `y` or `n` for each service:
 
-   - **Account Service**: Manages user accounts and authentication.
-   - **Graph Service**: Handles the creation and querying of social graphs.
-   - **Content Publishing Service**: Manages the publishing and distribution of content.
+   - **Account Service** (API + Worker): Manages user accounts and authentication with SIWF v2.
+   - **Graph Service** (API + Worker): Handles the creation and querying of social graphs.
+   - **Content Publishing Service** (API + Worker): Manages the publishing and distribution of content.
    - **Content Watcher Service**: Monitors the chain for content announcements (new content, updates, etc).
+
+   Note: Each service (except Content Watcher) includes both an API and a Worker component for improved scalability.
 
 5. Choose the Frequency API Websocket URL for the selected services. The default will be set to the network chosen in step 3.
 
 6. Choose the Sign In With Frequency RPC URL for the selected services. The default will be set to the network chosen in step 3.
+   - For Testnet Paseo: `wss://0.rpc.testnet.amplica.io`
+   - This is used for SIWF v2 authentication with Frequency Access
 
 7. Enter a Provider ID. See the links provided by `start.sh` for more information on Provider IDs.
+   - Register as a Provider at the [Provider Dashboard](https://provider.frequency.xyz/)
 
 8. Enter the seed phrase for the Provider ID. This will be used to sign transactions before sending them to the Frequency blockchain.
 
@@ -85,7 +93,7 @@ To run this project, you need:
 └────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Environment Variables
+## **Environment Variables**
 
 For information on environment variables, see the Build page for your selected service:
 

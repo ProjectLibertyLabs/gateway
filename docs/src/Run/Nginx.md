@@ -4,8 +4,8 @@
 
 - [NGINX Ingress for Frequency Developer Gateway](#nginx-ingress-for-frequency-developer-gateway)
   - [Table of Contents](#table-of-contents)
-  - [Introduction](#introduction)
   - [Prerequisites](#prerequisites)
+  - [Introduction](#introduction)
   - [Setting Up NGINX Ingress](#setting-up-nginx-ingress)
     - [Step 1: Enable NGINX Ingress Controller](#step-1-enable-nginx-ingress-controller)
     - [Step 2: Configure the Ingress Resource](#step-2-configure-the-ingress-resource)
@@ -18,17 +18,19 @@
   - [Best Practices for CORS and Security](#best-practices-for-cors-and-security)
   - [Conclusion](#conclusion)
 
-## Introduction
-
-In this guide, we will walk through the process of setting up NGINX Ingress for the Frequency Developer Gateway on MicroK8s. This includes configuring Ingress rules, managing paths for various services, and ensuring proper security measures through CORS (Cross-Origin Resource Sharing) configurations.
-
 ## Prerequisites
 
 - [MicroK8s](https://microk8s.io/docs) installed and configured.
 - [Helm](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
 - Basic understanding of Kubernetes and Helm concepts.
 
-## Setting Up NGINX Ingress
+## Introduction
+
+In this guide, we will walk through the process of setting up NGINX Ingress for the Frequency Developer Gateway on MicroK8s. This includes configuring Ingress rules, managing paths for various services, and ensuring proper security measures through CORS (Cross-Origin Resource Sharing) configurations.
+
+---
+
+## **Setting Up NGINX Ingress**
 
 ### Step 1: Enable NGINX Ingress Controller
 
@@ -80,7 +82,7 @@ After configuring your Ingress resource, deploy it using Helm:
 helm install frequency-gateway ./path-to-your-helm-chart
 ```
 
-## Testing the Ingress Configuration
+## **Testing the Ingress Configuration**
 
 To test your Ingress setup, you can use `curl` to check the various paths defined in your Ingress resource:
 
@@ -105,13 +107,13 @@ The `-i` flag includes the HTTP response headers in the output, which is useful 
 - A successful request should return a 200 status code along with the expected content.
 - A 404 status code indicates that the path is not found, which may require reviewing your Ingress resource configuration.
 
-## Best Practices for CORS and Security
+## **Best Practices for CORS and Security**
 
 1. **Limit CORS Origins**: For production environments, restrict `cors-allow-origin` to only trusted domains instead of using `*`.
 2. **Use HTTPS**: Ensure that your application is served over HTTPS. This can be configured with the `nginx.ingress.kubernetes.io/ssl-redirect` annotation.
 3. **Set Security Headers**: Add additional security headers to your Ingress annotations to help protect your application from common vulnerabilities.
 4. **Regularly Review Your Configurations**: Ensure that your Ingress configurations are reviewed and updated as needed, especially after changes to your services.
 
-## Conclusion
+## **Conclusion**
 
 Configuring NGINX Ingress for your Frequency Developer Gateway in MicroK8s is a straightforward process that can greatly enhance your application's routing capabilities. By properly setting up paths and CORS configurations, you can ensure that your services are accessible and secure. Always remember to follow best practices for security, especially when dealing with cross-origin requests.

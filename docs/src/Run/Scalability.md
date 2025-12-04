@@ -2,14 +2,12 @@
 
 This guide explains how to configure and manage scalability using Kubernetes Horizontal Pod Autoscaler (HPA) for Frequency Developer Gateway to ensure services scale dynamically based on resource usage.
 
----
-
-## **Table of Contents**
+## Table of Contents
 
 - [**Scalability Guide for Frequency Developer Gateway**](#scalability-guide-for-frequency-gateway)
   - [**Table of Contents**](#table-of-contents)
-  - [**Introduction**](#introduction)
   - [**Prerequisites**](#prerequisites)
+  - [**Introduction**](#introduction)
   - [**Configuring Horizontal Pod Autoscaler**](#configuring-horizontal-pod-autoscaler)
     - [**Default Autoscaling Settings**](#default-autoscaling-settings)
     - [**Metrics for Autoscaling**](#metrics-for-autoscaling)
@@ -20,15 +18,7 @@ This guide explains how to configure and manage scalability using Kubernetes Hor
     - [HPA is Not Scaling Pods](#hpa-is-not-scaling-pods)
     - [Scaling Too Slowly or Too Aggressively](#scaling-too-slowly-or-too-aggressively)
 
----
-
-## **Introduction**
-
-Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Developer Gateway, you ensure your services remain available and responsive under varying loads--scaling out when demand increases and scaling down when resources aren't needed.
-
----
-
-## **Prerequisites**
+## Prerequisites
 
 Before implementing autoscaling, ensure that:
 
@@ -36,11 +26,15 @@ Before implementing autoscaling, ensure that:
 - [**Helm**](https://helm.sh/docs/intro/install/) installed for managing Kubernetes applications.
 - The deployment for [**Frequency Developer Gateway**](https://github.com/ProjectLibertyLabs/gateway/blob/main/deployment/k8s) is running in your Kubernetes cluster.
 
+## Introduction
+
+Kubernetes Horizontal Pod Autoscaler (HPA) helps scale your deployment based on real-time resource usage (such as CPU and memory). By configuring HPA for the Frequency Developer Gateway, you ensure your services remain available and responsive under varying loads--scaling out when demand increases and scaling down when resources aren't needed.
+
 ---
 
 ## **Configuring Horizontal Pod Autoscaler**
 
-### **Default Autoscaling Settings**
+### Default Autoscaling Settings
 
 In `values.yaml`, autoscaling is controlled with the following parameters:
 
@@ -61,7 +55,7 @@ autoscaling:
 
 ---
 
-### **Metrics for Autoscaling**
+### Metrics for Autoscaling
 
 The Kubernetes HPA uses real-time resource consumption to determine whether to increase or decrease the number of pods. Metrics commonly used include:
 
@@ -72,7 +66,7 @@ You can configure one or both, depending on your resource needs.
 
 ---
 
-### **Sample Configuration**
+### Sample Configuration
 
 Here is an example `values.yaml` configuration for enabling autoscaling with CPU and memory targets:
 

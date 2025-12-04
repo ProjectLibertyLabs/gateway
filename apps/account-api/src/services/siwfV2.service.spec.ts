@@ -1,7 +1,7 @@
 import { expect, it, jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
-import { CurveType, decodeSignedRequest } from '@projectlibertylabs/siwfv2';
+import { CurveType, decodeSignedRequest } from '@projectlibertylabs/siwf';
 import base64url from 'base64url';
 import { SiwfV2Service } from './siwfV2.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';

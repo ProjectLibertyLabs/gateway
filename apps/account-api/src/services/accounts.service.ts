@@ -1,21 +1,12 @@
-import { BadRequestException, Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { validateSignin, validateSignup } from '@projectlibertylabs/siwfv1';
+import { Inject, Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
-import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
 import {
   AccountResponseDto,
   MsaIdResponseDto,
   RetireMsaPayloadResponseDto,
 } from '#types/dtos/account/accounts.response.dto';
-import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
-import {
-  PublishRetireMsaRequestDto,
-  PublishSIWFSignupRequestDto,
-  RetireMsaRequestDto,
-  TransactionResponse,
-} from '#types/dtos/account';
+import { PublishRetireMsaRequestDto, RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
@@ -57,53 +48,6 @@ export class AccountsService {
     }
     this.logger.debug(`Did not find msaId for account id: ${accountId}`);
     return null;
-  }
-
-  async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
-    const { siwfNodeRpcUrl, siwfUrl }: IAccountApiConfig = this.apiCOnf;
-    const { providerId } = this.blockchainConf;
-    return {
-      providerId: providerId.toString(),
-      siwfUrl: siwfUrl.toString(),
-      frequencyRpcUrl: siwfNodeRpcUrl?.toString(),
-    };
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async signInWithFrequency(request: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
-    const api = (await this.blockchainService.getApi()) as ApiPromise;
-    const { providerId } = this.blockchainConf;
-    if (request.signUp) {
-      try {
-        const siwfPayload = await validateSignup(api, request.signUp, providerId.toString());
-        // Pass all this data to the transaction publisher queue
-        const referenceId: WalletLoginResponseDto =
-          await this.enqueueService.enqueueRequest<PublishSIWFSignupRequestDto>({
-            ...siwfPayload,
-            type: TransactionType.SIWF_SIGNUP,
-          });
-        return referenceId;
-      } catch (e: any) {
-        this.logger.error(`Failed Signup validation ${e.toString()}`);
-        throw new UnprocessableEntityException('Failed to sign up');
-      }
-    } else if (request.signIn) {
-      try {
-        const parsedSignin = await validateSignin(api, request.signIn, 'localhost');
-        const response: WalletLoginResponseDto = {
-          referenceId: '0',
-          msaId: parsedSignin.msaId,
-          publicKey: parsedSignin.publicKey,
-        };
-        return response;
-      } catch (e) {
-        this.logger.error(`Error during SIWF signin request: ${e}`);
-        const { cause } = e as any;
-        this.logger.error(`cause: ${cause}`);
-        throw new UnprocessableEntityException('Failed to Sign In With Frequency');
-      }
-    }
-    throw new BadRequestException('Invalid Sign In With Frequency Request');
   }
 
   async getRetireMsaPayload(accountId: string): Promise<RetireMsaPayloadResponseDto | null> {

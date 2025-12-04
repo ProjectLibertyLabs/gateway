@@ -1,4 +1,4 @@
-import type { SiwfResponse } from '@projectlibertylabs/siwfv2';
+import type { SiwfResponse } from '@projectlibertylabs/siwf';
 
 // Mock Server Authorization Codes:
 // validEthereumSiwfAddDelegationResponsePayload

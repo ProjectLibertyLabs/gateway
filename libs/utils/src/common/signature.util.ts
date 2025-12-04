@@ -2,7 +2,7 @@ import { Bytes } from '@polkadot/types';
 import { SignerResult, Signer, Registry } from '@polkadot/types/types';
 import { hexToU8a, isHex, u8aToHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
-import { CurveType, EncodingType, FormatType, isHexStr } from '@projectlibertylabs/siwfv2';
+import { CurveType, EncodingType, FormatType, isHexStr } from '@projectlibertylabs/siwf';
 import { KeypairType } from '@polkadot/util-crypto/types';
 import { KeyringPair } from '@polkadot/keyring/types';
 import {

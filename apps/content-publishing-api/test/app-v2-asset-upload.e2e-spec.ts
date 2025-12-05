@@ -419,7 +419,7 @@ describe('Content Publishing E2E Endpoint Verification', () => {
     });
 
     describe('/v2/content/:msaId/on-chain', () => {
-      const goodPayload = Buffer.from('hello, world').toString('hex');
+      const goodPayload = '0x' + Buffer.from('hello, world').toString('hex');
       const largePayload = () =>
         '0x' + Buffer.from('h'.repeat(api.consts.messages.messagesMaxPayloadSizeBytes.toNumber())).toString('hex');
 
@@ -465,17 +465,19 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           schemaId: () => onChainSchemaId,
           payload: 'not hex',
           message: /payload must be a hexadecimal number/,
+          errorCount: 2,
         },
         {
           description: 'empty payload',
           schemaId: () => onChainSchemaId,
           payload: '',
           message: /payload should not be empty/,
+          errorCount: 3,
         },
         {
           description: 'payload without 0x prefix',
           schemaId: () => onChainSchemaId,
-          payload: goodPayload,
+          payload: goodPayload.slice(2),
           message: /payload bytes must include '0x' prefix/,
         },
       ])(
@@ -484,11 +486,13 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           schemaId,
           payload,
           message,
+          errorCount,
         }: {
           description: string;
           schemaId: string | number | (() => number);
           payload: string;
           message: RegExp;
+          errorCount?: number;
         }) => {
           return request(app.getHttpServer())
             .post(`/v2/content/${msaId}/on-chain`)
@@ -498,9 +502,8 @@ describe('Content Publishing E2E Endpoint Verification', () => {
               payload,
             })
             .expect(400)
-            .expect((res) =>
-              expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])),
-            );
+            .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])))
+            .expect((res) => expect(res.body.message).toHaveLength(errorCount || 1));
         },
       );
 
@@ -521,7 +524,7 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           .send({
             schemaId: ipfsSchemaId,
             published: new Date().toISOString(),
-            payload: `0x${goodPayload}`,
+            payload: goodPayload,
           })
           .expect(422)
           .expect((res) => expect(res.body.message).toMatch(/Schema payload location invalid/));
@@ -533,7 +536,7 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           .send({
             schemaId: onChainSchemaId,
             published: new Date().toISOString(),
-            payload: `0x${goodPayload}`,
+            payload: goodPayload,
           })
           .expect(401)
           .expect((res) => expect(res.body.message).toMatch(/Provider not delegated/));
@@ -556,7 +559,94 @@ describe('Content Publishing E2E Endpoint Verification', () => {
       });
     });
 
-    it.todo('/v2/content/batchAnnouncement');
+    describe('/v2/content/batchAnnouncement', () => {
+      const cidV1 = 'bafybeierhgbz4zp2x2u67urqrgfnrnlukciupzenpqpipiz5nwtq7uxpx4';
+      const cidV0 = 'QmY7Yh4UquoXHLPFo2XbhXkhBvFoPwmQUSa92pxnxjQuPU';
+
+      it.each([
+        {
+          description: 'non-numeric schemaId',
+          schemaId: 'not a number',
+          cid: cidV1,
+          message: /schemaId should be a positive integer/,
+        },
+        {
+          description: 'non-integer schemaId string',
+          schemaId: '1.2',
+          cid: cidV1,
+          message: /schemaId should be a positive integer/,
+        },
+        {
+          description: 'negative schemaId string',
+          schemaId: '-1',
+          cid: cidV1,
+          message: /schemaId should be a positive integer/,
+        },
+        {
+          description: 'schemaId string with symbols',
+          schemaId: '1,000',
+          cid: cidV1,
+          message: /schemaId should be a positive integer/,
+        },
+        {
+          description: 'negative schemaId',
+          schemaId: -1,
+          cid: cidV1,
+          message: /schemaId should be a positive integer/,
+        },
+        {
+          description: 'schemaId too large',
+          schemaId: 65536,
+          cid: cidV1,
+          message: /schemaId should not exceed 65535/,
+        },
+        {
+          description: 'invalid cid',
+          schemaId: () => ipfsSchemaId,
+          cid: 'not a cid',
+          message: /should be a valid CIDv1/,
+        },
+        {
+          description: 'CIDv0',
+          schemaId: () => ipfsSchemaId,
+          cid: cidV0,
+          message: /should be a valid CIDv1/,
+        },
+      ])('$description should fail', async ({ schemaId, cid, message }) => {
+        return request(app.getHttpServer())
+          .post('/v2/content/batchAnnouncement')
+          .send({ batchFiles: [{ schemaId: typeof schemaId === 'function' ? schemaId() : schemaId, cid }] })
+          .expect(400)
+          .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])))
+          .expect((res) => expect(res.body.message).toHaveLength(1));
+      });
+
+      // TODO: enable test when we fix https://github.com/ProjectLibertyLabs/gateway/issues/1001
+      it.skip('schemaId with on-chain payload location should fail', async () => {
+        return request(app.getHttpServer())
+          .post('/v2/content/batchAnnouncement')
+          .send({ batchFiles: [{ schemaId: onChainSchemaId, cid: cidV1 }] })
+          .expect(400)
+          .expect((res) =>
+            expect(res.body.message).toEqual(
+              expect.arrayContaining([expect.stringMatching(/payload location invalid/)]),
+            ),
+          )
+          .expect((res) => expect(res.body.message).toHaveLength(1));
+      });
+
+      it('good request should succeed', async () => {
+        return request(app.getHttpServer())
+          .post('/v2/content/batchAnnouncement')
+          .send({ batchFiles: [{ schemaId: onChainSchemaId, cid: cidV1 }] })
+          .expect(202)
+          .expect((res) =>
+            expect(res.body).toEqual(
+              expect.arrayContaining([expect.objectContaining({ referenceId: expect.any(String) })]),
+            ),
+          );
+      });
+    });
   });
 
   describe('V3 Content', () => {

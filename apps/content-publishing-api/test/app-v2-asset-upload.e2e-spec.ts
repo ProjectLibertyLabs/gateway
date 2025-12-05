@@ -6,20 +6,24 @@ import { randomBytes } from 'crypto';
 import { ApiModule } from '../src/api.module';
 import { HealthCheckModule } from '#health-check/health-check.module';
 import {
-  validContentNoUploadedAssets,
-  validReplyNoUploadedAssets,
   validOnChainContent,
   validReaction,
   assetMetaDataInvalidMimeType,
-  validUpdateNoUploadedAssets,
   validTombstone,
-  validProfileNoUploadedAssets,
+  generateBroadcast,
+  generateReply,
+  generateUpdate,
+  generateProfile,
 } from './mockRequestData';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import Redis from 'ioredis';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
+import { Logger, PinoLogger } from 'nestjs-pino';
+import { getPinoHttpOptions } from '#logger-lib';
+import { ContentPublisherRedisConstants } from '#types/constants';
+import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
 
 const randomString = (length: number, _unused) =>
   randomBytes(Math.ceil(length / 2))
@@ -35,7 +39,7 @@ const sleep = (ms: number) =>
 
 const msaId = '123';
 
-describe('AppController E2E v2 asset upload verification', () => {
+describe('Content Publishing E2E Endpoint Verification', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let redis: Redis;
@@ -47,10 +51,9 @@ describe('AppController E2E v2 asset upload verification', () => {
       imports: [ApiModule, HealthCheckModule],
     }).compile();
 
-    app = module.createNestApplication();
-
-    // Uncomment below to see logs when debugging tests
-    // module.useLogger(new Logger());
+    // To enable logging in tests, set ENABLE_LOGS_IN_TESTS=true in the environment
+    app = module.createNestApplication({ logger: new Logger(new PinoLogger(getPinoHttpOptions()), {}) });
+    app.useLogger(app.get(Logger));
 
     const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });
@@ -77,9 +80,12 @@ describe('AppController E2E v2 asset upload verification', () => {
     redis = app.get<Redis>(getRedisToken(DEFAULT_REDIS_NAMESPACE));
   });
 
-  describe('/v1/assets/upload', () => {
+  describe('/v1/asset/upload', () => {
     it('upload request with no files should fail', async () => {
-      await request(app.getHttpServer()).put('/v1/asset/upload').expect(422);
+      await request(app.getHttpServer())
+        .put('/v1/asset/upload')
+        .expect(422)
+        .expect((res) => expect(res.body.message).toBe('File is required'));
     });
 
     it('too many files in a single upload request should fail', async () => {
@@ -87,18 +93,56 @@ describe('AppController E2E v2 asset upload verification', () => {
       for (const i of Array(11).keys()) {
         req = req.attach('files', randomFile30K, `file${i}.jpg`);
       }
-      await req.expect(400);
+      await req.expect(400).expect((res) => expect(res.body.message).toBe('Too many files'));
     });
 
     it('MIME type not in whitelist should fail', async () => {
-      await request(app.getHttpServer()).put('/v1/asset/upload').attach('files', randomFile30K, 'file.bmp').expect(422);
+      await request(app.getHttpServer())
+        .put('/v1/asset/upload')
+        .attach('files', randomFile30K, 'file.bmp')
+        .expect(422)
+        .expect((res) => expect(res.body.message).toMatch(/Validation failed.*current file type is.*expected type is/));
     });
 
     it('valid request with legal assets should work!', async () => {
       await request(app.getHttpServer())
         .put(`/v1/asset/upload`)
         .attach('files', randomFile30K, 'file1.jpg')
-        .expect(202);
+        .expect(202)
+        .expect((res) => expect(res.body.assetIds.length).toBe(1));
+    });
+  });
+
+  describe('/v2/asset/upload', () => {
+    it('upload request with no files should fail', async () => {
+      await request(app.getHttpServer()).post('/v2/asset/upload').expect(500);
+    });
+
+    it('endpoint should only accept max number of allowed files', async () => {
+      let req = request(app.getHttpServer()).post('/v2/asset/upload');
+      for (const i of Array(11).keys()) {
+        req = req.attach('files', randomFile30K, `file${i}.jpg`);
+      }
+      await req
+        .expect(202)
+        .expect((res) => expect(res.body.files.length).toBe(11))
+        .expect((res) => expect(res.body.files[10].error).toMatch(/Max file/));
+    });
+
+    it('MIME type not in whitelist should fail', async () => {
+      await request(app.getHttpServer())
+        .post('/v2/asset/upload')
+        .attach('files', randomFile30K, 'file.bmp')
+        .expect(202)
+        .expect((res) => expect(res.body.files[0].error).toMatch(/Unsupported file type/));
+    });
+
+    it('valid request with legal assets should work!', async () => {
+      await request(app.getHttpServer())
+        .post(`/v2/asset/upload`)
+        .attach('files', randomFile30K, 'file1.jpg')
+        .expect(202)
+        .expect((res) => expect(res.body.files[0].cid).toBeTruthy());
     });
   });
 
@@ -107,7 +151,8 @@ describe('AppController E2E v2 asset upload verification', () => {
     const badMimeTypeReferenceId = '0123456789';
 
     beforeAll(async () => {
-      await redis.set(badMimeTypeReferenceId, JSON.stringify(assetMetaDataInvalidMimeType));
+      // Modify the asset cache with a disallowed MIME type asset
+      await redis.set(getAssetMetadataKey(badMimeTypeReferenceId), JSON.stringify(assetMetaDataInvalidMimeType));
     });
 
     describe('announcements with missing assets', () => {
@@ -115,48 +160,34 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/content/:msaId/broadcast',
           operation: 'POST',
-          payload: {
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [{ name: 'missing asset', references: [{ referenceId: missingAssetId }] }],
-            },
-          },
+          payload: generateBroadcast([missingAssetId]),
         },
         {
           endpoint: '/v1/content/:msaId/reply',
           operation: 'POST',
-          payload: {
-            ...validReplyNoUploadedAssets,
-            content: {
-              ...validReplyNoUploadedAssets,
-              assets: [{ name: 'missing asset', references: [{ referenceId: missingAssetId }] }],
-            },
-          },
+          payload: generateReply([missingAssetId]),
         },
         {
           endpoint: '/v1/content/:msaId',
           operation: 'PUT',
-          payload: {
-            ...validUpdateNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [{ name: 'missing asset', references: [{ referenceId: missingAssetId }] }],
-            },
-          },
+          payload: generateUpdate([missingAssetId]),
         },
         {
           endpoint: '/v1/profile/:msaId',
           operation: 'PUT',
-          payload: {
-            profile: {
-              ...validProfileNoUploadedAssets,
-              icon: [{ referenceId: missingAssetId }],
-            },
-          },
+          payload: generateProfile([missingAssetId]),
         },
       ])('$operation $endpoint should fail with missing asset reference', async ({ endpoint, operation, payload }) => {
         const resolvedEndpoint = endpoint.replace(':msaId', msaId);
-        return request(app.getHttpServer())[operation.toLowerCase()](resolvedEndpoint).send(payload).expect(400);
+        return request(app.getHttpServer())
+          [operation.toLowerCase()](resolvedEndpoint)
+          .send(payload)
+          .expect(400)
+          .expect((res) =>
+            expect(res.body.message).toEqual(
+              expect.arrayContaining([expect.stringMatching(/referenceId.*does not exist/)]),
+            ),
+          );
       });
     });
 
@@ -165,50 +196,34 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/content/:msaId/broadcast',
           operation: 'POST',
-          payload: {
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [{ name: 'invalid MIME type reference', references: [{ referenceId: badMimeTypeReferenceId }] }],
-            },
-          },
+          payload: generateBroadcast([badMimeTypeReferenceId]),
         },
         {
           endpoint: '/v1/content/:msaId/reply',
           operation: 'POST',
-          payload: {
-            ...validReplyNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [{ name: 'invalid MIME type reference', references: [{ referenceId: badMimeTypeReferenceId }] }],
-            },
-          },
+          payload: generateReply([badMimeTypeReferenceId]),
         },
         {
           endpoint: '/v1/content/:msaId',
           operation: 'PUT',
-          payload: {
-            ...validUpdateNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [{ name: 'invalid MIME type reference', references: [{ referenceId: badMimeTypeReferenceId }] }],
-            },
-          },
+          payload: generateUpdate([badMimeTypeReferenceId]),
         },
         {
           endpoint: '/v1/profile/:msaId',
           operation: 'PUT',
-          payload: {
-            profile: {
-              ...validProfileNoUploadedAssets,
-              icon: [{ referenceId: badMimeTypeReferenceId }],
-            },
-          },
+          payload: generateProfile([badMimeTypeReferenceId]),
         },
       ])(
         '$operation $endpoint with invalid MIME type reference should fail',
         async ({ endpoint, operation, payload }) => {
           const resolvedEndpoint = endpoint.replace(':msaId', msaId);
-          return request(app.getHttpServer())[operation.toLowerCase()](resolvedEndpoint).send(payload).expect(400);
+          return request(app.getHttpServer())
+            [operation.toLowerCase()](resolvedEndpoint)
+            .send(payload)
+            .expect(400)
+            .expect((res) =>
+              expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(/invalid MIME type/)])),
+            );
         },
       );
     });
@@ -218,34 +233,17 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/content/:msaId/broadcast',
           operation: 'POST',
-          payload: {
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [],
-            },
-          },
+          payload: generateBroadcast(),
         },
         {
           endpoint: '/v1/content/:msaId/reply',
           operation: 'POST',
-          payload: {
-            ...validReplyNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [],
-            },
-          },
+          payload: generateReply(),
         },
         {
           endpoint: '/v1/content/:msaId',
           operation: 'PUT',
-          payload: {
-            ...validUpdateNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [],
-            },
-          },
+          payload: generateUpdate(),
         },
         {
           endpoint: '/v1/content/:msaId/reaction',
@@ -260,11 +258,7 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/profile/:msaId',
           operation: 'PUT',
-          payload: {
-            profile: {
-              ...validProfileNoUploadedAssets,
-            },
-          },
+          payload: generateProfile(),
         },
       ])(
         '$operation $endpoint should work!',
@@ -296,49 +290,17 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/content/:msaId/broadcast',
           operation: 'POST',
-          payload: () => ({
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [
-                {
-                  name: 'image asset',
-                  references: uploadedAssetIds.map((referenceId) => ({ referenceId, height: 123, width: 321 })),
-                },
-              ],
-            },
-          }),
+          payload: () => generateBroadcast(uploadedAssetIds),
         },
         {
           endpoint: '/v1/content/:msaId/reply',
           operation: 'POST',
-          payload: () => ({
-            ...validReplyNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [
-                {
-                  name: 'image asset',
-                  references: uploadedAssetIds.map((referenceId) => ({ referenceId, height: 123, width: 321 })),
-                },
-              ],
-            },
-          }),
+          payload: () => generateReply(uploadedAssetIds),
         },
         {
           endpoint: '/v1/content/:msaId',
           operation: 'PUT',
-          payload: () => ({
-            ...validUpdateNoUploadedAssets,
-            content: {
-              ...validContentNoUploadedAssets,
-              assets: [
-                {
-                  name: 'image asset',
-                  references: uploadedAssetIds.map((referenceId) => ({ referenceId, height: 123, width: 321 })),
-                },
-              ],
-            },
-          }),
+          payload: () => generateUpdate(uploadedAssetIds),
         },
         {
           endpoint: '/v1/content/:msaId/reaction',
@@ -348,12 +310,7 @@ describe('AppController E2E v2 asset upload verification', () => {
         {
           endpoint: '/v1/profile/:msaId',
           operation: 'PUT',
-          payload: () => ({
-            profile: {
-              ...validProfileNoUploadedAssets,
-              icon: uploadedAssetIds.map((referenceId) => ({ referenceId, height: 123, width: 321 })),
-            },
-          }),
+          payload: () => generateProfile(uploadedAssetIds),
         },
       ])(
         '$operation $endpoint with uploaded assets should work!',
@@ -368,5 +325,16 @@ describe('AppController E2E v2 asset upload verification', () => {
         15000,
       );
     });
+  });
+
+  describe('V2 Content', () => {
+    // Need to create an on-chain schema for this since we don't have one in the chain genesis
+    it.todo('/v2/content/on-chain');
+
+    it('/v2/content/batchAnnouncement', async () => {});
+  });
+
+  describe('V3 Content', () => {
+    it.todo('/v2/content/batchAnnouncement');
   });
 });

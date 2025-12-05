@@ -5,7 +5,7 @@ import {
   IAssetMetadata,
   IBroadcast,
   ILocation,
-  INoteActivity, IProfileActivity,
+  INoteActivity, IProfile, IProfileActivity,
   IReply,
   ITag,
   ITombstone,
@@ -99,3 +99,37 @@ export const assetMetaDataInvalidMimeType: IAssetMetadata = {
   mimeType: 'application/pdf',
   type: AttachmentType.IMAGE,
 };
+
+export function generateBroadcast(assets: string[] = []): IBroadcast {
+  const payload: IBroadcast = structuredClone(validBroadCastNoUploadedAssets);
+  if (assets.length > 0) {
+    payload.content.assets.push({ references: assets.map((referenceId) => ({ referenceId })) });
+  }
+  return payload;
+}
+
+export function generateReply(assets: string[] = []): IReply {
+  const payload: IReply = structuredClone(validReplyNoUploadedAssets);
+  if (assets.length > 0) {
+    payload.content.assets.push({ references: assets.map((referenceId) => ({ referenceId })) });
+  }
+  return payload;
+}
+
+export function generateUpdate(assets: string[] = []): IUpdate {
+  const payload: IUpdate = structuredClone(validUpdateNoUploadedAssets);
+  if (assets.length > 0) {
+    payload.content.assets.push({ references: assets.map((referenceId) => ({ referenceId })) });
+  }
+  return payload;
+}
+
+export function generateProfile(assets: string[] = []): IProfile {
+  const payload: IProfile = {
+    profile: structuredClone(validProfileNoUploadedAssets),
+  }
+  if (assets.length > 0) {
+    payload.profile.icon = assets.map((referenceId) => ({ referenceId }));
+  }
+  return payload;
+}

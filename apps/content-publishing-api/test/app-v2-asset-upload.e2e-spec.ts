@@ -30,6 +30,8 @@ import { ApiPromise } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { KeyringPair } from '@polkadot/keyring/types';
+import { base32 } from 'multiformats/bases/base32';
+import { hexToU8a } from '@polkadot/util';
 
 let aliceKeys: KeyringPair;
 
@@ -645,6 +647,47 @@ describe('Content Publishing E2E Endpoint Verification', () => {
               expect.arrayContaining([expect.objectContaining({ referenceId: expect.any(String) })]),
             ),
           );
+      });
+    });
+
+    describe('/v2/content/:msaId/tombstones', () => {
+      it.each([
+        {
+          description: 'empty targetContentHash',
+          targetContentHash: base32.encode(Buffer.from('')),
+          targetAnnouncementType: 'reply',
+          message: /targetContentHash should be a valid DsnpContentHash/,
+        },
+        {
+          description: 'invalid targetContentHash',
+          targetContentHash: base32.encode(Buffer.from('some hash')),
+          targetAnnouncementType: 'reply',
+          message: /targetContentHash should be a valid DsnpContentHash/,
+        },
+        {
+          description: 'invalid targetAnnouncementType',
+          targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+          targetAnnouncementType: 'reaction',
+          message: /targetAnnouncementType must be one of the following values/,
+        },
+      ])('$description should fail', ({ targetContentHash, targetAnnouncementType, message }) => {
+        return request(app.getHttpServer())
+          .post(`/v2/content/${msaId}/tombstones`)
+          .send({ targetContentHash, targetAnnouncementType })
+          .expect(400)
+          .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])))
+          .expect((res) => expect(res.body.message).toHaveLength(1));
+      });
+
+      it('valid request should succeed', async () => {
+        return request(app.getHttpServer())
+          .post(`/v2/content/${msaId}/tombstones`)
+          .send({
+            targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
+            targetAnnouncementType: 'reply',
+          })
+          .expect(202)
+          .expect((res) => expect(res.body).toEqual(expect.objectContaining({ referenceId: expect.any(String) })));
       });
     });
   });

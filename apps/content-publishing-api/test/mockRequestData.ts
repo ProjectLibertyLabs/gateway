@@ -14,6 +14,18 @@ import {
 } from '#types/interfaces';
 import { AttachmentType, TagTypeEnum, UnitTypeEnum } from '#types/enums';
 
+export const AVRO_SCHEMA = {
+  type: 'record',
+  name: 'OnChainTest',
+  fields: [
+    {
+      name: 'name',
+      type: 'string',
+    },
+  ],
+};
+
+
 export const validLocation: ILocation = {
   name: 'name of location',
   accuracy: 97,

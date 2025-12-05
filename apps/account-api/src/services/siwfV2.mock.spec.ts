@@ -1,4 +1,4 @@
-import type { SiwfResponse } from '@projectlibertylabs/siwfv2';
+import type { SiwfResponse } from '@projectlibertylabs/siwf';
 import { createServer, Server, IncomingMessage, ServerResponse } from 'node:http';
 import { validEthereumSiwfLoginResponsePayload } from '#account-api/services/siwfV2-ethereum.mock.spec';
 import { URL } from 'node:url';

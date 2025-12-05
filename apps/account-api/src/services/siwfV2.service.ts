@@ -17,7 +17,7 @@ import {
   isPayloadAddProvider,
   SiwfResponsePayload,
   isCredentialRecoverySecret,
-} from '@projectlibertylabs/siwfv2';
+} from '@projectlibertylabs/siwf';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';

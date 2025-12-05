@@ -1,20 +1,6 @@
 import { AccountsService } from '#account-api/services/accounts.service';
 import { AccountResponseDto, RetireMsaPayloadResponseDto } from '#types/dtos/account/accounts.response.dto';
-import { WalletLoginRequestDto } from '#types/dtos/account/wallet.login.request.dto';
-import { WalletLoginConfigResponseDto } from '#types/dtos/account/wallet.login.config.response.dto';
-import { WalletLoginResponseDto } from '#types/dtos/account/wallet.login.response.dto';
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Inject,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, HttpCode, HttpStatus, Param, Inject, NotFoundException } from '@nestjs/common';
 import { ApiBody, ApiOkResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
 import { AccountIdDto, MsaIdDto } from '#types/dtos/common';
@@ -30,15 +16,6 @@ export class AccountsControllerV1 {
     @InjectPinoLogger(AccountsService.name) private readonly logger: PinoLogger,
     // eslint-disable-next-line no-empty-function
   ) {}
-
-  @Get('siwf')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get the Sign In With Frequency configuration' })
-  @ApiOkResponse({ description: 'Returned SIWF Configuration data', type: WalletLoginConfigResponseDto })
-  async getSIWFConfig(): Promise<WalletLoginConfigResponseDto> {
-    this.logger.debug('Received request for Sign In With Frequency Configuration');
-    return this.accountsService.getSIWFConfig();
-  }
 
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
@@ -75,18 +52,6 @@ export class AccountsControllerV1 {
       if (account) return account;
     }
     throw new NotFoundException(`Failed to find the account ${accountId}`);
-  }
-
-  @Post('siwf')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Request to Sign In With Frequency' })
-  @ApiCreatedResponse({ description: 'Signed in successfully', type: WalletLoginResponseDto })
-  async postSignInWithFrequency(@Body() walletLoginRequest: WalletLoginRequestDto): Promise<WalletLoginResponseDto> {
-    if (this.config.isDeployedReadOnly && walletLoginRequest.signUp) {
-      throw new ForbiddenException('New account sign-up unavailable in read-only mode');
-    }
-    this.logger.debug(`Received Sign In With Frequency request: ${JSON.stringify(walletLoginRequest)}`);
-    return this.accountsService.signInWithFrequency(walletLoginRequest);
   }
 
   @Get('retireMsa/:accountId')

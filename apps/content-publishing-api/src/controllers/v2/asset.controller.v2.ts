@@ -45,7 +45,7 @@ export class AssetControllerV2 {
 
     busboy.on('file', (_fieldname, fileStream, fileinfo) => {
       fileIndex += 1;
-      this.logger.trace(`on file event: ${fileinfo.filename} is truncated: ${fileStream.truncated}`);
+      this.logger.trace(`on file event: ${fileinfo.filename} (${fileinfo.mimeType}) is truncated: ${fileStream.truncated}`);
       fileStream.on('end', () => {
         this.logger.trace(`Finished writing ${fileinfo.filename}`);
       });

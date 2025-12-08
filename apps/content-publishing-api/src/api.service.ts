@@ -267,10 +267,10 @@ export class ApiService {
     };
   }
 
-  public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string): Promise<IFileResponse> {
+  public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string, allowedMimeTypes = VALID_UPLOAD_MIME_TYPES_REGEX): Promise<IFileResponse> {
     this.logger.debug(`Processing file: ${filename} (${mimetype})`);
 
-    if (!VALID_UPLOAD_MIME_TYPES_REGEX.test(mimetype)) {
+    if (!allowedMimeTypes.test(mimetype)) {
       this.logger.warn(`Skipping file: ${filename} due to unsupported file type (${mimetype}).`);
       stream.resume();  // Make sure we consume the entire file stream so the rest of the request can be processed
       return { error: `Unsupported file type (${mimetype})` };

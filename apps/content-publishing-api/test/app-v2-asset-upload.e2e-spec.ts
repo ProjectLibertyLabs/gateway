@@ -31,7 +31,6 @@ import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { base32 } from 'multiformats/bases/base32';
-import { hexToU8a } from '@polkadot/util';
 
 let aliceKeys: KeyringPair;
 
@@ -121,10 +120,26 @@ describe('Content Publishing E2E Endpoint Verification', () => {
         .expect((res) => expect(res.body.message).toMatch(/Validation failed.*current file type is.*expected type is/));
     });
 
-    it('valid request with legal assets should work!', async () => {
+    it.each([
+      { mimeType: 'image/jpeg' },
+      { mimeType: 'image/png' },
+      { mimeType: 'image/gif' },
+      { mimeType: 'image/webp' },
+      { mimeType: 'image/svg+xml' },
+      { mimeType: 'video/mpeg' },
+      { mimeType: 'video/ogg' },
+      { mimeType: 'video/webm' },
+      { mimeType: 'video/H265' },
+      { mimeType: 'video/mp4' },
+      { mimeType: 'audio/mpeg' },
+      { mimeType: 'audio/ogg' },
+      { mimeType: 'audio/webm' },
+      { mimeType: 'application/vnd.apache.parquet' },
+      { mimeType: 'application/x-parquet' },
+    ])('valid request with legal assets ($mimeType) should work!', async ({ mimeType }) => {
       await request(app.getHttpServer())
         .put(`/v1/asset/upload`)
-        .attach('files', randomFile30K, 'file1.jpg')
+        .attach('files', randomFile30K, { filename: 'file', contentType: mimeType })
         .expect(202)
         .expect((res) => expect(res.body.assetIds.length).toBe(1));
     });
@@ -154,10 +169,26 @@ describe('Content Publishing E2E Endpoint Verification', () => {
         .expect((res) => expect(res.body.files[0].error).toMatch(/Unsupported file type/));
     });
 
-    it('valid request with legal assets should work!', async () => {
+    it.each([
+      { mimeType: 'image/jpeg' },
+      { mimeType: 'image/png' },
+      { mimeType: 'image/gif' },
+      { mimeType: 'image/webp' },
+      { mimeType: 'image/svg+xml' },
+      { mimeType: 'video/mpeg' },
+      { mimeType: 'video/ogg' },
+      { mimeType: 'video/webm' },
+      { mimeType: 'video/H265' },
+      { mimeType: 'video/mp4' },
+      { mimeType: 'audio/mpeg' },
+      { mimeType: 'audio/ogg' },
+      { mimeType: 'audio/webm' },
+      { mimeType: 'application/vnd.apache.parquet' },
+      { mimeType: 'application/x-parquet' },
+    ])('valid request with legal assets ($mimeType) should work!', async ({ mimeType }) => {
       await request(app.getHttpServer())
         .post(`/v2/asset/upload`)
-        .attach('files', randomFile30K, 'file1.jpg')
+        .attach('files', randomFile30K, { filename: 'file', contentType: mimeType })
         .expect(202)
         .expect((res) => expect(res.body.files[0].cid).toBeTruthy());
     });
@@ -614,6 +645,20 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           cid: cidV0,
           message: /should be a valid CIDv1/,
         },
+        // TODO: non-existent asset should fail
+        // {
+        //   description: 'non-existent asset',
+        //   schemaId: () => ipfsSchemaId,
+        //   cid: uploadedBatchRefId,
+        //   message: /asset not found/,
+        // },
+        // TODO: unsupported MIME type for batches should be rejected
+        // {
+        //   description: 'asset with unsupported MIME type for batches',
+        //   schemaId: () => ipfsSchemaId,
+        //   cid: cidV1,
+        //   message: /unsupported MIME type/,
+        // },
       ])('$description should fail', async ({ schemaId, cid, message }) => {
         return request(app.getHttpServer())
           .post('/v2/content/batchAnnouncement')
@@ -693,6 +738,87 @@ describe('Content Publishing E2E Endpoint Verification', () => {
   });
 
   describe('V3 Content', () => {
-    it.todo('/v2/content/batchAnnouncement');
+    it('no files in request should fail', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .expect(400)
+        .expect((res) => expect(res.body).toMatchObject({ message: 'No files provided in the request' }));
+    });
+    // TODO:
+    it.skip('endpoint should only accept max number of allowed files', async () => {
+      let req = request(app.getHttpServer()).post('/v3/content/batchAnnouncement');
+      for (const i of Array(11).keys()) {
+        req = req.attach('files', randomFile30K, `file${i}.jpg`);
+        req = req.field('schemaId', 1);
+      }
+      await req
+        .expect(202)
+        .expect((res) => expect(res.body.files.length).toBe(11))
+        .expect((res) => expect(res.body.files[10].error).toMatch(/Max file upload count per request exceeded/));
+    });
+    it('file with MIME type not in whitelist should be rejected', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, 'file.jpg')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .field('schemaId', 1)
+        .field('schemaId', 1)
+        .expect(207)
+        .expect((res) => expect(res.body.files[0].error).toMatch(/Unsupported file type/));
+    });
+    // TODO: endpoint should validate schemaId
+    it.skip.each([
+      {
+        description: 'non-numeric schemaId',
+        schemaId: 'not a number',
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'negative schemaId string',
+        schemaId: '-1',
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'schemaId too large',
+        schemaId: 65536,
+        message: /schemaId should not exceed 65535/,
+      },
+    ])('$description should fail', async ({ schemaId }) => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .field('schemaId', schemaId)
+        .expect(202)
+        .expect((res) => expect(res.body.message).toMatch(/schemaId should be a positive integer/));
+    });
+    // TODO: App throws inside callback instead of returning correct error in body
+    it.skip('file missing schemaId should fail', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .expect(202)
+        .expect((res) => expect(res.body.files[0].error).toMatch(/Missing schemaId in request body/));
+    });
+
+    it('valid batch file announcement should succeed', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/x-parquet' })
+        .field('schemaId', 1)
+        .field('schemaId', 1)
+        .expect(202)
+        .expect((res) => expect(res.body.files.length).toBe(2))
+        .expect((res) =>
+          expect(res.body.files).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                referenceId: expect.any(String),
+                cid: expect.any(String),
+              }),
+            ]),
+          ),
+        );
+    });
   });
 });

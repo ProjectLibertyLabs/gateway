@@ -61,7 +61,7 @@ export const DSNP_VALID_IMAGE_MIME_TYPES_REGEX = /^image\/(jpeg|png|svg\+xml|web
  * MIME types accepted for asset upload (extended set - includes DSNP asset types + parquet for batch files)
  */
 export const VALID_UPLOAD_MIME_TYPES_REGEX =
-  /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/H256|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm|application\/vnd.apache.parquet|application\/x-parquet)$/;
+  /(image\/jpeg|image\/png|image\/svg\+xml|image\/webp|image\/gif|video\/mpeg|video\/ogg|video\/webm|video\/[Hh]265|video\/mp4|audio\/mpeg|audio\/ogg|audio\/webm|application\/vnd.apache.parquet|application\/x-parquet)$/;
 
 /**
  * MIME types accepted for batch files

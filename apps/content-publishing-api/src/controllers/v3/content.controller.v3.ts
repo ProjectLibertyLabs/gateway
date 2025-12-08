@@ -18,6 +18,7 @@ import { ApiService } from '../../api.service';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
 import { IBatchAnnouncement, IFileResponse, ISuccessfulUpload } from '#types/interfaces/content-publishing';
+import { VALID_BATCH_MIME_TYPES_REGEX } from '#validation';
 
 @Controller({ version: '3', path: 'content' })
 @ApiTags('v3/content')
@@ -108,7 +109,7 @@ export class ContentControllerV3 {
 
       // Upload file to IPFS
       fileProcessingPromises.push(
-        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType),
+        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType, VALID_BATCH_MIME_TYPES_REGEX),
       );
     });
 
@@ -119,7 +120,7 @@ export class ContentControllerV3 {
         if (fileIndex === 0) {
           throw new BadRequestException('No files provided in the request');
         }
-        if (schemaIds.length !== fileProcessingPromises.length) {
+        if (schemaIds.length !== fileIndex) {
           throw new BadRequestException('Number of schema IDs does not match number of files');
         }
 

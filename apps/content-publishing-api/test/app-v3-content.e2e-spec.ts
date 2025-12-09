@@ -172,9 +172,6 @@ describe('AppController E2E request verification', () => {
     }, 30000);
 
     it('should handle mixed success and failure scenarios', async () => {
-      // Mock the ApiService to simulate failure for files with specific content
-      const apiService = app.get(ApiService);
-
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
         .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })

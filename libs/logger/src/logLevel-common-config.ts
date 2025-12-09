@@ -11,18 +11,22 @@ export function getCurrentLogLevel(): string {
   return level;
 }
 
+function getPrettyOptions() {
+  return {
+    colorize: isColorSupported,
+    colorizeObjects: isColorSupported,
+    translateTime: 'SYS:standard',
+    ignore: 'hostname,context,levelStr',
+    messageFormat: `[{context}] {msg}`,
+    singleLine: process.env?.PRETTY === 'compact',
+  }
+}
+
 export function getPinoTransport() {
-  if (/^true|compact/.test(process.env?.PRETTY)) {
+  if (/^true|compact/.test(process.env?.PRETTY) && process.env.NODE_ENV !== 'test') {
     return {
       target: 'pino-pretty',
-      options: {
-        colorize: isColorSupported,
-        colorizeObjects: isColorSupported,
-        translateTime: 'SYS:standard',
-        ignore: 'hostname,context,levelStr',
-        messageFormat: `[{context}] {msg}`,
-        singleLine: process.env?.PRETTY === 'compact',
-      },
+      options: getPrettyOptions(),
     };
   }
   return undefined;
@@ -42,10 +46,14 @@ const customLogLevel = (req, res, err) => {
   return 'info';
 };
 
+function getLogsEnabled(): boolean {
+  return process.env.NODE_ENV !== 'test' || process.env.ENABLE_LOGS_IN_TESTS === 'true';
+}
+
 export function getPinoHttpOptions() {
   return {
     pinoHttp: {
-      enabled: process.env.NODE_ENV !== 'test',
+      enabled: getLogsEnabled(),
       customLogLevel,
       level: getCurrentLogLevel(),
       customProps: () => ({
@@ -54,11 +62,12 @@ export function getPinoHttpOptions() {
       formatters: {
         level: (label, number) => ({ level: number, levelStr: label }),
       },
-      quietReqLogger: true, // set to 'false' to enable full HTTP req/resp logging
+      quietReqLogger: process.env.VERBOSE_HTTP_LOGS !== 'true', // set env var to enable full HTTP req/resp logging
       redact: {
         paths: ['ip', '*.ip', 'ipAddress'],
       },
       transport: getPinoTransport(),
+      stream: process.env.NODE_ENV === 'test' ? require('pino-pretty')({ ...getPrettyOptions(), sync: true }) : undefined,
     },
   };
 }

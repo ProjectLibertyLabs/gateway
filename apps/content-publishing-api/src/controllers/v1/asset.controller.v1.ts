@@ -1,5 +1,5 @@
 import { FilesUploadDto, UploadResponseDto } from '#types/dtos/content-publishing';
-import { DSNP_VALID_MIME_TYPES_EXTENDED as DSNP_VALID_MIME_TYPES } from '#validation';
+import { VALID_UPLOAD_MIME_TYPES_REGEX } from '#validation';
 import {
   Controller,
   HttpCode,
@@ -39,7 +39,7 @@ export class AssetControllerV1 {
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: DSNP_VALID_MIME_TYPES,
+          fileType: VALID_UPLOAD_MIME_TYPES_REGEX,
           // @nestjs/common@10.4.16 added the 'file-type' package, which is imported dynamically as an ESM module.
           // This import breaks under Jest, so we skip it in test mode
           skipMagicNumbersValidation: process.env.NODE_ENV === 'test',

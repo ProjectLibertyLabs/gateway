@@ -18,7 +18,12 @@ export function IsIntValue(validationOptions?: IsIntValueValidationOption) {
           const re = /^[+-]?[0-9]+$/;
 
           if ((typeof value === 'string' && re.test(value)) || typeof value === 'number') {
-            const numberValue = BigInt(value);
+            let numberValue: bigint;
+            try {
+              numberValue = BigInt(value);
+            } catch (_error) {
+              return false;
+            }
 
             let result = true;
             if (validationOptions.minValue !== undefined) {

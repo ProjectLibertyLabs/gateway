@@ -2,7 +2,7 @@
  * File name should always end with `.dto.ts` for swagger metadata generator to get picked up
  */
 // eslint-disable-next-line max-classes-per-file
-import { IsArray, IsEnum, IsNotEmpty, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsString, Matches, MinLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { NoteActivityDto, ProfileActivityDto } from './activity.dto';
 import { DSNP_EMOJI_REGEX } from '#validation';
@@ -109,6 +109,7 @@ export class ReactionDto implements IReaction {
    * Indicates whether the emoji should be applied and if so, at what strength
    * @example 1
    */
+  @IsNumber()
   @IsIntValue({ minValue: 0, maxValue: 255 })
   apply: number;
 

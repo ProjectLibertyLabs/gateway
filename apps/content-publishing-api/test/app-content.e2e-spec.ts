@@ -4,65 +4,84 @@ import request from 'supertest';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomBytes } from 'crypto';
 import { ApiModule } from '../src/api.module';
-import { HealthCheckModule } from '#health-check/health-check.module';
 import {
-  validOnChainContent,
-  validReaction,
   assetMetaDataInvalidMimeType,
-  validTombstone,
+  AVRO_SCHEMA,
   generateBroadcast,
+  generateProfile,
   generateReply,
   generateUpdate,
-  generateProfile,
-  AVRO_SCHEMA,
+  randomFile30K,
+  sleep,
+  validBroadCastNoUploadedAssets,
+  validContentWithNoAssets,
+  validLocation,
+  validOnChainContent,
+  validProfileNoUploadedAssets,
+  validReaction,
+  validReplyNoUploadedAssets,
+  validTombstone,
+  validUpdateNoUploadedAssets,
 } from './mockRequestData';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { Logger, PinoLogger } from 'nestjs-pino';
+import {
+  CONFIGURED_QUEUE_NAMES_PROVIDER,
+  CONFIGURED_QUEUE_PREFIX_PROVIDER,
+  ContentPublisherRedisConstants,
+  ContentPublishingQueues as QueueConstants,
+} from '#types/constants';
 import Redis from 'ioredis';
 import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
-import { Logger, PinoLogger } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
-import { ContentPublisherRedisConstants } from '#types/constants';
+import { TagTypeEnum } from '#types/enums';
 import getAssetMetadataKey = ContentPublisherRedisConstants.getAssetMetadataKey;
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { ApiPromise } from '@polkadot/api';
-import Keyring from '@polkadot/keyring';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { KeyringPair } from '@polkadot/keyring/types';
 import { base32 } from 'multiformats/bases/base32';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import Keyring from '@polkadot/keyring';
+import { ApiPromise } from '@polkadot/api';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { getPinoHttpOptions } from '#logger-lib';
 
 let aliceKeys: KeyringPair;
 
-const randomString = (length: number, _unused) =>
+const randomString = (length: number) =>
   randomBytes(Math.ceil(length / 2))
     .toString('hex')
     .slice(0, length);
 
-validOnChainContent.payload = randomString(1024, null);
-
-const sleep = (ms: number) =>
-  new Promise((r) => {
-    setTimeout(r, ms);
-  });
-
 const msaId = '123';
 
-describe('Content Publishing E2E Endpoint Verification', () => {
+validOnChainContent.payload = randomString(1024);
+
+describe('Content Publishing /content Controller E2E Tests', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let redis: Redis;
-  let blockchainService: BlockchainRpcQueryService;
   let api: ApiPromise;
+  let blockchainService: BlockchainRpcQueryService;
 
-  const randomFile30K = Buffer.from('h'.repeat(30 * 1024)); // 30KB
+  const missingAssetId = '9876543210';
+  const badMimeTypeReferenceId = '0123456789';
 
   beforeAll(async () => {
     await cryptoWaitReady();
     aliceKeys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
 
     module = await Test.createTestingModule({
-      imports: [ApiModule, HealthCheckModule],
+      imports: [ApiModule],
+      providers: [
+        {
+          provide: CONFIGURED_QUEUE_NAMES_PROVIDER,
+          useValue: QueueConstants.CONFIGURED_QUEUES.queues.map(({ name }) => name),
+        },
+        {
+          provide: CONFIGURED_QUEUE_PREFIX_PROVIDER,
+          useValue: 'content-publishing::bull',
+        },
+      ],
     }).compile();
 
     // To enable logging in tests, set ENABLE_LOGS_IN_TESTS=true in the environment
@@ -84,6 +103,7 @@ describe('Content Publishing E2E Endpoint Verification', () => {
     );
     app.useGlobalInterceptors(new TimeoutInterceptor(config.apiTimeoutMs));
     app.useBodyParser('json', { limit: config.apiBodyJsonLimit });
+    app.useLogger(app.get(Logger));
 
     const eventEmitter = app.get<EventEmitter2>(EventEmitter2);
     eventEmitter.on('shutdown', async () => {
@@ -92,118 +112,136 @@ describe('Content Publishing E2E Endpoint Verification', () => {
     await app.init();
 
     redis = app.get<Redis>(getRedisToken(DEFAULT_REDIS_NAMESPACE));
+
+    // Modify the asset cache with a disallowed MIME type asset
+    await redis.set(getAssetMetadataKey(badMimeTypeReferenceId), JSON.stringify(assetMetaDataInvalidMimeType));
     blockchainService = app.get(BlockchainRpcQueryService);
     api = (await blockchainService.getApi()) as ApiPromise;
   });
 
-  describe('/v1/asset/upload', () => {
-    it('upload request with no files should fail', async () => {
-      await request(app.getHttpServer())
-        .put('/v1/asset/upload')
-        .expect(422)
-        .expect((res) => expect(res.body.message).toBe('File is required'));
-    });
-
-    it('too many files in a single upload request should fail', async () => {
-      let req = request(app.getHttpServer()).put('/v1/asset/upload');
-      for (const i of Array(11).keys()) {
-        req = req.attach('files', randomFile30K, `file${i}.jpg`);
-      }
-      await req.expect(400).expect((res) => expect(res.body.message).toBe('Too many files'));
-    });
-
-    it('MIME type not in whitelist should fail', async () => {
-      await request(app.getHttpServer())
-        .put('/v1/asset/upload')
-        .attach('files', randomFile30K, 'file.bmp')
-        .expect(422)
-        .expect((res) => expect(res.body.message).toMatch(/Validation failed.*current file type is.*expected type is/));
-    });
-
-    it.each([
-      { mimeType: 'image/jpeg' },
-      { mimeType: 'image/png' },
-      { mimeType: 'image/gif' },
-      { mimeType: 'image/webp' },
-      { mimeType: 'image/svg+xml' },
-      { mimeType: 'video/mpeg' },
-      { mimeType: 'video/ogg' },
-      { mimeType: 'video/webm' },
-      { mimeType: 'video/H265' },
-      { mimeType: 'video/mp4' },
-      { mimeType: 'audio/mpeg' },
-      { mimeType: 'audio/ogg' },
-      { mimeType: 'audio/webm' },
-      { mimeType: 'application/vnd.apache.parquet' },
-      { mimeType: 'application/x-parquet' },
-    ])('valid request with legal assets ($mimeType) should work!', async ({ mimeType }) => {
-      await request(app.getHttpServer())
-        .put(`/v1/asset/upload`)
-        .attach('files', randomFile30K, { filename: 'file', contentType: mimeType })
-        .expect(202)
-        .expect((res) => expect(res.body.assetIds.length).toBe(1));
-    });
+  afterAll(async () => {
+    try {
+      await app.close();
+    } catch (err) {
+      console.error(err);
+    }
   });
 
-  describe('/v2/asset/upload', () => {
-    it('upload request with no files should fail', async () => {
-      await request(app.getHttpServer()).post('/v2/asset/upload').expect(500);
+  describe('/v1/content and /v1/profile', () => {
+    describe('invalid route parameters', () => {
+      it.each([
+        {
+          description: 'invalid MSA Id',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          badMsaId: 'invalid-msa-id',
+          payload: generateBroadcast([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'invalid MSA Id',
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+          badMsaId: 'invalid-msa-id',
+          payload: generateReply([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'invalid MSA Id',
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+          badMsaId: 'invalid-msa-id',
+          payload: generateUpdate([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'invalid MSA Id',
+          endpoint: '/v1/profile/:msaId',
+          operation: 'PUT',
+          badMsaId: 'invalid-msa-id',
+          payload: generateProfile([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'negative MSA Id',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          badMsaId: '-1',
+          payload: generateBroadcast([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'negative MSA Id',
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+          badMsaId: '-1',
+          payload: generateReply([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'negative MSA Id',
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+          badMsaId: '-1',
+          payload: generateUpdate([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'negative MSA Id',
+          endpoint: '/v1/profile/:msaId',
+          operation: 'PUT',
+          badMsaId: '-1',
+          payload: generateProfile([]),
+          message: /msaId should be a valid positive number/,
+        },
+
+        {
+          description: 'MSA Id too large',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          badMsaId: BigInt(2 ** 64).toString(),
+          payload: generateBroadcast([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'MSA Id too large',
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+          badMsaId: BigInt(2 ** 64).toString(),
+          payload: generateReply([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'MSA Id too large',
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+          badMsaId: BigInt(2 ** 64).toString(),
+          payload: generateUpdate([]),
+          message: /msaId should be a valid positive number/,
+        },
+        {
+          description: 'MSA Id too large',
+          endpoint: '/v1/profile/:msaId',
+          operation: 'PUT',
+          badMsaId: BigInt(2 ** 64).toString(),
+          payload: generateProfile([]),
+          message: /msaId should be a valid positive number/,
+        },
+      ])(
+        'invalid route parameter ($description) should fail ($operation $endpoint)',
+        async ({ endpoint, operation, badMsaId, payload, message }) => {
+          await request(app.getHttpServer())
+            [operation.toLowerCase()](endpoint.replace(':msaId', badMsaId))
+            .send(payload)
+            .expect(400)
+            .expect((res) =>
+              expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])),
+            );
+        },
+      );
     });
 
-    it('endpoint should only accept max number of allowed files', async () => {
-      let req = request(app.getHttpServer()).post('/v2/asset/upload');
-      for (const i of Array(11).keys()) {
-        req = req.attach('files', randomFile30K, `file${i}.jpg`);
-      }
-      await req
-        .expect(202)
-        .expect((res) => expect(res.body.files.length).toBe(11))
-        .expect((res) => expect(res.body.files[10].error).toMatch(/Max file/));
-    });
-
-    it('MIME type not in whitelist should fail', async () => {
-      await request(app.getHttpServer())
-        .post('/v2/asset/upload')
-        .attach('files', randomFile30K, 'file.bmp')
-        .expect(202)
-        .expect((res) => expect(res.body.files[0].error).toMatch(/Unsupported file type/));
-    });
-
-    it.each([
-      { mimeType: 'image/jpeg' },
-      { mimeType: 'image/png' },
-      { mimeType: 'image/gif' },
-      { mimeType: 'image/webp' },
-      { mimeType: 'image/svg+xml' },
-      { mimeType: 'video/mpeg' },
-      { mimeType: 'video/ogg' },
-      { mimeType: 'video/webm' },
-      { mimeType: 'video/H265' },
-      { mimeType: 'video/mp4' },
-      { mimeType: 'audio/mpeg' },
-      { mimeType: 'audio/ogg' },
-      { mimeType: 'audio/webm' },
-      { mimeType: 'application/vnd.apache.parquet' },
-      { mimeType: 'application/x-parquet' },
-    ])('valid request with legal assets ($mimeType) should work!', async ({ mimeType }) => {
-      await request(app.getHttpServer())
-        .post(`/v2/asset/upload`)
-        .attach('files', randomFile30K, { filename: 'file', contentType: mimeType })
-        .expect(202)
-        .expect((res) => expect(res.body.files[0].cid).toBeTruthy());
-    });
-  });
-
-  describe('V1 Content and Profile', () => {
-    const missingAssetId = '9876543210';
-    const badMimeTypeReferenceId = '0123456789';
-
-    beforeAll(async () => {
-      // Modify the asset cache with a disallowed MIME type asset
-      await redis.set(getAssetMetadataKey(badMimeTypeReferenceId), JSON.stringify(assetMetaDataInvalidMimeType));
-    });
-
-    describe('announcements with missing assets', () => {
+    describe('announcements with non-existent assets', () => {
       it.each([
         {
           endpoint: '/v1/content/:msaId/broadcast',
@@ -225,18 +263,21 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           operation: 'PUT',
           payload: generateProfile([missingAssetId]),
         },
-      ])('$operation $endpoint should fail with missing asset reference', async ({ endpoint, operation, payload }) => {
-        const resolvedEndpoint = endpoint.replace(':msaId', msaId);
-        return request(app.getHttpServer())
-          [operation.toLowerCase()](resolvedEndpoint)
-          .send(payload)
-          .expect(400)
-          .expect((res) =>
-            expect(res.body.message).toEqual(
-              expect.arrayContaining([expect.stringMatching(/referenceId.*does not exist/)]),
-            ),
-          );
-      });
+      ])(
+        '$operation $endpoint should fail with non-existent asset reference',
+        async ({ endpoint, operation, payload }) => {
+          const resolvedEndpoint = endpoint.replace(':msaId', msaId);
+          return request(app.getHttpServer())
+            [operation.toLowerCase()](resolvedEndpoint)
+            .send(payload)
+            .expect(400)
+            .expect((res) =>
+              expect(res.body.message).toEqual(
+                expect.arrayContaining([expect.stringMatching(/referenceId.*does not exist/)]),
+              ),
+            );
+        },
+      );
     });
 
     describe('announcements with invalid MIME type reference', () => {
@@ -325,9 +366,9 @@ describe('Content Publishing E2E Endpoint Verification', () => {
     describe('announcements with valid uploaded asset', () => {
       let uploadedAssetIds: any[];
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         const response = await request(app.getHttpServer())
-          .put('/v1/asset/upload')
+          .post('/v2/asset/upload')
           .attach('files', randomFile30K, 'file1.jpg')
           .expect(202);
         uploadedAssetIds = response.body.assetIds;
@@ -372,6 +413,418 @@ describe('Content Publishing E2E Endpoint Verification', () => {
         },
         15000,
       );
+    });
+
+    describe('announcements with empty body', () => {
+      it.each([
+        {
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+        },
+        {
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+        },
+        {
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+        },
+        {
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+        },
+        {
+          endpoint: '/v1/content/:msaId',
+          operation: 'DELETE',
+        },
+      ])('$operation $endpoint should fail with empty body', async ({ endpoint, operation }) => {
+        await request(app.getHttpServer())
+          [operation.toLowerCase()](endpoint.replace(':msaId', msaId))
+          .send({})
+          .expect(400);
+      });
+    });
+
+    describe('announcements with invalid payloads', () => {
+      it.each([
+        {
+          description: 'missing content',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            ...generateBroadcast(),
+            content: undefined,
+          },
+          message: /content should not be empty/,
+        },
+        {
+          description: 'empty content',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            ...generateBroadcast(),
+            content: {
+              published: new Date().toISOString(),
+            },
+          },
+          message: /content\.content must be a string/,
+        },
+        {
+          description: 'invalid content',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            ...generateBroadcast(),
+            content: {
+              ...validContentWithNoAssets,
+              content: '',
+            },
+          },
+          message: /content\.content must be longer/,
+        },
+        {
+          description: 'missing published date',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              content: 'tests content',
+            },
+          },
+          message: /content.published must be a valid ISO 8601 date string/,
+        },
+        {
+          description: 'invalid published date',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              published: 'invalid-date',
+            },
+          },
+          message: /content.published must be a valid ISO 8601 date string/,
+        },
+        {
+          description: 'non-link asset with missing references',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              assets: [{ isLink: false }],
+            },
+          },
+          message: /references must be an array/,
+        },
+        {
+          description: 'non-link asset with empty references',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              assets: [{ isLink: false, references: [] }],
+            },
+          },
+          message: /references should not be empty/,
+        },
+        {
+          description: 'asset with non-unique references',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              assets: [
+                {
+                  isLink: false,
+                  references: [{ referenceId: 'reference-id-1' }, { referenceId: 'reference-id-1' }],
+                },
+              ],
+            },
+          },
+          message: /elements must be unique/,
+        },
+        {
+          description: 'link asset without href',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              assets: [
+                {
+                  isLink: true,
+                },
+              ],
+            },
+          },
+          message: /href must be longer than/,
+        },
+        {
+          description: 'link asset invalid href protocol',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              assets: [
+                {
+                  isLink: true,
+                  href: 'ftp://sgdjas8912yejc.com',
+                },
+              ],
+            },
+          },
+          message: /href must be a URL address/,
+        },
+        {
+          description: 'hashtag without name',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              tag: [
+                {
+                  type: TagTypeEnum.Hashtag,
+                },
+              ],
+            },
+          },
+          message: /tag\..*\.name must be longer than or equal to 1 character/,
+        },
+        {
+          description: 'mention without mentionedId',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              tag: [
+                {
+                  type: TagTypeEnum.Mention,
+                },
+              ],
+            },
+          },
+          message: /Invalid DSNP User URI/,
+        },
+        {
+          description: 'invalid tag type',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              tag: [
+                {
+                  type: 'invalid',
+                },
+              ],
+            },
+          },
+          message: /type must be one of the following values:/,
+        },
+        {
+          description: 'location with invalid units',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              ...validContentWithNoAssets,
+              location: {
+                ...validLocation,
+                units: 'invalid',
+              },
+            },
+          },
+          message: /location\.units must be one of the following values:/,
+        },
+        {
+          description: 'location with empty name',
+          endpoint: '/v1/content/:msaId/broadcast',
+          operation: 'POST',
+          payload: {
+            content: {
+              content: 'tests content',
+              published: new Date().toISOString(),
+              location: {
+                ...validLocation,
+                name: '',
+              },
+            },
+          },
+          message: /location\.name must be longer than or equal to 1 characters/,
+        },
+        {
+          description: 'missing inReplyTo',
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+          payload: {
+            ...validBroadCastNoUploadedAssets,
+          },
+          message: /inReplyTo should be a valid DsnpContentURI/,
+        },
+        {
+          description: 'invalid inReplyTo',
+          endpoint: '/v1/content/:msaId/reply',
+          operation: 'POST',
+          payload: {
+            ...validReplyNoUploadedAssets,
+            inReplyTo: 'shgdjas72gsjajasa',
+          },
+          message: /inReplyTo should be a valid DsnpContentURI/,
+        },
+        {
+          description: 'invalid emoji',
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+          payload: {
+            ...validReaction,
+            emoji: '2',
+          },
+          message: /emoji must match .* regular expression/,
+        },
+        {
+          description: 'non-numeric apply strength',
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+          payload: {
+            ...validReaction,
+            apply: 'invalid',
+          },
+          message: /apply should be a number between 0 and 255/,
+        },
+        {
+          description: 'negative apply strength',
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+          payload: {
+            ...validReaction,
+            apply: -1,
+          },
+          message: /apply should be a number between 0 and 255/,
+        },
+        {
+          description: 'apply strength > 255',
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+          payload: {
+            ...validReaction,
+            apply: 256,
+          },
+          message: /apply should be a number between 0 and 255/,
+        },
+        {
+          description: 'apply strength > 255',
+          endpoint: '/v1/content/:msaId/reaction',
+          operation: 'POST',
+          payload: {
+            ...validReaction,
+            inReplyTo: 'shgdjas72gsjajasa',
+          },
+          message: /inReplyTo should be a valid DsnpContentURI/,
+        },
+        {
+          description: 'invalid targetAnnouncementType',
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+          payload: {
+            ...validUpdateNoUploadedAssets,
+            targetAnnouncementType: 'invalid',
+          },
+          message: /targetAnnouncementType must be one of the following values/,
+        },
+        {
+          description: 'invalid targetAnnouncementType',
+          endpoint: '/v1/content/:msaId',
+          operation: 'PUT',
+          payload: {
+            ...validUpdateNoUploadedAssets,
+            targetContentHash: 'invalid',
+          },
+          message: /targetContentHash should be a valid DsnpContentHash/,
+        },
+        {
+          description: 'invalid targetAnnouncementType',
+          endpoint: '/v1/content/:msaId',
+          operation: 'DELETE',
+          payload: {
+            ...validTombstone,
+            targetAnnouncementType: 'invalid',
+          },
+          message: /targetAnnouncementType must be one of the following values/,
+        },
+        {
+          description: 'invalid targetAnnouncementType',
+          endpoint: '/v1/content/:msaId',
+          operation: 'DELETE',
+          payload: {
+            ...validTombstone,
+            targetContentHash: 'invalid',
+          },
+          message: /targetContentHash should be a valid DsnpContentHash/,
+        },
+        {
+          description: 'invalid published date',
+          endpoint: '/v1/profile/:msaId',
+          operation: 'PUT',
+          payload: {
+            profile: {
+              ...validProfileNoUploadedAssets,
+              published: 'invalid-date',
+            },
+          },
+          message: /profile.published must be a valid ISO 8601 date string/,
+        },
+        {
+          description: 'non-unique asset references',
+          endpoint: '/v1/profile/:msaId',
+          operation: 'PUT',
+          payload: {
+            profile: {
+              ...validProfileNoUploadedAssets,
+              icon: [
+                {
+                  referenceId: 'reference-id-1',
+                },
+                {
+                  referenceId: 'reference-id-1',
+                },
+              ],
+            },
+          },
+          message: /icon's elements must be unique/,
+        },
+      ])('$operation $endpoint should fail with $description', async ({ endpoint, operation, payload, message }) => {
+        await request(app.getHttpServer())
+          [operation.toLowerCase()](endpoint.replace(':msaId', msaId))
+          .send(payload)
+          .expect(400)
+          .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])));
+      });
+    });
+
+    describe('(PUT) /v1/profile/:userDsnpId', () => {
+      it('non unique reference ids should fail', () =>
+        request(app.getHttpServer())
+          .put(`/v1/profile/123`)
+          .send({
+            profile: {
+              icon: [
+                {
+                  referenceId: 'reference-id-1',
+                },
+                {
+                  referenceId: 'reference-id-1',
+                },
+              ],
+            },
+          })
+          .expect(400)
+          .expect((res) => expect(res.text).toContain('elements must be unique')));
     });
   });
 
@@ -586,7 +1039,7 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           .send({
             schemaId: onChainSchemaId,
             published: new Date().toISOString(),
-            payload: `0x${goodPayload}`,
+            payload: goodPayload,
           })
           .expect(202);
       });
@@ -734,91 +1187,6 @@ describe('Content Publishing E2E Endpoint Verification', () => {
           .expect(202)
           .expect((res) => expect(res.body).toEqual(expect.objectContaining({ referenceId: expect.any(String) })));
       });
-    });
-  });
-
-  describe('V3 Content', () => {
-    it('no files in request should fail', async () => {
-      await request(app.getHttpServer())
-        .post('/v3/content/batchAnnouncement')
-        .expect(400)
-        .expect((res) => expect(res.body).toMatchObject({ message: 'No files provided in the request' }));
-    });
-    // TODO:
-    it.skip('endpoint should only accept max number of allowed files', async () => {
-      let req = request(app.getHttpServer()).post('/v3/content/batchAnnouncement');
-      for (const i of Array(11).keys()) {
-        req = req.attach('files', randomFile30K, `file${i}.jpg`);
-        req = req.field('schemaId', 1);
-      }
-      await req
-        .expect(202)
-        .expect((res) => expect(res.body.files.length).toBe(11))
-        .expect((res) => expect(res.body.files[10].error).toMatch(/Max file upload count per request exceeded/));
-    });
-    it('file with MIME type not in whitelist should be rejected', async () => {
-      await request(app.getHttpServer())
-        .post('/v3/content/batchAnnouncement')
-        .attach('files', randomFile30K, 'file.jpg')
-        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
-        .field('schemaId', 1)
-        .field('schemaId', 1)
-        .expect(207)
-        .expect((res) => expect(res.body.files[0].error).toMatch(/Unsupported file type/));
-    });
-    // TODO: endpoint should validate schemaId
-    it.skip.each([
-      {
-        description: 'non-numeric schemaId',
-        schemaId: 'not a number',
-        message: /schemaId should be a positive integer/,
-      },
-      {
-        description: 'negative schemaId string',
-        schemaId: '-1',
-        message: /schemaId should be a positive integer/,
-      },
-      {
-        description: 'schemaId too large',
-        schemaId: 65536,
-        message: /schemaId should not exceed 65535/,
-      },
-    ])('$description should fail', async ({ schemaId }) => {
-      await request(app.getHttpServer())
-        .post('/v3/content/batchAnnouncement')
-        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
-        .field('schemaId', schemaId)
-        .expect(202)
-        .expect((res) => expect(res.body.message).toMatch(/schemaId should be a positive integer/));
-    });
-    // TODO: App throws inside callback instead of returning correct error in body
-    it.skip('file missing schemaId should fail', async () => {
-      await request(app.getHttpServer())
-        .post('/v3/content/batchAnnouncement')
-        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
-        .expect(202)
-        .expect((res) => expect(res.body.files[0].error).toMatch(/Missing schemaId in request body/));
-    });
-
-    it('valid batch file announcement should succeed', async () => {
-      await request(app.getHttpServer())
-        .post('/v3/content/batchAnnouncement')
-        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
-        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/x-parquet' })
-        .field('schemaId', 1)
-        .field('schemaId', 1)
-        .expect(202)
-        .expect((res) => expect(res.body.files.length).toBe(2))
-        .expect((res) =>
-          expect(res.body.files).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({
-                referenceId: expect.any(String),
-                cid: expect.any(String),
-              }),
-            ]),
-          ),
-        );
     });
   });
 });

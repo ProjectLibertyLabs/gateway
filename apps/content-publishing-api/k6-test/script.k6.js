@@ -14,7 +14,7 @@ import http from 'k6/http';
 import { check, group } from 'k6';
 
 import {
-  validContentNoUploadedAssets,
+  validContentWithHrefAsset,
   validProfileNoUploadedAssets,
   validReaction,
   validReplyNoUploadedAssets,
@@ -47,7 +47,7 @@ export default function () {
       const body = {
         targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
         targetAnnouncementType: 'broadcast',
-        content: validContentNoUploadedAssets,
+        content: validContentWithHrefAsset,
       };
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.put(url, JSON.stringify(body), params);
@@ -145,7 +145,7 @@ export default function () {
     {
       let url = BASE_URL + `/v1/content/${msaId}/broadcast`;
       const body = {
-        content: validContentNoUploadedAssets,
+        content: validContentWithHrefAsset,
       };
       let params = { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } };
       let request = http.post(url, JSON.stringify(body), params);

@@ -13,6 +13,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { Logger } from 'nestjs-pino';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { randomFile30K } from './mockRequestData';
 
 describe('AppController E2E request verification', () => {
   let app: NestExpressApplication;
@@ -74,30 +75,88 @@ describe('AppController E2E request verification', () => {
         .expect((res) => expect(res.text).toContain('No files provided'));
     }, 30000);
 
-    it('should accept valid files with matching schema IDs', async () => {
-      const imageContent = Buffer.from('fake image content');
+    // TODO:
+    it.skip('endpoint should only accept max number of allowed files', async () => {
+      let req = request(app.getHttpServer()).post('/v3/content/batchAnnouncement');
+      for (const i of Array(11).keys()) {
+        req = req.attach('files', randomFile30K, `file${i}.jpg`);
+        req = req.field('schemaId', 1);
+      }
+      await req
+        .expect(202)
+        .expect((res) => expect(res.body.files.length).toBe(11))
+        .expect((res) => expect(res.body.files[10].error).toMatch(/Max file upload count per request exceeded/));
+    });
 
+    it('file with MIME type not in whitelist should be rejected', async () => {
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
-        .attach('files', imageContent, { filename: 'test.jpg', contentType: 'image/jpeg' })
+        .attach('files', randomFile30K, { filename: 'file.jpg', contentType: 'image/jpeg' })
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .field('schemaId', 1)
+        .field('schemaId', 1)
+        .expect(207)
+        .expect((res) => {
+          expect(res.body.files[0].error).toMatch(/Unsupported file type/);
+          expect(res.body.files[1].error).not.toBeDefined();
+        });
+    });
+
+    // TODO: endpoint should validate schemaId
+    it.skip.each([
+      {
+        description: 'non-numeric schemaId',
+        schemaId: 'not a number',
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'negative schemaId string',
+        schemaId: '-1',
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'schemaId too large',
+        schemaId: 65536,
+        message: /schemaId should not exceed 65535/,
+      },
+    ])('$description should fail', async ({ schemaId }) => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .field('schemaId', schemaId)
+        .expect(202)
+        .expect((res) => expect(res.body.message).toMatch(/schemaId should be a positive integer/));
+    });
+
+    // TODO: App throws inside callback instead of returning correct error in body
+    it.skip('file missing schemaId should fail', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .expect(202)
+        .expect((res) => expect(res.body.files[0].error).toMatch(/Missing schemaId in request body/));
+    });
+
+    it('should accept valid file with matching schema ID', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/batchAnnouncement')
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
         .field('schemaId', '12')
         .expect(202)
         .expect((res) => {
           expect(res.body).toHaveProperty('files');
           expect(Array.isArray(res.body.files)).toBe(true);
-          expect(res.body.files.length).toBeGreaterThan(0);
+          expect(res.body.files.length).toEqual(1);
           expect(res.body.files[0]).toHaveProperty('referenceId');
+          expect(res.body.files[0]).toHaveProperty('cid');
         });
     }, 30000);
 
     it('should process multiple files in a single request', async () => {
-      const file1 = Buffer.from('fake image content 1');
-      const file2 = Buffer.from('fake image content 2');
-
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
-        .attach('files', file1, { filename: 'test1.jpg', contentType: 'image/jpeg' })
-        .attach('files', file2, { filename: 'test2.png', contentType: 'image/png' })
+        .attach('files', randomFile30K, { filename: 'test1.parquet', contentType: 'application/vnd.apache.parquet' })
+        .attach('files', randomFile30K, { filename: 'test2.parquet', contentType: 'application/vnd.apache.parquet' })
         .field('schemaId', '12')
         .field('schemaId', '12')
         .expect(202)
@@ -106,7 +165,9 @@ describe('AppController E2E request verification', () => {
           expect(Array.isArray(res.body.files)).toBe(true);
           expect(res.body.files.length).toBe(2);
           expect(res.body.files[0]).toHaveProperty('referenceId');
+          expect(res.body.files[0]).toHaveProperty('cid');
           expect(res.body.files[1]).toHaveProperty('referenceId');
+          expect(res.body.files[1]).toHaveProperty('cid');
         });
     }, 30000);
 
@@ -114,32 +175,10 @@ describe('AppController E2E request verification', () => {
       // Mock the ApiService to simulate failure for files with specific content
       const apiService = app.get(ApiService);
 
-      // Mock to fail uploads for files with "fail" in the filename
-      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream, filename) => {
-        // Consume the stream to prevent hanging
-        const chunks: any[] = [];
-        // Convert async iterable to array to avoid for-await-of loop
-        const streamIterator = stream[Symbol.asyncIterator]();
-        let result = await streamIterator.next();
-        while (!result.done) {
-          chunks.push(result.value);
-          result = await streamIterator.next();
-        }
-
-        if (filename.includes('fail')) {
-          return { error: 'Simulated upload failure' };
-        }
-        // For non-failing files, return a successful response
-        return { cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi' };
-      });
-
-      const successFile = Buffer.from('fake image content success');
-      const failFile = Buffer.from('fake image content fail');
-
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
-        .attach('files', successFile, { filename: 'success.jpg', contentType: 'image/jpeg' })
-        .attach('files', failFile, { filename: 'fail.png', contentType: 'image/png' })
+        .attach('files', randomFile30K, { filename: 'file.parquet', contentType: 'application/vnd.apache.parquet' })
+        .attach('files', randomFile30K, { filename: 'file.jpg', contentType: 'image/jpeg' })
         .field('schemaId', '12')
         .field('schemaId', '12')
         .expect(207) // Multi-Status for partial success
@@ -148,14 +187,14 @@ describe('AppController E2E request verification', () => {
           expect(Array.isArray(res.body.files)).toBe(true);
           expect(res.body.files.length).toBe(2);
 
-          // First file should succeed
+          // Parquet should succeed
           expect(res.body.files[0]).toHaveProperty('referenceId');
           expect(res.body.files[0]).toHaveProperty('cid');
           expect(res.body.files[0]).not.toHaveProperty('error');
 
-          // Second file should fail
+          // jpeg should fail
           expect(res.body.files[1]).toHaveProperty('error');
-          expect(res.body.files[1].error).toBe('Simulated upload failure');
+          expect(res.body.files[1].error).toMatch('Unsupported file type');
           expect(res.body.files[1]).not.toHaveProperty('referenceId');
           expect(res.body.files[1]).not.toHaveProperty('cid');
         });
@@ -164,27 +203,11 @@ describe('AppController E2E request verification', () => {
     it('should handle batch announcement failures after successful uploads', async () => {
       // Mock the ApiService methods
       const apiService = app.get(ApiService);
-
-      // Mock successful upload but failed batch creation
-      jest.spyOn(apiService, 'uploadStreamedAsset').mockImplementation(async (stream) => {
-        // Consume the stream to prevent hanging
-        const chunks: any[] = [];
-        const streamIterator = stream[Symbol.asyncIterator]();
-        let result = await streamIterator.next();
-        while (!result.done) {
-          chunks.push(result.value);
-          result = await streamIterator.next();
-        }
-        return { cid: 'bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi' };
-      });
-
       jest.spyOn(apiService, 'enqueueBatchRequest').mockRejectedValue(new Error('Batch creation failed'));
-
-      const file = Buffer.from('fake image content');
 
       await request(app.getHttpServer())
         .post('/v3/content/batchAnnouncement')
-        .attach('files', file, { filename: 'test.jpg', contentType: 'image/jpeg' })
+        .attach('files', randomFile30K, { filename: 'test.parquet', contentType: 'application/vnd.apache.parquet' })
         .field('schemaId', '12')
         .expect(207) // Multi-Status when batch creation fails after successful uploads
         .expect((res) => {

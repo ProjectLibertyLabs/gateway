@@ -1,4 +1,4 @@
-import { validContentNoUploadedAssets, validOnChainContent } from '../test/mockRequestData.ts';
+import { validContentWithHrefAsset, validOnChainContent } from '../test/mockRequestData.ts';
 import http from 'k6/http';
 import { check } from 'k6';
 import { randomBytes } from 'k6/crypto';
@@ -25,7 +25,7 @@ export const createMockFile = (size = 'sm', extension = 'jpg', mimetype = 'image
     default:
       fileSize = 0.5 * 1000 * 1000; // 0.5MB
   }
-  
+
   let arrayBuf = randomBytes(fileSize);
   let u8;
 
@@ -52,7 +52,7 @@ export const createMockFile = (size = 'sm', extension = 'jpg', mimetype = 'image
 
     default:
   }
-  
+
   // Generate filename if not provided
   if (!fileName) {
     if (mimetype === 'application/vnd.apache.parquet') {
@@ -61,7 +61,7 @@ export const createMockFile = (size = 'sm', extension = 'jpg', mimetype = 'image
       fileName = `file-${randomIntBetween(100000, 999999)}.${extension}`;
     }
   }
-  
+
   return {
     files: http.file(arrayBuf, fileName, mimetype),
   };
@@ -80,7 +80,7 @@ export const getReferenceId = (baseUrl, extension = 'jpg', mimetype = 'image/jpe
 
 export const createContentWithAsset = (baseUrl, extension = 'jpg', mimetype = 'image/jpeg') => {
   const referenceId = getReferenceId(baseUrl, extension, mimetype);
-  return Object.assign({}, validContentNoUploadedAssets, {
+  return Object.assign({}, validContentWithHrefAsset, {
     assets: [
       {
         name: `file1.${extension}`,
@@ -127,21 +127,21 @@ export const BATCH_SCENARIOS = {
     fileSize: 'sm',
     description: 'Single small file batch'
   },
-  
+
   // Medium batches - normal usage
   medium: {
     fileCount: 3,
     fileSize: 'sm',
     description: 'Multiple small files'
   },
-  
+
   // Large batches - stress testing
   large: {
     fileCount: 10,
     fileSize: 'md',
     description: 'Multiple medium files'
   },
-  
+
   // Mixed batches - realistic usage
   mixed: {
     fileCount: 5,
@@ -149,7 +149,7 @@ export const BATCH_SCENARIOS = {
     description: 'Mixed file sizes and schemas',
     mixedSizes: true
   },
-  
+
   // Edge case - maximum files
   maxFiles: {
     fileCount: 20,
@@ -170,15 +170,15 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
   } = options;
 
   const batchFiles = [];
-  
+
   for (let i = 0; i < fileCount; i++) {
     let cid;
-    
+
     if (useRealUploads) {
       // Use actual upload process
       const asset = createMockFile(fileSize, 'parquet', 'application/vnd.apache.parquet');
       const uploadResponse = http.put(`${baseUrl}/v1/asset/upload`, asset);
-      
+
       if (uploadResponse.status === 202) {
         try {
           const response = JSON.parse(uploadResponse.body);
@@ -195,13 +195,13 @@ export const createRealisticBatchData = (fileCount = 1, options = {}) => {
       // Use valid CID from our list
       cid = generateValidCid();
     }
-    
+
     batchFiles.push({
       cid: cid,
       schemaId: schemaIds[randomIntBetween(0, schemaIds.length - 1)],
     });
   }
-  
+
   return { batchFiles };
 };
 
@@ -215,17 +215,17 @@ export const createMultipartBatchData = (fileCount = 1, options = {}) => {
 
   // Create multipart form data with actual files
   const formData = {};
-  
+
   // Add files to the form data
   for (let i = 0; i < fileCount; i++) {
     const asset = createMockFile(fileSize, 'parquet', 'application/vnd.apache.parquet');
     formData[`files`] = asset.files;
   }
-  
+
   // Add schema ID (use the first one for simplicity in stress testing)
   const schemaId = schemaIds[randomIntBetween(0, schemaIds.length - 1)];
   formData[`schemaId`] = schemaId.toString();
-  
+
   return formData;
 };
 
@@ -234,33 +234,33 @@ export const createErrorScenarios = () => {
   return {
     // Invalid schema ID
     invalidSchema: {
-      batchFiles: [{ 
-        cid: generateValidCid(), 
-        schemaId: 99999 
+      batchFiles: [{
+        cid: generateValidCid(),
+        schemaId: 99999
       }]
     },
-    
+
     // Invalid CID format
     invalidCid: {
-      batchFiles: [{ 
-        cid: 'invalid-cid-format', 
-        schemaId: 12 
+      batchFiles: [{
+        cid: 'invalid-cid-format',
+        schemaId: 12
       }]
     },
-    
+
     // Empty batch
     emptyBatch: {
       batchFiles: []
     },
-    
+
     // Missing required fields
     missingFields: {
-      batchFiles: [{ 
+      batchFiles: [{
         cid: generateValidCid(),
         // Missing schemaId
       }]
     },
-    
+
     // Too many files
     tooManyFiles: {
       batchFiles: Array.from({ length: 25 }, (_, i) => ({

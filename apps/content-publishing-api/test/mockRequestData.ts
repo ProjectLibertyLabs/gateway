@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/extensions, import/no-unresolved
-// import { randomString } from 'https://jslib.k6.io/k6-utils/1.6.0/index.js';
-
 import {
   IAssetMetadata,
   IBroadcast,
@@ -14,6 +11,12 @@ import {
 } from '#types/interfaces';
 import { AttachmentType, TagTypeEnum, UnitTypeEnum } from '#types/enums';
 
+export function sleep(ms: number) {
+  return new Promise((r) => {
+    setTimeout(r, ms);
+  });
+}
+
 export const AVRO_SCHEMA = {
   type: 'record',
   name: 'OnChainTest',
@@ -25,6 +28,7 @@ export const AVRO_SCHEMA = {
   ],
 };
 
+export const randomFile30K = Buffer.from('h'.repeat(30 * 1024)); // 30KB
 
 export const validLocation: ILocation = {
   name: 'name of location',
@@ -47,9 +51,9 @@ export const validTags: ITag[] = [
   },
 ];
 
-export const validContentNoUploadedAssets: INoteActivity = {
+export const validContentWithHrefAsset: INoteActivity = {
   content: 'test broadcast message',
-  published: '1970-01-01T00:00:00+00:00',
+  published: new Date().toISOString(),
   name: 'name of note content',
   assets: [
     {
@@ -62,19 +66,28 @@ export const validContentNoUploadedAssets: INoteActivity = {
   location: validLocation,
 };
 
+export const validContentWithNoAssets: INoteActivity = {
+  content: 'test broadcast message',
+  published: new Date().toISOString(),
+  name: 'name of note content',
+  assets: [],
+  tag: validTags,
+  location: validLocation,
+};
+
 export const validBroadCastNoUploadedAssets: IBroadcast = {
-  content: validContentNoUploadedAssets,
+  content: validContentWithHrefAsset,
 };
 
 export const validReplyNoUploadedAssets: IReply = {
-  content: validContentNoUploadedAssets,
+  content: validContentWithHrefAsset,
   inReplyTo: 'dsnp://78187493520/bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
 };
 
 export const validUpdateNoUploadedAssets: IUpdate = {
   targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
   targetAnnouncementType: ModifiableAnnouncementType.BROADCAST,
-  content: validContentNoUploadedAssets
+  content: validContentWithHrefAsset
 };
 
 export const validReaction = {

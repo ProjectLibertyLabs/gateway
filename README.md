@@ -3,6 +3,8 @@
 Frequency Developer Gateway is a suite of microservices designed to simplify interactions with the Frequency blockchain,
 bridging the gap between Web2 and Web3 development.
 
+[![Release](https://github.com/ProjectLibertyLabs/gateway/actions/workflows/release.yml/badge.svg)](https://github.com/ProjectLibertyLabs/gateway/actions/workflows/release.yml)
+
 <!-- TABLE OF CONTENTS -->
 
 # 📗 Table of Contents

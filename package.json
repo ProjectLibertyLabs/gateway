@@ -157,7 +157,7 @@
     "@polkadot/util": "13.5.7",
     "@polkadot/util-crypto": "13.5.7",
     "@projectlibertylabs/graph-sdk": "2.0.1",
-    "@projectlibertylabs/siwf": "file:../siwf/libraries/js/dist/projectlibertylabs-siwf-0.0.0.tgz",
+    "@projectlibertylabs/siwf": "^2.3.6",
     "@songkeys/nestjs-redis": "11.0.0",
     "@types/express": "5.0.3",
     "@types/multer": "2.0.0",

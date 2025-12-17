@@ -282,12 +282,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   public async getProviderToRegistryEntry(
     providerId: AnyNumber,
   ): Promise<CommonPrimitivesMsaProviderRegistryEntry | null> {
-    const providerRegistry = (await this.api.call.msa.getProviderApplicationContext(
-      providerId,
-      null,
-      null,
-    )) as Option<CommonPrimitivesMsaProviderRegistryEntry>;
-    return providerRegistry.isSome ? providerRegistry.unwrap() : null;
+    const providerRegistry = await this.api.query.msa.providerToRegistryEntryV2(providerId);
+    if (providerRegistry.isSome) return providerRegistry.unwrap();
+    return null;
   }
 
   public async publicKeyToMsaId(publicKey: string | Uint8Array | AccountId32): Promise<string | null> {

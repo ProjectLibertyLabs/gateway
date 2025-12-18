@@ -12,6 +12,7 @@
  *          - return some sane default for an empty value
  *          - throw an error if an empty value is encountered
  */
+import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';

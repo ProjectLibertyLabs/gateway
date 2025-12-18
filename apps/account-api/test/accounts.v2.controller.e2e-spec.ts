@@ -2,7 +2,7 @@ import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { decodeSignedRequest } from '@projectlibertylabs/siwfv2';
+import { decodeSignedRequest } from '@projectlibertylabs/siwf';
 import type { Server } from 'node:http';
 import base64url from 'base64url';
 import request from 'supertest';

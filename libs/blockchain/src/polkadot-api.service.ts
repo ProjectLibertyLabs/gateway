@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WsProvider, ApiPromise, HttpProvider } from '@polkadot/api';
 import { ApiDecoration, ApiInterfaceEvents } from '@polkadot/api/types';
 import { ProviderInterface } from '@polkadot/rpc-provider/types';
+import type { u64 } from '@polkadot/types-codec';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IBlockchainNonProviderConfig } from './blockchain.config';
 import { ChainType } from '@frequency-chain/ethereum-utils';
@@ -110,9 +111,9 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
    */
   public get blockTimeMs(): number {
     return (
-      this.api.consts.babe?.expectedBlockTime?.toNumber() ||
-      this.api.consts.aura?.slotDuration?.toNumber() ||
-      this.api.consts.timestamp?.minimumPeriod?.muln(2).toNumber() || // timestamp minimum period is half the block time
+      (this.api.consts.babe?.expectedBlockTime as u64)?.toNumber() ||
+      (this.api.consts.aura?.slotDuration as u64)?.toNumber() ||
+      (this.api.consts.timestamp?.minimumPeriod as u64)?.muln(2).toNumber() || // timestamp minimum period is half the block time
       6000 // fallback to a sane default of 6s (ie, metadata hasn't been fetched yet)
     );
   }

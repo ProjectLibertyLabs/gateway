@@ -20,7 +20,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { hasChainSubmissions, isPayloadClaimHandle } from '@projectlibertylabs/siwfv2';
+import { hasChainSubmissions, isPayloadClaimHandle } from '@projectlibertylabs/siwf';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 // # SIWF Wallet API V2

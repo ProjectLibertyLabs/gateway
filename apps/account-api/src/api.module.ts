@@ -1,5 +1,4 @@
 import '@frequency-chain/api-augment';
-import { HcpControllerV1 } from '#account-api/controllers/v1/hcp.controller.v1';
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -17,6 +16,7 @@ import {
   AccountsControllerV2,
   DelegationControllerV1,
   HandlesControllerV1,
+  HcpControllerV1,
   KeysControllerV1,
   DelegationsControllerV2,
   HealthController,

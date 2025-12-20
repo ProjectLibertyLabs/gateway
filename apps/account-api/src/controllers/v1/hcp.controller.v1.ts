@@ -1,9 +1,6 @@
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { BlockchainService } from '#blockchain/blockchain.service';
 import { AddNewPublicKeyAgreementRequestDto, HcpPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
 import { AccountIdDto } from '#types/dtos/common';
-import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { Body, Controller, HttpCode, HttpStatus, Inject, NotFoundException, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiPromise } from '@polkadot/api';
@@ -11,12 +8,13 @@ import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Controller({ version: '1', path: 'hcp' })
 @ApiTags('v1/hcp')
 export class HcpControllerV1 {
   constructor(
-    private readonly blockchainService: BlockchainService,
+    private blockchainService: BlockchainRpcQueryService,
     private readonly enqueueService: EnqueueService,
     @InjectPinoLogger(HcpControllerV1.name) private readonly logger: PinoLogger,
   ) {}
@@ -40,6 +38,7 @@ export class HcpControllerV1 {
     if (res.isNone) {
       throw new NotFoundException(`MSA ID for account ${accountId} not found`);
     }
+    return;
   }
 
   buildApplyItemActionExtrinsic(

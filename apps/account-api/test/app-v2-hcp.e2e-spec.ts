@@ -17,6 +17,7 @@ describe('Hcp Controller', () => {
   let module: TestingModule;
   let users: ChainUser[];
   let provider: ChainUser;
+  let goodId: string = '';
 
 
   afterEach(() => {
@@ -26,7 +27,10 @@ describe('Hcp Controller', () => {
   beforeAll(async () => {
     await cryptoWaitReady();
     ({ provider, users } = await setupProviderAndUsers());
-    console.warn('\n\n===================================Users: ', users.length);
+    console.log({ provider });
+    goodId = getUnifiedAddress(provider.keypair);
+    console.log(goodId);
+
 
     module = await Test.createTestingModule({
       imports: [ApiModule],
@@ -79,7 +83,10 @@ describe('Hcp Controller', () => {
     };
     describe('accountId parameter verification', () => {
       it('happy path', async () => {
-        const goodId = getUnifiedAddress(users[0].keypair);
+        const url = `/v1/hcp/${goodId}/publishAll`;
+
+        console.log({url})
+
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(validAddHcpPublicKeyBody)
@@ -91,8 +98,10 @@ describe('Hcp Controller', () => {
         let expectedError =
           'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!';
 
+
+        const url = `/v1/hcp/${badId}/publishAll`;
         await request(app.getHttpServer())
-          .post(`/v1/hcp/${badId}/publishAll`)
+          .post(url)
           .send(validAddHcpPublicKeyBody)
           .expect(400)
           .expect((res) => {
@@ -111,7 +120,6 @@ describe('Hcp Controller', () => {
           actions: [validAction],
         };
 
-        const goodId = getUnifiedAddress(users[0].keypair);
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidAddHcpPublicKeyBody)
@@ -134,7 +142,6 @@ describe('Hcp Controller', () => {
           actions: [invalidAction],
         };
 
-        const goodId = getUnifiedAddress(users[0].keypair);
         const response = await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidaddHcpPublicKeyBody);
@@ -151,7 +158,6 @@ describe('Hcp Controller', () => {
           targetHash: nonNumericVal,
         };
 
-        const goodId = getUnifiedAddress(users[0].keypair);
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidTargetHashBody)

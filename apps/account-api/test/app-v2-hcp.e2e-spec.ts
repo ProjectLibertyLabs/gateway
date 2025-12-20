@@ -6,18 +6,28 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from 'nestjs-pino';
-import { todo } from 'node:test';
 import request from 'supertest';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { ChainUser } from '@projectlibertylabs/frequency-scenario-template';
+import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 
 describe('Hcp Controller', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
+  let users: ChainUser[];
+  let provider: ChainUser;
+
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   beforeAll(async () => {
+    await cryptoWaitReady();
+    ({ provider, users } = await setupProviderAndUsers());
+    console.warn('\n\n===================================Users: ', users.length);
+
     module = await Test.createTestingModule({
       imports: [ApiModule],
       providers: [],
@@ -57,7 +67,6 @@ describe('Hcp Controller', () => {
   }, 60_000);
 
   describe('(POST) v1/hcp/:accountId/publishAll', () => {
-    const goodId = '5Ca9Hb6ZZ8qfBcdgUoHJRKvCtnSPqdhUf5ZzfnynNx3EbXaS';
     const validAction = {
       type: 'ADD_ITEM',
       encodedPayload: '0x1122',
@@ -70,6 +79,7 @@ describe('Hcp Controller', () => {
     };
     describe('accountId parameter verification', () => {
       it('happy path', async () => {
+        const goodId = getUnifiedAddress(users[0].keypair);
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(validAddHcpPublicKeyBody)
@@ -91,9 +101,7 @@ describe('Hcp Controller', () => {
           });
       }, 5_000);
 
-      it('validates accountId exists on chain', async () => {
-        todo('Not implemented');
-      });
+      it('validates accountId exists on chain', async () => {});
 
       it('validates schemaId', async () => {
         const invalidAddHcpPublicKeyBody = {
@@ -103,6 +111,7 @@ describe('Hcp Controller', () => {
           actions: [validAction],
         };
 
+        const goodId = getUnifiedAddress(users[0].keypair);
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidAddHcpPublicKeyBody)
@@ -125,6 +134,7 @@ describe('Hcp Controller', () => {
           actions: [invalidAction],
         };
 
+        const goodId = getUnifiedAddress(users[0].keypair);
         const response = await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidaddHcpPublicKeyBody);
@@ -141,6 +151,7 @@ describe('Hcp Controller', () => {
           targetHash: nonNumericVal,
         };
 
+        const goodId = getUnifiedAddress(users[0].keypair);
         await request(app.getHttpServer())
           .post(`/v1/hcp/${goodId}/publishAll`)
           .send(invalidTargetHashBody)

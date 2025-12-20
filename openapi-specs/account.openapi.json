@@ -697,6 +697,56 @@
         ]
       }
     },
+    "/v1/hcp/{accountId}/publishAll": {
+      "post": {
+        "operationId": "HcpControllerV1_publishAll_v1",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "AccountId in hex or SS58 format",
+            "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HcpPublishAllRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/hcp"
+        ]
+      }
+    },
+    "/v1/frequency/blockinfo": {
+      "get": {
+        "operationId": "BlockInfoController_blockInfo_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Block information retrieved"
+          }
+        },
+        "summary": "Get information about current block",
+        "tags": [
+          "/v1/frequency"
+        ]
+      }
+    },
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
@@ -739,21 +789,6 @@
         "summary": "Check the ready status of the service",
         "tags": [
           "health"
-        ]
-      }
-    },
-    "/v1/frequency/blockinfo": {
-      "get": {
-        "operationId": "BlockInfoController_blockInfo_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Block information retrieved"
-          }
-        },
-        "summary": "Get information about current block",
-        "tags": [
-          "/v1/frequency"
         ]
       }
     },
@@ -1478,6 +1513,52 @@
           "accountId",
           "payload",
           "proof"
+        ]
+      },
+      "UpsertPagePayloadDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "AccountId in hex or SS58 format",
+            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
+          },
+          "proof": {
+            "type": "string",
+            "description": "proof is the signature for the payload",
+            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
+          },
+          "pageId": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "accountId",
+          "payload",
+          "proof",
+          "pageId"
+        ]
+      },
+      "HcpPublishAllRequestDto": {
+        "type": "object",
+        "properties": {
+          "addHcpPublicKeyPayload": {
+            "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
+          },
+          "addContextGroupPRIDEntryPayload": {
+            "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
+          },
+          "addContentGroupMetadataPayload": {
+            "$ref": "#/components/schemas/UpsertPagePayloadDto"
+          }
+        },
+        "required": [
+          "addHcpPublicKeyPayload",
+          "addContextGroupPRIDEntryPayload",
+          "addContentGroupMetadataPayload"
         ]
       }
     }

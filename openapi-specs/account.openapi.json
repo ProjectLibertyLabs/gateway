@@ -697,9 +697,9 @@
         ]
       }
     },
-    "/v1/hcp/{accountId}/publishAll": {
+    "/v1/ics/{accountId}/publishAll": {
       "post": {
-        "operationId": "HcpControllerV1_publishAll_v1",
+        "operationId": "IcsControllerV1_publishAll_v1",
         "parameters": [
           {
             "name": "accountId",
@@ -717,7 +717,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/HcpPublishAllRequestDto"
+                "$ref": "#/components/schemas/IcsPublishAllRequestDto"
               }
             }
           }
@@ -728,7 +728,7 @@
           }
         },
         "tags": [
-          "v1/hcp"
+          "v1/ics"
         ]
       }
     },
@@ -1542,10 +1542,10 @@
           "pageId"
         ]
       },
-      "HcpPublishAllRequestDto": {
+      "IcsPublishAllRequestDto": {
         "type": "object",
         "properties": {
-          "addHcpPublicKeyPayload": {
+          "addIcsPublicKeyPayload": {
             "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
           },
           "addContextGroupPRIDEntryPayload": {
@@ -1556,7 +1556,7 @@
           }
         },
         "required": [
-          "addHcpPublicKeyPayload",
+          "addIcsPublicKeyPayload",
           "addContextGroupPRIDEntryPayload",
           "addContentGroupMetadataPayload"
         ]

@@ -8,31 +8,30 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { HcpPublishJob } from '#types/dtos/account';
-import { IHcpTxStatus } from '#types/interfaces/tx-status.interface';
+import { IcsPublishJob } from '#types/dtos/account';
+import { IIcsTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
+import { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BasePublisherService } from '#queue';
 
-const CAPACITY_EPOCH_TIMEOUT_NAME = 'hcp_capacity_check';
+const CAPACITY_EPOCH_TIMEOUT_NAME = 'ics_capacity_check';
 
 /**
- * Service responsible for publishing HCP batch transactions.
+ * Service responsible for publishing ICS batch transactions.
  */
 @Injectable()
-@Processor(QueueConstants.HCP_PUBLISH_QUEUE)
-export class HcpPublisherService extends BasePublisherService {
+@Processor(QueueConstants.ICS_PUBLISH_QUEUE)
+export class IcsPublisherService extends BasePublisherService {
   protected readonly capacityTimeoutName = CAPACITY_EPOCH_TIMEOUT_NAME;
-  protected readonly workerConcurrencyKey = `${QueueConstants.HCP_PUBLISH_QUEUE}QueueWorkerConcurrency`;
+  protected readonly workerConcurrencyKey = `${QueueConstants.ICS_PUBLISH_QUEUE}QueueWorkerConcurrency`;
 
   constructor(
     @InjectRedis() cacheManager: Redis,
-    @InjectQueue(QueueConstants.HCP_PUBLISH_QUEUE) protected readonly queue: Queue,
-    @Inject(blockchainConfig.KEY) private readonly blockchainConf: IBlockchainConfig,
+    @InjectQueue(QueueConstants.ICS_PUBLISH_QUEUE) protected readonly queue: Queue,
     @Inject(workerConfig.KEY) protected readonly workerConfig: IAccountWorkerConfig,
+    // do I need to include BlockchainService as a provider in api.module.ts?
     blockchainService: BlockchainService,
     capacityCheckerService: CapacityCheckerService,
     schedulerRegistry: SchedulerRegistry,
@@ -47,21 +46,21 @@ export class HcpPublisherService extends BasePublisherService {
   }
 
   /**
-   * Processes a job for HCP batch publishing.
+   * Processes a job for ICS batch publishing.
    * @param job - The job to process.
    * @returns A promise that resolves when the job is processed.
    */
-  async process(job: Job<HcpPublishJob, any, string>): Promise<void> {
+  async process(job: Job<IcsPublishJob, any, string>): Promise<void> {
     let payWithCapacityTxHash: HexString;
     let payWithCapacityTx: SubmittableExtrinsic<'promise', ISubmittableResult>;
     const successSection = 'utility';
     const successMethod = 'BatchCompleted';
 
     try {
-      this.logger.info(`Processing HCP job ${job.id}`);
+      this.logger.info(`Processing ICS job ${job.id}`);
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
-        throw new DelayedError('Out of Capacity. Delaying HCP job ' + job.id);
+        throw new DelayedError('Out of Capacity. Delaying ICS job ' + job.id);
       }
       let blockNumber: number;
 
@@ -76,7 +75,7 @@ export class HcpPublisherService extends BasePublisherService {
 
       this.logger.debug(`Successful job: ${JSON.stringify(job, null, 2)}`);
 
-      const status: IHcpTxStatus = {
+      const status: IIcsTxStatus = {
         providerId: job.data.providerId,
         referenceId: job.data.referenceId,
         txHash: payWithCapacityTxHash,

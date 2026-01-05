@@ -52,6 +52,7 @@ async function bootstrap() {
           { name: 'accounts', tags: ['v1/accounts', 'v2/accounts'] },
           { name: 'delegations', tags: ['v1/delegation', 'v2/delegations'] },
           { name: 'handles', tags: ['v1/handles'] },
+          { name: 'ics', tags: ['v1/ics'] },
           { name: 'health', tags: ['health'] },
           { name: 'keys', tags: ['v1/keys'] },
           { name: 'prometheus', tags: ['metrics'] },

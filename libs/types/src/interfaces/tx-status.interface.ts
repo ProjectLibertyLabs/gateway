@@ -1,6 +1,6 @@
 import { TxMonitorJob } from '#types/dtos/account/transaction.request.dto';
 import { HexString } from '@polkadot/util/types';
-import { IPublisherJob } from './content-publishing/publisher-job.interface';
+import { IPublisherJob } from '#types/interfaces/content-publishing';
 import { ProviderGraphUpdateJob } from './graph';
 
 export interface ITxStatusBase {
@@ -34,7 +34,7 @@ export interface IGraphTxStatus extends ITxStatusBase {
   referenceJob: ProviderGraphUpdateJob;
 }
 
-export interface IHcpTxStatus extends ITxStatusBase {
+export interface IIcsTxStatus extends ITxStatusBase {
   // Make required
   providerId: string;
   referenceId: string;

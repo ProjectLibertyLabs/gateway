@@ -1,6 +1,5 @@
 import {
   AddNewPublicKeyAgreementRequestDto,
-  ItemizedSignaturePayloadDto,
 } from '#types/dtos/account/graphs.request.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { HexString } from '@polkadot/util/types';
@@ -19,16 +18,16 @@ export class UpsertPagePayloadDto extends AddNewPublicKeyAgreementRequestDto {
   pageId: number;
 }
 
-export class HcpPublishAllRequestDto {
-  addHcpPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
+export class IcsPublishAllRequestDto {
+  addIcsPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
   addContextGroupPRIDEntryPayload: AddNewPublicKeyAgreementRequestDto;
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
 }
 
 /**
- * Job data for HCP batch publishing queue
+ * Job data for ICS batch publishing queue
  */
-export interface HcpPublishJob {
+export interface IcsPublishJob {
   accountId: string;
   referenceId: string;
   providerId: string;

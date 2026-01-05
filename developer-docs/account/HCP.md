@@ -1,10 +1,10 @@
-# Change proposal to support HCP
+# Change proposal to support ICS
 
 The 3 different payload types for these operations already are described in DTOs.
 
-## HCP Add Public Key Payload
+## ICS Add Public Key Payload
 
-We will use `apply_item_actions_with_signature_v2` to add HCP pub key.
+We will use `apply_item_actions_with_signature_v2` to add ICS pub key.
 The schema is **Itemized, `SignatureRequired` and `AppendOnly`**
 
 The body DTO is `ItemizedSignaturePayloadDto`.
@@ -34,31 +34,31 @@ export class UpsertPagePayloadDto extends ItemizedSignaturePayloadDto {
 }
 ```
 
-## HCP is a part of the `account-api` microservice
+## ICS is a part of the `account-api` microservice
 
 For MVI, so that we need to stand up only a single service, and because `account-api`'s `siwa` endpoint will be called,
-HCP endpoints
+ICS endpoints
 will be part of the `account-api` microservice.
 
 Attachments are not supported as of this writing and not included in this proposal/update
 
-### `v1/hcp/publishAll`
+### `v1/ics/publishAll`
 
-This endpoint requires a body of type `HcpPublishAllRequestDto`, which contains all 3 of the payloads to publish
+This endpoint requires a body of type `IcsPublishAllRequestDto`, which contains all 3 of the payloads to publish
 on-chain.
 
 ```
-    export class HcpPublishAllRequestDto {
-    addHcpPublicKeyPayload: ItemizedSignaturePayloadDto;
+    export class IcsPublishAllRequestDto {
+    addIcsPublicKeyPayload: ItemizedSignaturePayloadDto;
     addContextGroupPRIDEntryPayload: ItemizedSignaturePayloadDto;
     addContetGroupMetadataPayload: UpsertPagePayloadDto;
     }
     
-    @Post(':accountId/addHcpPublicKey')
+    @Post(':accountId/addIcsPublicKey')
     @HttpCode(HttpStatus.ACCEPTED)
     async publishAll( 
       @Param() { accountId }: AccountIdDto, 
-      @Body() payload: HcpPublishAllRequestDto): Promise <AnnouncementResponseDto > {
+      @Body() payload: IcsPublishAllRequestDto): Promise <AnnouncementResponseDto > {
       
         // check that the accountId has an MSA on chain as a fast, early failure.
         // it's not necessary to deserialize the payload to verify the id matches
@@ -67,26 +67,26 @@ on-chain.
         if (res.isNone) {
           throw new NotFoundException(`MSA ID for account ${accountId} not found`);
         }
-        return this.apiService.enqueueHcpRequest(
-        HcpRequestType.ADD_HCP_PUBLIC_KEY, accountId, payload);
+        return this.apiService.enqueueIcsRequest(
+        IcsRequestType.ADD_ICS_PUBLIC_KEY, accountId, payload);
     }
 ```
 
-## enqueuing HCP requests
+## enqueuing ICS requests
 
 ```
 
-async enqueueHcpRequest(
-hcpRequestType: HCPRequestType,
+async enqueueIcsRequest(
+icsRequestType: ICSRequestType,
 accountId: string,
 payload: UpsertPagePayloadDto
 ) {}
 
 ```
 
-## `content-publishing-worker`: Processing HCP jobs
+## `content-publishing-worker`: Processing ICS jobs
 
-There will be a new request processor service for HCP jobs, `hcpRequest.processor.service.ts`
+There will be a new request processor service for ICS jobs, `icsRequest.processor.service.ts`
 
-There will be a new queue for adding HCP keys and PRIDs. These will call `payWithCapacityBatchAll`, batching all HCP
+There will be a new queue for adding ICS keys and PRIDs. These will call `payWithCapacityBatchAll`, batching all ICS
 calls.

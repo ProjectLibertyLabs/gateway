@@ -12,7 +12,7 @@ import { IcsPublishJob } from '#types/dtos/account';
 import { IIcsTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { IAccountWorkerConfig } from '#account-worker/worker.config';
+import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
 import { BasePublisherService } from '#queue';
 

@@ -17,7 +17,6 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { AccountsService } from '#account-api/services';
 
 @Controller({ version: '1', path: 'ics' })
 @ApiTags('v1/ics')
@@ -25,7 +24,6 @@ export class IcsControllerV1 {
   constructor(
     private blockchainService: BlockchainRpcQueryService,
     private readonly enqueueService: EnqueueService,
-    private readonly accountService: AccountsService,
     @InjectPinoLogger(IcsControllerV1.name) private readonly logger: PinoLogger,
   ) {}
 
@@ -37,7 +35,7 @@ export class IcsControllerV1 {
   ): Promise<{ referenceId: string }> {
     // check that the accountId has an MSA on chain as a fast, early failure.
     // it's not necessary to deserialize the payload to verify the id matches.
-    const hasMsa = (await this.accountService.getMsaIdForAccountId(accountId)) !== null;
+    const hasMsa = (await this.blockchainService.publicKeyToMsaId(accountId)) !== null;
     this.logger.warn({ hasMsa }, "HAS MSA");
     if (!hasMsa) {
       throw new HttpException(`Account has NO MSA on chain: ${accountId}`, HttpStatus.BAD_REQUEST);
@@ -76,7 +74,10 @@ export class IcsControllerV1 {
     txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
 
     // Encode the extrinsics as hex strings
-    const encodedExtrinsics: HexString[] = txns.map((tx) => tx.toHex());
+    const encodedExtrinsics: HexString[] = txns.map((tx) => {
+      console.log({tx});
+      return tx.toHex()
+    });
 
     this.logger.debug(`Enqueueing ICS batch with ${encodedExtrinsics.length} extrinsics`);
     // use a proof to generate jobId

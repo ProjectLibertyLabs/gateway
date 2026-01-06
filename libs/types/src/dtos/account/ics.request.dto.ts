@@ -3,14 +3,8 @@ import {
 } from '#types/dtos/account/graphs.request.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { HexString } from '@polkadot/util/types';
-
-// export interface PaginatedUpsertSignaturePayloadV2 {
-//   schemaId?: u16;
-//   pageId?: u16;
-//   targetHash?: u32;
-//   expiration?: any;
-//   payload?: any;
-// }
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpsertPagePayloadDto extends AddNewPublicKeyAgreementRequestDto {
   // TODO: make a PageId decorator, this will do for now
@@ -19,8 +13,19 @@ export class UpsertPagePayloadDto extends AddNewPublicKeyAgreementRequestDto {
 }
 
 export class IcsPublishAllRequestDto {
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => AddNewPublicKeyAgreementRequestDto)
   addIcsPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
+
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => AddNewPublicKeyAgreementRequestDto)
   addContextGroupPRIDEntryPayload: AddNewPublicKeyAgreementRequestDto;
+
+  @ValidateNested()
+  @IsNotEmpty()
+  @Type(() => UpsertPagePayloadDto)
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
 }
 

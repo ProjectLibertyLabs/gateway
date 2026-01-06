@@ -10,10 +10,16 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ModuleMocker, MockMetadata } from 'jest-mock';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { HttpException } from '@nestjs/common';
+import { ItemActionType } from '#types/enums';
 
 const moduleMocker = new ModuleMocker(global);
 const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-const goodPayload = { schemaId: 1234, actions: [], expiration: 1, targetHash: 2}
+const goodPayload = {
+  schemaId: 1234,
+  actions: [{ type: ItemActionType.ADD_ITEM, encodedPayload: '0x1122' }],
+  expiration: 1,
+  targetHash: 2,
+};
 
 const goodIcsPublishAllPayload: IcsPublishAllRequestDto = {
   addIcsPublicKeyPayload: {

@@ -10,11 +10,12 @@ echo "Stopping and removing containers, networks..."
 docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile e2e down || exit_err "Stopping docker failed.."
 
 # Remove specified volumes
+# these return nonzero if the volume doesn't exist; it's ok if they fail.
 echo "Removing specified volumes..."
-docker volume rm -f gateway_redis_data && \
-docker volume rm -f gateway_chainstorage && \
-docker volume rm -f gateway_acccount_api_node_cache \ &&
-docker volume rm -f gateway_account_worker_node_cache || exit_err "removing docker volumes failed."
+docker volume rm -f gateway_redis_data
+docker volume rm -f gateway_chainstorage
+docker volume rm -f gateway_acccount_api_node_cache
+docker volume rm -f gateway_account_worker_node_cache
 
 # Start specific services in detached mode
 echo "Starting redis and frequency instant sealing services..."

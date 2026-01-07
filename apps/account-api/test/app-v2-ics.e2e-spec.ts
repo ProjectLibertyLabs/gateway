@@ -1,12 +1,5 @@
 // Mock Polkadot logger BEFORE any imports to suppress logs
-import {
-  AddNewPublicKeyAgreementPayloadRequest,
-  AddNewPublicKeyAgreementRequestDto,
-  IcsPublishAllRequestDto,
-  ItemActionDto,
-  ItemizedSignaturePayloadDto,
-  UpsertPagePayloadDto,
-} from '#types/dtos/account';
+import { AddNewPublicKeyAgreementRequestDto, IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { ApiModule } from '#account-api/api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
@@ -108,6 +101,7 @@ describe('Ics Controller', () => {
         expect(resp.status).toBe(202);
         expect(resp.body?.referenceId).toBeDefined();
       }, 5_000);
+
       it('key with no msaid', async () => {
         const newKey = keyring.addFromSeed(Uint8Array.from(Array(32).fill(3)));
         const newAddr = getUnifiedAddress(newKey);
@@ -116,7 +110,7 @@ describe('Ics Controller', () => {
       });
     });
     describe('payload verification', () => {
-      it('requires all payloads', async() => {
+      it('requires all payloads', async () => {
         let badPayload = { addIcsPublicKeyPayload };
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;

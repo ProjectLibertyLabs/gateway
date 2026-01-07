@@ -1,7 +1,6 @@
 import { IcsControllerV1 } from '#account-api/controllers';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import { LoggerModule, PinoLogger } from 'nestjs-pino';
-import { MsaIdDto } from '#types/dtos/common';
+import { LoggerModule } from 'nestjs-pino';
 import { IcsPublishAllRequestDto } from '#types/dtos/account';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -35,7 +34,7 @@ const goodIcsPublishAllPayload: IcsPublishAllRequestDto = {
   },
   addContextGroupPRIDEntryPayload: {
     accountId: goodAccountId,
-    payload:goodPayload,
+    payload: goodPayload,
     proof: '0x1234567890abcdef',
   },
 };
@@ -51,10 +50,8 @@ const mockApiPromise = {
   isReady: Promise.resolve(),
   tx: {
     statefulStorage: {
-      applyItemActionsWithSignatureV2: jest.fn().mockImplementation(
-        () => mockSubmittableExtrinsic('0x01020304')),
-      upsertPageWithSignatureV2: jest.fn().mockImplementation(
-        () => mockSubmittableExtrinsic('0x05060708')),
+      applyItemActionsWithSignatureV2: jest.fn().mockImplementation(() => mockSubmittableExtrinsic('0x01020304')),
+      upsertPageWithSignatureV2: jest.fn().mockImplementation(() => mockSubmittableExtrinsic('0x05060708')),
     },
   },
 };
@@ -92,7 +89,7 @@ describe('IcsController', () => {
         if (token === EnqueueService) {
           return {
             enqueueIcsBatch: jest.fn().mockImplementation(async () => {
-              return Promise.resolve({referenceId: 'referenceId'});
+              return Promise.resolve({ referenceId: 'referenceId' });
             }),
           };
         }
@@ -122,9 +119,9 @@ describe('IcsController', () => {
       const spy = jest
         .spyOn(blockchainRpcQueryService, 'publicKeyToMsaId')
         .mockImplementationOnce(() => Promise.resolve(null));
-      await expect(
-        icsController.publishAll({ accountId: goodAccountId }, goodIcsPublishAllPayload)
-      ).rejects.toThrow(HttpException);
+      await expect(icsController.publishAll({ accountId: goodAccountId }, goodIcsPublishAllPayload)).rejects.toThrow(
+        HttpException,
+      );
       expect(spy).toHaveBeenCalledWith(goodAccountId);
     });
   });

@@ -39,8 +39,6 @@ export class IcsControllerV1 {
     // check that the accountId has an MSA on chain as a fast, early failure.
     // it's not necessary to deserialize the payload to verify the id matches.
     const hasMsa = (await this.blockchainService.publicKeyToMsaId(accountId)) !== null;
-    console.log('HAS MSA');
-    this.logger.warn({ hasMsa }, "HAS MSA");
     if (!hasMsa) {
       throw new HttpException(`Account has NO MSA on chain: ${accountId}`, HttpStatus.BAD_REQUEST);
     }

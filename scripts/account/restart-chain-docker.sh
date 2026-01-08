@@ -7,7 +7,7 @@ function exit_err() {
 
 # Stop and remove containers, networks
 echo "Stopping and removing containers, networks..."
-docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile e2e down || exit_err "Stopping docker failed.."
+docker compose -f docker-compose.yaml -f docker-compose-e2e.account.yaml --profile e2e down || echo "Stopping docker failed. Continuing..."
 
 # Remove specified volumes
 # these return nonzero if the volume doesn't exist; it's ok if they fail.

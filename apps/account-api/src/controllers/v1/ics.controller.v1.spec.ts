@@ -20,7 +20,8 @@ const goodPayload = {
   targetHash: 2,
 };
 
-const goodIcsPublishAllPayload: IcsPublishAllRequestDto = {
+// this payload will not work in e2e tests
+const mockIcsPublishAllPayload: IcsPublishAllRequestDto = {
   addIcsPublicKeyPayload: {
     accountId: goodAccountId,
     payload: goodPayload,
@@ -111,7 +112,7 @@ describe('IcsController', () => {
       const spy = jest
         .spyOn(blockchainRpcQueryService, 'publicKeyToMsaId')
         .mockImplementationOnce(() => Promise.resolve('123'));
-      const result = await icsController.publishAll({ accountId: goodAccountId }, goodIcsPublishAllPayload);
+      const result = await icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload);
       expect(spy).toHaveBeenCalledWith(goodAccountId);
       expect(result.referenceId).toBe('referenceId');
     });
@@ -119,7 +120,7 @@ describe('IcsController', () => {
       const spy = jest
         .spyOn(blockchainRpcQueryService, 'publicKeyToMsaId')
         .mockImplementationOnce(() => Promise.resolve(null));
-      await expect(icsController.publishAll({ accountId: goodAccountId }, goodIcsPublishAllPayload)).rejects.toThrow(
+      await expect(icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload)).rejects.toThrow(
         HttpException,
       );
       expect(spy).toHaveBeenCalledWith(goodAccountId);

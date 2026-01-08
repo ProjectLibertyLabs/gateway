@@ -17,6 +17,9 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import {
+  chainSignature,
+} from '#utils/common/signature.util';
 
 @Controller({ version: '1', path: 'ics' })
 @ApiTags('v1/ics')
@@ -36,6 +39,7 @@ export class IcsControllerV1 {
     // check that the accountId has an MSA on chain as a fast, early failure.
     // it's not necessary to deserialize the payload to verify the id matches.
     const hasMsa = (await this.blockchainService.publicKeyToMsaId(accountId)) !== null;
+    console.log('HAS MSA');
     this.logger.warn({ hasMsa }, "HAS MSA");
     if (!hasMsa) {
       throw new HttpException(`Account has NO MSA on chain: ${accountId}`, HttpStatus.BAD_REQUEST);
@@ -49,11 +53,17 @@ export class IcsControllerV1 {
     payload: AddNewPublicKeyAgreementRequestDto,
     api: ApiPromise,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    return api.tx.statefulStorage.applyItemActionsWithSignatureV2(
-      accountId,
-      { Sr25519: payload.proof },
-      payload.payload,
-    );
+    try {
+      const encodedPayload = this.blockchainService.createItemizedSignaturePayloadV2Type(payload.payload);
+      return api.tx.statefulStorage.applyItemActionsWithSignatureV2(
+        accountId,
+        chainSignature({ algo: 'Sr25519', encodedValue: payload.proof}), // TODO: determine signature algo
+        encodedPayload,
+      );
+    } catch (e) {
+      console.log({e});
+      return null;
+    }
   }
 
   buildUpsertPageExtrinsic(

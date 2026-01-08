@@ -1,5 +1,4 @@
 // Mock Polkadot logger BEFORE any imports to suppress logs
-import { AddNewPublicKeyAgreementRequestDto, IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { ApiModule } from '#account-api/api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
@@ -15,6 +14,7 @@ import { ChainUser } from '@projectlibertylabs/frequency-scenario-template';
 import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Keyring from '@polkadot/keyring';
+import { createIcsPublishAllRequestDto } from '#testlib/payloadDtos.spec';
 
 // suppress polkadot logs
 jest.mock('@polkadot/util/cjs/logger', () => ({
@@ -31,7 +31,6 @@ jest.mock('@polkadot/util/cjs/logger', () => ({
 describe('Ics Controller', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
-  let users: ChainUser[];
   let provider: ChainUser;
   let keyring: Keyring;
 
@@ -75,26 +74,11 @@ describe('Ics Controller', () => {
     await blockchainService.isReady();
   });
 
-  afterAll(async () => {
-    try {
-      await app.close();
-    } catch (err) {
-      console.error(err);
-    }
-  }, 10_000);
-
   describe('(POST) v1/ics/:accountId/publishAll', () => {
-    const addIcsPublicKeyPayload = new AddNewPublicKeyAgreementRequestDto();
-    const addContextGroupPRIDEntryPayload = new AddNewPublicKeyAgreementRequestDto();
-    const addContentGroupMetadataPayload = new UpsertPagePayloadDto();
-
-    const goodIcsPublishAllPayload = new IcsPublishAllRequestDto();
-    goodIcsPublishAllPayload.addIcsPublicKeyPayload = addIcsPublicKeyPayload;
-    goodIcsPublishAllPayload.addContextGroupPRIDEntryPayload = addContextGroupPRIDEntryPayload;
-    goodIcsPublishAllPayload.addContentGroupMetadataPayload = addContentGroupMetadataPayload;
+    const goodIcsPublishAllPayload = createIcsPublishAllRequestDto();
 
     describe('accountId parameter verification', () => {
-      it('happy path submits to chain', async () => {
+      it('happy path submits to worker, returning reference Id', async () => {
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;
         const resp = await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload);
@@ -111,7 +95,10 @@ describe('Ics Controller', () => {
     });
     describe('payload verification', () => {
       it('requires all payloads', async () => {
-        let badPayload = { addIcsPublicKeyPayload };
+        let badPayload = {
+          ...goodIcsPublishAllPayload,
+          addIcsPublicKeyPayload: undefined,
+        };
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;
         const resp = await request(app.getHttpServer()).post(url).send(badPayload);

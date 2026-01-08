@@ -1,12 +1,6 @@
 import { validate, ValidationError } from 'class-validator';
-import {
-  AddNewPublicKeyAgreementRequestDto,
-  ItemActionDto,
-  ItemizedSignaturePayloadDto,
-} from '#types/dtos/account/graphs.request.dto';
-import { IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account/ics.request.dto';
-import { createItemizedAddAction } from '@frequency-chain/ethereum-utils';
-import { ItemActionType } from '#types/enums';
+import { AddNewPublicKeyAgreementRequestDto } from '#types/dtos/account/graphs.request.dto';
+import { IcsPublishAllRequestDto } from '#types/dtos/account/ics.request.dto';
 import { createIcsPublishAllRequestDto, createItemizedSignaturePayloadDto } from '#testlib/payloadDtos.spec';
 
 function flattenErrors(errors: ValidationError[]) {
@@ -17,11 +11,11 @@ function flattenErrors(errors: ValidationError[]) {
         value: error.value,
         constraints: error.constraints,
         children: error.children?.length || 0,
-        target: error.target?.constructor?.name
+        target: error.target?.constructor?.name,
       });
       if (error.constraints) {
         const constraints = error.constraints;
-        console.log({constraints, index});
+        console.log({ constraints, index });
         return Object.values(error.constraints).flat();
       }
       if (error.children.length) {

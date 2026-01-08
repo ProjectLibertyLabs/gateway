@@ -38,7 +38,6 @@ describe('Ics Controller', () => {
     await cryptoWaitReady();
     keyring = new Keyring({ type: 'sr25519' });
     const res = await setupProviderAndUsers();
-    users = res.users;
     provider = res.provider;
 
     module = await Test.createTestingModule({

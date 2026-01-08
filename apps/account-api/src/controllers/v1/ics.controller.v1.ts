@@ -53,17 +53,12 @@ export class IcsControllerV1 {
     payload: AddNewPublicKeyAgreementRequestDto,
     api: ApiPromise,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    try {
       const encodedPayload = this.blockchainService.createItemizedSignaturePayloadV2Type(payload.payload);
       return api.tx.statefulStorage.applyItemActionsWithSignatureV2(
         accountId,
         chainSignature({ algo: 'Sr25519', encodedValue: payload.proof}), // TODO: determine signature algo
         encodedPayload,
       );
-    } catch (e) {
-      console.log({e});
-      return null;
-    }
   }
 
   buildUpsertPageExtrinsic(
@@ -85,8 +80,7 @@ export class IcsControllerV1 {
 
     // Encode the extrinsics as hex strings
     const encodedExtrinsics: HexString[] = txns.map((tx) => {
-      console.log({tx});
-      return tx.toHex()
+      return tx.toHex();
     });
 
     this.logger.debug(`Enqueueing ICS batch with ${encodedExtrinsics.length} extrinsics`);

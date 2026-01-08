@@ -35,7 +35,6 @@ export interface IGraphTxStatus extends ITxStatusBase {
 }
 
 export interface IIcsTxStatus extends ITxStatusBase {
-  // Make required
   providerId: string;
   referenceId: string;
 }

@@ -13,6 +13,12 @@
 [Aa]utoscal(er|ing)
 account-api
 account-service-api
+AddPublicKey
+addpublickey
+AddContextGroupPRIDEntry
+addcontextgrouppridentry
+AddContextGroupMetadata
+addcontextgroupmetadata
 Ansible
 AOF
 APIs?

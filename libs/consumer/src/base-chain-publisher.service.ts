@@ -27,7 +27,7 @@ import { HexString } from '@polkadot/util/types';
  * and lifecycle hooks.
  */
 @Injectable()
-export abstract class BasePublisherService
+export abstract class BaseChainPublisherService
   extends BaseConsumer
   implements OnApplicationBootstrap, OnApplicationShutdown
 {

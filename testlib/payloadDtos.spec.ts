@@ -9,10 +9,12 @@ import { createItemizedAddAction } from '@frequency-chain/ethereum-utils';
 import { ItemActionType } from '#types/enums';
 import { HexString } from '@polkadot/util/types';
 
+// Alice account on Testnet Paseo
+const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+
+// payload signature when signed by Alice account
 const validProof =
   '0x9c66050e827d24862d77f398095dfe59fabcea3cf768ce4fbd5aa74e65d6be27db1e87f56e9c8484a230d405989a89ecaebcdabe95a1c307a4c736cf85444e85';
-
-const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
 
 export function createAddItemActionDto(data: HexString): ItemActionDto {
   const addItem = createItemizedAddAction(data);

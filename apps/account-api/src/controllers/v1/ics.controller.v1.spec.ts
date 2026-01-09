@@ -80,7 +80,6 @@ describe('IcsController', () => {
       imports: [LoggerModule.forRoot(getPinoHttpOptions())],
     })
       .useMocker((token) => {
-        console.log(token);
         if (token === BlockchainRpcQueryService) {
           return {
             getApi: () => mockApiPromise,

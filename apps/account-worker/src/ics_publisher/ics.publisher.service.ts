@@ -8,13 +8,13 @@ import { ISubmittableResult } from '@polkadot/types/types';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { IcsPublishJob } from '#types/dtos/account';
 import { IIcsTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
 import { BasePublisherService } from '#queue';
+import { IcsPublishJob } from '#types/interfaces';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'ics_capacity_check';
 
@@ -31,7 +31,6 @@ export class IcsPublisherService extends BasePublisherService {
     @InjectRedis() cacheManager: Redis,
     @InjectQueue(QueueConstants.ICS_PUBLISH_QUEUE) protected readonly queue: Queue,
     @Inject(workerConfig.KEY) protected readonly workerConfig: IAccountWorkerConfig,
-    // do I need to include BlockchainService as a provider in api.module.ts?
     blockchainService: BlockchainService,
     capacityCheckerService: CapacityCheckerService,
     schedulerRegistry: SchedulerRegistry,

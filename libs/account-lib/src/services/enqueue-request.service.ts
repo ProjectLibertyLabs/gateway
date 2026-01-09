@@ -5,9 +5,10 @@ import { HexString } from '@polkadot/util/types';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { TransactionResponse, TransactionData, IcsPublishJob } from '#types/dtos/account';
+import { TransactionResponse, TransactionData } from '#types/dtos/account';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { IcsPublishJob } from '#types/interfaces';
 
 export interface RequestObject {
   calls?: Array<unknown>;

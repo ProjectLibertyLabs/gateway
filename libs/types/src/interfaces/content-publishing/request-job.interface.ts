@@ -13,3 +13,13 @@ export interface IRequestJob {
   content?: IRequestType;
   dependencyAttempt: number;
 }
+
+/**
+ * Job data for ICS batch publishing queue
+ */
+export interface IcsPublishJob {
+  accountId: string;
+  referenceId: string;
+  providerId: string;
+  encodedExtrinsics: HexString[];
+}

@@ -15,11 +15,9 @@ function flattenErrors(errors: ValidationError[]) {
       });
       if (error.constraints) {
         const constraints = error.constraints;
-        console.log({ constraints, index });
         return Object.values(error.constraints).flat();
       }
       if (error.children.length) {
-        console.log(`Following ${error.children.length} children of ${error.property}`);
         return flattenErrors(error.children);
       }
       return [];

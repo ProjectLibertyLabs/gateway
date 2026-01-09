@@ -28,13 +28,3 @@ export class IcsPublishAllRequestDto {
   @Type(() => UpsertPagePayloadDto)
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
 }
-
-/**
- * Job data for ICS batch publishing queue
- */
-export interface IcsPublishJob {
-  accountId: string;
-  referenceId: string;
-  providerId: string;
-  encodedExtrinsics: HexString[];
-}

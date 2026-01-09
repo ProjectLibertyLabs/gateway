@@ -178,7 +178,6 @@ describe('SiwfV2Service', () => {
           ];
           await Promise.all(
             payloads.map(async (payload) => {
-              console.log(payload);
               const result = await siwfV2Service.getPayload({
                 authorizationPayload: base64url(JSON.stringify(payload)),
               });

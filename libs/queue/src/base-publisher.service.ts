@@ -184,7 +184,7 @@ export abstract class BasePublisherService
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.queue.getFailed();
     const capacityFailedJobs = failedJobs.filter((job) =>
-      job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
+      /inability to pay some fees/i.test(job.failedReason),
     );
     // Retry the failed jobs
     await Promise.all(

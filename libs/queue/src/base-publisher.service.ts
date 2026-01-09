@@ -44,7 +44,7 @@ export abstract class BasePublisherService
   /**
    * Worker configuration key for queue concurrency
    */
-  protected abstract readonly workerConcurrencyKey: string;
+  protected abstract readonly workerConcurrencyConfigKey: string;
 
   /**
    * Worker configuration object

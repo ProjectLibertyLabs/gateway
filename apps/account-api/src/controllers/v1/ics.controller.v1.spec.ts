@@ -109,17 +109,13 @@ describe('IcsController', () => {
 
   describe('basic', () => {
     it('calls getMsaIdForAccountId', async () => {
-      const spy = jest
-        .spyOn(blockchainRpcQueryService, 'publicKeyToMsaId')
-        .mockImplementationOnce(() => Promise.resolve('123'));
+      const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce('123');
       const result = await icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload);
       expect(spy).toHaveBeenCalledWith(goodAccountId);
       expect(result.referenceId).toBe('referenceId');
     });
     it('throws HttpEception when the account has no MsaId', async () => {
-      const spy = jest
-        .spyOn(blockchainRpcQueryService, 'publicKeyToMsaId')
-        .mockImplementationOnce(() => Promise.resolve(null));
+      const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
       await expect(icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload)).rejects.toThrow(
         HttpException,
       );

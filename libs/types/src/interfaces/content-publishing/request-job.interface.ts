@@ -1,5 +1,6 @@
 import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import { IRequestType } from './announcement.interface';
+import { HexString } from '@polkadot/util/types';
 
 export interface IAssetTypeInfo {
   mimeType: string;

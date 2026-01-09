@@ -13,8 +13,8 @@ import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import { BasePublisherService } from '#queue';
 import { IcsPublishJob } from '#types/interfaces';
+import { BaseChainPublisherService } from '#consumer/base-chain-publisher.service';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'ics_capacity_check';
 
@@ -23,9 +23,9 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'ics_capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.ICS_PUBLISH_QUEUE)
-export class IcsPublisherService extends BasePublisherService {
+export class IcsPublisherService extends BaseChainPublisherService {
   protected readonly capacityTimeoutName = CAPACITY_EPOCH_TIMEOUT_NAME;
-  protected readonly workerConcurrencyKey = `${QueueConstants.ICS_PUBLISH_QUEUE}QueueWorkerConcurrency`;
+  protected readonly workerConcurrencyConfigKey = `${QueueConstants.ICS_PUBLISH_QUEUE}QueueWorkerConcurrency`;
 
   constructor(
     @InjectRedis() cacheManager: Redis,

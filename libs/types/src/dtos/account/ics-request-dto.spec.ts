@@ -14,7 +14,6 @@ function flattenErrors(errors: ValidationError[]) {
         target: error.target?.constructor?.name,
       });
       if (error.constraints) {
-        const constraints = error.constraints;
         return Object.values(error.constraints).flat();
       }
       if (error.children.length) {

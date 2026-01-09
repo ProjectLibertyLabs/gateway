@@ -19,7 +19,7 @@ import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import { BasePublisherService } from '#queue';
+import { BaseChainPublisherService } from '#consumer/base-chain-publisher.service';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -28,9 +28,9 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-export class TransactionPublisherService extends BasePublisherService {
+export class TransactionPublisherService extends BaseChainPublisherService {
   protected readonly capacityTimeoutName = CAPACITY_EPOCH_TIMEOUT_NAME;
-  protected readonly workerConcurrencyKey = `${QueueConstants.TRANSACTION_PUBLISH_QUEUE}QueueWorkerConcurrency`;
+  protected readonly workerConcurrencyConfigKey = `${QueueConstants.TRANSACTION_PUBLISH_QUEUE}QueueWorkerConcurrency`;
 
   constructor(
     @InjectRedis() cacheManager: Redis,

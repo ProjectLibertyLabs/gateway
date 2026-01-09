@@ -64,7 +64,7 @@ export abstract class BaseChainPublisherService
   public async onApplicationBootstrap() {
     await this.blockchainService.isReady();
     await this.capacityCheckerService.checkForSufficientCapacity();
-    this.worker.concurrency = this.workerConfig[this.workerConcurrencyKey] || 1;
+    this.worker.concurrency = this.workerConfig[this.workerConcurrencyConfigKey] || 1;
   }
 
   public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {

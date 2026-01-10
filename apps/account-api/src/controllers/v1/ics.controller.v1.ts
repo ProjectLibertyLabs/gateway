@@ -64,7 +64,7 @@ export class IcsControllerV1 {
     payload: UpsertPagePayloadDto,
     api: ApiPromise,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    return api.tx.statefulStorage.upsertPageWithSignatureV2(accountId, { Sr25519: payload.proof }, payload.payload);
+    return api.tx.statefulStorage.upsertPageWithSignatureV2(accountId, { Sr25519: payload.signature }, payload.payload);
   }
 
   async buildAndEnqueueIcsBatchTxns(accountId: string, payloads: IcsPublishAllRequestDto): Promise<string> {

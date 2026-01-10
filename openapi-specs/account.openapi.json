@@ -1464,7 +1464,7 @@
           },
           "expiration": {
             "type": "number",
-            "description": "expiration block number for this payload",
+            "description": "The block number at which the signed proof will expire",
             "example": 1
           }
         },
@@ -1515,31 +1515,67 @@
           "proof"
         ]
       },
+      "UpsertedPageDto": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number",
+            "description": "Schema id pertaining to this storage",
+            "example": 1
+          },
+          "pageId": {
+            "type": "number",
+            "description": "Page id of this storage",
+            "example": 1
+          },
+          "targetHash": {
+            "type": "number",
+            "description": "Hash of targeted page",
+            "example": 1234
+          },
+          "expiration": {
+            "type": "number",
+            "description": "The block number at which the signed proof will expire",
+            "example": 1
+          },
+          "payload": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaId",
+          "pageId",
+          "targetHash",
+          "expiration",
+          "payload"
+        ]
+      },
       "UpsertPagePayloadDto": {
         "type": "object",
         "properties": {
           "accountId": {
             "type": "string",
-            "description": "AccountId in hex or SS58 format",
-            "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N"
+            "description": "AccountId in hex or SS58 format that signed the payload",
+            "example": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+          },
+          "signature": {
+            "type": "string",
+            "description": "The signature of the payload",
+            "example": "0x9c66050e827d24862d77f398095dfe59fabcea3cf768ce4fbd5aa74e65d6be27db1e87f56e9c8484a230d405989a89ecaebcdabe95a1c307a4c736cf85444e85"
           },
           "payload": {
-            "$ref": "#/components/schemas/ItemizedSignaturePayloadDto"
-          },
-          "proof": {
-            "type": "string",
-            "description": "proof is the signature for the payload",
-            "example": "0x065d733ca151c9e65b78f2ba77348224d31647e6913c44ad2765c6e8ba06f834dc21d8182447d01c30f84a41d90a8f2e58001d825c6f0d61b0afe89f984eec85"
-          },
-          "pageId": {
-            "type": "number"
+            "description": "The payload that `signature` signed",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertedPageDto"
+              }
+            ]
           }
         },
         "required": [
           "accountId",
-          "payload",
-          "proof",
-          "pageId"
+          "signature",
+          "payload"
         ]
       },
       "IcsPublishAllRequestDto": {
@@ -1582,6 +1618,12 @@
       "name": "handles",
       "tags": [
         "v1/handles"
+      ]
+    },
+    {
+      "name": "ics",
+      "tags": [
+        "v1/ics"
       ]
     },
     {

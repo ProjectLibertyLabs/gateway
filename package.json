@@ -69,7 +69,7 @@
     "test:libs:queue": "dotenvx run -f env-files/account.template.env -- jest 'libs/queue'",
     "test:libs:storage": "dotenvx run -f env-files/content-publishing.template.env -- jest 'libs/storage'",
     "test:libs:utils": "jest 'libs/utils'",
-    "test:libs": "dotenvx run -f env-files/acount.template.env -f env-files/content-publishing.template.env -- jest 'libs/'",
+    "test:libs": "dotenvx run -f env-files/account.template.env -f env-files/content-publishing.template.env -f env-files/content-watcher.template.env -- jest 'libs/'",
     "test": "npm run test:account ; npm run test:content-publishing ; npm run test:content-watcher ; npm run test:libs",
     "test:verbose": "jest --coverage --verbose",
     "test:e2e:account": "dotenvx run -f env-files/account.template.env -- jest --runInBand --detectOpenHandles --testRegex 'account-api/.*\\.e2e-spec\\.ts'",

@@ -2,8 +2,7 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues, shouldBeOptional } =
-  configSetup<IAccountApiConfig>(apiConfig);
+const { setupConfigService, shouldFailBadValues, shouldBeOptional } = configSetup<IAccountApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {

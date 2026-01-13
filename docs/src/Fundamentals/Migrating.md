@@ -11,7 +11,7 @@
 2.  **Understand Frequency and Gateway Services**
 
     - Learn about Frequency blockchain architecture.
-    - Understand Gateway services (Account, Graph, Content Publishing, Content Watcher).
+    - Understand Gateway services (Account, Content Publishing, Content Watcher).
 
 3.  **Set Up Your Development Environment**
 
@@ -36,7 +36,6 @@
 7.  **Migrate Core Functionalities**
 
     - Use the Content Publishing Service for creating feeds and posting content.
-    - Use the Graph Service for managing social connections.
     - Use the Content Watcher Service for retrieving the latest state of feeds and reactions.
 
 8.  **Test and Validate**

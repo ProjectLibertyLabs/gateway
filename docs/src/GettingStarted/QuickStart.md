@@ -94,7 +94,6 @@ All the different services needed were started in Docker. Gateway Services consi
 
 - **Account API & Worker**: User account management and authentication with SIWF v2
 - **Content Publishing API & Worker**: Content creation and publishing to blockchain
-- **Graph API & Worker**: Social graph and relationship management
 - **Content Watcher**: Monitors blockchain for content changes and updates
 
 Each service has dedicated API and worker components for better scalability and performance.
@@ -117,8 +116,6 @@ Open the OpenAPI/Swagger Documentation for each service:
 
 - **Account Service**: [Local](http://localhost:3013/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/account/)
   - Account Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/account-worker/)
-- **Graph Service**: [Local](http://localhost:3012/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/graph/)
-  - Graph Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/graph-worker/)
 - **Content Publishing Service**: [Local](http://localhost:3010/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-publishing/)
   - Content Publishing Worker: [Public Docs](https://projectlibertylabs.github.io/gateway/content-publishing-worker/)
 - **Content Watcher Service**: [Local](http://localhost:3011/docs/swagger) | [Public](https://projectlibertylabs.github.io/gateway/content-watcher/)
@@ -136,6 +133,6 @@ Open the OpenAPI/Swagger Documentation for each service:
 - **SIWF v2 Authentication**: Enhanced security and user experience with Frequency Access integration
 - **W3C Verifiable Credentials**: Support for email, phone number, and private graph key credentials
 - **7 Microservices Architecture**: Complete suite including dedicated worker services for improved scalability
-- **Enhanced Webhooks**: Real-time updates for account and graph changes
-- **Schema-Based Permissions**: Granular delegation control based on Frequency schemas
+- **Enhanced Webhooks**: Real-time updates for account changes
+- **Intent-Based Permissions**: Granular delegation control based on Frequency Intents
 - **Improved Performance**: Optimized background job processing with BullMQ workers

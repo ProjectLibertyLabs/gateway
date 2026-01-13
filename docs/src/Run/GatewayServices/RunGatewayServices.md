@@ -34,7 +34,6 @@ To run this project, you need:
 2. Press `Enter` to use the published Gateway Services containers (Recommended), or type `n` to build the containers locally. If you choose to build the containers locally, you may be interested in viewing the Developer Docs for each service which will have further instructions on running the services locally:
 
    - [Account Service](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/account/README.md)
-   - [Graph Service](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/graph/README.md)
    - [Content Publishing Service](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/content-publishing/README.md)
    - [Content Watcher Service](https://github.com/ProjectLibertyLabs/gateway/blob/main/developer-docs/content-watcher/README.md)
 
@@ -43,7 +42,6 @@ To run this project, you need:
 4. Select the Gateway Services you want to start by answering `y` or `n` for each service:
 
    - **Account Service** (API + Worker): Manages user accounts and authentication with SIWF v2.
-   - **Graph Service** (API + Worker): Handles the creation and querying of social graphs.
    - **Content Publishing Service** (API + Worker): Manages the publishing and distribution of content.
    - **Content Watcher Service**: Monitors the chain for content announcements (new content, updates, etc).
 
@@ -82,13 +80,6 @@ To run this project, you need:
 │ 🔗💠📡          - Mock Webhook:           http://mock-webhook-logger:3001/webhooks/account-service  │
 │ 🔗💠📡            (View log messages in docker)                                                     │
 │ 🔗💠📡                                                                                              │
-│ 🔗💠📡      * graph-service:                                                                        │
-│ 🔗💠📡          - API:                    http://localhost:3012                                     │
-│ 🔗💠📡          - Queue management:       http://localhost:3012/queues                              │
-│ 🔗💠📡          - Swagger UI:             http://localhost:3012/docs/swagger                        │
-│ 🔗💠📡          - Health check:           http://localhost:3013/healthz                             │
-│ 🔗💠📡          - Prometheus metrics:     http://localhost:3013/metrics                             │
-│ 🔗💠📡                                                                                              │
 │ 🔗💠📡                                                                                              │
 └────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -100,4 +91,3 @@ For information on environment variables, see the Build page for your selected s
 - [Account Service](../../Build/AccountService/AccountService.html)
 - [Content Publishing Service](../../Build/ContentPublishing/ContentPublishing.html)
 - [Content Watcher Service](../../Build/ContentWatcher/ContentWatcher.html)
-- [Graph Service](../../Build/GraphService/GraphService.html)

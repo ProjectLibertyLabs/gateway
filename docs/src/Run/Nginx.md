@@ -95,9 +95,6 @@ curl -i http://127.0.0.1/content-publishing/some-endpoint
 
 # Test the /content-watcher path
 curl -i http://127.0.0.1/content-watcher/some-endpoint
-
-# Test the /graph path
-curl -i http://127.0.0.1/graph/some-endpoint
 ```
 
 The `-i` flag includes the HTTP response headers in the output, which is useful for debugging.

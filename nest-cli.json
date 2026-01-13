@@ -90,33 +90,6 @@
         "tsConfigPath": "libs/content-watcher-lib/tsconfig.lib.json"
       }
     },
-    "graph-api": {
-      "type": "application",
-      "root": "apps/graph-api",
-      "entryFile": "main",
-      "sourceRoot": "apps/graph-api/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/graph-api/tsconfig.app.json"
-      }
-    },
-    "graph-lib": {
-      "type": "library",
-      "root": "libs/graph-lib",
-      "entryFile": "index",
-      "sourceRoot": "libs/graph-lib/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/graph-lib/tsconfig.lib.json"
-      }
-    },
-    "graph-worker": {
-      "type": "application",
-      "root": "apps/graph-worker",
-      "entryFile": "main",
-      "sourceRoot": "apps/graph-worker/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/graph-worker/tsconfig.app.json"
-      }
-    },
     "types": {
       "type": "library",
       "root": "libs/types",

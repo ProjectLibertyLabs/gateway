@@ -2,8 +2,7 @@ import { describe, it, expect, beforeAll } from '@jest/globals';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import configSetup from '#testlib/utils.config-tests';
 
-const { setupConfigService, validateMissing, shouldFailBadValues, shouldBeOptional } =
-  configSetup<IAccountApiConfig>(apiConfig);
+const { setupConfigService, shouldFailBadValues, shouldBeOptional } = configSetup<IAccountApiConfig>(apiConfig);
 
 describe('Account API Config', () => {
   const ALL_ENV: { [key: string]: string | undefined } = {
@@ -11,7 +10,6 @@ describe('Account API Config', () => {
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,
     SIWF_NODE_RPC_URL: undefined,
-    GRAPH_ENVIRONMENT_TYPE: undefined,
     SIWF_URL: undefined,
     SIWF_V2_URL: undefined,
     SIWF_V2_URI_VALIDATION: undefined,
@@ -28,11 +26,6 @@ describe('Account API Config', () => {
       shouldFailBadValues(ALL_ENV, 'SIWF_NODE_RPC_URL', ['invalid url']));
 
     it('invalid api port should fail', async () => shouldFailBadValues(ALL_ENV, 'API_PORT', [-1]));
-
-    it('missing graph environment type should fail', async () => validateMissing(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE'));
-
-    it('invalid graph environment type should fail', async () =>
-      shouldFailBadValues(ALL_ENV, 'GRAPH_ENVIRONMENT_TYPE', ['invalid']));
 
     it('invalid api body json limit should fail', async () => shouldFailBadValues(ALL_ENV, 'API_BODY_JSON_LIMIT', [0]));
 
@@ -63,10 +56,6 @@ describe('Account API Config', () => {
 
     it('should get api port', () => {
       expect(accountServiceConfig.apiPort).toStrictEqual(parseInt(ALL_ENV.API_PORT as string, 10));
-    });
-
-    it('should get graph environment type', () => {
-      expect(accountServiceConfig.graphEnvironmentType).toStrictEqual(ALL_ENV.GRAPH_ENVIRONMENT_TYPE);
     });
 
     it('should get SIWF URL', () => {

@@ -143,10 +143,6 @@ service:
     port: 8082
     targetPort: http-watcher
     deploy: true
-  graph:
-    port: 8083
-    targetPort: http-graph
-    deploy: true
 ```
 
 ---

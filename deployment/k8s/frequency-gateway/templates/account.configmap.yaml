@@ -23,6 +23,5 @@ data:
   SIWF_V2_URI_VALIDATION: {{ .Values.account.env.SIWF_V2_URI_VALIDATION | quote }}
   DEBUG: {{ .Values.account.env.DEBUG | quote }}
   CACHE_KEY_PREFIX: {{ .Values.account.env.CACHE_KEY_PREFIX | quote }}
-  GRAPH_ENVIRONMENT_TYPE: {{ .Values.account.env.GRAPH_ENVIRONMENT_TYPE | quote }}
   API_TIMEOUT_MS: {{ .Values.account.env.API_TIMEOUT_MS | quote }}
   API_BODY_JSON_LIMIT: {{ .Values.account.env.API_BODY_JSON_LIMIT | quote }}

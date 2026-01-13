@@ -13,16 +13,6 @@ services:
       frequency:
         condition: service_healthy
 
-  graph-service-api:
-    depends_on:
-      frequency:
-        condition: service_healthy
-
-  graph-service-worker:
-    depends_on:
-      frequency:
-        condition: service_healthy
-
   account-service-api:
     depends_on:
       frequency:

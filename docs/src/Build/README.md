@@ -3,7 +3,6 @@
 <div class="button-links-outlined">
   <a href="./AccountService/AccountService.html">Account Service</a>
   <a href="./ContentPublishing/ContentPublishing.html">Content Publisher Service</a>
-  <a href="./GraphService/GraphService.html">Graph Service</a>
   <a href="./ContentWatcher/ContentWatcher.html">Content Watcher Service</a>
 </div>
 
@@ -22,17 +21,6 @@ Accounts are defined as an `msaId` (64-bit identifier) and can contain additiona
 - User key retrieval and management
 
 See **[Account Service Details & API Reference](./AccountService/AccountService.md)**
-
-## **Graph Service**
-
-The Graph Service enables easy interaction with social graphs on Frequency.
-Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidirectional (double opt-in friend connection).
-
-- Fetch user graph
-- Update delegated user graphs
-- Watch graphs for external updates
-
-See [Graph Service Details & API Reference](./GraphService/GraphService.md)
 
 ## **Content Publishing Service**
 

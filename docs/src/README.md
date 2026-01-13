@@ -22,7 +22,7 @@ Frequency Developer Gateway offers a suite of tools you can pick and choose from
 
 ## **Basic Architecture**
 
-Frequency Developer Gateway provides a simple API to interact with the Frequency social layers of identity, graph, content, and more.
+Frequency Developer Gateway provides a simple API to interact with the Frequency social layers of identity, content, and more.
 
 {{#svg-embed ./src/GatewayLayers.svg Gateway Application Layer Diagram}}
 
@@ -41,15 +41,6 @@ Accounts are defined as an `msaId` (64-bit identifier) and can contain additiona
 - Delegation management
 - User Handle creation and retrieval
 - User key retrieval and management
-
-### Graph Service
-
-The Graph Service enables easy interaction with social graphs on Frequency.
-Each Graph connection on Frequency can be private or public and can be unidirectional (a follow) or bidirectional (double opt-in friend connection).
-
-- Fetch user graph
-- Update delegated user graphs
-- Watch graphs for external updates
 
 ### Content Publishing Service
 

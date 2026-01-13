@@ -667,7 +667,7 @@
     },
     "/v1/keys/publicKeyAgreements": {
       "post": {
-        "operationId": "KeysControllerV1_AddNewPublicKeyAgreements_v1",
+        "operationId": "KeysControllerV1_addNewPublicKeyAgreements_v1",
         "parameters": [],
         "requestBody": {
           "required": true,

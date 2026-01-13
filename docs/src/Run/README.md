@@ -61,26 +61,8 @@ See the [docker-compose-swarm.yaml](https://github.com/projectlibertylabs/gatewa
 |                                | BLOCKCHAIN_SCAN_INTERVAL_SECONDS                                                                  |
 |                                | TRUST_UNFINALIZED_BLOCKS                                                                          |
 |                                | WEBHOOK_BASE_URL                                                                                  |
-|                                | GRAPH_ENVIRONMENT_TYPE                                                                            |
 |                                | CACHE_KEY_PREFIX                                                                                  |
 |                                | SIWF_V2_URI_VALIDATION                                                                            |
-
-<br />
-
-| **Graph Service**              | **Details**                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------|
-| **Docker Image**               | `projectlibertylabs/graph-service`                                                                |
-| **Dependencies**               | Redis                                                                                       |
-| **API Ports**                  | `3000`                                                                                            |
-| **Inter-Service Ports**        | `6379, 9944`                                                                                      |
-| **Docker Compose Services**    | graph-service-api `START_PROCESS: graph-api`                                                      |
-|                                | graph-service-worker `START_PROCESS: graph-worker`                                                |
-| **Required Variables**         | [Graph Service Environment Variables](https://github.com/projectlibertylabs/gateway/blob/main/developer-docs/graph/ENVIRONMENT.md) |
-|                                | DEBOUNCE_SECONDS                                                                                  |
-|                                | GRAPH_ENVIRONMENT_TYPE                                                                            |
-|                                | RECONNECTION_SERVICE_REQUIRED                                                                     |
-|                                | CACHE_KEY_PREFIX                                                                                  |
-|                                | AT_REST_ENCRYPTION_KEY_SEED                                                                       |
 
 <br />
 

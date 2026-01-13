@@ -161,9 +161,6 @@ EOI
     if yesno "Start the mock webhook logger" Y; then
         PROFILES="${PROFILES} webhook"
     fi
-    if yesno "Start the graph service" Y; then
-        PROFILES="${PROFILES} graph"
-    fi
     if yesno "Start the content-publishing service" Y; then
         PROFILES="${PROFILES} content-publishing"
     fi
@@ -344,18 +341,6 @@ You can access the Gateway at the following local addresses:
         - Health check:       http://localhost:${SERVICE_PORT_1}/healthz
         - Prometheus metrics: http://localhost:${SERVICE_PORT_1}/metrics
         - Swagger UI:         http://localhost:${SERVICE_PORT_1}/docs/swagger
-"
-    fi
-    if [[ ${PROFILES} =~ graph ]]; then
-        SERVICES_STR="${SERVICES_STR}
-    * graph-service:
-        - API:                       http://localhost:${SERVICE_PORT_2}
-        - Queue management:          http://localhost:${SERVICE_PORT_2}/queues
-        - Health check:              http://localhost:${SERVICE_PORT_2}/healthz
-        - Worker health check:       http://localhost:${SERVICE_PORT_5}/healthz
-        - Prometheus metrics:        http://localhost:${SERVICE_PORT_2}/metrics
-        - Worker Prometheus metrics: http://localhost:${SERVICE_PORT_5}/metrics
-        - Swagger UI:                http://localhost:${SERVICE_PORT_2}/docs/swagger
 "
     fi
 

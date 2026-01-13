@@ -101,10 +101,6 @@ service:
     port: 8082
     targetPort: http-watcher
     deploy: false
-  graph:
-    port: 8083
-    targetPort: http-graph
-    deploy: false
 
 # Deployment configuration
 account:
@@ -138,7 +134,6 @@ account:
     SIWF_DOMAIN: "localhost"
     DEBUG: "true"
     CACHE_KEY_PREFIX: "account:"
-    GRAPH_ENVIRONMENT_TYPE: "TestnetPaseo"
     API_TIMEOUT_MS: "5000"
     API_BODY_JSON_LIMIT: "1mb"
     RATE_LIMIT_TTL: "60000"
@@ -217,49 +212,6 @@ contentWatcher:
   secret:
     IPFS_BASIC_AUTH_USER: ""
     IPFS_BASIC_AUTH_SECRET: ""
-
-graph:
-  image:
-    repository: "projectlibertylabs/graph-service"
-    tag: "latest"
-    healthCheckPath: "/healthz"
-    readinessProbePath: "/readyz"
-    mode:
-      api:
-        args: "graph-api"
-      worker:
-        args: "graph-worker"
-  env:
-    API_PORT: "3005"
-    FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
-    PROVIDER_ID: "1"
-    REDIS_OPTIONS: ""
-    REDIS_URL: "redis://<host-ip>:6379"
-    QUEUE_HIGH_WATER: "1000"
-    DEBOUNCE_SECONDS: "10"
-    CAPACITY_LIMIT: '{"serviceLimit":{"type":"percentage","value":"80"}}'
-    GRAPH_ENVIRONMENT_TYPE: "Mainnet"
-    RECONNECTION_SERVICE_REQUIRED: "true"
-    PROVIDER_BASE_URL: "https://some-provider/api/v1.0.0"
-    CONNECTIONS_PER_PROVIDER_RESPONSE_PAGE: "100"
-    BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "6"
-    WEBHOOK_FAILURE_THRESHOLD: "3"
-    HEALTH_CHECK_SUCCESS_THRESHOLD: "10"
-    WEBHOOK_RETRY_INTERVAL_SECONDS: "10"
-    HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: "10"
-    HEALTH_CHECK_MAX_RETRIES: "4"
-    CACHE_KEY_PREFIX: "graph:"
-    RATE_LIMIT_TTL: "60000"
-    RATE_LIMIT_MAX_REQUESTS: "50"
-    RATE_LIMIT_SKIP_SUCCESS: "false"
-    RATE_LIMIT_SKIP_FAILED: "false"
-    RATE_LIMIT_BLOCK_ON_EXCEEDED: "true"
-    RATE_LIMIT_KEY_PREFIX: "graph:throttle"
-  secret:
-    PROVIDER_ACCOUNT_SEED_PHRASE: "come finish flower cinnamon blame year glad tank domain hunt release fatigue"
-    PROVIDER_ACCESS_TOKEN: "some-token"
-    AT_REST_ENCRYPTION_KEY_SEED: 'egg angry govern region tuition hawk solid rotate heart upgrade coral van'
-
 
 # Monitoring configuration for AWS CloudWatch
 cloudwatch:

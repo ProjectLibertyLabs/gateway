@@ -18,7 +18,7 @@ permissions:
 env:
   FULL_TAG: ${{ github.event.release.tag_name || github.event.inputs.release-tag}}
   DOCKER_HUB_PROFILE: projectlibertylabs
-  ALL_SERVICES: '["account", "content-publishing", "content-watcher", "graph"]'
+  ALL_SERVICES: '["account", "content-publishing", "content-watcher"]'
 
 jobs:
   set_variables:

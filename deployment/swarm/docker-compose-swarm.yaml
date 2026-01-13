@@ -36,18 +36,10 @@ x-content-watcher-env: &content-watcher-env
   WEBHOOK_FAILURE_THRESHOLD: 4
   CACHE_KEY_PREFIX: 'content-watcher:'
 
-x-graph-service-env: &graph-service-env
-  DEBOUNCE_SECONDS: 10
-  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
-  RECONNECTION_SERVICE_REQUIRED: 'false'
-  CACHE_KEY_PREFIX: 'graph:'
-  AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
-
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: 'true'
   WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://your-app.com:3001/webhooks/account-service}'
-  GRAPH_ENVIRONMENT_TYPE: 'Mainnet'
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
 
@@ -121,36 +113,6 @@ services:
     depends_on:
       - redis
       - ipfs
-    networks:
-      - gateway-net
-
-  graph-service-api:
-    image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
-    deploy:
-      mode: replicated
-      replicas: 1
-    ports:
-      - ${SERVICE_PORT_2}:3000
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-api
-    depends_on:
-      - redis
-    networks:
-      - gateway-net
-
-  graph-service-worker:
-    image: projectlibertylabs/graph-service:${DOCKER_TAG:-latest}
-    deploy:
-      mode: replicated
-      replicas: 1
-    ports:
-      - ${SERVICE_PORT_5:-3022}:3000
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-worker
-    depends_on:
-      - redis
     networks:
       - gateway-net
 

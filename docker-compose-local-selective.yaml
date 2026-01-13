@@ -17,9 +17,3 @@ services:
   account-service-api:
     profiles:
       - account
-  graph-service-api:
-    profiles:
-      - graph
-  graph-service-worker:
-    profiles:
-      - graph

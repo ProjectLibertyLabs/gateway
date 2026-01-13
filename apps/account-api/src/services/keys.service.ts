@@ -1,6 +1,5 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { EnvironmentInterface, EnvironmentType, Graph } from '@projectlibertylabs/graph-sdk';
 import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
@@ -31,7 +30,7 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class KeysService {
-  private readonly graphKeySchemaId: number;
+  private graphKeySchemaId: number;
 
   constructor(
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
@@ -39,12 +38,6 @@ export class KeysService {
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(this.constructor.name);
-    const { graphEnvironmentType } = this.apiConf;
-    const environment: EnvironmentInterface = { environmentType: EnvironmentType[graphEnvironmentType] };
-    const graphState = new Graph(environment);
-    // there might be a better way to get this schema id but for now we are stuck to get it from graph-sdk
-    this.graphKeySchemaId = graphState.getGraphConfig(environment).graphPublicKeySchemaId;
-    graphState.freeGraphState();
   }
 
   async getKeysByMsa(msaId: string): Promise<KeysResponse> {
@@ -64,8 +57,12 @@ export class KeysService {
     newKey: HexString,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
     const expiration = await this.getExpiration();
-    const schemaId = this.graphKeySchemaId;
-    const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, schemaId);
+
+    // Get graph key schema ID if not already cached
+    if (!this.graphKeySchemaId) {
+      this.graphKeySchemaId = await this.blockchainService.getSchemaIdByName('dsnp', 'public-key-key-agreement');
+    }
+    const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, this.graphKeySchemaId);
     if (
       itemizedStorage.items
         .toArray()
@@ -75,7 +72,7 @@ export class KeysService {
     }
     const payload: ItemizedSignaturePayloadDto = {
       expiration,
-      schemaId,
+      schemaId: this.graphKeySchemaId,
       targetHash: itemizedStorage.content_hash.toNumber(),
       actions: [
         {

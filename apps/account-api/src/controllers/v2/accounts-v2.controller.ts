@@ -95,7 +95,7 @@ export class AccountsControllerV2 {
     }
 
     // Extract a valid payload from the request
-    // This inludes the validation of the login payload if any
+    // This includes the validation of the login payload if any
     // Also makes sure it is either a login or a delegation
     const payload = await this.siwfV2Service.getPayload(callbackRequest);
 

@@ -1,5 +1,4 @@
 import { JoiUtils } from '#config';
-import { EnvironmentType } from '@projectlibertylabs/graph-sdk';
 import { registerAs } from '@nestjs/config';
 import Joi from 'joi';
 
@@ -8,7 +7,6 @@ export interface IAccountApiConfig {
   apiPort: number;
   apiTimeoutMs: number;
   siwfNodeRpcUrl?: URL;
-  graphEnvironmentType: keyof typeof EnvironmentType;
   siwfUrl: string;
   siwfV2Url?: string;
   siwfV2URIValidation?: string[];
@@ -31,10 +29,6 @@ export default registerAs('account-api', (): IAccountApiConfig => {
     siwfNodeRpcUrl: {
       label: 'SIWF_NODE_RPC_URL',
       joi: Joi.string().uri(),
-    },
-    graphEnvironmentType: {
-      label: 'GRAPH_ENVIRONMENT_TYPE',
-      joi: Joi.string().required().valid('Mainnet', 'TestnetPaseo'),
     },
     siwfUrl: {
       label: 'SIWF_URL',

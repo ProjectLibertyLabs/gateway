@@ -15,10 +15,9 @@ Your application still must manage sessions as is best for your custom needs.
 
 #### Sign In With Frequency (SIWF)
 
-[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) v1 (deprecated) and v2 (which supports [Frequency Access](https://frequencyaccess.com/)) are methods for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
+[Sign In With Frequency (SIWF)](https://github.com/ProjectLibertyLabs/siwf) is a method for authenticating users in the Frequency ecosystem. SIWF allows users to authenticate using their Frequency accounts, providing a secure and decentralized way to manage identities.
 
 - **SIWF v2 Implementation:** Users sign in using an SIWF v2 Authentication Service that uses redirect and callback URLs. The Authentication Service authenticates and generate cryptographic signatures for authentication.
-- **SIWF v1 Implementation:** Users sign in using their Web3 wallets, which generate cryptographic signatures for authentication.
 
 #### Account Service
 
@@ -51,7 +50,7 @@ For efficiency and performance, certain data may be stored locally or within app
 
 ### Hooking Up All the Microservices
 
-Gateway is designed to support a modular and microservices-based approach. Each service (e.g., Account Service, Graph Service, Content Publishing Service) operates independently but can interact through well-defined APIs.
+Gateway is designed to support a modular and microservices-based approach. Each service (e.g., Account Service, Content Publishing Service) operates independently but can interact through well-defined APIs.
 
 ### Here is Where Your Custom Code Goes!
 

@@ -37,17 +37,10 @@ x-content-watcher-env: &content-watcher-env
   WEBHOOK_FAILURE_THRESHOLD: 4
   CACHE_KEY_PREFIX: 'content-watcher:'
 
-x-graph-service-env: &graph-service-env
-  DEBOUNCE_SECONDS: 10
-  GRAPH_ENVIRONMENT_TYPE: Mainnet
-  CACHE_KEY_PREFIX: 'graph:'
-  AT_REST_ENCRYPTION_KEY_SEED: 'This should get injected as a secret'
-
 x-account-service-env: &account-service-env
   BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
   TRUST_UNFINALIZED_BLOCKS: true
   WEBHOOK_BASE_URL: '${WEBHOOK_BASE_URL:-http://mock-webhook-logger:3001/webhooks/account-service}'
-  GRAPH_ENVIRONMENT_TYPE: Mainnet
   CACHE_KEY_PREFIX: 'account:'
   SIWF_V2_URI_VALIDATION: 'localhost'
 
@@ -176,44 +169,6 @@ services:
     networks:
       - gateway-net
 
-  graph-service-api:
-    pull_policy: never
-    image: gateway-dev:latest
-    user: "1001:1001"
-    ports:
-      - ${SERVICE_PORT_2:-3012}:3000
-    command: make start-graph-api
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-api
-    volumes:
-      - ./:/app
-      - graph_api_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
-
-  graph-service-worker:
-    pull_policy: never
-    image: gateway-dev:latest
-    user: "1001:1001"
-    ports:
-      - ${SERVICE_PORT_5:-3022}:3000
-    command: make start-graph-worker
-    environment:
-      <<: [*common-environment, *graph-service-env]
-      START_PROCESS: graph-worker
-    volumes:
-      - ./:/app
-      - graph_worker_node_cache:/app/node_modules
-    depends_on:
-      - redis
-      - gateway-base
-    networks:
-      - gateway-net
-
   account-service-api:
     pull_policy: never
     image: gateway-dev:latest
@@ -273,8 +228,6 @@ volumes:
   bull_data:
   account_api_node_cache:
   account_worker_node_cache:
-  graph_api_node_cache:
-  graph_worker_node_cache:
   content_publishing_api_node_cache:
   content_publishing_worker_node_cache:
   content_watcher_node_cache:

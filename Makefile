@@ -1,5 +1,5 @@
-SERVICES=account content-publishing content-watcher graph libs
-DOCKER_SERVICES=account content-publishing content-watcher graph
+SERVICES=account content-publishing content-watcher libs
+DOCKER_SERVICES=account content-publishing content-watcher
 
 BUILD_TARGETS=$(SERVICES:%=build-%)
 TEST_TARGETS=$(SERVICES:%=test-%)
@@ -80,12 +80,6 @@ start-content-publishing-worker: update-packages
 
 start-content-watcher: update-packages
 	@npm run start:content-watcher:watch
-
-start-graph-api: update-packages
-	@npm run start:graph-api:watch
-
-start-graph-worker: update-packages
-	@npm run start:graph-worker:watch
 
 .PHONY: setup-account
 setup-account:

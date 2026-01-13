@@ -3,8 +3,8 @@
 <!--
 Find and replace list:
 
-- `{gateway-service-repo}`: Example: `account-service`, `graph-service`
-- `{gateway-service-title}`: Example `Account Service`, `Graph Service`
+- `{gateway-service-repo}`: Example: `account-service`, `content-watcher-service`
+- `{gateway-service-title}`: Example `Account Service`, `Content Watcher Service`
 -->
 
 <!-- TABLE OF CONTENTS -->

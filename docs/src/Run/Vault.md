@@ -37,7 +37,6 @@ Vault is used to manage and securely inject secrets into the Frequency Developer
 - **account-service**: Stores provider access tokens and account seed phrases.
 - **content-publishing-service**: Manages IPFS authentication secrets.
 - **content-watcher-service**: Handles watcher credentials and IPFS secrets.
-- **graph-service**: Manages provider access tokens and account details.
 
 ## **2. Vault Setup**
 
@@ -71,12 +70,6 @@ Similarly, create secrets for other services:
 
   ```bash
   vault kv put secret/frequency-gateway/content-watcher IPFS_BASIC_AUTH_USER=<username> IPFS_BASIC_AUTH_SECRET=<password>
-  ```
-
-- **Graph Service:**
-
-  ```bash
-  vault kv put secret/frequency-gateway/graph PROVIDER_ACCESS_TOKEN=<your-access-token> PROVIDER_ACCOUNT_SEED_PHRASE=<your-seed-phrase>
   ```
 
 ### 2.3 Set Up Kubernetes Authentication
@@ -221,28 +214,6 @@ To securely connect Kubernetes resources with Vault, you need to use the **Exter
        - key: PROVIDER_ACCOUNT_SEED_PHRASE
          name: PROVIDER_ACCOUNT_SEED_PHRASE
 
-   ---
-   apiVersion: external-secrets.io/v1beta1
-   kind: ExternalSecret
-   metadata:
-     name: graph-secret
-   spec:
-     backendType: vault
-     vault:
-       server: "{{ .Values.vault.address }}"
-       path: "{{ .Values.vault.secretsPath }}/graph"
-       version: "v2"
-       auth:
-         tokenSecretRef:
-           name: "{{ .Values.vault.tokenSecretName }}"
-           key: "{{ .Values.vault.tokenSecret }}"
-
-     data:
-       - key: PROVIDER_ACCESS_TOKEN
-         name: PROVIDER_ACCESS_TOKEN
-       - key: PROVIDER_ACCOUNT_SEED_PHRASE
-         name: PROVIDER_ACCOUNT_SEED_PHRASE
-
    {{- end }}
    ```
 
@@ -282,7 +253,6 @@ To manually retrieve secrets using the Vault CLI:
 vault kv get secret/frequency-gateway/account
 vault kv get secret/frequency-gateway/content-publishing
 vault kv get secret/frequency-gateway/content-watcher
-vault kv get secret/frequency-gateway/graph
 ```
 
 To retrieve specific fields:

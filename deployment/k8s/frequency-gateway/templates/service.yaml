@@ -25,11 +25,5 @@ spec:
       targetPort: {{ .Values.service.contentWatcher.targetPort }}
       protocol: TCP
     {{- end }}
-    {{- if .Values.service.graph.deploy }}
-    - name: graph-service
-      port: {{ .Values.service.graph.port }}
-      targetPort: {{ .Values.service.graph.targetPort }}
-      protocol: TCP
-    {{- end }}
   selector:
     {{- include "frequency-gateway.selectorLabels" . | nindent 4 }}

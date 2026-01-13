@@ -52,12 +52,6 @@ services:
   content-watcher-service:
     profiles:
       - skip
-  graph-service-api:
-    profiles:
-      - skip
-  graph-service-worker:
-    profiles:
-      - skip
   account-service-api:
     # It is not possible to override a single key in a map, so we replace the entire environment map
     environment:

@@ -73,7 +73,7 @@ spec:
               mountPath: /app/secret/account
           args: ["{{ .Values.account.image.mode.worker.args}}"]
         {{- end }}
-        
+
         {{- if .Values.service.contentPublishing.deploy }}
         - name: content-publishing-service-api
           securityContext:
@@ -166,60 +166,6 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
 
-        {{- if .Values.service.graph.deploy }}
-        - name: graph-service-api
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
-          ports:
-            - name: http-graph
-              containerPort: {{ .Values.graph.env.API_PORT }}
-              protocol: TCP
-          envFrom:
-            - configMapRef:
-                name: graph-configmap
-            - secretRef:
-                name: graph-secret
-          env:
-            - name: START_PROCESS
-              value: "graph-api"
-          volumeMounts:
-            - name: graph-config-volume
-              mountPath: /app/config/graph
-            - name: graph-secret-volume
-              mountPath: /app/secret/graph
-          livenessProbe:
-            httpGet:
-              path: {{ .Values.graph.image.healthCheckPath }}
-              port: {{ .Values.graph.env.API_PORT }}
-            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
-          readinessProbe:
-            httpGet:
-              path: {{ .Values.graph.image.readinessProbePath }}
-              port: {{ .Values.graph.env.API_PORT }}
-            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.readinessProbe.periodSeconds }} 
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          args: ["{{ .Values.graph.image.mode.api.args}}"]
-        - name: graph-service-worker
-          image: "{{ .Values.graph.image.repository }}:{{ .Values.graph.image.tag }}"
-          envFrom:
-            - configMapRef:
-                name: graph-configmap
-            - secretRef:
-                name: graph-secret
-          env:
-            - name: START_PROCESS
-              value: "graph-worker"
-          volumeMounts:
-            - name: graph-config-volume
-              mountPath: /app/config/graph
-            - name: graph-secret-volume
-              mountPath: /app/secret/graph
-          args: ["{{ .Values.graph.image.mode.worker.args}}"]
-        {{- end }}
       volumes:
         - name: account-config-volume
           configMap:
@@ -239,9 +185,3 @@ spec:
         - name: content-watcher-secret-volume
           secret:
             secretName: content-watcher-secret
-        - name: graph-config-volume
-          configMap:
-            name: graph-configmap
-        - name: graph-secret-volume
-          secret:
-            secretName: graph-secret

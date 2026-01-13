@@ -15,7 +15,6 @@ This is the **Frequency Developer Gateway** - a NestJS monorepo containing micro
 **Core Services:**
 - **Account** (`account-api` + `account-worker`): User account management, authentication via Sign In With Frequency
 - **Content Publishing** (`content-publishing-api` + `content-publishing-worker`): Content creation, file upload, IPFS storage, blockchain publishing
-- **Graph** (`graph-api` + `graph-worker`): Social graph relationships, following/unfollowing
 - **Content Watcher** (`content-watcher`): Blockchain monitoring for content changes
 
 **Key Libraries:**
@@ -36,7 +35,6 @@ npm run build
 npm run build:account
 npm run build:content-publishing
 npm run build:content-watcher
-npm run build:graph
 npm run build:libs
 ```
 
@@ -45,13 +43,11 @@ npm run build:libs
 # Start individual services in development mode
 npm run start:account-api:dev
 npm run start:content-publishing-api:dev
-npm run start:graph-api:dev
 npm run start:content-watcher:dev
 
 # Start workers
 npm run start:account-worker:dev
 npm run start:content-publishing-worker:dev
-npm run start:graph-worker:dev
 ```
 
 ### Testing
@@ -63,7 +59,6 @@ npm test
 npm run test:account
 npm run test:content-publishing
 npm run test:content-watcher
-npm run test:graph
 npm run test:libs
 
 # Run specific library tests
@@ -74,7 +69,6 @@ npm run test:libs:storage
 # Run E2E tests
 npm run test:e2e:account
 npm run test:e2e:content-publishing
-npm run test:e2e:graph
 
 # Run single test file
 jest path/to/test.spec.ts
@@ -108,7 +102,6 @@ npm run generate:openapi
 # Generate for specific services
 npm run generate:openapi:account
 npm run generate:openapi:content-publishing
-npm run generate:openapi:graph
 
 # Generate Swagger UI documentation
 npm run generate:swagger-ui

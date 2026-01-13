@@ -44,7 +44,6 @@ API.
 
 - Account (account-api + account-worker): User account management and blockchain interactions
 - Content Publishing (content-publishing-api + content-publishing-worker): Content creation and publishing to blockchain
-- Graph (graph-api + graph-worker): Social graph and relationship management
 - Content Watcher (content-watcher): Monitors blockchain for content changes
 
 ### Shared Libraries
@@ -104,19 +103,16 @@ flowchart LR
     end
     subgraph Gateway Microservices
         AS[Account Service]
-        GS[Graph Service]
         CPS[Content Publishing Service]
         CWS[Content Watcher Service]
     end
     S --> AS
-    S --> GS
     S --> CPS
     S --> CWS
     subgraph Public
         F(Frequency Network)
     end
     AS --> F
-    GS --> F
     CPS --> F
     CWS --> F
 ```
@@ -131,7 +127,6 @@ Frequency blockchain. Below is a detailed overview of each service:
 | Service                    | Description                                                                                                                                                                                                    | API Documentation                                                            | README                                                  |
 |----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------|
 | Account Service            | Manages user accounts and authentication on the Frequency blockchain using [Sign In With Frequency](https://github.com/ProjectLibertyLabs/siwf). It handles tasks such as account creation and key management. | [API Docs](https://projectlibertylabs.github.io/gateway/account)             | [README](./developer-docs/account/README.md)            |
-| Graph Service              | Manages social connections and relationships between users on the Frequency network. It handles operations like following/unfollowing users and retrieving social graphs.                                      | [API Docs](https://projectlibertylabs.github.io/gateway/graph/)              | [README](./developer-docs/graph/README.md)              |
 | Content Publishing Service | Facilitates the creation and publication of content on the Frequency blockchain. It manages tasks such as posting messages, attachments, replies, and reactions.                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-publishing/) | [README](./developer-docs/content-publishing/README.md) |
 | Content Watcher Service    | Monitors and retrieves content updates from the Frequency blockchain. It allows applications to efficiently track new content as it's published.                                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-watcher/)    | [README](./developer-docs/content-watcher/README.md)    |
 
@@ -250,8 +245,7 @@ for a colorized, more human-readable format.
 
 ## 📊 Metrics <a name="metrics"></a>
 
-For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, content-watcher,
-graph-api, and graph-worker - Gateway exposes the default
+For each app - account-api, account-worker, content-publishing-api, content-publishing-worker, and content-watcher - Gateway exposes the default
 Prometheus metrics at `/metrics`.
 A local Prometheus server can be installed and pointed at this endpoint for debugging or other purposes.
 

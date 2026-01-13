@@ -99,7 +99,7 @@ export class SiwfV2Service {
       return null;
     }
 
-    const api = await this.blockchainService.getApi();
+    const api: ApiPromise = await this.blockchainService.getApi() as ApiPromise;
     const { pallet, extrinsic: extrinsicName } = payload.endpoint;
 
     switch (`${pallet}.${extrinsicName}`) {
@@ -110,7 +110,7 @@ export class SiwfV2Service {
         return {
           pallet,
           extrinsicName,
-          encodedExtrinsic: (api as ApiPromise).tx[pallet][extrinsicName](
+          encodedExtrinsic: api.tx[pallet][extrinsicName](
             userPublicKey,
             chainSignature(payload.signature),
             payload.payload,
@@ -120,7 +120,7 @@ export class SiwfV2Service {
         return {
           pallet,
           extrinsicName,
-          encodedExtrinsic: (api as ApiPromise).tx.statefulStorage
+          encodedExtrinsic: api.tx.statefulStorage
             .applyItemActionsWithSignatureV2(
               userPublicKey,
               chainSignature(payload.signature),

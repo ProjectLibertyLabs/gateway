@@ -67,9 +67,3 @@ services:
   content-watcher-service:
     profiles:
       - skip
-  graph-service-api:
-    profiles:
-      - skip
-  graph-service-worker:
-    profiles:
-      - skip

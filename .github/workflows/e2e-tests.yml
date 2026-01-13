@@ -50,10 +50,6 @@ jobs:
               - 'apps/account-api/**'
               - 'apps/account-worker/**'
               - 'libs/account-lib/**'
-            graph:
-              - 'apps/graph-api/**'
-              - 'apps/graph-worker/**'
-              - 'libs/graph-lib/**'
             content-publishing:
               - 'apps/content-publishing-api/**'
               - 'apps/content-publishing-worker/**'

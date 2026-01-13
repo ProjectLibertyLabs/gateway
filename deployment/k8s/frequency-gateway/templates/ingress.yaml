@@ -21,28 +21,21 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "frequency-gateway.fullname" . }} 
+                name: {{ include "frequency-gateway.fullname" . }}
                 port:
-                  number: {{ .Values.service.account.port }} 
+                  number: {{ .Values.service.account.port }}
           - path: /content-publishing
             pathType: Prefix
             backend:
               service:
-                name: {{ include "frequency-gateway.fullname" . }} 
+                name: {{ include "frequency-gateway.fullname" . }}
                 port:
                   number: {{ .Values.service.contentPublishing.port }}
           - path: /content-watcher
             pathType: Prefix
             backend:
               service:
-                name: {{ include "frequency-gateway.fullname" . }} 
+                name: {{ include "frequency-gateway.fullname" . }}
                 port:
                   number: {{ .Values.service.contentWatcher.port }}
-          - path: /graph
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "frequency-gateway.fullname" . }} 
-                port:
-                  number: {{ .Values.service.graph.port }}
 {{- end }}

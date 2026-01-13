@@ -35,7 +35,6 @@ export const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountA
   apiPort: 0,
   apiTimeoutMs: 0,
   siwfNodeRpcUrl: new URL('http://127.0.0.1:9944'),
-  graphEnvironmentType: 'TestnetPaseo',
   siwfUrl: '',
   siwfV2Url: 'https://www.example.com/siwf',
   siwfV2URIValidation: ['localhost'],

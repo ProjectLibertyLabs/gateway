@@ -68,7 +68,6 @@ describe('Account Service E2E request verification!', () => {
           apiPort: expect.any(Number),
           apiTimeoutMs: expect.any(Number),
           siwfNodeRpcUrl: expect.any(String), // Changed from URL to String
-          graphEnvironmentType: expect.any(String),
           siwfUrl: expect.any(String),
           siwfV2URIValidation: expect.arrayContaining([expect.any(String)]),
         };

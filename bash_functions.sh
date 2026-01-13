@@ -3,7 +3,7 @@
 BASE_DIR=${HOME}/.projectliberty
 BASE_NAME=gateway-dev
 
-ALL_PROFILES="account graph content-publishing content-watcher webhook"
+ALL_PROFILES="account content-publishing content-watcher webhook"
 COMPOSE_FILES=""
 BOX_WIDTH=96
 

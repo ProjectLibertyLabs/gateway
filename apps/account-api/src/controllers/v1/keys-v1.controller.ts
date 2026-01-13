@@ -99,10 +99,10 @@ export class KeysControllerV1 {
   /**
    * Using the provided query parameters, adds a new public key for the account
    * @param queryParams - The query parameters for adding a new graph key
-   * @returns A message that the adding  anew graph key operation is in progress.
+   * @returns A message that the "add a new public key agreement" operation is in progress.
    * @throws An error if enqueueing the operation fails.
    */
-  async AddNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
+  async addNewPublicKeyAgreements(@Body() request: AddNewPublicKeyAgreementRequestDto): Promise<TransactionResponse> {
     if (!this.keysService.verifyPublicKeyAgreementSignature(request)) {
       throw new BadRequestException('Proof is not valid for the payload!');
     }

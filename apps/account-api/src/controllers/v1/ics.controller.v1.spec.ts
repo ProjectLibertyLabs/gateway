@@ -1,7 +1,6 @@
 import { IcsControllerV1 } from '#account-api/controllers';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { LoggerModule } from 'nestjs-pino';
-import { IcsPublishAllRequestDto } from '#types/dtos/account';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getPinoHttpOptions } from '#logger-lib';
@@ -9,37 +8,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ModuleMocker, MockMetadata } from 'jest-mock';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { HttpException } from '@nestjs/common';
-import { ItemActionType } from '#types/enums';
+import { createIcsPublishAllRequestDto } from '#testlib/payloadDtos.spec';
 
 const moduleMocker = new ModuleMocker(global);
-const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-const goodPayload = {
-  schemaId: 1234,
-  actions: [{ type: ItemActionType.ADD_ITEM, encodedPayload: '0x1122' }],
-  expiration: 1,
-  targetHash: 2,
-};
-
-// this payload will not work in e2e tests
-const mockIcsPublishAllPayload: IcsPublishAllRequestDto = {
-  addIcsPublicKeyPayload: {
-    accountId: goodAccountId,
-    payload: goodPayload,
-    proof: '0x1234567890abcdef',
-  },
-  addContentGroupMetadataPayload: {
-    pageId: 0,
-    accountId: goodAccountId,
-    payload: goodPayload,
-    proof: '0x1234567890abcdef',
-  },
-  addContextGroupPRIDEntryPayload: {
-    accountId: goodAccountId,
-    payload: goodPayload,
-    proof: '0x1234567890abcdef',
-  },
-};
-
 const mockSubmittableExtrinsic = (result: string) => {
   return {
     toHex: jest.fn().mockImplementation(() => result),
@@ -108,6 +79,8 @@ describe('IcsController', () => {
   });
 
   describe('basic', () => {
+    const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    const mockIcsPublishAllPayload = createIcsPublishAllRequestDto('0x1234');
     it('calls getMsaIdForAccountId', async () => {
       const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce('123');
       const result = await icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload);

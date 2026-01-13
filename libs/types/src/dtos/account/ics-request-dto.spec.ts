@@ -1,7 +1,7 @@
 import { validate, ValidationError } from 'class-validator';
 import { AddNewPublicKeyAgreementRequestDto } from '#types/dtos/account/graphs.request.dto';
 import { IcsPublishAllRequestDto } from '#types/dtos/account/ics.request.dto';
-import { createIcsPublishAllRequestDto, createItemizedSignaturePayloadDto } from '#testlib/payloadDtos.spec';
+import { createIcsPublishAllRequestDto, createItemizedSignaturePayloadDto, createUpsertPagePayloadDto } from '#testlib/payloadDtos.spec';
 
 function flattenErrors(errors: ValidationError[]) {
   return errors
@@ -46,6 +46,13 @@ describe('IcsPublishAllRequestDto', () => {
     expect(errors).toContain(
       'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format!',
     );
+    expect(errors).toContain('payload should not be empty');
+    expect(errors).toContain(
+      'proof should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex!',
+    );
+
+    dto.addIcsPublicKeyPayload = undefined;
+    dto.addContentGroupMetadataPayload = createUpsertPagePayloadDto('5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY');
     expect(errors).toContain('payload should not be empty');
     expect(errors).toContain(
       'proof should be a valid 64 bytes Sr25519 signature value in hex! Or a valid 65-66 bytes MultiSignature value in hex!',

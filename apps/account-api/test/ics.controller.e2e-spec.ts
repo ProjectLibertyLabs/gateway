@@ -81,7 +81,8 @@ describe('Ics Controller', () => {
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;
         const resp = await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload);
-        expect(resp.status).toBe(202);
+        console.log(resp.body);
+        expect(resp.status).toBe(202); // TODO: was 400 in test
         expect(resp.body?.referenceId).toBeDefined();
       }, 5_000);
 

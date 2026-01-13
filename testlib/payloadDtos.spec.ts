@@ -3,6 +3,7 @@ import {
   IcsPublishAllRequestDto,
   ItemActionDto,
   ItemizedSignaturePayloadDto,
+  UpsertedPageDto,
   UpsertPagePayloadDto,
 } from '#types/dtos/account';
 import { createItemizedAddAction } from '@frequency-chain/ethereum-utils';
@@ -21,7 +22,7 @@ export function createAddItemActionDto(data: HexString): ItemActionDto {
   const dto = new ItemActionDto();
   dto.type = ItemActionType.ADD_ITEM;
   dto.encodedPayload = addItem.data;
-  return dto
+  return dto;
 }
 
 export function createDeleteItemActionDto(): ItemActionDto {
@@ -34,10 +35,7 @@ export function createDeleteItemActionDto(): ItemActionDto {
 export function createItemizedSignaturePayloadDto(data: HexString): ItemizedSignaturePayloadDto {
   const dto = new ItemizedSignaturePayloadDto();
   dto.schemaId = 1234;
-  dto.actions = [
-    createAddItemActionDto(data),
-    createDeleteItemActionDto()
-  ];
+  dto.actions = [createAddItemActionDto(data), createDeleteItemActionDto()];
   dto.expiration = 1;
   dto.targetHash = 2;
   return dto;
@@ -51,13 +49,21 @@ export function createAddNewPublicKeyAgreementRequestDto(accountId: string): Add
   return dto;
 }
 
+export function createUpsertedPageDto(data: HexString): UpsertedPageDto {
+  const dto = new UpsertedPageDto();
+  dto.schemaId = 4321;
+  dto.pageId = 1;
+  dto.expiration = 2;
+  dto.targetHash = 3;
+  dto.payload = data;
+  return dto;
+}
 
 export function createUpsertPagePayloadDto(accountId: string): UpsertPagePayloadDto {
   const dto = new UpsertPagePayloadDto();
   dto.accountId = accountId;
-  dto.payload = createItemizedSignaturePayloadDto('0x3434');
-  dto.proof = validProof;
-  dto.pageId = 1;
+  dto.signature = validProof;
+  dto.payload = createUpsertedPageDto('0x3434');
   return dto;
 }
 

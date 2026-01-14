@@ -8,6 +8,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from './api.config';
 import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#openapi/openapi';
 import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
+import { useContainer } from 'class-validator';
 
 import { Logger, PinoLogger } from 'nestjs-pino';
 import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
@@ -50,7 +51,7 @@ async function bootstrap() {
         'x-tagGroups',
         [
           { name: 'accounts', tags: ['v1/accounts', 'v2/accounts'] },
-          { name: 'delegations', tags: ['v1/delegation', 'v2/delegations'] },
+          { name: 'delegations', tags: ['v3/delegations'] },
           { name: 'handles', tags: ['v1/handles'] },
           { name: 'health', tags: ['health'] },
           { name: 'keys', tags: ['v1/keys'] },
@@ -77,6 +78,10 @@ async function bootstrap() {
 
   const config = app.get<IAccountApiConfig>(apiConfig.KEY);
   try {
+    // 🔑 Enable Nest DI inside class-validator constraints
+    useContainer(app.select(ApiModule), {
+      fallbackOnErrors: true,
+    });
     app.enableShutdownHooks();
     app.useGlobalPipes(
       new ValidationPipe({

@@ -10,6 +10,7 @@ import { generateSwaggerDoc, initializeSwaggerUI, writeOpenApiFile } from '#open
 import { Logger, PinoLogger } from 'nestjs-pino';
 import { getCurrentLogLevel, getPinoHttpOptions } from '#logger-lib';
 import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
+import { useContainer } from 'class-validator';
 
 let logger: NestLogger;
 
@@ -76,6 +77,10 @@ async function bootstrap() {
   });
 
   try {
+    // 🔑 Enable Nest DI inside class-validator constraints
+    useContainer(app.select(ApiModule), {
+      fallbackOnErrors: true,
+    });
     app.enableShutdownHooks();
     app.useGlobalPipes(
       new ValidationPipe({

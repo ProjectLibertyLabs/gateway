@@ -19,7 +19,8 @@ import {
   isImage,
   isParquet,
   DSNP_VALID_IMAGE_MIME_TYPES_REGEX,
-  DSNP_VALID_MIME_TYPES_REGEX, VALID_BATCH_MIME_TYPES_REGEX,
+  DSNP_VALID_MIME_TYPES_REGEX,
+  VALID_BATCH_MIME_TYPES_REGEX,
 } from '#validation';
 import {
   IRequestJob,
@@ -59,12 +60,16 @@ export class ApiService {
     this.logger.setContext(this.constructor.name);
   }
 
-  async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
+  async enqueueContent(
+    msaId: string | undefined,
+    content: OnChainContentDto,
+    intentId: number,
+  ): Promise<AnnouncementResponseDto> {
     const { schemaId, ...data } = content;
     const jobData: IPublisherJob = {
       id: '',
       schemaId,
-      data: { ...data, onBehalfOf: msaId },
+      data: { ...data, onBehalfOf: msaId, intentId },
     };
     jobData.id = this.calculateJobId(jobData);
     const job = await this.publishQueue.add(`OnChain content job - ${jobData.id}`, jobData, {
@@ -127,10 +132,13 @@ export class ApiService {
   async validateAssetsAndFetchMetadata(
     content: AssetIncludedRequestDto,
   ): Promise<IRequestJob['assetToMimeType'] | undefined> {
-    const checkingList: { allowedMimeTypesRegex: RegExp, referenceId: string }[] = [];
+    const checkingList: { allowedMimeTypesRegex: RegExp; referenceId: string }[] = [];
     if (content.profile) {
       content.profile.icon?.forEach((reference) =>
-        checkingList.push({ allowedMimeTypesRegex: DSNP_VALID_IMAGE_MIME_TYPES_REGEX, referenceId: reference.referenceId }),
+        checkingList.push({
+          allowedMimeTypesRegex: DSNP_VALID_IMAGE_MIME_TYPES_REGEX,
+          referenceId: reference.referenceId,
+        }),
       );
     } else if (content.content) {
       content.content.assets?.forEach((asset) =>
@@ -142,7 +150,9 @@ export class ApiService {
         ),
       );
     } else if (content.batchFiles) {
-      content.batchFiles.forEach((batchFile) => checkingList.push({ allowedMimeTypesRegex: VALID_BATCH_MIME_TYPES_REGEX, referenceId: batchFile.cid }));
+      content.batchFiles.forEach((batchFile) =>
+        checkingList.push({ allowedMimeTypesRegex: VALID_BATCH_MIME_TYPES_REGEX, referenceId: batchFile.cid }),
+      );
     }
 
     const redisResults = await Promise.all(
@@ -161,7 +171,9 @@ export class ApiService {
 
         // checks that the MIME type is allowed for this type of asset
         if (!checkingList[index].allowedMimeTypesRegex.test(metadata.mimeType)) {
-          errors.push(`Uploaded asset referenceId ${checkingList[index].referenceId} has invalid MIME type ${metadata.mimeType}!`);
+          errors.push(
+            `Uploaded asset referenceId ${checkingList[index].referenceId} has invalid MIME type ${metadata.mimeType}!`,
+          );
         }
       }
     });
@@ -267,12 +279,17 @@ export class ApiService {
     };
   }
 
-  public async uploadStreamedAsset(stream: Readable, filename: string, mimetype: string, allowedMimeTypes = VALID_UPLOAD_MIME_TYPES_REGEX): Promise<IFileResponse> {
+  public async uploadStreamedAsset(
+    stream: Readable,
+    filename: string,
+    mimetype: string,
+    allowedMimeTypes = VALID_UPLOAD_MIME_TYPES_REGEX,
+  ): Promise<IFileResponse> {
     this.logger.debug(`Processing file: ${filename} (${mimetype})`);
 
     if (!allowedMimeTypes.test(mimetype)) {
       this.logger.warn(`Skipping file: ${filename} due to unsupported file type (${mimetype}).`);
-      stream.resume();  // Make sure we consume the entire file stream so the rest of the request can be processed
+      stream.resume(); // Make sure we consume the entire file stream so the rest of the request can be processed
       return { error: `Unsupported file type (${mimetype})` };
     }
 

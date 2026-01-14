@@ -207,7 +207,7 @@ export namespace ContentPublishingQueues {
           backoff: {
             type: 'exponential',
             delay: 6000,
-          }
+          },
         },
       },
       {

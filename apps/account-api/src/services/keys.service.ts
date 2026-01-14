@@ -1,5 +1,5 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { HexString } from '@polkadot/util/types';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
@@ -27,15 +27,39 @@ import {
   verifySignature as verifyEthereumSignature,
 } from '@frequency-chain/ethereum-utils';
 import { PinoLogger } from 'nestjs-pino';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InjectRedis } from '@songkeys/nestjs-redis';
+import Redis from 'ioredis';
+import { HOUR, MILLISECONDS_PER_SECOND } from 'time-constants';
+
+const SCHEMA_ID_TTL = HOUR / MILLISECONDS_PER_SECOND; // 1 hour in seconds
+const GRAPH_KEY_SCHEMA_ID_CACHE_KEY = 'graphKeySchemaId';
 
 @Injectable()
-export class KeysService {
-  private graphKeySchemaId: number;
+export class KeysService implements OnApplicationBootstrap {
+  private graphKeyIntentId: number;
+
+  async onApplicationBootstrap() {
+    try {
+      const { intentId, schemaId } = await this.blockchainService.getIntentAndLatestSchemaIdsByName(
+        'dsnp',
+        'public-key-key-agreement',
+      );
+      this.graphKeyIntentId = intentId;
+      // Set 1-hour TTL on this so that we don't need to restart if a new schema is published
+      await this.cache.setex(GRAPH_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, schemaId);
+    } catch (e: any) {
+      this.logger.fatal('Unable to resolve intent ID for "dsnp.public-key-key-agreement"');
+      this.emitter.emit('shutdown');
+    }
+  }
 
   constructor(
     @Inject(apiConfig.KEY) private readonly apiConf: IAccountApiConfig,
+    @InjectRedis() private readonly cache: Redis,
     private blockchainService: BlockchainRpcQueryService,
     private readonly logger: PinoLogger,
+    private readonly emitter: EventEmitter2,
   ) {
     this.logger.setContext(this.constructor.name);
   }
@@ -52,17 +76,26 @@ export class KeysService {
     throw new NotFoundException(`Keys not found for ${msaId}`);
   }
 
+  private async getGraphSchemaId(): Promise<number> {
+    let schemaId = Number(await this.cache.get('graphKeySchemaId'));
+    if (isNaN(schemaId) || schemaId <= 0) {
+      schemaId = await this.blockchainService.getLatestSchemaIdForIntent(this.graphKeyIntentId);
+      // Set 1-hour TTL on this so that we don't need to restart if a new schema is published
+      await this.cache.setex(GRAPH_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, schemaId);
+    }
+
+    return schemaId;
+  }
+
   async getAddPublicKeyAgreementPayload(
     msaId: string,
     newKey: HexString,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
     const expiration = await this.getExpiration();
 
-    // Get graph key schema ID if not already cached
-    if (!this.graphKeySchemaId) {
-      this.graphKeySchemaId = await this.blockchainService.getSchemaIdByName('dsnp', 'public-key-key-agreement');
-    }
-    const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, this.graphKeySchemaId);
+    const schemaId = await this.blockchainService.getLatestSchemaIdForIntent(this.graphKeyIntentId);
+
+    const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, this.graphKeyIntentId);
     if (
       itemizedStorage.items
         .toArray()
@@ -72,7 +105,7 @@ export class KeysService {
     }
     const payload: ItemizedSignaturePayloadDto = {
       expiration,
-      schemaId: this.graphKeySchemaId,
+      schemaId,
       targetHash: itemizedStorage.content_hash.toNumber(),
       actions: [
         {

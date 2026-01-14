@@ -4,7 +4,7 @@
  * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
  *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
  *       encoded objects that are directly returned from Frequency RPC calls; rather, all payloads should be
- *       unwrapped and re-formed using native Javascript types.
+ *       unwrapped and re-formed using native JavaScript types.
  *
  *       RPC methods that have the potential to return values wrapped as `Option<...>` or any value supporting
  *       the `.isEmpty`, `.isSome`, or `.isNone` getters should implement one of the following behaviors:
@@ -16,15 +16,13 @@ import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, Codec, DetectCodec, ISubmittableResult, SignerPayloadRaw } from '@polkadot/types/types';
-import { bool, Bytes, Option, u128, u16, Vec } from '@polkadot/types';
+import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
+import { bool, Bytes, Option, u128, Vec } from '@polkadot/types';
 import {
-  CommonPrimitivesMsaDelegation,
   CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
   PalletSchemasSchemaInfo,
-  PalletSchemasSchemaVersionId,
 } from '@polkadot/types/lookup';
 import {
   ItemizedStoragePageResponse,
@@ -76,7 +74,7 @@ interface PublicKeyValues {
 
 interface ItemizedPageUpdated {
   msaId: string;
-  schemaId: string;
+  intentId: string;
   prevContentHash: string;
   currContentHash: string;
   debugMsg: string;
@@ -103,10 +101,10 @@ export interface ICapacityInfo {
 }
 
 export interface IBlockPaginationRequest {
-  readonly from_block: number;
-  readonly from_index: number;
-  readonly to_block: number;
-  readonly page_size: number;
+  readonly fromBlock: number;
+  readonly fromIndex: number;
+  readonly toBlock: number;
+  readonly pageSize: number;
 }
 
 @Injectable()
@@ -137,15 +135,15 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   @RpcCall('rpc.statefulStorage.getItemizedStorage')
-  public async getItemizedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<ItemizedStoragePageResponse> {
-    return this.api.rpc.statefulStorage.getItemizedStorage(msaId, schemaId);
+  public async getItemizedStorage(msaId: AnyNumber, intentId: AnyNumber): Promise<ItemizedStoragePageResponse> {
+    return this.api.rpc.statefulStorage.getItemizedStorage(msaId, intentId);
   }
 
   @RpcCall('rpc.statefulStorage.getPaginatedStorage')
-  public async getPaginatedStorage(msaId: AnyNumber, schemaId: AnyNumber): Promise<PaginatedStorageResponse[]> {
+  public async getPaginatedStorage(msaId: AnyNumber, intentId: AnyNumber): Promise<PaginatedStorageResponse[]> {
     const response: Vec<PaginatedStorageResponse> = await this.api.rpc.statefulStorage.getPaginatedStorage(
       msaId,
-      schemaId,
+      intentId,
     );
 
     return response.toArray();
@@ -247,32 +245,24 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       : null;
   }
 
-  public async getCommonPrimitivesMsaDelegation(
-    msaId: AnyNumber,
-    providerId: AnyNumber,
-  ): Promise<CommonPrimitivesMsaDelegation | null> {
-    return this.handleOptionResult(this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId));
-  }
-
-  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
+  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation> {
     const response = await this.handleOptionResult(
-      this.api.query.msa.delegatorAndProviderToDelegation(msaId, providerId),
+      this.api.call.msaRuntimeApi.getDelegationForMsaAndProvider(msaId, providerId),
     );
-    return response ? chainDelegationToNative(providerId, response) : null;
+    return chainDelegationToNative(response);
   }
 
   public async getDelegationsForMsa(msaId: AnyNumber): Promise<Delegation[]> {
-    const response = (await this.api.query.msa.delegatorAndProviderToDelegation.entries(msaId))
-      .filter(([_, entry]) => entry.isSome)
-      .map(([key, value]) => chainDelegationToNative(key.args[1], value.unwrap()));
-
-    return response;
+    const response = await this.api.call.msaRuntimeApi.getAllGrantedDelegationsByMsaId(msaId);
+    return response.map((delegation) => chainDelegationToNative(delegation));
   }
 
   @RpcCall('rpc.msa.checkDelegations')
-  public async checkCurrentDelegation(msaId: AnyNumber, schemaId: AnyNumber, providerId: AnyNumber): Promise<boolean> {
+  public async checkCurrentDelegation(msaId: AnyNumber, intentId: AnyNumber, providerId: AnyNumber): Promise<boolean> {
     const header = await this.api.rpc.chain.getHeader();
-    const delegation = (await this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), schemaId))
+    const delegation = (
+      await this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), intentId)
+    )
       .toArray()
       .find(([delegatorId, _]) => delegatorId.toString() === (typeof msaId === 'string' ? msaId : msaId.toString()));
 
@@ -325,8 +315,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       const totalAdjustedWeightFee = capacityCost.inclusionFee.adjustedWeightFee;
 
       // Check if the total cost exceeds the remaining capacity
-      const outOfCapacity = remainingCapacity < totalAdjustedWeightFee;
-      return outOfCapacity;
+      return remainingCapacity < totalAdjustedWeightFee;
     } catch (e) {
       this.logger.error(`Error checking capacity limit: ${e}`);
       return false;
@@ -371,9 +360,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  @RpcCall('rpc.messages.getBySchemaId')
-  public async getMessagesBySchemaId(schemaId: AnyNumber, pagination: IBlockPaginationRequest) {
-    return this.api.rpc.messages.getBySchemaId(schemaId, pagination);
+  @RpcCall('call.messagesRuntimeApi.getMessagesByIntentId')
+  public async getMessagesByIntentId(intentId: AnyNumber, pagination: IBlockPaginationRequest) {
+    return this.api.call.messagesRuntimeApi.getMessagesByIntentId(intentId, pagination);
   }
 
   // ********************************* Query methods (accept optional block hash for "at" queries) *********************************
@@ -386,19 +375,46 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.handleOptionResult(api.query.schemas.schemaInfos(schemaId));
   }
 
-  public async getSchemaIdByName(
-    schemaNamespace: string,
-    schemaDescriptor: string,
-    blockHash?: Uint8Array | string,
-  ): Promise<number> {
-    const api = await this.getApi(blockHash);
-    const { ids }: { ids: Vec<u16> } = await api.query.schemas.schemaNameToIds(schemaNamespace, schemaDescriptor);
-    const schemaId = ids.toArray().pop()?.toNumber();
-    if (!schemaId) {
-      throw new Error(`Unable to determine schema ID for "${schemaNamespace}.${schemaDescriptor}"`);
+  public async getLatestSchemaIdForIntent(intentId: AnyNumber): Promise<number> {
+    const api = await this.getApi();
+    const intentResponse = await api.call.schemasRuntimeApi.getIntentById(intentId, true);
+    if (intentResponse.isNone) {
+      throw new Error(`Unable to retrieve Intent ${intentId}`);
     }
+    const schemas = intentResponse.unwrap().schemaIds;
+    if (schemas.isNone || schemas.unwrap().length === 0) {
+      throw new Error(`No registered schemas found for Intent ${intentId}"`);
+    }
+    const schemaIds = schemas.unwrap();
+    return schemaIds[schemaIds.length - 1].toNumber();
+  }
 
-    return schemaId;
+  public async getIntentAndLatestSchemaIdsByName(
+    protocolName: string,
+    descriptor: string,
+    blockHash?: Uint8Array | string,
+  ): Promise<{ intentId: number; schemaId: number }> {
+    if (!protocolName || !descriptor) {
+      throw new Error('Both protocol name and descriptor must be provided');
+    }
+    const api = await this.getApi(blockHash);
+    const fullName = `${protocolName}.${descriptor}`;
+    const namedResponse = await api.call.schemasRuntimeApi.getRegisteredEntitiesByName(fullName);
+    if (namedResponse.isSome) {
+      const entities = namedResponse.unwrap().filter((entity) => entity.entityId.isIntent);
+      switch (entities.length) {
+        case 0:
+          throw new Error(`No Intent registration found for "${fullName}"`);
+
+        case 1:
+          const intentId = entities[0].entityId.toNumber();
+          const schemaId = await this.getLatestSchemaIdForIntent(intentId);
+          return { intentId, schemaId };
+
+        default:
+          throw new Error(`Multiple Intent registrations found for "${fullName}"`);
+      }
+    }
   }
 
   public async getSchemaPayload(schemaId: AnyNumber, blockHash?: Uint8Array | string): Promise<Bytes | null> {
@@ -406,18 +422,23 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return this.handleOptionResult(api.query.schemas.schemaPayloads(schemaId));
   }
 
-  public async getSchemaNamesToIds(args: [namespace: string, name: string][]) {
-    const versions = await this.api.query.schemas.schemaNameToIds.multi(args);
-    return versions.map((schemaVersions: PalletSchemasSchemaVersionId, index) => ({
-      name: args[index],
-      ids: schemaVersions.ids.map((version) => version.toNumber()),
-    }));
+  public async getIntentNamesToIds(args: string[]) {
+    const entityResponse = await Promise.all(
+      args.map((name) => this.api.call.schemasRuntimeApi.getRegisteredEntitiesByName(name)),
+    );
+    entityResponse.filter((response) => response.isSome).forEach((entity) => {});
+    return entityResponse
+      .filter((response) => response.isSome)
+      .map((response) => response.unwrap().toArray())
+      .flat()
+      .filter((entity) => entity.entityId.isIntent)
+      .map((entity) => ({ name: entity.name.toString(), intentId: entity.entityId.toNumber() }));
   }
 
   public async getMessageKeysInBlock(blockNumber: AnyNumber): Promise<[number, number][]> {
-    return (await this.api.query.messages.messagesV2.keys(blockNumber)).map((key) => {
-      const [_, schemaId, index] = key.args;
-      return [schemaId.toNumber(), index.toNumber()];
+    return (await this.api.query.messages.messagesV3.keys(blockNumber)).map((key) => {
+      const [_, intentId, index] = key.args;
+      return [intentId.toNumber(), index.toNumber()];
     });
   }
 
@@ -463,13 +484,12 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     const { msaOwnerAddress, msaOwnerSignature, newKeyOwnerSignature, payload } = keysRequest;
     const txPayload = this.createAddPublicKeyToMsaPayload(payload);
 
-    const addKeyResponse = this.api.tx.msa.addPublicKeyToMsa(
+    return this.api.tx.msa.addPublicKeyToMsa(
       msaOwnerAddress,
       getTypedSignatureForPayload(msaOwnerAddress, msaOwnerSignature),
       getTypedSignatureForPayload(payload.newPublicKey, newKeyOwnerSignature),
       txPayload,
     );
-    return addKeyResponse;
   }
 
   public async generateAddPublicKeyAgreementToMsa(
@@ -492,11 +512,11 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
   // eslint-disable-next-line consistent-return, class-methods-use-this
   public async getRawPayloadForSigning(
-    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    tx: SubmittableExtrinsic<'promise'>,
     signerAddress: string,
     // eslint-disable-next-line consistent-return
   ): Promise<SignerPayloadRaw> {
-    let signRaw;
+    let signRaw: SignerPayloadRaw | PromiseLike<SignerPayloadRaw>;
     try {
       await tx.signAsync(signerAddress, {
         signer: {
@@ -535,9 +555,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     };
   }
 
-  public async generateRevokeDelegationByDelegator(
-    providerId: string,
-  ): Promise<SubmittableExtrinsic<'promise', ISubmittableResult>> {
+  public async generateRevokeDelegationByDelegator(providerId: string): Promise<SubmittableExtrinsic<'promise'>> {
     return this.api.tx.msa.revokeDelegationByDelegator(providerId);
   }
 
@@ -603,9 +621,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  public generatePublishHandle(
-    jobData: TransactionData<PublishHandleRequestDto>,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  public generatePublishHandle(jobData: TransactionData<PublishHandleRequestDto>): SubmittableExtrinsic<'promise'> {
     this.logger.debug(`claimHandlePayload: ${JSON.stringify(jobData.payload)}`);
     this.logger.debug(`accountId: ${jobData.accountId}`);
 
@@ -675,16 +691,16 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     // Grab the event data
     if (event && this.api.events.statefulStorage.ItemizedPageUpdated.is(event)) {
       const msaId = event.data.msaId.toString();
-      const schemaId = event.data.schemaId.toString();
+      const intentId = event.data.intentId.toString();
       const prevContentHash = event.data.prevContentHash.toString();
       const currContentHash = event.data.currContentHash.toString();
 
       return {
         msaId,
-        schemaId,
+        intentId,
         prevContentHash,
         currContentHash,
-        debugMsg: `Itemized Page updated for msaId: ${msaId} and schemaId: ${schemaId}`,
+        debugMsg: `Itemized Page updated for msaId: ${msaId} and intentId: ${intentId}`,
       };
     }
 
@@ -693,7 +709,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public static async getRawPayloadForSigning(
-    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
+    tx: SubmittableExtrinsic<'promise'>,
     signerAddress: string,
   ): Promise<SignerPayloadRaw> {
     const dummyError = 'Stop here';
@@ -765,7 +781,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     pageId: AnyNumber,
     targetHash: AnyNumber,
     payload: number[],
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  ): SubmittableExtrinsic<'promise'> {
     // TODO: Investigate why 'payload' is passed as number[] instead of Uint8Array
     return this.api.tx.statefulStorage.upsertPage(msaId, schemaId, pageId, targetHash, payload as any);
   }
@@ -775,7 +791,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     schemaId: AnyNumber,
     pageId: AnyNumber,
     targetHash: AnyNumber,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  ): SubmittableExtrinsic<'promise'> {
     return this.api.tx.statefulStorage.deletePage(msaId, schemaId, pageId, targetHash);
   }
 
@@ -783,7 +799,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     schemaId: AnyNumber,
     cid: string,
     payloadLength: number,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  ): SubmittableExtrinsic<'promise'> {
     return this.api.tx.messages.addIpfsMessage(schemaId, cid, payloadLength);
   }
 
@@ -791,7 +807,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     schemaId: AnyNumber,
     payload: HexString,
     onBehalfOf: AnyNumber,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  ): SubmittableExtrinsic<'promise'> {
     return this.api.tx.messages.addOnchainMessage(onBehalfOf, schemaId, payload);
   }
 
@@ -827,6 +843,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public async maximumCapacityBatchLength(): Promise<number> {
-    return (await this.api.consts.frequencyTxPayment.maximumCapacityBatchLength).toNumber();
+    return this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
   }
 }

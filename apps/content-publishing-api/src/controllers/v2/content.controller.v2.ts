@@ -53,20 +53,24 @@ export class ContentControllerV2 {
     if (!schemaInfo.payloadLocation.isOnChain) {
       throw new UnprocessableEntityException('Schema payload location invalid for on-chain content');
     }
-    // Check schema grants if publishing on behalf of a user
+    // Check Intent grants if publishing on behalf of a user
     const onBehalfOf = msaId === this.appConfig.providerId.toString() ? undefined : msaId;
     if (onBehalfOf) {
       if (
         !(await this.blockchainService.checkCurrentDelegation(
           onBehalfOf,
-          contentDto.schemaId,
+          schemaInfo.intentId,
           this.appConfig.providerId,
         ))
       ) {
-        throw new UnauthorizedException('Provider not delegated for schema by user');
+        throw new UnauthorizedException('Provider not delegated for intent by user');
       }
     }
-    return this.apiService.enqueueContent(onBehalfOf, contentDto) as Promise<AnnouncementResponseDto>;
+    return this.apiService.enqueueContent(
+      onBehalfOf,
+      contentDto,
+      schemaInfo.intentId.toNumber(),
+    ) as Promise<AnnouncementResponseDto>;
   }
 
   @Post('batchAnnouncement')

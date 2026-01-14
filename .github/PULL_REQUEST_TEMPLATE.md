@@ -12,10 +12,10 @@ A short description of what you have done to implement/fix the above mentioned f
 
 ### Change summary
 
-* A detailed list of bulleted
-* changes that go into detail about
-* the specifics of the changes
-* to the codebase
+- A detailed list of bulleted
+- changes that go into detail about
+- the specifics of the changes
+- to the codebase
 
 ### Steps to Verify
 

@@ -2,15 +2,17 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { TransactionType } from '#types/account-webhook';
 import {
+  DelegationResponse,
   PublishRevokeDelegationRequestDto,
   RevokeDelegationPayloadRequestDto,
   RevokeDelegationPayloadResponseDto,
   TransactionResponse,
 } from '#types/dtos/account';
-import { DelegationResponse, DelegationResponseV2 } from '#types/dtos/account/delegation.response.dto';
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { PinoLogger } from 'nestjs-pino';
+import { CommonPrimitivesMsaDelegationResponse } from '@polkadot/types/lookup';
+import { chainDelegationToNative, IDelegation } from '#types/interfaces/account';
 
 @Injectable()
 export class DelegationService {
@@ -21,28 +23,6 @@ export class DelegationService {
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(this.constructor.name);
-  }
-
-  async getDelegation(msaId: string): Promise<DelegationResponse> {
-    const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
-    if (isValidMsaId) {
-      const { providerId } = this.blockchainConf;
-
-      const commonPrimitivesMsaDelegation = await this.blockchainService.getCommonPrimitivesMsaDelegation(
-        msaId,
-        providerId,
-      );
-
-      if (commonPrimitivesMsaDelegation) {
-        return {
-          providerId: providerId.toString(),
-          schemaPermissions: commonPrimitivesMsaDelegation.schemaPermissions,
-          revokedAt: commonPrimitivesMsaDelegation.revokedAt,
-        };
-      }
-      throw new NotFoundException(`Failed to find the delegations for ${msaId} and ${providerId}`);
-    }
-    throw new NotFoundException(`Invalid msaId ${msaId}`);
   }
 
   async getRevokeDelegationPayload(
@@ -67,11 +47,11 @@ export class DelegationService {
     }
 
     // Validate that delegations exist for this msaId
-    const delegations = await this.blockchainService.getProviderDelegationForMsa(msaId, providerMsaId);
-    if (!delegations) {
+    const delegation = await this.blockchainService.getProviderDelegationForMsa(msaId, providerMsaId);
+    if (!delegation) {
       throw new NotFoundException(`No delegations found for ${msaId} and ${providerMsaId}`);
     }
-    if (delegations.revokedAtBlock !== 0) {
+    if (delegation.revokedAtBlock !== 0) {
       throw new BadRequestException('Delegation already revoked');
     }
     return this.blockchainService.createRevokedDelegationPayload(accountId, providerMsaId);
@@ -80,6 +60,7 @@ export class DelegationService {
   async postRevokeDelegation(revokeDelegationRequest: RevokeDelegationPayloadRequestDto): Promise<TransactionResponse> {
     try {
       this.logger.trace(`Posting revoke delegation request for account ${revokeDelegationRequest.accountId}`);
+      // noinspection UnnecessaryLocalVariableJS
       const referenceId = await this.enqueueService.enqueueRequest<PublishRevokeDelegationRequestDto>({
         ...revokeDelegationRequest,
         type: TransactionType.REVOKE_DELEGATION,
@@ -91,16 +72,17 @@ export class DelegationService {
     }
   }
 
-  async getDelegationV2(msaId: string, providerId?: string): Promise<DelegationResponseV2> {
+  async getDelegationV3(msaId: string, providerId?: string): Promise<DelegationResponse> {
     const isValidMsaId = await this.blockchainService.isValidMsaId(msaId);
     if (!isValidMsaId) {
       throw new NotFoundException(`Invalid MSA Id ${msaId}`);
     }
 
+    let delegations: IDelegation[];
     if (providerId) {
       const isValidProviderId = await this.blockchainService.isValidMsaId(providerId);
       if (!isValidProviderId) {
-        throw new NotFoundException(`Invalid MSA Id ${providerId}`);
+        throw new NotFoundException(`Invalid MSA Id for Provider ${providerId}`);
       }
 
       const providerInfo = await this.blockchainService.getProviderToRegistryEntry(providerId);
@@ -113,15 +95,14 @@ export class DelegationService {
         throw new NotFoundException(`No delegations found for ${msaId} and ${providerId}`);
       }
 
-      return {
-        msaId,
-        delegations: [delegation],
-      };
+      delegations = [delegation];
+    } else {
+      delegations = await this.blockchainService.getDelegationsForMsa(msaId);
     }
 
     return {
       msaId,
-      delegations: await this.blockchainService.getDelegationsForMsa(msaId),
+      delegations,
     };
   }
 }

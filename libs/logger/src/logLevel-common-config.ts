@@ -19,7 +19,7 @@ function getPrettyOptions() {
     ignore: 'hostname,context,levelStr',
     messageFormat: `[{context}] {msg}`,
     singleLine: process.env?.PRETTY === 'compact',
-  }
+  };
 }
 
 export function getPinoTransport() {
@@ -67,7 +67,8 @@ export function getPinoHttpOptions() {
         paths: ['ip', '*.ip', 'ipAddress'],
       },
       transport: getPinoTransport(),
-      stream: process.env.NODE_ENV === 'test' ? require('pino-pretty')({ ...getPrettyOptions(), sync: true }) : undefined,
+      stream:
+        process.env.NODE_ENV === 'test' ? require('pino-pretty')({ ...getPrettyOptions(), sync: true }) : undefined,
     },
   };
 }

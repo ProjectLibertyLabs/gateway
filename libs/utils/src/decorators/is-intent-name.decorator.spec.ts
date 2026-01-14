@@ -51,7 +51,6 @@ describe('IsIntentName', () => {
     // Important: point class-validator at Nest’s container for this test run
     useContainer(moduleRef, { fallbackOnErrors: true });
 
-    constraint = moduleRef.get(IsIntentNameConstraint);
     blockchainService = moduleRef.get(BlockchainRpcQueryService);
   });
 

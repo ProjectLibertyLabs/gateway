@@ -30,6 +30,8 @@ export const mockApiPromise = {
     },
     statefulStorage: {
       applyItemActionsV2: jest.fn(),
+      applyItemActionsWithSignatureV2: jest.fn(),
+      upsertPageWithSignatureV2: jest.fn(),
     },
   },
   rpc: {

@@ -57,7 +57,8 @@ export class IcsPublisherService extends BaseChainPublisherService {
 
     try {
       this.logger.info(`Processing ICS job ${job.id}`);
-      // Check capacity first; if out of capacity, send job back to queue
+      // Check capacity first; if out of capacity, send job back to queue; see
+      // https://github.com/ProjectLibertyLabs/gateway/pull/996#discussion_r2676520590
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
         throw new DelayedError('Out of Capacity. Delaying ICS job ' + job.id);
       }

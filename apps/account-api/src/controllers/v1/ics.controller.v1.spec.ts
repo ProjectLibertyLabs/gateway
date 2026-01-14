@@ -4,29 +4,13 @@ import { LoggerModule } from 'nestjs-pino';
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getPinoHttpOptions } from '#logger-lib';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ModuleMocker, MockMetadata } from 'jest-mock';
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { HttpException } from '@nestjs/common';
 import { createIcsPublishAllRequestDto } from '#testlib/payloadDtos.spec';
+import { mockApiPromise } from '#testlib';
 
 const moduleMocker = new ModuleMocker(global);
-const mockSubmittableExtrinsic = (result: string) => {
-  return {
-    toHex: jest.fn().mockImplementation(() => result),
-  };
-};
-
-const mockApiPromise = {
-  ...EventEmitter2.prototype,
-  isReady: Promise.resolve(),
-  tx: {
-    statefulStorage: {
-      applyItemActionsWithSignatureV2: jest.fn().mockImplementation(() => mockSubmittableExtrinsic('0x01020304')),
-      upsertPageWithSignatureV2: jest.fn().mockImplementation(() => mockSubmittableExtrinsic('0x05060708')),
-    },
-  },
-};
 
 jest.mock('@polkadot/api', () => {
   const originalModule = jest.requireActual<typeof import('@polkadot/api')>('@polkadot/api');

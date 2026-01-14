@@ -33,7 +33,6 @@ const validIntent = {
 };
 
 describe('IsIntentName', () => {
-  let constraint: IsIntentNameConstraint;
   let blockchainService: BlockchainRpcQueryService;
 
   beforeAll(async () => {

@@ -11,7 +11,8 @@ import {
   provisionProvider,
   provisionUserGraphEncryptionKeys,
   provisionUserGraphResets,
-  provisionUsersOnChain, IntentBuilder,
+  provisionUsersOnChain,
+  IntentBuilder,
 } from '@projectlibertylabs/frequency-scenario-template';
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';

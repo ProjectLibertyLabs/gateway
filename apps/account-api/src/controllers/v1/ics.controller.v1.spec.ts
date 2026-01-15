@@ -24,6 +24,12 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
+const mockSubmittableExtrinsic = (result: string) => {
+  return {
+    toHex: jest.fn().mockImplementation(() => result),
+  };
+};
+
 describe('IcsController', () => {
   let icsController: IcsControllerV1;
   let moduleRef: TestingModule;
@@ -65,6 +71,18 @@ describe('IcsController', () => {
   describe('basic', () => {
     const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
     const mockIcsPublishAllPayload = createIcsPublishAllRequestDto('0x1234');
+
+    beforeAll(() => {
+      jest
+        .spyOn(mockApiPromise.tx.statefulStorage, 'applyItemActionsWithSignatureV2')
+        .mockReturnValue(mockSubmittableExtrinsic('0x01020304'));
+      jest
+        .spyOn(mockApiPromise.tx.statefulStorage, 'upsertPageWithSignatureV2')
+        .mockReturnValue(mockSubmittableExtrinsic('0x01020304'));
+    });
+
+    afterAll(() => jest.restoreAllMocks());
+
     it('calls getMsaIdForAccountId', async () => {
       const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce('123');
       const result = await icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload);

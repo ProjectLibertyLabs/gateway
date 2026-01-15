@@ -28,11 +28,6 @@ export const mockApiPromise = {
     capacity: {
       currentEpochInfo: jest.fn(),
     },
-    statefulStorage: {
-      applyItemActionsV2: jest.fn(),
-      applyItemActionsWithSignatureV2: jest.fn(),
-      upsertPageWithSignatureV2: jest.fn(),
-    },
   },
   rpc: {
     chain: {
@@ -49,6 +44,11 @@ export const mockApiPromise = {
     frequencyTxPayment: {
       payWithCapacity: jest.fn(),
       payWithCapacityBatchAll: jest.fn(),
+    },
+    statefulStorage: {
+      applyItemActionsV2: jest.fn(),
+      applyItemActionsWithSignatureV2: jest.fn(),
+      upsertPageWithSignatureV2: jest.fn(),
     },
   },
 };

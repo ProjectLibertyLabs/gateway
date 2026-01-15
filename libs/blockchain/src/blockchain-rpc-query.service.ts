@@ -434,7 +434,10 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       .map((response) => response.unwrap().toArray())
       .flat()
       .filter((entity) => entity.entityId.isIntent)
-      .map((entity) => ({ name: entity.name.toString(), intentId: entity.entityId.toNumber() }));
+      .map((entity) => ({
+        name: Buffer.from(entity.name.toU8a(true)).toString(),
+        intentId: entity.entityId.asIntent.toNumber(),
+      }));
   }
 
   public async getMessageKeysInBlock(blockNumber: AnyNumber): Promise<[number, number][]> {

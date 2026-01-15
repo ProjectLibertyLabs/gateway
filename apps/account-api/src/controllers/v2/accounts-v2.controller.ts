@@ -72,9 +72,9 @@ export class AccountsControllerV2 {
     this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', JSON.stringify(query));
 
     const { callbackUrl } = query;
-    const permissions = await (query.permissions
+    const permissions = (await (query.permissions
       ? this.blockchainService.getIntentNamesToIds(query.permissions)
-      : Promise.resolve([]));
+      : Promise.resolve([]))).map((permission) => permission.intentId);
     const credentials = query.credentials || [];
 
     return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);

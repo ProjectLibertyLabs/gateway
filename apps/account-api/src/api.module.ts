@@ -29,12 +29,14 @@ import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 import { DelegationsControllerV3 } from '#account-api/controllers/v3';
+import { DecoratorsModule } from '#utils/decorators/decorators.module';
 
 const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig('account')];
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configs }),
     BlockchainModule.forRootAsync({ readOnly: true }),
+    DecoratorsModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,

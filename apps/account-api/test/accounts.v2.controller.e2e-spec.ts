@@ -14,6 +14,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { useContainer } from 'class-validator';
 
 describe('Accounts v2 Controller', () => {
   let app: NestExpressApplication;
@@ -38,6 +39,7 @@ describe('Accounts v2 Controller', () => {
     // module.useLogger(new Logger());
 
     const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    useContainer(app.select(ApiModule), { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
@@ -98,7 +100,7 @@ describe('Accounts v2 Controller', () => {
     it('should return a valid redirect URL with all array parameters of length 1', async () => {
       const siwfRequest: WalletV2RedirectRequestDto = {
         callbackUrl: 'https://example.com/callback',
-        permissions: ['dsnp.broadcast@v1'],
+        permissions: ['dsnp.broadcast'],
         credentials: ['VerifiedPhoneNumberCredential'],
       };
 

@@ -697,6 +697,56 @@
         ]
       }
     },
+    "/v1/ics/{accountId}/publishAll": {
+      "post": {
+        "operationId": "IcsControllerV1_publishAll_v1",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "AccountId in hex or SS58 format",
+            "schema": {
+              "example": "1LSLqpLWXo7A7xuiRdu6AQPnBPNJHoQSu8DBsUYJgsNEJ4N",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IcsPublishAllRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "v1/ics"
+        ]
+      }
+    },
+    "/v1/frequency/blockinfo": {
+      "get": {
+        "operationId": "BlockInfoController_blockInfo_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Block information retrieved"
+          }
+        },
+        "summary": "Get information about current block",
+        "tags": [
+          "/v1/frequency"
+        ]
+      }
+    },
     "/healthz": {
       "get": {
         "operationId": "HealthController_healthz",
@@ -739,21 +789,6 @@
         "summary": "Check the ready status of the service",
         "tags": [
           "health"
-        ]
-      }
-    },
-    "/v1/frequency/blockinfo": {
-      "get": {
-        "operationId": "BlockInfoController_blockInfo_v1",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Block information retrieved"
-          }
-        },
-        "summary": "Get information about current block",
-        "tags": [
-          "/v1/frequency"
         ]
       }
     },
@@ -1429,7 +1464,7 @@
           },
           "expiration": {
             "type": "number",
-            "description": "expiration block number for this payload",
+            "description": "The block number at which the signed proof will expire",
             "example": 1
           }
         },
@@ -1479,6 +1514,88 @@
           "payload",
           "proof"
         ]
+      },
+      "UpsertedPageDto": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "number",
+            "description": "Schema id pertaining to this storage",
+            "example": 1
+          },
+          "pageId": {
+            "type": "number",
+            "description": "Page id of this storage",
+            "example": 1
+          },
+          "targetHash": {
+            "type": "number",
+            "description": "Hash of targeted page",
+            "example": 1234
+          },
+          "expiration": {
+            "type": "number",
+            "description": "The block number at which the signed proof will expire",
+            "example": 1
+          },
+          "payload": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaId",
+          "pageId",
+          "targetHash",
+          "expiration",
+          "payload"
+        ]
+      },
+      "UpsertPagePayloadDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "AccountId in hex or SS58 format that signed the payload",
+            "example": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+          },
+          "signature": {
+            "type": "string",
+            "description": "The signature of the payload",
+            "example": "0x9c66050e827d24862d77f398095dfe59fabcea3cf768ce4fbd5aa74e65d6be27db1e87f56e9c8484a230d405989a89ecaebcdabe95a1c307a4c736cf85444e85"
+          },
+          "payload": {
+            "description": "The payload that `signature` signed",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertedPageDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "accountId",
+          "signature",
+          "payload"
+        ]
+      },
+      "IcsPublishAllRequestDto": {
+        "type": "object",
+        "properties": {
+          "addIcsPublicKeyPayload": {
+            "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
+          },
+          "addContextGroupPRIDEntryPayload": {
+            "$ref": "#/components/schemas/AddNewPublicKeyAgreementRequestDto"
+          },
+          "addContentGroupMetadataPayload": {
+            "$ref": "#/components/schemas/UpsertPagePayloadDto"
+          }
+        },
+        "required": [
+          "addIcsPublicKeyPayload",
+          "addContextGroupPRIDEntryPayload",
+          "addContentGroupMetadataPayload"
+        ]
       }
     }
   },
@@ -1501,6 +1618,12 @@
       "name": "handles",
       "tags": [
         "v1/handles"
+      ]
+    },
+    {
+      "name": "ics",
+      "tags": [
+        "v1/ics"
       ]
     },
     {

@@ -1,5 +1,6 @@
 import { AnnouncementTypeName, AttachmentType } from '#types/enums';
 import { IRequestType } from './announcement.interface';
+import { HexString } from '@polkadot/util/types';
 
 export interface IAssetTypeInfo {
   mimeType: string;
@@ -12,4 +13,14 @@ export interface IRequestJob {
   assetToMimeType?: Map<string, IAssetTypeInfo>;
   content?: IRequestType;
   dependencyAttempt: number;
+}
+
+/**
+ * Job data for ICS batch publishing queue
+ */
+export interface IcsPublishJob {
+  accountId: string;
+  referenceId: string;
+  providerId: string;
+  encodedExtrinsics: HexString[];
 }

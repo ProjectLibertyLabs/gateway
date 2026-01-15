@@ -93,7 +93,7 @@
     "lint:content-watcher": "eslint 'apps/content-watcher/**/*.[tj]s' 'libs/content-watcher-lib/**/*.[tj]s'",
     "lint:libs": "eslint 'libs/**/*.[tj]s'",
     "lint:fix": "eslint --fix 'apps/**/*.[tj]s' 'libs/**/*.[tj]s'",
-    "spellcheck": "spellchecker",
+    "spellcheck": "spellchecker --quiet ",
     "setup:content-publishing:chain": "node scripts/content-publishing/local-init.cjs",
     "setup:content-watcher:chain": "node scripts/content-watcher/local-chain-setup.cjs",
     "setup:content-watcher:publish": "node scripts/content-watcher/content-setup.js",

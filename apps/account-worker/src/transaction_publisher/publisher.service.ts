@@ -1,37 +1,25 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { InjectQueue, Processor } from '@nestjs/bullmq';
-import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DelayedError, Job, Queue } from 'bullmq';
 import Redis from 'ioredis';
 import { SubmittableExtrinsic } from '@polkadot/api-base/types';
-import { IMethod, ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
+import { ISubmittableResult, Signer, SignerResult } from '@polkadot/types/types';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import {
-  BadSignatureError,
-  ICapacityInfo,
-  InsufficientBalanceError,
-  MortalityError,
-  NonceConflictError,
-} from '#blockchain/types';
+import { BadSignatureError, InsufficientBalanceError, MortalityError, NonceConflictError } from '#blockchain/types';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
-import { BaseConsumer } from '#consumer';
 import { TransactionData } from '#types/dtos/account';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
-import {
-  CAPACITY_AVAILABLE_EVENT,
-  CAPACITY_EXHAUSTED_EVENT,
-  CapacityCheckerService,
-} from '#blockchain/capacity-checker.service';
-import { OnEvent } from '@nestjs/event-emitter';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { TransactionType } from '#types/account-webhook';
 import { Vec } from '@polkadot/types';
 import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
-import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
+import { BaseChainPublisherService } from '#consumer/base-chain-publisher.service';
 
 const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
 
@@ -40,33 +28,22 @@ const CAPACITY_EPOCH_TIMEOUT_NAME = 'capacity_check';
  */
 @Injectable()
 @Processor(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-export class TransactionPublisherService extends BaseConsumer implements OnApplicationBootstrap, OnApplicationShutdown {
-  public async onApplicationBootstrap() {
-    await this.blockchainService.isReady();
-    await this.capacityCheckerService.checkForSufficientCapacity();
-    this.worker.concurrency = this.accountWorkerConfig[`${this.worker.name}QueueWorkerConcurrency`] || 1;
-  }
-
-  public async onApplicationShutdown(_signal?: string | undefined): Promise<void> {
-    try {
-      this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (_err) {
-      // ignore
-    }
-  }
+export class TransactionPublisherService extends BaseChainPublisherService {
+  protected readonly capacityTimeoutName = CAPACITY_EPOCH_TIMEOUT_NAME;
+  protected readonly workerConcurrencyConfigKey = `${QueueConstants.TRANSACTION_PUBLISH_QUEUE}QueueWorkerConcurrency`;
 
   constructor(
-    @InjectRedis() private cacheManager: Redis,
+    @InjectRedis() cacheManager: Redis,
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
-    private transactionPublishQueue: Queue,
-    private blockchainService: BlockchainService,
-    private schedulerRegistry: SchedulerRegistry,
-    private capacityCheckerService: CapacityCheckerService,
+    protected readonly queue: Queue,
+    blockchainService: BlockchainService,
+    schedulerRegistry: SchedulerRegistry,
+    capacityCheckerService: CapacityCheckerService,
     @Inject(workerConfig.KEY)
-    private readonly accountWorkerConfig: IAccountWorkerConfig,
-    protected readonly logger: PinoLogger,
+    protected readonly workerConfig: IAccountWorkerConfig,
+    logger: PinoLogger,
   ) {
-    super(logger);
+    super(cacheManager, blockchainService, schedulerRegistry, capacityCheckerService, logger);
   }
 
   /**
@@ -134,7 +111,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
           throw new Error(`Invalid job type.`);
         }
       }
-      this.logger.debug(`Job successfully completed (${job.id})`);
+      this.logger.debug(`Job completed (${job.id})`);
       this.logger.trace(JSON.stringify(job, null, 2));
 
       const status: ITxStatus = {
@@ -146,9 +123,7 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
         birth: tx.era.asMortalEra.birth(blockNumber),
         death: tx.era.asMortalEra.death(blockNumber),
       };
-      const obj: Record<string, string> = {};
-      obj[txHash] = JSON.stringify(status);
-      this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
+      await this.cacheTransactionStatus(txHash, status);
     } catch (error: any) {
       if (error instanceof DelayedError || TransactionPublisherService.shouldRetry(job, error)) {
         job.moveToDelayed(Date.now(), job.token);
@@ -182,50 +157,6 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
     return false;
   }
 
-  /**
-   * Processes a single transaction to the blockchain.
-   *
-   * @param providerKeys The key pair used for signing the transaction.
-   * @param tx The transaction to be submitted.
-   * @returns [tx, txHash, blockNumber] The transaction, transaction hash, and submitted block number.
-   * @throws Error if the transaction hash is undefined or if there is an error processing the batch.
-   */
-  processSingleTxn(
-    tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
-  ): ReturnType<BlockchainService['payWithCapacity']> {
-    this.logger.debug(
-      `Submitting tx of size ${tx.length}, nonce:${tx.nonce}, method: ${tx.method.section}.${tx.method.method}`,
-    );
-    try {
-      return this.blockchainService.payWithCapacity(tx);
-    } catch (error) {
-      this.logger.error(`Error processing single transaction: ${error}`);
-      // Allow retry on nonce conflict
-      if (error instanceof NonceConflictError) {
-        throw new DelayedError();
-      }
-      throw error;
-    }
-  }
-
-  processBatchTxn(
-    callVec: Vec<Call> | (Call | IMethod | string | Uint8Array)[],
-  ): ReturnType<BlockchainService['payWithCapacityBatchAll']> {
-    this.logger.trace(
-      'processBatchTxn: callVec: ',
-      callVec.map((c) => c.toHuman()),
-    );
-    try {
-      return this.blockchainService.payWithCapacityBatchAll(callVec);
-    } catch (error: any) {
-      this.logger.error(`Error processing batch transaction: ${error}`);
-      if (error instanceof NonceConflictError) {
-        throw new DelayedError();
-      }
-      throw error;
-    }
-  }
-
   async processProxyTxn(
     ext: SubmittableExtrinsic<'promise', ISubmittableResult>,
     accountId: string,
@@ -250,61 +181,5 @@ export class TransactionPublisherService extends BaseConsumer implements OnAppli
       this.logger.error(`Error processing proxy transaction: ${error}`);
       throw error;
     }
-  }
-
-  @OnEvent(CAPACITY_EXHAUSTED_EVENT)
-  public async handleCapacityExhausted(capacityInfo: ICapacityInfo) {
-    await this.transactionPublishQueue.pause();
-    const blocksRemaining = capacityInfo.nextEpochStart - capacityInfo.currentBlockNumber;
-    const epochTimeout = blocksRemaining * (this.blockchainService.blockTimeMs || 6000);
-    // Avoid spamming the log
-    if (!(await this.transactionPublishQueue.isPaused())) {
-      this.logger.warn(
-        `Capacity Exhausted: Pausing account change publish queue until next epoch: ${epochTimeout / 1000} seconds`,
-      );
-    }
-    try {
-      // Check if a timeout with the same name already exists
-      if (this.schedulerRegistry.doesExist('timeout', CAPACITY_EPOCH_TIMEOUT_NAME)) {
-        // If it does, delete it
-        this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-      }
-
-      // Add the new timeout
-      this.schedulerRegistry.addTimeout(
-        CAPACITY_EPOCH_TIMEOUT_NAME,
-        setTimeout(() => this.capacityCheckerService.checkForSufficientCapacity(), epochTimeout),
-      );
-    } catch (err) {
-      // Handle any errors
-      this.logger.error(err);
-    }
-  }
-
-  @OnEvent(CAPACITY_AVAILABLE_EVENT)
-  public async handleCapacityAvailable() {
-    // Avoid spamming the log
-    if (await this.transactionPublishQueue.isPaused()) {
-      this.logger.trace('Capacity Available: Resuming account change publish queue and clearing timeout');
-    }
-    // Get the failed jobs and check if they failed due to capacity
-    const failedJobs = await this.transactionPublishQueue.getFailed();
-    const capacityFailedJobs = failedJobs.filter((job) =>
-      job.failedReason?.includes('1010: Invalid Transaction: Inability to pay some fees'),
-    );
-    // Retry the failed jobs
-    await Promise.all(
-      capacityFailedJobs.map(async (job) => {
-        this.logger.debug(`Retrying job ${job.id}`);
-        job.retry();
-      }),
-    );
-    try {
-      this.schedulerRegistry.deleteTimeout(CAPACITY_EPOCH_TIMEOUT_NAME);
-    } catch (_err) {
-      // ignore
-    }
-
-    await this.transactionPublishQueue.resume();
   }
 }

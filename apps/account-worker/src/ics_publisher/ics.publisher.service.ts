@@ -89,6 +89,9 @@ export class IcsPublisherService extends BaseChainPublisherService {
       await this.cacheTransactionStatus(payWithCapacityTxHash, status);
     } catch (error: unknown) {
       if (error instanceof DelayedError) {
+        // This is a "fake" zero-length delay, just to make sure this job will eventually get re-queued;
+        // it is expected that the queue will have been paused in the interim due to the Capacity check
+        // emitting an out-of-capacity event.
         job.moveToDelayed(Date.now(), job.token);
       }
       this.logger.error(error);

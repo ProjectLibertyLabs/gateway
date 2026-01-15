@@ -49,7 +49,7 @@ export class KeysService implements OnApplicationBootstrap {
       // Set 1-hour TTL on this so that we don't need to restart if a new schema is published
       await this.cache.setex(GRAPH_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, schemaId);
     } catch (e: any) {
-      this.logger.fatal('Unable to resolve intent ID for "dsnp.public-key-key-agreement"');
+      this.logger.fatal({ error: e }, 'Unable to resolve intent ID for "dsnp.public-key-key-agreement"');
       this.emitter.emit('shutdown');
     }
   }

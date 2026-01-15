@@ -245,11 +245,11 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       : null;
   }
 
-  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation> {
+  public async getProviderDelegationForMsa(msaId: AnyNumber, providerId: AnyNumber): Promise<Delegation | null> {
     const response = await this.handleOptionResult(
       this.api.call.msaRuntimeApi.getDelegationForMsaAndProvider(msaId, providerId),
     );
-    return chainDelegationToNative(response);
+    return response ? chainDelegationToNative(response) : null;
   }
 
   public async getDelegationsForMsa(msaId: AnyNumber): Promise<Delegation[]> {
@@ -407,7 +407,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
           throw new Error(`No Intent registration found for "${fullName}"`);
 
         case 1:
-          const intentId = entities[0].entityId.toNumber();
+          const intentId = entities[0].entityId.asIntent.toNumber();
           const schemaId = await this.getLatestSchemaIdForIntent(intentId);
           return { intentId, schemaId };
 
@@ -415,6 +415,8 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
           throw new Error(`Multiple Intent registrations found for "${fullName}"`);
       }
     }
+
+    throw new Error(`No Intent registration found for "${fullName}"`);
   }
 
   public async getSchemaPayload(schemaId: AnyNumber, blockHash?: Uint8Array | string): Promise<Bytes | null> {

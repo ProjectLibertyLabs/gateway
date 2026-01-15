@@ -16,6 +16,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 import { Logger } from 'nestjs-pino';
+import { useContainer } from 'class-validator';
 
 describe('Account Controller', () => {
   let app: NestExpressApplication;
@@ -68,6 +69,7 @@ describe('Account Controller', () => {
     // module.useLogger(new Logger());
 
     const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    useContainer(module, { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));

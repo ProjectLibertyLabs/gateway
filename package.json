@@ -172,7 +172,7 @@
     "@nestjs/cli": "11.0.10",
     "@nestjs/schematics": "11.0.7",
     "@nestjs/testing": "11.1.6",
-    "@projectlibertylabs/frequency-scenario-template": "2.0.0-rc4",
+    "@projectlibertylabs/frequency-scenario-template": "2.0.0-rc5",
     "@types/base64url": "2.0.7",
     "@types/busboy": "1.5.4",
     "@types/jest": "30.0.0",
@@ -218,7 +218,7 @@
   },
   "overrides": {
     "@frequency-chain/api-augment": "2.0.0-rc3",
-    "@projectlibertylabs/frequency-scenario-template": "2.0.0-rc4",
+    "@projectlibertylabs/frequency-scenario-template": "2.0.0-rc5",
     "@polkadot/api": "16.4.8",
     "@polkadot/api-base": "16.4.8",
     "@polkadot/api-derive": "16.4.8",

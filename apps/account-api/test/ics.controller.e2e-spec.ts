@@ -10,7 +10,7 @@ import { Logger } from 'nestjs-pino';
 import request from 'supertest';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
-import { ChainUser } from '@projectlibertylabs/frequency-scenario-template';
+import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Keyring from '@polkadot/keyring';
@@ -71,6 +71,11 @@ describe('Ics Controller', () => {
     // Make sure we're connected to the chain before running tests
     const blockchainService = app.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
     await blockchainService.isReady();
+  });
+
+  afterAll(async () => {
+    await app.close();
+    await ExtrinsicHelper.disconnect();
   });
 
   describe('(POST) v1/ics/:accountId/publishAll', () => {

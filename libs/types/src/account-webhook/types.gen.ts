@@ -9,6 +9,7 @@ export enum TransactionType {
   RETIRE_MSA = 'RETIRE_MSA',
   ADD_PUBLIC_KEY_AGREEMENT = 'ADD_PUBLIC_KEY_AGREEMENT',
   REVOKE_DELEGATION = 'REVOKE_DELEGATION',
+  ICS_PUBLISH = 'ICS_PUBLISH',
 }
 
 export type TxWebhookRspBase = {

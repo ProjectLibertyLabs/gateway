@@ -15,6 +15,7 @@ import {
   AccountsControllerV1,
   AccountsControllerV2,
   HandlesControllerV1,
+  IcsControllerV1,
   KeysControllerV1,
   HealthController,
 } from './controllers';
@@ -104,8 +105,9 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig
     DelegationsControllerV3,
     HandlesControllerV1,
     KeysControllerV1,
-    HealthController,
+    IcsControllerV1,
     BlockInfoController,
+    HealthController,
   ],
   exports: [],
 })

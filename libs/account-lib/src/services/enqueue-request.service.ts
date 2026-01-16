@@ -1,11 +1,14 @@
+import { calculateJobId } from '#types/constants';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable } from '@nestjs/common';
+import { HexString } from '@polkadot/util/types';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { TransactionResponse, TransactionData } from '#types/dtos/account';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { IcsPublishJob } from '#types/interfaces';
 
 export interface RequestObject {
   calls?: Array<unknown>;
@@ -17,7 +20,9 @@ export class EnqueueService {
   constructor(
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
-    @Inject(blockchainConfig.KEY) private config: IBlockchainConfig,
+    @InjectQueue(QueueConstants.ICS_PUBLISH_QUEUE)
+    private icsPublishQueue: Queue,
+    @Inject(blockchainConfig.KEY) private blockchainConf: IBlockchainConfig,
     @InjectPinoLogger(EnqueueService.name) private readonly logger: PinoLogger,
   ) {}
 
@@ -27,7 +32,7 @@ export class EnqueueService {
   }
 
   async enqueueRequest<RequestType extends RequestObject>(request: RequestType): Promise<TransactionResponse> {
-    const { providerId } = this.config;
+    const { providerId } = this.blockchainConf;
     // Best-effort attempt at de-duping payloads that are submitted multiple times.
     // For payloads submitted via authorization code, we can de-dupe on that.
     // For payloads submitted directly, we can de-dupe IFF the exact same payload
@@ -66,5 +71,28 @@ export class EnqueueService {
       referenceId: data.referenceId,
       state: jobState,
     };
+  }
+
+  ///
+  async enqueueIcsBatch(
+    accountId: string,
+    seed: string,
+    encodedExtrinsics: Array<HexString>,
+  ): Promise<TransactionResponse> {
+    const referenceId = calculateJobId(seed);
+    // Create the job data
+    const jobData: IcsPublishJob = {
+      accountId,
+      providerId: this.blockchainConf.providerId.toString(),
+      referenceId,
+      encodedExtrinsics,
+    };
+
+    // Enqueue the job
+    const job = await this.icsPublishQueue.add(`ics-publish-${referenceId}`, jobData);
+    const jobState = await job.getState();
+    this.logger.info(`Job submitted or retrieved: ${job.id} ${jobState}`);
+    this.logger.trace(JSON.stringify(job));
+    return { referenceId, state: jobState };
   }
 }

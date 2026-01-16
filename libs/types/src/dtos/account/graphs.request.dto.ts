@@ -60,7 +60,7 @@ export class ItemizedSignaturePayloadDto {
   targetHash: number;
 
   /**
-   * expiration block number for this payload
+   * The block number at which the signed proof will expire
    * @example 1
    */
   @IsIntValue({ minValue: 0, maxValue: 4_294_967_296 })

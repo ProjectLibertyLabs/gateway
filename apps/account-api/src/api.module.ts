@@ -14,11 +14,9 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import {
   AccountsControllerV1,
   AccountsControllerV2,
-  DelegationControllerV1,
   HandlesControllerV1,
   IcsControllerV1,
   KeysControllerV1,
-  DelegationsControllerV2,
   HealthController,
 } from './controllers';
 import { AccountsService, HandlesService, DelegationService, KeysService, SiwfV2Service } from './services';
@@ -31,12 +29,15 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from '#utils/filters/exceptions.filter';
 import { QueueModule } from '#queue/queue.module';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
+import { DelegationsControllerV3 } from '#account-api/controllers/v3';
+import { DecoratorsModule } from '#utils/decorators/decorators.module';
 
 const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig('account')];
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: configs }),
     BlockchainModule.forRootAsync({ readOnly: true }),
+    DecoratorsModule,
     EventEmitterModule.forRoot({
       // Use this instance throughout the application
       global: true,
@@ -101,8 +102,7 @@ const configs = [apiConfig, allowReadOnly, cacheConfig, createRateLimitingConfig
   controllers: [
     AccountsControllerV2,
     AccountsControllerV1,
-    DelegationsControllerV2,
-    DelegationControllerV1,
+    DelegationsControllerV3,
     HandlesControllerV1,
     KeysControllerV1,
     IcsControllerV1,

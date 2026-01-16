@@ -3,9 +3,9 @@ import { PinoLogger } from 'nestjs-pino';
 /**
  * Decorator that wraps RPC method calls with error handling and logging.
  * Automatically logs the RPC method name, arguments, and error details when errors occur.
- * 
+ *
  * @param rpcMethodName - The name of the RPC method being called (e.g., 'rpc.chain.getBlockHash')
- * 
+ *
  * @example
  * ```typescript
  * @RpcCall('rpc.chain.getBlockHash')
@@ -56,4 +56,3 @@ export function RpcCall(rpcMethodName: string) {
     return descriptor;
   };
 }
-

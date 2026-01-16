@@ -10,6 +10,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import workerConfig, { IContentPublishingWorkerConfig } from './worker.config';
 import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { useContainer } from 'class-validator';
 
 let logger: NestLogger;
 
@@ -67,6 +68,10 @@ async function bootstrap() {
 
   const config = app.get<IContentPublishingWorkerConfig>(workerConfig.KEY);
   try {
+    // 🔑 Enable Nest DI inside class-validator constraints
+    useContainer(app.select(WorkerModule), {
+      fallbackOnErrors: true,
+    });
     app.enableShutdownHooks();
     app.useGlobalPipes(
       new ValidationPipe({

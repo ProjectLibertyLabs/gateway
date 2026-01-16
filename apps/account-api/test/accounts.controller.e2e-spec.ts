@@ -6,7 +6,7 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
-import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
@@ -16,6 +16,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 import { Logger } from 'nestjs-pino';
+import { useContainer } from 'class-validator';
 
 describe('Account Controller', () => {
   let app: NestExpressApplication;
@@ -68,6 +69,7 @@ describe('Account Controller', () => {
     // module.useLogger(new Logger());
 
     const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    useContainer(module, { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));

@@ -2,9 +2,9 @@ import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
-import { ChainUser, ExtrinsicHelper, Schema, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
+import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
-import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { u8aToHex } from '@polkadot/util';
 import Keyring from '@polkadot/keyring';
@@ -14,17 +14,13 @@ import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { useContainer } from 'class-validator';
 
 let users: ChainUser[];
 let revokedUser: ChainUser;
 let undelegatedUser: ChainUser;
 let provider: ChainUser;
 let maxMsaId: string;
-let updateSchema: Schema | undefined;
-let publicKeySchema: Schema | undefined;
-let publicFollowsSchema: Schema | undefined;
-let privateFollowsSchema: Schema | undefined;
-let privateConnectionsSchema: Schema | undefined;
 let httpServer: any;
 let invalidMsaId: string;
 let msaNonProviderId: string;
@@ -36,12 +32,6 @@ describe('Delegation Controller', () => {
 
   beforeAll(async () => {
     ({ maxMsaId, provider, revokedUser, undelegatedUser, users } = await setupProviderAndUsers());
-    const builder = new SchemaBuilder().withAutoDetectExistingSchema();
-    updateSchema = await builder.withName('dsnp', 'update').resolve();
-    publicKeySchema = await builder.withName('dsnp', 'public-key-key-agreement').resolve();
-    publicFollowsSchema = await builder.withName('dsnp', 'public-follows').resolve();
-    privateFollowsSchema = await builder.withName('dsnp', 'private-follows').resolve();
-    privateConnectionsSchema = await builder.withName('dsnp', 'private-connections').resolve();
 
     invalidMsaId = (BigInt(maxMsaId) + 100n).toString();
     msaNonProviderId = users[0].msaId.toString();
@@ -53,10 +43,11 @@ describe('Delegation Controller', () => {
 
     app = module.createNestApplication();
 
-    // Uncomment below to see logs when debugging tests
-    // module.useLogger(new Logger());
+    // Uncomment below and set ENABLE_LOGS_IN_TESTS=true in the environment to see logs when debugging tests
+    // module.useLogger(app.get(Logger));
 
     const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    useContainer(module, { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
@@ -96,133 +87,102 @@ describe('Delegation Controller', () => {
     });
   });
 
-  describe('(GET) /v1/delegation/:msaId', () => {
-    it('(GET) /v1/delegation/:msaId with invalid msaId', async () => {
-      await request(httpServer)
-        .get(`/v1/delegation/${invalidMsaId}`)
-        .expect(HttpStatus.NOT_FOUND)
-        .expect((res) => expect(res.text).toContain('Invalid msaId'));
-    });
+  describe('/v3/delegations', () => {
+    describe('Revoke Delegation', () => {
+      let delegationObj: RevokeDelegationPayloadResponseDto;
 
-    it('(GET) /v1/delegation/:msaId with a valid MSA that has no delegations', async () => {
-      const validMsaId = provider.msaId?.toString(); // use provider's MSA; will have no delegations
-      await request(httpServer)
-        .get(`/v1/delegation/${validMsaId}`)
-        .expect(HttpStatus.NOT_FOUND)
-        .expect((res) => expect(res.text).toContain('Failed to find the delegations for'));
-    });
-
-    it('(GET) /v1/delegation/:msaId with valid msaId that has delegations', async () => {
-      const validMsaId = users[0]?.msaId?.toString();
-      await request(httpServer)
-        .get(`/v1/delegation/${validMsaId}`)
-        .expect(HttpStatus.OK)
-        .expect({
-          providerId: provider.msaId?.toString(),
-          schemaPermissions: {
-            [updateSchema!.id.toString()]: 0,
-            [publicKeySchema!.id.toString()]: 0,
-            [publicFollowsSchema!.id.toString()]: 0,
-            [privateFollowsSchema!.id.toString()]: 0,
-            [privateConnectionsSchema!.id.toString()]: 0,
-          },
-          revokedAt: '0x00000000',
+      describe('(GET) /v3/delegations/revokeDelegation/:accountId/:providerId', () => {
+        it('invalid accountId should fail', async () => {
+          const providerId = provider.msaId?.toString();
+          const { keypair } = users[1];
+          const invalidAccountId = `${keypair.address.slice(0, -1)}5H`;
+          const getPath: string = `/v3/delegations/revokeDelegation/${invalidAccountId}/${providerId}`;
+          await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.BAD_REQUEST)
+            .expect((res) =>
+              expect(res.text).toContain(
+                'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format',
+              ),
+            );
         });
-    });
-  });
 
-  describe('/v1/delegation/revokeDelegation', () => {
-    let delegationObj: RevokeDelegationPayloadResponseDto;
+        it('valid, but non-existent accountId should fail', async () => {
+          const providerId = provider.msaId?.toString();
+          const getPath: string = `/v3/delegations/revokeDelegation/${nonMsaKeypair.address}/${providerId}`;
+          await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.NOT_FOUND)
+            .expect((res) => expect(res.text).toContain('not found'));
+        });
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid accountId', async () => {
-      const providerId = provider.msaId?.toString();
-      const { keypair } = users[1];
-      const invalidAccountId = `${keypair.address.slice(0, -1)}5H`;
-      const getPath: string = `/v1/delegation/revokeDelegation/${invalidAccountId}/${providerId}`;
-      await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.BAD_REQUEST)
-        .expect((res) =>
-          expect(res.text).toContain(
-            'accountId should be a valid 32 bytes representing an account Id or address in Hex or SS58 format',
-          ),
-        );
-    });
+        it('invalid providerId should fail', async () => {
+          // Test provisioned users are not registered providers
+          const { keypair, msaId } = users[1];
+          const accountId = keypair.address;
+          const getPath: string = `/v3/delegations/revokeDelegation/${accountId}/${msaId}`;
+          await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.BAD_REQUEST)
+            .expect((res) => expect(res.text).toContain('Supplied ID not a Provider'));
+        });
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with valid accountId: no msa', async () => {
-      const providerId = provider.msaId?.toString();
-      const getPath: string = `/v1/delegation/revokeDelegation/${nonMsaKeypair.address}/${providerId}`;
-      await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.NOT_FOUND)
-        .expect((res) => expect(res.text).toContain('not found'));
-    });
+        it('already revoked delegation should fail', async () => {
+          const providerId = provider.msaId?.toString();
+          const getPath: string = `/v3/delegations/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
+          await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.BAD_REQUEST)
+            .expect((res) => expect(res.text).toContain('Delegation already revoked'));
+        });
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with invalid providerId', async () => {
-      // Test provisioned users are not registered providers
-      const { keypair, msaId } = users[1];
-      const accountId = keypair.address;
-      const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${msaId}`;
-      await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.BAD_REQUEST)
-        .expect((res) => expect(res.text).toContain('Supplied ID not a Provider'));
-    });
+        it('with no existing delegations should fail', async () => {
+          const providerId = provider.msaId?.toString();
+          const getPath: string = `/v3/delegations/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
+          await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.NOT_FOUND)
+            .expect((res) => expect(res.text).toContain('No delegations found'));
+        });
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with revoked delegations', async () => {
-      const providerId = provider.msaId?.toString();
-      const getPath: string = `/v1/delegation/revokeDelegation/${revokedUser.keypair.address}/${providerId}`;
-      await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.BAD_REQUEST)
-        .expect((res) => expect(res.text).toContain('Delegation already revoked'));
-    });
+        it('valid revocation request should succeed', async () => {
+          const providerId = provider.msaId?.toString();
+          const accountId = users[1].keypair.address;
+          const getPath: string = `/v3/delegations/revokeDelegation/${accountId}/${providerId}`;
+          const response = await request(httpServer)
+            .get(getPath)
+            .expect(HttpStatus.OK)
+            .expect(({ body }) =>
+              expect(body).toMatchObject({
+                payloadToSign: expect.stringMatching(/^0x3c04/),
+                encodedExtrinsic: expect.stringMatching(/^0x10043c04/),
+                accountId: users[1].keypair.address,
+                providerId: provider.msaId.toString(),
+              }),
+            );
+          delegationObj = response.body;
+        });
+      });
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId with no delegations', async () => {
-      const providerId = provider.msaId?.toString();
-      const getPath: string = `/v1/delegation/revokeDelegation/${undelegatedUser.keypair.address}/${providerId}`;
-      await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.NOT_FOUND)
-        .expect((res) => expect(res.text).toContain('No delegations found'));
-    });
+      describe('(POST) /v3/delegations/revokeDelegation', () => {
+        it('post extrinsic payload should succeed', async () => {
+          const { payloadToSign } = delegationObj;
 
-    it('(GET) /v1/delegation/revokeDelegation/:accountId/:providerId', async () => {
-      const providerId = provider.msaId?.toString();
-      const accountId = users[1].keypair.address;
-      const getPath: string = `/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
-      const response = await request(httpServer)
-        .get(getPath)
-        .expect(HttpStatus.OK)
-        .expect(({ body }) =>
-          expect(body).toMatchObject({
-            payloadToSign: expect.stringMatching(/^0x3c04/),
-            encodedExtrinsic: expect.stringMatching(/^0x10043c04/),
-            accountId: users[1].keypair.address,
-            providerId: provider.msaId.toString(),
-          }),
-        );
-      delegationObj = response.body;
+          const signature: Uint8Array = users[1].keypair.sign(payloadToSign, { withType: true });
+
+          const revokeDelegationRequest: RevokeDelegationPayloadRequestDto = {
+            ...delegationObj,
+            signature: u8aToHex(signature),
+          };
+
+          const postPath = '/v3/delegations/revokeDelegation';
+          await request(httpServer).post(postPath).send(revokeDelegationRequest).expect(HttpStatus.CREATED);
+        });
+      });
     });
 
-    it('(POST) /v1/delegation/revokeDelegation', async () => {
-      const { payloadToSign } = delegationObj;
-
-      const signature: Uint8Array = users[1].keypair.sign(payloadToSign, { withType: true });
-
-      const revokeDelegationRequest: RevokeDelegationPayloadRequestDto = {
-        ...delegationObj,
-        signature: u8aToHex(signature),
-      };
-
-      const postPath = '/v1/delegation/revokeDelegation';
-      await request(httpServer).post(postPath).send(revokeDelegationRequest).expect(HttpStatus.CREATED);
-    });
-  });
-
-  describe('/v2/delegations', () => {
-    describe('(GET) /v2/delegations/:msaId', () => {
-      const path = '/v2/delegations/{msaId}';
+    describe('(GET) /v3/delegations/:msaId', () => {
+      const path = '/v3/delegations/{msaId}';
 
       it('should return error on malformed request', async () => {
         await request(httpServer).get(path.replace('{msaId}', 'bad-identifier')).expect(HttpStatus.BAD_REQUEST);
@@ -268,8 +228,8 @@ describe('Delegation Controller', () => {
       });
     });
 
-    describe('(GET) /v2/delegations/:msaId/:providerId', () => {
-      const path = '/v2/delegations/{msaId}/{providerId}';
+    describe('(GET) /v3/delegations/:msaId/:providerId', () => {
+      const path = '/v3/delegations/{msaId}/{providerId}';
 
       it('should return error on malformed request', async () => {
         await request(httpServer).get(path.replace('{msaId}', 'bad-identifier')).expect(HttpStatus.BAD_REQUEST);

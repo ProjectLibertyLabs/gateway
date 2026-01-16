@@ -15,8 +15,8 @@ bridging the gap between Web2 and Web3 development.
 - [🔍 Architecture Map](#-arch-maps)
 - [🔍 Gateway Microservices](#gateway-microservices)
 - [💻 Getting Started](#getting-started)
-    - [🚀 Quick Start Guide](#quick-start-guide)
-    - [💻 Getting Started with Microservices](#microservices-start-guide)
+  - [🚀 Quick Start Guide](#quick-start-guide)
+  - [💻 Getting Started with Microservices](#microservices-start-guide)
 - [🛫 Deployment](#deployment)
 - [📝 Logging](#logging)
 - [📊 Metrics](#metrics)
@@ -125,7 +125,7 @@ Gateway consists of four independent microservices, each designed to handle spec
 Frequency blockchain. Below is a detailed overview of each service:
 
 | Service                    | Description                                                                                                                                                                                                    | API Documentation                                                            | README                                                  |
-|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------------------|
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
 | Account Service            | Manages user accounts and authentication on the Frequency blockchain using [Sign In With Frequency](https://github.com/ProjectLibertyLabs/siwf). It handles tasks such as account creation and key management. | [API Docs](https://projectlibertylabs.github.io/gateway/account)             | [README](./developer-docs/account/README.md)            |
 | Content Publishing Service | Facilitates the creation and publication of content on the Frequency blockchain. It manages tasks such as posting messages, attachments, replies, and reactions.                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-publishing/) | [README](./developer-docs/content-publishing/README.md) |
 | Content Watcher Service    | Monitors and retrieves content updates from the Frequency blockchain. It allows applications to efficiently track new content as it's published.                                                               | [API Docs](https://projectlibertylabs.github.io/gateway/content-watcher/)    | [README](./developer-docs/content-watcher/README.md)    |
@@ -274,8 +274,7 @@ cd apps/content-publishing-api/k6-test
 SCENARIO=heavy k6 run batch-announcement-load.k6.js
 ```
 
-Detailed information, configuration options, and best practices, are included in our *
-*[k6 testing documentation](./docs/k6/k6-documentation.md)**.
+Detailed information, configuration options, and best practices, are included in our \* \*[k6 testing documentation](./docs/k6/k6-documentation.md)\*\*.
 
 <!-- CONTRIBUTING -->
 

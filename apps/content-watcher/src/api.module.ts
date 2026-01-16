@@ -27,6 +27,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { createPrometheusConfig, getPinoHttpOptions } from '#logger-lib';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { createRateLimitingConfig, createThrottlerConfig } from '#config';
+import { DecoratorsModule } from '#utils/decorators/decorators.module';
 
 const configs = [
   apiConfig,
@@ -46,6 +47,7 @@ const configs = [
     BlockchainModule.forRootAsync({
       readOnly: true,
     }),
+    DecoratorsModule,
     ScannerModule,
     CrawlerModule,
     IPFSProcessorModule,

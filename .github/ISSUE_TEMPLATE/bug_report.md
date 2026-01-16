@@ -4,8 +4,8 @@ about: Tell us about something that went wrong
 title: ''
 labels: bug
 assignees: ''
-
 ---
+
 Thanks for reporting a bug!
 
 **Describe the bug**
@@ -13,6 +13,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'

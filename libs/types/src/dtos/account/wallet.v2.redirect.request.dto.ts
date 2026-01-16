@@ -1,6 +1,6 @@
 import { EnsureArray } from '#utils/decorators/ensure-array.decorator';
 import { IsCredentialType } from '#utils/decorators/is-credential-type.decorator';
-import { IsSchemaName } from '#utils/decorators/is-schema-name.decorator';
+import { IsIntentName } from '#utils/decorators/is-intent-name.decorator';
 import { IsSwifV2CallbackUrl } from '#utils/decorators/is-swif-v2-callback-url.decorator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
@@ -40,6 +40,6 @@ export class WalletV2RedirectRequestDto {
   })
   @IsOptional()
   @EnsureArray
-  @IsSchemaName({ each: true })
+  @IsIntentName({ each: true })
   permissions?: string[];
 }

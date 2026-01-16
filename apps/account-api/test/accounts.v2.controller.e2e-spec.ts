@@ -10,11 +10,11 @@ import { ApiModule } from '../src/api.module';
 import { createMockSiwfServer, validSiwfNewUserResponseWithRecovery } from '#account-api/services/siwfV2.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
-import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
+import { useContainer } from 'class-validator';
 
 describe('Accounts v2 Controller', () => {
   let app: NestExpressApplication;
@@ -39,6 +39,7 @@ describe('Accounts v2 Controller', () => {
     // module.useLogger(new Logger());
 
     const config = app.get<IAccountApiConfig>(apiConfig.KEY);
+    useContainer(app.select(ApiModule), { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
@@ -77,9 +78,10 @@ describe('Accounts v2 Controller', () => {
 
   describe('(GET) /v2/accounts/siwf', () => {
     it('should return a valid redirect URL with all parameters provided', async () => {
+      const permissions = ['dsnp.broadcast', 'dsnp.reply', 'dsnp.tombstone'];
       const siwfRequest: WalletV2RedirectRequestDto = {
         callbackUrl: 'https://example.com/callback',
-        permissions: [...SCHEMA_NAME_TO_ID.keys()],
+        permissions,
         credentials: ['VerifiedPhoneNumberCredential', 'VerifiedGraphKeyCredential'],
       };
 
@@ -92,13 +94,13 @@ describe('Accounts v2 Controller', () => {
       expect(redirectUrl.searchParams.has('signedRequest'));
       const signedRequest = decodeSignedRequest(redirectUrl.searchParams.get('signedRequest'));
       expect(signedRequest.requestedCredentials).toHaveLength(2);
-      expect(signedRequest.requestedSignatures.payload.permissions).toHaveLength(SCHEMA_NAME_TO_ID.size);
+      expect(signedRequest.requestedSignatures.payload.permissions).toHaveLength(permissions.length);
     });
 
     it('should return a valid redirect URL with all array parameters of length 1', async () => {
       const siwfRequest: WalletV2RedirectRequestDto = {
         callbackUrl: 'https://example.com/callback',
-        permissions: ['dsnp.broadcast@v1'],
+        permissions: ['dsnp.broadcast'],
         credentials: ['VerifiedPhoneNumberCredential'],
       };
 

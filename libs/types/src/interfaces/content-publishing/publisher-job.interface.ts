@@ -12,6 +12,8 @@ export interface OnChainJobData {
   published: string;
 
   onBehalfOf?: string;
+
+  intentId?: number;
 }
 
 interface IBasePublisherJob {

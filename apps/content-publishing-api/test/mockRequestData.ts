@@ -2,7 +2,9 @@ import {
   IAssetMetadata,
   IBroadcast,
   ILocation,
-  INoteActivity, IProfile, IProfileActivity,
+  INoteActivity,
+  IProfile,
+  IProfileActivity,
   IReply,
   ITag,
   ITombstone,
@@ -87,7 +89,7 @@ export const validReplyNoUploadedAssets: IReply = {
 export const validUpdateNoUploadedAssets: IUpdate = {
   targetContentHash: 'bdyqdua4t4pxgy37mdmjyqv3dejp5betyqsznimpneyujsur23yubzna',
   targetAnnouncementType: ModifiableAnnouncementType.BROADCAST,
-  content: validContentWithHrefAsset
+  content: validContentWithHrefAsset,
 };
 
 export const validReaction = {
@@ -152,7 +154,7 @@ export function generateUpdate(assets: string[] = []): IUpdate {
 export function generateProfile(assets: string[] = []): IProfile {
   const payload: IProfile = {
     profile: structuredClone(validProfileNoUploadedAssets),
-  }
+  };
   if (assets.length > 0) {
     payload.profile.icon = assets.map((referenceId) => ({ referenceId }));
   }

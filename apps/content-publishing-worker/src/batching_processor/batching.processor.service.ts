@@ -128,12 +128,13 @@ export class BatchingProcessorService {
       announcements.push(announcement);
     }
     if (announcements.length > 0) {
+      const { schemaId } = await this.blockchainService.getIntentAndLatestSchemaIdsByName(
+        'dsnp',
+        QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!.toString(),
+      );
       const job = {
         batchId: metaData.batchId,
-        schemaId: await this.blockchainService.getSchemaIdByName(
-          'dsnp',
-          QueueConstants.QUEUE_NAME_TO_ANNOUNCEMENT_MAP.get(queueName)!.toString(),
-        ),
+        schemaId,
         announcements,
       } as IBatchAnnouncerJobData;
       await this.outputQueue.add(`Batch Job - ${metaData.batchId}`, job, {

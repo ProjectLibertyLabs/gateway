@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ChainWatchOptionsDto } from '#types/dtos/content-watcher/chain.watch.dto';
-import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import {
+  CommonPrimitivesMessagesBlockPaginationResponse,
+  CommonPrimitivesMessagesMessageResponseV2,
+  FrameSystemEventRecord,
+} from '@polkadot/types/lookup';
 import { Vec } from '@polkadot/types';
-import { BlockPaginationResponseMessage, MessageResponse } from '@frequency-chain/api-augment/interfaces';
-import { MessageResponseWithSchemaId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
+import { MessageResponseWithIntentId } from '#types/interfaces/content-watcher/message_response_with_schema_id';
 import { createIPFSQueueJob } from '#types/interfaces/content-watcher/ipfs.job.interface';
 import { Queue } from 'bullmq';
 import { BlockchainRpcQueryService, IBlockPaginationRequest } from '#blockchain/blockchain-rpc-query.service';
@@ -16,7 +19,7 @@ export class ChainEventProcessorService {
   public async getMessagesInBlock(
     blockNumber: number,
     filter?: ChainWatchOptionsDto,
-  ): Promise<MessageResponseWithSchemaId[]> {
+  ): Promise<MessageResponseWithIntentId[]> {
     const blockHash = await this.blockchainService.getBlockHash(blockNumber);
     if (blockHash.isEmpty) {
       return [];
@@ -29,52 +32,50 @@ export class ChainEventProcessorService {
     blockNumber: number,
     events: FrameSystemEventRecord[],
     filter?: ChainWatchOptionsDto,
-  ): Promise<MessageResponseWithSchemaId[]> {
+  ): Promise<MessageResponseWithIntentId[]> {
     const hasMessages = events.some(({ event }) => this.blockchainService.events.messages.MessagesInBlock.is(event));
     if (!hasMessages) {
       return [];
     }
 
-    let schemaIds = (await this.blockchainService.getMessageKeysInBlock(blockNumber)).map(([schemaId, _]) => schemaId);
-    schemaIds = Array.from(new Set<number>(schemaIds));
-    const filteredEvents: (MessageResponseWithSchemaId | null)[] = await Promise.all(
-      schemaIds.map(async (schemaId) => {
-        if (filter && filter?.schemaIds?.length > 0 && !filter.schemaIds.includes(schemaId)) {
+    let intentIds = (await this.blockchainService.getMessageKeysInBlock(blockNumber)).map(([intentId, _]) => intentId);
+    intentIds = Array.from(new Set<number>(intentIds));
+    const filteredEvents: (MessageResponseWithIntentId | null)[] = await Promise.all(
+      intentIds.map(async (intentId) => {
+        if (filter && filter?.intentIds?.length > 0 && !filter.intentIds.includes(intentId)) {
           return null;
         }
         let paginationRequest: IBlockPaginationRequest = {
-          from_block: blockNumber,
-          from_index: 0,
-          page_size: 1000,
-          to_block: blockNumber + 1,
+          fromBlock: blockNumber,
+          fromIndex: 0,
+          pageSize: 1000,
+          toBlock: blockNumber + 1,
         };
 
-        let messageResponse: BlockPaginationResponseMessage = await this.blockchainService.getMessagesBySchemaId(
-          schemaId,
-          paginationRequest,
-        );
-        const messages: Vec<MessageResponse> = messageResponse.content;
-        while (messageResponse.has_next.toHuman()) {
+        let messageResponse: CommonPrimitivesMessagesBlockPaginationResponse =
+          await this.blockchainService.getMessagesByIntentId(intentId, paginationRequest);
+        const messages: Vec<CommonPrimitivesMessagesMessageResponseV2> = messageResponse.content;
+        while (messageResponse.hasNext.toHuman()) {
           paginationRequest = {
-            from_block: blockNumber,
-            from_index: messageResponse.next_index.isSome ? messageResponse.next_index.unwrap().toNumber() : 0,
-            page_size: 1000,
-            to_block: blockNumber + 1,
+            fromBlock: blockNumber,
+            fromIndex: messageResponse.nextIndex.isSome ? messageResponse.nextIndex.unwrap().toNumber() : 0,
+            pageSize: 1000,
+            toBlock: blockNumber + 1,
           };
           // eslint-disable-next-line no-await-in-loop
-          messageResponse = await this.blockchainService.getMessagesBySchemaId(schemaId, paginationRequest);
+          messageResponse = await this.blockchainService.getMessagesByIntentId(intentId, paginationRequest);
           if (messageResponse.content.length > 0) {
             messages.push(...messageResponse.content);
           }
         }
-        const messagesWithSchemaId: MessageResponseWithSchemaId = {
-          schemaId,
+        const messagesWithSchemaId: MessageResponseWithIntentId = {
+          intentId: intentId,
           messages,
         };
         return messagesWithSchemaId;
       }),
     );
-    const collectedMessages: MessageResponseWithSchemaId[] = [];
+    const collectedMessages: MessageResponseWithIntentId[] = [];
     filteredEvents.forEach((event) => {
       if (event) {
         collectedMessages.push(event);
@@ -84,7 +85,7 @@ export class ChainEventProcessorService {
   }
 
   public static async queueIPFSJobs(
-    messages: MessageResponseWithSchemaId[],
+    messages: MessageResponseWithIntentId[],
     queue: Queue,
     requestId?: string,
     webhookUrl?: string,
@@ -94,10 +95,10 @@ export class ChainEventProcessorService {
         .filter((message) => message.cid && message.cid.isSome)
         .map((message) => {
           const job = createIPFSQueueJob(
-            message.block_number.toNumber(),
-            message.msa_id.isNone ? message.provider_msa_id.toString() : message.msa_id.unwrap().toString(),
-            message.provider_msa_id.toString(),
-            messageResponse.schemaId,
+            message.blockNumber.toNumber(),
+            message.msaId.isNone ? message.providerMsaId.toString() : message.msaId.unwrap().toString(),
+            message.providerMsaId.toString(),
+            messageResponse.intentId,
             message.cid.unwrap().toString(),
             message.index.toNumber(),
             requestId,

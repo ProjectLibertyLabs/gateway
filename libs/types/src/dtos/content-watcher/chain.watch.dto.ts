@@ -1,24 +1,23 @@
 import { ArrayNotEmpty, ArrayUnique, IsArray, IsOptional } from 'class-validator';
-import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
+import { IsIntentId, IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 
 /**
  * Interface for chain filter options
- * @interface IChainWatchOptions
- * @property {number[]} schemaIds - The schema ids for which content should be watched for
+ * @property {number[]} intentIds - The Intent ids for which content should be watched for
  * @property {string[]} msa_ids - The msa ids for which content should be watched for
  */
 export class ChainWatchOptionsDto {
   /**
-   * Specific schema ids to watch for
+   * Specific Intent ids to watch for
    * @example [1, 19]
    */
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @IsSchemaId({ each: true })
-  schemaIds?: number[];
+  @IsIntentId({ each: true })
+  intentIds?: number[];
 
   /**
    * Specific dsnpIds (msa_id) to watch for

@@ -12,6 +12,7 @@ import {
   provisionUserGraphEncryptionKeys,
   provisionUserGraphResets,
   provisionUsersOnChain,
+  IntentBuilder,
 } from '@projectlibertylabs/frequency-scenario-template';
 import log from 'loglevel';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
@@ -41,24 +42,24 @@ async function main() {
   const revokedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//revoked`, 1))[0];
   const undelegatedUser: ChainUser = (await initializeLocalUsers(`${BASE_SEED_PHRASE}//undelegated`, 1))[0];
 
-  const builder = new SchemaBuilder().withAutoDetectExistingSchema();
+  const builder = new IntentBuilder().withAutoDetectExisting(true);
   const updateSchema = await builder.withName('dsnp', 'update').resolve();
   const publicKeySchema = await builder.withName('dsnp', 'public-key-key-agreement').resolve();
   const publicFollowsSchema = await builder.withName('dsnp', 'public-follows').resolve();
   const privateFollowsSchema = await builder.withName('dsnp', 'private-follows').resolve();
   const privateConnectionsSchema = await builder.withName('dsnp', 'private-connections').resolve();
 
-  const schemaIds = [
-    updateSchema!.id.toNumber(),
-    publicKeySchema!.id.toNumber(),
-    publicFollowsSchema!.id.toNumber(),
-    privateFollowsSchema!.id.toNumber(),
-    privateConnectionsSchema!.id.toNumber(),
+  const intentIds = [
+    updateSchema!.id,
+    publicKeySchema!.id,
+    publicFollowsSchema!.id,
+    privateFollowsSchema!.id,
+    privateConnectionsSchema!.id,
   ];
 
   // Create users
   await provisionLocalUserCreationExtrinsics(provider, [...delegators, revokedUser], {
-    schemaIds,
+    intentIds,
     allocateHandle: false,
   });
   await provisionUserGraphResets([...delegators, revokedUser]);

@@ -100,7 +100,7 @@ export class ScannerService implements OnApplicationBootstrap, OnApplicationShut
       const chainWatchFilters = await this.cache.get(EVENTS_TO_WATCH_KEY);
       const eventsToWatch: ChainWatchOptionsDto = chainWatchFilters
         ? JSON.parse(chainWatchFilters)
-        : { msa_ids: [], schemaIds: [] };
+        : { msa_ids: [], intentIds: [] };
 
       this.scanInProgress = true;
 

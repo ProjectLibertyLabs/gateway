@@ -199,7 +199,7 @@ export class TxnNotifierService
                   this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
 
                 const response = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
-                  schemaId: itemizedPageUpdated.schemaId,
+                  schemaId: itemizedPageUpdated.intentId,
                 });
                 webhookResponse = response;
 

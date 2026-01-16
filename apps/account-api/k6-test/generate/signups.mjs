@@ -10,7 +10,7 @@ const signup = (api) => {
 
   const addProviderData = api.registry.createType('PalletMsaAddProvider', {
     authorizedMsaId: 1,
-    schemaIds: [1],
+    intentIds: [1],
     expiration,
   });
   const createTx = api.tx.msa.createSponsoredAccountWithDelegation(

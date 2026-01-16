@@ -37,7 +37,7 @@ export const validSiwfAddDelegationResponsePayload: SiwfResponse = {
       type: 'addProvider',
       payload: {
         authorizedMsaId: 1,
-        schemaIds: [5, 7, 8, 9, 10],
+        intentIds: [5, 7, 8, 9, 10],
         expiration: 24,
       },
     },
@@ -212,7 +212,7 @@ export const validSiwfNewUserResponse: SiwfResponse = {
       type: 'addProvider',
       payload: {
         authorizedMsaId: 1,
-        schemaIds: [5, 7, 8, 9, 10],
+        intentIds: [5, 7, 8, 9, 10],
         expiration: 24,
       },
     },
@@ -332,7 +332,7 @@ export const validSiwfNewUserResponseWithRecovery: SiwfResponse = {
       type: 'addProvider',
       payload: {
         authorizedMsaId: 1,
-        schemaIds: [5, 7, 8, 9, 10],
+        intentIds: [5, 7, 8, 9, 10],
         expiration: 24,
       },
     },

@@ -5,7 +5,7 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
-import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';

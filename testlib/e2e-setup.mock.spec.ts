@@ -18,9 +18,15 @@ import { u8aToHex } from '@polkadot/util';
 export const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://0.0.0.0:9944';
 export const BASE_SEED_PHRASE = process.env.SEED_PHRASE || '//Alice';
 
-export async function setupProviderAndUsers(numUsers = 4) {
+export async function initializeHelpers() {
   await cryptoWaitReady();
-  await initialize(FREQUENCY_API_WS_URL);
+  if (!ExtrinsicHelper.apiPromise) {
+    await initialize(FREQUENCY_API_WS_URL);
+  }
+}
+
+export async function setupProviderAndUsers(numUsers = 4) {
+  await initializeHelpers();
   log.setLevel('trace');
 
   const currentBlockNumber = await getCurrentBlockNumber();
@@ -51,6 +57,7 @@ export async function removeExtraKeysFromMsa({
     return;
   }
 
+  await initializeHelpers();
   const keys = await ExtrinsicHelper.apiPromise.rpc.msa.getKeysByMsaId(msaId);
   if (keys.isNone) {
     return;
@@ -64,6 +71,7 @@ export async function removeExtraKeysFromMsa({
 }
 
 export async function generateSignedAddKeyPayload(user: ChainUser, newKeys: KeyringPair, currentBlockNumber?: number) {
+  await cryptoWaitReady();
   const payload = await generateAddKeyPayload(
     { msaId: user.msaId!, newPublicKey: newKeys.publicKey },
     undefined,
@@ -82,6 +90,7 @@ export async function generateAddPublicKeyExtrinsic(
   newKeys: KeyringPair,
   currentBlockNumber?: number,
 ) {
+  await initializeHelpers();
   const { payload, ownerProof, newKeyProof } = await generateSignedAddKeyPayload(user, newKeys, currentBlockNumber);
   return () =>
     ExtrinsicHelper.apiPromise.tx.msa.addPublicKeyToMsa(user.keypair.publicKey, ownerProof, newKeyProof, payload);

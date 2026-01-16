@@ -2,15 +2,18 @@
   "name": "ci-k6",
   "version": "1.0.0",
   "description": "",
-  "main": "main.mjs",
+  "main": "main.ts",
+  "type": "commonjs",
   "scripts": {
-    "main": "node main.mjs",
+    "main": "tsx main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
     "@polkadot/api": "16.4.8",
-    "@polkadot/keyring": "13.5.7"
+    "@polkadot/keyring": "13.5.7",
+    "@projectlibertylabs/frequency-scenario-template": "2.0.0-rc5",
+    "tsx": "^4.21.0"
   }
 }

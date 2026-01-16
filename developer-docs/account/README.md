@@ -207,13 +207,13 @@ preferred debugger.
 
 Each queue lists the [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object) used with it.
 
-* transactionPublish - the sole queue for all Account operations, with
+- transactionPublish - the sole queue for all Account operations, with
   related [DTOs](https://en.wikipedia.org/wiki/Data_transfer_object).
-    * Managing handles: `CreateHandleRequest`, `ChangeHandleRequest`
-    * Managing control keys: `AddKeyRequestDto` `PublicKeyAgreementDto`
-    * Handling SIWF sign up requests: `PublishSIWFSignupRequestDto`
-    * Retiring an MSA. `PublishRetireMsaRequestDto`
-    * Revoking a delegation to the Provider operating this gateway: `PublishRevokeDelegationRequestDto`
+  - Managing handles: `CreateHandleRequest`, `ChangeHandleRequest`
+  - Managing control keys: `AddKeyRequestDto` `PublicKeyAgreementDto`
+  - Handling SIWF sign up requests: `PublishSIWFSignupRequestDto`
+  - Retiring an MSA. `PublishRetireMsaRequestDto`
+  - Revoking a delegation to the Provider operating this gateway: `PublishRevokeDelegationRequestDto`
 
 ### Built With
 

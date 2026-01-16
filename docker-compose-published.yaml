@@ -53,9 +53,9 @@ services:
 
   frequency:
     image: frequencychain/standalone-node:latest
-    # We need to specify the platform because it's the only image
-    # built by Frequency at the moment, and auto-pull won't work otherwise
-    platform: linux/amd64
+    # If auto-pull fails due to a platform mismatch, uncomment below to force x86 emulation.
+    # Available Frequency builds are: [amd64, arm64]
+    # platform: linux/amd64
     # Uncomment SEALING_MODE and SEALING_INTERVAL if you want to use interval sealing.
     # Other options you may want to add depending on your test scenario.
     environment:

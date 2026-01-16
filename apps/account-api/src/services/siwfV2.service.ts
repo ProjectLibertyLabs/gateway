@@ -99,7 +99,7 @@ export class SiwfV2Service {
       return null;
     }
 
-    const api: ApiPromise = await this.blockchainService.getApi() as ApiPromise;
+    const api: ApiPromise = (await this.blockchainService.getApi()) as ApiPromise;
     const { pallet, extrinsic: extrinsicName } = payload.endpoint;
 
     switch (`${pallet}.${extrinsicName}`) {

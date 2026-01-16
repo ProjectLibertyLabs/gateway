@@ -44,6 +44,8 @@ import Keyring from '@polkadot/keyring';
 import { ApiPromise } from '@polkadot/api';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
+import { ExtrinsicHelper, IntentBuilder, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
+import { initializeHelpers } from '#testlib/e2e-setup.mock.spec';
 
 let aliceKeys: KeyringPair;
 
@@ -62,6 +64,9 @@ describe('Content Publishing /content Controller E2E Tests', () => {
   let redis: Redis;
   let api: ApiPromise;
   let blockchainService: BlockchainRpcQueryService;
+
+  let ipfsSchemaId: number;
+  let onChainSchemaId: number;
 
   const missingAssetId = '9876543210';
   const badMimeTypeReferenceId = '0123456789';
@@ -117,11 +122,44 @@ describe('Content Publishing /content Controller E2E Tests', () => {
     await redis.set(getAssetMetadataKey(badMimeTypeReferenceId), JSON.stringify(assetMetaDataInvalidMimeType));
     blockchainService = app.get(BlockchainRpcQueryService);
     api = (await blockchainService.getApi()) as ApiPromise;
+
+    await initializeHelpers();
+    const onChainIntentName = 'e-e.on-chain';
+
+    // Get any off-chain (IPFS) schema
+    const builder = new IntentBuilder();
+    const intent = await builder.withAutoDetectExisting(true).withName('dsnp.broadcast').resolve();
+    ipfsSchemaId = intent.schemas[0];
+
+    // Create on-chain Intent & Schema if one doesn't exist, since the chain genesis does not contain any.
+    // This will only work against a local chain; if we want to test against testnet, would need to re-work using sudo.
+    const keys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
+    const onChainIntent = await builder
+      .withAutoDetectExisting(true)
+      .withName(onChainIntentName)
+      .withPayloadLocation('OnChain')
+      .build(keys); // will either resolve existing or build new
+    if (onChainIntent?.schemas.length > 0) {
+      onChainSchemaId = [...onChainIntent.schemas].pop();
+    }
+    if (!onChainSchemaId) {
+      const onChainSchema = await new SchemaBuilder()
+        .withIntentId(onChainIntent.id)
+        .withModelType('AvroBinary')
+        .withModel(AVRO_SCHEMA)
+        .build(keys);
+      onChainSchemaId = onChainSchema.id;
+    }
+
+    if (!onChainSchemaId) {
+      throw new Error('No on-chain schema found');
+    }
   });
 
   afterAll(async () => {
     try {
       await app.close();
+      await ExtrinsicHelper.disconnect();
     } catch (err) {
       console.error(err);
     }
@@ -829,81 +867,6 @@ describe('Content Publishing /content Controller E2E Tests', () => {
   });
 
   describe('V2 Content', () => {
-    let ipfsSchemaId: number;
-    let onChainSchemaId: number;
-
-    beforeAll(async () => {
-      const onChainIntentName = 'e-e.on-chain';
-
-      // TODO: Swap this in after Intents are deployed
-      // Get any off-chain (IPFS) schema
-      // const intents = await api.call.schemasRuntimeApi.getRegisteredEntitiesByName('dsnp.broadcast');
-      // const intentWithSchemas = await api.call.schemasRuntimeApi.getIntentById(intents.unwrap()[0].id, true);
-      // const schemaIds = intentWithSchemas.schema_ids.unwrap().to_array();
-      // ipfsSchemaId = schemaIds.pop().toNumber();
-
-      // Create on-chain Intent if one doesn't exist, since the chain genesis does not contain any
-      // const onChainIntents = await api.call.schemasRuntimeApi.getRegisteredEntitiesByName(onChainIntentName);
-      // if (onChainIntents.isSome && onChainIntents.unwrap().length > 0) {
-      //   const onChainIntentWithSchemas = await api.call.schemasRuntimeApi.getIntentById(
-      //     onChainIntents.unwrap()[0].id,
-      //     true,
-      //   );
-      //   const schemaIds = onChainIntentWithSchemas.schema_ids.unwrap().to_array();
-      //   onChainSchemaId = schemaIds.pop().toNumber();
-      // } else {
-      //   // This will only work against a local chain; if we want to test against testnet, would need to re-work using sudo
-      //   const keys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
-      //   const intentId = await new Promise((resolve, reject) =>
-      //     api.tx.schemas.createIntent(onChainIntentName, 'OnChain', []).signAndSend(keys, ({ status, events }) => {
-      //       events.forEach(({ event: { data, method } }) => {
-      //         if (method === 'IntentCreated') {
-      //           resolve(data[0].toNumber());
-      //         }
-      //       });
-      //     }),
-      //   );
-      //   onChainSchemaId = await new Promise((resolve, reject) =>
-      //     api.tx.schemas.createSchemaV4(intentId, 'AvroBinary', {}).signAndSend(keys, ({ status, events }) => {
-      //       events.forEach(({ event: { data, method } }) => {
-      //         if (method === 'SchemaCreated') {
-      //           resolve(data[0].toNumber());
-      //         }
-      //       });
-      //     });
-      // }
-
-      // TODO: Remove in favor of above after Intents are deployed on Frequency
-      // Get any off-chain (IPFS) schema ID
-      let schemas = (await api.call.schemasRuntimeApi.getSchemaVersionsByName('dsnp.broadcast')).unwrap().toArray();
-      ipfsSchemaId = schemas.pop().schemaId.toNumber();
-
-      // Create an on-chain schema if one does not exist (since the chain genesis does not contain any)
-      const schemaResponse = await api.call.schemasRuntimeApi.getSchemaVersionsByName(onChainIntentName);
-      if (schemaResponse.isSome && schemaResponse.unwrap().length > 0) {
-        schemas = schemaResponse.unwrap().toArray();
-        onChainSchemaId = schemas.pop().schemaId.toNumber();
-      } else {
-        onChainSchemaId = await new Promise((resolve, reject) => {
-          api.tx.schemas
-            .createSchemaV3(JSON.stringify(AVRO_SCHEMA), 'AvroBinary', 'OnChain', [], onChainIntentName)
-            .signAndSend(aliceKeys, ({ status, events }) => {
-              console.log('STATUS: ', status);
-              events.forEach(({ event }) => {
-                console.log('EVENT: ', event.method);
-                if (api.events.schemas.SchemaCreated.is(event)) {
-                  resolve(event.data.schemaId.toNumber());
-                }
-              });
-              // If in block but no event found, reject
-              if (status.isInBlock) {
-                reject(new Error('No SchemaCreated event found'));
-              }
-            });
-        });
-      }
-    });
-
     describe('/v2/content/:msaId/on-chain', () => {
       const goodPayload = '0x' + Buffer.from('hello, world').toString('hex');
       const largePayload = () =>

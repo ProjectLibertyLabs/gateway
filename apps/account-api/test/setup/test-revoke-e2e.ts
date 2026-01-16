@@ -5,7 +5,7 @@ import { u8aToHex } from '@polkadot/util';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import axios from 'axios';
 // eslint-disable-next-line import/no-relative-packages
-import { setupProviderAndUsers } from '../e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 
 const FREQUENCY_API_WS_URL = process.env.FREQUENCY_API_WS_URL || 'ws://127.0.0.1:9944';
 
@@ -25,7 +25,7 @@ async function revokeDelegation() {
   const providerId = provider.msaId?.toString();
   const { keypair } = users[1];
   const accountId = keypair.address;
-  const getPath: string = `http:/localhost:3013/v1/delegation/revokeDelegation/${accountId}/${providerId}`;
+  const getPath: string = `http:/localhost:3013/v3/delegations/revokeDelegation/${accountId}/${providerId}`;
   const response = await axios.get(getPath);
   const revokeDelegationPayloadResponse = response.data;
   console.log(`RevokeDelegationPayloadResponse = ${JSON.stringify(revokeDelegationPayloadResponse)}`);
@@ -45,7 +45,7 @@ async function revokeDelegation() {
   };
   console.log(`revokeDelegationRequest = ${JSON.stringify(revokeDelegationRequest)}`);
 
-  const postPath = 'http:/localhost:3013/v1/delegation/revokeDelegation';
+  const postPath = 'http:/localhost:3013/v3/delegations/revokeDelegation';
   await axios.post(postPath, revokeDelegationRequest);
 }
 

@@ -6,7 +6,7 @@ import request from 'supertest';
 import { ChainUser, ExtrinsicHelper, getClaimHandlePayload } from '@projectlibertylabs/frequency-scenario-template';
 import { uniqueNamesGenerator, colors, names } from 'unique-names-generator';
 import { ApiModule } from '../src/api.module';
-import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 import { u8aToHex } from '@polkadot/util';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { CacheMonitorService } from '#cache/cache-monitor.service';

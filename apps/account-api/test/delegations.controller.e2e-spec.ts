@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import request from 'supertest';
 import { ChainUser, ExtrinsicHelper } from '@projectlibertylabs/frequency-scenario-template';
 import { ApiModule } from '../src/api.module';
-import { setupProviderAndUsers } from './e2e-setup.mock.spec';
+import { setupProviderAndUsers } from '#testlib/e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import { u8aToHex } from '@polkadot/util';
 import Keyring from '@polkadot/keyring';

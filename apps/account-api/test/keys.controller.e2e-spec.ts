@@ -11,7 +11,7 @@ import {
   removeExtraKeysFromMsa,
   generateSignedAddKeyPayload,
   setupProviderAndUsers,
-} from './e2e-setup.mock.spec';
+} from '#testlib/e2e-setup.mock.spec';
 import { CacheMonitorService } from '#cache/cache-monitor.service';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';

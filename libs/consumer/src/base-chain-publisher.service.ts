@@ -183,9 +183,7 @@ export abstract class BaseChainPublisherService
     }
     // Get the failed jobs and check if they failed due to capacity
     const failedJobs = await this.queue.getFailed();
-    const capacityFailedJobs = failedJobs.filter((job) =>
-      /inability to pay some fees/i.test(job.failedReason),
-    );
+    const capacityFailedJobs = failedJobs.filter((job) => /inability to pay some fees/i.test(job.failedReason));
     // Retry the failed jobs
     await Promise.all(
       capacityFailedJobs.map(async (job) => {

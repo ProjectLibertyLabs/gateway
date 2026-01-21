@@ -109,7 +109,12 @@ export class ContentControllerV3 {
 
       // Upload file to IPFS
       fileProcessingPromises.push(
-        this.apiService.uploadStreamedAsset(fileStream, fileinfo.filename, fileinfo.mimeType, VALID_BATCH_MIME_TYPES_REGEX),
+        this.apiService.uploadStreamedAsset(
+          fileStream,
+          fileinfo.filename,
+          fileinfo.mimeType,
+          VALID_BATCH_MIME_TYPES_REGEX,
+        ),
       );
     });
 

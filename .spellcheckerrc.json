@@ -7,7 +7,5 @@
     "!CLAUDE.md",
     "**/.github/**/*.md"
   ],
-  "dictionaries": [
-    ".spellcheckerdict.txt"
-  ]
+  "dictionaries": [".spellcheckerdict.txt"]
 }

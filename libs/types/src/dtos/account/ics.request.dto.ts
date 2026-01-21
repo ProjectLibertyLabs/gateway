@@ -1,14 +1,12 @@
-import {
-  AddNewPublicKeyAgreementRequestDto,
-} from '#types/dtos/account/graphs.request.dto';
+import { AddNewPublicKeyAgreementRequestDto } from '#types/dtos/account/graphs.request.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { HexString } from '@polkadot/util/types';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { IsHexValue } from "#utils/decorators";
-import { IsSignature } from "#utils/decorators/is-signature.decorator";
-import { IsIntValue } from "#utils/decorators/is-int-value.decorator";
-import { IsAccountIdOrAddress } from "#utils/decorators/is-account-id-address.decorator";
+import { IsHexValue } from '#utils/decorators';
+import { IsSignature } from '#utils/decorators/is-signature.decorator';
+import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
+import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 
 export class UpsertedPageDto {
   /**

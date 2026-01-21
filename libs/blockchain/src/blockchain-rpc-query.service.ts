@@ -272,7 +272,9 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   @RpcCall('rpc.msa.checkDelegations')
   public async checkCurrentDelegation(msaId: AnyNumber, schemaId: AnyNumber, providerId: AnyNumber): Promise<boolean> {
     const header = await this.api.rpc.chain.getHeader();
-    const delegation = (await this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), schemaId))
+    const delegation = (
+      await this.api.rpc.msa.checkDelegations([msaId], providerId, header.number.toNumber(), schemaId)
+    )
       .toArray()
       .find(([delegatorId, _]) => delegatorId.toString() === (typeof msaId === 'string' ? msaId : msaId.toString()));
 

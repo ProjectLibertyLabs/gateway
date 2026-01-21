@@ -102,10 +102,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     if (this.connected) {
       const latestFinalizedBlock = await this.getFinalizedHead();
       const latestFinalizedHeader = await this.getHeaderByHash(latestFinalizedBlock);
-      await this.defaultRedis.set(
-        'latestFinalizedHeader',
-        JSON.stringify(latestFinalizedHeader),
-      );
+      await this.defaultRedis.set('latestFinalizedHeader', JSON.stringify(latestFinalizedHeader));
     }
   }
 

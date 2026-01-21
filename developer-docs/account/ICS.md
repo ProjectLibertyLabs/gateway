@@ -1,7 +1,6 @@
 # Changes to support ICS
-The payload body for submitting the ICS AddPublicKey/AddContextGroupPRIDEntry/AddContextGroupMetadata  payloads together is defined as `IcsPublishAllRequestDto`. 
 
-
+The payload body for submitting the ICS AddPublicKey/AddContextGroupPRIDEntry/AddContextGroupMetadata payloads together is defined as `IcsPublishAllRequestDto`.
 
 ## ICS Add Public Key Payload
 
@@ -18,15 +17,16 @@ The schema is **`Itemized` and `SignatureRequired`**.
 The body DTO is `AddNewPublicKeyAgreementRequestDto`, which is already defined.
 
 ## Add `ContextGroup` Metadata
+
 We will use existing extrinsic `upsert_page_with_signature_v2` to store `ContextGroup` Metadata on a chain. The schema
-is *
-*`Paginated`, `SignatureRequired`.**
+is \* \*`Paginated`, `SignatureRequired`.\*\*
 
 The body DTO is a new one, `UpsertPagePayloadDto`
 
 ```typescript
 import { IsMsaId } from './is-msa-id.decorator';
-import { IsSchemaId } from './is-schema-id.decorator';``
+import { IsSchemaId } from './is-schema-id.decorator';
+``;
 
 export class UpsertPagePayloadDto extends ItemizedSignaturePayloadDto {
   @IsPageId()
@@ -36,7 +36,7 @@ export class UpsertPagePayloadDto extends ItemizedSignaturePayloadDto {
 
 ## ICS is a part of the `account-api` microservice
 
-For MVI, so that we need to stand up only a single service, ICS endpoints  will be part of the `account-api` microservice.
+For MVI, so that we need to stand up only a single service, ICS endpoints will be part of the `account-api` microservice.
 
 Attachments are not supported as of this writing and not included in this proposal/update
 
@@ -50,11 +50,11 @@ This endpoint requires a body of type `IcsPublishAllRequestDto`, which contains 
     addContextGroupPRIDEntryPayload: ItemizedSignaturePayloadDto;
     addContetGroupMetadataPayload: UpsertPagePayloadDto;
     }
-    
+
     @Post(':accountId/addIcsPublicKey')
     @HttpCode(HttpStatus.ACCEPTED)
-    async publishAll( 
-      @Param() { accountId }: AccountIdDto, 
+    async publishAll(
+      @Param() { accountId }: AccountIdDto,
       @Body() payload: IcsPublishAllRequestDto): Promise <AnnouncementResponseDto > {}
 ```
 
@@ -68,7 +68,9 @@ async enqueueIcsRequest(
 ) {}
 
 ```
+
 ## `account-worker`: Processing ICS jobs
+
 There is a new request processor service for ICS jobs, `icsRequest.publisher.service.ts`
 
 There is a new queue, `icsPublishQueue`, for adding ICS keys and PRIDs. These will call `payWithCapacityBatchAll`, batching all ICS calls.

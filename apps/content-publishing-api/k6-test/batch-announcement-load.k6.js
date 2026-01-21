@@ -90,8 +90,8 @@ export default function () {
     const params = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
+        Accept: 'application/json',
+      },
     };
 
     const request = http.post(url, JSON.stringify(body), params);
@@ -113,8 +113,8 @@ export default function () {
     const params = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
+        Accept: 'application/json',
+      },
     };
 
     const request = http.post(url, JSON.stringify(body), params);
@@ -205,8 +205,8 @@ export default function () {
       const params = {
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }
+          Accept: 'application/json',
+        },
       };
 
       const request = http.post(url, JSON.stringify(body), params);
@@ -221,10 +221,13 @@ export default function () {
 
     const avgResponseTime = totalResponseTime / batchCount;
 
-    check({ successCount, avgResponseTime }, {
-      'sequential batches - success rate > 80%': (r) => (r.successCount / batchCount) > 0.8,
-      'sequential batches - avg response time < 8s': (r) => r.avgResponseTime < 8000,
-    });
+    check(
+      { successCount, avgResponseTime },
+      {
+        'sequential batches - success rate > 80%': (r) => r.successCount / batchCount > 0.8,
+        'sequential batches - avg response time < 8s': (r) => r.avgResponseTime < 8000,
+      },
+    );
 
     sleep(randomIntBetween(3, 6));
   });
@@ -251,10 +254,13 @@ export default function () {
 
     const avgResponseTime = totalResponseTime / uploadCount;
 
-    check({ successCount, avgResponseTime }, {
-      'v3 sequential uploads - success rate > 80%': (r) => (r.successCount / uploadCount) > 0.8,
-      'v3 sequential uploads - avg response time < 20s': (r) => r.avgResponseTime < 20000,
-    });
+    check(
+      { successCount, avgResponseTime },
+      {
+        'v3 sequential uploads - success rate > 80%': (r) => r.successCount / uploadCount > 0.8,
+        'v3 sequential uploads - avg response time < 20s': (r) => r.avgResponseTime < 20000,
+      },
+    );
 
     sleep(randomIntBetween(5, 10));
   });
@@ -266,8 +272,8 @@ export default function () {
     const params = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
+        Accept: 'application/json',
+      },
     };
 
     const request = http.post(url, JSON.stringify(maxBatchData), params);
@@ -305,15 +311,15 @@ export default function () {
     const params = {
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json'
-      }
+        Accept: 'application/json',
+      },
     };
 
     const request = http.post(url, JSON.stringify(body), params);
 
     check(request, {
       'different batch sizes - status is 202': (r) => r.status === 202,
-      'different batch sizes - response time reasonable': (r) => r.timings.duration < (selectedSize * 2000), // 2s per file max
+      'different batch sizes - response time reasonable': (r) => r.timings.duration < selectedSize * 2000, // 2s per file max
     });
 
     sleep(randomIntBetween(3, 8));

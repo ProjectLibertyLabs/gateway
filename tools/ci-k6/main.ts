@@ -56,7 +56,14 @@ export async function createAndStake(providerUrl) {
 
   if (intent.schemas?.length > 0) {
     onChainSchemaId = intent.schemas[intent.schemas.length - 1];
-    console.log('Resolved OnChain schema:', onChainSchemaId, 'from existing Intent:', intent.id, 'with name:', intent.name);
+    console.log(
+      'Resolved OnChain schema:',
+      onChainSchemaId,
+      'from existing Intent:',
+      intent.id,
+      'with name:',
+      intent.name,
+    );
   } else {
     const schema = await new SchemaBuilder()
       .withIntentId(intent.id)

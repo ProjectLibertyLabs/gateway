@@ -11,6 +11,7 @@ import workerConfig, { IAccountWorkerConfig } from './worker.config';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { setupLoggingOverrides, validateEnvironmentVariables } from '#utils/common/common.utils';
 import { generateSwaggerDoc, writeOpenApiFile } from '#openapi/openapi';
+import { useContainer } from 'class-validator';
 
 let logger: NestLogger;
 
@@ -75,6 +76,10 @@ async function bootstrap() {
 
   const config = app.get<IAccountWorkerConfig>(workerConfig.KEY);
   try {
+    // 🔑 Enable Nest DI inside class-validator constraints
+    useContainer(app.select(WorkerModule), {
+      fallbackOnErrors: true,
+    });
     app.enableShutdownHooks();
     app.useGlobalPipes(
       new ValidationPipe({

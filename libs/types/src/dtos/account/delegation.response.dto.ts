@@ -1,19 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { IsNotEmpty } from 'class-validator';
-import { CommonPrimitivesMsaDelegation } from '@polkadot/types/lookup';
-import { IDelegation, IDelegationResponseV2, ISchemaDelegation } from '#types/interfaces/account/delegations.interface';
-
-// V1 to be deprecated
-export class DelegationResponse {
-  @IsNotEmpty()
-  providerId: string;
-
-  @IsNotEmpty()
-  schemaPermissions: CommonPrimitivesMsaDelegation['schemaPermissions'];
-
-  @IsNotEmpty()
-  revokedAt: CommonPrimitivesMsaDelegation['revokedAt'];
-}
+import { IDelegationResponse, IDelegation, IIntentDelegation } from '#types/interfaces/account/delegations.interface';
 
 /**
  * NOTE: DTO classes are not technically necessary for response types, as there is no
@@ -24,8 +10,8 @@ export class DelegationResponse {
  *       gives us some additional compile-time type-checking to ensure that the documented return type matches
  *       the interface actually being returned.
  */
-export class SchemaDelegation implements ISchemaDelegation {
-  schemaId: number;
+export class IntentDelegation implements IIntentDelegation {
+  intentId: number;
 
   revokedAtBlock?: number;
 }
@@ -33,12 +19,12 @@ export class SchemaDelegation implements ISchemaDelegation {
 export class Delegation implements IDelegation {
   providerId: string;
 
-  schemaDelegations: SchemaDelegation[];
+  delegatedIntents: IntentDelegation[];
 
   revokedAtBlock?: number;
 }
 
-export class DelegationResponseV2 implements IDelegationResponseV2 {
+export class DelegationResponse implements IDelegationResponse {
   msaId: string;
 
   delegations: Delegation[];

@@ -1,7 +1,7 @@
-import { MessageResponse } from '@frequency-chain/api-augment/interfaces';
 import { Vec } from '@polkadot/types';
+import { CommonPrimitivesMessagesMessageResponseV2 } from '@polkadot/types/lookup';
 
-export interface MessageResponseWithSchemaId {
-  schemaId: number;
-  messages: Vec<MessageResponse>;
+export interface MessageResponseWithIntentId {
+  intentId: number;
+  messages: Vec<CommonPrimitivesMessagesMessageResponseV2>;
 }

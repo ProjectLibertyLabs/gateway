@@ -2,7 +2,6 @@ import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { SiwfV2Service } from '#account-api/services/siwfV2.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { SCHEMA_NAME_TO_ID } from '#types/constants/schemas';
 import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
 import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.response.dto';
 import { WalletV2RedirectRequestDto } from '#types/dtos/account/wallet.v2.redirect.request.dto';
@@ -32,7 +31,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 // - `signedRequest`: SIWF Signed Request Payload
 //   - Provider Signed
 //     - `callback`
-//     - `permissions` Schema Id Array
+//     - `permissions` Intent Id Array
 //   - Open
 //     - Credential Request(s)
 // - `frequencyRpcUrl`: A public node used by SIWF dApps for sign-in
@@ -73,7 +72,9 @@ export class AccountsControllerV2 {
     this.logger.debug('Received request for Sign In With Frequency v2 Redirect URL', JSON.stringify(query));
 
     const { callbackUrl } = query;
-    const permissions = (query.permissions || []).map((p) => SCHEMA_NAME_TO_ID.get(p));
+    const permissions = (
+      await (query.permissions ? this.blockchainService.getIntentNamesToIds(query.permissions) : Promise.resolve([]))
+    ).map((permission) => permission.intentId);
     const credentials = query.credentials || [];
 
     return this.siwfV2Service.getRedirectUrl(callbackUrl, permissions, credentials);

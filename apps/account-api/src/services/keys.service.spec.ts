@@ -25,6 +25,9 @@ import { createKeys } from '#testlib/keys.spec';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
+import { mockRedisProvider } from '#testlib';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { useContainer } from 'class-validator';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 jest.mock<typeof import('#account-lib/services/enqueue-request.service')>(
@@ -38,9 +41,38 @@ describe('KeysService', () => {
     await cryptoWaitReady();
     const mockBlockchainConfigProvider = buildBlockchainConfigProvider('Sr25519');
     const moduleRef = await Test.createTestingModule({
-      imports: [LoggerModule.forRoot(getPinoHttpOptions())],
-      providers: [KeysService, BlockchainRpcQueryService, mockBlockchainConfigProvider, mockAccountApiConfigProvider],
+      imports: [
+        LoggerModule.forRoot(getPinoHttpOptions()),
+        EventEmitterModule.forRoot({
+          // Use this instance throughout the application
+          global: true,
+          // set this to `true` to use wildcards
+          wildcard: false,
+          // the delimiter used to segment namespaces
+          delimiter: '.',
+          // set this to `true` if you want to emit the newListener event
+          newListener: false,
+          // set this to `true` if you want to emit the removeListener event
+          removeListener: false,
+          // the maximum amount of listeners that can be assigned to an event
+          maxListeners: 10,
+          // show event name in memory leak message when more than maximum amount of listeners is assigned
+          verboseMemoryLeak: false,
+          // disable throwing uncaughtException if an error event is emitted and it has no listeners
+          ignoreErrors: false,
+        }),
+      ],
+      providers: [
+        KeysService,
+        BlockchainRpcQueryService,
+        mockBlockchainConfigProvider,
+        mockAccountApiConfigProvider,
+        mockRedisProvider(),
+      ],
     }).compile();
+
+    // Important: point class-validator at Nest’s container for this test run
+    useContainer(moduleRef, { fallbackOnErrors: true });
 
     keysService = moduleRef.get(KeysService);
   });

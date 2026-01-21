@@ -60,12 +60,16 @@ export class ApiService {
     this.logger.setContext(this.constructor.name);
   }
 
-  async enqueueContent(msaId: string | undefined, content: OnChainContentDto): Promise<AnnouncementResponseDto> {
+  async enqueueContent(
+    msaId: string | undefined,
+    content: OnChainContentDto,
+    intentId: number,
+  ): Promise<AnnouncementResponseDto> {
     const { schemaId, ...data } = content;
     const jobData: IPublisherJob = {
       id: '',
       schemaId,
-      data: { ...data, onBehalfOf: msaId },
+      data: { ...data, onBehalfOf: msaId, intentId },
     };
     jobData.id = this.calculateJobId(jobData);
     const job = await this.publishQueue.add(`OnChain content job - ${jobData.id}`, jobData, {

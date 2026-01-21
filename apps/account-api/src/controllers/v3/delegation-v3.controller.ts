@@ -1,38 +1,44 @@
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { DelegationService } from '#account-api/services/delegation.service';
 import {
+  DelegationRequestDto,
+  DelegationResponse,
+  ProviderDelegationRequestDto,
+  RevokeDelegationPayloadRequestDto,
   RevokeDelegationPayloadResponseDto,
   TransactionResponse,
-  RevokeDelegationPayloadRequestDto,
 } from '#types/dtos/account';
-import { DelegationResponse } from '#types/dtos/account/delegation.response.dto';
+import { IDelegationResponse } from '#types/interfaces/account/delegations.interface';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AccountIdDto, MsaIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { AccountIdDto, ProviderMsaIdDto } from '#types/dtos/common';
 
-@Controller({ version: '1', path: 'delegation' })
-@ApiTags('v1/delegation')
+@Controller({ version: '3', path: 'delegations' })
+@ApiTags('v3/delegations')
 @UseGuards(ReadOnlyGuard) // Apply guard at the controller level
-export class DelegationControllerV1 {
+export class DelegationsControllerV3 {
   constructor(
     private delegationService: DelegationService,
-    @InjectPinoLogger(DelegationControllerV1.name) private readonly logger: PinoLogger,
+    @InjectPinoLogger(DelegationsControllerV3.name) private readonly logger: PinoLogger,
   ) {}
 
+  // eslint-disable-next-line class-methods-use-this
   @Get(':msaId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get the delegation information associated with an MSA Id' })
+  @ApiOperation({ summary: 'Get all delegation information associated with an MSA Id' })
   @ApiOkResponse({ description: 'Found delegation information', type: DelegationResponse })
-  /**
-   * Retrieves the delegation for a given MSA ID.
-   *
-   * @param msaId - The MSA ID for which to retrieve the delegation.
-   * @returns A Promise that resolves to a DelegationResponse object representing the delegation.
-   * @throws HttpException if the delegation cannot be found.
-   */
-  async getDelegation(@Param() { msaId }: MsaIdDto): Promise<DelegationResponse> {
-    return this.delegationService.getDelegation(msaId);
+  async getDelegation(@Param() { msaId }: DelegationRequestDto): Promise<IDelegationResponse> {
+    return this.delegationService.getDelegationV3(msaId);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Get(':msaId/:providerId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Get an MSA's delegation information for a specific provider" })
+  @ApiOkResponse({ description: 'Found delegation information', type: DelegationResponse })
+  async getProviderDelegation(@Param() { msaId, providerId }: ProviderDelegationRequestDto) {
+    return this.delegationService.getDelegationV3(msaId, providerId);
   }
 
   @Get('revokeDelegation/:accountId/:providerId')

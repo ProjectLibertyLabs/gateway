@@ -13,8 +13,6 @@ import { LoggerModule } from 'nestjs-pino';
 import { getPinoHttpOptions } from '#logger-lib';
 import { getRedisToken } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
-import { NonceConstants } from '#types/constants';
-import getNonceKey = NonceConstants.getNonceKey;
 
 function createNamedError(name: string, message: string): Error {
   const err = new Error(message);

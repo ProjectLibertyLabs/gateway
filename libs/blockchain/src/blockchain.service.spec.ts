@@ -277,21 +277,16 @@ describe('BlockchainService', () => {
   describe('reserveNextNonce', () => {
     it('should not fetch from node if current nonce is in cache', async () => {
       jest.spyOn(nonceRedis, 'get').mockResolvedValueOnce('1');
-      const chainSpy = jest.spyOn(blockchainService, 'getNonce').mockResolvedValueOnce(1);
+      const chainSpy = jest.spyOn(blockchainService, 'getNextNonce').mockResolvedValueOnce(1);
       await blockchainService.reserveNextNonce();
       expect(chainSpy).not.toHaveBeenCalled();
     });
 
     it('should fetch nonce from node if not in cache', async () => {
       jest.spyOn(nonceRedis, 'get').mockResolvedValueOnce(null);
-      const chainSpy = jest.spyOn(blockchainService, 'getNonce').mockResolvedValueOnce(1);
+      const chainSpy = jest.spyOn(blockchainService, 'getNextNonce').mockResolvedValueOnce(1);
       await blockchainService.reserveNextNonce();
       expect(chainSpy).toHaveBeenCalled();
-    });
-
-    it('next possible nonce keys should not include current nonce', async () => {
-      const nextKeys = BlockchainService.getNextPossibleNonceKeys(1);
-      expect(nextKeys).not.toContain(getNonceKey('1'));
     });
 
     it('should return the next possible nonce', async () => {

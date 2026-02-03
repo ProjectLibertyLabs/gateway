@@ -14,7 +14,6 @@ import { IContextTxResult, IPublisherJob } from '#types/interfaces';
 import { TxStatusMonitoringService } from '#content-publishing-worker/monitor/tx.status.monitor.service';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { BlockchainService } from '#blockchain/blockchain.service';
 
 process.env.CACHE_KEY_PREFIX = 'content-publishing-e2e:';
 

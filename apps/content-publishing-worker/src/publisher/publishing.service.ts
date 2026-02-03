@@ -15,7 +15,7 @@ import {
 } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { MessagePublisher } from './message.publisher';
-import { IContentTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
+import { IContentTxStatus, IContextTxResult, IPublisherJob, isOnChainJob } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
@@ -55,7 +55,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     await super.onModuleDestroy();
   }
 
-  async process(job: Job<IPublisherJob, any, string>): Promise<void> {
+  async process(job: Job<IPublisherJob, any, string>): Promise<IContextTxResult> {
     try {
       const { data: jobData } = job;
       // Check capacity first; if out of capacity, send job back to queue
@@ -94,7 +94,9 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       obj[txHash.toString()] = JSON.stringify(status);
       await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
 
-      this.logger.debug(`Successfully completed job ${job.id}`);
+      const { referencePublishJob, ...result } = status;
+      this.logger.debug({ result }, `Successfully completed job ${job.id}`);
+      return result;
     } catch (e) {
       if (e instanceof DelayedError) {
         job.moveToDelayed(Date.now(), job.token);

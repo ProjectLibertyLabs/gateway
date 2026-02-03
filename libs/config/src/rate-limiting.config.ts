@@ -25,10 +25,6 @@ export interface IRateLimitingConfig {
    * Whether to block requests when rate limit is exceeded
    */
   blockOnQuotaExceeded: boolean;
-  /**
-   * Service-specific key prefix for Redis storage
-   */
-  keyPrefix: string;
 }
 
 /**
@@ -58,10 +54,6 @@ export const createRateLimitingConfig = (serviceName: string) => {
         label: 'RATE_LIMIT_BLOCK_ON_EXCEEDED',
         joi: Joi.boolean().default(true),
       },
-      keyPrefix: {
-        label: 'RATE_LIMIT_KEY_PREFIX',
-        joi: Joi.string().default(`${serviceName}:throttle`),
-      },
     });
 
     return JoiUtils.validate<IRateLimitingConfig>(configs);
@@ -87,7 +79,7 @@ export const createThrottlerConfig = (rateLimitConfig: IRateLimitingConfig, cach
     port: cacheConf.redisOptions.port,
     ...(cacheConf.redisOptions.password && { password: cacheConf.redisOptions.password }),
     ...(cacheConf.redisOptions.username && { username: cacheConf.redisOptions.username }),
-    keyPrefix: rateLimitConfig.keyPrefix,
+    keyPrefix: `${cacheConf.cacheKeyPrefix}:throttle`,
   }),
   skipIf: (context) => {
     const response = context.switchToHttp().getResponse();

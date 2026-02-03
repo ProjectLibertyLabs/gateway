@@ -27,6 +27,8 @@ export interface IContentTxStatus extends ITxStatusBase {
   referencePublishJob: IPublisherJob;
 }
 
+export type IContextTxResult = Omit<IContentTxStatus, 'referencePublishJob'>;
+
 export interface IGraphTxStatus extends ITxStatusBase {
   // Make required
   referenceId: ITxStatusBase['referenceId'];

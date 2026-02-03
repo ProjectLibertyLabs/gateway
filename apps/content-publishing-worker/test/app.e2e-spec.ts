@@ -4,88 +4,22 @@ import request from 'supertest';
 import WorkerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { Module, ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
-import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
-import { ConfigModule } from '@nestjs/config';
-import { HealthController } from '#content-publishing-worker/health_check/health.controller';
-import { HealthCheckService } from '#health-check/health-check.service';
-import { PrometheusModule } from '@willsoto/nestjs-prometheus/dist/module';
-import { createPrometheusConfig } from '#logger-lib/prometheus-common-config';
-import { CacheModule } from '#cache/cache.module';
-import { NONCE_SERVICE_REDIS_NAMESPACE } from '#blockchain/blockchain.service';
-import blockchainConfig, { addressFromSeedPhrase } from '#blockchain/blockchain.config';
-import cacheConfig from '#cache/cache.config';
-import { BlockchainModule } from '#blockchain/blockchain.module';
-import {
-  CONFIGURED_QUEUE_NAMES_PROVIDER,
-  CONFIGURED_QUEUE_PREFIX_PROVIDER,
-  ContentPublishingQueues as QueueConstants,
-  HEALTH_CONFIGS,
-} from '#types/constants';
-import { LoggerModule } from 'nestjs-pino';
-import { getPinoHttpOptions } from '#logger-lib';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { WorkerModule } from '#content-publishing-worker/worker.module';
+import { getQueueToken } from '@nestjs/bull-shared';
+import { ContentPublishingQueues } from '#types/constants';
+import PUBLISH_QUEUE_NAME = ContentPublishingQueues.PUBLISH_QUEUE_NAME;
+import { Queue, QueueEvents } from 'bullmq';
+import { IContextTxResult, IPublisherJob } from '#types/interfaces';
+import { TxStatusMonitoringService } from '#content-publishing-worker/monitor/tx.status.monitor.service';
+import { SignedBlock } from '@polkadot/types/interfaces';
+import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 
-const configs = [WorkerConfig, blockchainConfig, cacheConfig];
+process.env.CACHE_KEY_PREFIX = 'content-publishing-e2e:';
 
 // Test Module for Content Publishing Worker, to avoid managing processing queues and other dependencies
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: configs,
-    }),
-    PrometheusModule.register(createPrometheusConfig('content-publishing-worker')),
-    CacheModule.forRootAsync({
-      useFactory: (blockchainConf, cacheConf) => [
-        {
-          ...cacheConf.redisOptions,
-          keyPrefix: cacheConf.cacheKeyPrefix,
-        },
-        {
-          ...cacheConf.redisOptions,
-          namespace: NONCE_SERVICE_REDIS_NAMESPACE,
-          keyPrefix: `${NONCE_SERVICE_REDIS_NAMESPACE}:${addressFromSeedPhrase(blockchainConf.providerKeyUriOrPrivateKey)}:`,
-        },
-      ],
-      inject: [blockchainConfig.KEY, cacheConfig.KEY],
-    }),
-    BlockchainModule.forRootAsync(),
-    EventEmitterModule.forRoot({
-      // Use this instance throughout the application
-      global: true,
-      // set this to `true` to use wildcards
-      wildcard: false,
-      // the delimiter used to segment namespaces
-      delimiter: '.',
-      // set this to `true` if you want to emit the newListener event
-      newListener: false,
-      // set this to `true` if you want to emit the removeListener event
-      removeListener: false,
-      // the maximum amount of listeners that can be assigned to an event
-      maxListeners: 20,
-      // show event name in memory leak message when more than maximum amount of listeners is assigned
-      verboseMemoryLeak: false,
-      // disable throwing uncaughtException if an error event is emitted and it has no listeners
-      ignoreErrors: false,
-    }),
-    LoggerModule.forRoot(getPinoHttpOptions()),
-  ],
-  controllers: [HealthController],
-  providers: [
-    {
-      provide: CONFIGURED_QUEUE_NAMES_PROVIDER,
-      useValue: QueueConstants.CONFIGURED_QUEUES.queues.map(({ name }) => name),
-    },
-    {
-      provide: CONFIGURED_QUEUE_PREFIX_PROVIDER,
-      useValue: 'content-publishing::bull',
-    },
-    {
-      provide: HEALTH_CONFIGS,
-      useFactory: (...registeredConfigs: any[]) => registeredConfigs,
-      inject: configs.map((c) => c.KEY),
-    },
-    HealthCheckService,
-  ],
+  imports: [WorkerModule],
 })
 class TestWorkerModule {}
 
@@ -93,6 +27,9 @@ describe('Content Publishing Worker E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let httpServer: any;
+  let publishQueueEvents: QueueEvents;
+  let publishQueue: Queue;
+  let txMonitor: TxStatusMonitoringService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -118,9 +55,21 @@ describe('Content Publishing Worker E2E request verification!', () => {
     await app.init();
 
     httpServer = app.getHttpServer();
+    publishQueue = app.get(getQueueToken(PUBLISH_QUEUE_NAME));
+    publishQueueEvents = new QueueEvents(PUBLISH_QUEUE_NAME, {
+      connection: (publishQueue as any).opts?.connection,
+      prefix: (publishQueue as any).opts?.prefix,
+    });
+    await publishQueueEvents.waitUntilReady();
+    txMonitor = app.get<TxStatusMonitoringService>(TxStatusMonitoringService);
   });
 
   afterAll(async () => {
+    // Wait a bit for block scanning to finish
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 1_000);
+    });
+    await publishQueueEvents.close();
     await app.close();
     await httpServer.close();
 
@@ -130,63 +79,132 @@ describe('Content Publishing Worker E2E request verification!', () => {
     });
   });
 
-  it('(GET) /healthz', () =>
-    request(httpServer)
-      .get('/healthz')
-      .expect(200)
-      .then((res) => {
-        const baseConfigExpectation: { [key: string]: any } = {
-          apiBodyJsonLimit: expect.any(String),
-          apiPort: expect.any(Number),
-          apiTimeoutMs: expect.any(Number),
-          blockchainScanIntervalSeconds: expect.any(Number),
-          trustUnfinalizedBlocks: expect.any(Boolean),
-          assetExpirationIntervalSeconds: expect.any(Number),
-          assetUploadVerificationDelaySeconds: expect.any(Number),
-          batchIntervalSeconds: expect.any(Number),
-          batchMaxCount: expect.any(Number),
-        };
+  describe('Health checks', () => {
+    it('(GET) /healthz', () =>
+      request(httpServer)
+        .get('/healthz')
+        .expect(200)
+        .then((res) => {
+          const baseConfigExpectation: { [key: string]: any } = {
+            apiBodyJsonLimit: expect.any(String),
+            apiPort: expect.any(Number),
+            apiTimeoutMs: expect.any(Number),
+            blockchainScanIntervalSeconds: expect.any(Number),
+            trustUnfinalizedBlocks: expect.any(Boolean),
+            assetExpirationIntervalSeconds: expect.any(Number),
+            assetUploadVerificationDelaySeconds: expect.any(Number),
+            batchIntervalSeconds: expect.any(Number),
+            batchMaxCount: expect.any(Number),
+          };
 
-        expect(res.body).toEqual(
-          expect.objectContaining({
-            status: 200,
-            message: 'Service is healthy',
-            timestamp: expect.any(Number),
-            config: expect.objectContaining(baseConfigExpectation),
-            redisStatus: expect.objectContaining({
-              connected_clients: expect.any(Number),
-              maxmemory: expect.any(Number),
-              redis_version: expect.any(String),
-              uptime_in_seconds: expect.any(Number),
-              used_memory: expect.any(Number),
-              queues: expect.arrayContaining([
-                expect.objectContaining({
-                  name: expect.any(String),
-                  waiting: expect.any(Number),
-                  active: expect.any(Number),
-                  completed: expect.any(Number),
-                  failed: expect.any(Number),
-                  delayed: expect.any(Number),
+          expect(res.body).toEqual(
+            expect.objectContaining({
+              status: 200,
+              message: 'Service is healthy',
+              timestamp: expect.any(Number),
+              config: expect.objectContaining(baseConfigExpectation),
+              redisStatus: expect.objectContaining({
+                connected_clients: expect.any(Number),
+                maxmemory: expect.any(Number),
+                redis_version: expect.any(String),
+                uptime_in_seconds: expect.any(Number),
+                used_memory: expect.any(Number),
+                queues: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: expect.any(String),
+                    waiting: expect.any(Number),
+                    active: expect.any(Number),
+                    completed: expect.any(Number),
+                    failed: expect.any(Number),
+                    delayed: expect.any(Number),
+                  }),
+                ]),
+              }),
+              blockchainStatus: expect.objectContaining({
+                frequencyApiWsUrl: expect.any(String),
+                latestBlockHeader: expect.objectContaining({
+                  blockHash: expect.any(String),
+                  number: expect.any(Number),
+                  parentHash: expect.any(String),
                 }),
-              ]),
-            }),
-            blockchainStatus: expect.objectContaining({
-              frequencyApiWsUrl: expect.any(String),
-              latestBlockHeader: expect.objectContaining({
-                blockHash: expect.any(String),
-                number: expect.any(Number),
-                parentHash: expect.any(String),
               }),
             }),
-          }),
-        );
-      }));
+          );
+        }));
 
-  it('(GET) /livez', () =>
-    request(httpServer).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+    it('(GET) /livez', () =>
+      request(httpServer).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-  it('(GET) /readyz', () =>
-    request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+    it('(GET) /readyz', () =>
+      request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
-  it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+    it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+  });
+
+  describe('Announce on-chain', () => {
+    let publisherQueue: Queue = null;
+    beforeAll(async () => {
+      publisherQueue = app.get(getQueueToken(PUBLISH_QUEUE_NAME));
+    });
+
+    it('submits a message to the chain and is included in a block', async () => {
+      let testResolve, testReject;
+      const testPromise = new Promise((innerResolve, innerReject) => {
+        testResolve = innerResolve;
+        testReject = innerReject;
+      });
+      let result: IContextTxResult;
+
+      function deferred<T>() {
+        let resolve!: (v: T) => void;
+        let reject!: (e: unknown) => void;
+        const promise = new Promise<T>((res, rej) => {
+          resolve = res;
+          reject = rej;
+        });
+        return { promise, resolve, reject };
+      }
+
+      const txHashD = deferred<string>();
+      const handleFoundTransaction = async (block: SignedBlock, blockEvent: FrameSystemEventRecord) => {
+        const txHash = await txHashD.promise;
+        // Find transaction in block
+        const txIndex = block.block.extrinsics.findIndex((extrinsic) => extrinsic.hash.toHex() === txHash);
+        if (txIndex === -1) {
+          return;
+        }
+        if (blockEvent.phase.isApplyExtrinsic && blockEvent.phase.asApplyExtrinsic.eq(txIndex)) {
+          if (blockEvent.event.section === 'system') {
+            if (blockEvent.event.method === 'ExtrinsicSuccess') {
+              testResolve();
+            } else if (blockEvent.event.method === 'ExtrinsicFailed') {
+              testReject();
+            }
+          }
+        }
+      };
+
+      txMonitor.registerChainEventHandler(
+        ['system.ExtrinsicSuccess', 'system.ExtrinsicFailed'],
+        handleFoundTransaction,
+      );
+
+      const jobId = 'publishing-job';
+      const jobData: IPublisherJob = {
+        id: jobId,
+        schemaId: 17,
+        data: {
+          cid: 'bagaaierasords4njcts6vs7qvdjfcvgnume4hqohf65zsfguprqphs3icwea',
+          payloadLength: 61,
+        },
+      };
+      const job = await publisherQueue.add(jobId, jobData, {
+        jobId,
+      });
+      result = await job.waitUntilFinished(publishQueueEvents);
+      txHashD.resolve(result.txHash);
+
+      await expect(testPromise).resolves.toBeUndefined();
+    }, 18_000);
+  });
 });

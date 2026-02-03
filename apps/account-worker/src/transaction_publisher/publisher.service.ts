@@ -165,7 +165,7 @@ export class TransactionPublisherService extends BaseChainPublisherService {
     try {
       const prefixedSignature: SignerResult = { id: 1, signature };
       const signer: Signer = getSignerForRawSignature(prefixedSignature);
-      const nonce = await this.blockchainService.getNonce(accountId);
+      const nonce = await this.blockchainService.getNextNonce(accountId);
       const submittableExtrinsic = await ext.signAsync(accountId, { nonce, signer });
       const txHash = (await submittableExtrinsic.send()).toHex();
 

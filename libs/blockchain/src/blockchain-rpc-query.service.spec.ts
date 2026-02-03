@@ -198,7 +198,9 @@ describe('BlockchainRpcQueryService - RpcCall Decorator', () => {
       jest.spyOn(mockApi.rpc.system, 'accountNextIndex').mockRejectedValueOnce(originalError);
       const loggerSpy = jest.spyOn((service as any).logger, 'error');
 
-      await expect(service.getNonce('test-account')).rejects.toThrow('[rpc.system.accountNextIndex] Account not found');
+      await expect(service.getNextNonce('test-account')).rejects.toThrow(
+        '[rpc.system.accountNextIndex] Account not found',
+      );
 
       expect(loggerSpy).toHaveBeenCalledWith(
         {

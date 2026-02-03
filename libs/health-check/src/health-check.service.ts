@@ -21,6 +21,7 @@ import { CONFIGURED_QUEUE_NAMES_PROVIDER, CONFIGURED_QUEUE_PREFIX_PROVIDER } fro
 import * as process from 'node:process';
 import { PinoLogger } from 'nestjs-pino';
 import { withTimeoutMs } from '#utils/common/common.utils';
+import { MILLISECONDS_PER_SECOND } from 'time-constants';
 
 interface RedisWithCustomCommands extends Redis {
   queueStatus(prefixes: string[]): Promise<string>;
@@ -128,7 +129,7 @@ export class HealthCheckService {
     // If not found in Redis, query the blockchain directly
     try {
       const latestHeader = await this.blockchainService.getLatestHeader();
-      await this.redis.set('latestHeader', JSON.stringify(latestHeader));
+      await this.redis.setex('latestHeader', this.blockchainService.blockTimeMs / MILLISECONDS_PER_SECOND, JSON.stringify(latestHeader));
       return latestHeader;
     } catch (err) {
       this.logger.error('Failed to fetch latest block header from blockchain:', err);

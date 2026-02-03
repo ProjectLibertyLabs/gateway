@@ -220,7 +220,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   @RpcCall('rpc.system.accountNextIndex')
-  public async getNonce(account: string | Uint8Array | AccountId): Promise<number> {
+  public async getNextNonce(account: string | Uint8Array | AccountId): Promise<number> {
     return (await this.api.rpc.system.accountNextIndex(account)).toNumber();
   }
 

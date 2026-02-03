@@ -68,7 +68,7 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
 
   public static getNextPossibleNonceKeys(currentNonce: string | number): string[] {
     const keys: string[] = [];
-    for (let i = 1; i <= NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
+    for (let i = 0; i < NUMBER_OF_NONCE_KEYS_TO_CHECK; i += 1) {
       const key = Number(currentNonce) + i;
       keys.push(getNonceKey(`${key}`));
     }
@@ -280,15 +280,15 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     const currentNonceKey = getNonceKey('current');
     let nonce: string | number = await this.nonceRedis.get(currentNonceKey);
     if (!nonce) {
-      nonce = await this.getNonce(this.accountId);
+      nonce = await this.getNextNonce(this.accountId);
       await this.nonceRedis.setex(currentNonceKey, NONCE_KEY_EXPIRE_SECONDS / 2, nonce);
     }
     const keys = BlockchainService.getNextPossibleNonceKeys(nonce);
     // @ts-ignore
-    const nextNonceIndex = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
+    let nextNonceIndex: number = await this.nonceRedis.incrementNonce(...keys, keys.length, NONCE_KEY_EXPIRE_SECONDS);
     if (nextNonceIndex === -1) {
       this.logger.warn(`nextNonce was full even with ${NUMBER_OF_NONCE_KEYS_TO_CHECK} ${nonce}`);
-      return Number(nonce) + NUMBER_OF_NONCE_KEYS_TO_CHECK;
+      nextNonceIndex = NUMBER_OF_NONCE_KEYS_TO_CHECK;
     }
     const nextNonce = Number(nonce) + nextNonceIndex;
     this.logger.debug(`nextNonce ${nextNonce}`);

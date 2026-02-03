@@ -60,6 +60,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       const { data: jobData } = job;
       // Check capacity first; if out of capacity, send job back to queue
       if (!(await this.capacityCheckerService.checkForSufficientCapacity())) {
+        this.logger.warn(`Capacity exhausted, moving ${job.name} job ${job.id} back to queue`);
         throw new DelayedError();
       }
       this.logger.debug(`Processing job ${job.id} of type ${job.name}`);

@@ -16,7 +16,8 @@ repeat
     local nextKey = KEYS[i]
     if rcall("EXISTS", nextKey) ==  0 then
         rcall('SETEX', nextKey, expireInSeconds , 1)
-        return i
+        -- Lua arrays are 1-based, but we want to return a zero-based offset
+        return i - 1
     end
     i = i + 1
 until( i > keysSize)

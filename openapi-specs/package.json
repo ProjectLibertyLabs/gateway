@@ -1,0 +1,28 @@
+{
+  "name": "@projectlibertylabs/frequency-gateway-apis",
+  "version": "0.0.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./*": {
+      "types": "./dist/modules/*.d.ts",
+      "import": "./dist/modules/*.js",
+      "require": "./dist/modules/*.cjs"
+    },
+    "./types": "./dist/types/index.d.ts",
+    "./types/*": "./dist/types/*.d.ts"
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": {
+    "openapi-types": "12.1.3"
+  }
+}

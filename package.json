@@ -99,7 +99,20 @@
     "setup:content-watcher:publish": "node scripts/content-watcher/content-setup.js",
     "setup:content-watcher:webhook": "node scripts/content-watcher/webhook-cat.cjs",
     "setup:common:chain": "node scripts/local-init.cjs",
-    "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts"
+    "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts",
+    "openapi-specs:clean": "rm -rf openapi-specs/dist openapi-specs/src/modules openapi-specs/*.tgz openapi-specs/src/index.ts",
+    "openapi-specs:gen": "npm run openapi-specs:gen:modules && npm run openapi-specs:gen:types",
+    "openapi-specs:gen:modules": "node scripts/generate-spec-modules.mjs",
+    "preopenapi-specs:gen:types:internal": "mkdir -p openapi-specs/dist/types",
+    "openapi-specs:gen:types:internal": "f() { for file in $* ; do npx openapi-client-axios-typegen $file > openapi-specs/dist/types/$(basename $file .openapi.json).d.ts ; done }; f",
+    "openapi-specs:gen:types": "npm run openapi-specs:gen:types:internal -- openapi-specs/*.openapi.json",
+    "postopenapi-specs:gen:types": "node scripts/generate-spec-types-index.mjs",
+    "openapi-specs:build": "npm run openapi-specs:build:modules && npm run openapi-specs:build:specs",
+    "openapi-specs:build:specs": "mkdir -p openapi-specs/dist/specs ; cp openapi-specs/*.openapi.json openapi-specs/dist/specs",
+    "openapi-specs:build:modules": "cd openapi-specs ; tsup --config tsup.config.js",
+    "openapi-specs": "npm run openapi-specs:clean && npm run openapi-specs:gen && npm run openapi-specs:build",
+    "postopenapi-specs": "cd openapi-specs ; npm pack",
+    "foo": "ls $npm_config_dir"
   },
   "dependencies": {
     "@bull-board/api": "6.12.7",
@@ -201,6 +214,7 @@
     "license-report": "6.8.0",
     "loglevel": "^1.9.2",
     "minimist": "1.2.8",
+    "openapi-axios-client-typegen": "^5.0.6",
     "openapi-client-axios-typegen": "7.7.0",
     "prettier": "3.6.2",
     "readline-sync": "1.4.10",
@@ -212,6 +226,7 @@
     "ts-loader": "9.5.4",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
+    "tsup": "^8.5.1",
     "tsx": "4.20.5",
     "typescript": "5.9.2",
     "unique-names-generator": "^4.7.1"

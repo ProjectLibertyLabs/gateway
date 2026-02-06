@@ -233,9 +233,9 @@
         ]
       }
     },
-    "/v2/delegations/{msaId}": {
+    "/v3/delegations/{msaId}": {
       "get": {
-        "operationId": "DelegationsControllerV2_getDelegation_v2",
+        "operationId": "DelegationsControllerV3_getDelegation_v3",
         "parameters": [
           {
             "name": "msaId",
@@ -254,7 +254,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DelegationResponseV2"
+                  "$ref": "#/components/schemas/DelegationResponse"
                 }
               }
             }
@@ -262,13 +262,13 @@
         },
         "summary": "Get all delegation information associated with an MSA Id",
         "tags": [
-          "v2/delegations"
+          "v3/delegations"
         ]
       }
     },
-    "/v2/delegations/{msaId}/{providerId}": {
+    "/v3/delegations/{msaId}/{providerId}": {
       "get": {
-        "operationId": "DelegationsControllerV2_getProviderDelegation_v2",
+        "operationId": "DelegationsControllerV3_getProviderDelegation_v3",
         "parameters": [
           {
             "name": "msaId",
@@ -297,7 +297,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DelegationResponseV2"
+                  "$ref": "#/components/schemas/DelegationResponse"
                 }
               }
             }
@@ -305,46 +305,13 @@
         },
         "summary": "Get an MSA's delegation information for a specific provider",
         "tags": [
-          "v2/delegations"
+          "v3/delegations"
         ]
       }
     },
-    "/v1/delegation/{msaId}": {
+    "/v3/delegations/revokeDelegation/{accountId}/{providerId}": {
       "get": {
-        "operationId": "DelegationControllerV1_getDelegation_v1",
-        "parameters": [
-          {
-            "name": "msaId",
-            "required": true,
-            "in": "path",
-            "description": "Msa Id of requested account",
-            "schema": {
-              "example": "2",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Found delegation information",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DelegationResponse"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get the delegation information associated with an MSA Id",
-        "tags": [
-          "v1/delegation"
-        ]
-      }
-    },
-    "/v1/delegation/revokeDelegation/{accountId}/{providerId}": {
-      "get": {
-        "operationId": "DelegationControllerV1_getRevokeDelegationPayload_v1",
+        "operationId": "DelegationsControllerV3_getRevokeDelegationPayload_v3",
         "parameters": [
           {
             "name": "accountId",
@@ -381,13 +348,13 @@
         },
         "summary": "Get a properly encoded RevokeDelegationPayload that can be signed",
         "tags": [
-          "v1/delegation"
+          "v3/delegations"
         ]
       }
     },
-    "/v1/delegation/revokeDelegation": {
+    "/v3/delegations/revokeDelegation": {
       "post": {
-        "operationId": "DelegationControllerV1_postRevokeDelegation_v1",
+        "operationId": "DelegationsControllerV3_postRevokeDelegation_v3",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -413,7 +380,7 @@
         },
         "summary": "Request to revoke a delegation",
         "tags": [
-          "v1/delegation"
+          "v3/delegations"
         ]
       }
     },
@@ -1132,10 +1099,10 @@
           "referenceId"
         ]
       },
-      "SchemaDelegation": {
+      "IntentDelegation": {
         "type": "object",
         "properties": {
-          "schemaId": {
+          "intentId": {
             "type": "number"
           },
           "revokedAtBlock": {
@@ -1143,7 +1110,7 @@
           }
         },
         "required": [
-          "schemaId"
+          "intentId"
         ]
       },
       "Delegation": {
@@ -1152,10 +1119,10 @@
           "providerId": {
             "type": "string"
           },
-          "schemaDelegations": {
+          "delegatedIntents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SchemaDelegation"
+              "$ref": "#/components/schemas/IntentDelegation"
             }
           },
           "revokedAtBlock": {
@@ -1164,10 +1131,10 @@
         },
         "required": [
           "providerId",
-          "schemaDelegations"
+          "delegatedIntents"
         ]
       },
-      "DelegationResponseV2": {
+      "DelegationResponse": {
         "type": "object",
         "properties": {
           "msaId": {
@@ -1183,29 +1150,6 @@
         "required": [
           "msaId",
           "delegations"
-        ]
-      },
-      "u32": {
-        "type": "object",
-        "properties": {}
-      },
-      "DelegationResponse": {
-        "type": "object",
-        "properties": {
-          "providerId": {
-            "type": "string"
-          },
-          "schemaPermissions": {
-            "type": "object"
-          },
-          "revokedAt": {
-            "$ref": "#/components/schemas/u32"
-          }
-        },
-        "required": [
-          "providerId",
-          "schemaPermissions",
-          "revokedAt"
         ]
       },
       "RevokeDelegationPayloadResponseDto": {
@@ -1610,8 +1554,7 @@
     {
       "name": "delegations",
       "tags": [
-        "v1/delegation",
-        "v2/delegations"
+        "v3/delegations"
       ]
     },
     {

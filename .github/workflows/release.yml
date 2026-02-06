@@ -26,16 +26,19 @@ jobs:
     outputs:
       full_tag: ${{ steps.set_version_tag.outputs.TAG }}
       version_tag: ${{ steps.set_version_tag.outputs.VERSION }}
+      semver: ${{ steps.set_version_tag.outputs.SEMVER }}
       service_name: ${{ steps.set_version_tag.outputs.SERVICE }}
       service_matrix: ${{ steps.set_version_tag.outputs.SERVICE_MATRIX }}
       valid_semver: ${{ steps.set_version_tag.outputs.valid }}
       test_run: ${{ steps.set_version_tag.outputs.test_run }}
+      npm_tag: ${{ steps.set_version_tag.outputs.npm_tag }}
     steps:
       - name: Extract and Validate Version Tag
         id: set_version_tag
         run: |
           valid=false
           test_run=false
+          npm_tag=latest
           ENTIRE_TAG_RE="^(([[:alpha:]\-]+)-)?(.*)$"
           VERSION_TAG_RE="^v[\.]?([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+(-[[:alpha:][:digit:]\.]+)*)$"
           TAG="${FULL_TAG}"
@@ -49,6 +52,10 @@ jobs:
               if [[ ${version} = "0.0.1" ]] ; then
                 test_run=true
               fi
+          
+              if [[ -n "${BASH_REMATCH[2]}" ]] ; then
+                npm_tag=next
+              fi
 
               if [[ -z "${SERVICE}" ]] ; then
                 SERVICE_MATRIX="${ALL_SERVICES}"
@@ -58,10 +65,12 @@ jobs:
 
               echo "TAG=${TAG}" >> $GITHUB_OUTPUT
               echo "VERSION=${VERSION_TAG}" >> $GITHUB_OUTPUT
+              echo "SEMVER=${version}" >> $GITHUB_OUTPUT
               echo "SERVICE=${SERVICE}" >> $GITHUB_OUTPUT
               echo "SERVICE_MATRIX=${SERVICE_MATRIX}" >> $GITHUB_OUTPUT
               echo "valid=${valid}" >> $GITHUB_OUTPUT
               echo "test_run=${test_run}" >> $GITHUB_OUTPUT
+              echo "npm_tag=${npm_tag}" >> $GITHUB_OUTPUT
             fi
           fi
           if [[ "${valid}" = false ]]
@@ -129,3 +138,25 @@ jobs:
           password: ${{secrets.DOCKERHUB_TOKEN}}
           repository: ${{env.DOCKER_HUB_PROFILE}}/${{matrix.service}}-service
           readme-filepath: Docker/${{matrix.service}}-service.overview.md
+
+  build-and-publish-client-js-package:
+    name: Build and Publish 'frequency-gateway-apis' Package
+    needs: set_variables
+    runs-on: ubuntu-latest
+    if: needs.set_variables.outputs.valid_semver == 'true'
+    steps:
+
+      - name: Build Client API JS Package
+        id: build-client-api
+        run: npm run openapi-specs
+
+      - name: Version Package
+        id: version-package
+        working-directory: openapi-specs
+        run: npm version ${{ needs.set_variables.outputs.semver }} --no-git-tag-version
+
+      - name: Publish Package
+        id: publish-openapi-specs-rc
+        if: needs.set_variables.outputs.test_run != 'true'
+        working-directory: openapi-specs
+        run: npm publish --tag ${{ needs.set_variables.outputs.npm_tag }}

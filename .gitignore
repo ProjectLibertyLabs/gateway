@@ -152,3 +152,8 @@ CLAUDE.local.md
 .clinic
 
 .DS_Store
+
+# Generated files for API package
+openapi-specs/src/index.ts
+openapi-specs/src/modules
+openapi-specs/dist

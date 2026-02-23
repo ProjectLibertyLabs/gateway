@@ -90,10 +90,12 @@ export class KeysService implements OnApplicationBootstrap {
   async getAddPublicKeyAgreementPayload(
     msaId: string,
     newKey: HexString,
+    incomingSchemaId?: number,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
     const expiration = await this.getExpiration();
 
-    const schemaId = await this.blockchainService.getLatestSchemaIdForIntent(this.graphKeyIntentId);
+    const schemaId =
+      incomingSchemaId ?? (await this.blockchainService.getLatestSchemaIdForIntent(this.graphKeyIntentId));
 
     const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, this.graphKeyIntentId);
     if (

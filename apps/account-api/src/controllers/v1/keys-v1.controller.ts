@@ -83,13 +83,13 @@ export class KeysControllerV1 {
   /**
    * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
    * @param queryParams - The query parameters for adding a new key
-   * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
-   * @throws An error if the key already exists or the payload creation fails.
+   * @returns Payload is included for convenience. Encoded payload is signed to generate the proof for adding the key.
+   * @throws An error if the key already exists or the payload creation fails, or signature verification fails.
    */
   async getPublicKeyAgreementsKeyPayload(
-    @Query() { msaId, newKey }: PublicKeyAgreementsKeyPayload,
+    @Query() { msaId, newKey, schemaId }: PublicKeyAgreementsKeyPayload,
   ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
-    return this.keysService.getAddPublicKeyAgreementPayload(msaId, newKey);
+    return this.keysService.getAddPublicKeyAgreementPayload(msaId, newKey, schemaId);
   }
 
   @Post('publicKeyAgreements')

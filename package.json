@@ -133,6 +133,7 @@
     "@polkadot/types": "16.4.8",
     "@polkadot/util": "13.5.7",
     "@polkadot/util-crypto": "13.5.7",
+    "@projectlibertylabs/ics-sdk": "^0.0.5",
     "@projectlibertylabs/siwf": "2.4.0-rc1",
     "@songkeys/nestjs-redis": "11.0.0",
     "@types/express": "5.0.3",

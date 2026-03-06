@@ -116,6 +116,17 @@ export class AddNewPublicKeyAgreementPayloadRequest {
   encodedPayload: HexString;
 }
 
+export class IcsProviderKeyPayload {
+  @IsMsaId()
+  msaId: string;
+
+  @IsHexValue({ minLength: 64, maxLength: 64 })
+  newKey: HexString
+
+  @IsEnum(['ed25519'])
+  keyType: string
+}
+
 export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & {
   type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
 };

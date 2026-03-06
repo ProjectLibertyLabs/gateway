@@ -617,7 +617,7 @@
             "name": "schemaId",
             "required": true,
             "in": "query",
-            "description": "Schema Id:  The number of the schema to generate the payload for",
+            "description": "Schema Id - The number of the schema to generate the payload for",
             "schema": {
               "example": 16299,
               "type": "number"
@@ -669,6 +669,53 @@
           }
         },
         "summary": "Request to add a new public Key",
+        "tags": [
+          "v1/keys"
+        ]
+      }
+    },
+    "/v1/keys/publicKeyAgreements/getAddIcsKeyPayload": {
+      "get": {
+        "operationId": "KeysControllerV1_getAddIcsKeyPayload_v1",
+        "parameters": [
+          {
+            "name": "msaId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "newKey",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyType",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddNewPublicKeyAgreementPayloadRequest"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.",
         "tags": [
           "v1/keys"
         ]

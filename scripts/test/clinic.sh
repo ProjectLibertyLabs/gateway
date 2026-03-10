@@ -1,4 +1,8 @@
 #!/bin/bash
+#########################
+DISABLED UNTIL clinic is updated
+See https://github.com/ProjectLibertyLabs/gateway/issues/980
+#########################
 
 #  See Clinic documentation for more: https://clinicjs.org/documentation/
 # PREPARATION

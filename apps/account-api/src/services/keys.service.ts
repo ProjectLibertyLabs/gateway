@@ -1,6 +1,7 @@
 import { KeysResponse } from '#types/dtos/account/keys.response.dto';
 import { ConflictException, Inject, Injectable, NotFoundException, OnApplicationBootstrap } from '@nestjs/common';
 import { HexString } from '@polkadot/util/types';
+import { hexToU8a } from '@polkadot/util';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
@@ -31,13 +32,18 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HOUR, MILLISECONDS_PER_SECOND } from 'time-constants';
+import IcsApi from '@projectlibertylabs-ics/ics-sdk';
+const icsSdk: IcsApi = new IcsApi();
+
 
 const SCHEMA_ID_TTL = HOUR / MILLISECONDS_PER_SECOND; // 1 hour in seconds
 const GRAPH_KEY_SCHEMA_ID_CACHE_KEY = 'graphKeySchemaId';
+const ICS_KEY_SCHEMA_ID_CACHE_KEY = 'icsKeySchemaId';
 
 @Injectable()
 export class KeysService implements OnApplicationBootstrap {
   private graphKeyIntentId: number;
+  private icsKeyIntentId: number;
 
   async onApplicationBootstrap() {
     try {
@@ -46,10 +52,17 @@ export class KeysService implements OnApplicationBootstrap {
         'public-key-key-agreement',
       );
       this.graphKeyIntentId = intentId;
+
+      const { intentId: icsIntentId, schemaId: icsSchemaId } = await this.blockchainService.getIntentAndLatestSchemaIdsByName(
+        'ics',
+        'public-key-key-agreement',
+      )
+      this.icsKeyIntentId = icsIntentId;
       // Set 1-hour TTL on this so that we don't need to restart if a new schema is published
       await this.cache.setex(GRAPH_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, schemaId);
+      await this.cache.setex(ICS_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, icsSchemaId);
     } catch (e: any) {
-      this.logger.fatal({ error: e }, 'Unable to resolve intent ID for "dsnp.public-key-key-agreement"');
+      this.logger.fatal({ error: e }, 'Unable to resolve intent ID for one of the key agreements');
       this.emitter.emit('shutdown');
     }
   }
@@ -114,6 +127,42 @@ export class KeysService implements OnApplicationBootstrap {
         },
       ],
     };
+
+    const encodedPayload = u8aToHex(this.blockchainService.createItemizedSignaturePayloadV2Type(payload).toU8a());
+    return {
+      payload,
+      encodedPayload,
+    };
+  }
+
+  async getAddIcsPublicKeyAgreementPayload(
+    msaId: string,
+    newKeyHex: HexString,
+  ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
+    const isMsaId = await this.blockchainService.isValidMsaId(msaId);
+    if (!isMsaId) {
+      throw new NotFoundException(`MSA ID ${msaId} not found`);
+    }
+    const expiration = await this.getExpiration();
+    const schemaId = await this.blockchainService.getLatestSchemaIdForIntent(this.icsKeyIntentId);
+
+    const newKeyU8a = hexToU8a(newKeyHex);
+    const itemizedStorage = await this.blockchainService.getItemizedStorage(msaId, this.icsKeyIntentId);
+
+    const icsSerializedKeyForStorage = icsSdk.serializePublicKey(newKeyU8a);
+    const encodedSerializedKey: HexString = u8aToHex(icsSerializedKeyForStorage);
+
+    const foundKey = itemizedStorage.items.toArray().find((i) => i.payload.length > 0
+      && u8aToHex(i.payload).toLowerCase() === encodedSerializedKey.toLowerCase()
+    )
+
+    if (foundKey) {
+      throw new ConflictException('Requested key already exists!');
+    }
+    const payload: ItemizedSignaturePayloadDto = {
+      expiration, schemaId, targetHash: itemizedStorage.content_hash.toNumber(),
+      actions: [{ type: ItemActionType.ADD_ITEM, encodedPayload: encodedSerializedKey }]
+    }
 
     const encodedPayload = u8aToHex(this.blockchainService.createItemizedSignaturePayloadV2Type(payload).toU8a());
     return {

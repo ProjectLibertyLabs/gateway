@@ -298,8 +298,8 @@
       "ChainWatchOptionsDto": {
         "type": "object",
         "properties": {
-          "schemaIds": {
-            "description": "Specific schema ids to watch for",
+          "intentIds": {
+            "description": "Specific Intent ids to watch for",
             "example": [
               1,
               19

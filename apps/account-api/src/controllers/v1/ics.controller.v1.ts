@@ -1,8 +1,8 @@
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { AddNewPublicKeyAgreementRequestDto, IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
 import { AccountIdDto } from '#types/dtos/common';
-import { Body, Controller, HttpCode, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiPromise } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
@@ -41,7 +41,7 @@ export class IcsControllerV1 {
     payload: AddNewPublicKeyAgreementRequestDto,
     api: ApiPromise,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    const encodedPayload = this.blockchainService.createItemizedSignaturePayloadV2Type(payload.payload);
+    const encodedPayload = this.blockchainService.createItemizedSignaturePayloadV2Type(payload.payload).toU8a();
     return api.tx.statefulStorage.applyItemActionsWithSignatureV2(
       accountId,
       chainSignature({ algo: 'Sr25519', encodedValue: payload.proof }), // TODO: determine signature algo

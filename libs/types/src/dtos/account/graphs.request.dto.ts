@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, ValidateIf, ValidateNested } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, ValidateIf, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HexString } from '@polkadot/util/types';
 import { IsHexValue } from '#utils/decorators';
@@ -116,6 +116,17 @@ export class AddNewPublicKeyAgreementPayloadRequest {
   encodedPayload: HexString;
 }
 
+export class IcsProviderKeyPayload {
+  @IsMsaId()
+  msaId: string;
+
+  @IsHexValue({ minLength: 64, maxLength: 64 })
+  newKey: HexString
+
+  @IsEnum(['ed25519'])
+  keyType: string
+}
+
 export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & {
   type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
 };
@@ -134,4 +145,13 @@ export class PublicKeyAgreementsKeyPayload {
    */
   @IsHexValue({ minLength: 64, maxLength: 64 })
   newKey: HexString;
-}
+
+  /**
+   * Schema Id - The number of the schema to generate the payload for
+   * @example 16299
+   * @default DSNP graph key schema value for configured Frequency chain
+   **/
+  @IsSchemaId()
+  @IsOptional()
+  schemaId: number;
+};

@@ -20,12 +20,14 @@ import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import {
   AddNewPublicKeyAgreementPayloadRequest,
   AddNewPublicKeyAgreementRequestDto,
+  IcsProviderKeyPayload,
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
 } from '#types/dtos/account/graphs.request.dto';
 import { TransactionType } from '#types/account-webhook';
 import { MsaIdDto } from '#types/dtos/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { HexString } from '@polkadot/util/types';
 
 @Controller({ version: '1', path: 'keys' })
 @ApiTags('v1/keys')
@@ -83,8 +85,8 @@ export class KeysControllerV1 {
   /**
    * Using the provided query parameters, creates a new payload that can be signed to add new graph keys.
    * @param queryParams - The query parameters for adding a new key
-   * @returns Payload is included for convenience. Encoded payload to be used when signing the transaction.
-   * @throws An error if the key already exists or the payload creation fails.
+   * @returns Payload is included for convenience. Encoded payload is signed to generate the proof for adding the key.
+   * @throws An error if the key already exists or the payload creation fails, or signature verification fails.
    */
   async getPublicKeyAgreementsKeyPayload(
     @Query() { msaId, newKey }: PublicKeyAgreementsKeyPayload,
@@ -112,5 +114,24 @@ export class KeysControllerV1 {
     });
     this.logger.info(`Add graph key in progress. referenceId: ${response.referenceId}`);
     return response;
+  }
+
+  @Get('publicKeyAgreements/getAddIcsKeyPayload')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a properly encoded StatefulStorageItemizedSignaturePayloadV2 that can be signed.' })
+  @ApiOkResponse({
+    description: 'Returned an encoded StatefulStorageItemizedSignaturePayloadV2 for signing',
+    type: AddNewPublicKeyAgreementPayloadRequest,
+  })
+  /**
+   * Using the provided query parameters, creates a new payload that can be signed to add a new ICS key.
+   * @param queryParams - The query parameters for adding a new ICS key
+   * @returns Payload is included for convenience. Encoded payload is signed to generate the proof for adding the key.
+   * @throws An error if the key already exists, if the msaId does not exist, or if the newKey is not a valid ed25519 public key.
+   */
+  async getAddIcsKeyPayload(
+    @Query() { msaId, newKey, keyType }: IcsProviderKeyPayload,
+  ): Promise<AddNewPublicKeyAgreementPayloadRequest> {
+    return this.keysService.getAddIcsPublicKeyAgreementPayload(msaId, newKey);
   }
 }

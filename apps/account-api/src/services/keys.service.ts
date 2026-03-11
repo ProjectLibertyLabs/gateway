@@ -32,7 +32,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import Redis from 'ioredis';
 import { HOUR, MILLISECONDS_PER_SECOND } from 'time-constants';
-import IcsApi from '@projectlibertylabs/ics-sdk';
+import IcsApi from '@projectlibertylabs-ics/ics-sdk';
 const icsSdk: IcsApi = new IcsApi();
 
 

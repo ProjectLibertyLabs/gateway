@@ -32,7 +32,7 @@ import { useContainer } from 'class-validator';
 import Keyring from '@polkadot/keyring';
 import { ItemizedStoragePageResponse } from '@frequency-chain/api-augment/interfaces';
 import { Vec } from '@polkadot/types';
-import IcsApi from '@projectlibertylabs/ics-sdk';
+import IcsApi from '@projectlibertylabs-ics/ics-sdk';
 const icsSdk: IcsApi = new IcsApi();
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');

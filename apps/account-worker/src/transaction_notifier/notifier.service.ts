@@ -14,7 +14,7 @@ import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { ACCOUNT_SERVICE_WATCHER_PREFIX, TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
@@ -128,6 +128,7 @@ export class TxnNotifierService
         );
         const txStatusStr = await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash);
         const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
+        txStatus.blockHash = currentBlock.block.header.hash.toHex();
         const successEvent = extrinsicEvents.find(
           ({ event }) =>
             event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
@@ -227,6 +228,23 @@ export class TxnNotifierService
                 webhookResponse = response;
               }
               break;
+
+            case TransactionType.CAPACITY_BATCH:
+            {
+              const capacityEvent = extrinsicEvents.find(
+                ({ event }) =>
+                  event.section === 'capacity' && event.method === 'CapacityWithdrawn',
+              )?.event;
+              const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
+              const calls = this.blockchainService.handlePayWithCapacityBatchAll(currentBlock.block.extrinsics[txIndex]);
+              const response = createWebhookRsp(
+                { ...txStatus, providerId: capacityWithdrawn.msaId },
+                capacityWithdrawn.msaId,
+                {} as CapacityBatchAllOpts
+              );
+              webhookResponse = response;
+            }
+            break;
 
             default:
               this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);

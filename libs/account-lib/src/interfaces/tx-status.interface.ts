@@ -7,4 +7,5 @@ export interface ITxStatus extends Pick<TxMonitorJob, 'providerId' | 'referenceI
   };
   birth: number;
   death: number;
+  blockHash?: string;
 }

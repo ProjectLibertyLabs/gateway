@@ -40,6 +40,7 @@ components:
         - RETIRE_MSA
         - ADD_PUBLIC_KEY_AGREEMENT
         - REVOKE_DELEGATION
+        - CAPACITY_BATCH
       x-enum-varnames:
         - CHANGE_HANDLE
         - CREATE_HANDLE
@@ -49,6 +50,7 @@ components:
         - RETIRE_MSA
         - ADD_PUBLIC_KEY_AGREEMENT
         - REVOKE_DELEGATION
+        - CAPACITY_BATCH
 
     TxWebhookRspBase:
       type: object
@@ -102,6 +104,40 @@ components:
       required:
         - schemaId
 
+    CapacityBatchAllOpts:
+      type: object
+      properties:
+        calls:
+          type: array
+          items:
+            type: object
+            properties:
+              section:
+                type: string
+              method:
+                type: string
+            required:
+              - section
+              - method
+        capacityWithdrawnEvent:
+          type: object
+          properties:
+            data:
+              type: object
+              properties:
+                msaId:
+                  type: string
+                amount:
+                  type: string
+              required:
+                - msaId
+                - amount
+          required:
+            - data
+      required:
+        - calls
+        - capacityWithdrawnEvent
+
     TxWebhookOpts:
       type: object
       oneOf:
@@ -109,6 +145,7 @@ components:
         - $ref: '#/components/schemas/SIWFOpts'
         - $ref: '#/components/schemas/PublishKeysOpts'
         - $ref: '#/components/schemas/PublishGraphKeysOpts'
+        - $ref: '#/components/schemas/CapacityBatchAllOpts'
 
     PublishHandleWebhookRsp:
       type: object
@@ -170,6 +207,16 @@ components:
             transactionType:
               const: REVOKE_DELEGATION
 
+    CapacityBatchAllWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/CapacityBatchAllOpts'
+        - type: object
+          properties:
+            transactionType:
+              const: CAPACITY_BATCH
+
     TxWebhookRsp:
       oneOf:
         - $ref: '#/components/schemas/PublishHandleWebhookRsp'
@@ -178,3 +225,4 @@ components:
         - $ref: '#/components/schemas/PublishGraphKeysWebhookRsp'
         - $ref: '#/components/schemas/RetireMsaWebhookRsp'
         - $ref: '#/components/schemas/RevokeDelegationWebhookRsp'
+        - $ref: '#/components/schemas/CapacityBatchAllWebhookRsp'

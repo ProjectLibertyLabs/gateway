@@ -1,5 +1,6 @@
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
+import { PublishIcsPublishAllRequestDto } from './ics.request.dto';
 import { PublicKeyAgreementRequestDto } from './graphs.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
@@ -21,6 +22,7 @@ export type PublishSIWFSignupRequestDto = {
 
 export type TransactionData<
   RequestType =
+    | PublishIcsPublishAllRequestDto
     | PublishHandleRequestDto
     | PublishSIWFSignupRequestDto
     | PublishKeysRequestDto

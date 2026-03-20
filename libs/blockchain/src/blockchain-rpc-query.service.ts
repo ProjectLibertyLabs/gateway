@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
-import { bool, Bytes, Option, u128, Vec } from '@polkadot/types';
+import { bool, Bytes, GenericExtrinsic, Option, u128, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
@@ -60,35 +60,46 @@ import { RpcCall } from './decorators/rpc-call.decorator';
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
 
-interface HandleTxnValues {
+interface BaseEvent {
+  debugMsg: string;
+}
+
+interface HandleTxnValues extends BaseEvent {
   msaId: string;
   handle: string;
-  debugMsg: string;
 }
 
-interface PublicKeyValues {
+interface PublicKeyValues extends BaseEvent {
   msaId: string;
   newPublicKey: string;
-  debugMsg: string;
 }
 
-interface ItemizedPageUpdated {
+interface ItemizedPageUpdated extends BaseEvent {
   msaId: string;
   intentId: string;
   prevContentHash: string;
   currContentHash: string;
-  debugMsg: string;
 }
 
-interface MsaRetired {
+interface MsaRetired extends BaseEvent {
   msaId: string;
-  debugMsg: string;
 }
 
-interface DelegationRevoked {
+interface DelegationRevoked extends BaseEvent {
   msaId: string;
   providerId: string;
-  debugMsg: string;
+}
+
+interface CapacityWithdrawn extends BaseEvent {
+  msaId: string;
+  amount: string;
+}
+
+interface PayWithCapacityBatchAllCalls extends BaseEvent {
+  calls: {
+    section: string;
+    method: string;
+  }[];
 }
 
 export interface ICapacityInfo {
@@ -778,6 +789,37 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
     this.logger.error(`Expected MsaRetired event but found ${event}`);
     return {} as MsaRetired;
+  }
+
+  public handleCapacityWithdrawn(event: Event): CapacityWithdrawn {
+    // Grab the event data
+    if (event && this.api.events.capacity.CapacityWithdrawn.is(event)) {
+      const msaId = event.data.msaId.toString();
+      const amount = event.data.amount.toString();
+
+      return {
+        msaId,
+        amount,
+        debugMsg: `${amount} Capacity withdrawn by MSA ${msaId}`,
+      };
+    }
+
+    this.logger.error(`Expected CapacityWithdrawn event but found ${event}`);
+    return {} as CapacityWithdrawn;
+  }
+
+  public handlePayWithCapacityBatchAll(extrinsic: GenericExtrinsic): PayWithCapacityBatchAllCalls {
+    if (extrinsic.method.section === 'capacity' && extrinsic.method.method === 'payWithCapacityBatchAll') {
+      const calls = extrinsic.args[0].toPrimitive() as Array<{ section: string; method: string }>;
+
+      return {
+        calls,
+        debugMsg: `PayWithCapacityBatchAll calls: ${JSON.stringify(calls)}`,
+      };
+    }
+
+    this.logger.error(`Expected payWithCapacityBatchAll extrinsic but found ${extrinsic.method.method}`);
+    return {} as PayWithCapacityBatchAllCalls;
   }
 
   public generateUpsertPage(

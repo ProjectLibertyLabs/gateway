@@ -83,7 +83,7 @@ start-content-watcher: update-packages
 
 .PHONY: setup-account
 setup-account:
-	@cd apps/account-api/test/setup && npm install && npm run main
+	@npx tsx apps/account-api/test/setup.ts
 
 
 .PHONY: test-content-watcher-services-start

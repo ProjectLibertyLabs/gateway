@@ -19,7 +19,7 @@ sleep 15
 
 # Run make setup
 echo "Running make setup to provision Provider with capacity, etc..."
-cd apps/account-api/test/setup && npm install && npm run main
+npm i && npx tsx apps/account-api/test/setup.ts
 
 # Start api and worker apps in different terminals
 echo "Please run 'npm run start:api:debug' in a separate terminal..."

@@ -106,8 +106,7 @@ jobs:
       # TODO: make a service-agnostic setup script, or make service-specific setup scripts all in one place
       - name: Generate Provider and Capacity
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        working-directory: apps/account-api/test/setup
-        run: npm ci && npm run main
+        run: npx tsx apps/account-api/test/setup.ts
 
       - name: Run E2E Tests
         if: ${{ steps.should.outputs.RUN == 'true' }}

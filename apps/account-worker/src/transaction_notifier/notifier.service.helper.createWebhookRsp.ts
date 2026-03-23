@@ -59,7 +59,11 @@ export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends Publi
   msaId: string,
   options: O,
 ): T;
-export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(txStatus: ITxStatus, msaId: string, options: O): T;
+export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(
+  txStatus: ITxStatus,
+  msaId: string,
+  options: O,
+): T;
 export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
 export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
 export function createWebhookRsp(

@@ -6,11 +6,28 @@ import WorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.confi
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { getQueueToken } from '@nestjs/bull-shared';
+import { Queue, QueueEvents } from 'bullmq';
+import { AccountQueues } from '#types/constants/queue.constants';
+import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import axios from 'axios';
+import { TxnNotifierService } from '../src/transaction_notifier/notifier.service';
+import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
+import { BlockchainService } from '#blockchain/blockchain.service';
+import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
+
+process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
+jest.setTimeout(120_000);
 
 describe('Account Service E2E request verification!', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let httpServer: any;
+  let txQueue: Queue;
+  let txQueueEvents: QueueEvents;
+  let txNotifier: TxnNotifierService;
+  let providerId: string;
+  let blockchainService: BlockchainService;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -36,11 +53,30 @@ describe('Account Service E2E request verification!', () => {
     await app.init();
 
     httpServer = app.getHttpServer();
+    txQueue = app.get(getQueueToken(AccountQueues.TRANSACTION_PUBLISH_QUEUE));
+    txQueueEvents = new QueueEvents(AccountQueues.TRANSACTION_PUBLISH_QUEUE, {
+      connection: (txQueue as any).opts?.connection,
+      prefix: (txQueue as any).opts?.prefix,
+    });
+    await txQueueEvents.waitUntilReady();
+    txNotifier = app.get<TxnNotifierService>(TxnNotifierService);
+    blockchainService = app.get<BlockchainService>(BlockchainService);
+    const chainConfig = app.get<IBlockchainConfig>(blockchainConfig.KEY);
+    providerId = chainConfig.providerId.toString();
+
+    await blockchainService.isReady();
   });
 
   afterAll(async () => {
-    await app.close();
-    await httpServer.close();
+    if (txQueueEvents) {
+      await txQueueEvents.close();
+    }
+    if (app) {
+      await app.close();
+    }
+    if (httpServer) {
+      await httpServer.close();
+    }
 
     // Wait for some pending async stuff to finish
     await new Promise<void>((resolve) => {
@@ -110,4 +146,79 @@ describe('Account Service E2E request verification!', () => {
     request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+
+  it('submits CAPACITY_BATCH and posts expected webhook payload', async () => {
+    const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 } as any);
+    const referenceId = `capacity-batch-${Date.now()}`;
+    const api = (await blockchainService.getApi()) as any;
+    const encodedCall = api.tx.system.remarkWithEvent('0x0102').toHex();
+
+    const job = await txQueue.add(
+      referenceId,
+      {
+        type: TransactionType.CAPACITY_BATCH,
+        providerId,
+        referenceId,
+        calls: [
+          {
+            pallet: 'system',
+            extrinsicName: 'remarkWithEvent',
+            encodedExtrinsic: encodedCall,
+          },
+        ],
+      } as any,
+      { jobId: referenceId },
+    );
+
+    await job.waitUntilFinished(txQueueEvents);
+
+    const webhookPayload = await (async () => {
+      const timeoutMs = 20_000;
+      const pollMs = 1_000;
+      const end = Date.now() + timeoutMs;
+
+      while (Date.now() < end) {
+        await txNotifier.scan();
+        const matchedCall = axiosPostSpy.mock.calls.find(
+          ([, body]) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
+        );
+        if (matchedCall) {
+          return matchedCall[1] as TxWebhookRsp;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise<void>((resolve) => {
+          setTimeout(() => resolve(), pollMs);
+        });
+      }
+
+      throw new Error('Timed out waiting for CAPACITY_BATCH webhook');
+    })();
+
+    expect(webhookPayload).toEqual(
+      expect.objectContaining({
+        providerId,
+        referenceId,
+        msaId: providerId,
+        transactionType: TransactionType.CAPACITY_BATCH,
+        calls: expect.arrayContaining([
+          expect.objectContaining({
+            section: 'system',
+            method: expect.stringMatching(/remark/i),
+          }),
+        ]),
+        capacityWithdrawnEvent: expect.objectContaining({
+          data: expect.objectContaining({
+            msaId: providerId,
+            amount: expect.any(String),
+          }),
+        }),
+      }),
+    );
+    expect(axiosPostSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Object),
+      expect.objectContaining({ timeout: expect.any(Number) }),
+    );
+    axiosPostSpy.mockRestore();
+  }, 30_000);
 });

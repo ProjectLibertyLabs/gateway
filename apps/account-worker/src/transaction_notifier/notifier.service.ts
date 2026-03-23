@@ -230,21 +230,30 @@ export class TxnNotifierService
               break;
 
             case TransactionType.CAPACITY_BATCH:
-            {
-              const capacityEvent = extrinsicEvents.find(
-                ({ event }) =>
-                  event.section === 'capacity' && event.method === 'CapacityWithdrawn',
-              )?.event;
-              const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
-              const calls = this.blockchainService.handlePayWithCapacityBatchAll(currentBlock.block.extrinsics[txIndex]);
-              const response = createWebhookRsp(
-                { ...txStatus, providerId: capacityWithdrawn.msaId },
-                capacityWithdrawn.msaId,
-                {} as CapacityBatchAllOpts
-              );
-              webhookResponse = response;
-            }
-            break;
+              {
+                const capacityEvent = extrinsicEvents.find(
+                  ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
+                )?.event;
+                const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
+                const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
+                  currentBlock.block.extrinsics[txIndex],
+                );
+                const response = createWebhookRsp(
+                  { ...txStatus, providerId: capacityWithdrawn.msaId },
+                  capacityWithdrawn.msaId,
+                  {
+                    calls,
+                    capacityWithdrawnEvent: {
+                      data: {
+                        msaId: capacityWithdrawn.msaId,
+                        amount: capacityWithdrawn.amount,
+                      },
+                    },
+                  } as CapacityBatchAllOpts,
+                );
+                webhookResponse = response;
+              }
+              break;
 
             default:
               this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);

@@ -20,11 +20,17 @@ export type PublishSIWFSignupRequestDto = {
   authorizationCode?: string;
 };
 
+export type PublishCapacityBatchRequestDto = {
+  calls: SIWFEncodedExtrinsic[];
+  type: TransactionType.CAPACITY_BATCH;
+};
+
 export type TransactionData<
   RequestType =
     | PublishIcsPublishAllRequestDto
     | PublishHandleRequestDto
     | PublishSIWFSignupRequestDto
+    | PublishCapacityBatchRequestDto
     | PublishKeysRequestDto
     | PublishRetireMsaRequestDto
     | PublicKeyAgreementRequestDto

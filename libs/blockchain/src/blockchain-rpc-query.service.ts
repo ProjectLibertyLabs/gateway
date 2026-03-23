@@ -809,9 +809,11 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
   }
 
   public handlePayWithCapacityBatchAll(extrinsic: GenericExtrinsic): PayWithCapacityBatchAllCalls {
-    if (extrinsic.method.section === 'capacity' && extrinsic.method.method === 'payWithCapacityBatchAll') {
-      const calls = extrinsic.args[0].toPrimitive() as Array<{ section: string; method: string }>;
-
+    if (extrinsic.method.section === 'frequencyTxPayment' && extrinsic.method.method === 'payWithCapacityBatchAll') {
+      const calls = (extrinsic.method.args[0].toPrimitive() as any[]).map((c) => ({
+        section: c.section,
+        method: c.method,
+      }));
       return {
         calls,
         debugMsg: `PayWithCapacityBatchAll calls: ${JSON.stringify(calls)}`,

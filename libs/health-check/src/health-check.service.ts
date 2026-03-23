@@ -129,7 +129,11 @@ export class HealthCheckService {
     // If not found in Redis, query the blockchain directly
     try {
       const latestHeader = await this.blockchainService.getLatestHeader();
-      await this.redis.setex('latestHeader', this.blockchainService.blockTimeMs / MILLISECONDS_PER_SECOND, JSON.stringify(latestHeader));
+      await this.redis.setex(
+        'latestHeader',
+        this.blockchainService.blockTimeMs / MILLISECONDS_PER_SECOND,
+        JSON.stringify(latestHeader),
+      );
       return latestHeader;
     } catch (err) {
       this.logger.error('Failed to fetch latest block header from blockchain:', err);

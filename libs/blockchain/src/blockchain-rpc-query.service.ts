@@ -526,29 +526,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  // eslint-disable-next-line consistent-return, class-methods-use-this
-  public async getRawPayloadForSigning(
-    tx: SubmittableExtrinsic<'promise'>,
-    signerAddress: string,
-    // eslint-disable-next-line consistent-return
-  ): Promise<SignerPayloadRaw> {
-    let signRaw: SignerPayloadRaw | PromiseLike<SignerPayloadRaw>;
-    try {
-      await tx.signAsync(signerAddress, {
-        signer: {
-          signRaw: (raw) => {
-            this.logger.trace('signRaw called with [raw]:', raw);
-            signRaw = raw;
-            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
-            throw new Error('Stop here');
-          },
-        },
-      });
-    } catch (_e) {
-      return signRaw;
-    }
-  }
-
   public async createRevokedDelegationPayload(
     accountId: string,
     providerId: string,
@@ -558,7 +535,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
     // payload contains the signer address, the encoded data/payload for revokeDelegationByDelegator,
     // and the type of the payload
-    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    const signerPayload = await BlockchainRpcQueryService.getRawPayloadForSigning(tx, accountId);
 
     // encoded payload
     const { data } = signerPayload;
@@ -810,10 +787,15 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
   public handlePayWithCapacityBatchAll(extrinsic: GenericExtrinsic): PayWithCapacityBatchAllCalls {
     if (extrinsic.method.section === 'frequencyTxPayment' && extrinsic.method.method === 'payWithCapacityBatchAll') {
-      const calls = (extrinsic.method.args[0].toPrimitive() as any[]).map((c) => ({
-        section: c.section,
-        method: c.method,
-      }));
+      const calls = (extrinsic.method.args[0] as unknown as Vec<any>).toArray().map((call) => {
+        const callIndex = call?.callIndex;
+        const meta = this.api.registry.findMetaCall(callIndex);
+        return {
+          section: meta?.section ?? 'unknown',
+          method: meta?.method ?? 'unknown',
+        };
+      });
+
       return {
         calls,
         debugMsg: `PayWithCapacityBatchAll calls: ${JSON.stringify(calls)}`,

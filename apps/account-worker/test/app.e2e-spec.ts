@@ -14,7 +14,8 @@ import axios from 'axios';
 import { TxnNotifierService } from '../src/transaction_notifier/notifier.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
-import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
+import { signPayloadSr25519 } from '@projectlibertylabs/frequency-scenario-template';
+import Keyring from '@polkadot/keyring';
 
 process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
 jest.setTimeout(120_000);
@@ -151,7 +152,20 @@ describe('Account Service E2E request verification!', () => {
     const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 } as any);
     const referenceId = `capacity-batch-${Date.now()}`;
     const api = (await blockchainService.getApi()) as any;
-    const encodedCall = api.tx.system.remarkWithEvent('0x0102').toHex();
+    const delegatorKeypair = new Keyring({ type: 'sr25519' }).addFromUri(`//${referenceId}`);
+    const currentBlock = (await blockchainService.getBlockForSigning()).number;
+    const addProviderPayload = api.registry.createType('PalletMsaAddProvider', {
+      authorizedMsaId: providerId,
+      intentIds: [],
+      expiration: currentBlock + 10,
+    });
+    const encodedCall = api.tx.msa
+      .createSponsoredAccountWithDelegation(
+        delegatorKeypair.address,
+        signPayloadSr25519(delegatorKeypair, addProviderPayload),
+        addProviderPayload,
+      )
+      .toHex();
 
     const job = await txQueue.add(
       referenceId,
@@ -178,6 +192,7 @@ describe('Account Service E2E request verification!', () => {
       const end = Date.now() + timeoutMs;
 
       while (Date.now() < end) {
+        await (txNotifier as unknown as any).setLastSeenBlockNumber(currentBlock);
         await txNotifier.scan();
         const matchedCall = axiosPostSpy.mock.calls.find(
           ([, body]) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
@@ -185,7 +200,6 @@ describe('Account Service E2E request verification!', () => {
         if (matchedCall) {
           return matchedCall[1] as TxWebhookRsp;
         }
-        // eslint-disable-next-line no-await-in-loop
         await new Promise<void>((resolve) => {
           setTimeout(() => resolve(), pollMs);
         });
@@ -194,26 +208,24 @@ describe('Account Service E2E request verification!', () => {
       throw new Error('Timed out waiting for CAPACITY_BATCH webhook');
     })();
 
-    expect(webhookPayload).toEqual(
-      expect.objectContaining({
-        providerId,
-        referenceId,
-        msaId: providerId,
-        transactionType: TransactionType.CAPACITY_BATCH,
-        calls: expect.arrayContaining([
-          expect.objectContaining({
-            section: 'system',
-            method: expect.stringMatching(/remark/i),
-          }),
-        ]),
-        capacityWithdrawnEvent: expect.objectContaining({
-          data: expect.objectContaining({
-            msaId: providerId,
-            amount: expect.any(String),
-          }),
-        }),
-      }),
-    );
+    expect(webhookPayload).toEqual({
+      providerId,
+      referenceId,
+      msaId: providerId,
+      transactionType: TransactionType.CAPACITY_BATCH,
+      calls: [
+        {
+          section: 'msa',
+          method: 'createSponsoredAccountWithDelegation',
+        },
+      ],
+      capacityWithdrawnEvent: {
+        data: {
+          amount: expect.any(String),
+          msaId: providerId,
+        },
+      },
+    });
     expect(axiosPostSpy).toHaveBeenCalledWith(
       expect.any(String),
       expect.any(Object),

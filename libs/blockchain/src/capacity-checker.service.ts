@@ -132,6 +132,10 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
 
     try {
       const { capacityLimit } = this.config;
+      if (!(await this.redis.exists(CURRENT_CHAIN_CAPACITY_KEY))) {
+        await this.updateCachedCapacity();
+      }
+
       const capacityInfo = JSON.parse(await this.redis.get(CURRENT_CHAIN_CAPACITY_KEY), (key, value) => {
         if (key === 'remainingCapacity' || key === 'totalCapacityIssued') {
           return BigInt(value);
@@ -142,7 +146,7 @@ export class CapacityCheckerService implements OnApplicationBootstrap, OnModuleD
       // This doesn't really pick up on capacity exhaustion, as usage is unlikely to bring capacity to zero
       // (there will always be some dust). But it will warn in the case where a provider has been completely un-staked
       // (or they're using the wrong keypair in the config, one with no capacity, etc...)
-      if (capacityInfo.remainingCapacity <= 0n) {
+      if (capacityInfo?.remainingCapacity <= 0n) {
         this.logger.warn(`No capacity!`);
       }
 

@@ -22,7 +22,7 @@ clean-account-service:
 
 .PHONY: setup
 setup:
-	@cd apps/api/test/setup && npm install && npm run main
+	@npx tsx apps/account-api/test/setup.ts
 
 .PHONY: test-e2e
 test-e2e:

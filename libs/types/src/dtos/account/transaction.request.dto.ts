@@ -1,5 +1,6 @@
 import { BlockHash } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
+import { PublishIcsPublishAllRequestDto } from './ics.request.dto';
 import { PublicKeyAgreementRequestDto } from './graphs.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
@@ -19,10 +20,17 @@ export type PublishSIWFSignupRequestDto = {
   authorizationCode?: string;
 };
 
+export type PublishCapacityBatchRequestDto = {
+  calls: SIWFEncodedExtrinsic[];
+  type: TransactionType.CAPACITY_BATCH;
+};
+
 export type TransactionData<
   RequestType =
+    | PublishIcsPublishAllRequestDto
     | PublishHandleRequestDto
     | PublishSIWFSignupRequestDto
+    | PublishCapacityBatchRequestDto
     | PublishKeysRequestDto
     | PublishRetireMsaRequestDto
     | PublicKeyAgreementRequestDto

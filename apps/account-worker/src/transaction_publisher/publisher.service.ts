@@ -80,6 +80,19 @@ export class TransactionPublisherService extends BaseChainPublisherService {
           this.logger.debug(`txns: ${txns}`);
           break;
         }
+        case TransactionType.CAPACITY_BATCH: {
+          const txns = (job.data as any).calls?.map((x: any) =>
+            this.blockchainService.createTxFromEncoded(x.encodedExtrinsic),
+          );
+          if (!txns?.length) {
+            throw new Error('CAPACITY_BATCH transaction requires at least one call');
+          }
+          const callVec = this.blockchainService.createType('Vec<Call>', txns);
+          [tx, txHash, blockNumber] = await this.processBatchTxn(callVec);
+          targetEvent = { section: 'capacity', method: 'CapacityWithdrawn' };
+          this.logger.debug(`txns: ${txns}`);
+          break;
+        }
         case TransactionType.ADD_KEY: {
           const trx = await this.blockchainService.generateAddPublicKeyToMsa(job.data);
           targetEvent = { section: 'msa', method: 'PublicKeyAdded' };

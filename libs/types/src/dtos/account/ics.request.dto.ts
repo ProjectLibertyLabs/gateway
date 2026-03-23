@@ -7,6 +7,7 @@ import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
+import { TransactionType } from '#types/account-webhook';
 
 export class UpsertedPageDto {
   /**
@@ -84,3 +85,5 @@ export class IcsPublishAllRequestDto {
   @Type(() => UpsertPagePayloadDto)
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
 }
+
+export type PublishIcsPublishAllRequestDto = IcsPublishAllRequestDto & { type: TransactionType.CAPACITY_BATCH };

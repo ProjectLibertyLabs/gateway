@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
-import { bool, Bytes, Option, u128, Vec } from '@polkadot/types';
+import { bool, Bytes, GenericExtrinsic, Option, u128, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaProviderRegistryEntry,
   FrameSystemEventRecord,
@@ -60,35 +60,46 @@ import { RpcCall } from './decorators/rpc-call.decorator';
 export type Sr25519Signature = { Sr25519: HexString };
 export type NetworkType = 'mainnet' | 'testnet-paseo' | 'unknown';
 
-interface HandleTxnValues {
+interface BaseEvent {
+  debugMsg: string;
+}
+
+interface HandleTxnValues extends BaseEvent {
   msaId: string;
   handle: string;
-  debugMsg: string;
 }
 
-interface PublicKeyValues {
+interface PublicKeyValues extends BaseEvent {
   msaId: string;
   newPublicKey: string;
-  debugMsg: string;
 }
 
-interface ItemizedPageUpdated {
+interface ItemizedPageUpdated extends BaseEvent {
   msaId: string;
   intentId: string;
   prevContentHash: string;
   currContentHash: string;
-  debugMsg: string;
 }
 
-interface MsaRetired {
+interface MsaRetired extends BaseEvent {
   msaId: string;
-  debugMsg: string;
 }
 
-interface DelegationRevoked {
+interface DelegationRevoked extends BaseEvent {
   msaId: string;
   providerId: string;
-  debugMsg: string;
+}
+
+interface CapacityWithdrawn extends BaseEvent {
+  msaId: string;
+  amount: string;
+}
+
+interface PayWithCapacityBatchAllCalls extends BaseEvent {
+  calls: {
+    section: string;
+    method: string;
+  }[];
 }
 
 export interface ICapacityInfo {
@@ -515,29 +526,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     });
   }
 
-  // eslint-disable-next-line consistent-return, class-methods-use-this
-  public async getRawPayloadForSigning(
-    tx: SubmittableExtrinsic<'promise'>,
-    signerAddress: string,
-    // eslint-disable-next-line consistent-return
-  ): Promise<SignerPayloadRaw> {
-    let signRaw: SignerPayloadRaw | PromiseLike<SignerPayloadRaw>;
-    try {
-      await tx.signAsync(signerAddress, {
-        signer: {
-          signRaw: (raw) => {
-            this.logger.trace('signRaw called with [raw]:', raw);
-            signRaw = raw;
-            // Interrupt the signing process to get the raw payload, as encoded by polkadot-js
-            throw new Error('Stop here');
-          },
-        },
-      });
-    } catch (_e) {
-      return signRaw;
-    }
-  }
-
   public async createRevokedDelegationPayload(
     accountId: string,
     providerId: string,
@@ -547,7 +535,7 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
     // payload contains the signer address, the encoded data/payload for revokeDelegationByDelegator,
     // and the type of the payload
-    const signerPayload = await this.getRawPayloadForSigning(tx, accountId);
+    const signerPayload = await BlockchainRpcQueryService.getRawPayloadForSigning(tx, accountId);
 
     // encoded payload
     const { data } = signerPayload;
@@ -778,6 +766,44 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
     this.logger.error(`Expected MsaRetired event but found ${event}`);
     return {} as MsaRetired;
+  }
+
+  public handleCapacityWithdrawn(event: Event): CapacityWithdrawn {
+    // Grab the event data
+    if (event && this.api.events.capacity.CapacityWithdrawn.is(event)) {
+      const msaId = event.data.msaId.toString();
+      const amount = event.data.amount.toString();
+
+      return {
+        msaId,
+        amount,
+        debugMsg: `${amount} Capacity withdrawn by MSA ${msaId}`,
+      };
+    }
+
+    this.logger.error(`Expected CapacityWithdrawn event but found ${event}`);
+    return {} as CapacityWithdrawn;
+  }
+
+  public handlePayWithCapacityBatchAll(extrinsic: GenericExtrinsic): PayWithCapacityBatchAllCalls {
+    if (extrinsic.method.section === 'frequencyTxPayment' && extrinsic.method.method === 'payWithCapacityBatchAll') {
+      const calls = (extrinsic.method.args[0] as unknown as Vec<any>).toArray().map((call) => {
+        const callIndex = call?.callIndex;
+        const meta = this.api.registry.findMetaCall(callIndex);
+        return {
+          section: meta?.section ?? 'unknown',
+          method: meta?.method ?? 'unknown',
+        };
+      });
+
+      return {
+        calls,
+        debugMsg: `PayWithCapacityBatchAll calls: ${JSON.stringify(calls)}`,
+      };
+    }
+
+    this.logger.error(`Expected payWithCapacityBatchAll extrinsic but found ${extrinsic.method.method}`);
+    return {} as PayWithCapacityBatchAllCalls;
   }
 
   public generateUpsertPage(

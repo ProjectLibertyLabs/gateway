@@ -9,7 +9,7 @@ export enum TransactionType {
   RETIRE_MSA = 'RETIRE_MSA',
   ADD_PUBLIC_KEY_AGREEMENT = 'ADD_PUBLIC_KEY_AGREEMENT',
   REVOKE_DELEGATION = 'REVOKE_DELEGATION',
-  ICS_PUBLISH = 'ICS_PUBLISH',
+  CAPACITY_BATCH = 'CAPACITY_BATCH',
 }
 
 export type TxWebhookRspBase = {
@@ -36,7 +36,25 @@ export type PublishGraphKeysOpts = {
   schemaId: string;
 };
 
-export type TxWebhookOpts = PublishHandleOpts | SIWFOpts | PublishKeysOpts | PublishGraphKeysOpts;
+export type CapacityBatchAllOpts = {
+  calls: Array<{
+    section: string;
+    method: string;
+  }>;
+  capacityWithdrawnEvent: {
+    data: {
+      msaId: string;
+      amount: string;
+    };
+  };
+};
+
+export type TxWebhookOpts =
+  | PublishHandleOpts
+  | SIWFOpts
+  | PublishKeysOpts
+  | PublishGraphKeysOpts
+  | CapacityBatchAllOpts;
 
 export type PublishHandleWebhookRsp = TxWebhookRspBase &
   PublishHandleOpts & {
@@ -66,13 +84,19 @@ export type RevokeDelegationWebhookRsp = TxWebhookRspBase & {
   transactionType?: 'REVOKE_DELEGATION';
 };
 
+export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
+  CapacityBatchAllOpts & {
+    transactionType?: 'CAPACITY_BATCH';
+  };
+
 export type TxWebhookRsp =
   | PublishHandleWebhookRsp
   | SIWFWebhookRsp
   | PublishKeysWebhookRsp
   | PublishGraphKeysWebhookRsp
   | RetireMsaWebhookRsp
-  | RevokeDelegationWebhookRsp;
+  | RevokeDelegationWebhookRsp
+  | CapacityBatchAllWebhookRsp;
 
 export type PostTransactionNotify_Data = {
   body: TxWebhookRsp;

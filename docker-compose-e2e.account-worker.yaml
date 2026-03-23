@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+x-common-environment: &common-environment
+  FREQUENCY_API_WS_URL: ${FREQUENCY_API_WS_URL:-ws://frequency:9944}
+  SIWF_NODE_RPC_URL: ${SIWF_NODE_RPC_URL:-http://localhost:9944}
+  REDIS_URL: 'redis://redis:6379'
+  PROVIDER_ID: ${PROVIDER_ID:-1}
+  PROVIDER_ACCOUNT_SEED_PHRASE: ${PROVIDER_ACCOUNT_SEED_PHRASE:-//Alice}
+  WEBHOOK_FAILURE_THRESHOLD: 3
+  WEBHOOK_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_MAX_RETRIES: 4
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS: 10
+  HEALTH_CHECK_SUCCESS_THRESHOLD: 10
+  CAPACITY_LIMIT: '{"type":"percentage", "value":80}'
+  SIWF_URL: 'https://projectlibertylabs.github.io/siwf/v1/ui'
+  IPFS_ENDPOINT: ${IPFS_ENDPOINT:-http://ipfs:5001/api/v0}
+  IPFS_GATEWAY_URL: ${IPFS_GATEWAY_URL:-https://ipfs.io/ipfs/[CID]}
+  IPFS_BASIC_AUTH_USER: ${IPFS_BASIC_AUTH_USER:-""}
+  IPFS_BASIC_AUTH_SECRET: ${IPFS_BASIC_AUTH_SECRET:-""}
+  QUEUE_HIGH_WATER: 1000
+
+x-account-service-env: &account-service-env
+  BLOCKCHAIN_SCAN_INTERVAL_SECONDS: 1
+  TRUST_UNFINALIZED_BLOCKS: true
+  WEBHOOK_BASE_URL: 'http://host.docker.internal:3001/webhooks/account-service'
+
+services:
+  redis:
+    profiles:
+      - e2e
+
+  frequency:
+    profiles:
+      - e2e
+      - local-node
+
+  mock-webhook-server:
+    profiles:
+      - skip
+
+  ipfs:
+    profiles:
+      - skip
+  gateway-base:
+    profiles:
+      - account
+  content-publishing-service-worker:
+    profiles:
+      - skip
+  content-publishing-service-api:
+    profiles:
+      - skip
+  content-watcher-service:
+    profiles:
+      - skip
+  account-service-api:
+    profiles:
+      - skip
+  # Current E2E tests for the account worker run the queue workers inside the test harness, so we don't start a container here.
+  account-service-worker:
+    profiles:
+      - skip

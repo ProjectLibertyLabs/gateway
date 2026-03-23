@@ -26,7 +26,6 @@ echo "Waiting 15 seconds for Frequency to be ready..."
 sleep 15
 
 # Run make setup
-echo "Running make setup to provision Provider with capacity, etc..."
-cd apps/account-api/test/setup || exit_err "test setup failed."
-npm install || exit_err "Running npm install failed."
-npm run main || exit_err "Running main failed."
+echo "Running setup to provision Provider with capacity, etc..."
+npm i || exit_err "Running npm install failed."
+npx tsx apps/account-api/test/setup.ts || exit_err "Running setup script failed."

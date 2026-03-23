@@ -14,6 +14,8 @@ import {
   TransactionType,
   RetireMsaWebhookRsp,
   RevokeDelegationWebhookRsp,
+  CapacityBatchAllOpts,
+  CapacityBatchAllWebhookRsp,
 } from '#types/account-webhook';
 
 // Type guards
@@ -33,6 +35,10 @@ function isPublishGraphKeysOpts(o: any): o is PublishGraphKeysOpts {
   return !!o?.schemaId;
 }
 
+function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
+  return !!o?.capacityWithdrawnEvent;
+}
+
 export function createWebhookRsp<O extends PublishHandleOpts, T extends PublishHandleWebhookRsp>(
   txStatus: ITxStatus,
   msaId: string,
@@ -49,6 +55,11 @@ export function createWebhookRsp<O extends PublishKeysOpts, T extends PublishKey
   options: O,
 ): T;
 export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends PublishGraphKeysWebhookRsp>(
+  txStatus: ITxStatus,
+  msaId: string,
+  options: O,
+): T;
+export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(
   txStatus: ITxStatus,
   msaId: string,
   options: O,
@@ -91,6 +102,10 @@ export function createWebhookRsp(
 
   if (transactionType === TransactionType.SIWF_SIGNUP && isSiwfOpts(options)) {
     return { ...response, ...options } as SIWFWebhookRsp;
+  }
+
+  if (transactionType === TransactionType.CAPACITY_BATCH && isCapacityBatchAllOpts(options)) {
+    return { ...response, ...options } as CapacityBatchAllWebhookRsp;
   }
 
   throw new Error(`Invalid transaction type ${transactionType} for webhook response`);

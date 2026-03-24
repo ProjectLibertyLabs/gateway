@@ -1,8 +1,7 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown, Provider } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import axios from 'axios';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
@@ -18,6 +17,7 @@ import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/acco
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
+import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 
 @Injectable()
 export class TxnNotifierService
@@ -51,6 +51,7 @@ export class TxnNotifierService
     @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
+    private readonly providerWebhookService: ProviderWebhookService,
     protected readonly logger: PinoLogger,
   ) {
     super(cacheManager, blockchainService, logger);
@@ -145,7 +146,7 @@ export class TxnNotifierService
           this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
         } else if (successEvent) {
           this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
-          const webhook = await this.getWebhook();
+          const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
           let webhookResponse: Partial<TxWebhookRsp> = {};
           webhookResponse.referenceId = txStatus.referenceId;
 
@@ -155,7 +156,10 @@ export class TxnNotifierService
               {
                 const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(successEvent);
 
-                const response = createWebhookRsp(txStatus, handleTxnValues.msaId, { handle: handleTxnValues.handle });
+                const response = createWebhookRsp(
+                  { ...baseResponse, msaId: handleTxnValues.msaId },
+                  { handle: handleTxnValues.handle },
+                );
                 webhookResponse = response;
 
                 this.logger.debug(handleTxnValues.debugMsg);
@@ -169,10 +173,13 @@ export class TxnNotifierService
               {
                 const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
 
-                const response = createWebhookRsp(txStatus, siwfTxnValues.msaId, {
-                  accountId: siwfTxnValues.address,
-                  handle: siwfTxnValues.handle,
-                });
+                const response = createWebhookRsp(
+                  { ...baseResponse, msaId: siwfTxnValues.msaId },
+                  {
+                    accountId: siwfTxnValues.address,
+                    handle: siwfTxnValues.handle,
+                  },
+                );
                 webhookResponse = response;
 
                 this.logger.info(
@@ -185,9 +192,12 @@ export class TxnNotifierService
               {
                 const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
 
-                const response = createWebhookRsp(txStatus, publicKeyValues.msaId, {
-                  newPublicKey: publicKeyValues.newPublicKey,
-                });
+                const response = createWebhookRsp(
+                  { ...baseResponse, msaId: publicKeyValues.msaId },
+                  {
+                    newPublicKey: publicKeyValues.newPublicKey,
+                  },
+                );
                 webhookResponse = response;
 
                 this.logger.info(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
@@ -199,9 +209,12 @@ export class TxnNotifierService
                 const itemizedPageUpdated =
                   this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
 
-                const response = createWebhookRsp(txStatus, itemizedPageUpdated.msaId, {
-                  schemaId: itemizedPageUpdated.intentId,
-                });
+                const response = createWebhookRsp(
+                  { ...baseResponse, msaId: itemizedPageUpdated.msaId },
+                  {
+                    schemaId: itemizedPageUpdated.intentId,
+                  },
+                );
                 webhookResponse = response;
 
                 this.logger.info(
@@ -213,7 +226,7 @@ export class TxnNotifierService
             case TransactionType.RETIRE_MSA:
               {
                 const msaRetired = this.blockchainService.handleRetireMsaTxResult(successEvent);
-                const response = createWebhookRsp(txStatus, msaRetired.msaId);
+                const response = createWebhookRsp({ ...baseResponse, msaId: msaRetired.msaId });
                 webhookResponse = response;
               }
               break;
@@ -221,10 +234,11 @@ export class TxnNotifierService
             case TransactionType.REVOKE_DELEGATION:
               {
                 const delegationRevoked = this.blockchainService.handleRevokeDelegationTxResult(successEvent);
-                const response = createWebhookRsp(
-                  { ...txStatus, providerId: delegationRevoked.providerId },
-                  delegationRevoked.msaId,
-                );
+                const response = createWebhookRsp({
+                  ...baseResponse,
+                  msaId: delegationRevoked.msaId,
+                  providerId: delegationRevoked.providerId,
+                });
                 webhookResponse = response;
               }
               break;
@@ -239,15 +253,12 @@ export class TxnNotifierService
                   currentBlock.block.extrinsics[txIndex],
                 );
                 const response = createWebhookRsp(
-                  { ...txStatus, providerId: capacityWithdrawn.msaId },
-                  capacityWithdrawn.msaId,
+                  { ...baseResponse, msaId: capacityWithdrawn.msaId, providerId: capacityWithdrawn.msaId },
                   {
                     calls,
                     capacityWithdrawnEvent: {
-                      data: {
-                        msaId: capacityWithdrawn.msaId,
-                        amount: capacityWithdrawn.amount,
-                      },
+                      msaId: capacityWithdrawn.msaId,
+                      amount: capacityWithdrawn.amount,
                     },
                   } as CapacityBatchAllOpts,
                 );
@@ -262,15 +273,17 @@ export class TxnNotifierService
 
           let retries = 0;
           while (retries < this.config.healthCheckMaxRetries) {
+            const webhook = this.providerWebhookService.providerApi;
+            const requestConfig = {
+              url: '/transaction-notify'
+            }
             try {
-              this.logger.debug(`Sending transaction notification to webhook: ${webhook}`);
-              this.logger.debug(`Transaction: ${JSON.stringify(webhookResponse)}`);
-              await axios.post(webhook, webhookResponse, { timeout: this.httpConfig.httpResponseTimeoutMS });
-              this.logger.debug(`Transaction Notification sent to webhook: ${webhook}`);
+              this.logger.debug(webhookResponse,`Sending transaction notification to webhook: ${webhook.getUri(requestConfig)}`);
+              await this.providerWebhookService.providerApi.post('/transaction-notify', webhookResponse);
+              this.logger.debug('Transaction Notification sent to webhook');
               break;
             } catch (error) {
-              this.logger.error(`Failed to send notification to webhook: ${webhook}`);
-              this.logger.error(error);
+              this.logger.error(error, `Failed to send notification to webhook: ${webhook.getUri(requestConfig)}`);
               retries += 1;
             }
           }
@@ -301,18 +314,7 @@ export class TxnNotifierService
       }
     }
 
-    // Execute marshalled Redis transactions
+    // Execute marshaled Redis transactions
     await pipeline.exec();
-  }
-
-  async getWebhookList(msaId: number): Promise<string[]> {
-    const redisKey = `${ACCOUNT_SERVICE_WATCHER_PREFIX}:${msaId}`;
-    const redisList = await this.cacheManager.lrange(redisKey, 0, -1);
-
-    return redisList || [];
-  }
-
-  async getWebhook(): Promise<string> {
-    return this.config.webhookBaseUrl.toString();
   }
 }

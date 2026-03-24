@@ -18,6 +18,11 @@ import {
   CapacityBatchAllWebhookRsp,
 } from '#types/account-webhook';
 
+export interface IBaseWebhookResponse extends ITxStatus {
+  msaId: string;
+  blockHash: string;
+};
+
 // Type guards
 function isPublishHandleOpts(o: any): o is PublishHandleOpts {
   return !!o?.handle;
@@ -40,35 +45,29 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
 }
 
 export function createWebhookRsp<O extends PublishHandleOpts, T extends PublishHandleWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
   options: O,
 ): T;
 export function createWebhookRsp<O extends SIWFOpts, T extends SIWFWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
   options: O,
 ): T;
 export function createWebhookRsp<O extends PublishKeysOpts, T extends PublishKeysWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
   options: O,
 ): T;
 export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends PublishGraphKeysWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
   options: O,
 ): T;
 export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
   options: O,
 ): T;
-export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
-export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
+export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: IBaseWebhookResponse): T;
+export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: IBaseWebhookResponse): T;
 export function createWebhookRsp(
-  { type: transactionType, providerId, referenceId }: ITxStatus,
-  msaId: string,
+  { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
 ): TxWebhookRsp {
   const response = {
@@ -76,6 +75,8 @@ export function createWebhookRsp(
     providerId,
     referenceId,
     msaId,
+    blockHash,
+    txHash,
   };
   if (transactionType === TransactionType.ADD_KEY && isPublishKeysOpts(options)) {
     return { ...response, ...options } as PublishKeysWebhookRsp;

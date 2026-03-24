@@ -13,10 +13,12 @@ export enum TransactionType {
 }
 
 export type TxWebhookRspBase = {
+  blockHash: string;
   providerId: string;
   referenceId: string;
   msaId: string;
   transactionType?: TransactionType;
+  txHash: string;
 };
 
 export type PublishHandleOpts = {
@@ -42,10 +44,8 @@ export type CapacityBatchAllOpts = {
     method: string;
   }>;
   capacityWithdrawnEvent: {
-    data: {
-      msaId: string;
-      amount: string;
-    };
+    msaId: string;
+    amount: string;
   };
 };
 
@@ -97,6 +97,20 @@ export type TxWebhookRsp =
   | RetireMsaWebhookRsp
   | RevokeDelegationWebhookRsp
   | CapacityBatchAllWebhookRsp;
+
+export type GetHealthz_Data = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/healthz';
+};
+
+export type GetHealthz_Responses = {
+  /**
+   * Service is healthy
+   */
+  200: unknown;
+};
 
 export type PostTransactionNotify_Data = {
   body: TxWebhookRsp;

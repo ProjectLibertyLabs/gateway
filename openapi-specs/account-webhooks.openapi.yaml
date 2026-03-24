@@ -12,6 +12,13 @@ info:
   version: 1.0.0
 
 paths:
+  /healthz:
+    get:
+      responses:
+        '200':
+          description: 'Service is healthy'
+      summary: 'Check the health status of the service'
+
   /transaction-notify:
     post:
       summary: Notify transaction
@@ -55,11 +62,15 @@ components:
     TxWebhookRspBase:
       type: object
       required:
+        - blockHash
         - providerId
         - referenceId
         - msaId
+        - txHash
         - type
       properties:
+        blockHash:
+          type: string
         providerId:
           type: string
         referenceId:
@@ -68,6 +79,8 @@ components:
           type: string
         transactionType:
           $ref: '#/components/schemas/TransactionType'
+        txHash:
+          type: string
 
     PublishHandleOpts:
       type: object
@@ -122,18 +135,13 @@ components:
         capacityWithdrawnEvent:
           type: object
           properties:
-            data:
-              type: object
-              properties:
-                msaId:
-                  type: string
-                amount:
-                  type: string
-              required:
-                - msaId
-                - amount
+            msaId:
+              type: string
+            amount:
+              type: string
           required:
-            - data
+            - amount
+            - msaId
       required:
         - calls
         - capacityWithdrawnEvent

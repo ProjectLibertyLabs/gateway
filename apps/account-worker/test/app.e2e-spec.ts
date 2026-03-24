@@ -17,6 +17,23 @@ import { BlockchainService } from '#blockchain/blockchain.service';
 import { signPayloadSr25519 } from '@projectlibertylabs/frequency-scenario-template';
 import Keyring from '@polkadot/keyring';
 
+jest.mock('axios', () => {
+  const actual = jest.requireActual('axios');
+  const providerApi = actual.default.create({
+    baseURL: process.env.WEBHOOK_BASE_URL,
+  });
+  providerApi.post = jest.fn();
+  providerApi.get = jest.fn();
+  return {
+    __esModule: true,
+    ...actual,
+    default: {
+      ...actual.default,
+      create: jest.fn(() => providerApi),
+    },
+  };
+});
+
 process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
 jest.setTimeout(120_000);
 
@@ -149,7 +166,11 @@ describe('Account Service E2E request verification!', () => {
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
 
   it('submits CAPACITY_BATCH and posts expected webhook payload', async () => {
-    const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 } as any);
+    const providerApi = (axios.create as unknown as jest.Mock).mock.results[0]?.value as {
+      post: jest.Mock;
+    };
+    expect(providerApi).toBeDefined();
+    providerApi.post.mockResolvedValue({ status: 200 } as any);
     const referenceId = `capacity-batch-${Date.now()}`;
     const api = (await blockchainService.getApi()) as any;
     const delegatorKeypair = new Keyring({ type: 'sr25519' }).addFromUri(`//${referenceId}`);
@@ -194,7 +215,7 @@ describe('Account Service E2E request verification!', () => {
       while (Date.now() < end) {
         await (txNotifier as unknown as any).setLastSeenBlockNumber(currentBlock);
         await txNotifier.scan();
-        const matchedCall = axiosPostSpy.mock.calls.find(
+        const matchedCall = providerApi.post.mock.calls.find(
           ([, body]) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
         );
         if (matchedCall) {
@@ -209,10 +230,7 @@ describe('Account Service E2E request verification!', () => {
     })();
 
     expect(webhookPayload).toEqual({
-      providerId,
-      referenceId,
-      msaId: providerId,
-      transactionType: TransactionType.CAPACITY_BATCH,
+      blockHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
       calls: [
         {
           section: 'msa',
@@ -220,17 +238,15 @@ describe('Account Service E2E request verification!', () => {
         },
       ],
       capacityWithdrawnEvent: {
-        data: {
-          amount: expect.any(String),
-          msaId: providerId,
-        },
+        amount: expect.stringMatching(/^[0-9]+$/),
+        msaId: providerId,
       },
+      msaId: providerId,
+      providerId,
+      referenceId,
+      transactionType: TransactionType.CAPACITY_BATCH,
+      txHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
     });
-    expect(axiosPostSpy).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(Object),
-      expect.objectContaining({ timeout: expect.any(Number) }),
-    );
-    axiosPostSpy.mockRestore();
+    expect(providerApi.post).toHaveBeenCalledWith('/transaction-notify', expect.any(Object));
   }, 30_000);
 });

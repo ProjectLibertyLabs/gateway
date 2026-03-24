@@ -173,6 +173,7 @@
     "@nestjs/schematics": "11.0.7",
     "@nestjs/testing": "11.1.6",
     "@projectlibertylabs/frequency-scenario-template": "2.0.0",
+    "@stoplight/prism-cli": "^5.14.2",
     "@types/base64url": "2.0.7",
     "@types/busboy": "1.5.4",
     "@types/jest": "30.0.0",

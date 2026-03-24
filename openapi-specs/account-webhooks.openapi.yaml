@@ -67,7 +67,7 @@ components:
         - referenceId
         - msaId
         - txHash
-        - type
+        - transactionType
       properties:
         blockHash:
           type: string

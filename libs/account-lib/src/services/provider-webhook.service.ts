@@ -40,7 +40,9 @@ export class ProviderWebhookService implements OnModuleDestroy {
       timeout: httpConfig.httpResponseTimeoutMS,
     });
 
-    this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
+    if (this.config.providerApiToken) {
+      this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
+    }
   }
 
   public get providerApi(): AxiosInstance {

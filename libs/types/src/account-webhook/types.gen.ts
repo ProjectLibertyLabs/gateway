@@ -17,7 +17,7 @@ export type TxWebhookRspBase = {
   providerId: string;
   referenceId: string;
   msaId: string;
-  transactionType?: TransactionType;
+  transactionType: TransactionType;
   txHash: string;
 };
 
@@ -58,45 +58,59 @@ export type TxWebhookOpts =
 
 export type PublishHandleWebhookRsp = TxWebhookRspBase &
   PublishHandleOpts & {
-    transactionType?: 'CREATE_HANDLE' | 'CHANGE_HANDLE';
+    transactionType: 'CREATE_HANDLE' | 'CHANGE_HANDLE';
   };
 
 export type SIWFWebhookRsp = TxWebhookRspBase &
   SIWFOpts & {
-    transactionType?: 'SIWF_SIGNUP';
+    transactionType: 'SIWF_SIGNUP';
   };
 
 export type PublishKeysWebhookRsp = TxWebhookRspBase &
   PublishKeysOpts & {
-    transactionType?: 'ADD_KEY';
+    transactionType: 'ADD_KEY';
   };
 
 export type PublishGraphKeysWebhookRsp = TxWebhookRspBase &
   PublishGraphKeysOpts & {
-    transactionType?: 'ADD_PUBLIC_KEY_AGREEMENT';
+    transactionType: 'ADD_PUBLIC_KEY_AGREEMENT';
   };
 
 export type RetireMsaWebhookRsp = TxWebhookRspBase & {
-  transactionType?: 'RETIRE_MSA';
+  transactionType: 'RETIRE_MSA';
 };
 
 export type RevokeDelegationWebhookRsp = TxWebhookRspBase & {
-  transactionType?: 'REVOKE_DELEGATION';
+  transactionType: 'REVOKE_DELEGATION';
 };
 
 export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
   CapacityBatchAllOpts & {
-    transactionType?: 'CAPACITY_BATCH';
+    transactionType: 'CAPACITY_BATCH';
   };
 
 export type TxWebhookRsp =
-  | PublishHandleWebhookRsp
-  | SIWFWebhookRsp
-  | PublishKeysWebhookRsp
-  | PublishGraphKeysWebhookRsp
-  | RetireMsaWebhookRsp
-  | RevokeDelegationWebhookRsp
-  | CapacityBatchAllWebhookRsp;
+  | ({
+      transactionType?: 'PublishHandleWebhookRsp';
+    } & PublishHandleWebhookRsp)
+  | ({
+      transactionType?: 'SIWFWebhookRsp';
+    } & SIWFWebhookRsp)
+  | ({
+      transactionType?: 'PublishKeysWebhookRsp';
+    } & PublishKeysWebhookRsp)
+  | ({
+      transactionType?: 'PublishGraphKeysWebhookRsp';
+    } & PublishGraphKeysWebhookRsp)
+  | ({
+      transactionType?: 'RetireMsaWebhookRsp';
+    } & RetireMsaWebhookRsp)
+  | ({
+      transactionType?: 'RevokeDelegationWebhookRsp';
+    } & RevokeDelegationWebhookRsp)
+  | ({
+      transactionType?: 'CapacityBatchAllWebhookRsp';
+    } & CapacityBatchAllWebhookRsp);
 
 export type GetHealthz_Data = {
   body?: never;

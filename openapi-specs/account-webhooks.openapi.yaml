@@ -163,9 +163,12 @@ components:
         - type: object
           properties:
             transactionType:
-              oneOf:
-                - const: CREATE_HANDLE
-                - const: CHANGE_HANDLE
+              type: string
+              enum:
+                - CREATE_HANDLE
+                - CHANGE_HANDLE
+          required:
+            - transactionType
 
     SIWFWebhookRsp:
       type: object
@@ -175,7 +178,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: SIWF_SIGNUP
+              type: string
+              enum:
+                - SIWF_SIGNUP
+          required:
+            - transactionType
 
     PublishKeysWebhookRsp:
       type: object
@@ -185,7 +192,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: ADD_KEY
+              type: string
+              enum:
+                - ADD_KEY
+          required:
+            - transactionType
 
     PublishGraphKeysWebhookRsp:
       type: object
@@ -195,7 +206,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: ADD_PUBLIC_KEY_AGREEMENT
+              type: string
+              enum:
+                - ADD_PUBLIC_KEY_AGREEMENT
+          required:
+            - transactionType
 
     RetireMsaWebhookRsp:
       type: object
@@ -204,7 +219,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: RETIRE_MSA
+              type: string
+              enum:
+                - RETIRE_MSA
+          required:
+            - transactionType
 
     RevokeDelegationWebhookRsp:
       type: object
@@ -213,7 +232,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: REVOKE_DELEGATION
+              type: string
+              enum:
+                - REVOKE_DELEGATION
+          required:
+            - transactionType
 
     CapacityBatchAllWebhookRsp:
       type: object
@@ -223,9 +246,15 @@ components:
         - type: object
           properties:
             transactionType:
-              const: CAPACITY_BATCH
+              type: string
+              enum:
+                - CAPACITY_BATCH
+          required:
+            - transactionType
 
     TxWebhookRsp:
+      discriminator:
+        propertyName: transactionType
       oneOf:
         - $ref: '#/components/schemas/PublishHandleWebhookRsp'
         - $ref: '#/components/schemas/SIWFWebhookRsp'

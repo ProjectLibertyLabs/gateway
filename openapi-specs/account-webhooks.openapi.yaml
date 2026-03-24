@@ -67,7 +67,6 @@ components:
         - referenceId
         - msaId
         - txHash
-        - transactionType
       properties:
         blockHash:
           type: string
@@ -77,8 +76,6 @@ components:
           type: string
         msaId:
           type: string
-        transactionType:
-          $ref: '#/components/schemas/TransactionType'
         txHash:
           type: string
 
@@ -155,7 +152,7 @@ components:
         - $ref: '#/components/schemas/PublishGraphKeysOpts'
         - $ref: '#/components/schemas/CapacityBatchAllOpts'
 
-    PublishHandleWebhookRsp:
+    CreateHandleWebhookRsp:
       type: object
       allOf:
         - $ref: '#/components/schemas/TxWebhookRspBase'
@@ -166,9 +163,28 @@ components:
               type: string
               enum:
                 - CREATE_HANDLE
+          required:
+            - transactionType
+
+    ChangeHandleWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/PublishHandleOpts'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              enum:
                 - CHANGE_HANDLE
           required:
             - transactionType
+
+    PublishHandleWebhookRsp:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/CreateHandleWebhookRsp'
+        - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
 
     SIWFWebhookRsp:
       type: object
@@ -255,8 +271,18 @@ components:
     TxWebhookRsp:
       discriminator:
         propertyName: transactionType
+        mapping:
+          CREATE_HANDLE: '#/components/schemas/CreateHandleWebhookRsp'
+          CHANGE_HANDLE: '#/components/schemas/ChangeHandleWebhookRsp'
+          SIWF_SIGNUP: '#/components/schemas/SIWFWebhookRsp'
+          ADD_KEY: '#/components/schemas/PublishKeysWebhookRsp'
+          ADD_PUBLIC_KEY_AGREEMENT: '#/components/schemas/PublishGraphKeysWebhookRsp'
+          RETIRE_MSA: '#/components/schemas/RetireMsaWebhookRsp'
+          REVOKE_DELEGATION: '#/components/schemas/RevokeDelegationWebhookRsp'
+          CAPACITY_BATCH: '#/components/schemas/CapacityBatchAllWebhookRsp'
       oneOf:
-        - $ref: '#/components/schemas/PublishHandleWebhookRsp'
+        - $ref: '#/components/schemas/CreateHandleWebhookRsp'
+        - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
         - $ref: '#/components/schemas/SIWFWebhookRsp'
         - $ref: '#/components/schemas/PublishKeysWebhookRsp'
         - $ref: '#/components/schemas/PublishGraphKeysWebhookRsp'

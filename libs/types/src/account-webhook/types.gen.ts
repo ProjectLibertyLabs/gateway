@@ -17,7 +17,6 @@ export type TxWebhookRspBase = {
   providerId: string;
   referenceId: string;
   msaId: string;
-  transactionType: TransactionType;
   txHash: string;
 };
 
@@ -56,10 +55,17 @@ export type TxWebhookOpts =
   | PublishGraphKeysOpts
   | CapacityBatchAllOpts;
 
-export type PublishHandleWebhookRsp = TxWebhookRspBase &
+export type CreateHandleWebhookRsp = TxWebhookRspBase &
   PublishHandleOpts & {
-    transactionType: 'CREATE_HANDLE' | 'CHANGE_HANDLE';
+    transactionType: 'CREATE_HANDLE';
   };
+
+export type ChangeHandleWebhookRsp = TxWebhookRspBase &
+  PublishHandleOpts & {
+    transactionType: 'CHANGE_HANDLE';
+  };
+
+export type PublishHandleWebhookRsp = CreateHandleWebhookRsp | ChangeHandleWebhookRsp;
 
 export type SIWFWebhookRsp = TxWebhookRspBase &
   SIWFOpts & {
@@ -91,25 +97,28 @@ export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
 
 export type TxWebhookRsp =
   | ({
-      transactionType?: 'PublishHandleWebhookRsp';
-    } & PublishHandleWebhookRsp)
+      transactionType?: 'CREATE_HANDLE';
+    } & CreateHandleWebhookRsp)
   | ({
-      transactionType?: 'SIWFWebhookRsp';
+      transactionType?: 'CHANGE_HANDLE';
+    } & ChangeHandleWebhookRsp)
+  | ({
+      transactionType?: 'SIWF_SIGNUP';
     } & SIWFWebhookRsp)
   | ({
-      transactionType?: 'PublishKeysWebhookRsp';
+      transactionType?: 'ADD_KEY';
     } & PublishKeysWebhookRsp)
   | ({
-      transactionType?: 'PublishGraphKeysWebhookRsp';
+      transactionType?: 'ADD_PUBLIC_KEY_AGREEMENT';
     } & PublishGraphKeysWebhookRsp)
   | ({
-      transactionType?: 'RetireMsaWebhookRsp';
+      transactionType?: 'RETIRE_MSA';
     } & RetireMsaWebhookRsp)
   | ({
-      transactionType?: 'RevokeDelegationWebhookRsp';
+      transactionType?: 'REVOKE_DELEGATION';
     } & RevokeDelegationWebhookRsp)
   | ({
-      transactionType?: 'CapacityBatchAllWebhookRsp';
+      transactionType?: 'CAPACITY_BATCH';
     } & CapacityBatchAllWebhookRsp);
 
 export type GetHealthz_Data = {

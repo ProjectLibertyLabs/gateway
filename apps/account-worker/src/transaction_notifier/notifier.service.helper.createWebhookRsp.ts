@@ -2,6 +2,8 @@
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import {
   PublishHandleOpts,
+  CreateHandleWebhookRsp,
+  ChangeHandleWebhookRsp,
   PublishHandleWebhookRsp,
   PublishKeysOpts,
   PublishKeysWebhookRsp,
@@ -44,28 +46,24 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
   return !!o?.capacityWithdrawnEvent;
 }
 
-export function createWebhookRsp<O extends PublishHandleOpts, T extends PublishHandleWebhookRsp>(
+export function createWebhookRsp(
   txStatus: IBaseWebhookResponse,
-  options: O,
-): T;
-export function createWebhookRsp<O extends SIWFOpts, T extends SIWFWebhookRsp>(
+  options: SIWFOpts,
+): SIWFWebhookRsp;
+export function createWebhookRsp(
   txStatus: IBaseWebhookResponse,
-  options: O,
-): T;
-export function createWebhookRsp<O extends PublishKeysOpts, T extends PublishKeysWebhookRsp>(
+  options: PublishKeysOpts,
+): PublishKeysWebhookRsp;
+export function createWebhookRsp(
   txStatus: IBaseWebhookResponse,
-  options: O,
-): T;
-export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends PublishGraphKeysWebhookRsp>(
+  options: PublishGraphKeysOpts,
+): PublishGraphKeysWebhookRsp;
+export function createWebhookRsp(
   txStatus: IBaseWebhookResponse,
-  options: O,
-): T;
-export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(
-  txStatus: IBaseWebhookResponse,
-  options: O,
-): T;
-export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: IBaseWebhookResponse): T;
-export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: IBaseWebhookResponse): T;
+  options: CapacityBatchAllOpts,
+): CapacityBatchAllWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishHandleOpts): PublishHandleWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse): RetireMsaWebhookRsp | RevokeDelegationWebhookRsp;
 export function createWebhookRsp(
   { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
@@ -86,11 +84,12 @@ export function createWebhookRsp(
     return { ...response, ...options } as PublishGraphKeysWebhookRsp;
   }
 
-  if (
-    (transactionType === TransactionType.CHANGE_HANDLE || transactionType === TransactionType.CREATE_HANDLE) &&
-    isPublishHandleOpts(options)
-  ) {
-    return { ...response, ...options } as PublishHandleWebhookRsp;
+  if (transactionType === TransactionType.CREATE_HANDLE && isPublishHandleOpts(options)) {
+    return { ...response, ...options } as CreateHandleWebhookRsp;
+  }
+
+  if (transactionType === TransactionType.CHANGE_HANDLE && isPublishHandleOpts(options)) {
+    return { ...response, ...options } as ChangeHandleWebhookRsp;
   }
 
   if (transactionType === TransactionType.RETIRE_MSA) {

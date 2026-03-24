@@ -12,7 +12,14 @@ info:
   version: 1.0.0
 
 paths:
-  /transaction-notify:
+  /healthz:
+    get:
+      responses:
+        '200':
+          description: 'Service is healthy'
+      summary: 'Check the health status of the service'
+
+  /webhooks/transaction-notify:
     post:
       summary: Notify transaction
       requestBody:
@@ -55,19 +62,22 @@ components:
     TxWebhookRspBase:
       type: object
       required:
+        - blockHash
         - providerId
         - referenceId
         - msaId
-        - type
+        - txHash
       properties:
+        blockHash:
+          type: string
         providerId:
           type: string
         referenceId:
           type: string
         msaId:
           type: string
-        transactionType:
-          $ref: '#/components/schemas/TransactionType'
+        txHash:
+          type: string
 
     PublishHandleOpts:
       type: object
@@ -122,18 +132,13 @@ components:
         capacityWithdrawnEvent:
           type: object
           properties:
-            data:
-              type: object
-              properties:
-                msaId:
-                  type: string
-                amount:
-                  type: string
-              required:
-                - msaId
-                - amount
+            msaId:
+              type: string
+            amount:
+              type: string
           required:
-            - data
+            - amount
+            - msaId
       required:
         - calls
         - capacityWithdrawnEvent
@@ -147,7 +152,7 @@ components:
         - $ref: '#/components/schemas/PublishGraphKeysOpts'
         - $ref: '#/components/schemas/CapacityBatchAllOpts'
 
-    PublishHandleWebhookRsp:
+    CreateHandleWebhookRsp:
       type: object
       allOf:
         - $ref: '#/components/schemas/TxWebhookRspBase'
@@ -155,9 +160,31 @@ components:
         - type: object
           properties:
             transactionType:
-              oneOf:
-                - const: CREATE_HANDLE
-                - const: CHANGE_HANDLE
+              type: string
+              enum:
+                - CREATE_HANDLE
+          required:
+            - transactionType
+
+    ChangeHandleWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/PublishHandleOpts'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              enum:
+                - CHANGE_HANDLE
+          required:
+            - transactionType
+
+    PublishHandleWebhookRsp:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/CreateHandleWebhookRsp'
+        - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
 
     SIWFWebhookRsp:
       type: object
@@ -167,7 +194,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: SIWF_SIGNUP
+              type: string
+              enum:
+                - SIWF_SIGNUP
+          required:
+            - transactionType
 
     PublishKeysWebhookRsp:
       type: object
@@ -177,7 +208,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: ADD_KEY
+              type: string
+              enum:
+                - ADD_KEY
+          required:
+            - transactionType
 
     PublishGraphKeysWebhookRsp:
       type: object
@@ -187,7 +222,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: ADD_PUBLIC_KEY_AGREEMENT
+              type: string
+              enum:
+                - ADD_PUBLIC_KEY_AGREEMENT
+          required:
+            - transactionType
 
     RetireMsaWebhookRsp:
       type: object
@@ -196,7 +235,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: RETIRE_MSA
+              type: string
+              enum:
+                - RETIRE_MSA
+          required:
+            - transactionType
 
     RevokeDelegationWebhookRsp:
       type: object
@@ -205,7 +248,11 @@ components:
         - type: object
           properties:
             transactionType:
-              const: REVOKE_DELEGATION
+              type: string
+              enum:
+                - REVOKE_DELEGATION
+          required:
+            - transactionType
 
     CapacityBatchAllWebhookRsp:
       type: object
@@ -215,11 +262,27 @@ components:
         - type: object
           properties:
             transactionType:
-              const: CAPACITY_BATCH
+              type: string
+              enum:
+                - CAPACITY_BATCH
+          required:
+            - transactionType
 
     TxWebhookRsp:
+      discriminator:
+        propertyName: transactionType
+        mapping:
+          CREATE_HANDLE: '#/components/schemas/CreateHandleWebhookRsp'
+          CHANGE_HANDLE: '#/components/schemas/ChangeHandleWebhookRsp'
+          SIWF_SIGNUP: '#/components/schemas/SIWFWebhookRsp'
+          ADD_KEY: '#/components/schemas/PublishKeysWebhookRsp'
+          ADD_PUBLIC_KEY_AGREEMENT: '#/components/schemas/PublishGraphKeysWebhookRsp'
+          RETIRE_MSA: '#/components/schemas/RetireMsaWebhookRsp'
+          REVOKE_DELEGATION: '#/components/schemas/RevokeDelegationWebhookRsp'
+          CAPACITY_BATCH: '#/components/schemas/CapacityBatchAllWebhookRsp'
       oneOf:
-        - $ref: '#/components/schemas/PublishHandleWebhookRsp'
+        - $ref: '#/components/schemas/CreateHandleWebhookRsp'
+        - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
         - $ref: '#/components/schemas/SIWFWebhookRsp'
         - $ref: '#/components/schemas/PublishKeysWebhookRsp'
         - $ref: '#/components/schemas/PublishGraphKeysWebhookRsp'

@@ -9,18 +9,29 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { getQueueToken } from '@nestjs/bull-shared';
 import { Queue, QueueEvents } from 'bullmq';
 import { AccountQueues } from '#types/constants/queue.constants';
-import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
-import axios from 'axios';
+import {
+  type getHealthzData,
+  type postWebhooksTransactionNotifyData,
+  TransactionType,
+  TxWebhookRsp,
+} from '#types/account-webhook';
 import { TxnNotifierService } from '../src/transaction_notifier/notifier.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { signPayloadSr25519 } from '@projectlibertylabs/frequency-scenario-template';
 import Keyring from '@polkadot/keyring';
+import { createServer, IncomingHttpHeaders, IncomingMessage, Server, ServerResponse } from 'http';
+import { AddressInfo } from 'net';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import path from 'path';
 
 process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
 jest.setTimeout(120_000);
 
 describe('Account Service E2E request verification!', () => {
+  const WEBHOOK_TRANSACTION_NOTIFY_PATH: postWebhooksTransactionNotifyData['url'] = '/webhooks/transaction-notify';
+  const HEALTHZ_PATH: getHealthzData['url'] = '/healthz';
+
   let app: NestExpressApplication;
   let module: TestingModule;
   let httpServer: any;
@@ -28,9 +39,132 @@ describe('Account Service E2E request verification!', () => {
   let txQueueEvents: QueueEvents;
   let txNotifier: TxnNotifierService;
   let providerId: string;
+  let providerApiToken: string;
   let blockchainService: BlockchainService;
+  let prismProcess: ChildProcessWithoutNullStreams | undefined;
+  let captureServer: Server | undefined;
+  const receivedWebhooks: { body: TxWebhookRsp; headers: IncomingHttpHeaders }[] = [];
+
+  const getFreePort = async (): Promise<number> =>
+    new Promise<number>((resolve, reject) => {
+      const server = createServer();
+      server.on('error', reject);
+      server.listen(0, '127.0.0.1', () => {
+        const address = server.address() as AddressInfo;
+        const { port } = address;
+        server.close((err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(port);
+        });
+      });
+    });
+
+  const parseRequestBody = async (req: IncomingMessage): Promise<any> =>
+    new Promise((resolve, reject) => {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk.toString('utf8');
+      });
+      req.on('end', () => {
+        if (!body) {
+          resolve({});
+          return;
+        }
+        try {
+          resolve(JSON.parse(body));
+        } catch (error) {
+          reject(error);
+        }
+      });
+      req.on('error', reject);
+    });
+
+  const killPrism = async () => {
+    if (!prismProcess || prismProcess.killed) {
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        prismProcess?.kill('SIGKILL');
+      }, 3000);
+      prismProcess?.once('exit', () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+      prismProcess?.kill('SIGTERM');
+    });
+  };
 
   beforeAll(async () => {
+    const capturePort = await getFreePort();
+    const prismPort = await getFreePort();
+
+    captureServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+      if (req.method === 'POST' && req.url === WEBHOOK_TRANSACTION_NOTIFY_PATH) {
+        const body = (await parseRequestBody(req)) as TxWebhookRsp;
+        receivedWebhooks.push({ body, headers: req.headers });
+        res.statusCode = 200;
+        res.end('ok');
+        return;
+      }
+      if (req.method === 'GET' && req.url === HEALTHZ_PATH) {
+        res.statusCode = 200;
+        res.end('ok');
+        return;
+      }
+      res.statusCode = 404;
+      res.end();
+    });
+    await new Promise<void>((resolve, reject) => {
+      captureServer?.listen(capturePort, '127.0.0.1', (error?: Error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    const openApiPath = path.resolve(process.cwd(), 'openapi-specs/account-webhooks.openapi.yaml');
+    const prismBin = path.resolve(process.cwd(), 'node_modules/.bin/prism');
+    const prismArgs = [
+      'proxy',
+      openApiPath,
+      `http://127.0.0.1:${capturePort}`,
+      '--port',
+      String(prismPort),
+      '--errors',
+      '--host',
+      '127.0.0.1',
+    ];
+    prismProcess = spawn(prismBin, prismArgs, {
+      cwd: process.cwd(),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Timed out waiting for Prism to start')), 20_000);
+      const onData = (chunk: Buffer) => {
+        const text = chunk.toString('utf8');
+        if (text.includes(`http://127.0.0.1:${prismPort}`) || text.toLowerCase().includes('prism is listening')) {
+          clearTimeout(timer);
+          prismProcess?.stdout.off('data', onData);
+          prismProcess?.stderr.off('data', onData);
+          resolve();
+        }
+      };
+      prismProcess?.stdout.on('data', onData);
+      prismProcess?.stderr.on('data', onData);
+      prismProcess?.on('exit', (code) => {
+        clearTimeout(timer);
+        reject(new Error(`Prism exited before startup (code ${code ?? 'unknown'})`));
+      });
+    });
+
+    process.env.WEBHOOK_BASE_URL = `http://127.0.0.1:${prismPort}`;
+
     module = await Test.createTestingModule({
       imports: [WorkerModule],
     }).compile();
@@ -41,6 +175,7 @@ describe('Account Service E2E request verification!', () => {
     // module.useLogger(new Logger());
 
     const config = app.get<IAccountWorkerConfig>(WorkerConfig.KEY);
+    providerApiToken = config.providerApiToken;
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, enableDebugMessages: true }));
@@ -69,6 +204,12 @@ describe('Account Service E2E request verification!', () => {
   });
 
   afterAll(async () => {
+    await killPrism();
+    if (captureServer) {
+      await new Promise<void>((resolve) => {
+        captureServer?.close(() => resolve());
+      });
+    }
     if (txQueueEvents) {
       await txQueueEvents.close();
     }
@@ -85,9 +226,9 @@ describe('Account Service E2E request verification!', () => {
     });
   });
 
-  it('(GET) /healthz', () =>
+  it(`(GET) ${HEALTHZ_PATH}`, () =>
     request(httpServer)
-      .get('/healthz')
+      .get(HEALTHZ_PATH)
       .expect(200)
       .then((res) => {
         const baseConfigExpectation: { [key: string]: any } = {
@@ -149,7 +290,6 @@ describe('Account Service E2E request verification!', () => {
   it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
 
   it('submits CAPACITY_BATCH and posts expected webhook payload', async () => {
-    const axiosPostSpy = jest.spyOn(axios, 'post').mockResolvedValue({ status: 200 } as any);
     const referenceId = `capacity-batch-${Date.now()}`;
     const api = (await blockchainService.getApi()) as any;
     const delegatorKeypair = new Keyring({ type: 'sr25519' }).addFromUri(`//${referenceId}`);
@@ -194,11 +334,11 @@ describe('Account Service E2E request verification!', () => {
       while (Date.now() < end) {
         await (txNotifier as unknown as any).setLastSeenBlockNumber(currentBlock);
         await txNotifier.scan();
-        const matchedCall = axiosPostSpy.mock.calls.find(
-          ([, body]) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
+        const matchedCall = receivedWebhooks.find(
+          ({ body }) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
         );
         if (matchedCall) {
-          return matchedCall[1] as TxWebhookRsp;
+          return matchedCall;
         }
         await new Promise<void>((resolve) => {
           setTimeout(() => resolve(), pollMs);
@@ -208,11 +348,8 @@ describe('Account Service E2E request verification!', () => {
       throw new Error('Timed out waiting for CAPACITY_BATCH webhook');
     })();
 
-    expect(webhookPayload).toEqual({
-      providerId,
-      referenceId,
-      msaId: providerId,
-      transactionType: TransactionType.CAPACITY_BATCH,
+    expect(webhookPayload.body).toEqual({
+      blockHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
       calls: [
         {
           section: 'msa',
@@ -220,17 +357,16 @@ describe('Account Service E2E request verification!', () => {
         },
       ],
       capacityWithdrawnEvent: {
-        data: {
-          amount: expect.any(String),
-          msaId: providerId,
-        },
+        amount: expect.stringMatching(/^[0-9]+$/),
+        msaId: providerId,
       },
+      msaId: providerId,
+      providerId,
+      referenceId,
+      transactionType: TransactionType.CAPACITY_BATCH,
+      txHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
     });
-    expect(axiosPostSpy).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(Object),
-      expect.objectContaining({ timeout: expect.any(Number) }),
-    );
-    axiosPostSpy.mockRestore();
+    expect(webhookPayload.headers.authorization).toBe(providerApiToken);
+    expect(receivedWebhooks.length).toBeGreaterThan(0);
   }, 30_000);
 });

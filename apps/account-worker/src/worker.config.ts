@@ -50,7 +50,7 @@ export default registerAs('account-worker', (): IAccountWorkerConfig => {
     },
     providerApiToken: {
       label: 'PROVIDER_ACCESS_TOKEN',
-      joi: Joi.string().default(''),
+      joi: Joi.string().optional(),
     },
     trustUnfinalizedBlocks: {
       label: 'TRUST_UNFINALIZED_BLOCKS',

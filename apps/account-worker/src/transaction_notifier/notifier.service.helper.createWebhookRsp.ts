@@ -2,6 +2,8 @@
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import {
   PublishHandleOpts,
+  CreateHandleWebhookRsp,
+  ChangeHandleWebhookRsp,
   PublishHandleWebhookRsp,
   PublishKeysOpts,
   PublishKeysWebhookRsp,
@@ -17,6 +19,11 @@ import {
   CapacityBatchAllOpts,
   CapacityBatchAllWebhookRsp,
 } from '#types/account-webhook';
+
+export interface IBaseWebhookResponse extends ITxStatus {
+  msaId: string;
+  blockHash: string;
+};
 
 // Type guards
 function isPublishHandleOpts(o: any): o is PublishHandleOpts {
@@ -39,36 +46,26 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
   return !!o?.capacityWithdrawnEvent;
 }
 
-export function createWebhookRsp<O extends PublishHandleOpts, T extends PublishHandleWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
-  options: O,
-): T;
-export function createWebhookRsp<O extends SIWFOpts, T extends SIWFWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
-  options: O,
-): T;
-export function createWebhookRsp<O extends PublishKeysOpts, T extends PublishKeysWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
-  options: O,
-): T;
-export function createWebhookRsp<O extends PublishGraphKeysOpts, T extends PublishGraphKeysWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
-  options: O,
-): T;
-export function createWebhookRsp<O extends CapacityBatchAllOpts, T extends CapacityBatchAllWebhookRsp>(
-  txStatus: ITxStatus,
-  msaId: string,
-  options: O,
-): T;
-export function createWebhookRsp<T extends RetireMsaWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
-export function createWebhookRsp<T extends RevokeDelegationWebhookRsp>(txStatus: ITxStatus, msaId: string): T;
 export function createWebhookRsp(
-  { type: transactionType, providerId, referenceId }: ITxStatus,
-  msaId: string,
+  txStatus: IBaseWebhookResponse,
+  options: SIWFOpts,
+): SIWFWebhookRsp;
+export function createWebhookRsp(
+  txStatus: IBaseWebhookResponse,
+  options: PublishKeysOpts,
+): PublishKeysWebhookRsp;
+export function createWebhookRsp(
+  txStatus: IBaseWebhookResponse,
+  options: PublishGraphKeysOpts,
+): PublishGraphKeysWebhookRsp;
+export function createWebhookRsp(
+  txStatus: IBaseWebhookResponse,
+  options: CapacityBatchAllOpts,
+): CapacityBatchAllWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishHandleOpts): PublishHandleWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse): RetireMsaWebhookRsp | RevokeDelegationWebhookRsp;
+export function createWebhookRsp(
+  { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
 ): TxWebhookRsp {
   const response = {
@@ -76,6 +73,8 @@ export function createWebhookRsp(
     providerId,
     referenceId,
     msaId,
+    blockHash,
+    txHash,
   };
   if (transactionType === TransactionType.ADD_KEY && isPublishKeysOpts(options)) {
     return { ...response, ...options } as PublishKeysWebhookRsp;
@@ -85,11 +84,12 @@ export function createWebhookRsp(
     return { ...response, ...options } as PublishGraphKeysWebhookRsp;
   }
 
-  if (
-    (transactionType === TransactionType.CHANGE_HANDLE || transactionType === TransactionType.CREATE_HANDLE) &&
-    isPublishHandleOpts(options)
-  ) {
-    return { ...response, ...options } as PublishHandleWebhookRsp;
+  if (transactionType === TransactionType.CREATE_HANDLE && isPublishHandleOpts(options)) {
+    return { ...response, ...options } as CreateHandleWebhookRsp;
+  }
+
+  if (transactionType === TransactionType.CHANGE_HANDLE && isPublishHandleOpts(options)) {
+    return { ...response, ...options } as ChangeHandleWebhookRsp;
   }
 
   if (transactionType === TransactionType.RETIRE_MSA) {

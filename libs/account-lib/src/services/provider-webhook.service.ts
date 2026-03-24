@@ -1,13 +1,23 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import axios, { AxiosInstance } from 'axios';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
+import {
+  type getHealthzData,
+  getHealthz,
+  type postWebhooksTransactionNotifyData,
+  postWebhooksTransactionNotify,
+  TxWebhookRsp,
+  type Options as WebhookClientOptions,
+} from '#types/account-webhook';
+import { createClient, type Client } from '#types/account-webhook/client';
 
 const HEALTH_CHECK_TIMEOUT_NAME = 'health_check';
+const HEALTHZ_PATH: getHealthzData['url'] = '/healthz';
+const TRANSACTION_NOTIFY_PATH: postWebhooksTransactionNotifyData['url'] = '/webhooks/transaction-notify';
 
 @Injectable()
 export class ProviderWebhookService implements OnModuleDestroy {
@@ -15,7 +25,11 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
   private successfulHealthChecks = 0;
 
-  private webhook: AxiosInstance;
+  private readonly webhookClient: Client;
+
+  private get baseUrl(): string {
+    return this.config.webhookBaseUrl.toString().replace(/\/+$/, '');
+  }
 
   public onModuleDestroy() {
     try {
@@ -29,31 +43,52 @@ export class ProviderWebhookService implements OnModuleDestroy {
 
   constructor(
     @Inject(accountWorkerConfig.KEY) private config: IAccountWorkerConfig,
-    @Inject(httpCommonConfig.KEY) httpConfig: IHttpCommonConfig,
+    @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private eventEmitter: EventEmitter2,
     private schedulerRegistry: SchedulerRegistry,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(this.constructor.name);
-    this.webhook = axios.create({
-      baseURL: this.config.webhookBaseUrl.toString(),
-      timeout: httpConfig.httpResponseTimeoutMS,
+    this.webhookClient = createClient({
+      baseURL: this.baseUrl,
+      timeout: this.httpConfig.httpResponseTimeoutMS,
+      headers: this.config.providerApiToken ? { Authorization: this.config.providerApiToken } : undefined,
     });
-
-    if (this.config.providerApiToken) {
-      this.webhook.defaults.headers.common.Authorization = this.config.providerApiToken;
-    }
   }
 
-  public get providerApi(): AxiosInstance {
-    return this.webhook;
+  private get requestOptions(): Pick<WebhookClientOptions, 'baseURL' | 'timeout' | 'throwOnError' | 'headers'> {
+    return {
+      baseURL: this.baseUrl,
+      timeout: this.httpConfig.httpResponseTimeoutMS,
+      throwOnError: true,
+      headers: this.config.providerApiToken ? { Authorization: this.config.providerApiToken } : undefined,
+    };
+  }
+
+  public getHealthzUrl(): string {
+    return this.webhookClient.buildUrl({ url: HEALTHZ_PATH });
+  }
+
+  public getTransactionNotifyUrl(): string {
+    return this.webhookClient.buildUrl({ url: TRANSACTION_NOTIFY_PATH });
+  }
+
+  public async sendTransactionNotify(body: TxWebhookRsp): Promise<void> {
+    await postWebhooksTransactionNotify({
+      ...this.requestOptions,
+      client: this.webhookClient,
+      body,
+    });
   }
 
   private async checkProviderWebhook() {
     // Check webhook
     try {
       // eslint-disable-next-line no-await-in-loop
-      await this.webhook.get('/healthz');
+      await getHealthz({
+        ...this.requestOptions,
+        client: this.webhookClient,
+      });
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;
     } catch (e) {

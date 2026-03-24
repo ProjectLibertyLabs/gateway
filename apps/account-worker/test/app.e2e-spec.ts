@@ -9,7 +9,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { getQueueToken } from '@nestjs/bull-shared';
 import { Queue, QueueEvents } from 'bullmq';
 import { AccountQueues } from '#types/constants/queue.constants';
-import { TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import {
+  type getHealthzData,
+  type postWebhooksTransactionNotifyData,
+  TransactionType,
+  TxWebhookRsp,
+} from '#types/account-webhook';
 import { TxnNotifierService } from '../src/transaction_notifier/notifier.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
@@ -24,6 +29,9 @@ process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
 jest.setTimeout(120_000);
 
 describe('Account Service E2E request verification!', () => {
+  const WEBHOOK_TRANSACTION_NOTIFY_PATH: postWebhooksTransactionNotifyData['url'] = '/webhooks/transaction-notify';
+  const HEALTHZ_PATH: getHealthzData['url'] = '/healthz';
+
   let app: NestExpressApplication;
   let module: TestingModule;
   let httpServer: any;
@@ -95,14 +103,14 @@ describe('Account Service E2E request verification!', () => {
     const prismPort = await getFreePort();
 
     captureServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
-      if (req.method === 'POST' && req.url === '/transaction-notify') {
+      if (req.method === 'POST' && req.url === WEBHOOK_TRANSACTION_NOTIFY_PATH) {
         const body = (await parseRequestBody(req)) as TxWebhookRsp;
         receivedWebhooks.push({ body, headers: req.headers });
         res.statusCode = 200;
         res.end('ok');
         return;
       }
-      if (req.method === 'GET' && req.url === '/healthz') {
+      if (req.method === 'GET' && req.url === HEALTHZ_PATH) {
         res.statusCode = 200;
         res.end('ok');
         return;
@@ -218,9 +226,9 @@ describe('Account Service E2E request verification!', () => {
     });
   });
 
-  it('(GET) /healthz', () =>
+  it(`(GET) ${HEALTHZ_PATH}`, () =>
     request(httpServer)
-      .get('/healthz')
+      .get(HEALTHZ_PATH)
       .expect(200)
       .then((res) => {
         const baseConfigExpectation: { [key: string]: any } = {

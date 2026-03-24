@@ -19,7 +19,7 @@ paths:
           description: 'Service is healthy'
       summary: 'Check the health status of the service'
 
-  /transaction-notify:
+  /webhooks/transaction-notify:
     post:
       summary: Notify transaction
       requestBody:

@@ -11,7 +11,7 @@ import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { ACCOUNT_SERVICE_WATCHER_PREFIX, TXN_WATCH_LIST_KEY } from '#types/constants';
+import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
@@ -147,8 +147,7 @@ export class TxnNotifierService
         } else if (successEvent) {
           this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
           const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
-          let webhookResponse: Partial<TxWebhookRsp> = {};
-          webhookResponse.referenceId = txStatus.referenceId;
+          let webhookResponse: TxWebhookRsp;
 
           switch (txStatus.type) {
             case TransactionType.CHANGE_HANDLE:
@@ -272,18 +271,15 @@ export class TxnNotifierService
           }
 
           let retries = 0;
+          const webhookUrl = this.providerWebhookService.getTransactionNotifyUrl();
           while (retries < this.config.healthCheckMaxRetries) {
-            const webhook = this.providerWebhookService.providerApi;
-            const requestConfig = {
-              url: '/transaction-notify'
-            }
             try {
-              this.logger.debug(webhookResponse,`Sending transaction notification to webhook: ${webhook.getUri(requestConfig)}`);
-              await this.providerWebhookService.providerApi.post('/transaction-notify', webhookResponse);
+              this.logger.debug(webhookResponse, `Sending transaction notification to webhook: ${webhookUrl}`);
+              await this.providerWebhookService.sendTransactionNotify(webhookResponse);
               this.logger.debug('Transaction Notification sent to webhook');
               break;
             } catch (error) {
-              this.logger.error(error, `Failed to send notification to webhook: ${webhook.getUri(requestConfig)}`);
+              this.logger.error(error, `Failed to send notification to webhook: ${webhookUrl}`);
               retries += 1;
             }
           }

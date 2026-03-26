@@ -71,13 +71,16 @@ export const chainSignature = (signature: {
   | {
       Ecdsa: any;
     } => {
+  const normalizedProof = signature.encodedValue.startsWith('0x')
+    ? signature.encodedValue
+    : `0x${signature.encodedValue}`;
   switch (signature.algo.toLowerCase()) {
     case 'sr25519':
-      return { Sr25519: signature.encodedValue };
+      return { Sr25519: normalizedProof };
     case 'ed25519':
-      return { Ed25519: signature.encodedValue };
+      return { Ed25519: normalizedProof };
     case 'ecdsa':
-      return { Ecdsa: signature.encodedValue };
+      return { Ecdsa: normalizedProof };
     default:
       throw new Error(`Unknown signature algorithm: ${signature.algo}`);
   }

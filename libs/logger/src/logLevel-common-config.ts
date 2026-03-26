@@ -33,7 +33,11 @@ export function getPinoTransport() {
 }
 
 const customLogLevel = (req, res, err) => {
-  if (req.url === '/metrics' && res.statusCode < 300) {
+  const requestUrl = req.originalUrl || req.url;
+  const requestPath = (requestUrl || '').split('?')[0];
+  const isHealthPath = /(^|\/)(healthz|livez|readyz)\/?$/.test(requestPath);
+  const isMetricsPath = requestPath === '/metrics';
+  if ((isHealthPath || isMetricsPath) && res.statusCode < 300) {
     return 'silent';
   }
   if (res.statusCode >= 400 && res.statusCode < 500) {

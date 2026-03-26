@@ -23,6 +23,7 @@ import {
   FrameSystemEventRecord,
   PalletCapacityCapacityDetails,
   PalletSchemasSchemaInfo,
+  PalletStatefulStoragePaginatedUpsertSignaturePayloadV2,
 } from '@polkadot/types/lookup';
 import {
   ItemizedStoragePageResponse,
@@ -42,7 +43,8 @@ import {
   PublishHandleRequestDto,
   RetireMsaPayloadResponseDto,
   RevokeDelegationPayloadResponseDto,
-  TransactionData,
+  TransactionData, UpsertedPageDto,
+  UpsertPagePayloadDto,
 } from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
@@ -611,6 +613,18 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
       targetHash: payload.targetHash,
       expiration: payload.expiration,
       actions,
+    });
+  }
+
+  public createPaginatedUpsertSignaturePayloadV2Type(
+    payload: UpsertedPageDto,
+  ): PalletStatefulStoragePaginatedUpsertSignaturePayloadV2 {
+    return this.api.createType('PalletStatefulStoragePaginatedUpsertSignaturePayloadV2', {
+      schemaId: payload.schemaId,
+      targetHash: payload.targetHash,
+      pageId: payload.pageId,
+      payload: Array.from(hexToU8a(payload.payload)),
+      expiration: payload.expiration,
     });
   }
 

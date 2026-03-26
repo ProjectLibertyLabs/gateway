@@ -54,7 +54,11 @@ export class IcsControllerV1 {
     payload: UpsertPagePayloadDto,
     api: ApiPromise,
   ): SubmittableExtrinsic<'promise', ISubmittableResult> {
-    return api.tx.statefulStorage.upsertPageWithSignatureV2(accountId, { Sr25519: payload.signature }, payload.payload);
+    const encodedPayload = this.blockchainService.createPaginatedUpsertSignaturePayloadV2Type(payload.payload);
+    return api.tx.statefulStorage.upsertPageWithSignatureV2(
+      accountId,
+      chainSignature({ algo: 'Sr25519', encodedValue: payload.signature }),
+      encodedPayload);
   }
 
   async buildAndEnqueueIcsBatchTxns(accountId: string, payloads: IcsPublishAllRequestDto): Promise<string> {

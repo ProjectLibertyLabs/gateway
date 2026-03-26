@@ -46,6 +46,7 @@ describe('IcsController', () => {
             getApi: () => mockApiPromise,
             publicKeyToMsaId: jest.fn(),
             createItemizedSignaturePayloadV2Type: jest.fn().mockImplementation(() => Uint8Array.from([1, 2, 3])),
+            createPaginatedUpsertSignaturePayloadV2Type: jest.fn().mockImplementation(() => Uint8Array.from([1, 2, 3])),
           };
         }
         if (token === EnqueueService) {

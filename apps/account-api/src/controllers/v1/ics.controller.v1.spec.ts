@@ -51,7 +51,7 @@ describe('IcsController', () => {
         }
         if (token === EnqueueService) {
           return {
-            enqueueIcsBatch: jest.fn().mockImplementation(async () => {
+            enqueueRequest: jest.fn().mockImplementation(async () => {
               return Promise.resolve({ referenceId: 'referenceId' });
             }),
           };

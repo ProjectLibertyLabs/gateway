@@ -1,5 +1,11 @@
 import { EnqueueService } from '#account-lib/services/enqueue-request.service';
-import { AddNewPublicKeyAgreementRequestDto, IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account';
+import {
+  AddNewPublicKeyAgreementRequestDto,
+  EncodedExtrinsic,
+  IcsPublishAllRequestDto,
+  PublishCapacityBatchRequestDto,
+  UpsertPagePayloadDto,
+} from '#types/dtos/account';
 import { AccountIdDto } from '#types/dtos/common';
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -10,6 +16,7 @@ import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { chainSignature } from '#utils/common/signature.util';
+import { TransactionType } from '#types/account-webhook';
 
 @Controller({ version: '1', path: 'ics' })
 @ApiTags('v1/ics')
@@ -40,45 +47,46 @@ export class IcsControllerV1 {
     accountId: string,
     payload: AddNewPublicKeyAgreementRequestDto,
     api: ApiPromise,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  ): EncodedExtrinsic {
     const encodedPayload = this.blockchainService.createItemizedSignaturePayloadV2Type(payload.payload);
-    return api.tx.statefulStorage.applyItemActionsWithSignatureV2(
+    const tx = api.tx.statefulStorage.applyItemActionsWithSignatureV2(
       accountId,
       chainSignature({ algo: 'Sr25519', encodedValue: payload.proof }), // TODO: determine signature algo
       encodedPayload,
     );
+
+    return {
+      pallet: 'statefulStorage',
+      extrinsicName: 'applyItemActionsWithSignatureV2',
+      encodedExtrinsic: tx.toHex(),
+    };
   }
 
-  buildUpsertPageExtrinsic(
-    accountId: string,
-    payload: UpsertPagePayloadDto,
-    api: ApiPromise,
-  ): SubmittableExtrinsic<'promise', ISubmittableResult> {
+  buildUpsertPageExtrinsic(accountId: string, payload: UpsertPagePayloadDto, api: ApiPromise): EncodedExtrinsic {
     const encodedPayload = this.blockchainService.createPaginatedUpsertSignaturePayloadV2Type(payload.payload);
-    return api.tx.statefulStorage.upsertPageWithSignatureV2(
+    const tx = api.tx.statefulStorage.upsertPageWithSignatureV2(
       accountId,
       chainSignature({ algo: 'Sr25519', encodedValue: payload.signature }),
-      encodedPayload);
+      encodedPayload,
+    );
+
+    return { pallet: 'statefulStorage', extrinsicName: 'upsertPageWithSignatureV2', encodedExtrinsic: tx.toHex() };
   }
 
   async buildAndEnqueueIcsBatchTxns(accountId: string, payloads: IcsPublishAllRequestDto): Promise<string> {
     const api = (await this.blockchainService.getApi()) as ApiPromise;
-    const txns: Array<SubmittableExtrinsic<'promise', ISubmittableResult>> = [];
+    const txns: Array<EncodedExtrinsic> = [];
 
     // Build the three extrinsics
     txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addIcsPublicKeyPayload, api));
     txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addContextGroupPRIDEntryPayload, api));
     txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
 
-    // Encode the extrinsics as hex strings
-    const encodedExtrinsics: HexString[] = txns.map((tx) => {
-      return tx.toHex();
+    this.logger.debug(`Enqueueing ICS batch with ${txns.length} extrinsics`);
+    const { referenceId } = await this.enqueueService.enqueueRequest<PublishCapacityBatchRequestDto>({
+      type: TransactionType.CAPACITY_BATCH,
+      calls: txns,
     });
-
-    this.logger.debug(`Enqueueing ICS batch with ${encodedExtrinsics.length} extrinsics`);
-    // use a proof to generate jobId
-    const seed = payloads.addIcsPublicKeyPayload.proof;
-    const { referenceId } = await this.enqueueService.enqueueIcsBatch(accountId, seed, encodedExtrinsics);
 
     return referenceId;
   }

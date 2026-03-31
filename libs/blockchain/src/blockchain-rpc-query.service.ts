@@ -43,7 +43,8 @@ import {
   PublishHandleRequestDto,
   RetireMsaPayloadResponseDto,
   RevokeDelegationPayloadResponseDto,
-  TransactionData, UpsertedPageDto,
+  TransactionData,
+  UpsertedPageDto,
   UpsertPagePayloadDto,
 } from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';

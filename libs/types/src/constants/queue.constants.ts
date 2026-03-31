@@ -16,12 +16,7 @@ export namespace AccountQueues {
    */
   export const TRANSACTION_PUBLISH_QUEUE = 'transactionPublish';
 
-  /**
-   * Name of the queue that publishes ICS batch transactions to Frequency blockchain
-   */
-  export const ICS_PUBLISH_QUEUE = 'icsPublish';
-
-  export const QUEUE_NAMES = [TRANSACTION_PUBLISH_QUEUE, ICS_PUBLISH_QUEUE];
+  export const QUEUE_NAMES = [TRANSACTION_PUBLISH_QUEUE];
 
   export type QueueName = (typeof QUEUE_NAMES)[number];
 
@@ -29,14 +24,6 @@ export namespace AccountQueues {
     queues: [
       {
         name: TRANSACTION_PUBLISH_QUEUE,
-        defaultJobOptions: {
-          removeOnComplete: 20,
-          removeOnFail: 1000,
-          attempts: 1,
-        },
-      },
-      {
-        name: ICS_PUBLISH_QUEUE,
         defaultJobOptions: {
           removeOnComplete: 20,
           removeOnFail: 1000,

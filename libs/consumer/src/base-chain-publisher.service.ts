@@ -18,7 +18,7 @@ import { Call } from '@polkadot/types/interfaces';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { PinoLogger } from 'nestjs-pino';
-import { ITxStatusBase } from '#types/interfaces/tx-status.interface';
+import { IAccountTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 
 /**
@@ -130,11 +130,11 @@ export abstract class BaseChainPublisherService
    * @param txHash The transaction hash.
    * @param status The transaction status object to cache.
    */
-  protected async cacheTransactionStatus(txHash: HexString, status: ITxStatusBase): Promise<void> {
+  protected async cacheTransactionStatus(txHash: HexString, status: IAccountTxStatus): Promise<void> {
     const obj: Record<string, string> = {};
     obj[txHash] = JSON.stringify(status);
     await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);
-    this.logger.debug('Cached extrinsic to monitor: ', txHash);
+    this.logger.debug(obj, 'Cached extrinsic to monitor: ');
   }
 
   /**

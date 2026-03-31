@@ -61,11 +61,12 @@ components:
 
     TxWebhookRspBase:
       type: object
+      optional:
+        - msaId
       required:
         - blockHash
         - providerId
         - referenceId
-        - msaId
         - txHash
       properties:
         blockHash:

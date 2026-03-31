@@ -8,20 +8,20 @@ import { PublishRetireMsaRequestDto } from './accounts.request.dto';
 import { PublishRevokeDelegationRequestDto } from './revokeDelegation.request.dto';
 import { TransactionType } from '#types/account-webhook';
 
-export interface SIWFEncodedExtrinsic {
+export interface EncodedExtrinsic {
   pallet: string;
   extrinsicName: string;
   encodedExtrinsic: string;
 }
 
 export type PublishSIWFSignupRequestDto = {
-  calls: SIWFEncodedExtrinsic[];
+  calls: EncodedExtrinsic[];
   type: TransactionType.SIWF_SIGNUP;
   authorizationCode?: string;
 };
 
 export type PublishCapacityBatchRequestDto = {
-  calls: SIWFEncodedExtrinsic[];
+  calls: EncodedExtrinsic[];
   type: TransactionType.CAPACITY_BATCH;
 };
 

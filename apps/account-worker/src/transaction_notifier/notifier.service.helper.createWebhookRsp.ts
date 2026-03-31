@@ -21,9 +21,9 @@ import {
 } from '#types/account-webhook';
 
 export interface IBaseWebhookResponse extends ITxStatus {
-  msaId: string;
+  msaId?: string;
   blockHash: string;
-};
+}
 
 // Type guards
 function isPublishHandleOpts(o: any): o is PublishHandleOpts {
@@ -46,14 +46,8 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
   return !!o?.capacityWithdrawnEvent;
 }
 
-export function createWebhookRsp(
-  txStatus: IBaseWebhookResponse,
-  options: SIWFOpts,
-): SIWFWebhookRsp;
-export function createWebhookRsp(
-  txStatus: IBaseWebhookResponse,
-  options: PublishKeysOpts,
-): PublishKeysWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: SIWFOpts): SIWFWebhookRsp;
+export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishKeysOpts): PublishKeysWebhookRsp;
 export function createWebhookRsp(
   txStatus: IBaseWebhookResponse,
   options: PublishGraphKeysOpts,

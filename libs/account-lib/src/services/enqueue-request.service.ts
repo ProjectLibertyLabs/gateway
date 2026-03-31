@@ -1,7 +1,5 @@
-import { calculateJobId } from '#types/constants';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Inject, Injectable } from '@nestjs/common';
-import { HexString } from '@polkadot/util/types';
 import { Queue } from 'bullmq';
 import { createHash } from 'crypto';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
@@ -20,8 +18,6 @@ export class EnqueueService {
   constructor(
     @InjectQueue(QueueConstants.TRANSACTION_PUBLISH_QUEUE)
     private transactionPublishQueue: Queue,
-    @InjectQueue(QueueConstants.ICS_PUBLISH_QUEUE)
-    private icsPublishQueue: Queue,
     @Inject(blockchainConfig.KEY) private blockchainConf: IBlockchainConfig,
     @InjectPinoLogger(EnqueueService.name) private readonly logger: PinoLogger,
   ) {}
@@ -71,28 +67,5 @@ export class EnqueueService {
       referenceId: data.referenceId,
       state: jobState,
     };
-  }
-
-  ///
-  async enqueueIcsBatch(
-    accountId: string,
-    seed: string,
-    encodedExtrinsics: Array<HexString>,
-  ): Promise<TransactionResponse> {
-    const referenceId = calculateJobId(seed);
-    // Create the job data
-    const jobData: IcsPublishJob = {
-      accountId,
-      providerId: this.blockchainConf.providerId.toString(),
-      referenceId,
-      encodedExtrinsics,
-    };
-
-    // Enqueue the job
-    const job = await this.icsPublishQueue.add(`ics-publish-${referenceId}`, jobData);
-    const jobState = await job.getState();
-    this.logger.info(`Job submitted or retrieved: ${job.id} ${jobState}`);
-    this.logger.trace(JSON.stringify(job));
-    return { referenceId, state: jobState };
   }
 }

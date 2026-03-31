@@ -251,16 +251,13 @@ export class TxnNotifierService
                 const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
                   currentBlock.block.extrinsics[txIndex],
                 );
-                const response = createWebhookRsp(
-                  { ...baseResponse, msaId: capacityWithdrawn.msaId, providerId: capacityWithdrawn.msaId },
-                  {
-                    calls,
-                    capacityWithdrawnEvent: {
-                      msaId: capacityWithdrawn.msaId,
-                      amount: capacityWithdrawn.amount,
-                    },
-                  } as CapacityBatchAllOpts,
-                );
+                const response = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
+                  calls,
+                  capacityWithdrawnEvent: {
+                    msaId: capacityWithdrawn.msaId,
+                    amount: capacityWithdrawn.amount,
+                  },
+                } as CapacityBatchAllOpts);
                 webhookResponse = response;
               }
               break;

@@ -47,7 +47,7 @@ export type TxWebhookRspBase = {
   blockHash: string;
   providerId: string;
   referenceId: string;
-  msaId: string;
+  msaId?: string;
   txHash: string;
 };
 

@@ -25,7 +25,7 @@ import { EnqueueService } from '#account-lib/services/enqueue-request.service';
 import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redirect.response.dto';
 import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
 import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.response.dto';
-import { PublishSIWFSignupRequestDto, SIWFEncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
+import { PublishSIWFSignupRequestDto, EncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
 import { TransactionType } from '#types/account-webhook';
 import { isNotNull } from '#utils/common/common.utils';
 import {
@@ -94,7 +94,7 @@ export class SiwfV2Service {
   private async siwfV2PayloadToEncodedExtrinsic(
     payload: SiwfResponsePayload,
     userPublicKey: string,
-  ): Promise<SIWFEncodedExtrinsic | null> {
+  ): Promise<EncodedExtrinsic | null> {
     if (!payload.endpoint) {
       return null;
     }

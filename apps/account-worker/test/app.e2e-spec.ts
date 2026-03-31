@@ -360,7 +360,6 @@ describe('Account Service E2E request verification!', () => {
         amount: expect.stringMatching(/^[0-9]+$/),
         msaId: providerId,
       },
-      msaId: providerId,
       providerId,
       referenceId,
       transactionType: TransactionType.CAPACITY_BATCH,

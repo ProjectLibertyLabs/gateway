@@ -89,7 +89,7 @@ export class TransactionPublisherService extends BaseChainPublisherService {
           }
           const callVec = this.blockchainService.createType('Vec<Call>', txns);
           [tx, txHash, blockNumber] = await this.processBatchTxn(callVec);
-          targetEvent = { section: 'capacity', method: 'CapacityWithdrawn' };
+          targetEvent = { section: 'utility', method: 'BatchCompleted' };
           this.logger.debug(`txns: ${txns}`);
           break;
         }

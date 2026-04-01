@@ -28,6 +28,7 @@ import { Type } from 'class-transformer';
 import { DURATION_REGEX } from '#validation';
 import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsDsnpUserURI } from '#utils/decorators/is-dsnp-user-uri.decorator';
+import { IsIntentName } from '#utils/decorators/is-intent-name.decorator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OnChainJobData } from '#types/interfaces';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
@@ -43,6 +44,7 @@ import {
   IProfileActivity,
   ITag,
 } from '#types/interfaces/content-publishing/activity.interface';
+import { IsMsaId } from '#utils/decorators';
 
 export class LocationDto implements ILocation {
   /**
@@ -279,11 +281,64 @@ export class ProfileActivityDto extends BaseActivityDto implements IProfileActiv
 
 export class OnChainContentDto implements OnChainJobData {
   /**
+   * Intent name to resolve the latest on-chain schema for publishing.
+   * Format: <namespace>.<name>
+   * @example: e-e.on-chain
+   */
+  @ValidateIf((o: OnChainContentDto) => o.schemaId == null || o.intentName != null)
+  @IsIntentName()
+  intentName?: string;
+
+  /**
    * Schema ID of the OnChain schema this message is being posted to.
    * @example: 16
    */
+  @ValidateIf((o: OnChainContentDto) => o.intentName == null || o.schemaId != null)
   @IsSchemaId()
-  schemaId: number;
+  schemaId?: number;
+
+  /**
+   *  Payload bytes encoded as a hex string using the schema defined by `schemaId`
+   */
+  @IsNotEmpty()
+  @IsHexadecimal()
+  @Matches(/^0x/, { message: "payload bytes must include '0x' prefix" })
+  payload: HexString;
+
+  /**
+   * The time of publishing ISO8601
+   * @example '1970-01-01T00:00:00+00:00'
+   */
+  @IsISO8601({ strict: true, strictSeparator: true })
+  published: string;
+}
+
+export class OnChainContentDtoV2 implements OnChainJobData {
+  /**
+   * Intent name to resolve the latest on-chain schema for publishing.
+   * Format: <namespace>.<name>
+   * @example: e-e.on-chain
+   */
+  @ValidateIf((o: OnChainContentDto) => o.schemaId == null || o.intentName != null)
+  @IsIntentName()
+  intentName?: string;
+
+  /**
+   * Optional MSA ID to that this request is on behalf of.
+   * @example: 1234
+   * @example: '4321'
+   */
+  @IsOptional()
+  @IsMsaId()
+  msaId?: string | number;
+
+  /**
+   * Schema ID of the OnChain schema this message is being posted to.
+   * @example: 16
+   */
+  @ValidateIf((o: OnChainContentDto) => o.intentName == null || o.schemaId != null)
+  @IsSchemaId()
+  schemaId?: number;
 
   /**
    *  Payload bytes encoded as a hex string using the schema defined by `schemaId`

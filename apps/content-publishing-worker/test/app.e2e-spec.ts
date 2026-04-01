@@ -14,8 +14,9 @@ import { IContextTxResult, IPublisherJob } from '#types/interfaces';
 import { TxStatusMonitoringService } from '#content-publishing-worker/monitor/tx.status.monitor.service';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { Logger } from 'nestjs-pino';
 
-process.env.CACHE_KEY_PREFIX = 'content-publishing-e2e:';
+process.env.CACHE_KEY_PREFIX = 'content-publishing-worker-e2e:';
 
 // Test Module for Content Publishing Worker, to avoid managing processing queues and other dependencies
 @Module({
@@ -37,9 +38,8 @@ describe('Content Publishing Worker E2E request verification!', () => {
     }).compile();
 
     app = module.createNestApplication();
-
-    // Uncomment below to see logs when debugging tests
-    // module.useLogger(new Logger());
+    // set ENABLE_LOGS_IN_TESTS in env to see logs
+    app.useLogger(app.get(Logger));
 
     const config = app.get<IContentPublishingWorkerConfig>(WorkerConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });

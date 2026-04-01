@@ -9,7 +9,7 @@ export function isValidMsa(value: unknown): boolean {
     return BigInt(value) <= 18_446_744_073_709_551_615n;
   }
 
-  return typeof value === 'number';
+  return typeof value === 'number' && value > 0;
 }
 
 export function IsMsaId(validationOptions?: ValidationOptions) {

@@ -41,11 +41,10 @@ import { base32 } from 'multiformats/bases/base32';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import Keyring from '@polkadot/keyring';
-import { ApiPromise } from '@polkadot/api';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
 import { ExtrinsicHelper, IntentBuilder, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
 import { initializeHelpers } from '#testlib/e2e-setup.mock.spec';
+import { useContainer } from 'class-validator';
 
 let aliceKeys: KeyringPair;
 
@@ -62,11 +61,10 @@ describe('Content Publishing /content Controller E2E Tests', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
   let redis: Redis;
-  let api: ApiPromise;
-  let blockchainService: BlockchainRpcQueryService;
 
   let ipfsSchemaId: number;
   let onChainSchemaId: number;
+  let onChainIntentName: string;
 
   const missingAssetId = '9876543210';
   const badMimeTypeReferenceId = '0123456789';
@@ -92,6 +90,7 @@ describe('Content Publishing /content Controller E2E Tests', () => {
     // To enable logging in tests, set ENABLE_LOGS_IN_TESTS=true in the environment
     app = module.createNestApplication({ logger: new Logger(new PinoLogger(getPinoHttpOptions()), {}) });
     app.useLogger(app.get(Logger));
+    useContainer(app.select(ApiModule), { fallbackOnErrors: true });
 
     const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
     app.enableVersioning({ type: VersioningType.URI });
@@ -120,11 +119,9 @@ describe('Content Publishing /content Controller E2E Tests', () => {
 
     // Modify the asset cache with a disallowed MIME type asset
     await redis.set(getAssetMetadataKey(badMimeTypeReferenceId), JSON.stringify(assetMetaDataInvalidMimeType));
-    blockchainService = app.get(BlockchainRpcQueryService);
-    api = (await blockchainService.getApi()) as ApiPromise;
 
     await initializeHelpers();
-    const onChainIntentName = 'e-e.on-chain';
+    onChainIntentName = 'e-e.on-chain';
 
     // Get any off-chain (IPFS) schema
     const builder = new IntentBuilder();
@@ -133,12 +130,11 @@ describe('Content Publishing /content Controller E2E Tests', () => {
 
     // Create on-chain Intent & Schema if one doesn't exist, since the chain genesis does not contain any.
     // This will only work against a local chain; if we want to test against testnet, would need to re-work using sudo.
-    const keys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
     const onChainIntent = await builder
       .withAutoDetectExisting(true)
       .withName(onChainIntentName)
       .withPayloadLocation('OnChain')
-      .build(keys); // will either resolve existing or build new
+      .build(aliceKeys); // will either resolve existing or build new
     if (onChainIntent?.schemas.length > 0) {
       onChainSchemaId = [...onChainIntent.schemas].pop();
     }
@@ -147,7 +143,7 @@ describe('Content Publishing /content Controller E2E Tests', () => {
         .withIntentId(onChainIntent.id)
         .withModelType('AvroBinary')
         .withModel(AVRO_SCHEMA)
-        .build(keys);
+        .build(aliceKeys);
       onChainSchemaId = onChainSchema.id;
     }
 
@@ -869,134 +865,7 @@ describe('Content Publishing /content Controller E2E Tests', () => {
   describe('V2 Content', () => {
     describe('/v2/content/:msaId/on-chain', () => {
       const goodPayload = '0x' + Buffer.from('hello, world').toString('hex');
-      const largePayload = () =>
-        '0x' + Buffer.from('h'.repeat(api.consts.messages.messagesMaxPayloadSizeBytes.toNumber())).toString('hex');
-
-      it.each([
-        {
-          description: 'non-numeric schemaId',
-          schemaId: 'not a number',
-          payload: goodPayload,
-          message: /schemaId should be a positive integer/,
-        },
-        {
-          description: 'non-integer schemaId string',
-          schemaId: '1.2',
-          payload: goodPayload,
-          message: /schemaId should be a positive integer/,
-        },
-        {
-          description: 'negative schemaId string',
-          schemaId: '-1',
-          payload: goodPayload,
-          message: /schemaId should be a positive integer/,
-        },
-        {
-          description: 'schemaId string with symbols',
-          schemaId: '1,000',
-          payload: goodPayload,
-          message: /schemaId should be a positive integer/,
-        },
-        {
-          description: 'negative schemaId',
-          schemaId: -1,
-          payload: goodPayload,
-          message: /schemaId should be a positive integer/,
-        },
-        {
-          description: 'schemaId too large',
-          schemaId: 65536,
-          payload: goodPayload,
-          message: /schemaId should not exceed 65535/,
-        },
-        {
-          description: 'non-hex payload',
-          schemaId: () => onChainSchemaId,
-          payload: 'not hex',
-          message: /payload must be a hexadecimal number/,
-          errorCount: 2,
-        },
-        {
-          description: 'empty payload',
-          schemaId: () => onChainSchemaId,
-          payload: '',
-          message: /payload should not be empty/,
-          errorCount: 3,
-        },
-        {
-          description: 'payload without 0x prefix',
-          schemaId: () => onChainSchemaId,
-          payload: goodPayload.slice(2),
-          message: /payload bytes must include '0x' prefix/,
-        },
-      ])(
-        '$description should fail',
-        async ({
-          schemaId,
-          payload,
-          message,
-          errorCount,
-        }: {
-          description: string;
-          schemaId: string | number | (() => number);
-          payload: string;
-          message: RegExp;
-          errorCount?: number;
-        }) => {
-          return request(app.getHttpServer())
-            .post(`/v2/content/${msaId}/on-chain`)
-            .send({
-              schemaId: typeof schemaId === 'function' ? schemaId() : schemaId,
-              published: new Date().toISOString(),
-              payload,
-            })
-            .expect(400)
-            .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])))
-            .expect((res) => expect(res.body.message).toHaveLength(errorCount || 1));
-        },
-      );
-
-      it('payload too large should fail', async () => {
-        return request(app.getHttpServer())
-          .post(`/v2/content/${msaId}/on-chain`)
-          .send({
-            schemaId: onChainSchemaId,
-            published: new Date().toISOString(),
-            payload: largePayload(),
-          })
-          .expect(413);
-      });
-
-      it('schema with incorrect payload location should fail', async () => {
-        return request(app.getHttpServer())
-          .post(`/v2/content/${msaId}/on-chain`)
-          .send({
-            schemaId: ipfsSchemaId,
-            published: new Date().toISOString(),
-            payload: goodPayload,
-          })
-          .expect(422)
-          .expect((res) => expect(res.body.message).toMatch(/Schema payload location invalid/));
-      });
-
-      it('request on behalf of un-delegated user should fail', async () => {
-        return request(app.getHttpServer())
-          .post(`/v2/content/${msaId}/on-chain`)
-          .send({
-            schemaId: onChainSchemaId,
-            published: new Date().toISOString(),
-            payload: goodPayload,
-          })
-          .expect(401)
-          .expect((res) => expect(res.body.message).toMatch(/Provider not delegated/));
-      });
-
-      it('valid request should succeed', async () => {
-        const providerMsaId = await api.query.msa.publicKeyToMsaId(aliceKeys.address);
-        if (providerMsaId.isNone) {
-          return false;
-        }
-
+      it('request with schemaId should return deprecated error', async () => {
         return request(app.getHttpServer())
           .post(`/v2/content/${process.env.PROVIDER_ID}/on-chain`)
           .send({
@@ -1004,7 +873,20 @@ describe('Content Publishing /content Controller E2E Tests', () => {
             published: new Date().toISOString(),
             payload: goodPayload,
           })
-          .expect(202);
+          .expect(410)
+          .expect((res) => expect(res.body.message).toMatch(/Endpoint deprecated/));
+      });
+
+      it('request with intentName should return deprecated error', async () => {
+        return request(app.getHttpServer())
+          .post(`/v2/content/${process.env.PROVIDER_ID}/on-chain`)
+          .send({
+            intentName: onChainIntentName,
+            published: new Date().toISOString(),
+            payload: goodPayload,
+          })
+          .expect(410)
+          .expect((res) => expect(res.body.message).toMatch(/Endpoint deprecated/));
       });
     });
 

@@ -13,7 +13,7 @@ export interface OnChainJobData {
 
   onBehalfOf?: string;
 
-  intentId?: number;
+  schemaId?: number;
 }
 
 interface IBasePublisherJob {

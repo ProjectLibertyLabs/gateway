@@ -8,15 +8,19 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @ValidatorConstraint({ name: 'IsIntentName', async: true })
 @Injectable()
 export class IsIntentNameConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly blockchainRpcService: BlockchainRpcQueryService) {}
+  constructor(@Optional() private readonly blockchainRpcService?: BlockchainRpcQueryService) {}
 
   async validate(value: any, _args: ValidationArguments): Promise<boolean> {
+    if (!this.blockchainRpcService) {
+      return false;
+    }
+
     if (
       typeof value === 'string' &&
       /^([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9])\.([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9])$/.test(value)

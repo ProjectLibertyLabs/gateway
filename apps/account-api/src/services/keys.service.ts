@@ -41,9 +41,8 @@ export class KeysService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     try {
-      const { intentId, schemaId } = await this.blockchainService.getIntentAndLatestSchemaIdsByName(
-        'dsnp',
-        'public-key-key-agreement',
+      const { intentId, schemaId } = await this.blockchainService.getIntentAndLatestSchemaIdByName(
+        'dsnp.public-key-key-agreement',
       );
       this.graphKeyIntentId = intentId;
       // Set 1-hour TTL on this so that we don't need to restart if a new schema is published

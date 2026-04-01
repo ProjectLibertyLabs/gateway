@@ -14,12 +14,30 @@ import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
 import { Logger } from 'nestjs-pino';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomFile30K } from './mockRequestData';
+import { useContainer } from 'class-validator';
+import { ApiPromise } from '@polkadot/api';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import Keyring from '@polkadot/keyring';
+import { AVRO_SCHEMA } from './mockRequestData';
+import { ExtrinsicHelper, IntentBuilder, SchemaBuilder } from '@projectlibertylabs/frequency-scenario-template';
+import { initializeHelpers } from '#testlib/e2e-setup.mock.spec';
 
 describe('AppController E2E request verification', () => {
   let app: NestExpressApplication;
   let module: TestingModule;
+  let api: ApiPromise;
+  let blockchainService: BlockchainRpcQueryService;
+  let ipfsSchemaId: number;
+  let onChainSchemaId: number;
+  let onChainIntentName: string;
+  let aliceKeys: KeyringPair;
 
   beforeAll(async () => {
+    await cryptoWaitReady();
+    aliceKeys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
+
     module = await Test.createTestingModule({
       imports: [ApiModule],
       providers: [
@@ -35,11 +53,10 @@ describe('AppController E2E request verification', () => {
     }).compile();
 
     app = module.createNestApplication();
-
-    // Uncomment below to see logs when debugging tests
-    // module.useLogger(new Logger());
+    app.useLogger(app.get(Logger));
 
     const config = app.get<IContentPublishingApiConfig>(apiConfig.KEY);
+    useContainer(app.select(ApiModule), { fallbackOnErrors: true });
     app.enableVersioning({ type: VersioningType.URI });
     app.enableShutdownHooks();
     app.useGlobalPipes(
@@ -61,6 +78,235 @@ describe('AppController E2E request verification', () => {
       await app.close();
     });
     await app.init();
+
+    blockchainService = app.get(BlockchainRpcQueryService);
+    api = (await blockchainService.getApi()) as ApiPromise;
+
+    await initializeHelpers();
+    onChainIntentName = 'e-e.on-chain-v3';
+
+    // Get any off-chain (IPFS) schema
+    const builder = new IntentBuilder();
+    const intent = await builder.withAutoDetectExisting(true).withName('dsnp.broadcast').resolve();
+    ipfsSchemaId = intent.schemas[0];
+
+    const keys = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
+    const onChainIntent = await builder
+      .withAutoDetectExisting(true)
+      .withName(onChainIntentName)
+      .withPayloadLocation('OnChain')
+      .build(keys);
+    if (onChainIntent?.schemas.length > 0) {
+      onChainSchemaId = [...onChainIntent.schemas].pop();
+    }
+    if (!onChainSchemaId) {
+      const onChainSchema = await new SchemaBuilder()
+        .withIntentId(onChainIntent.id)
+        .withModelType('AvroBinary')
+        .withModel(AVRO_SCHEMA)
+        .build(keys);
+      onChainSchemaId = onChainSchema.id;
+    }
+    if (!onChainSchemaId) {
+      throw new Error('No on-chain schema found');
+    }
+  }, 120000);
+
+  afterAll(async () => {
+    try {
+      await app.close();
+      await ExtrinsicHelper.disconnect();
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  describe('(POST) /v3/content/on-chain', () => {
+    const goodPayload = '0x' + Buffer.from('hello, world').toString('hex');
+    const largePayload = () =>
+      '0x' + Buffer.from('h'.repeat(api.consts.messages.messagesMaxPayloadSizeBytes.toNumber())).toString('hex');
+
+    it.each([
+      {
+        description: 'non-numeric schemaId',
+        schemaId: 'not a number',
+        payload: goodPayload,
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'non-integer schemaId string',
+        schemaId: '1.2',
+        payload: goodPayload,
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'negative schemaId string',
+        schemaId: '-1',
+        payload: goodPayload,
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'schemaId string with symbols',
+        schemaId: '1,000',
+        payload: goodPayload,
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'negative schemaId',
+        schemaId: -1,
+        payload: goodPayload,
+        message: /schemaId should be a positive integer/,
+      },
+      {
+        description: 'schemaId too large',
+        schemaId: 65536,
+        payload: goodPayload,
+        message: /schemaId should not exceed 65535/,
+      },
+      {
+        description: 'non-hex payload',
+        schemaId: () => onChainSchemaId,
+        payload: 'not hex',
+        message: /payload must be a hexadecimal number/,
+        errorCount: 2,
+      },
+      {
+        description: 'empty payload',
+        schemaId: () => onChainSchemaId,
+        payload: '',
+        message: /payload should not be empty/,
+        errorCount: 3,
+      },
+      {
+        description: 'payload without 0x prefix',
+        schemaId: () => onChainSchemaId,
+        payload: goodPayload.slice(2),
+        message: /payload bytes must include '0x' prefix/,
+      },
+    ])(
+      '$description should fail',
+      async ({
+        schemaId,
+        payload,
+        message,
+        errorCount,
+      }: {
+        description: string;
+        schemaId: string | number | (() => number);
+        payload: string;
+        message: RegExp;
+        errorCount?: number;
+      }) => {
+        return request(app.getHttpServer())
+          .post(`/v3/content/on-chain`)
+          .send({
+            schemaId: typeof schemaId === 'function' ? schemaId() : schemaId,
+            published: new Date().toISOString(),
+            payload,
+          })
+          .expect(400)
+          .expect((res) => expect(res.body.message).toEqual(expect.arrayContaining([expect.stringMatching(message)])))
+          .expect((res) => expect(res.body.message).toHaveLength(errorCount || 1));
+      },
+    );
+
+    it('payload too large should fail', async () => {
+      return request(app.getHttpServer())
+        .post(`/v3/content/on-chain`)
+        .send({
+          schemaId: onChainSchemaId,
+          published: new Date().toISOString(),
+          payload: largePayload(),
+        })
+        .expect(413);
+    });
+
+    it('schema with incorrect payload location should fail', async () => {
+      return request(app.getHttpServer())
+        .post(`/v3/content/on-chain`)
+        .send({
+          schemaId: ipfsSchemaId,
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(422)
+        .expect((res) => expect(res.body.message).toMatch(/Schema payload location invalid/));
+    });
+
+    it('request on behalf of un-delegated user should fail', async () => {
+      return request(app.getHttpServer())
+        .post(`/v3/content/on-chain`)
+        .send({
+          msaId: 1234,
+          schemaId: onChainSchemaId,
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(401)
+        .expect((res) => expect(res.body.message).toMatch(/Provider not delegated/));
+    });
+
+    it('valid request should succeed', async () => {
+      const providerMsaId = await api.query.msa.publicKeyToMsaId(aliceKeys.address);
+      if (providerMsaId.isNone) {
+        return false;
+      }
+      return request(app.getHttpServer())
+        .post(`/v3/content/on-chain`)
+        .send({
+          schemaId: onChainSchemaId,
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(202);
+    });
+
+    it('schemaId only should succeed', async () => {
+      const providerMsaId = await api.query.msa.publicKeyToMsaId(aliceKeys.address);
+      if (providerMsaId.isNone) {
+        return false;
+      }
+
+      return request(app.getHttpServer())
+        .post('/v3/content/on-chain')
+        .send({
+          schemaId: onChainSchemaId,
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(202)
+        .expect((res) => expect(res.body.referenceId).toEqual(expect.any(String)));
+    });
+
+    it('intentName only should succeed', async () => {
+      const providerMsaId = await api.query.msa.publicKeyToMsaId(aliceKeys.address);
+      if (providerMsaId.isNone) {
+        return false;
+      }
+
+      return request(app.getHttpServer())
+        .post('/v3/content/on-chain')
+        .send({
+          intentName: onChainIntentName,
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(202)
+        .expect((res) => expect(res.body.referenceId).toEqual(expect.any(String)));
+    });
+
+    it('schemaId and non-matching intentName should fail', async () => {
+      await request(app.getHttpServer())
+        .post('/v3/content/on-chain')
+        .send({
+          schemaId: onChainSchemaId,
+          intentName: 'dsnp.broadcast',
+          published: new Date().toISOString(),
+          payload: goodPayload,
+        })
+        .expect(400)
+        .expect((res) => expect(res.body.message).toMatch(/not associated with intent/));
+    });
   });
 
   describe('(POST) /v3/content/batchAnnouncement', () => {

@@ -6,31 +6,39 @@ import {
   HttpStatus,
   Req,
   Res,
-  Logger,
   BadRequestException,
   InternalServerErrorException,
+  Body,
+  PayloadTooLargeException,
+  UnprocessableEntityException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import Busboy from 'busboy';
-import { FilesUploadDto, BatchAnnouncementResponseDto } from '#types/dtos/content-publishing';
+import {
+  FilesUploadDto,
+  BatchAnnouncementResponseDto,
+  AnnouncementResponseDto,
+  OnChainContentDtoV2,
+} from '#types/dtos/content-publishing';
 import { ApiService } from '../../api.service';
 import apiConfig, { IContentPublishingApiConfig } from '#content-publishing-api/api.config';
 import { SkipInterceptors } from '#utils/decorators/skip-interceptors.decorator';
 import { IBatchAnnouncement, IFileResponse, ISuccessfulUpload } from '#types/interfaces/content-publishing';
 import { VALID_BATCH_MIME_TYPES_REGEX } from '#validation';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Controller({ version: '3', path: 'content' })
 @ApiTags('v3/content')
 export class ContentControllerV3 {
-  private readonly logger: Logger;
-
   constructor(
     @Inject(apiConfig.KEY) private readonly appConfig: IContentPublishingApiConfig,
     private readonly apiService: ApiService,
-  ) {
-    this.logger = new Logger(this.constructor.name);
-  }
+    private readonly blockchainService: BlockchainRpcQueryService,
+    @InjectPinoLogger(ContentControllerV3.name) private readonly logger: PinoLogger,
+  ) {}
 
   @Post('batchAnnouncement')
   @SkipInterceptors()
@@ -221,5 +229,73 @@ export class ContentControllerV3 {
     req.pipe(busboy);
 
     return result;
+  }
+
+  @Post('on-chain')
+  @ApiOperation({ summary: 'Create on-chain content for a given schema' })
+  @HttpCode(202)
+  @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
+  async postContent(@Body() contentDto: OnChainContentDtoV2) {
+    const { msaId, intentName, schemaId: providedSchemaId } = contentDto;
+    if (!providedSchemaId && !intentName) {
+      throw new BadRequestException('Either schemaId or intentName must be provided');
+    }
+    let schemaId = providedSchemaId;
+
+    if (intentName) {
+      const intents = await this.blockchainService.getIntentsByName([intentName]);
+      if (intents.length === 0) {
+        throw new BadRequestException(`"${intentName}" not a registered Intent`);
+      }
+
+      if (intents[0].schemaIds.length === 0) {
+        throw new BadRequestException(`Intent "${intentName}" has no associated schemas`);
+      }
+
+      if (schemaId && !intents[0].schemaIds.includes(schemaId)) {
+        throw new BadRequestException(`Schema ${schemaId} is not associated with intent "${intentName}"`);
+      }
+
+      if (!schemaId) {
+        schemaId = intents[0].schemaIds[intents[0].schemaIds.length - 1];
+      }
+    }
+
+    const api = await this.blockchainService.getApi();
+
+    // Check the payload size.
+    // POTENTIAL OPTIMIZATIONS:
+    //     1. (strlen - 2) / 2 + 2 (hex minus '0x' => bytes, plus 2 for SCALE length prefix of max payload size 3k)
+    //     2. Buffer.from(hexstr) to get bytes, plus 2 for SCALE length prefix
+    // This method is most accurate, though, and withstands any constant max payload changes on the chain (if max payload were to increase to > 16,383)
+    const bytes = this.blockchainService.createType('Bytes', contentDto.payload);
+    if (bytes.encodedLength > api.consts.messages.messagesMaxPayloadSizeBytes.toNumber()) {
+      throw new PayloadTooLargeException('Message payload too large');
+    }
+    const schemaInfo = await this.blockchainService.getSchema(schemaId);
+    if (!schemaInfo) {
+      throw new UnprocessableEntityException(`Schema ${schemaId} not found`);
+    }
+    if (!schemaInfo.payloadLocation.isOnChain) {
+      throw new UnprocessableEntityException('Schema payload location invalid for on-chain content');
+    }
+    // Check Intent grants if publishing on behalf of a user
+    const onBehalfOf = !msaId ? undefined : typeof msaId === 'number' ? msaId.toString() : msaId;
+    if (onBehalfOf) {
+      if (
+        !(await this.blockchainService.checkCurrentDelegation(
+          onBehalfOf,
+          schemaInfo.intentId,
+          this.appConfig.providerId,
+        ))
+      ) {
+        throw new UnauthorizedException('Provider not delegated for intent by user');
+      }
+    }
+    return this.apiService.enqueueContent(
+      onBehalfOf,
+      { ...contentDto, schemaId },
+      schemaInfo.intentId.toNumber(),
+    ) as Promise<AnnouncementResponseDto>;
   }
 }

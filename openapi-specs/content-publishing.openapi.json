@@ -287,6 +287,7 @@
     },
     "/v2/content/{msaId}/on-chain": {
       "post": {
+        "deprecated": true,
         "operationId": "ContentControllerV2_postContent_v2",
         "parameters": [
           {
@@ -311,15 +312,8 @@
           }
         },
         "responses": {
-          "2XX": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementResponseDto"
-                }
-              }
-            }
+          "410": {
+            "description": "Deprecated endpoint"
           }
         },
         "summary": "Create on-chain content for a given schema",
@@ -948,6 +942,10 @@
       "OnChainContentDto": {
         "type": "object",
         "properties": {
+          "intentName": {
+            "type": "string",
+            "description": "Intent name to resolve the latest on-chain schema for publishing.\nFormat: <namespace>.<name>\n@example: e-e.on-chain"
+          },
           "schemaId": {
             "type": "number",
             "description": "Schema ID of the OnChain schema this message is being posted to.\n@example: 16"
@@ -964,7 +962,6 @@
           }
         },
         "required": [
-          "schemaId",
           "payload",
           "published"
         ]

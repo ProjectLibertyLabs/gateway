@@ -45,7 +45,6 @@ import {
   RevokeDelegationPayloadResponseDto,
   TransactionData,
   UpsertedPageDto,
-  UpsertPagePayloadDto,
 } from '#types/dtos/account';
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
@@ -403,34 +402,48 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     return schemaIds[schemaIds.length - 1].toNumber();
   }
 
-  public async getIntentAndLatestSchemaIdsByName(
-    protocolName: string,
-    descriptor: string,
-    blockHash?: Uint8Array | string,
-  ): Promise<{ intentId: number; schemaId: number }> {
-    if (!protocolName || !descriptor) {
-      throw new Error('Both protocol name and descriptor must be provided');
-    }
-    const api = await this.getApi(blockHash);
-    const fullName = `${protocolName}.${descriptor}`;
-    const namedResponse = await api.call.schemasRuntimeApi.getRegisteredEntitiesByName(fullName);
-    if (namedResponse.isSome) {
-      const entities = namedResponse.unwrap().filter((entity) => entity.entityId.isIntent);
-      switch (entities.length) {
-        case 0:
-          throw new Error(`No Intent registration found for "${fullName}"`);
+  public async getIntentsByName(
+    intentNames: string[],
+  ): Promise<{ name: string; intentId: number; schemaIds?: number[] }[]> {
+    const ids = await this.getIntentNamesToIds(intentNames);
+    const promises = ids.map((intent) => this.api.call.schemasRuntimeApi.getIntentById(intent.intentId, true));
+    const intentResponses = await Promise.all(promises);
 
-        case 1:
-          const intentId = entities[0].entityId.asIntent.toNumber();
-          const schemaId = await this.getLatestSchemaIdForIntent(intentId);
-          return { intentId, schemaId };
-
-        default:
-          throw new Error(`Multiple Intent registrations found for "${fullName}"`);
+    return intentResponses.map((intentResponse, idx) => {
+      if (intentResponse.isSome) {
+        const intent = intentResponse.unwrap();
+        return {
+          name: ids[idx].name,
+          intentId: intent.intentId.toNumber(),
+          schemaIds: intent.schemaIds.isSome
+            ? intent.schemaIds.unwrap().map((schemaId) => schemaId.toNumber())
+            : undefined,
+        };
       }
-    }
 
-    throw new Error(`No Intent registration found for "${fullName}"`);
+      return {
+        name: ids[idx].name,
+        intentId: ids[idx].intentId,
+      };
+    });
+  }
+
+  public async getIntentAndLatestSchemaIdByName(intentName: string): Promise<{ intentId: number; schemaId: number }> {
+    const intents = await this.getIntentsByName([intentName]);
+    switch (intents.length) {
+      case 0:
+        throw new Error(`No Intent registration found for "${intentName}"`);
+
+      case 1:
+        const intentId = intents[0].intentId;
+        const schemaId = intents[0]?.schemaIds?.length
+          ? intents[0].schemaIds[intents[0].schemaIds.length - 1]
+          : undefined;
+        return { intentId, schemaId };
+
+      default:
+        throw new Error(`Multiple Intent registrations found for "${intentName}"`);
+    }
   }
 
   public async getSchemaPayload(schemaId: AnyNumber, blockHash?: Uint8Array | string): Promise<Bytes | null> {
@@ -442,7 +455,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     const entityResponse = await Promise.all(
       args.map((name) => this.api.call.schemasRuntimeApi.getRegisteredEntitiesByName(name)),
     );
-    entityResponse.filter((response) => response.isSome).forEach((entity) => {});
     return entityResponse
       .filter((response) => response.isSome)
       .map((response) => response.unwrap().toArray())

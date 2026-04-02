@@ -69,7 +69,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
         const isDelegationValid = await this.blockchainService.checkCurrentDelegation(
           jobData.data.onBehalfOf,
-          jobData.data.intentId,
+          jobData.data.schemaId,
           this.blockchainConf.providerId,
         );
         if (!isDelegationValid) {

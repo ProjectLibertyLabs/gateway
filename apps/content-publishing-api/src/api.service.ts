@@ -69,7 +69,7 @@ export class ApiService {
     const jobData: IPublisherJob = {
       id: '',
       schemaId,
-      data: { ...data, onBehalfOf: msaId, intentId },
+      data: { ...data, onBehalfOf: msaId, schemaId: intentId },
     };
     jobData.id = this.calculateJobId(jobData);
     const job = await this.publishQueue.add(`OnChain content job - ${jobData.id}`, jobData, {

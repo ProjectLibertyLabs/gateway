@@ -41,14 +41,15 @@ export class KeysService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     try {
+      await this.blockchainService.isReady();
       const { intentId, schemaId } = await this.blockchainService.getIntentAndLatestSchemaIdByName(
         'dsnp.public-key-key-agreement',
       );
       this.graphKeyIntentId = intentId;
       // Set 1-hour TTL on this so that we don't need to restart if a new schema is published
       await this.cache.setex(GRAPH_KEY_SCHEMA_ID_CACHE_KEY, SCHEMA_ID_TTL, schemaId);
-    } catch (e: any) {
-      this.logger.fatal({ error: e }, 'Unable to resolve intent ID for "dsnp.public-key-key-agreement"');
+    } catch (err: any) {
+      this.logger.fatal({ err }, `Unable to resolve intent ID for "dsnp.public-key-key-agreement"`);
       this.emitter.emit('shutdown');
     }
   }

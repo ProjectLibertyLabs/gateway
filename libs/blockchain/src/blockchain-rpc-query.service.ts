@@ -455,7 +455,6 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
     const entityResponse = await Promise.all(
       args.map((name) => this.api.call.schemasRuntimeApi.getRegisteredEntitiesByName(name)),
     );
-    entityResponse.filter((response) => response.isSome).forEach((entity) => {});
     return entityResponse
       .filter((response) => response.isSome)
       .map((response) => response.unwrap().toArray())

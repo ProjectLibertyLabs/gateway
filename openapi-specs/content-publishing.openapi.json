@@ -397,6 +397,135 @@
         ]
       }
     },
+    "/v3/content/batchAnnouncement": {
+      "post": {
+        "description": "Upload files with their corresponding schema IDs to create batch announcements. Each file must be accompanied by a schemaId field.",
+        "operationId": "ContentControllerV3_postUploadBatchAnnouncement_v3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Asset files",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FilesUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "All files uploaded and batch announcements created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchAnnouncementResponseDto"
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Partial success - some files uploaded successfully, others failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchAnnouncementResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation errors (no files, mismatched schema IDs, etc.)"
+          },
+          "500": {
+            "description": "Internal server error - all uploads failed or batch creation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchAnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Upload files and create batch announcements",
+        "tags": [
+          "v3/content"
+        ]
+      }
+    },
+    "/v3/content/on-chain": {
+      "post": {
+        "operationId": "ContentControllerV3_postOnChainContent_v3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnChainContentDtoV2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestException"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedException"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeException"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnprocessableEntityException"
+                }
+              }
+            }
+          },
+          "2XX": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create on-chain content for a given schema",
+        "tags": [
+          "v3/content"
+        ]
+      }
+    },
     "/v1/profile/{msaId}": {
       "put": {
         "operationId": "ProfileControllerV1_profile_v1",
@@ -998,6 +1127,87 @@
         "required": [
           "batchFiles"
         ]
+      },
+      "BatchAnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "type": "string",
+            "description": "Unique identifier for tracking the batch announcement",
+            "example": "batch_12345"
+          },
+          "cid": {
+            "type": "string",
+            "description": "IPFS CID of the uploaded file",
+            "example": "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if the file upload or batch creation failed. Will be undefined in successful responses since this endpoint uses all-or-nothing error handling."
+          }
+        }
+      },
+      "BatchAnnouncementResponseDto": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "description": "Array of batch announcement results for each uploaded file",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BatchAnnouncementDto"
+            }
+          }
+        },
+        "required": [
+          "files"
+        ]
+      },
+      "OnChainContentDtoV2": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "string",
+            "description": "Payload bytes encoded as a hex string using the schema defined by `schemaId`",
+            "pattern": "^0x"
+          },
+          "intentName": {
+            "type": "string",
+            "description": "Intent name to resolve the latest on-chain schema for publishing.\nFormat: <namespace>.<name>\n@example: e-e.on-chain"
+          },
+          "msaId": {
+            "type": "object",
+            "description": "Optional MSA ID to that this request is on behalf of.\n@example: 1234\n@example: '4321'"
+          },
+          "schemaId": {
+            "type": "number",
+            "description": "Schema ID of the OnChain schema this message is being posted to.\n@example: 16"
+          },
+          "published": {
+            "type": "string",
+            "description": "The time of publishing ISO8601",
+            "example": "1970-01-01T00:00:00+00:00"
+          }
+        },
+        "required": [
+          "payload",
+          "published"
+        ]
+      },
+      "BadRequestException": {
+        "type": "object",
+        "properties": {}
+      },
+      "UnauthorizedException": {
+        "type": "object",
+        "properties": {}
+      },
+      "PayloadTooLargeException": {
+        "type": "object",
+        "properties": {}
+      },
+      "UnprocessableEntityException": {
+        "type": "object",
+        "properties": {}
       },
       "ProfileActivityDto": {
         "type": "object",

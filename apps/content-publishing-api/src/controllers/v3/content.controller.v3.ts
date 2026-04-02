@@ -235,7 +235,11 @@ export class ContentControllerV3 {
   @ApiOperation({ summary: 'Create on-chain content for a given schema' })
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
-  async postContent(@Body() contentDto: OnChainContentDtoV2) {
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
+  @ApiResponse({ status: HttpStatus.PAYLOAD_TOO_LARGE, type: PayloadTooLargeException})
+  @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, type: UnprocessableEntityException })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
+  async postOnChainContent(@Body() contentDto: OnChainContentDtoV2) {
     const { msaId, intentName, schemaId: providedSchemaId } = contentDto;
     if (!providedSchemaId && !intentName) {
       throw new BadRequestException('Either schemaId or intentName must be provided');

@@ -345,6 +345,7 @@ export class OnChainContentDtoV2 implements OnChainJobData {
    */
   @IsNotEmpty()
   @IsHexadecimal()
+  @ApiProperty({ pattern: '^0x' })
   @Matches(/^0x/, { message: "payload bytes must include '0x' prefix" })
   payload: HexString;
 

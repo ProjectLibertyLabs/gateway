@@ -38,6 +38,17 @@ const configs = [
   httpCommonConfig,
   createRateLimitingConfig('content-publishing'),
 ];
+
+const productionControllers = [
+  AssetControllerV1,
+  AssetControllerV2,
+  ContentControllerV1,
+  ContentControllerV2,
+  ContentControllerV3,
+  ProfileControllerV1,
+  HealthController,
+];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -111,24 +122,8 @@ const configs = [
   // v[Desc first][ABC Second], Health, and then Dev only last
   controllers:
     process.env?.ENVIRONMENT === 'dev'
-      ? [
-          AssetControllerV1,
-          AssetControllerV2,
-          ContentControllerV1,
-          ContentControllerV2,
-          ProfileControllerV1,
-          HealthController,
-          DevelopmentControllerV1,
-        ]
-      : [
-          AssetControllerV1,
-          AssetControllerV2,
-          ContentControllerV1,
-          ContentControllerV2,
-          ContentControllerV3,
-          ProfileControllerV1,
-          HealthController,
-        ],
+      ? [...productionControllers, DevelopmentControllerV1]
+      : [...productionControllers, HealthController],
   exports: [],
 })
 export class ApiModule {}

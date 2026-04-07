@@ -1,10 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { PinoLogger } from 'nestjs-pino';
+import { BlockchainService } from '#blockchain/blockchain.service';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 
@@ -36,7 +36,7 @@ export abstract class BlockchainScannerService {
 
   constructor(
     protected cacheManager: Redis,
-    protected readonly blockchainService: BlockchainRpcQueryService,
+    protected readonly blockchainService: BlockchainService,
     protected readonly logger: PinoLogger,
   ) {
     // These listeners are still present when the chain.disconnected event is received.

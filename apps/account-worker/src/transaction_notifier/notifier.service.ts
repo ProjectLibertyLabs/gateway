@@ -5,7 +5,6 @@ import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
-import { AccountBlockchainScannerService } from '#account-lib/utils/account-blockchain-scanner.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { HexString } from '@polkadot/util/types';
@@ -18,10 +17,11 @@ import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worke
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
 import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
+import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 
 @Injectable()
 export class TxnNotifierService
-  extends AccountBlockchainScannerService
+  extends BlockchainScannerService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   async onApplicationBootstrap() {

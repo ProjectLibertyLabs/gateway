@@ -46,9 +46,6 @@ import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature
 import { PinoLogger } from 'nestjs-pino';
 
 export const NONCE_SERVICE_REDIS_NAMESPACE = 'NonceService';
-
-export type Sr25519Signature = { Sr25519: HexString };
-
 const { NUMBER_OF_NONCE_KEYS_TO_CHECK, NONCE_KEY_EXPIRE_SECONDS, getNonceKey } = NonceConstants;
 
 @Injectable()

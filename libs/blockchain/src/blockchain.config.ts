@@ -7,7 +7,10 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
 import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 
+// frequencyTimeoutSecs: how long to wait for a lapsed frequency connection before shutting down.
+// frequencyApiWsUrl:  the Websocket URL for the frequency chain API
 // providerId:  a unique numeric identifier, typically the Provider MSA ID.
+// isDeployedReadOnly:  whether this deployment submits transactions
 // config values needed for functions that don't submit transactions
 export interface IBlockchainReadOnlyConfig {
   frequencyTimeoutSecs: number;

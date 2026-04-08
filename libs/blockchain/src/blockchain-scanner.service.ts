@@ -4,7 +4,6 @@ import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { PinoLogger } from 'nestjs-pino';
-import { BlockchainService } from '#blockchain/blockchain.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';

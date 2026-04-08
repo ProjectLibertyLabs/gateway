@@ -211,7 +211,7 @@ describe('TxnNotifierService', () => {
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockEvent = {
-        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx===0 } },
+        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx === 0 } },
         event: { section: 'handles', method: 'HandleClaimed', data: {} },
       };
 
@@ -248,7 +248,7 @@ describe('TxnNotifierService', () => {
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockCapacityEvent = {
-        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx===0 } },
+        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx === 0 } },
         event: {
           section: 'capacity',
           method: 'CapacityWithdrawn',

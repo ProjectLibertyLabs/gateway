@@ -1,16 +1,19 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-underscore-dangle */
 /*
- * NOTE: This class is designed to isolate consumers from having to deal with the details of interacting directly
- *       with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
- *       encoded objects that are directly returned from Frequency RPC calls; rather, all payloads should be
- *       unwrapped and re-formed using native Javascript types.
+ * BlockchainService extends BlockchainRpcQueryService to add functions for submitting transactions
+ * and validating provider credentials.
  *
- *       RPC methods that have the potential to return values wrapped as `Option<...>` or any value supporting
- *       the `.isEmpty`, `.isSome`, or `.isNone` getters should implement one of the following behaviors:
- *          - have a specified return type of `<type> | null` and return null for an empty value
- *          - return some sane default for an empty value
- *          - throw an error if an empty value is encountered
+ * It is designed to isolate consumers from having to deal with the details of interacting directly
+ * with the Frequency blockchain. To that end, return values of functions should not expose the SCALE-
+ * encoded objects that are directly returned from Frequency RPC calls; rather, all payloads should be
+ * unwrapped and re-formed using native Javascript types.
+ *
+ * RPC methods that have the potential to return values wrapped as `Option<...>` or any value supporting
+ * the `.isEmpty`, `.isSome`, or `.isNone` getters should implement one of the following behaviors:
+ *    - have a specified return type of `<type> | null` and return null for an empty value
+ *    - return some sane default for an empty value
+ *    - throw an error if an empty value is encountered
  */
 import fs from 'fs';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
@@ -118,50 +121,6 @@ export class BlockchainService extends BlockchainRpcQueryService implements OnAp
     });
 
     this.headerInterval = setInterval(() => this.updateLatestBlockHeader(), this.blockTimeMs);
-  }
-
-  /**
-   * Handles the result of a SIWF transaction by extracting relevant values from the transaction events.
-   * @param txResultEvents - The transaction result events to process.
-   * @returns An object containing the extracted SIWF transaction values.
-   */
-  public async handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): Promise<SIWFTxnValues> {
-    const siwfTxnValues: SIWFTxnValues = { msaId: '', handle: '', address: '', newProvider: '' };
-
-    txResultEvents.forEach((record) => {
-      // In the sign up flow, but when msa is already created, we do not have an MsaCreated event
-      // We only have the DelegationGranted event, therefore check for events individually.
-      if (record.event && this.api.events.msa.MsaCreated.is(record.event)) {
-        siwfTxnValues.msaId = record.event.data.msaId.toString();
-        siwfTxnValues.address = record.event.data.key.toString();
-      }
-      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
-        const handleHex = record.event.data.handle.toString();
-        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
-        const handleData = handleHex.slice(2);
-        siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
-        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.msaId.toString();
-      }
-      if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
-        siwfTxnValues.newProvider = record.event.data.providerId.toString();
-        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.delegatorId.toString();
-      }
-    });
-
-    // If one of the above events has previously occurred, we still need to set those values.
-    if (siwfTxnValues.handle === '') {
-      const handle = await this.getHandleForMsa(siwfTxnValues.msaId);
-      siwfTxnValues.handle = `${handle?.base_handle}.${handle?.suffix}`;
-    }
-    if (siwfTxnValues.address === '') {
-      const keyInfo = await this.getKeysByMsa(siwfTxnValues.msaId);
-      siwfTxnValues.address = keyInfo?.msa_keys[0].toString();
-    }
-    if (siwfTxnValues.newProvider === '') {
-      siwfTxnValues.newProvider = this.config.providerId.toString();
-    }
-
-    return siwfTxnValues;
   }
 
   public async validateproviderKeyUriOrPrivateKey() {

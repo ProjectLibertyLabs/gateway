@@ -14,9 +14,9 @@
  */
 import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountId, AccountId32, BlockHash, BlockNumber, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
+import { AccountId, AccountId32, BlockHash, BlockNumber, Call, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
+import { AnyNumber, Codec, DetectCodec, IMethod, SignerPayloadRaw } from '@polkadot/types/types';
 import { bool, Bytes, GenericExtrinsic, Option, u128, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaProviderRegistryEntry,
@@ -50,11 +50,11 @@ import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
 import { TransactionType } from '#types/account-webhook';
-import { IBlockchainNonProviderConfig, noProviderBlockchainConfig } from './blockchain.config';
+import { IBlockchainReadOnlyConfig, noProviderBlockchainConfig } from './blockchain.config';
 import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
-import { ICapacityFeeDetails } from './types';
+import { ICapacityFeeDetails, SIWFTxnValues } from './types';
 import { getTypedSignatureForPayload } from '#utils/common/signature.util';
 import { PinoLogger } from 'nestjs-pino';
 import { RpcCall } from './decorators/rpc-call.decorator';
@@ -122,12 +122,14 @@ export interface IBlockPaginationRequest {
 
 @Injectable()
 export class BlockchainRpcQueryService extends PolkadotApiService {
+  private readonly providerId: bigint;
   constructor(
-    @Inject(noProviderBlockchainConfig.KEY) baseConfig: IBlockchainNonProviderConfig,
+    @Inject(noProviderBlockchainConfig.KEY) baseConfig: IBlockchainReadOnlyConfig,
     eventEmitter: EventEmitter2,
     protected readonly logger: PinoLogger,
   ) {
     super(baseConfig, eventEmitter, logger);
+    this.providerId = baseConfig.providerId;
   }
 
   // ******************************** RPC methods ********************************
@@ -902,5 +904,49 @@ export class BlockchainRpcQueryService extends PolkadotApiService {
 
   public async maximumCapacityBatchLength(): Promise<number> {
     return this.api.consts.frequencyTxPayment.maximumCapacityBatchLength.toNumber();
+  }
+
+  /**
+   * Handles the result of a SIWF transaction by extracting relevant values from the transaction events.
+   * @param txResultEvents - The transaction result events to process.
+   * @returns An object containing the extracted SIWF transaction values.
+   */
+  public async handleSIWFTxnResult(txResultEvents: FrameSystemEventRecord[]): Promise<SIWFTxnValues> {
+    const siwfTxnValues: SIWFTxnValues = { msaId: '', handle: '', address: '', newProvider: '' };
+
+    txResultEvents.forEach((record) => {
+      // In the sign up flow, but when msa is already created, we do not have an MsaCreated event
+      // We only have the DelegationGranted event, therefore check for events individually.
+      if (record.event && this.api.events.msa.MsaCreated.is(record.event)) {
+        siwfTxnValues.msaId = record.event.data.msaId.toString();
+        siwfTxnValues.address = record.event.data.key.toString();
+      }
+      if (record.event && this.api.events.handles.HandleClaimed.is(record.event)) {
+        const handleHex = record.event.data.handle.toString();
+        // Remove the 0x prefix from the handle and convert the hex handle to a utf-8 string
+        const handleData = handleHex.slice(2);
+        siwfTxnValues.handle = Buffer.from(handleData.toString(), 'hex').toString('utf-8');
+        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.msaId.toString();
+      }
+      if (record.event && this.api.events.msa.DelegationGranted.is(record.event)) {
+        siwfTxnValues.newProvider = record.event.data.providerId.toString();
+        if (!siwfTxnValues.msaId) siwfTxnValues.msaId = record.event.data.delegatorId.toString();
+      }
+    });
+
+    // If one of the above events has previously occurred, we still need to set those values.
+    if (siwfTxnValues.handle === '') {
+      const handle = await this.getHandleForMsa(siwfTxnValues.msaId);
+      siwfTxnValues.handle = `${handle?.base_handle}.${handle?.suffix}`;
+    }
+    if (siwfTxnValues.address === '') {
+      const keyInfo = await this.getKeysByMsa(siwfTxnValues.msaId);
+      siwfTxnValues.address = keyInfo?.msa_keys[0].toString();
+    }
+    if (siwfTxnValues.newProvider === '') {
+      siwfTxnValues.newProvider = this.providerId.toString();
+    }
+
+    return siwfTxnValues;
   }
 }

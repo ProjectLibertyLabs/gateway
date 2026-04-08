@@ -7,17 +7,19 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { getKeyringPairFromSeedOrUriOrPrivateKey } from '#utils/common/signature.util';
 import { getUnifiedAddress } from '@frequency-chain/ethereum-utils';
 
-export interface IBlockchainNonProviderConfig {
+// providerId:  a unique numeric identifier, typically the Provider MSA ID.
+// config values needed for functions that don't submit transactions
+export interface IBlockchainReadOnlyConfig {
   frequencyTimeoutSecs: number;
   frequencyApiWsUrl: URL;
   isDeployedReadOnly: boolean;
+  providerId: bigint;
 }
 
-// providerId:  a unique numeric identifier, typically the Provider MSA ID.
+// config values needed for transactions
 // providerKeyUriOrPrivateKey: The URI of a key, usually a seed phrase, but may also include test accounts such as `//Alice` or `//Bob`. * @param {string} callbackUri - The URI that the user should return to after authenticating. Or the private key in hex format for Ethereum keys.
 // capacityLimit:  the maximum capacity in the Provider account referenced by `providerId`.
-export interface IBlockchainConfig extends IBlockchainNonProviderConfig {
-  providerId: bigint;
+export interface IBlockchainConfig extends IBlockchainReadOnlyConfig {
   providerKeyUriOrPrivateKey: string;
   capacityLimit: ICapacityLimits;
 }

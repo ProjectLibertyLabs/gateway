@@ -54,9 +54,7 @@ export default <T>(configObj: any) => {
     }).compile();
 
     await ConfigModule.envVariablesLoaded;
-
-    const config = moduleRef.get<T>(configObj.KEY);
-    return config;
+    return moduleRef.get<T>(configObj.KEY);
   };
 
   return {

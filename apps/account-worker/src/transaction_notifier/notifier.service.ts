@@ -2,7 +2,6 @@ import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown, Provider } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { BlockchainService } from '#blockchain/blockchain.service';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
 import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -14,10 +13,10 @@ import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/account-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
-import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
 import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 @Injectable()
 export class TxnNotifierService
@@ -45,11 +44,10 @@ export class TxnNotifierService
   }
 
   constructor(
-    blockchainService: BlockchainService,
+    blockchainService: BlockchainRpcQueryService,
     private readonly schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
     @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
-    @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly capacityService: CapacityCheckerService,
     private readonly providerWebhookService: ProviderWebhookService,
     protected readonly logger: PinoLogger,
@@ -72,7 +70,6 @@ export class TxnNotifierService
       const savedCapacity = await this.cacheManager.get(epochCapacityKey);
       const epochCapacity = BigInt(savedCapacity ?? 0);
       const newEpochCapacity = epochCapacity + capacityWithdrawn;
-
       const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
       const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
       await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
@@ -115,7 +112,10 @@ export class TxnNotifierService
     if (extrinsicIndices.length > 0) {
       const epoch = await this.blockchainService.getCurrentCapacityEpoch();
       const events: FrameSystemEventRecord[] = blockEvents.filter(
-        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index)),
+        ({ phase }) => {
+          return phase.isApplyExtrinsic &&
+            extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index))
+        },
       );
 
       const totalCapacityWithdrawn: bigint = events

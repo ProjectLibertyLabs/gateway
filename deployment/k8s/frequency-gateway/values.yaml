@@ -196,6 +196,7 @@ contentWatcher:
     IPFS_ENDPOINT: "http://<host-ip>:5001/api/v0"
     IPFS_GATEWAY_URL: "http://<host-ip>:8080/ipfs/[CID]"
     FREQUENCY_API_WS_URL: "ws://<host-ip>:9944"
+    PROVIDER_ID: "1"
     REDIS_OPTIONS: ""
     REDIS_URL: "redis://<host-ip>:6379"
     BLOCKCHAIN_SCAN_INTERVAL_SECONDS: "12"

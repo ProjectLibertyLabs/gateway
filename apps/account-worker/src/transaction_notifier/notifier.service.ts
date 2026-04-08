@@ -1,5 +1,5 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown, Provider } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import Redis from 'ioredis';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';

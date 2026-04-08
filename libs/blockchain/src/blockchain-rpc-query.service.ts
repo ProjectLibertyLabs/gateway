@@ -16,7 +16,7 @@ import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountId, AccountId32, BlockHash, BlockNumber, Call, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
-import { AnyNumber, Codec, DetectCodec, IMethod, SignerPayloadRaw } from '@polkadot/types/types';
+import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
 import { bool, Bytes, GenericExtrinsic, Option, u128, Vec } from '@polkadot/types';
 import {
   CommonPrimitivesMsaProviderRegistryEntry,

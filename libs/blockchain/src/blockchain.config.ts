@@ -60,7 +60,7 @@ const doRegister = (mode: ChainMode = ChainMode.PROVIDER_SEED_REQUIRED) =>
     switch (mode) {
       case ChainMode.NO_PROVIDER:
         seedValidation = Joi.any().strip();
-        providerIdValidation = Joi.any().strip();
+        providerIdValidation = JoiUtil.bigintSchema().required();
         readOnlyValidation = Joi.boolean().optional().default(true);
         break;
 

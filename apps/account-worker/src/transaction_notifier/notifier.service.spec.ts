@@ -276,7 +276,7 @@ describe('TxnNotifierService', () => {
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockCapacityEvent = {
-        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => true} },
+        phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (_idx: number) => true } },
         event: {
           section: 'capacity',
           method: 'CapacityWithdrawn',

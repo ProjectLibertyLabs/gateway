@@ -70,8 +70,6 @@ async function main() {
       const { event } = eventRecord;
       if (event && ExtrinsicHelper.apiPromise.events.msa.MsaCreated.is(event)) {
         const { msaId, key } = event.data;
-        console.log("MsaCreated Event index ", event.index)
-        console.log(`MsaCreated Event data: MsaId = ${msaId} with key ${key}`)
         const address = key.toString();
         const user = userMap.find((d) => d.keypair.address === address);
         if (user) {

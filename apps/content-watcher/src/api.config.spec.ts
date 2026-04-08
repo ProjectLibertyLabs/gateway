@@ -9,6 +9,7 @@ describe('Content Watcher API config', () => {
     API_BODY_JSON_LIMIT: undefined,
     API_PORT: undefined,
     API_TIMEOUT_MS: undefined,
+    PROVIDER_ID: undefined,
   };
 
   beforeAll(() => {

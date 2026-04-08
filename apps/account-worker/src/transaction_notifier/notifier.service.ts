@@ -114,7 +114,7 @@ export class TxnNotifierService
       const events: FrameSystemEventRecord[] = blockEvents.filter(
         ({ phase }) => {
           return phase.isApplyExtrinsic &&
-            extrinsicIndices.some((index) => phase.asApplyExtrinsic.eq(index))
+            extrinsicIndices.some(([,txIndex]) => phase.asApplyExtrinsic.eq(txIndex))
         },
       );
 

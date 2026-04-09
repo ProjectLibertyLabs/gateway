@@ -22,6 +22,10 @@ export default registerAs('content-watcher-api', (): IContentWatcherApiConfig =>
       label: 'API_TIMEOUT_MS',
       joi: Joi.number().min(1).default(30000),
     },
+    providerId: {
+      label: 'PROVIDER_ID',
+      joi: JoiUtils.bigintSchema().required(),
+    },
   });
 
   Object.keys(process.env)

@@ -1,10 +1,10 @@
 /* eslint-disable max-classes-per-file */
 import '@frequency-chain/api-augment';
 import { BlockHash, SignedBlock } from '@polkadot/types/interfaces';
-import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import Redis from 'ioredis';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { PinoLogger } from 'nestjs-pino';
+import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 
 export const LAST_SEEN_BLOCK_NUMBER_KEY = 'lastSeenBlockNumber';
 

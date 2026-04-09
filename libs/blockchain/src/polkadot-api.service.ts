@@ -6,7 +6,7 @@ import { ApiDecoration, ApiInterfaceEvents } from '@polkadot/api/types';
 import { ProviderInterface } from '@polkadot/rpc-provider/types';
 import type { u64 } from '@polkadot/types-codec';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { IBlockchainNonProviderConfig } from './blockchain.config';
+import { IBlockchainReadOnlyConfig } from './blockchain.config';
 import { ChainType } from '@frequency-chain/ethereum-utils';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -44,7 +44,7 @@ export class PolkadotApiService extends EventEmitter2 implements OnApplicationSh
   }
 
   constructor(
-    private readonly baseConfig: IBlockchainNonProviderConfig,
+    private readonly baseConfig: IBlockchainReadOnlyConfig,
     private readonly eventEmitter: EventEmitter2,
     protected readonly logger: PinoLogger,
   ) {

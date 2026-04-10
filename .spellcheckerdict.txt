@@ -106,6 +106,7 @@ JSDoc
 (JSON|json)
 JWT
 k6
+k8
 keypair
 [Kk]6
 kubectl

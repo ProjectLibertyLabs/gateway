@@ -1,7 +1,7 @@
 import { describe, it, jest, expect, beforeEach } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BlockchainRpcQueryService } from './blockchain-rpc-query.service';
-import { noProviderBlockchainConfig, IBlockchainNonProviderConfig } from './blockchain.config';
+import { noProviderBlockchainConfig, IBlockchainReadOnlyConfig } from './blockchain.config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { LoggerModule } from 'nestjs-pino';
@@ -35,12 +35,13 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
-const mockNoProviderConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>(
+const mockNoProviderConfigProvider = GenerateMockConfigProvider<IBlockchainReadOnlyConfig>(
   noProviderBlockchainConfig.KEY,
   {
     frequencyTimeoutSecs: 10,
     frequencyApiWsUrl: new URL('ws://localhost:9944'),
     isDeployedReadOnly: false,
+    providerId: 989n,
   },
 );
 

@@ -7,7 +7,7 @@ import { BlockchainScannerService } from './blockchain-scanner.service';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { mockApiPromise } from '#testlib/polkadot-api.mock.spec';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
-import blockchainConfig, { IBlockchainNonProviderConfig } from '#blockchain/blockchain.config';
+import blockchainConfig, { IBlockchainReadOnlyConfig } from '#blockchain/blockchain.config';
 import { GenerateMockConfigProvider } from '#testlib/utils.config-tests';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AnyNumber } from '@polkadot/types/types';
@@ -27,10 +27,11 @@ jest.mock('@polkadot/api', () => {
   };
 });
 
-const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainNonProviderConfig>(blockchainConfig.KEY, {
+const mockBlockchainConfigProvider = GenerateMockConfigProvider<IBlockchainReadOnlyConfig>(blockchainConfig.KEY, {
   frequencyTimeoutSecs: 10,
   frequencyApiWsUrl: new URL('ws://localhost:9944'),
   isDeployedReadOnly: false,
+  providerId: 989n,
 });
 
 const mockBlockHash = {

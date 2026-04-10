@@ -11,11 +11,7 @@ A short description of what you have done to implement/fix the above mentioned f
 @ any other developers who worked on the PR with you
 
 ### Change summary
-
-- A detailed list of bulleted
-- changes that go into detail about
-- the specifics of the changes
-- to the codebase
+A general summary of the changes.
 
 ### Steps to Verify
 
@@ -25,13 +21,20 @@ A short description of what you have done to implement/fix the above mentioned f
 
 ### Checklist
 
-items that don't apply can be marked NA or deleted
+Delete items that don't apply or mark Not Applicable
 
-- [ ] Unit tests added
-- [ ] Integration/end-to-end tests added
+- [ ] Unit tests added/updated
+- [ ] Integration/end-to-end tests added/updated
 - [ ] Documentation added or updated (where applicable)
 - [ ] API endpoints added or changed? Added the endpoints in main.ts and regenerated Swagger docs
-- [ ] Breaking changes? "breaking changes" label added
+- [ ] New packages are noted in the description or summary with what they do
+- [ ] Breaking changes? "breaking changes" label added.
+- Environment variable changes? This is a breaking change for deployment:
+    - [ ] Update docker files,  files, environment templates
+    - [ ] Update config Joi validations, and config setup in tests
+    - [ ] Make a pull request for any *-infra repositories with a deployed Gateway instance. Merge this _first_ 
+before merging this PR.
+
 
 ## Additional details / screenshot
 

@@ -268,15 +268,14 @@ export class TxnNotifierService
           }
 
           let retries = 0;
-          const webhookUrl = this.providerWebhookService.getTransactionNotifyUrl();
           while (retries < this.config.healthCheckMaxRetries) {
             try {
-              this.logger.debug(webhookResponse, `Sending transaction notification to webhook: ${webhookUrl}`);
-              await this.providerWebhookService.sendTransactionNotify(webhookResponse);
+              this.logger.debug(webhookResponse, `Sending transaction notification to webhook`);
+              await this.providerWebhookService.notify(webhookResponse);
               this.logger.debug('Transaction Notification sent to webhook');
               break;
             } catch (error) {
-              this.logger.error(error, `Failed to send notification to webhook: ${webhookUrl}`);
+              this.logger.error(error, `Failed to send notification to webhook`);
               retries += 1;
             }
           }

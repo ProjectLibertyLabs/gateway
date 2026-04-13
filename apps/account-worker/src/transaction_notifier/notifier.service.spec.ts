@@ -50,8 +50,7 @@ describe('TxnNotifierService', () => {
 
   beforeEach(async () => {
     const mockProviderWebhookService = {
-      getTransactionNotifyUrl: jest.fn(),
-      sendTransactionNotify: jest.fn(),
+      notify: jest.fn(),
     };
 
     const mockCapacityService = {
@@ -136,7 +135,7 @@ describe('TxnNotifierService', () => {
 
       await service.processCurrentBlock(mockBlock, [mockEvent as any]);
 
-      expect(providerWebhookService.sendTransactionNotify).toHaveBeenCalledWith(
+      expect(providerWebhookService.notify).toHaveBeenCalledWith(
         expect.objectContaining({
           transactionType: TransactionType.CREATE_HANDLE,
           msaId,
@@ -175,7 +174,7 @@ describe('TxnNotifierService', () => {
         },
       };
       await service.processCurrentBlock(mockBlock, [mockFailureEvent as any]);
-      expect(providerWebhookService.sendTransactionNotify).not.toHaveBeenCalled();
+      expect(providerWebhookService.notify).not.toHaveBeenCalled();
       expect(cacheManager.multi().hdel).toHaveBeenCalledWith(TXN_WATCH_LIST_KEY, txHash);
     });
 
@@ -224,13 +223,13 @@ describe('TxnNotifierService', () => {
       mockBlockchainRpcQueryServiceGetter(false, false);
 
       jest
-        .spyOn(providerWebhookService as any, 'sendTransactionNotify')
+        .spyOn(providerWebhookService as any, 'notify')
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValueOnce(true);
 
       await service.processCurrentBlock(mockBlock, [mockEvent as any]);
 
-      expect(providerWebhookService.sendTransactionNotify).toHaveBeenCalledTimes(2);
+      expect(providerWebhookService.notify).toHaveBeenCalledTimes(2);
     });
 
     it('updates epoch capacity when needed', async () => {

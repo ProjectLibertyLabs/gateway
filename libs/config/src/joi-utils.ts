@@ -1,7 +1,8 @@
 import Joi, { Schema, SchemaMap } from 'joi';
 
 interface ConfigProps {
-  value: unknown;
+  label?: string;
+  value?: unknown;
   joi: Schema;
 }
 
@@ -39,6 +40,24 @@ export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {
   }
 
   return updatedConfig;
+}
+
+interface JoiDescriptionFlags {
+  presence?: string,
+  label?: string,
+}
+
+export function requiredConfigs<T>(config: JoiConfig<T>): string[] {
+  return (Object.values(config) as ConfigProps[])
+    .filter(({ joi }) => {
+      const flags: JoiDescriptionFlags = joi.describe().flags
+      return flags?.presence === 'required'
+    })
+    .map(({ label, joi }) => {
+      const flags: JoiDescriptionFlags = joi.describe().flags;
+      return label || flags?.label
+    })
+    .filter((label): label is string => Boolean(label));
 }
 
 export const jsonObjectSchema = Joi.string()

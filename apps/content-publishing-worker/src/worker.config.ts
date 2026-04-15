@@ -21,7 +21,7 @@ export interface IContentPublishingWorkerConfig {
   webhookRetryIntervalSeconds: number;
 }
 
-export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig => {
+export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IContentPublishingWorkerConfig> {
   const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = JoiUtils.normalizeConfigNames({
     apiBodyJsonLimit: {
       label: 'API_BODY_JSON_LIMIT',
@@ -38,11 +38,11 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
     },
     blockchainScanIntervalSeconds: {
       label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(6),
+      joi: Joi.number().min(1).default(6).required(),
     },
     trustUnfinalizedBlocks: {
       label: 'TRUST_UNFINALIZED_BLOCKS',
-      joi: Joi.bool().default(false),
+      joi: Joi.bool().default(false).required(),
     },
     assetExpirationIntervalSeconds: {
       label: 'ASSET_EXPIRATION_INTERVAL_SECONDS',
@@ -62,34 +62,34 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
     },
     healthCheckMaxRetries: {
       label: 'HEALTH_CHECK_MAX_RETRIES',
-      joi: Joi.number().min(0).default(20),
+      joi: Joi.number().min(0).default(20).required(),
     },
     healthCheckMaxRetryIntervalSeconds: {
       label: 'HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(64),
+      joi: Joi.number().min(1).default(64).required(),
     },
     healthCheckSuccessThreshold: {
       label: 'HEALTH_CHECK_SUCCESS_THRESHOLD',
-      joi: Joi.number().min(1).default(10),
+      joi: Joi.number().min(1).default(10).required(),
     },
     providerApiToken: {
       label: 'PROVIDER_API_TOKEN',
-      joi: Joi.string().optional(),
+      joi: Joi.string().min(20).optional(),
     },
     webhookBaseUrl: {
       label: 'WEBHOOK_BASE_URL',
       joi: Joi.string()
         .uri()
         .required()
-        .custom((v) => new URL(v)),
+        .custom((v) => new URL(v)).required(),
     },
     webhookFailureThreshold: {
       label: 'WEBHOOK_FAILURE_THRESHOLD',
-      joi: Joi.number().min(1).default(3),
+      joi: Joi.number().min(1).default(3).required(),
     },
     webhookRetryIntervalSeconds: {
       label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(10),
+      joi: Joi.number().min(1).default(10).required(),
     },
   });
 
@@ -103,5 +103,9 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
       };
     });
 
-  return JoiUtils.validate<IContentPublishingWorkerConfig>(configs);
-});
+  return configs;
+}
+
+
+export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig =>
+  JoiUtils.validate<IContentPublishingWorkerConfig>(buildContentPublishingWorkerConfigs()));

@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
+import contentPublishingWorkerConfig, {
+  IContentPublishingWorkerConfig,
+} from '#content-publishing-worker/worker.config';
 import httpCommonConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { PinoLogger } from 'nestjs-pino';
 import {
@@ -13,7 +15,7 @@ import {
 import { BaseWebhookService } from '../../../webhooks/src/base.webhook.service';
 
 // these are generated via HeyApi from openapi specs
-import { createClient, type Client } from '#types/account-webhook/client';
+import { createClient, type Client } from '#types/content-pubishing-webhook/client';
 
 @Injectable()
 export class ProviderWebhookService extends BaseWebhookService<TxWebhookRsp> {
@@ -24,7 +26,7 @@ export class ProviderWebhookService extends BaseWebhookService<TxWebhookRsp> {
   }
 
   constructor(
-    @Inject(accountWorkerConfig.KEY) private config: IAccountWorkerConfig,
+    @Inject(contentPublishingWorkerConfig.KEY) private config: IContentPublishingWorkerConfig,
     @Inject(httpCommonConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     eventEmitter: EventEmitter2,
     schedulerRegistry: SchedulerRegistry,
@@ -35,9 +37,7 @@ export class ProviderWebhookService extends BaseWebhookService<TxWebhookRsp> {
     this.webhookClient = createClient({
       baseURL: this.baseUrl,
       timeout: this.httpConfig.httpResponseTimeoutMS,
-      headers: this.config.providerApiToken
-        ? { Authorization: this.config.providerApiToken }
-        : undefined,
+      headers: this.config.providerApiToken ? { Authorization: this.config.providerApiToken } : undefined,
     });
     this.webhookClient.instance.interceptors.request.use(this.logRequests(logger));
   }

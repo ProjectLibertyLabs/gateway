@@ -1,0 +1,154 @@
+---
+#
+# Define webhook API for the Frequency Developer Gateway Account Service. The nestjs/swagger package does not
+# support auto-generation of webhooks, or types that are not part of controller
+# endpoints.
+#
+# Also, note we use the 'paths:' component here, not the new 'webhooks:' component supported
+# by OpenAPI >= 3.1. This is because the documentation generators do not yet fully support webhooks.
+openapi: 3.1.0
+info:
+  title: Content Publishing Transaction Notification API
+  version: 1.0.0
+
+paths:
+  /healthz:
+    get:
+      responses:
+        '200':
+          description: 'Service is healthy'
+      summary: 'Check the health status of the service'
+
+  /webhooks/transaction-notify:
+    post:
+      summary: Notify transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TxWebhookRsp'
+      responses:
+        '200':
+          description: Successful notification
+        '400':
+          description: Bad request
+
+components:
+  schemas:
+    TransactionType:
+      type: string
+      enum:
+        - CAPACITY_BATCH
+        - ON_CHAIN_CONTENT
+      x-enum-varnames:
+        - CAPACITY_BATCH
+        - ON_CHAIN_CONTENT
+
+    TxWebhookRspBase:
+      type: object
+      optional:
+        - msaId
+      required:
+        - blockHash
+        - providerId
+        - referenceId
+        - txHash
+      properties:
+        blockHash:
+          type: string
+        providerId:
+          type: string
+        referenceId:
+          type: string
+        msaId:
+          type: string
+        txHash:
+          type: string
+
+    OnChainContentOps:
+      type: object
+      properties:
+        msaId:
+          type: string
+        intentId:
+          type: string
+        schemaId:
+          type: string
+      required:
+        - msaId
+        - schemaId
+        - intentId
+
+    CapacityBatchAllOpts:
+      type: object
+      properties:
+        calls:
+          type: array
+          items:
+            type: object
+            properties:
+              section:
+                type: string
+              method:
+                type: string
+            required:
+              - section
+              - method
+        capacityWithdrawnEvent:
+          type: object
+          properties:
+            msaId:
+              type: string
+            amount:
+              type: string
+          required:
+            - amount
+            - msaId
+      required:
+        - calls
+        - capacityWithdrawnEvent
+
+    TxWebhookOpts:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/OnChainContentOpts'
+        - $ref: '#/components/schemas/CapacityBatchAllOpts'
+
+    OnChainContentRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/OnChainContentOpts'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              enum:
+                - ON_CHAIN_ONTENT
+          required:
+            - transactionType
+
+    CapacityBatchAllWebhookRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/CapacityBatchAllOpts'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              enum:
+                - CAPACITY_BATCH
+          required:
+            - transactionType
+
+    TxWebhookRsp:
+      discriminator:
+        propertyName: transactionType
+        mapping:
+          ON_CHAIN_ONTENT: '#/components/schemas/OnChainContentRsp'
+          CAPACITY_BATCH: '#/components/schemas/CapacityBatchAllWebhookRsp'
+      oneOf:
+        - $ref: '#/components/schemas/OnChainContentRsp'
+        - $ref: '#/components/schemas/CapacityBatchAllWebhookRsp'

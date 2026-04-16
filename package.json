@@ -60,7 +60,7 @@
     "test:account": "dotenvx run -f env-files/account.template.env -- jest 'apps/account-api' 'apps/account-worker'",
     "test:content-publishing": "dotenvx run -f env-files/content-publishing.template.env -- jest 'apps/content-publishing-api' 'apps/content-publishing-worker'",
     "test:content-watcher": "dotenvx run -f env-files/content-watcher.template.env -- jest 'apps/content-watcher'",
-    "test:libs:account": "dotenvx run -f env-files/account.template.env -- jest 'libs/account-lib'",
+    "test:libs:webhooks": "dotenvx run -f env-files/account.template.env -- jest 'libs/webhooks'",
     "test:libs:blockchain": "dotenvx run -f env-files/account.template.env -- jest 'libs/blockchain'",
     "test:libs:cache": "dotenvx run -f env-files/account.template.env -- jest 'libs/cache'",
     "test:libs:config": "dotenvx run -f env-files/account.template.env -- jest 'libs/config'",

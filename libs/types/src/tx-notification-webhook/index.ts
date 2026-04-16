@@ -10,7 +10,7 @@ export {
   type getHealthzData,
   type getHealthzResponses,
   type OnChainContentOpts,
-  type OnChainContentRsp,
+  type OnChainContentWebhookRsp,
   type postWebhooksTransactionNotifyData,
   type postWebhooksTransactionNotifyErrors,
   type postWebhooksTransactionNotifyResponses,

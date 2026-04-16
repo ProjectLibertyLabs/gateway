@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import accountWorkerConfig from '#account-worker/worker.config';
+import accountWorkerConfig from '#content-publishing-worker/worker.config';
 import { TxnNotifierService } from './notifier.service';
 import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
 import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
@@ -9,7 +9,7 @@ import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
   providers: [
     {
       provide: WEBHOOK_CONFIG,
-      useExisting: accountWorkerConfig.KEY
+      useExisting: accountWorkerConfig.KEY,
     },
     BaseWebhookService,
     TxnNotifierService,

@@ -18,11 +18,11 @@ import { Call } from '@polkadot/types/interfaces';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { PinoLogger } from 'nestjs-pino';
-import { IAccountTxStatus } from '#types/interfaces/tx-status.interface';
+import { IBaseTxStatus } from '#types/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 
 /**
- * Abstract base class for publisher services that handle blockchain transactions.
+ * Abstract base class for content-publishing worker services that handle blockchain transactions.
  * Provides common functionality for capacity management, transaction processing,
  * and lifecycle hooks.
  */
@@ -130,7 +130,7 @@ export abstract class BaseChainPublisherService
    * @param txHash The transaction hash.
    * @param status The transaction status object to cache.
    */
-  protected async cacheTransactionStatus(txHash: HexString, status: IAccountTxStatus): Promise<void> {
+  protected async cacheTransactionStatus(txHash: HexString, status: IBaseTxStatus): Promise<void> {
     const obj: Record<string, string> = {};
     obj[txHash] = JSON.stringify(status);
     await this.cacheManager.hset(TXN_WATCH_LIST_KEY, obj);

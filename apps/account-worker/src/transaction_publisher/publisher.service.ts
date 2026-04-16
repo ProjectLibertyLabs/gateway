@@ -10,12 +10,10 @@ import { BlockchainService } from '#blockchain/blockchain.service';
 import { BadSignatureError, InsufficientBalanceError, MortalityError, NonceConflictError } from '#blockchain/types';
 import { AccountQueues as QueueConstants } from '#types/constants/queue.constants';
 import { TransactionData } from '#types/dtos/account';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
+import { IBaseTxStatus } from '#types/interfaces';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { TransactionType } from '#types/tx-notification-webhook';
-import { Vec } from '@polkadot/types';
-import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';
 import workerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
@@ -60,7 +58,7 @@ export class TransactionPublisherService extends BaseChainPublisherService {
       }
       this.logger.info(`Processing job ${job.id} of type ${job.name}.`);
       let tx: SubmittableExtrinsic<'promise'>;
-      let targetEvent: ITxStatus['successEvent'];
+      let targetEvent: IBaseTxStatus['successEvent'];
       let blockNumber: number;
       switch (job.data.type) {
         case TransactionType.CREATE_HANDLE:
@@ -127,7 +125,7 @@ export class TransactionPublisherService extends BaseChainPublisherService {
       this.logger.debug(`Job completed (${job.id})`);
       this.logger.trace(JSON.stringify(job, null, 2));
 
-      const status: ITxStatus = {
+      const status: IBaseTxStatus = {
         type: job.data.type,
         referenceId: job.data.referenceId,
         providerId: job.data.providerId,

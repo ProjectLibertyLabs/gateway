@@ -1,10 +1,10 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
 import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
+import { createWebhookRsp } from '#webhooks-lib/helpers/createWebhookRsp.helper';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
+import { IBaseTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/tx-notification-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
@@ -15,10 +15,11 @@ import {
   IWatchedTransactionSuccessContext,
   WatchedTransactionScannerService,
 } from '#blockchain/watched-transaction-scanner.service';
-import { BaseWebhookService } from '../../../../libs/webhooks/src/base.webhook.service';
+import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
 
+// For watching transactions directly on chain.
 @Injectable()
-export class TxnNotifierService extends WatchedTransactionScannerService<ITxStatus> {
+export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTxStatus> {
   constructor(
     blockchainService: BlockchainRpcQueryService,
     schedulerRegistry: SchedulerRegistry,
@@ -31,8 +32,8 @@ export class TxnNotifierService extends WatchedTransactionScannerService<ITxStat
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  protected deserializeTxStatus(value: string): ITxStatus {
-    return JSON.parse(value) as ITxStatus;
+  protected deserializeTxStatus(value: string): IBaseTxStatus {
+    return JSON.parse(value) as IBaseTxStatus;
   }
 
   protected async getCurrentCapacityEpoch(_currentBlock: SignedBlock): Promise<string | number> {
@@ -41,7 +42,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<ITxStat
 
   protected async handleTransactionFailure({
     moduleError,
-  }: IWatchedTransactionFailureContext<ITxStatus>): Promise<void> {
+  }: IWatchedTransactionFailureContext<IBaseTxStatus>): Promise<void> {
     this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
   }
 
@@ -53,7 +54,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<ITxStat
     extrinsicEvents,
     currentBlockNumber,
     successEvent,
-  }: IWatchedTransactionSuccessContext<ITxStatus>): Promise<void> {
+  }: IWatchedTransactionSuccessContext<IBaseTxStatus>): Promise<void> {
     this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
     const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
     let webhookResponse: TxWebhookRsp | undefined;
@@ -191,7 +192,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<ITxStat
     }
   }
 
-  protected async handleTransactionExpired(txStatus: ITxStatus, currentBlockNumber: number): Promise<void> {
+  protected async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlockNumber: number): Promise<void> {
     this.logger.trace(
       `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
     );

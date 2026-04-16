@@ -15,11 +15,13 @@ import {
 } from '#types/constants';
 import { BaseConsumer } from '#consumer';
 import { MessagePublisher } from './message.publisher';
-import { IContentTxStatus, IContextTxResult, IPublisherJob, isOnChainJob } from '#types/interfaces';
+import { IBaseTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
+import { IContentTxStatus, IContextTxResult } from '#content-publishing-worker/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 @Injectable()
 @Processor(QueueConstants.PUBLISH_QUEUE_NAME)
@@ -65,8 +67,11 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       }
       this.logger.debug(`Processing job ${job.id} of type ${job.name}`);
 
+      let txType = TransactionType.CAPACITY_BATCH;
+
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
+        txType = TransactionType.ON_CHAIN_CONTENT
         const isDelegationValid = await this.blockchainService.checkCurrentDelegation(
           jobData.data.onBehalfOf,
           jobData.data.schemaId,
@@ -82,6 +87,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
       // Store transaction status
       const status: IContentTxStatus = {
+        type: txType,
         txHash: txHash as `0x${string}`,
         successEvent: { section: 'messages', method: 'MessagesInBlock' },
         birth: tx.era.asMortalEra.birth(currentBlockNumber),

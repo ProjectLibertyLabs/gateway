@@ -10,11 +10,12 @@ import { getQueueToken } from '@nestjs/bull-shared';
 import { ContentPublishingQueues } from '#types/constants';
 import PUBLISH_QUEUE_NAME = ContentPublishingQueues.PUBLISH_QUEUE_NAME;
 import { Queue, QueueEvents } from 'bullmq';
-import { IContextTxResult, IPublisherJob } from '#types/interfaces';
+import { IPublisherJob } from '#types/interfaces';
 import { TxStatusMonitoringService } from '#content-publishing-worker/monitor/tx.status.monitor.service';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
 import { Logger } from 'nestjs-pino';
+import { IContextTxResult } from '#content-publishing-worker/interfaces';
 
 process.env.CACHE_KEY_PREFIX = 'content-publishing-worker-e2e:';
 

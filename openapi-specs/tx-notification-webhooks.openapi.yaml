@@ -39,7 +39,6 @@ components:
     TransactionType:
       type: string
       enum:
-        - CAPACITY_BATCH
         - ON_CHAIN_CONTENT
         - CHANGE_HANDLE
         - CREATE_HANDLE
@@ -51,7 +50,6 @@ components:
         - REVOKE_DELEGATION
         - CAPACITY_BATCH
       x-enum-varnames:
-        - CAPACITY_BATCH
         - ON_CHAIN_CONTENT
         - CHANGE_HANDLE
         - CREATE_HANDLE
@@ -186,7 +184,7 @@ components:
           required:
             - transactionType
 
-    OnChainContentRsp:
+    OnChainContentWebhookRsp:
       type: object
       allOf:
         - $ref: '#/components/schemas/TxWebhookRspBase'
@@ -196,7 +194,7 @@ components:
             transactionType:
               type: string
               enum:
-                - ON_CHAIN_ONTENT
+                - ON_CHAIN_CONTENT
           required:
             - transactionType
 
@@ -306,7 +304,7 @@ components:
       discriminator:
         propertyName: transactionType
         mapping:
-          ON_CHAIN_ONTENT: '#/components/schemas/OnChainContentRsp'
+          ON_CHAIN_CONTENT: '#/components/schemas/OnChainContentWebhookRsp'
           CREATE_HANDLE: '#/components/schemas/CreateHandleWebhookRsp'
           CHANGE_HANDLE: '#/components/schemas/ChangeHandleWebhookRsp'
           SIWF_SIGNUP: '#/components/schemas/SIWFWebhookRsp'
@@ -316,7 +314,7 @@ components:
           REVOKE_DELEGATION: '#/components/schemas/RevokeDelegationWebhookRsp'
           CAPACITY_BATCH: '#/components/schemas/CapacityBatchAllWebhookRsp'
       oneOf:
-        - $ref: '#/components/schemas/OnChainContentRsp'
+        - $ref: '#/components/schemas/OnChainContentWebhookRsp'
         - $ref: '#/components/schemas/CreateHandleWebhookRsp'
         - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
         - $ref: '#/components/schemas/SIWFWebhookRsp'

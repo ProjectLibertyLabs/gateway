@@ -1,4 +1,4 @@
-import { IPublisherJob } from '#types/interfaces/content-publishing';
+import { IPublisherJob,IBaseTxStatus} from '#types/interfaces';
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
 
 export interface ITxMonitorJob {
@@ -7,3 +7,9 @@ export interface ITxMonitorJob {
   lastFinalizedBlockHash: BlockHash;
   referencePublishJob: IPublisherJob;
 }
+
+export interface IContentTxStatus extends IBaseTxStatus {
+  referencePublishJob: IPublisherJob;
+}
+
+export type IContextTxResult = Omit<IContentTxStatus, 'referencePublishJob'>;

@@ -1,4 +1,4 @@
-import { OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
@@ -10,9 +10,16 @@ import {
   TxWebhookRsp,
   type Options as WebhookClientOptions,
 } from '#types/tx-notification-webhook';
-import { IHttpCommonConfig } from '#config/http-common.config';
+import httpConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { createClient, type Client } from '#types/tx-notification-webhook/client';
+import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
 
+
+/**
+ * Base class for posting to a webhook that is configured in the
+ * service's environment file.
+ */
+@Injectable()
 export class BaseWebhookService implements OnModuleDestroy {
   protected failedHealthChecks = 0;
   protected successfulHealthChecks = 0;
@@ -25,8 +32,8 @@ export class BaseWebhookService implements OnModuleDestroy {
   constructor(
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
-    private readonly webhookConfig: IWebhookConfig,
-    private readonly httpConfig: IHttpCommonConfig,
+    @Inject(WEBHOOK_CONFIG) private readonly webhookConfig: IWebhookConfig,
+    @Inject(httpConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly logger: PinoLogger,
     private healthCheckTimeoutName: string = 'webhook.health_check',
   ) {
@@ -89,7 +96,7 @@ export class BaseWebhookService implements OnModuleDestroy {
     });
   }
 
-  protected async checkHealth() {
+  public async checkHealth() {
     // Check webhook
     try {
       // eslint-disable-next-line no-await-in-loop

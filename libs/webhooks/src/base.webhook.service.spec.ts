@@ -5,6 +5,10 @@ import { BaseWebhookService } from './base.webhook.service';
 import { IWebhookConfig } from './interfaces/webhook-config.interface';
 import { IHttpCommonConfig } from '#config/http-common.config';
 
+let getHealthzMock = jest.spyOn(BaseWebhookService.prototype, 'getHealthz').mockImplementation(async () => {
+  console.log('mocked function');
+}); // comment this line if just want to "spy"
+
 describe('BaseWebhookService', () => {
   const mockEmitter = {
     emit: jest.fn(),
@@ -30,22 +34,9 @@ describe('BaseWebhookService', () => {
   };
 
   const mockHttpConfig: IHttpCommonConfig = {
-    httpResponseTimeoutMS:  10,
+    httpResponseTimeoutMS: 10,
+  };
 
-  }
-
-  class MyWebhookService extends BaseWebhookService {
-    private _failHealthz: boolean = false;
-
-    public async checkHealthTest(): Promise<void> {
-      this.checkHealth();
-    }
-
-    public set failHealthz(fail: boolean) {
-      // eslint-disable-next-line no-underscore-dangle
-      this._failHealthz = fail;
-    }
-  }
   const expectHealthCheckFailedBehavior = (expectedFailures: number) => {
     expect(mockEmitter.emit).toHaveBeenCalledWith('webhook.unhealthy');
     expect(mockLogger.warn).toHaveBeenCalledWith(`Provider webhook failed health check ${expectedFailures} times`);
@@ -70,55 +61,59 @@ describe('BaseWebhookService', () => {
     expect(mockRegistry.addTimeout).toHaveBeenCalled();
   };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  async function throwingFunction() {
+    throw new Error('Failed');
+  }
 
-  const createWebhookService = () => {
-    return new MyWebhookService(
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+    service = new BaseWebhookService(
       mockRegistry as unknown as SchedulerRegistry,
       mockEmitter as unknown as EventEmitter2,
       mockConfig,
       mockHttpConfig,
       mockLogger as unknown as PinoLogger,
-      'check-health-check',
     );
-  };
+  });
+
+  let service: BaseWebhookService;
+
+  afterEach(() => {
+    service?.onModuleDestroy();
+    jest.clearAllTimers();
+    jest.useRealTimers();
+  });
 
   it('check_health success', async () => {
-    const svc = createWebhookService();
-    await svc.checkHealthTest();
-    svc.onModuleDestroy();
+    await service.checkHealth();
     expect(mockEmitter.emit).toHaveBeenCalledWith('webhook.healthy');
   });
 
   it('When getHealthz fails less than max retries it enters probationary period', async () => {
-    const svc = createWebhookService();
-    svc.failHealthz = true;
-    await svc.checkHealthTest();
-    svc.onModuleDestroy();
+    getHealthzMock.mockImplementationOnce(throwingFunction);
+    await service.checkHealth();
     expectHealthCheckFailedBehavior(1);
   });
 
   it('when getHealthz fails more than max retries, it shuts down', async () => {
-    const svc = createWebhookService();
-    svc.failHealthz = true;
-    await svc.checkHealthTest();
-    await svc.checkHealthTest();
-    svc.onModuleDestroy();
+    getHealthzMock.mockImplementationOnce(throwingFunction).mockImplementationOnce(throwingFunction);
+    await service.checkHealth();
+    await service.checkHealth();
     expectShutdown();
   });
   it('when getHealthz fails and then reconnects, it eventually recovers', async () => {
-    const svc = createWebhookService();
-    svc.failHealthz = true;
-    await svc.checkHealthTest();
-    svc.failHealthz = false;
-    await svc.checkHealthTest();
+    getHealthzMock
+      .mockImplementationOnce(throwingFunction)
+      .mockImplementationOnce(jest.fn())
+      .mockImplementationOnce(jest.fn())
+      .mockImplementationOnce(jest.fn());
+    await service.checkHealth();
+    await service.checkHealth();
     expectHealthCheckProbationaryPeriod(1);
-    await svc.checkHealthTest();
+    await service.checkHealth();
     expectHealthCheckProbationaryPeriod(2);
-    await svc.checkHealthTest();
-    svc.onModuleDestroy();
+    await service.checkHealth();
     expectWebhookQueueToResume();
   });
 });

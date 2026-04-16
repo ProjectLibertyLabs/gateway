@@ -13,7 +13,7 @@ import { mockRedisProvider } from '#testlib';
 import { jest } from '@jest/globals';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
-import { BaseWebhookService } from '../../../../libs/webhooks/src/base.webhook.service';
+import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 // mock NestJS Scheduler

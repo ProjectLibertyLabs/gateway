@@ -6,7 +6,7 @@ import { PublishHandleRequestDto } from './handles.request.dto';
 import { PublishKeysRequestDto } from './keys.request.dto';
 import { PublishRetireMsaRequestDto } from './accounts.request.dto';
 import { PublishRevokeDelegationRequestDto } from './revokeDelegation.request.dto';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 export interface EncodedExtrinsic {
   pallet: string;

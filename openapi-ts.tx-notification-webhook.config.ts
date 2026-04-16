@@ -1,9 +1,9 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: './openapi-specs/account-webhooks.openapi.yaml',
+  input: './openapi-specs/tx-notification-webhooks.openapi.yaml',
   output: {
-    path: 'libs/types/src/account-webhook',
+    path: 'libs/types/src/tx-notification-webhook',
     postProcess: ['eslint', 'prettier'],
   },
   plugins: [

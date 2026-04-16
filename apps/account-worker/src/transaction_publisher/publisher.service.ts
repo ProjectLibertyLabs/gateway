@@ -13,7 +13,7 @@ import { TransactionData } from '#types/dtos/account';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { HexString } from '@polkadot/util/types';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { Vec } from '@polkadot/types';
 import { Call } from '@polkadot/types/interfaces';
 import { getSignerForRawSignature } from '#utils/common/signature.util';

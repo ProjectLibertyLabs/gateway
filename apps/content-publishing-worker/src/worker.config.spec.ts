@@ -33,20 +33,13 @@ describe('Content Publishing Worker Config', () => {
     requiredConfigs(buildContentPublishingWorkerConfigs());
 
   describe('invalid environment', () => {
-    it('requires the necessary configs', async () => {
+    it('requires the expected configs', async () => {
       expect(requiredContentPublishingWorkerConfigKeys().sort()).toEqual([
         'ASSET_EXPIRATION_INTERVAL_SECONDS',
         'ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS',
         'BATCH_INTERVAL_SECONDS',
         'BATCH_MAX_COUNT',
-        'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
-        'HEALTH_CHECK_MAX_RETRIES',
-        'HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS',
-        'HEALTH_CHECK_SUCCESS_THRESHOLD',
-        'TRUST_UNFINALIZED_BLOCKS',
         'WEBHOOK_BASE_URL',
-        'WEBHOOK_FAILURE_THRESHOLD',
-        'WEBHOOK_RETRY_INTERVAL_SECONDS',
       ]);
     });
 

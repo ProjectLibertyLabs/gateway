@@ -39,6 +39,8 @@ components:
     TransactionType:
       type: string
       enum:
+        - CAPACITY_BATCH
+        - ON_CHAIN_CONTENT
         - CHANGE_HANDLE
         - CREATE_HANDLE
         - SIWF_SIGNUP
@@ -49,6 +51,8 @@ components:
         - REVOKE_DELEGATION
         - CAPACITY_BATCH
       x-enum-varnames:
+        - CAPACITY_BATCH
+        - ON_CHAIN_CONTENT
         - CHANGE_HANDLE
         - CREATE_HANDLE
         - SIWF_SIGNUP
@@ -79,6 +83,20 @@ components:
           type: string
         txHash:
           type: string
+
+    OnChainContentOpts:
+      type: object
+      properties:
+        msaId:
+          type: string
+        intentId:
+          type: string
+        schemaId:
+          type: string
+      required:
+        - msaId
+        - schemaId
+        - intentId
 
     PublishHandleOpts:
       type: object
@@ -147,6 +165,7 @@ components:
     TxWebhookOpts:
       type: object
       oneOf:
+        - $ref: '#/components/schemas/OnChainContentOpts'
         - $ref: '#/components/schemas/PublishHandleOpts'
         - $ref: '#/components/schemas/SIWFOpts'
         - $ref: '#/components/schemas/PublishKeysOpts'
@@ -164,6 +183,20 @@ components:
               type: string
               enum:
                 - CREATE_HANDLE
+          required:
+            - transactionType
+
+    OnChainContentRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/OnChainContentOpts'
+        - type: object
+          properties:
+            transactionType:
+              type: string
+              enum:
+                - ON_CHAIN_ONTENT
           required:
             - transactionType
 
@@ -273,6 +306,7 @@ components:
       discriminator:
         propertyName: transactionType
         mapping:
+          ON_CHAIN_ONTENT: '#/components/schemas/OnChainContentRsp'
           CREATE_HANDLE: '#/components/schemas/CreateHandleWebhookRsp'
           CHANGE_HANDLE: '#/components/schemas/ChangeHandleWebhookRsp'
           SIWF_SIGNUP: '#/components/schemas/SIWFWebhookRsp'
@@ -282,6 +316,7 @@ components:
           REVOKE_DELEGATION: '#/components/schemas/RevokeDelegationWebhookRsp'
           CAPACITY_BATCH: '#/components/schemas/CapacityBatchAllWebhookRsp'
       oneOf:
+        - $ref: '#/components/schemas/OnChainContentRsp'
         - $ref: '#/components/schemas/CreateHandleWebhookRsp'
         - $ref: '#/components/schemas/ChangeHandleWebhookRsp'
         - $ref: '#/components/schemas/SIWFWebhookRsp'

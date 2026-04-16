@@ -4,22 +4,39 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
 import { MILLISECONDS_PER_SECOND } from 'time-constants';
 import { IWebhookConfig } from './interfaces/webhook-config.interface';
-import type { Options as WebhookClientOptions } from '#types/account-webhook';
+import {
+  getHealthz,
+  postWebhooksTransactionNotify,
+  TxWebhookRsp,
+  type Options as WebhookClientOptions,
+} from '#types/tx-notification-webhook';
+import { IHttpCommonConfig } from '#config/http-common.config';
+import { createClient, type Client } from '#types/tx-notification-webhook/client';
 
-export abstract class BaseWebhookService<TPayload> implements OnModuleDestroy {
+export class BaseWebhookService implements OnModuleDestroy {
   protected failedHealthChecks = 0;
   protected successfulHealthChecks = 0;
+  private readonly webhookClient: Client;
 
-  protected abstract getHealthz(): void;
-  protected abstract notify(payload: TPayload): Promise<void>;
+  private get baseUrl(): string {
+    return this.webhookConfig.webhookBaseUrl.toString().replace(/\/+$/, '');
+  }
 
   constructor(
     private schedulerRegistry: SchedulerRegistry,
     private eventEmitter: EventEmitter2,
     private readonly webhookConfig: IWebhookConfig,
+    private readonly httpConfig: IHttpCommonConfig,
     private readonly logger: PinoLogger,
     private healthCheckTimeoutName: string = 'webhook.health_check',
-  ) {}
+  ) {
+    this.webhookClient = createClient({
+      baseURL: this.baseUrl,
+      timeout: this.httpConfig.httpResponseTimeoutMS,
+      headers: this.webhookConfig.providerApiToken ? { Authorization: this.webhookConfig.providerApiToken } : undefined,
+    });
+    this.webhookClient.instance.interceptors.request.use(this.logRequests(logger));
+  }
 
   public onModuleDestroy() {
     try {
@@ -33,7 +50,8 @@ export abstract class BaseWebhookService<TPayload> implements OnModuleDestroy {
 
   // Debug log the actual URL we are attempting to access.
   // Because the URL is generated with HeyApi + OpenAPI spec, rather than duplicating the string
-  // for the url, pass this logging function to `webhookClient.instance.interceptors.request.use`
+  // for the url, use the interceptor.
+  // Pass this logging function to `webhookClient.instance.interceptors.request.use`
   protected logRequests = (logger: PinoLogger) => {
     return (config) => {
       logger.debug(
@@ -47,6 +65,30 @@ export abstract class BaseWebhookService<TPayload> implements OnModuleDestroy {
     };
   };
 
+  private get requestOptions(): Pick<WebhookClientOptions, 'baseURL' | 'timeout' | 'throwOnError' | 'headers'> {
+    return {
+      baseURL: this.baseUrl,
+      timeout: this.httpConfig.httpResponseTimeoutMS,
+      throwOnError: true,
+      headers: this.webhookConfig.providerApiToken ? { Authorization: this.webhookConfig.providerApiToken } : undefined,
+    };
+  }
+
+  public async getHealthz() {
+    await getHealthz({
+      ...this.requestOptions,
+      client: this.webhookClient,
+    });
+  }
+
+  public async notify(body: TxWebhookRsp): Promise<void> {
+    await postWebhooksTransactionNotify({
+      ...this.requestOptions,
+      client: this.webhookClient,
+      body,
+    });
+  }
+
   protected async checkHealth() {
     // Check webhook
     try {
@@ -56,8 +98,9 @@ export abstract class BaseWebhookService<TPayload> implements OnModuleDestroy {
       this.successfulHealthChecks += 1;
       this.failedHealthChecks = 0;
     } catch (e) {
-      // Reset healthCheckSuccesses to 0 on failure. We will not go out of waiting for recovery until there
-      // are a number of sequential healthy responses equaling healthCheckSuccessesThreshold.
+      // Reset healthCheckSuccesses to 0 on failure. We will not go out of waiting for
+      // recovery until there are a number of sequential healthy responses
+      // equaling healthCheckSuccessesThreshold.
       this.successfulHealthChecks = 0;
       this.failedHealthChecks += 1;
     }

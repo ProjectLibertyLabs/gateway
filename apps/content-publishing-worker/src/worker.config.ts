@@ -38,11 +38,11 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
     },
     blockchainScanIntervalSeconds: {
       label: 'BLOCKCHAIN_SCAN_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(6).required(),
+      joi: Joi.number().min(1).default(6),
     },
     trustUnfinalizedBlocks: {
       label: 'TRUST_UNFINALIZED_BLOCKS',
-      joi: Joi.bool().default(false).required(),
+      joi: Joi.bool().default(false),
     },
     assetExpirationIntervalSeconds: {
       label: 'ASSET_EXPIRATION_INTERVAL_SECONDS',
@@ -62,15 +62,15 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
     },
     healthCheckMaxRetries: {
       label: 'HEALTH_CHECK_MAX_RETRIES',
-      joi: Joi.number().min(0).default(20).required(),
+      joi: Joi.number().min(4).default(20),
     },
     healthCheckMaxRetryIntervalSeconds: {
       label: 'HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(64).required(),
+      joi: Joi.number().min(1).default(64),
     },
     healthCheckSuccessThreshold: {
       label: 'HEALTH_CHECK_SUCCESS_THRESHOLD',
-      joi: Joi.number().min(1).default(10).required(),
+      joi: Joi.number().min(1).default(10),
     },
     providerApiToken: {
       label: 'PROVIDER_API_TOKEN',
@@ -85,11 +85,11 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
     },
     webhookFailureThreshold: {
       label: 'WEBHOOK_FAILURE_THRESHOLD',
-      joi: Joi.number().min(1).default(3).required(),
+      joi: Joi.number().min(1).default(3),
     },
     webhookRetryIntervalSeconds: {
       label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
-      joi: Joi.number().min(1).default(10).required(),
+      joi: Joi.number().min(1).default(10),
     },
   });
 

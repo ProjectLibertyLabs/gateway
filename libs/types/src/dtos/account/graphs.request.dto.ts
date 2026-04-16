@@ -9,7 +9,7 @@ import { Type } from 'class-transformer';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 // eslint-disable-next-line no-shadow
 export enum ItemActionType {

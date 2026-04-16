@@ -18,7 +18,7 @@ import {
   RevokeDelegationWebhookRsp,
   CapacityBatchAllOpts,
   CapacityBatchAllWebhookRsp,
-} from '#types/account-webhook';
+} from '#types/tx-notification-webhook';
 
 export interface IBaseWebhookResponse extends ITxStatus {
   msaId?: string;

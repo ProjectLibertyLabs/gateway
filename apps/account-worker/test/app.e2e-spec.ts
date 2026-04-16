@@ -14,7 +14,7 @@ import {
   type postWebhooksTransactionNotifyData,
   TransactionType,
   TxWebhookRsp,
-} from '#types/account-webhook';
+} from '#types/tx-notification-webhook';
 import { TxnNotifierService } from '../src/transaction_notifier/notifier.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import { BlockchainService } from '#blockchain/blockchain.service';
@@ -128,7 +128,7 @@ describe('Account Service E2E request verification!', () => {
       });
     });
 
-    const openApiPath = path.resolve(process.cwd(), 'openapi-specs/account-webhooks.openapi.yaml');
+    const openApiPath = path.resolve(process.cwd(), 'openapi-specs/tx-notification-webhooks.openapi.yaml');
     const prismBin = path.resolve(process.cwd(), 'node_modules/.bin/prism');
     const prismArgs = [
       'proxy',

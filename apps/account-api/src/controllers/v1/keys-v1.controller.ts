@@ -23,7 +23,7 @@ import {
   PublicKeyAgreementRequestDto,
   PublicKeyAgreementsKeyPayload,
 } from '#types/dtos/account/graphs.request.dto';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { MsaIdDto } from '#types/dtos/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 

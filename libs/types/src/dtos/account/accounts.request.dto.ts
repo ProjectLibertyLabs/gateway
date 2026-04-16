@@ -2,7 +2,7 @@
 import { HexString } from '@polkadot/util/types';
 import { RetireMsaPayloadResponseDto } from './accounts.response.dto';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
   /**

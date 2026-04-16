@@ -6,16 +6,16 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/tx-notification-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import {
   IWatchedTransactionFailureContext,
   IWatchedTransactionSuccessContext,
   WatchedTransactionScannerService,
 } from '#blockchain/watched-transaction-scanner.service';
+import { BaseWebhookService } from '../../../../libs/webhooks/src/base.webhook.service';
 
 @Injectable()
 export class TxnNotifierService extends WatchedTransactionScannerService<ITxStatus> {
@@ -25,7 +25,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<ITxStat
     @InjectRedis() cacheManager: Redis,
     @Inject(accountWorkerConfig.KEY) private readonly workerConfig: IAccountWorkerConfig,
     capacityService: CapacityCheckerService,
-    private readonly providerWebhookService: ProviderWebhookService,
+    private readonly providerWebhookService: BaseWebhookService,
     protected readonly logger: PinoLogger,
   ) {
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);

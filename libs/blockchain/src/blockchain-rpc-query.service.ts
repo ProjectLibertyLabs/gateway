@@ -49,7 +49,7 @@ import {
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { IBlockchainReadOnlyConfig, noProviderBlockchainConfig } from './blockchain.config';
 import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -6,6 +6,14 @@ export type ClientOptions = {
 
 export enum TransactionType {
   /**
+   * CAPACITY_BATCH
+   */
+  CAPACITY_BATCH = 'CAPACITY_BATCH',
+  /**
+   * ON_CHAIN_CONTENT
+   */
+  ON_CHAIN_CONTENT = 'ON_CHAIN_CONTENT',
+  /**
    * CHANGE_HANDLE
    */
   CHANGE_HANDLE = 'CHANGE_HANDLE',
@@ -40,7 +48,7 @@ export enum TransactionType {
   /**
    * CAPACITY_BATCH
    */
-  CAPACITY_BATCH = 'CAPACITY_BATCH',
+  CAPACITY_BATCH2 = 'CAPACITY_BATCH',
 }
 
 export type TxWebhookRspBase = {
@@ -49,6 +57,12 @@ export type TxWebhookRspBase = {
   referenceId: string;
   msaId?: string;
   txHash: string;
+};
+
+export type OnChainContentOpts = {
+  msaId: string;
+  intentId: string;
+  schemaId: string;
 };
 
 export type PublishHandleOpts = {
@@ -80,6 +94,7 @@ export type CapacityBatchAllOpts = {
 };
 
 export type TxWebhookOpts =
+  | OnChainContentOpts
   | PublishHandleOpts
   | SIWFOpts
   | PublishKeysOpts
@@ -89,6 +104,11 @@ export type TxWebhookOpts =
 export type CreateHandleWebhookRsp = TxWebhookRspBase &
   PublishHandleOpts & {
     transactionType: 'CREATE_HANDLE';
+  };
+
+export type OnChainContentRsp = TxWebhookRspBase &
+  OnChainContentOpts & {
+    transactionType: 'ON_CHAIN_ONTENT';
   };
 
 export type ChangeHandleWebhookRsp = TxWebhookRspBase &
@@ -127,6 +147,9 @@ export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
   };
 
 export type TxWebhookRsp =
+  | ({
+      transactionType: 'ON_CHAIN_ONTENT';
+    } & OnChainContentRsp)
   | ({
       transactionType: 'CREATE_HANDLE';
     } & CreateHandleWebhookRsp)

@@ -7,7 +7,7 @@ import { IsIntValue } from '#utils/decorators/is-int-value.decorator';
 import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.decorator';
 import { Type } from 'class-transformer';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 // TODO: adjust newPublicKey for Ethereum keys
 export class KeysRequestPayloadDto {

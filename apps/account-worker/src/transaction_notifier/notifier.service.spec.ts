@@ -4,16 +4,16 @@ import { getRedisToken } from '@songkeys/nestjs-redis';
 import { LoggerModule } from 'nestjs-pino';
 import Redis from 'ioredis';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import accountWorkerConfig from '#account-worker/worker.config';
 import { TxnNotifierService } from './notifier.service';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { mockRedisProvider } from '#testlib';
 import { jest } from '@jest/globals';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
+import { BaseWebhookService } from '../../../../libs/webhooks/src/base.webhook.service';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 // mock NestJS Scheduler
@@ -23,7 +23,7 @@ jest.mock<typeof import('ioredis')>('ioredis');
 describe('TxnNotifierService', () => {
   let service: TxnNotifierService;
   let blockchainRpcQueryService: BlockchainRpcQueryService;
-  let providerWebhookService: ProviderWebhookService;
+  let providerWebhookService: BaseWebhookService;
   let cacheManager: Redis;
   let mockPipeline: { hdel: ReturnType<typeof jest.fn>; exec: ReturnType<typeof jest.fn> };
 
@@ -69,14 +69,14 @@ describe('TxnNotifierService', () => {
         mockRedisProvider(),
         { provide: accountWorkerConfig.KEY, useValue: mockConfig },
         { provide: CapacityCheckerService, useValue: mockCapacityService },
-        { provide: ProviderWebhookService, useValue: mockProviderWebhookService },
+        { provide: BaseWebhookService, useValue: mockProviderWebhookService },
       ],
     }).compile();
 
     service = module.get<TxnNotifierService>(TxnNotifierService);
     blockchainRpcQueryService = module.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
     cacheManager = module.get<jest.Mocked<Redis>>(getRedisToken('default'));
-    providerWebhookService = module.get<ProviderWebhookService>(ProviderWebhookService);
+    providerWebhookService = module.get<BaseWebhookService>(BaseWebhookService);
   });
 
   describe('processCurrentBlock', () => {

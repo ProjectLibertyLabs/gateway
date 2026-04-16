@@ -3,7 +3,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { PinoLogger } from 'nestjs-pino';
 import { BaseWebhookService } from './base.webhook.service';
 import { IWebhookConfig } from './interfaces/webhook-config.interface';
-import { string } from 'joi';
+import { IHttpCommonConfig } from '#config/http-common.config';
 
 describe('BaseWebhookService', () => {
   const mockEmitter = {
@@ -29,22 +29,13 @@ describe('BaseWebhookService', () => {
     webhookRetryIntervalSeconds: 4,
   };
 
-  class MyWebhookService extends BaseWebhookService<string> {
-    public notifications: string[] = [];
+  const mockHttpConfig: IHttpCommonConfig = {
+    httpResponseTimeoutMS:  10,
+
+  }
+
+  class MyWebhookService extends BaseWebhookService {
     private _failHealthz: boolean = false;
-
-    // simulates a webhook going away after some successes
-    protected getHealthz(): void {
-      // eslint-disable-next-line no-underscore-dangle
-      if (this._failHealthz) {
-        throw new Error('unhealthy');
-      }
-      this.notifications.push('getHealthz');
-    }
-
-    protected async notify(payload: string): Promise<void> {
-      this.notifications.push(payload);
-    }
 
     public async checkHealthTest(): Promise<void> {
       this.checkHealth();
@@ -88,6 +79,7 @@ describe('BaseWebhookService', () => {
       mockRegistry as unknown as SchedulerRegistry,
       mockEmitter as unknown as EventEmitter2,
       mockConfig,
+      mockHttpConfig,
       mockLogger as unknown as PinoLogger,
       'check-health-check',
     );
@@ -97,7 +89,6 @@ describe('BaseWebhookService', () => {
     const svc = createWebhookService();
     await svc.checkHealthTest();
     svc.onModuleDestroy();
-    expect(svc.notifications[0]).toEqual('getHealthz');
     expect(mockEmitter.emit).toHaveBeenCalledWith('webhook.healthy');
   });
 

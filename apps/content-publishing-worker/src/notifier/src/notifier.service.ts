@@ -58,21 +58,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
     let webhookResponse: TxWebhookRsp | undefined;
 
-    switch (txStatus.type) {
-      case TransactionType.ON_CHAIN_CONTENT:
-        {
-          // call this.blockchainService.handleOnChainContentTxResult(successEvent)
-          // create the response with createWebhookRsp
-          // log the result
-          // const response = createWebhookResp({
-          // {...baseResponse },
-          // { schemaId: 1, intentId: 2, msaId: this.blockchainService.}
-          // })
-          // this.logger.info(`OnChainContent: published ${} to schemaId ${} intentId ${}.`);
-        }
-        break;
-
-      case TransactionType.CAPACITY_BATCH:
+      if (txStatus.type === TransactionType.CAPACITY_BATCH) {
         {
           const capacityEvent = extrinsicEvents.find(
             ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
@@ -89,11 +75,9 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
             },
           } as CapacityBatchAllOpts);
         }
-        break;
-
-      default:
-        this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
-        break;
+      } else {
+        const message = `Unknown transaction type on job.data: ${txStatus.type}`;
+        throw new Error(message);
     }
 
     if (!webhookResponse) {

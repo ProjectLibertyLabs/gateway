@@ -97,7 +97,7 @@ interface CapacityWithdrawn extends BaseEvent {
   amount: string;
 }
 
-interface PayWithCapacityBatchAllCalls extends BaseEvent {
+export interface PayWithCapacityBatchAllCalls extends BaseEvent {
   calls: {
     section: string;
     method: string;

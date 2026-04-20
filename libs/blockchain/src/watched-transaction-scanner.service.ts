@@ -12,16 +12,9 @@ import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { PinoLogger } from 'nestjs-pino';
+import { IBaseTxStatus } from "#types/interfaces";
 
-export interface IWatchedTransactionStatus {
-  txHash: HexString;
-  birth: number;
-  death: number;
-  successEvent?: {
-    section: string;
-    method: string;
-  };
-}
+export type IWatchedTransactionStatus = Omit<IBaseTxStatus, 'type'|'referenceId'|'providerId'>;
 
 export interface IWatchedTransactionScannerConfig {
   blockchainScanIntervalSeconds: number;
@@ -215,7 +208,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
       ? `${context.txStatus.successEvent.section}.${context.txStatus.successEvent.method}`
       : 'undefined';
     this.logger.error(
-      `Watched transaction ${context.txHash} found in block ${context.currentBlockNumber}, but did not find event '${expectedEvent}' in block`,
+      `Watched transaction ${context.txHash} found in block ${context.currentBlockNumber}, but found no corresponding '${expectedEvent}' or 'ExtrinsicFailure' events`,
     );
   }
 

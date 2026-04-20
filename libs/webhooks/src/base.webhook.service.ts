@@ -21,6 +21,7 @@ import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
  */
 @Injectable()
 export class BaseWebhookService implements OnModuleDestroy {
+  private healthCheckTimeoutName: string = 'webhook.health_check';
   protected failedHealthChecks = 0;
   protected successfulHealthChecks = 0;
   private readonly webhookClient: Client;
@@ -35,7 +36,6 @@ export class BaseWebhookService implements OnModuleDestroy {
     @Inject(WEBHOOK_CONFIG) private readonly webhookConfig: IWebhookConfig,
     @Inject(httpConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly logger: PinoLogger,
-    private healthCheckTimeoutName: string = 'webhook.health_check',
   ) {
     this.webhookClient = createClient({
       baseURL: this.baseUrl,

@@ -117,9 +117,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
           );
           webhookResponse = response;
 
-          this.logger.info(
-            `Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`,
-          );
+          this.logger.info(`Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`);
         }
         break;
 
@@ -147,17 +145,16 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
             ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
           )?.event;
           const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
-          const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(currentBlock.block.extrinsics[txIndex]);
-          webhookResponse = createWebhookRsp(
-            { ...baseResponse, providerId: capacityWithdrawn.msaId },
-            {
-              calls,
-              capacityWithdrawnEvent: {
-                msaId: capacityWithdrawn.msaId,
-                amount: capacityWithdrawn.amount,
-              },
-            } as CapacityBatchAllOpts,
+          const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
+            currentBlock.block.extrinsics[txIndex],
           );
+          webhookResponse = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
+            calls,
+            capacityWithdrawnEvent: {
+              msaId: capacityWithdrawn.msaId,
+              amount: capacityWithdrawn.amount,
+            },
+          } as CapacityBatchAllOpts);
         }
         break;
 

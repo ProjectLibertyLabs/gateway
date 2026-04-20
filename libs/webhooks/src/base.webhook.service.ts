@@ -14,7 +14,6 @@ import httpConfig, { IHttpCommonConfig } from '#config/http-common.config';
 import { createClient, type Client } from '#types/tx-notification-webhook/client';
 import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
 
-
 /**
  * Base class for posting to a webhook that is configured in the
  * service's environment file.

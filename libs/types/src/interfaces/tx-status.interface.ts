@@ -2,7 +2,6 @@ import { HexString } from '@polkadot/util/types';
 import { ProviderGraphUpdateJob } from './graph';
 import { TransactionType } from '#types/tx-notification-webhook';
 
-
 /**
  * Interface representing the base status information for a parachain (Frequency) transaction.
  *
@@ -34,7 +33,6 @@ export interface IBaseTxStatus {
 
   death: number;
 }
-
 
 export interface IGraphTxStatus extends IBaseTxStatus {
   referenceJob: ProviderGraphUpdateJob;

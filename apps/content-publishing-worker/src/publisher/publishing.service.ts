@@ -71,7 +71,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {
-        txType = TransactionType.ON_CHAIN_CONTENT
+        txType = TransactionType.ON_CHAIN_CONTENT;
         const isDelegationValid = await this.blockchainService.checkCurrentDelegation(
           jobData.data.onBehalfOf,
           jobData.data.schemaId,

@@ -1,4 +1,4 @@
-import { IPublisherJob,IBaseTxStatus} from '#types/interfaces';
+import { IPublisherJob, IBaseTxStatus } from '#types/interfaces';
 import { BlockHash, Hash } from '@polkadot/types/interfaces';
 
 export interface ITxMonitorJob {

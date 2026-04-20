@@ -15,7 +15,9 @@ import {
 import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
 import { createWebhookRsp } from '#webhooks-lib/helpers/createWebhookRsp.helper';
 import { IBaseTxStatus } from '#types/interfaces';
-import contentPublishingWorkerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
+import contentPublishingWorkerConfig, {
+  IContentPublishingWorkerConfig,
+} from '#content-publishing-worker/worker.config';
 
 @Injectable()
 export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTxStatus> {
@@ -50,26 +52,24 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
     let webhookResponse: TxWebhookRsp | undefined;
 
-      if (txStatus.type === TransactionType.CAPACITY_BATCH) {
-        {
-          const capacityEvent = extrinsicEvents.find(
-            ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
-          )?.event;
-          const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
-          const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
-            currentBlock.block.extrinsics[txIndex],
-          );
-          webhookResponse = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
-            calls,
-            capacityWithdrawnEvent: {
-              msaId: capacityWithdrawn.msaId,
-              amount: capacityWithdrawn.amount,
-            },
-          } as CapacityBatchAllOpts);
-        }
-      } else {
-        const message = `Unknown transaction type on job.data: ${txStatus.type}`;
-        throw new Error(message);
+    if (txStatus.type === TransactionType.CAPACITY_BATCH) {
+      {
+        const capacityEvent = extrinsicEvents.find(
+          ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
+        )?.event;
+        const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
+        const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(currentBlock.block.extrinsics[txIndex]);
+        webhookResponse = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
+          calls,
+          capacityWithdrawnEvent: {
+            msaId: capacityWithdrawn.msaId,
+            amount: capacityWithdrawn.amount,
+          },
+        } as CapacityBatchAllOpts);
+      }
+    } else {
+      const message = `Unknown transaction type on job.data: ${txStatus.type}`;
+      throw new Error(message);
     }
 
     if (!webhookResponse) {

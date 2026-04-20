@@ -49,21 +49,26 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
 }
 
 function isOnChainContentOpts(o: any): o is OnChainContentOpts {
-  return !!o?.schemaId && !!o?.msaId && !!o?.intentId
+  return !!o?.schemaId && !!o?.msaId && !!o?.intentId;
 }
 
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: OnChainContentOpts): OnChainContentWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: SIWFOpts): SIWFWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishKeysOpts): PublishKeysWebhookRsp;
-export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishGraphKeysOpts): PublishGraphKeysWebhookRsp;
-export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: CapacityBatchAllOpts): CapacityBatchAllWebhookRsp;
+export function createWebhookRsp(
+  txStatus: IBaseWebhookResponse,
+  options: PublishGraphKeysOpts,
+): PublishGraphKeysWebhookRsp;
+export function createWebhookRsp(
+  txStatus: IBaseWebhookResponse,
+  options: CapacityBatchAllOpts,
+): CapacityBatchAllWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishHandleOpts): PublishHandleWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse): RetireMsaWebhookRsp | RevokeDelegationWebhookRsp;
 export function createWebhookRsp(
   { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
 ): TxWebhookRsp {
-
   const baseResponse = {
     providerId,
     referenceId,
@@ -73,29 +78,43 @@ export function createWebhookRsp(
     transactionType,
   };
 
-  const baseResponseWithOptions = { ...baseResponse, ...options  }
+  const baseResponseWithOptions = { ...baseResponse, ...options };
 
   switch (transactionType) {
     case TransactionType.ON_CHAIN_CONTENT:
-      if (isOnChainContentOpts(options)) { return baseResponseWithOptions as OnChainContentWebhookRsp; }
+      if (isOnChainContentOpts(options)) {
+        return baseResponseWithOptions as OnChainContentWebhookRsp;
+      }
       break;
     case TransactionType.ADD_KEY:
-      if (isPublishKeysOpts(options)) { return baseResponseWithOptions as PublishKeysWebhookRsp; }
+      if (isPublishKeysOpts(options)) {
+        return baseResponseWithOptions as PublishKeysWebhookRsp;
+      }
       break;
     case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
-      if (isPublishGraphKeysOpts(options)) { return baseResponseWithOptions as PublishGraphKeysWebhookRsp; }
+      if (isPublishGraphKeysOpts(options)) {
+        return baseResponseWithOptions as PublishGraphKeysWebhookRsp;
+      }
       break;
     case TransactionType.CREATE_HANDLE:
-      if (isPublishHandleOpts(options)) { return baseResponseWithOptions as CreateHandleWebhookRsp; }
+      if (isPublishHandleOpts(options)) {
+        return baseResponseWithOptions as CreateHandleWebhookRsp;
+      }
       break;
     case TransactionType.CHANGE_HANDLE:
-      if (isPublishHandleOpts(options)) { return baseResponseWithOptions as ChangeHandleWebhookRsp; }
+      if (isPublishHandleOpts(options)) {
+        return baseResponseWithOptions as ChangeHandleWebhookRsp;
+      }
       break;
     case TransactionType.SIWF_SIGNUP:
-      if (isSiwfOpts(options)) { return baseResponseWithOptions as SIWFWebhookRsp; }
+      if (isSiwfOpts(options)) {
+        return baseResponseWithOptions as SIWFWebhookRsp;
+      }
       break;
     case TransactionType.CAPACITY_BATCH:
-      if (isCapacityBatchAllOpts(options)) { return baseResponseWithOptions as CapacityBatchAllWebhookRsp; }
+      if (isCapacityBatchAllOpts(options)) {
+        return baseResponseWithOptions as CapacityBatchAllWebhookRsp;
+      }
       break;
     case TransactionType.RETIRE_MSA:
       return baseResponse as RetireMsaWebhookRsp;

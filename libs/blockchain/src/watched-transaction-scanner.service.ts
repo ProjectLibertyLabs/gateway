@@ -12,9 +12,9 @@ import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { PinoLogger } from 'nestjs-pino';
-import { IBaseTxStatus } from "#types/interfaces";
+import { IBaseTxStatus } from '#types/interfaces';
 
-export type IWatchedTransactionStatus = Omit<IBaseTxStatus, 'type'|'referenceId'|'providerId'>;
+export type IWatchedTransactionStatus = Omit<IBaseTxStatus, 'type' | 'referenceId' | 'providerId'>;
 
 export interface IWatchedTransactionScannerConfig {
   blockchainScanIntervalSeconds: number;

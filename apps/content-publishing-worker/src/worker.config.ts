@@ -81,7 +81,8 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
       joi: Joi.string()
         .uri()
         .required()
-        .custom((v) => new URL(v)).required(),
+        .custom((v) => new URL(v))
+        .required(),
     },
     webhookFailureThreshold: {
       label: 'WEBHOOK_FAILURE_THRESHOLD',
@@ -106,6 +107,8 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
   return configs;
 }
 
-
-export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig =>
-  JoiUtils.validate<IContentPublishingWorkerConfig>(buildContentPublishingWorkerConfigs()));
+export default registerAs(
+  'content-publishing-worker',
+  (): IContentPublishingWorkerConfig =>
+    JoiUtils.validate<IContentPublishingWorkerConfig>(buildContentPublishingWorkerConfigs()),
+);

@@ -43,19 +43,19 @@ export function normalizeConfigNames<T>(config: JoiConfig<T>): JoiConfig<T> {
 }
 
 interface JoiDescriptionFlags {
-  presence?: string,
-  label?: string,
+  presence?: string;
+  label?: string;
 }
 
 export function requiredConfigs<T>(config: JoiConfig<T>): string[] {
   return (Object.values(config) as ConfigProps[])
     .filter(({ joi }) => {
-      const flags: JoiDescriptionFlags = joi.describe().flags
-      return flags?.presence === 'required'
+      const flags: JoiDescriptionFlags = joi.describe().flags;
+      return flags?.presence === 'required';
     })
     .map(({ label, joi }) => {
       const flags: JoiDescriptionFlags = joi.describe().flags;
-      return label || flags?.label
+      return label || flags?.label;
     })
     .filter((label): label is string => Boolean(label));
 }

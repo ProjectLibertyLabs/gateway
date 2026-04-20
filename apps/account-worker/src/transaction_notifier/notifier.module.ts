@@ -11,7 +11,7 @@ import { WEBHOOK_CONFIG } from '#webhooks-lib/webhook.tokens';
   providers: [
     {
       provide: WEBHOOK_CONFIG,
-      useExisting: accountWorkerConfig.KEY
+      useExisting: accountWorkerConfig.KEY,
     },
     BaseWebhookService,
     TxnNotifierService,

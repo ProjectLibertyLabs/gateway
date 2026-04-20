@@ -32,14 +32,6 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  protected deserializeTxStatus(value: string): IBaseTxStatus {
-    return JSON.parse(value) as IBaseTxStatus;
-  }
-
-  protected async getCurrentCapacityEpoch(_currentBlock: SignedBlock): Promise<string | number> {
-    return this.blockchainService.getCurrentCapacityEpoch();
-  }
-
   protected async handleTransactionFailure({
     moduleError,
   }: IWatchedTransactionFailureContext<IBaseTxStatus>): Promise<void> {

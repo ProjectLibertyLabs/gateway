@@ -34,14 +34,6 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  protected deserializeTxStatus(value: string): IContentTxStatus {
-    return JSON.parse(value) as IContentTxStatus;
-  }
-
-  protected async getCurrentCapacityEpoch(currentBlock: SignedBlock): Promise<string | number> {
-    return this.blockchainService.getCurrentCapacityEpoch(currentBlock.block.header.hash);
-  }
-
   protected async handleTransactionFailure({
     txStatus,
     moduleError,

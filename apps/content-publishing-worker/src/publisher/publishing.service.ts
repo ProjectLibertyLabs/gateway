@@ -16,7 +16,7 @@ import {
 import { BaseConsumer } from '#consumer';
 import { MessagePublisher } from './message.publisher';
 import { IBaseTxStatus, IPublisherJob, isOnChainJob } from '#types/interfaces';
-import { IContentTxStatus, IContextTxResult } from '#content-publishing-worker/interfaces';
+import { IContentTxStatus } from '#content-publishing-worker/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
 import workerConfig, { IContentPublishingWorkerConfig } from '#content-publishing-worker/worker.config';
@@ -57,7 +57,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
     await super.onModuleDestroy();
   }
 
-  async process(job: Job<IPublisherJob, any, string>): Promise<IContextTxResult> {
+  async process(job: Job<IPublisherJob, any, string>): Promise<IBaseTxStatus> {
     try {
       const { data: jobData } = job;
       // Check capacity first; if out of capacity, send job back to queue

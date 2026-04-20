@@ -14,7 +14,7 @@ import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.serv
 import { PinoLogger } from 'nestjs-pino';
 
 export interface IWatchedTransactionStatus {
-  txHash: string;
+  txHash: HexString;
   birth: number;
   death: number;
   successEvent?: {
@@ -117,10 +117,12 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
 
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
+    // TODO: this block needs a test
     if (extrinsicIndices.length > 0) {
-      const epoch = await this.getCurrentCapacityEpoch(currentBlock);
+      const epoch = await this.blockchainService.getCurrentCapacityEpoch(currentBlock.block.hash);
       const events = blockEvents.filter(
-        ({ phase }) => phase.isApplyExtrinsic && extrinsicIndices.some(([, txIndex]) => phase.asApplyExtrinsic.eq(txIndex)),
+        ({ phase }) =>
+          phase.isApplyExtrinsic && extrinsicIndices.some(([, txIndex]) => phase.asApplyExtrinsic.eq(txIndex)),
       );
 
       const totalCapacityWithdrawn = events.reduce((sum, { event }) => {
@@ -191,7 +193,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
   }
 
   protected async loadPendingTransactions(): Promise<TTxStatus[]> {
-    return (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((value) => this.deserializeTxStatus(value));
+    return (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((value) => JSON.parse(value) as TTxStatus);
   }
 
   protected findSuccessEvent(
@@ -204,14 +206,11 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     }
 
     return extrinsicEvents.find(
-      ({ event }) =>
-        event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
+      ({ event }) => event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
     )?.event;
   }
 
-  protected async handleTransactionWithoutTerminalEvent(
-    context: IWatchedTransactionContext<TTxStatus>,
-  ): Promise<void> {
+  protected async handleTransactionWithoutTerminalEvent(context: IWatchedTransactionContext<TTxStatus>): Promise<void> {
     const expectedEvent = context.txStatus.successEvent
       ? `${context.txStatus.successEvent.section}.${context.txStatus.successEvent.method}`
       : 'undefined';
@@ -235,17 +234,9 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     }
   }
 
-  protected abstract deserializeTxStatus(value: string): TTxStatus;
+  protected abstract handleTransactionSuccess(context: IWatchedTransactionSuccessContext<TTxStatus>): Promise<void>;
 
-  protected abstract getCurrentCapacityEpoch(currentBlock: SignedBlock): Promise<string | number>;
-
-  protected abstract handleTransactionSuccess(
-    context: IWatchedTransactionSuccessContext<TTxStatus>,
-  ): Promise<void>;
-
-  protected abstract handleTransactionFailure(
-    context: IWatchedTransactionFailureContext<TTxStatus>,
-  ): Promise<void>;
+  protected abstract handleTransactionFailure(context: IWatchedTransactionFailureContext<TTxStatus>): Promise<void>;
 
   protected abstract handleTransactionExpired(txStatus: TTxStatus, currentBlockNumber: number): Promise<void>;
 }

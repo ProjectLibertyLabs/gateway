@@ -11,5 +11,3 @@ export interface ITxMonitorJob {
 export interface IContentTxStatus extends IBaseTxStatus {
   referencePublishJob: IPublisherJob;
 }
-
-export type IContextTxResult = Omit<IContentTxStatus, 'referencePublishJob'>;

@@ -15,7 +15,7 @@ export interface IContentPublishingWorkerConfig {
   healthCheckMaxRetries: number;
   healthCheckMaxRetryIntervalSeconds: number;
   healthCheckSuccessThreshold: number;
-  providerApiToken: string;
+  providerApiToken?: string;
   webhookBaseUrl?: URL;
   webhookFailureThreshold: number;
   webhookRetryIntervalSeconds: number;

@@ -3,7 +3,7 @@ import workerConfig, { buildContentPublishingWorkerConfigs, IContentPublishingWo
 import configSetup from '#testlib/utils.config-tests';
 import { requiredConfigs } from '#config/joi-utils';
 
-const { setupConfigService, validateMissing, shouldFailBadValues } =
+const { setupConfigService, validateMissing, shouldFailBadValues, shouldBeOptional } =
   configSetup<IContentPublishingWorkerConfig>(workerConfig);
 
 describe('Content Publishing Worker Config', () => {
@@ -39,12 +39,15 @@ describe('Content Publishing Worker Config', () => {
         'ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS',
         'BATCH_INTERVAL_SECONDS',
         'BATCH_MAX_COUNT',
-        'WEBHOOK_BASE_URL',
       ]);
     });
 
     it.each(requiredContentPublishingWorkerConfigKeys())(`missing %s fails validation`, async (keysToRemove) => {
       await validateMissing(ALL_ENV, keysToRemove);
+    });
+
+    it('WEBHOOK_BASE_URL is optional', async () => {
+      await shouldBeOptional(ALL_ENV, 'WEBHOOK_BASE_URL');
     });
 
     it.each([

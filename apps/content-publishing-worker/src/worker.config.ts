@@ -16,7 +16,7 @@ export interface IContentPublishingWorkerConfig {
   healthCheckMaxRetryIntervalSeconds: number;
   healthCheckSuccessThreshold: number;
   providerApiToken: string;
-  webhookBaseUrl: URL;
+  webhookBaseUrl?: URL;
   webhookFailureThreshold: number;
   webhookRetryIntervalSeconds: number;
 }
@@ -80,9 +80,8 @@ export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IConte
       label: 'WEBHOOK_BASE_URL',
       joi: Joi.string()
         .uri()
-        .required()
-        .custom((v) => new URL(v))
-        .required(),
+        .optional()
+        .custom((v) => new URL(v)),
     },
     webhookFailureThreshold: {
       label: 'WEBHOOK_FAILURE_THRESHOLD',

@@ -23,10 +23,15 @@ export class BaseWebhookService implements OnModuleDestroy {
   private healthCheckTimeoutName: string = 'webhook.health_check';
   protected failedHealthChecks = 0;
   protected successfulHealthChecks = 0;
-  private readonly webhookClient: Client;
+  private readonly webhookClient?: Client;
 
-  private get baseUrl(): string {
-    return this.webhookConfig.webhookBaseUrl.toString().replace(/\/+$/, '');
+  private get baseUrl(): string | undefined {
+    const url = this.webhookConfig.webhookBaseUrl;
+    return url ? url.toString().replace(/\/+$/, '') : undefined;
+  }
+
+  private get isEnabled(): boolean {
+    return Boolean(this.webhookConfig.webhookBaseUrl);
   }
 
   constructor(
@@ -36,8 +41,14 @@ export class BaseWebhookService implements OnModuleDestroy {
     @Inject(httpConfig.KEY) private readonly httpConfig: IHttpCommonConfig,
     private readonly logger: PinoLogger,
   ) {
+    const baseUrl = this.baseUrl;
+    if (!baseUrl) {
+      this.logger.info('Provider webhook disabled (WEBHOOK_BASE_URL not set)');
+      return;
+    }
+
     this.webhookClient = createClient({
-      baseURL: this.baseUrl,
+      baseURL: baseUrl,
       timeout: this.httpConfig.httpResponseTimeoutMS,
       headers: this.webhookConfig.providerApiToken ? { Authorization: this.webhookConfig.providerApiToken } : undefined,
     });
@@ -72,8 +83,13 @@ export class BaseWebhookService implements OnModuleDestroy {
   };
 
   private get requestOptions(): Pick<WebhookClientOptions, 'baseURL' | 'timeout' | 'throwOnError' | 'headers'> {
+    const baseURL = this.baseUrl;
+    if (!this.isEnabled || !baseURL) {
+      throw new Error('Provider webhook disabled (WEBHOOK_BASE_URL not set)');
+    }
+
     return {
-      baseURL: this.baseUrl,
+      baseURL,
       timeout: this.httpConfig.httpResponseTimeoutMS,
       throwOnError: true,
       headers: this.webhookConfig.providerApiToken ? { Authorization: this.webhookConfig.providerApiToken } : undefined,
@@ -81,6 +97,8 @@ export class BaseWebhookService implements OnModuleDestroy {
   }
 
   public async getHealthz() {
+    if (!this.isEnabled || !this.webhookClient) return;
+
     await getHealthz({
       ...this.requestOptions,
       client: this.webhookClient,
@@ -88,6 +106,8 @@ export class BaseWebhookService implements OnModuleDestroy {
   }
 
   public async notify(body: TxWebhookRsp): Promise<void> {
+    if (!this.isEnabled || !this.webhookClient) return;
+
     await postWebhooksTransactionNotify({
       ...this.requestOptions,
       client: this.webhookClient,
@@ -96,6 +116,8 @@ export class BaseWebhookService implements OnModuleDestroy {
   }
 
   public async checkHealth() {
+    if (!this.isEnabled) return;
+
     // Check webhook
     try {
       // eslint-disable-next-line no-await-in-loop
@@ -115,7 +137,7 @@ export class BaseWebhookService implements OnModuleDestroy {
       this.eventEmitter.emit('webhook.unhealthy');
       if (this.failedHealthChecks >= this.webhookConfig.healthCheckMaxRetries) {
         this.logger.error(
-          `FATAL ERROR: Failed to connect to provider webhook at '${this.webhookConfig.webhookBaseUrl}' after ${this.failedHealthChecks} attempts.`,
+          `FATAL ERROR: Failed to connect to provider webhook at '${this.webhookConfig.webhookBaseUrl!}' after ${this.failedHealthChecks} attempts.`,
         );
         this.eventEmitter.emit('shutdown');
         return;

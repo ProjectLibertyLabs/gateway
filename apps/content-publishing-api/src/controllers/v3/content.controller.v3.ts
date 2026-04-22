@@ -236,7 +236,7 @@ export class ContentControllerV3 {
   @HttpCode(202)
   @ApiResponse({ status: '2XX', type: AnnouncementResponseDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: BadRequestException })
-  @ApiResponse({ status: HttpStatus.PAYLOAD_TOO_LARGE, type: PayloadTooLargeException})
+  @ApiResponse({ status: HttpStatus.PAYLOAD_TOO_LARGE, type: PayloadTooLargeException })
   @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, type: UnprocessableEntityException })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, type: UnauthorizedException })
   async postOnChainContent(@Body() contentDto: OnChainContentDtoV2) {

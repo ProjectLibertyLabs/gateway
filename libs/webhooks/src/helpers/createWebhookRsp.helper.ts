@@ -1,9 +1,10 @@
 /* eslint-disable no-redeclare */
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
 import {
   PublishHandleOpts,
   CreateHandleWebhookRsp,
   ChangeHandleWebhookRsp,
+  OnChainContentOpts,
+  OnChainContentWebhookRsp,
   PublishHandleWebhookRsp,
   PublishKeysOpts,
   PublishKeysWebhookRsp,
@@ -18,9 +19,10 @@ import {
   RevokeDelegationWebhookRsp,
   CapacityBatchAllOpts,
   CapacityBatchAllWebhookRsp,
-} from '#types/account-webhook';
+} from '#types/tx-notification-webhook';
+import { IBaseTxStatus } from '#types/interfaces';
 
-export interface IBaseWebhookResponse extends ITxStatus {
+export interface IBaseWebhookResponse extends IBaseTxStatus {
   msaId?: string;
   blockHash: string;
 }
@@ -46,6 +48,11 @@ function isCapacityBatchAllOpts(o: any): o is CapacityBatchAllOpts {
   return !!o?.capacityWithdrawnEvent;
 }
 
+function isOnChainContentOpts(o: any): o is OnChainContentOpts {
+  return !!o?.schemaId && !!o?.msaId && !!o?.intentId;
+}
+
+export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: OnChainContentOpts): OnChainContentWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: SIWFOpts): SIWFWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishKeysOpts): PublishKeysWebhookRsp;
 export function createWebhookRsp(
@@ -62,45 +69,58 @@ export function createWebhookRsp(
   { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
 ): TxWebhookRsp {
-  const response = {
-    transactionType,
+  const baseResponse = {
     providerId,
     referenceId,
     msaId,
     blockHash,
     txHash,
+    transactionType,
   };
-  if (transactionType === TransactionType.ADD_KEY && isPublishKeysOpts(options)) {
-    return { ...response, ...options } as PublishKeysWebhookRsp;
-  }
 
-  if (transactionType === TransactionType.ADD_PUBLIC_KEY_AGREEMENT && isPublishGraphKeysOpts(options)) {
-    return { ...response, ...options } as PublishGraphKeysWebhookRsp;
-  }
+  const baseResponseWithOptions = { ...baseResponse, ...options };
 
-  if (transactionType === TransactionType.CREATE_HANDLE && isPublishHandleOpts(options)) {
-    return { ...response, ...options } as CreateHandleWebhookRsp;
+  switch (transactionType) {
+    case TransactionType.ON_CHAIN_CONTENT:
+      if (isOnChainContentOpts(options)) {
+        return baseResponseWithOptions as OnChainContentWebhookRsp;
+      }
+      break;
+    case TransactionType.ADD_KEY:
+      if (isPublishKeysOpts(options)) {
+        return baseResponseWithOptions as PublishKeysWebhookRsp;
+      }
+      break;
+    case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
+      if (isPublishGraphKeysOpts(options)) {
+        return baseResponseWithOptions as PublishGraphKeysWebhookRsp;
+      }
+      break;
+    case TransactionType.CREATE_HANDLE:
+      if (isPublishHandleOpts(options)) {
+        return baseResponseWithOptions as CreateHandleWebhookRsp;
+      }
+      break;
+    case TransactionType.CHANGE_HANDLE:
+      if (isPublishHandleOpts(options)) {
+        return baseResponseWithOptions as ChangeHandleWebhookRsp;
+      }
+      break;
+    case TransactionType.SIWF_SIGNUP:
+      if (isSiwfOpts(options)) {
+        return baseResponseWithOptions as SIWFWebhookRsp;
+      }
+      break;
+    case TransactionType.CAPACITY_BATCH:
+      if (isCapacityBatchAllOpts(options)) {
+        return baseResponseWithOptions as CapacityBatchAllWebhookRsp;
+      }
+      break;
+    case TransactionType.RETIRE_MSA:
+      return baseResponse as RetireMsaWebhookRsp;
+    case TransactionType.REVOKE_DELEGATION:
+      return baseResponse as RevokeDelegationWebhookRsp;
+    default:
   }
-
-  if (transactionType === TransactionType.CHANGE_HANDLE && isPublishHandleOpts(options)) {
-    return { ...response, ...options } as ChangeHandleWebhookRsp;
-  }
-
-  if (transactionType === TransactionType.RETIRE_MSA) {
-    return response as RetireMsaWebhookRsp;
-  }
-
-  if (transactionType === TransactionType.REVOKE_DELEGATION) {
-    return response as RevokeDelegationWebhookRsp;
-  }
-
-  if (transactionType === TransactionType.SIWF_SIGNUP && isSiwfOpts(options)) {
-    return { ...response, ...options } as SIWFWebhookRsp;
-  }
-
-  if (transactionType === TransactionType.CAPACITY_BATCH && isCapacityBatchAllOpts(options)) {
-    return { ...response, ...options } as CapacityBatchAllWebhookRsp;
-  }
-
   throw new Error(`Invalid transaction type ${transactionType} for webhook response`);
 }

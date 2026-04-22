@@ -4,7 +4,7 @@ import { IsAccountIdOrAddress } from '#utils/decorators/is-account-id-address.de
 import { IsMsaId } from '#utils/decorators/is-msa-id.decorator';
 import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 export class RevokeDelegationPayloadResponseDto {
   /**

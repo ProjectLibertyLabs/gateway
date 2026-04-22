@@ -1,313 +1,187 @@
 import { InjectRedis } from '@songkeys/nestjs-redis';
-import { Inject, Injectable, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { MILLISECONDS_PER_SECOND } from 'time-constants';
-import { SECONDS_PER_BLOCK } from '#types/constants/blockchain-constants';
-import { createWebhookRsp } from '#account-worker/transaction_notifier/notifier.service.helper.createWebhookRsp';
+import { createWebhookRsp } from '#webhooks-lib/helpers/createWebhookRsp.helper';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { SignedBlock } from '@polkadot/types/interfaces';
-import { HexString } from '@polkadot/util/types';
-import { ITxStatus } from '#account-lib/interfaces/tx-status.interface';
-import { FrameSystemEventRecord } from '@polkadot/types/lookup';
-import { TXN_WATCH_LIST_KEY } from '#types/constants';
+import { IBaseTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/account-webhook';
+import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/tx-notification-webhook';
 import accountWorkerConfig, { IAccountWorkerConfig } from '#account-worker/worker.config';
 import { PinoLogger } from 'nestjs-pino';
-import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
-import { BlockchainScannerService } from '#blockchain/blockchain-scanner.service';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
+import {
+  IWatchedTransactionFailureContext,
+  IWatchedTransactionSuccessContext,
+  WatchedTransactionScannerService,
+} from '#blockchain/watched-transaction-scanner.service';
+import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
 
+// For watching transactions directly on chain.
 @Injectable()
-export class TxnNotifierService
-  extends BlockchainScannerService
-  implements OnApplicationBootstrap, OnApplicationShutdown
-{
-  async onApplicationBootstrap() {
-    await this.blockchainService.isReady();
-    const pendingTxns = await this.cacheManager.hkeys(TXN_WATCH_LIST_KEY);
-    // If no transactions pending, skip to end of chain at startup
-    if (pendingTxns.length === 0) {
-      const blockNumber = await this.blockchainService.getLatestBlockNumber();
-      await this.setLastSeenBlockNumber(blockNumber);
-    }
-    this.schedulerRegistry.addInterval(
-      this.intervalName,
-      setInterval(() => this.scan(), this.config.blockchainScanIntervalSeconds * MILLISECONDS_PER_SECOND),
-    );
-  }
-
-  async onApplicationShutdown(_signal?: string | undefined) {
-    if (this.schedulerRegistry.doesExist('interval', this.intervalName)) {
-      this.schedulerRegistry.deleteInterval(this.intervalName);
-    }
-  }
-
+export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTxStatus> {
   constructor(
     blockchainService: BlockchainRpcQueryService,
-    private readonly schedulerRegistry: SchedulerRegistry,
+    schedulerRegistry: SchedulerRegistry,
     @InjectRedis() cacheManager: Redis,
-    @Inject(accountWorkerConfig.KEY) private readonly config: IAccountWorkerConfig,
-    private readonly capacityService: CapacityCheckerService,
-    private readonly providerWebhookService: ProviderWebhookService,
+    @Inject(accountWorkerConfig.KEY) private readonly workerConfig: IAccountWorkerConfig,
+    capacityService: CapacityCheckerService,
+    private readonly providerWebhookService: BaseWebhookService,
     protected readonly logger: PinoLogger,
   ) {
-    super(cacheManager, blockchainService, logger);
-    this.scanParameters = { onlyFinalized: this.config.trustUnfinalizedBlocks };
-    this.registerChainEventHandler(['capacity.UnStaked', 'capacity.Staked'], () =>
-      this.capacityService.checkForSufficientCapacity(),
-    );
+    super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  public get intervalName() {
-    return `${this.constructor.name}:blockchainScan`;
+  public async handleTransactionFailure({
+    moduleError,
+  }: IWatchedTransactionFailureContext<IBaseTxStatus>): Promise<void> {
+    this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
   }
 
-  private async setEpochCapacity(epoch: string | number, capacityWithdrawn: bigint): Promise<void> {
-    const epochCapacityKey = `epochCapacity:${epoch}`;
+  public async handleTransactionSuccess({
+    txIndex,
+    txStatus,
+    currentBlock,
+    extrinsicEvents,
+    currentBlockNumber,
+    successEvent,
+  }: IWatchedTransactionSuccessContext<IBaseTxStatus>): Promise<void> {
+    this.logger.trace(`Successfully found transaction ${txStatus.txHash} in block ${currentBlockNumber}`);
+    const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
+    let webhookResponse: TxWebhookRsp | undefined;
 
-    try {
-      const savedCapacity = await this.cacheManager.get(epochCapacityKey);
-      const epochCapacity = BigInt(savedCapacity ?? 0);
-      const newEpochCapacity = epochCapacity + capacityWithdrawn;
-      const epochDurationBlocks = await this.blockchainService.getCurrentEpochLength();
-      const epochDuration = epochDurationBlocks * SECONDS_PER_BLOCK * MILLISECONDS_PER_SECOND;
-      await this.cacheManager.setex(epochCapacityKey, epochDuration, newEpochCapacity.toString());
-    } catch (error) {
-      this.logger.error(`Error setting epoch capacity: ${error}`);
-    }
-  }
+    switch (txStatus.type) {
+      case TransactionType.CHANGE_HANDLE:
+      case TransactionType.CREATE_HANDLE:
+        {
+          const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(successEvent);
 
-  public async getLastSeenBlockNumber(): Promise<number> {
-    let blockNumber = await super.getLastSeenBlockNumber();
-    const pendingTxns = await this.cacheManager.hvals(TXN_WATCH_LIST_KEY);
-    if (pendingTxns.length > 0) {
-      const startingBlock = Math.min(
-        ...pendingTxns.map((valStr) => {
-          const val = JSON.parse(valStr) as ITxStatus;
-          return val.birth;
-        }),
-      );
-      blockNumber = Math.max(blockNumber, startingBlock);
-    }
+          const response = createWebhookRsp(
+            { ...baseResponse, msaId: handleTxnValues.msaId },
+            { handle: handleTxnValues.handle },
+          );
+          webhookResponse = response;
 
-    return blockNumber;
-  }
-
-  async processCurrentBlock(currentBlock: SignedBlock, blockEvents: FrameSystemEventRecord[]): Promise<void> {
-    const currentBlockNumber = currentBlock.block.header.number.toNumber();
-
-    // Get set of tx hashes to monitor from cache
-    const pendingTxns = (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((val) => JSON.parse(val) as ITxStatus);
-
-    const extrinsicIndices: [HexString, number][] = [];
-    currentBlock.block.extrinsics.forEach((extrinsic, index) => {
-      if (pendingTxns.some(({ txHash }) => txHash === extrinsic.hash.toHex())) {
-        extrinsicIndices.push([extrinsic.hash.toHex(), index]);
-      }
-    });
-
-    let pipeline = this.cacheManager.multi({ pipeline: true });
-
-    if (extrinsicIndices.length > 0) {
-      const epoch = await this.blockchainService.getCurrentCapacityEpoch();
-      const events: FrameSystemEventRecord[] = blockEvents.filter(
-        ({ phase }) => {
-          return phase.isApplyExtrinsic &&
-            extrinsicIndices.some(([,txIndex]) => phase.asApplyExtrinsic.eq(txIndex))
-        },
-      );
-
-      const totalCapacityWithdrawn: bigint = events
-        .filter(({ event }) => this.blockchainService.events.capacity.CapacityWithdrawn.is(event))
-        .reduce((sum, { event }) => (event as unknown as any).data.amount.toBigInt() + sum, 0n);
-
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [txHash, txIndex] of extrinsicIndices) {
-        const extrinsicEvents = events.filter(
-          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
-        );
-        const txStatusStr = await this.cacheManager.hget(TXN_WATCH_LIST_KEY, txHash);
-        const txStatus = JSON.parse(txStatusStr!) as ITxStatus;
-        txStatus.blockHash = currentBlock.block.header.hash.toHex();
-        const successEvent = extrinsicEvents.find(
-          ({ event }) =>
-            event.section === txStatus.successEvent.section && event.method === txStatus.successEvent.method,
-        )?.event;
-        const failureEvent = extrinsicEvents.find(({ event }) =>
-          this.blockchainService.events.system.ExtrinsicFailed.is(event),
-        )?.event;
-
-        // TODO: Should the webhook provide for reporting failure?
-        if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
-          const { dispatchError } = failureEvent.data;
-          const moduleThatErrored = dispatchError.asModule;
-          const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-          this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
-        } else if (successEvent) {
-          this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
-          const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
-          let webhookResponse: TxWebhookRsp;
-
-          switch (txStatus.type) {
-            case TransactionType.CHANGE_HANDLE:
-            case TransactionType.CREATE_HANDLE:
-              {
-                const handleTxnValues = this.blockchainService.handlePublishHandleTxResult(successEvent);
-
-                const response = createWebhookRsp(
-                  { ...baseResponse, msaId: handleTxnValues.msaId },
-                  { handle: handleTxnValues.handle },
-                );
-                webhookResponse = response;
-
-                this.logger.debug(handleTxnValues.debugMsg);
-                this.logger.info(
-                  `Handles: ${response.transactionType} finalized handle ${response.handle} for msaId ${response.msaId}.`,
-                );
-              }
-              break;
-
-            case TransactionType.SIWF_SIGNUP:
-              {
-                const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
-
-                const response = createWebhookRsp(
-                  { ...baseResponse, msaId: siwfTxnValues.msaId },
-                  {
-                    accountId: siwfTxnValues.address,
-                    handle: siwfTxnValues.handle,
-                  },
-                );
-                webhookResponse = response;
-
-                this.logger.info(
-                  `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
-                );
-              }
-              break;
-
-            case TransactionType.ADD_KEY:
-              {
-                const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
-
-                const response = createWebhookRsp(
-                  { ...baseResponse, msaId: publicKeyValues.msaId },
-                  {
-                    newPublicKey: publicKeyValues.newPublicKey,
-                  },
-                );
-                webhookResponse = response;
-
-                this.logger.info(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
-              }
-              break;
-
-            case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
-              {
-                const itemizedPageUpdated =
-                  this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
-
-                const response = createWebhookRsp(
-                  { ...baseResponse, msaId: itemizedPageUpdated.msaId },
-                  {
-                    schemaId: itemizedPageUpdated.intentId,
-                  },
-                );
-                webhookResponse = response;
-
-                this.logger.info(
-                  `Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`,
-                );
-              }
-              break;
-
-            case TransactionType.RETIRE_MSA:
-              {
-                const msaRetired = this.blockchainService.handleRetireMsaTxResult(successEvent);
-                const response = createWebhookRsp({ ...baseResponse, msaId: msaRetired.msaId });
-                webhookResponse = response;
-              }
-              break;
-
-            case TransactionType.REVOKE_DELEGATION:
-              {
-                const delegationRevoked = this.blockchainService.handleRevokeDelegationTxResult(successEvent);
-                const response = createWebhookRsp({
-                  ...baseResponse,
-                  msaId: delegationRevoked.msaId,
-                  providerId: delegationRevoked.providerId,
-                });
-                webhookResponse = response;
-              }
-              break;
-
-            case TransactionType.CAPACITY_BATCH:
-              {
-                const capacityEvent = extrinsicEvents.find(
-                  ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
-                )?.event;
-                const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
-                const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
-                  currentBlock.block.extrinsics[txIndex],
-                );
-                const response = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
-                  calls,
-                  capacityWithdrawnEvent: {
-                    msaId: capacityWithdrawn.msaId,
-                    amount: capacityWithdrawn.amount,
-                  },
-                } as CapacityBatchAllOpts);
-                webhookResponse = response;
-              }
-              break;
-
-            default:
-              this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
-              break;
-          }
-
-          let retries = 0;
-          const webhookUrl = this.providerWebhookService.getTransactionNotifyUrl();
-          while (retries < this.config.healthCheckMaxRetries) {
-            try {
-              this.logger.debug(webhookResponse, `Sending transaction notification to webhook: ${webhookUrl}`);
-              await this.providerWebhookService.sendTransactionNotify(webhookResponse);
-              this.logger.debug('Transaction Notification sent to webhook');
-              break;
-            } catch (error) {
-              this.logger.error(error, `Failed to send notification to webhook: ${webhookUrl}`);
-              retries += 1;
-            }
-          }
-        } else {
-          this.logger.error(
-            `Watched transaction ${txHash} found in block ${currentBlockNumber}, but did not find event '${txStatus.successEvent.section}.${txStatus.successEvent.method}' in block`,
+          this.logger.debug(handleTxnValues.debugMsg);
+          this.logger.info(
+            `Handles: ${response.transactionType} finalized handle ${response.handle} for msaId ${response.msaId}.`,
           );
         }
+        break;
 
-        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash); // Remove txn from watch list
-        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
-        pendingTxns.slice(idx, 1);
-      }
+      case TransactionType.SIWF_SIGNUP:
+        {
+          const siwfTxnValues = await this.blockchainService.handleSIWFTxnResult(extrinsicEvents);
 
-      await this.setEpochCapacity(epoch, totalCapacityWithdrawn);
+          const response = createWebhookRsp(
+            { ...baseResponse, msaId: siwfTxnValues.msaId },
+            {
+              accountId: siwfTxnValues.address,
+              handle: siwfTxnValues.handle,
+            },
+          );
+          webhookResponse = response;
+
+          this.logger.info(
+            `SIWF: ${siwfTxnValues.address} Signed up handle ${response.handle} for msaId ${response.msaId} delegated to provider ${siwfTxnValues.newProvider}.`,
+          );
+        }
+        break;
+
+      case TransactionType.ADD_KEY:
+        {
+          const publicKeyValues = this.blockchainService.handlePublishKeyTxResult(successEvent);
+
+          const response = createWebhookRsp(
+            { ...baseResponse, msaId: publicKeyValues.msaId },
+            {
+              newPublicKey: publicKeyValues.newPublicKey,
+            },
+          );
+          webhookResponse = response;
+
+          this.logger.info(`Keys: Added the key ${response.newPublicKey} for msaId ${response.msaId}.`);
+        }
+        break;
+
+      case TransactionType.ADD_PUBLIC_KEY_AGREEMENT:
+        {
+          const itemizedPageUpdated = this.blockchainService.handlePublishPublicKeyAgreementTxResult(successEvent);
+
+          const response = createWebhookRsp(
+            { ...baseResponse, msaId: itemizedPageUpdated.msaId },
+            {
+              schemaId: itemizedPageUpdated.intentId,
+            },
+          );
+          webhookResponse = response;
+
+          this.logger.info(`Keys: Added the graph key msaId ${response.msaId} and schemaId ${response.schemaId}.`);
+        }
+        break;
+
+      case TransactionType.RETIRE_MSA:
+        {
+          const msaRetired = this.blockchainService.handleRetireMsaTxResult(successEvent);
+          webhookResponse = createWebhookRsp({ ...baseResponse, msaId: msaRetired.msaId });
+        }
+        break;
+
+      case TransactionType.REVOKE_DELEGATION:
+        {
+          const delegationRevoked = this.blockchainService.handleRevokeDelegationTxResult(successEvent);
+          webhookResponse = createWebhookRsp({
+            ...baseResponse,
+            msaId: delegationRevoked.msaId,
+            providerId: delegationRevoked.providerId,
+          });
+        }
+        break;
+
+      case TransactionType.CAPACITY_BATCH:
+        {
+          const capacityEvent = extrinsicEvents.find(
+            ({ event }) => event.section === 'capacity' && event.method === 'CapacityWithdrawn',
+          )?.event;
+          const capacityWithdrawn = this.blockchainService.handleCapacityWithdrawn(capacityEvent);
+          const { calls } = this.blockchainService.handlePayWithCapacityBatchAll(
+            currentBlock.block.extrinsics[txIndex],
+          );
+          webhookResponse = createWebhookRsp({ ...baseResponse, providerId: capacityWithdrawn.msaId }, {
+            calls,
+            capacityWithdrawnEvent: {
+              msaId: capacityWithdrawn.msaId,
+              amount: capacityWithdrawn.amount,
+            },
+          } as CapacityBatchAllOpts);
+        }
+        break;
+
+      default:
+        this.logger.error(`Unknown transaction type on job.data: ${txStatus.type}`);
+        break;
     }
 
-    // Now check all pending transactions for expiration as of this block
-    // eslint-disable-next-line no-restricted-syntax
-    for (const { birth, death, txHash } of pendingTxns) {
-      if (death <= currentBlockNumber) {
-        this.logger.trace(
-          `Tx ${txHash} expired (birth: ${birth}, death: ${death}, currentBlock: ${currentBlockNumber})`,
-        );
-        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
-        const idx = pendingTxns.findIndex((value) => value.txHash === txHash);
-        pendingTxns.slice(idx, 1);
-      }
+    if (!webhookResponse) {
+      return;
     }
 
-    // Execute marshaled Redis transactions
-    await pipeline.exec();
+    let retries = 0;
+    while (retries < this.workerConfig.healthCheckMaxRetries) {
+      try {
+        this.logger.debug(webhookResponse, 'Sending transaction notification to webhook');
+        await this.providerWebhookService.notify(webhookResponse);
+        this.logger.debug('Transaction Notification sent to webhook');
+        break;
+      } catch (error) {
+        this.logger.error(error, 'Failed to send notification to webhook');
+        retries += 1;
+      }
+    }
+  }
+
+  public async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlockNumber: number): Promise<void> {
+    this.logger.trace(
+      `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
+    );
   }
 }

@@ -16,7 +16,7 @@ import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { chainSignature } from '#utils/common/signature.util';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 
 @Controller({ version: '1', path: 'ics' })
 @ApiTags('v1/ics')

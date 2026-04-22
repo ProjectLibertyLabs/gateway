@@ -9,6 +9,8 @@ export {
   type CreateHandleWebhookRsp,
   type getHealthzData,
   type getHealthzResponses,
+  type OnChainContentOpts,
+  type OnChainContentWebhookRsp,
   type postWebhooksTransactionNotifyData,
   type postWebhooksTransactionNotifyErrors,
   type postWebhooksTransactionNotifyResponses,

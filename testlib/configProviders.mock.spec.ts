@@ -30,6 +30,17 @@ export const buildBlockchainConfigProvider = (signerType: CurveType): any => {
   });
 };
 
+export const mockEventEmitterConfig = {
+  global: true,
+  wildcard: false,
+  delimiter: '.',
+  newListener: false,
+  removeListener: false,
+  maxListeners: 10,
+  verboseMemoryLeak: false,
+  ignoreErrors: false,
+};
+
 export const mockAccountApiConfigProvider = GenerateMockConfigProvider<IAccountApiConfig>('account-api', {
   apiBodyJsonLimit: '',
   apiPort: 0,

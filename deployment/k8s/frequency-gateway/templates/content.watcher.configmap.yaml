@@ -15,3 +15,4 @@ data:
   WEBHOOK_RETRY_INTERVAL_SECONDS: {{ .Values.contentWatcher.env.WEBHOOK_RETRY_INTERVAL_SECONDS | quote }}
   API_PORT: {{ .Values.contentWatcher.env.API_PORT | quote }}
   CACHE_KEY_PREFIX: {{ .Values.contentWatcher.env.CACHE_KEY_PREFIX | quote }}
+  WEBHOOK_BASE_URL:  {{ .Values.contentPublishing.env.WEBHOOK_BASE_URL | quote }}

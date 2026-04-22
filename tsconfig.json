@@ -39,6 +39,8 @@
       "#types/*": ["libs/types/src/*"],
       "#utils": ["libs/utils/src"],
       "#utils/*": ["libs/utils/src/*"],
+      "#webhooks-lib": ["libs/webhooks/src"],
+      "#webhooks-lib/*": ["libs/webhooks/src/*"],
       "#config": ["libs/config/src"],
       "#config/*": ["libs/config/src/*"],
       "#queue": ["libs/queue/src"],

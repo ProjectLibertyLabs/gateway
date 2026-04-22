@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BlockchainModule } from '#blockchain/blockchain.module';
-import { ProviderWebhookService } from '#account-lib/services/provider-webhook.service';
 import { TxnNotifierModule } from './transaction_notifier/notifier.module';
 import { TransactionPublisherModule } from './transaction_publisher/publisher.module';
 import { CacheModule } from '#cache/cache.module';
@@ -80,7 +79,6 @@ const configs = [blockchainConfig, cacheConfig, workerConfig, httpConfig, create
   ],
   controllers: [HealthController],
   providers: [
-    ProviderWebhookService,
     // Global rate limiting
     {
       provide: APP_GUARD,

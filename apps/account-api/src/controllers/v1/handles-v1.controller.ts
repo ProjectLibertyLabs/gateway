@@ -23,7 +23,7 @@ import { TransactionResponse } from '#types/dtos/account/transaction.response.dt
 import { HandleResponseDto } from '#types/dtos/account/accounts.response.dto';
 import { ReadOnlyGuard } from '#account-api/guards/read-only.guard';
 import { u8aToHex } from '@polkadot/util';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { HandleDto, MsaIdDto } from '#types/dtos/common';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';

@@ -14,7 +14,16 @@
  */
 import '@frequency-chain/api-augment';
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountId, AccountId32, BlockHash, BlockNumber, Call, Event, Header, SignedBlock } from '@polkadot/types/interfaces';
+import {
+  AccountId,
+  AccountId32,
+  BlockHash,
+  BlockNumber,
+  Call,
+  Event,
+  Header,
+  SignedBlock,
+} from '@polkadot/types/interfaces';
 import { ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types';
 import { AnyNumber, Codec, DetectCodec, SignerPayloadRaw } from '@polkadot/types/types';
 import { bool, Bytes, GenericExtrinsic, Option, u128, Vec } from '@polkadot/types';
@@ -49,7 +58,7 @@ import {
 import { hexToU8a } from '@polkadot/util';
 import { decodeAddress } from '@polkadot/util-crypto';
 import { chainDelegationToNative } from '#types/interfaces/account/delegations.interface';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { IBlockchainReadOnlyConfig, noProviderBlockchainConfig } from './blockchain.config';
 import { PolkadotApiService } from './polkadot-api.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -97,7 +106,7 @@ interface CapacityWithdrawn extends BaseEvent {
   amount: string;
 }
 
-interface PayWithCapacityBatchAllCalls extends BaseEvent {
+export interface PayWithCapacityBatchAllCalls extends BaseEvent {
   calls: {
     section: string;
     method: string;

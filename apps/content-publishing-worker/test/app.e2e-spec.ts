@@ -10,7 +10,7 @@ import { getQueueToken } from '@nestjs/bull-shared';
 import { ContentPublishingQueues } from '#types/constants';
 import PUBLISH_QUEUE_NAME = ContentPublishingQueues.PUBLISH_QUEUE_NAME;
 import { Queue, QueueEvents } from 'bullmq';
-import { IContextTxResult, IPublisherJob } from '#types/interfaces';
+import { IBaseTxStatus, IPublisherJob } from '#types/interfaces';
 import { TxStatusMonitoringService } from '#content-publishing-worker/monitor/tx.status.monitor.service';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
@@ -153,7 +153,7 @@ describe('Content Publishing Worker E2E request verification!', () => {
         testResolve = innerResolve;
         testReject = innerReject;
       });
-      let result: IContextTxResult;
+      let result: IBaseTxStatus;
 
       function deferred<T>() {
         let resolve!: (v: T) => void;

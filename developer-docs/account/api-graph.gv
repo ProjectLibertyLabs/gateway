@@ -119,10 +119,10 @@ digraph G {
 		pos="1905.1,355.89",
 		width=4.2118];
 	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/services/nonce.service.ts"	[pos="e,1783.6,368.25 1631.7,385.56 1655.6,382.64 1681.1,379.59 1704.8,376.89 1726.6,374.41 1749.7,371.87 1772.3,369.46"];
-	"../../../libs/common/src/services/provider-webhook.service.ts"	[height=0.32986,
+	"../../../libs/common/src/services/base.webhook.service.ts"	[height=0.32986,
 		pos="2328.4,272.89",
 		width=5.191];
-	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/services/provider-webhook.service.ts"	[pos="e,2141.3,271.75 1548.9,385.8 1577.6,364.05 1642,318.94 1704.8,300.89 1781.8,278.73 1978.2,272.84 2130,271.81"];
+	"../../../libs/common/src/index.ts" -> "../../../libs/webhooks/src/base.webhook.service.ts"	[pos="e,2141.3,271.75 1548.9,385.8 1577.6,364.05 1642,318.94 1704.8,300.89 1781.8,278.73 1978.2,272.84 2130,271.81"];
 	"../../../libs/common/src/utils/base-consumer.ts"	[height=0.32986,
 		pos="1905.1,195.89",
 		width=3.9931];
@@ -150,7 +150,7 @@ digraph G {
 	"../../../libs/common/src/services/nonce.service.ts" -> "../../../libs/common/src/config/config.service.ts"	[pos="e,2680.2,285.16 2022.4,368.26 2172.6,382.83 2425.6,402.18 2515.2,377.89 2576.8,361.22 2638.8,317.59 2671.4,292.13"];
 	"../../../libs/common/src/services/nonce.service.ts" -> "../../../libs/common/src/blockchain/create-keys.ts"	[pos="e,2176.1,356.53 2057,356.25 2092,356.33 2129.3,356.42 2164.7,356.51"];
 	"../../../libs/common/src/services/nonce.service.ts" -> "../../../libs/common/src/utils/redis.ts"	[pos="e,2216,325.73 2033.1,343.54 2087.5,338.24 2150.8,332.08 2204.7,326.84"];
-	"../../../libs/common/src/services/provider-webhook.service.ts" -> "../../../libs/common/src/config/config.service.ts"	[pos="e,2550.9,272.89 2515.5,272.89 2523.6,272.89 2531.7,272.89 2539.7,272.89"];
+	"../../../libs/common/src/services/base.webhook.service.ts" -> "../../../libs/common/src/config/config.service.ts"	[pos="e,2550.9,272.89 2515.5,272.89 2523.6,272.89 2531.7,272.89 2539.7,272.89"];
 	"../../../libs/common/src/utils/base-consumer.ts" -> "../../../libs/common/src/utils/processing.ts"	[pos="e,2198,182.73 2049.3,189.43 2093.7,187.43 2142.4,185.23 2186.6,183.24"];
 	"api.module.ts"	[height=0.32986,
 		pos="566.5,595.89",

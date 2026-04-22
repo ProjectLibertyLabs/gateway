@@ -19,3 +19,9 @@ data:
   BATCH_MAX_COUNT: {{ .Values.contentPublishing.env.BATCH_MAX_COUNT | quote }}
   ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS: {{ .Values.contentPublishing.env.ASSET_UPLOAD_VERIFICATION_DELAY_SECONDS | quote }}
   CACHE_KEY_PREFIX: {{ .Values.contentPublishing.env.CACHE_KEY_PREFIX | quote }}
+  WEBHOOK_BASE_URL:  {{ .Values.contentPublishing.env.WEBHOOK_BASE_URL | quote }}
+  WEBHOOK_FAILURE_THRESHOLD:  {{ .Values.contentPublishing.env.WEBHOOK_FAILURE_THRESHOLD | quote }}
+  WEBHOOK_RETRY_INTERVAL_SECONDS:  {{ .Values.contentPublishing.env.WEBHOOK_RETRY_INTERVAL_SECONDS | quote }}
+  HEALTH_CHECK_MAX_RETRIES:  {{ .Values.contentPublishing.env.HEALTH_CHECK_MAX_RETRIES | quote }}
+  HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS:  {{ .Values.contentPublishing.env.HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS | quote }}
+  HEALTH_CHECK_SUCCESS_THRESHOLD:  {{ .Values.contentPublishing.env.WEBHOOK_BASE_URL | quote }}

@@ -6,6 +6,10 @@ export type ClientOptions = {
 
 export enum TransactionType {
   /**
+   * ON_CHAIN_CONTENT
+   */
+  ON_CHAIN_CONTENT = 'ON_CHAIN_CONTENT',
+  /**
    * CHANGE_HANDLE
    */
   CHANGE_HANDLE = 'CHANGE_HANDLE',
@@ -51,6 +55,12 @@ export type TxWebhookRspBase = {
   txHash: string;
 };
 
+export type OnChainContentOpts = {
+  msaId: string;
+  intentId: string;
+  schemaId: string;
+};
+
 export type PublishHandleOpts = {
   handle: string;
 };
@@ -80,6 +90,7 @@ export type CapacityBatchAllOpts = {
 };
 
 export type TxWebhookOpts =
+  | OnChainContentOpts
   | PublishHandleOpts
   | SIWFOpts
   | PublishKeysOpts
@@ -89,6 +100,11 @@ export type TxWebhookOpts =
 export type CreateHandleWebhookRsp = TxWebhookRspBase &
   PublishHandleOpts & {
     transactionType: 'CREATE_HANDLE';
+  };
+
+export type OnChainContentWebhookRsp = TxWebhookRspBase &
+  OnChainContentOpts & {
+    transactionType: 'ON_CHAIN_CONTENT';
   };
 
 export type ChangeHandleWebhookRsp = TxWebhookRspBase &
@@ -127,6 +143,9 @@ export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
   };
 
 export type TxWebhookRsp =
+  | ({
+      transactionType: 'ON_CHAIN_CONTENT';
+    } & OnChainContentWebhookRsp)
   | ({
       transactionType: 'CREATE_HANDLE';
     } & CreateHandleWebhookRsp)

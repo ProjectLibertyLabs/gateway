@@ -7,10 +7,9 @@ import {
   RetireMsaPayloadResponseDto,
 } from '#types/dtos/account/accounts.response.dto';
 import { PublishRetireMsaRequestDto, RetireMsaRequestDto, TransactionResponse } from '#types/dtos/account';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import blockchainConfig, { IBlockchainConfig } from '#blockchain/blockchain.config';
-import { ApiPromise } from '@polkadot/api';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()

@@ -26,7 +26,7 @@ import { WalletV2RedirectResponseDto } from '#types/dtos/account/wallet.v2.redir
 import { WalletV2LoginRequestDto } from '#types/dtos/account/wallet.v2.login.request.dto';
 import { WalletV2LoginResponseDto } from '#types/dtos/account/wallet.v2.login.response.dto';
 import { PublishSIWFSignupRequestDto, EncodedExtrinsic, TransactionResponse } from '#types/dtos/account';
-import { TransactionType } from '#types/account-webhook';
+import { TransactionType } from '#types/tx-notification-webhook';
 import { isNotNull } from '#utils/common/common.utils';
 import {
   chainSignature,

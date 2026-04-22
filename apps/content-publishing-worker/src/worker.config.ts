@@ -12,9 +12,16 @@ export interface IContentPublishingWorkerConfig {
   assetUploadVerificationDelaySeconds: number;
   batchIntervalSeconds: number;
   batchMaxCount: number;
+  healthCheckMaxRetries: number;
+  healthCheckMaxRetryIntervalSeconds: number;
+  healthCheckSuccessThreshold: number;
+  providerApiToken?: string;
+  webhookBaseUrl?: URL;
+  webhookFailureThreshold: number;
+  webhookRetryIntervalSeconds: number;
 }
 
-export default registerAs('content-publishing-worker', (): IContentPublishingWorkerConfig => {
+export function buildContentPublishingWorkerConfigs(): JoiUtils.JoiConfig<IContentPublishingWorkerConfig> {
   const configs: JoiUtils.JoiConfig<IContentPublishingWorkerConfig> = JoiUtils.normalizeConfigNames({
     apiBodyJsonLimit: {
       label: 'API_BODY_JSON_LIMIT',
@@ -53,6 +60,37 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
       label: 'BATCH_MAX_COUNT',
       joi: Joi.number().min(0).required(),
     },
+    healthCheckMaxRetries: {
+      label: 'HEALTH_CHECK_MAX_RETRIES',
+      joi: Joi.number().min(4).default(20),
+    },
+    healthCheckMaxRetryIntervalSeconds: {
+      label: 'HEALTH_CHECK_MAX_RETRY_INTERVAL_SECONDS',
+      joi: Joi.number().min(1).default(64),
+    },
+    healthCheckSuccessThreshold: {
+      label: 'HEALTH_CHECK_SUCCESS_THRESHOLD',
+      joi: Joi.number().min(1).default(10),
+    },
+    providerApiToken: {
+      label: 'PROVIDER_API_TOKEN',
+      joi: Joi.string().min(20).optional(),
+    },
+    webhookBaseUrl: {
+      label: 'WEBHOOK_BASE_URL',
+      joi: Joi.string()
+        .uri()
+        .optional()
+        .custom((v) => new URL(v)),
+    },
+    webhookFailureThreshold: {
+      label: 'WEBHOOK_FAILURE_THRESHOLD',
+      joi: Joi.number().min(1).default(3),
+    },
+    webhookRetryIntervalSeconds: {
+      label: 'WEBHOOK_RETRY_INTERVAL_SECONDS',
+      joi: Joi.number().min(1).default(10),
+    },
   });
 
   Object.keys(process.env)
@@ -65,5 +103,11 @@ export default registerAs('content-publishing-worker', (): IContentPublishingWor
       };
     });
 
-  return JoiUtils.validate<IContentPublishingWorkerConfig>(configs);
-});
+  return configs;
+}
+
+export default registerAs(
+  'content-publishing-worker',
+  (): IContentPublishingWorkerConfig =>
+    JoiUtils.validate<IContentPublishingWorkerConfig>(buildContentPublishingWorkerConfigs()),
+);

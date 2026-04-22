@@ -98,7 +98,6 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     const currentBlockNumber = currentBlock.block.header.number.toNumber();
     const pendingTxns = await this.loadPendingTransactions();
     const pendingTxnsByHash = new Map(pendingTxns.map((txStatus) => [txStatus.txHash, txStatus] as const));
-    const handledTxHashes = new Set<string>();
 
     const extrinsicIndices: [HexString, number][] = [];
     currentBlock.block.extrinsics.forEach((extrinsic, index) => {
@@ -166,7 +165,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
             await this.handleTransactionWithoutTerminalEvent(context);
           }
 
-          handledTxHashes.add(txHash);
+          pendingTxnsByHash.delete(txHash);
           pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
         }
 
@@ -174,9 +173,11 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
       }
     }
 
+    // Remaining transactions in pendingTxnsByHash will have expired.
+    // Use a `for...of` loop so we actually await handler work and enqueue the `hdel`s before `exec()`.
     // eslint-disable-next-line no-restricted-syntax
-    for (const txStatus of pendingTxns) {
-      if (!handledTxHashes.has(txStatus.txHash) && txStatus.death <= currentBlockNumber) {
+    for (const txStatus of pendingTxnsByHash.values()) {
+      if (txStatus.death <= currentBlockNumber) {
         await this.handleTransactionExpired(txStatus, currentBlockNumber);
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txStatus.txHash);
       }

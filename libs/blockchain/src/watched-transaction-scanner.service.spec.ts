@@ -18,6 +18,7 @@ import { jest } from '@jest/globals';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { createMockBlock, mockBlockchainRpcQueryServiceGetter } from '#testlib/blockchain.mock.spec';
 import { FrameSystemEventRecord } from '@polkadot/types/lookup';
+import { TXN_WATCH_LIST_KEY } from '#types/constants';
 
 jest.mock('@nestjs/schedule');
 
@@ -99,6 +100,7 @@ describe('WatchedTransactionScannerService', () => {
   let setEpochCapacitySpy;
   let handleTransactionSuccessSpy;
   let handleTransactionFailureSpy;
+  let handleTransactionExpiredSpy;
   let mockRedis: any;
 
   beforeAll(async () => {
@@ -115,6 +117,7 @@ describe('WatchedTransactionScannerService', () => {
     setEpochCapacitySpy = jest.spyOn(service, 'setEpochCapacity');
     handleTransactionSuccessSpy = jest.spyOn(service, 'handleTransactionSuccess');
     handleTransactionFailureSpy = jest.spyOn(service, 'handleTransactionFailure');
+    handleTransactionExpiredSpy = jest.spyOn(service, 'handleTransactionExpired');
 
     blockchainService = moduleRef.get<BlockchainRpcQueryService>(BlockchainRpcQueryService);
     jest.spyOn(blockchainService, 'getCurrentCapacityEpoch').mockResolvedValue(1);
@@ -197,7 +200,98 @@ describe('WatchedTransactionScannerService', () => {
           );
         });
       });
+
+      it('removes succeeded/failed/non-terminal txns and expires any remaining pending txn', async () => {
+        const successHash = '0xaaaa';
+        const failedHash = '0xbbbb';
+        const noTerminalHash = '0xcccc';
+        const expiredHash = '0xdddd';
+
+        const watchedTxStatusList: TestTxStatus[] = [
+          createMockTxStatus(section, method, successHash),
+          createMockTxStatus(section, method, failedHash),
+          createMockTxStatus(section, method, noTerminalHash),
+          { ...createMockTxStatus(section, method, expiredHash), death: 99 },
+        ];
+        jest.spyOn(service, 'loadPendingTransactions').mockResolvedValue(watchedTxStatusList);
+
+        // Don't use mockBlockchainRpcQueryServiceGetter from before because we need to mock different
+        // responses for different events.
+        Object.defineProperty(blockchainService, 'events', {
+          get: jest.fn().mockReturnValue({
+            capacity: {
+              CapacityWithdrawn: {
+                is: jest.fn((event: any) => event.section === 'capacity' && event.method === 'CapacityWithdrawn'),
+              },
+            },
+            system: {
+              ExtrinsicFailed: {
+                is: jest.fn((event: any) => event.section === 'system' && event.method === 'ExtrinsicFailed'),
+              },
+            },
+          }),
+          configurable: true,
+        });
+
+        const mockExtrinsicForHash = (hash: HexString) => ({
+          hash: { toHex: jest.fn().mockReturnValue(hash) },
+        });
+
+        const dispatchError = {
+          asModule: { index: 0 },
+          registry: { findMetaError: jest.fn() },
+        };
+
+        const eventForIdx = (idx: number, event: any): FrameSystemEventRecord =>
+          ({
+            phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (txIdx: number) => txIdx === idx } },
+            event,
+          }) as unknown as FrameSystemEventRecord;
+
+        const handleTransactionWithoutTerminalEventSpy = jest.spyOn(
+          service as unknown as { handleTransactionWithoutTerminalEvent: (...args: any[]) => any },
+          'handleTransactionWithoutTerminalEvent',
+        );
+
+        mockRedis.hdel.mockReturnThis();
+
+        await service.processCurrentBlock(
+          createMockBlock([
+            mockExtrinsicForHash(successHash),
+            mockExtrinsicForHash(failedHash),
+            mockExtrinsicForHash(noTerminalHash),
+          ]),
+          [
+            eventForIdx(0, { section, method }),
+            eventForIdx(1, { section: 'system', method: 'ExtrinsicFailed', data: { dispatchError } }),
+            eventForIdx(2, {
+              section: 'capacity',
+              method: 'CapacityWithdrawn',
+              data: { amount: { toBigInt: jest.fn().mockReturnValue(1n) } },
+            }),
+          ],
+        );
+
+        expect(handleTransactionSuccessSpy).toHaveBeenCalledWith(expect.objectContaining({ txHash: successHash }));
+        expect(handleTransactionFailureSpy).toHaveBeenCalledWith(expect.objectContaining({ txHash: failedHash }));
+        expect(handleTransactionWithoutTerminalEventSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ txHash: noTerminalHash }),
+        );
+
+        // The only pending txn left after processing extrinsics should be the expired one.
+        expect(handleTransactionExpiredSpy).toHaveBeenCalledTimes(1);
+        expect(handleTransactionExpiredSpy).toHaveBeenCalledWith(expect.objectContaining({ txHash: expiredHash }), 100);
+
+        const deletedHashes = mockRedis.hdel.mock.calls
+          .filter(([key]) => key === TXN_WATCH_LIST_KEY)
+          .map(([, hash]) => hash);
+        expect(deletedHashes).toEqual(expect.arrayContaining([successHash, failedHash, noTerminalHash, expiredHash]));
+        expect(deletedHashes).toHaveLength(4);
+
+        // Ensure we enqueue all deletions before executing the pipeline.
+        const execOrder = mockRedis.exec.mock.invocationCallOrder[0];
+        mockRedis.hdel.mock.invocationCallOrder.forEach((order) => expect(order).toBeLessThan(execOrder));
+      });
     });
-    describe('without transactions', () => {});
   });
 });

@@ -122,7 +122,7 @@ digraph G {
 	"../../../libs/common/src/services/base.webhook.service.ts"	[height=0.32986,
 		pos="2328.4,272.89",
 		width=5.191];
-	"../../../libs/common/src/index.ts" -> "../../../libs/common/src/services/base.webhook.service.ts"	[pos="e,2141.3,271.75 1548.9,385.8 1577.6,364.05 1642,318.94 1704.8,300.89 1781.8,278.73 1978.2,272.84 2130,271.81"];
+	"../../../libs/common/src/index.ts" -> "../../../libs/webhooks/src/base.webhook.service.ts"	[pos="e,2141.3,271.75 1548.9,385.8 1577.6,364.05 1642,318.94 1704.8,300.89 1781.8,278.73 1978.2,272.84 2130,271.81"];
 	"../../../libs/common/src/utils/base-consumer.ts"	[height=0.32986,
 		pos="1905.1,195.89",
 		width=3.9931];

@@ -8,12 +8,12 @@ import accountWorkerConfig from '#account-worker/worker.config';
 import { TxnNotifierService } from './notifier.service';
 import { TransactionType } from '#types/tx-notification-webhook';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
-import { SignedBlock } from '@polkadot/types/interfaces';
-import { mockRedisProvider } from '#testlib';
+import { mockCacheManagerWith, mockRedisProvider } from '#testlib';
 import { jest } from '@jest/globals';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
 import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
+import { createMockBlock } from '#testlib/blockchain.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 // mock NestJS Scheduler
@@ -25,19 +25,11 @@ describe('TxnNotifierService', () => {
   let blockchainRpcQueryService: BlockchainRpcQueryService;
   let providerWebhookService: BaseWebhookService;
   let cacheManager: Redis;
-  let mockPipeline: { hdel: ReturnType<typeof jest.fn>; exec: ReturnType<typeof jest.fn> };
 
   const mockConfig = {
     trustUnfinalizedBlocks: false,
     blockchainScanIntervalSeconds: 6,
     healthCheckMaxRetries: 3,
-  };
-
-  const mockCacheManagerWith = (hvals: string[], hgetVal: string) => {
-    jest.mocked(cacheManager.hvals).mockResolvedValue(hvals);
-    jest.mocked(cacheManager.hget).mockResolvedValue(hgetVal);
-    mockPipeline = { hdel: jest.fn().mockReturnThis(), exec: jest.fn() };
-    jest.spyOn(cacheManager as any, 'multi').mockReturnValue(mockPipeline);
   };
 
   const mockBlockchainRpcQueryServiceGetter = (capacityWithdrawn: boolean, extrinsicFailed: boolean) => {
@@ -80,25 +72,9 @@ describe('TxnNotifierService', () => {
   });
 
   describe('processCurrentBlock', () => {
-    const mockBlockHash = '0x123';
-    const mockBlockNumber = 100;
-    const createMockBlock = (extrinsics: any[] = []): SignedBlock =>
-      ({
-        block: {
-          header: {
-            number: { toNumber: () => mockBlockNumber },
-            hash: { toHex: () => mockBlockHash },
-          },
-          extrinsics: extrinsics.map((ext) => ({
-            ...ext,
-            hash: { toHex: () => ext.hash },
-          })),
-        },
-      }) as any;
-
     it('skips if no pending transactions', async () => {
-      mockCacheManagerWith([], '');
-      const mockBlock = createMockBlock();
+      mockCacheManagerWith(cacheManager, [], '');
+      const mockBlock = createMockBlock([]);
       await service.processCurrentBlock(mockBlock, []);
       expect(cacheManager.hvals).toHaveBeenCalledWith(TXN_WATCH_LIST_KEY);
       expect(blockchainRpcQueryService.getCurrentCapacityEpoch).not.toHaveBeenCalled();
@@ -118,7 +94,7 @@ describe('TxnNotifierService', () => {
         birth: 90,
         death: 110,
       });
-      mockCacheManagerWith([pendingTx], pendingTx);
+      mockCacheManagerWith(cacheManager, [pendingTx], pendingTx);
       mockBlockchainRpcQueryServiceGetter(false, false);
 
       jest.spyOn(blockchainRpcQueryService as any, 'handlePublishHandleTxResult').mockReturnValue({
@@ -127,7 +103,13 @@ describe('TxnNotifierService', () => {
         debugMsg: 'Handle claimed',
       });
 
-      const mockBlock = createMockBlock([{ hash: txHash }]);
+      const mockExtrinsic = {
+        hash: {
+          toHex: jest.fn().mockReturnValue(txHash),
+        },
+      };
+
+      const mockBlock = createMockBlock([mockExtrinsic]);
       const mockEvent = {
         phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx === 0 } },
         event: { section, method, data: {} },
@@ -154,10 +136,14 @@ describe('TxnNotifierService', () => {
         birth: 90,
         death: 110,
       });
-      mockCacheManagerWith([pendingTx], pendingTx);
+      mockCacheManagerWith(cacheManager, [pendingTx], pendingTx);
       mockBlockchainRpcQueryServiceGetter(false, true);
 
-      const mockExtrinsic = { hash: '0xabc' };
+      const mockExtrinsic = {
+        hash: {
+          toHex: jest.fn().mockReturnValue(txHash),
+        },
+      };
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockFailureEvent = {
@@ -188,7 +174,7 @@ describe('TxnNotifierService', () => {
         death: 100, // Death at current block number
       });
 
-      mockCacheManagerWith([expiredTx], '');
+      mockCacheManagerWith(cacheManager, [expiredTx], '');
       const mockBlock = createMockBlock([]); // No matching extrinsics
       await service.processCurrentBlock(mockBlock, []);
 
@@ -205,8 +191,12 @@ describe('TxnNotifierService', () => {
         death: 110,
       });
 
-      mockCacheManagerWith([pendingTx], pendingTx);
-      const mockExtrinsic = { hash: '0xabc' };
+      mockCacheManagerWith(cacheManager, [pendingTx], pendingTx);
+      const mockExtrinsic = {
+        hash: {
+          toHex: jest.fn().mockReturnValue(txHash),
+        },
+      };
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockEvent = {
@@ -241,9 +231,13 @@ describe('TxnNotifierService', () => {
         birth: 90,
         death: 110,
       });
-      mockCacheManagerWith([pendingTx], pendingTx);
+      mockCacheManagerWith(cacheManager, [pendingTx], pendingTx);
 
-      const mockExtrinsic = { hash: '0xabc' };
+      const mockExtrinsic = {
+        hash: {
+          toHex: jest.fn().mockReturnValue(txHash),
+        },
+      };
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockCapacityEvent = {

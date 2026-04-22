@@ -22,7 +22,6 @@ export interface IWatchedTransactionScannerConfig {
 }
 
 export interface IWatchedTransactionContext<TTxStatus extends IWatchedTransactionStatus> {
-  txHash: HexString;
   txIndex: number;
   txStatus: TTxStatus;
   currentBlock: SignedBlock;
@@ -46,7 +45,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
   extends BlockchainScannerService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
-  constructor(
+  protected constructor(
     blockchainService: BlockchainRpcQueryService,
     protected readonly schedulerRegistry: SchedulerRegistry,
     cacheManager: Redis,
@@ -110,68 +109,69 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
 
     let pipeline = this.cacheManager.multi({ pipeline: true });
 
-    // TODO: this block needs a test
     if (extrinsicIndices.length > 0) {
       const epoch = await this.blockchainService.getCurrentCapacityEpoch(currentBlock.block.hash);
       const events = blockEvents.filter(
         ({ phase }) =>
           phase.isApplyExtrinsic && extrinsicIndices.some(([, txIndex]) => phase.asApplyExtrinsic.eq(txIndex)),
       );
+      if (events.length > 0) {
+        const capacityEvents = this.blockchainService.events.capacity;
+        const totalCapacityWithdrawn = events.reduce((sum, { event }) => {
+          if (capacityEvents.CapacityWithdrawn.is(event)) {
+            return sum + event.data.amount.toBigInt();
+          }
+          return sum;
+        }, 0n);
 
-      const totalCapacityWithdrawn = events.reduce((sum, { event }) => {
-        if (this.blockchainService.events.capacity.CapacityWithdrawn.is(event)) {
-          return sum + event.data.amount.toBigInt();
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [txHash, txIndex] of extrinsicIndices) {
+          const txStatus = pendingTxnsByHash.get(txHash);
+          if (!txStatus) {
+            continue;
+          }
+
+          const extrinsicEvents = events.filter(
+            ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
+          );
+          const successEvent = this.findSuccessEvent(txStatus, extrinsicEvents, blockEvents);
+          const failureEvent = extrinsicEvents.find(({ event }) =>
+            this.blockchainService.events.system.ExtrinsicFailed.is(event),
+          )?.event;
+          const context = {
+            txHash,
+            txIndex,
+            txStatus,
+            currentBlock,
+            blockEvents,
+            extrinsicEvents,
+            currentBlockNumber,
+          };
+
+          if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
+            const { dispatchError } = failureEvent.data;
+            const moduleThatErrored = dispatchError.asModule;
+            const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
+            await this.handleTransactionFailure({
+              ...context,
+              failureEvent,
+              moduleError,
+            });
+          } else if (successEvent) {
+            await this.handleTransactionSuccess({
+              ...context,
+              successEvent,
+            });
+          } else {
+            await this.handleTransactionWithoutTerminalEvent(context);
+          }
+
+          handledTxHashes.add(txHash);
+          pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
         }
-        return sum;
-      }, 0n);
 
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [txHash, txIndex] of extrinsicIndices) {
-        const txStatus = pendingTxnsByHash.get(txHash);
-        if (!txStatus) {
-          continue;
-        }
-
-        const extrinsicEvents = events.filter(
-          ({ phase }) => phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(txIndex),
-        );
-        const successEvent = this.findSuccessEvent(txStatus, extrinsicEvents, blockEvents);
-        const failureEvent = extrinsicEvents.find(({ event }) =>
-          this.blockchainService.events.system.ExtrinsicFailed.is(event),
-        )?.event;
-        const context = {
-          txHash,
-          txIndex,
-          txStatus,
-          currentBlock,
-          blockEvents,
-          extrinsicEvents,
-          currentBlockNumber,
-        };
-
-        if (failureEvent && this.blockchainService.events.system.ExtrinsicFailed.is(failureEvent)) {
-          const { dispatchError } = failureEvent.data;
-          const moduleThatErrored = dispatchError.asModule;
-          const moduleError = dispatchError.registry.findMetaError(moduleThatErrored);
-          await this.handleTransactionFailure({
-            ...context,
-            failureEvent,
-            moduleError,
-          });
-        } else if (successEvent) {
-          await this.handleTransactionSuccess({
-            ...context,
-            successEvent,
-          });
-        } else {
-          await this.handleTransactionWithoutTerminalEvent(context);
-        }
-
-        handledTxHashes.add(txHash);
-        pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txHash);
+        await this.setEpochCapacity(epoch, totalCapacityWithdrawn);
       }
-
-      await this.setEpochCapacity(epoch, totalCapacityWithdrawn);
     }
 
     // eslint-disable-next-line no-restricted-syntax
@@ -185,7 +185,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     await pipeline.exec();
   }
 
-  protected async loadPendingTransactions(): Promise<TTxStatus[]> {
+  public async loadPendingTransactions(): Promise<TTxStatus[]> {
     return (await this.cacheManager.hvals(TXN_WATCH_LIST_KEY)).map((value) => JSON.parse(value) as TTxStatus);
   }
 
@@ -208,11 +208,11 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
       ? `${context.txStatus.successEvent.section}.${context.txStatus.successEvent.method}`
       : 'undefined';
     this.logger.error(
-      `Watched transaction ${context.txHash} found in block ${context.currentBlockNumber}, but found no corresponding '${expectedEvent}' or 'ExtrinsicFailure' events`,
+      `Watched transaction ${context.txStatus.txHash} found in block ${context.currentBlockNumber}, but found no corresponding '${expectedEvent}' or 'ExtrinsicFailure' events`,
     );
   }
 
-  private async setEpochCapacity(epoch: string | number, capacityWithdrawn: bigint): Promise<void> {
+  public async setEpochCapacity(epoch: string | number, capacityWithdrawn: bigint): Promise<void> {
     const epochCapacityKey = `epochCapacity:${epoch}`;
 
     try {
@@ -227,9 +227,9 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     }
   }
 
-  protected abstract handleTransactionSuccess(context: IWatchedTransactionSuccessContext<TTxStatus>): Promise<void>;
+  public abstract handleTransactionSuccess(context: IWatchedTransactionSuccessContext<TTxStatus>): Promise<void>;
 
-  protected abstract handleTransactionFailure(context: IWatchedTransactionFailureContext<TTxStatus>): Promise<void>;
+  public abstract handleTransactionFailure(context: IWatchedTransactionFailureContext<TTxStatus>): Promise<void>;
 
-  protected abstract handleTransactionExpired(txStatus: TTxStatus, currentBlockNumber: number): Promise<void>;
+  public abstract handleTransactionExpired(txStatus: TTxStatus, currentBlockNumber: number): Promise<void>;
 }

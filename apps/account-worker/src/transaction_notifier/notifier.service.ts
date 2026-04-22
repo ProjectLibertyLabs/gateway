@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 import { createWebhookRsp } from '#webhooks-lib/helpers/createWebhookRsp.helper';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { SignedBlock } from '@polkadot/types/interfaces';
 import { IBaseTxStatus } from '#types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/tx-notification-webhook';
@@ -32,14 +31,13 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  protected async handleTransactionFailure({
+  public async handleTransactionFailure({
     moduleError,
   }: IWatchedTransactionFailureContext<IBaseTxStatus>): Promise<void> {
     this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
   }
 
-  protected async handleTransactionSuccess({
-    txHash,
+  public async handleTransactionSuccess({
     txIndex,
     txStatus,
     currentBlock,
@@ -47,7 +45,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     currentBlockNumber,
     successEvent,
   }: IWatchedTransactionSuccessContext<IBaseTxStatus>): Promise<void> {
-    this.logger.trace(`Successfully found transaction ${txHash} in block ${currentBlockNumber}`);
+    this.logger.trace(`Successfully found transaction ${txStatus.txHash} in block ${currentBlockNumber}`);
     const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
     let webhookResponse: TxWebhookRsp | undefined;
 
@@ -181,7 +179,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     }
   }
 
-  protected async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlockNumber: number): Promise<void> {
+  public async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlockNumber: number): Promise<void> {
     this.logger.trace(
       `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
     );

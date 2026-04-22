@@ -8,12 +8,12 @@ import workerConfig from '#content-publishing-worker/worker.config';
 import { TxnNotifierService } from './notifier.service';
 import { TransactionType } from '#types/tx-notification-webhook';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
-import { SignedBlock } from '@polkadot/types/interfaces';
-import { mockRedisProvider } from '#testlib';
+import { mockCacheManagerWith, mockRedisProvider } from '#testlib';
 import { jest } from '@jest/globals';
 import { BlockchainRpcQueryService, PayWithCapacityBatchAllCalls } from '#blockchain/blockchain-rpc-query.service';
 import { getPinoHttpOptions } from '#logger-lib';
 import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
+import { createMockBlock, mockBlockchainRpcQueryServiceGetter } from '#testlib/blockchain.mock.spec';
 
 jest.mock<typeof import('#blockchain/blockchain-rpc-query.service')>('#blockchain/blockchain-rpc-query.service');
 // mock NestJS Scheduler
@@ -25,27 +25,11 @@ describe('TxnNotifierService', () => {
   let blockchainRpcQueryService: BlockchainRpcQueryService;
   let providerWebhookService: BaseWebhookService;
   let cacheManager: Redis;
-  let mockPipeline: { hdel: ReturnType<typeof jest.fn>; exec: ReturnType<typeof jest.fn> };
 
   const mockConfig = {
     trustUnfinalizedBlocks: false,
     blockchainScanIntervalSeconds: 6,
     healthCheckMaxRetries: 3,
-  };
-
-  const mockCacheManagerWith = (hvals: string[], hgetVal: string) => {
-    jest.mocked(cacheManager.hvals).mockResolvedValue(hvals);
-    jest.mocked(cacheManager.hget).mockResolvedValue(hgetVal);
-    mockPipeline = { hdel: jest.fn().mockReturnThis(), exec: jest.fn() };
-    jest.spyOn(cacheManager as any, 'multi').mockReturnValue(mockPipeline);
-  };
-
-  const mockBlockchainRpcQueryServiceGetter = (capacityWithdrawn: boolean, extrinsicFailed: boolean) => {
-    const mockEventsObject = {
-      capacity: { CapacityWithdrawn: { is: jest.fn().mockReturnValue(capacityWithdrawn) } },
-      system: { ExtrinsicFailed: { is: jest.fn().mockReturnValue(extrinsicFailed) } },
-    };
-    Object.defineProperty(blockchainRpcQueryService, 'events', { get: jest.fn().mockReturnValue(mockEventsObject) });
   };
 
   beforeEach(async () => {
@@ -80,22 +64,6 @@ describe('TxnNotifierService', () => {
   });
 
   describe('processCurrentBlock', () => {
-    const mockBlockHash = '0x123';
-    const mockBlockNumber = 100;
-    const createMockBlock = (extrinsics: any[] = []): SignedBlock =>
-      ({
-        block: {
-          header: {
-            number: { toNumber: () => mockBlockNumber },
-            hash: { toHex: () => mockBlockHash },
-          },
-          extrinsics: extrinsics.map((ext) => ({
-            ...ext,
-            hash: { toHex: () => ext.hash },
-          })),
-        },
-      }) as any;
-
     const section = 'frequencyTxPayment';
     const method = 'payWithCapacityBatchAll';
     const txHash = '0xabc';
@@ -111,34 +79,40 @@ describe('TxnNotifierService', () => {
       birth: 90,
       death: 110,
     });
-    const mockExtrinsic = { hash: txHash };
+    const mockExtrinsic = {
+      hash: {
+        toHex: jest.fn().mockReturnValue(txHash),
+      },
+    };
 
     const mockCalls: PayWithCapacityBatchAllCalls = {
       debugMsg: 'This is a debug msg',
       calls: [{ section: 'doesnt matter', method: 'doesnt matter' }],
     };
 
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
     it('skips if no pending transactions', async () => {
-      mockCacheManagerWith([], '');
-      const mockBlock = createMockBlock();
+      mockCacheManagerWith(cacheManager, [], '');
+      const mockBlock = createMockBlock([]);
       await service.processCurrentBlock(mockBlock, []);
       expect(cacheManager.hvals).toHaveBeenCalledWith(TXN_WATCH_LIST_KEY);
       expect(blockchainRpcQueryService.getCurrentCapacityEpoch).not.toHaveBeenCalled();
     });
 
     it('processes a successful transaction', async () => {
-      mockCacheManagerWith([pendingCapacityBatchTx], pendingCapacityBatchTx);
-      mockBlockchainRpcQueryServiceGetter(false, false);
-
+      mockCacheManagerWith(cacheManager, [pendingCapacityBatchTx], pendingCapacityBatchTx);
+      mockBlockchainRpcQueryServiceGetter(blockchainRpcQueryService, false, false);
       jest.mocked(blockchainRpcQueryService.handlePayWithCapacityBatchAll).mockReturnValue(mockCalls);
       jest.mocked(blockchainRpcQueryService.handleCapacityWithdrawn).mockReturnValue({ msaId, amount, debugMsg });
 
-      const mockBlock = createMockBlock([{ hash: txHash }]);
+      const mockBlock = createMockBlock([mockExtrinsic]);
       const mockEvent = {
         phase: { isApplyExtrinsic: true, asApplyExtrinsic: { eq: (idx: number) => idx === 0 } },
         event: { section, method, data: { msaId, amount, debugMsg } },
       };
-
       await service.processCurrentBlock(mockBlock, [mockEvent as any]);
 
       expect(providerWebhookService.notify).toHaveBeenCalledWith(
@@ -155,8 +129,8 @@ describe('TxnNotifierService', () => {
     });
 
     it('handles failed extrinsic', async () => {
-      mockCacheManagerWith([pendingCapacityBatchTx], pendingCapacityBatchTx);
-      mockBlockchainRpcQueryServiceGetter(false, true);
+      mockCacheManagerWith(cacheManager, [pendingCapacityBatchTx], pendingCapacityBatchTx);
+      mockBlockchainRpcQueryServiceGetter(blockchainRpcQueryService, false, true);
 
       const mockBlock = createMockBlock([mockExtrinsic]);
 
@@ -189,7 +163,7 @@ describe('TxnNotifierService', () => {
         death: 100, // Death at current block number
       });
 
-      mockCacheManagerWith([expiredTx], '');
+      mockCacheManagerWith(cacheManager, [expiredTx], '');
       const mockBlock = createMockBlock([]); // No matching extrinsics
       await service.processCurrentBlock(mockBlock, []);
 
@@ -197,7 +171,7 @@ describe('TxnNotifierService', () => {
     });
 
     it('retries webhook notification on failure', async () => {
-      mockCacheManagerWith([pendingCapacityBatchTx], pendingCapacityBatchTx);
+      mockCacheManagerWith(cacheManager, [pendingCapacityBatchTx], pendingCapacityBatchTx);
       const mockBlock = createMockBlock([mockExtrinsic]);
 
       const mockEvent = {
@@ -205,10 +179,10 @@ describe('TxnNotifierService', () => {
         event: { section, method, data: {} },
       };
 
-      jest.mocked(blockchainRpcQueryService.handlePayWithCapacityBatchAll).mockReturnValue(mockCalls);
-      jest.mocked(blockchainRpcQueryService.handleCapacityWithdrawn).mockReturnValue({ msaId, amount, debugMsg });
+      jest.spyOn(blockchainRpcQueryService, 'handlePayWithCapacityBatchAll').mockReturnValue(mockCalls);
+      jest.spyOn(blockchainRpcQueryService, 'handleCapacityWithdrawn').mockReturnValue({ msaId, amount, debugMsg });
 
-      mockBlockchainRpcQueryServiceGetter(false, false);
+      mockBlockchainRpcQueryServiceGetter(blockchainRpcQueryService, false, false);
 
       jest
         .spyOn(providerWebhookService as any, 'notify')
@@ -221,7 +195,7 @@ describe('TxnNotifierService', () => {
     });
 
     it('updates epoch capacity when needed', async () => {
-      mockCacheManagerWith([pendingCapacityBatchTx], pendingCapacityBatchTx);
+      mockCacheManagerWith(cacheManager, [pendingCapacityBatchTx], pendingCapacityBatchTx);
 
       const mockBlock = createMockBlock([mockExtrinsic]);
 
@@ -234,7 +208,7 @@ describe('TxnNotifierService', () => {
         },
       };
 
-      mockBlockchainRpcQueryServiceGetter(true, false);
+      mockBlockchainRpcQueryServiceGetter(blockchainRpcQueryService, true, false);
 
       jest.mocked(blockchainRpcQueryService.getCurrentCapacityEpoch).mockResolvedValue(1);
       jest.mocked(blockchainRpcQueryService.getCurrentEpochLength).mockResolvedValue(100);

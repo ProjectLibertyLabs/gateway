@@ -121,7 +121,8 @@ export class BaseWebhookService implements OnModuleDestroy {
         return;
       }
       this.logger.warn(`Provider webhook failed health check ${this.failedHealthChecks} times`);
-      this.schedulerRegistry.deleteTimeout(this.healthCheckTimeoutName);
+      this.schedulerRegistry.doesExist('timeout', this.healthCheckTimeoutName) &&
+        this.schedulerRegistry.deleteTimeout(this.healthCheckTimeoutName);
       this.schedulerRegistry.addTimeout(
         this.healthCheckTimeoutName,
         setTimeout(
@@ -141,7 +142,10 @@ export class BaseWebhookService implements OnModuleDestroy {
         this.schedulerRegistry.deleteTimeout(this.healthCheckTimeoutName);
         this.schedulerRegistry.addTimeout(
           this.healthCheckTimeoutName,
-          setTimeout(() => this.checkHealth(), this.webhookConfig.webhookRetryIntervalSeconds),
+          setTimeout(
+            () => this.checkHealth(),
+            this.webhookConfig.webhookRetryIntervalSeconds * MILLISECONDS_PER_SECOND,
+          ),
         );
       }
     }

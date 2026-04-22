@@ -20,17 +20,13 @@ import { TransactionType } from '#types/tx-notification-webhook';
 export interface IBaseTxStatus {
   type: TransactionType;
   txHash: HexString;
-  referenceId?: string;
   providerId?: string;
-
+  referenceId?: string;
   successEvent?: {
     section: string;
-
     method: string;
   };
-
   birth: number;
-
   death: number;
 }
 

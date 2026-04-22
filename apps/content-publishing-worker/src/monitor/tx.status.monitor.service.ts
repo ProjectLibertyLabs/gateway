@@ -7,7 +7,6 @@ import { RegistryError } from '@polkadot/types/types';
 import { BlockchainService } from '#blockchain/blockchain.service';
 import { ContentPublishingQueues as QueueConstants } from '#types/constants';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { SignedBlock } from '@polkadot/types/interfaces';
 import { IPublisherJob } from '#types/interfaces';
 import { IContentTxStatus } from '#content-publishing-worker/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
@@ -34,7 +33,7 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     super(blockchainService, schedulerRegistry, cacheManager, workerConfig, capacityService, logger);
   }
 
-  protected async handleTransactionFailure({
+  public async handleTransactionFailure({
     txStatus,
     moduleError,
   }: IWatchedTransactionFailureContext<IContentTxStatus>): Promise<void> {
@@ -50,16 +49,18 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     }
   }
 
-  protected async handleTransactionSuccess({
-    txHash,
+  public async handleTransactionSuccess({
+    txStatus,
     txIndex,
     currentBlockNumber,
   }: IWatchedTransactionSuccessContext<IContentTxStatus>): Promise<void> {
-    this.logger.debug({ txHash, txIndex, currentBlockNumber }, 'Successfully found transaction in block');
+    this.logger.debug(
+      { txHash: txStatus.txHash, txIndex, currentBlockNumber },
+      'Successfully found transaction in block',
+    );
   }
 
-  protected async handleTransactionWithoutTerminalEvent({
-    txHash,
+  public async handleTransactionWithoutTerminalEvent({
     txIndex,
     txStatus,
     currentBlock,
@@ -76,7 +77,7 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
       )
     ) {
       this.logger.debug(
-        { txHash, txIndex, currentBlockNumber },
+        { txHash: txStatus.txHash, txIndex, currentBlockNumber },
         'Successfully found prior MessagesInBlock event for transaction',
       );
       return;
@@ -85,7 +86,7 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     const extrinsicEventsInBlock = extrinsicEvents.map(({ event: { method, section } }) => `${section}.${method}`);
     this.logger.error(
       {
-        txHash,
+        txStatus,
         txIndexInBlock: txIndex,
         encodedExtrinsic: currentBlock.block.extrinsics[txIndex].toHex(),
         block: { hash: currentBlock.block.header.hash.toHex(), number: currentBlockNumber },
@@ -96,7 +97,7 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     );
   }
 
-  protected async handleTransactionExpired(txStatus: IContentTxStatus, currentBlockNumber: number): Promise<void> {
+  public async handleTransactionExpired(txStatus: IContentTxStatus, currentBlockNumber: number): Promise<void> {
     this.logger.warn(
       `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber}), adding back to the publishing queue`,
     );

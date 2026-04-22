@@ -5,11 +5,9 @@ import { BaseWebhookService } from './base.webhook.service';
 import { IWebhookConfig } from './interfaces/webhook-config.interface';
 import { IHttpCommonConfig } from '#config/http-common.config';
 
-let getHealthzMock = jest.spyOn(BaseWebhookService.prototype, 'getHealthz').mockImplementation(async () => {
-  console.log('mocked function');
-}); // comment this line if just want to "spy"
-
 describe('BaseWebhookService', () => {
+  let getHealthzMock;
+
   const mockEmitter = {
     emit: jest.fn(),
   };
@@ -66,6 +64,7 @@ describe('BaseWebhookService', () => {
   }
 
   beforeEach(() => {
+    getHealthzMock = jest.spyOn(BaseWebhookService.prototype, 'getHealthz');
     jest.useFakeTimers();
     jest.clearAllMocks();
     service = new BaseWebhookService(
@@ -81,11 +80,13 @@ describe('BaseWebhookService', () => {
 
   afterEach(() => {
     service?.onModuleDestroy();
+    jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useRealTimers();
   });
 
   it('check_health success', async () => {
+    getHealthzMock.mockImplementationOnce(jest.fn());
     await service.checkHealth();
     expect(mockEmitter.emit).toHaveBeenCalledWith('webhook.healthy');
   });

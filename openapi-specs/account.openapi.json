@@ -691,7 +691,25 @@
         },
         "responses": {
           "202": {
-            "description": ""
+            "description": "Publish-all request accepted and enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "referenceId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "referenceId"
+                  ]
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No payloads were provided, so no work was enqueued"
           }
         },
         "tags": [

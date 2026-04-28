@@ -1,7 +1,7 @@
 import { AddNewPublicKeyAgreementRequestDto } from '#types/dtos/account/graphs.request.dto';
 import { IsSchemaId } from '#utils/decorators/is-schema-id.decorator';
 import { HexString } from '@polkadot/util/types';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsHexValue } from '#utils/decorators';
 import { IsSignature } from '#utils/decorators/is-signature.decorator';
@@ -72,17 +72,17 @@ export class UpsertPagePayloadDto {
 
 export class IcsPublishAllRequestDto {
   @ValidateNested()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => AddNewPublicKeyAgreementRequestDto)
   addIcsPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
 
   @ValidateNested()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => AddNewPublicKeyAgreementRequestDto)
   addContextGroupPRIDEntryPayload: AddNewPublicKeyAgreementRequestDto;
 
   @ValidateNested()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => UpsertPagePayloadDto)
   addContentGroupMetadataPayload: UpsertPagePayloadDto;
 }

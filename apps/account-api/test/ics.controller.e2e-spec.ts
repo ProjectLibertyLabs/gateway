@@ -2,7 +2,7 @@
 import apiConfig, { IAccountApiConfig } from '#account-api/api.config';
 import { ApiModule } from '#account-api/api.module';
 import { TimeoutInterceptor } from '#utils/interceptors/timeout.interceptor';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -86,28 +86,24 @@ describe('Ics Controller', () => {
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;
         const resp = await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload);
-        console.log(resp.body);
-        expect(resp.status).toBe(202); // TODO: was 400 in test
-        expect(resp.body?.referenceId).toBeDefined();
+        expect(resp.status).toBe(HttpStatus.ACCEPTED);
+        expect(resp.body).toEqual(expect.objectContaining({ referenceId: expect.any(String) }));
       }, 5_000);
 
       it('key with no msaid', async () => {
         const newKey = keyring.addFromSeed(Uint8Array.from(Array(32).fill(3)));
         const newAddr = getUnifiedAddress(newKey);
         const url = `/v1/ics/${newAddr}/publishAll`;
-        await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload).expect(400);
+        await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload).expect(HttpStatus.BAD_REQUEST);
       });
     });
     describe('payload verification', () => {
-      it('requires all payloads', async () => {
-        let badPayload = {
-          ...goodIcsPublishAllPayload,
-          addIcsPublicKeyPayload: undefined,
-        };
+      it('returns no content when no payloads are provided', async () => {
         let goodId = getUnifiedAddress(provider.keypair);
         const url = `/v1/ics/${goodId}/publishAll`;
-        const resp = await request(app.getHttpServer()).post(url).send(badPayload);
-        expect(resp.status).toBe(400);
+        const resp = await request(app.getHttpServer()).post(url).send({});
+        expect(resp.status).toBe(HttpStatus.NO_CONTENT);
+        expect(resp.body).toEqual({});
       });
     });
   });

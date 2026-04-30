@@ -72,6 +72,13 @@ describe('IcsController', () => {
   describe('basic', () => {
     const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
     const mockIcsPublishAllPayload = createIcsPublishAllRequestDto('0x1234');
+    const mockResponse = {
+      status: jest.fn(),
+    } as any;
+
+    beforeEach(() => {
+      mockResponse.status.mockClear();
+    });
 
     beforeAll(() => {
       jest
@@ -86,15 +93,29 @@ describe('IcsController', () => {
 
     it('calls getMsaIdForAccountId', async () => {
       const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce('123');
-      const result = await icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload);
+      const result = await icsController.publishAll(
+        { accountId: goodAccountId },
+        mockIcsPublishAllPayload,
+        mockResponse,
+      );
       expect(spy).toHaveBeenCalledWith(goodAccountId);
-      expect(result.referenceId).toBe('referenceId');
+      expect(result).toEqual({ referenceId: 'referenceId' });
+      expect(mockResponse.status).not.toHaveBeenCalled();
+    });
+    it('returns no content when there is nothing to enqueue', async () => {
+      jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce('123');
+      jest.spyOn(icsController, 'buildAndEnqueueIcsBatchTxns').mockResolvedValueOnce(null);
+
+      const result = await icsController.publishAll({ accountId: goodAccountId }, {} as any, mockResponse);
+
+      expect(result).toBeUndefined();
+      expect(mockResponse.status).toHaveBeenCalledWith(204);
     });
     it('throws HttpEception when the account has no MsaId', async () => {
       const spy = jest.spyOn(blockchainRpcQueryService, 'publicKeyToMsaId').mockResolvedValueOnce(null);
-      await expect(icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        icsController.publishAll({ accountId: goodAccountId }, mockIcsPublishAllPayload, mockResponse),
+      ).rejects.toThrow(HttpException);
       expect(spy).toHaveBeenCalledWith(goodAccountId);
     });
   });

@@ -74,17 +74,17 @@ export class IcsPublishAllRequestDto {
   @ValidateNested()
   @IsOptional()
   @Type(() => AddNewPublicKeyAgreementRequestDto)
-  addIcsPublicKeyPayload: AddNewPublicKeyAgreementRequestDto;
+  addIcsPublicKeyPayload?: AddNewPublicKeyAgreementRequestDto;
 
   @ValidateNested()
   @IsOptional()
   @Type(() => AddNewPublicKeyAgreementRequestDto)
-  addContextGroupPRIDEntryPayload: AddNewPublicKeyAgreementRequestDto;
+  addContextGroupPRIDEntryPayload?: AddNewPublicKeyAgreementRequestDto;
 
   @ValidateNested()
   @IsOptional()
   @Type(() => UpsertPagePayloadDto)
-  addContentGroupMetadataPayload: UpsertPagePayloadDto;
+  addContentGroupMetadataPayload?: UpsertPagePayloadDto;
 }
 
 export type PublishIcsPublishAllRequestDto = IcsPublishAllRequestDto & { type: TransactionType.CAPACITY_BATCH };

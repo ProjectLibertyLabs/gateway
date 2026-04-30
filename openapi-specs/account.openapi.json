@@ -1552,12 +1552,7 @@
           "addContentGroupMetadataPayload": {
             "$ref": "#/components/schemas/UpsertPagePayloadDto"
           }
-        },
-        "required": [
-          "addIcsPublicKeyPayload",
-          "addContextGroupPRIDEntryPayload",
-          "addContentGroupMetadataPayload"
-        ]
+        }
       }
     }
   },

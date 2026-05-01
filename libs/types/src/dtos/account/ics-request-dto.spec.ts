@@ -1,11 +1,7 @@
 import { validate, ValidationError } from 'class-validator';
 import { AddNewPublicKeyAgreementRequestDto } from '#types/dtos/account/graphs.request.dto';
 import { IcsPublishAllRequestDto, UpsertPagePayloadDto } from '#types/dtos/account/ics.request.dto';
-import {
-  createIcsPublishAllRequestDto,
-  createItemizedSignaturePayloadDto,
-  createUpsertPagePayloadDto,
-} from '#testlib/payloadDtos.spec';
+import { createIcsPublishAllRequestDto, createItemizedSignaturePayloadDto } from '#testlib/payloadDtos.spec';
 
 function flattenErrors(errors: ValidationError[]) {
   return errors

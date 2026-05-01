@@ -79,22 +79,34 @@ describe('Ics Controller', () => {
   });
 
   describe('(POST) v1/ics/:accountId/publishAll', () => {
-    const goodIcsPublishAllPayload = createIcsPublishAllRequestDto();
-
     describe('accountId parameter verification', () => {
-      it('happy path submits to worker, returning reference Id', async () => {
-        let goodId = getUnifiedAddress(provider.keypair);
-        const url = `/v1/ics/${goodId}/publishAll`;
-        const resp = await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload);
-        expect(resp.status).toBe(HttpStatus.ACCEPTED);
-        expect(resp.body).toEqual(expect.objectContaining({ referenceId: expect.any(String) }));
-      }, 5_000);
+      let goodId: string;
+
+      beforeAll(() => {
+        goodId = getUnifiedAddress(provider.keypair);
+      });
+
+      it.each([1, 2, 3])(
+        'happy path with %d payloads submits to worker, returning reference Id',
+        async (numPayloads) => {
+          const url = `/v1/ics/${goodId}/publishAll`;
+          const resp = await request(app.getHttpServer())
+            .post(url)
+            .send(createIcsPublishAllRequestDto(null, numPayloads));
+          expect(resp.status).toBe(HttpStatus.ACCEPTED);
+          expect(resp.body).toEqual(expect.objectContaining({ referenceId: expect.any(String) }));
+        },
+        5_000,
+      );
 
       it('key with no msaid', async () => {
         const newKey = keyring.addFromSeed(Uint8Array.from(Array(32).fill(3)));
         const newAddr = getUnifiedAddress(newKey);
         const url = `/v1/ics/${newAddr}/publishAll`;
-        await request(app.getHttpServer()).post(url).send(goodIcsPublishAllPayload).expect(HttpStatus.BAD_REQUEST);
+        await request(app.getHttpServer())
+          .post(url)
+          .send(createIcsPublishAllRequestDto())
+          .expect(HttpStatus.BAD_REQUEST);
       });
     });
     describe('payload verification', () => {

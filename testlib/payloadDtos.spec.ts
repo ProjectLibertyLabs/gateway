@@ -67,10 +67,16 @@ export function createUpsertPagePayloadDto(accountId: string): UpsertPagePayload
   return dto;
 }
 
-export function createIcsPublishAllRequestDto(accountId?: string): IcsPublishAllRequestDto {
+export function createIcsPublishAllRequestDto(accountId?: string, numPayloads?: number): IcsPublishAllRequestDto {
   const dto = new IcsPublishAllRequestDto();
-  dto.addIcsPublicKeyPayload = createAddNewPublicKeyAgreementRequestDto(accountId || goodAccountId);
-  dto.addContextGroupPRIDEntryPayload = createAddNewPublicKeyAgreementRequestDto(accountId || goodAccountId);
-  dto.addContentGroupMetadataPayload = createUpsertPagePayloadDto(accountId || goodAccountId);
+  if (numPayloads >= 1) {
+    dto.addIcsPublicKeyPayload = createAddNewPublicKeyAgreementRequestDto(accountId || goodAccountId);
+  }
+  if (numPayloads >= 2) {
+    dto.addContextGroupPRIDEntryPayload = createAddNewPublicKeyAgreementRequestDto(accountId || goodAccountId);
+  }
+  if (numPayloads >= 3) {
+    dto.addContentGroupMetadataPayload = createUpsertPagePayloadDto(accountId || goodAccountId);
+  }
   return dto;
 }

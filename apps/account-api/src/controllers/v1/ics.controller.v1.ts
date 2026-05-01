@@ -7,13 +7,14 @@ import {
   UpsertPagePayloadDto,
 } from '#types/dtos/account';
 import { AccountIdDto } from '#types/dtos/common';
-import { Body, Controller, HttpCode, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpException, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { ApiAcceptedResponse, ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
 import { ApiPromise } from '@polkadot/api';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 import { ISubmittableResult } from '@polkadot/types/types';
 import { HexString } from '@polkadot/util/types';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { Response } from 'express';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import { chainSignature } from '#utils/common/signature.util';
 import { TransactionType } from '#types/tx-notification-webhook';
@@ -29,10 +30,20 @@ export class IcsControllerV1 {
 
   @Post(':accountId/publishAll')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({
+    description: 'Publish-all request accepted and enqueued',
+    schema: {
+      type: 'object',
+      properties: { referenceId: { type: 'string' } },
+      required: ['referenceId'],
+    },
+  })
+  @ApiNoContentResponse({ description: 'No payloads were provided, so no work was enqueued' })
   async publishAll(
     @Param() { accountId }: AccountIdDto,
     @Body() payloads: IcsPublishAllRequestDto,
-  ): Promise<{ referenceId: string }> {
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ referenceId: string } | void> {
     // check that the accountId has an MSA on chain as a fast, early failure.
     // it's not necessary to deserialize the payload to verify the id matches.
     const hasMsa = (await this.blockchainService.publicKeyToMsaId(accountId)) !== null;
@@ -40,6 +51,10 @@ export class IcsControllerV1 {
       throw new HttpException(`Account has NO MSA on chain: ${accountId}`, HttpStatus.BAD_REQUEST);
     }
     const referenceId = await this.buildAndEnqueueIcsBatchTxns(accountId, payloads);
+    if (referenceId === null) {
+      res.status(HttpStatus.NO_CONTENT);
+      return;
+    }
     return { referenceId };
   }
 
@@ -73,14 +88,27 @@ export class IcsControllerV1 {
     return { pallet: 'statefulStorage', extrinsicName: 'upsertPageWithSignatureV2', encodedExtrinsic: tx.toHex() };
   }
 
-  async buildAndEnqueueIcsBatchTxns(accountId: string, payloads: IcsPublishAllRequestDto): Promise<string> {
+  async buildAndEnqueueIcsBatchTxns(accountId: string, payloads: IcsPublishAllRequestDto): Promise<string | null> {
     const api = (await this.blockchainService.getApi()) as ApiPromise;
     const txns: Array<EncodedExtrinsic> = [];
 
     // Build the three extrinsics
-    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addIcsPublicKeyPayload, api));
-    txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addContextGroupPRIDEntryPayload, api));
-    txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
+    if (payloads.addIcsPublicKeyPayload) {
+      txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addIcsPublicKeyPayload, api));
+    }
+
+    if (payloads.addContextGroupPRIDEntryPayload) {
+      txns.push(this.buildApplyItemActionExtrinsic(accountId, payloads.addContextGroupPRIDEntryPayload, api));
+    }
+
+    if (payloads.addContentGroupMetadataPayload) {
+      txns.push(this.buildUpsertPageExtrinsic(accountId, payloads.addContentGroupMetadataPayload, api));
+    }
+
+    if (txns.length === 0) {
+      this.logger.warn('Received `publishAll` request with no payloads for account %s', accountId);
+      return null;
+    }
 
     this.logger.debug(`Enqueueing ICS batch with ${txns.length} extrinsics`);
     const { referenceId } = await this.enqueueService.enqueueRequest<PublishCapacityBatchRequestDto>({

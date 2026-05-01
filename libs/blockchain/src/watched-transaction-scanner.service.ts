@@ -178,7 +178,7 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
     // eslint-disable-next-line no-restricted-syntax
     for (const txStatus of pendingTxnsByHash.values()) {
       if (txStatus.death <= currentBlockNumber) {
-        await this.handleTransactionExpired(txStatus, currentBlockNumber);
+        await this.handleTransactionExpired(txStatus, currentBlock);
         pipeline = pipeline.hdel(TXN_WATCH_LIST_KEY, txStatus.txHash);
       }
     }
@@ -232,5 +232,5 @@ export abstract class WatchedTransactionScannerService<TTxStatus extends IWatche
 
   public abstract handleTransactionFailure(context: IWatchedTransactionFailureContext<TTxStatus>): Promise<void>;
 
-  public abstract handleTransactionExpired(txStatus: TTxStatus, currentBlockNumber: number): Promise<void>;
+  public abstract handleTransactionExpired(txStatus: TTxStatus, currentBlock: SignedBlock): Promise<void>;
 }

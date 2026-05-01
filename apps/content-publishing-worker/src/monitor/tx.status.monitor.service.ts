@@ -18,6 +18,7 @@ import {
   IWatchedTransactionSuccessContext,
   WatchedTransactionScannerService,
 } from '#blockchain/watched-transaction-scanner.service';
+import { SignedBlock } from '@polkadot/types/interfaces';
 
 @Injectable()
 export class TxStatusMonitoringService extends WatchedTransactionScannerService<IContentTxStatus> {
@@ -97,9 +98,9 @@ export class TxStatusMonitoringService extends WatchedTransactionScannerService<
     );
   }
 
-  public async handleTransactionExpired(txStatus: IContentTxStatus, currentBlockNumber: number): Promise<void> {
+  public async handleTransactionExpired(txStatus: IContentTxStatus, currentBlock: SignedBlock): Promise<void> {
     this.logger.warn(
-      `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber}), adding back to the publishing queue`,
+      `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlock.block.header.number.toNumber()}), adding back to the publishing queue`,
     );
     await this.retryPublishJob(txStatus.referencePublishJob);
   }

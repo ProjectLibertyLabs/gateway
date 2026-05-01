@@ -24,8 +24,13 @@ export {
   type RevokeDelegationWebhookRsp,
   type SIWFOpts,
   type SIWFWebhookRsp,
+  TransactionStatus,
   TransactionType,
+  type TxWebhookExpiredRsp,
+  type TxWebhookFailureRsp,
   type TxWebhookOpts,
   type TxWebhookRsp,
   type TxWebhookRspBase,
+  type TxWebhookRspSuccessBase,
+  type TxWebhookSuccessRsp,
 } from './types.gen';

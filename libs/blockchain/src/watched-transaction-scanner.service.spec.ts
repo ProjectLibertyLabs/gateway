@@ -280,7 +280,10 @@ describe('WatchedTransactionScannerService', () => {
 
         // The only pending txn left after processing extrinsics should be the expired one.
         expect(handleTransactionExpiredSpy).toHaveBeenCalledTimes(1);
-        expect(handleTransactionExpiredSpy).toHaveBeenCalledWith(expect.objectContaining({ txHash: expiredHash }), 100);
+        expect(handleTransactionExpiredSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ txHash: expiredHash }),
+          expect.objectContaining({ block: expect.any(Object) }),
+        );
 
         const deletedHashes = mockRedis.hdel.mock.calls
           .filter(([key]) => key === TXN_WATCH_LIST_KEY)

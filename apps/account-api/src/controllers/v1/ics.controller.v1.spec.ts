@@ -71,7 +71,7 @@ describe('IcsController', () => {
 
   describe('basic', () => {
     const goodAccountId = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-    const mockIcsPublishAllPayload = createIcsPublishAllRequestDto('0x1234');
+    const mockIcsPublishAllPayload = createIcsPublishAllRequestDto('0x1234', 3);
     const mockResponse = {
       status: jest.fn(),
     } as any;

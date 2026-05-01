@@ -68,7 +68,6 @@ export type TxWebhookRspBase = {
   referenceId: string;
   msaId?: string;
   txHash: string;
-  error?: string;
 };
 
 export type TxWebhookRspSuccessBase = TxWebhookRspBase & {
@@ -165,10 +164,12 @@ export type CapacityBatchAllWebhookRsp = TxWebhookRspSuccessBase &
 export type TxWebhookFailureRsp = TxWebhookRspBase & {
   status: 'FAILED';
   error: string;
+  transactionType: TransactionType;
 };
 
 export type TxWebhookExpiredRsp = TxWebhookRspBase & {
   status: 'EXPIRED';
+  transactionType: TransactionType;
 };
 
 export type TxWebhookSuccessRsp =

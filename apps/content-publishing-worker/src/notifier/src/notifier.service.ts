@@ -48,7 +48,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
     const { type: transactionType, providerId, referenceId, txHash } = txStatus;
     const baseResponse = {
-      type: transactionType,
+      transactionType,
       providerId,
       referenceId,
       txHash,
@@ -71,7 +71,11 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     currentBlockNumber,
   }: IWatchedTransactionSuccessContext<IBaseTxStatus>): Promise<void> {
     this.logger.trace(`Successfully found transaction ${txStatus.txHash} in block ${currentBlockNumber}`);
-    const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
+    const baseResponse = {
+      ...txStatus,
+      blockHash: currentBlock.block.header.hash.toHex(),
+      status: TransactionStatus.SUCCESS,
+    };
     let webhookResponse: TxWebhookRsp | undefined;
 
     if (txStatus.type === TransactionType.CAPACITY_BATCH) {
@@ -122,7 +126,7 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     );
     const { type: transactionType, providerId, referenceId, txHash } = txStatus;
     const baseResponse = {
-      type: transactionType,
+      transactionType,
       providerId,
       referenceId,
       txHash,

@@ -12,6 +12,7 @@ import { AccountQueues } from '#types/constants/queue.constants';
 import {
   type getHealthzData,
   type postWebhooksTransactionNotifyData,
+  TransactionStatus,
   TransactionType,
   TxWebhookRsp,
 } from '#types/tx-notification-webhook';
@@ -362,6 +363,7 @@ describe('Account Service E2E request verification!', () => {
       },
       providerId,
       referenceId,
+      status: TransactionStatus.SUCCESS,
       transactionType: TransactionType.CAPACITY_BATCH,
       txHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
     });

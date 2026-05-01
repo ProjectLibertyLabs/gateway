@@ -92,8 +92,6 @@ components:
           type: string
         txHash:
           type: string
-        error:
-          type: string
 
     TxWebhookRspSuccessBase:
       type: object
@@ -330,7 +328,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/TxWebhookRspBase'
         - type: object
-          required: [status, error]
+          required: [status, error, transactionType]
           properties:
             status:
               type: string
@@ -338,18 +336,22 @@ components:
                 - FAILED
             error:
               type: string
+            transactionType:
+              $ref: '#/components/schemas/TransactionType'
 
     TxWebhookExpiredRsp:
       type: object
       allOf:
         - $ref: '#/components/schemas/TxWebhookRspBase'
         - type: object
-          required: [status]
+          required: [status, transactionType]
           properties:
             status:
               type: string
               enum:
                 - EXPIRED
+            transactionType:
+              $ref: '#/components/schemas/TransactionType'
 
     TxWebhookSuccessRsp:
       discriminator:

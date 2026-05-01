@@ -19,12 +19,14 @@ import {
   RevokeDelegationWebhookRsp,
   CapacityBatchAllOpts,
   CapacityBatchAllWebhookRsp,
+  TransactionStatus,
 } from '#types/tx-notification-webhook';
 import { IBaseTxStatus } from '#types/interfaces';
 
 export interface IBaseWebhookResponse extends IBaseTxStatus {
   msaId?: string;
   blockHash: string;
+  status: TransactionStatus;
 }
 
 // Type guards
@@ -66,7 +68,7 @@ export function createWebhookRsp(
 export function createWebhookRsp(txStatus: IBaseWebhookResponse, options: PublishHandleOpts): PublishHandleWebhookRsp;
 export function createWebhookRsp(txStatus: IBaseWebhookResponse): RetireMsaWebhookRsp | RevokeDelegationWebhookRsp;
 export function createWebhookRsp(
-  { type: transactionType, providerId, referenceId, msaId, blockHash, txHash }: IBaseWebhookResponse,
+  { type: transactionType, providerId, referenceId, msaId, blockHash, txHash, status }: IBaseWebhookResponse,
   options?: TxWebhookOpts,
 ): TxWebhookRsp {
   const baseResponse = {
@@ -74,6 +76,7 @@ export function createWebhookRsp(
     referenceId,
     msaId,
     blockHash,
+    status,
     txHash,
     transactionType,
   };

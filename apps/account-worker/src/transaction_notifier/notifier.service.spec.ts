@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
 import accountWorkerConfig from '#account-worker/worker.config';
 import { TxnNotifierService } from './notifier.service';
-import { TransactionType } from '#types/tx-notification-webhook';
+import { TransactionStatus, TransactionType } from '#types/tx-notification-webhook';
 import { TXN_WATCH_LIST_KEY } from '#types/constants';
 import { mockCacheManagerWith, mockRedisProvider } from '#testlib';
 import { jest } from '@jest/globals';
@@ -160,7 +160,9 @@ describe('TxnNotifierService', () => {
         },
       };
       await service.processCurrentBlock(mockBlock, [mockFailureEvent as any]);
-      expect(providerWebhookService.notify).not.toHaveBeenCalled();
+      expect(providerWebhookService.notify).toHaveBeenCalledWith(
+        expect.objectContaining({ status: TransactionStatus.FAILED }),
+      );
       expect(cacheManager.multi().hdel).toHaveBeenCalledWith(TXN_WATCH_LIST_KEY, txHash);
     });
 

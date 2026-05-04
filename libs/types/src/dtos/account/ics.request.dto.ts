@@ -87,4 +87,4 @@ export class IcsPublishAllRequestDto {
   addContentGroupMetadataPayload?: UpsertPagePayloadDto;
 }
 
-export type PublishIcsPublishAllRequestDto = IcsPublishAllRequestDto & { type: TransactionType.CAPACITY_BATCH };
+export type PublishIcsPublishAllRequestDto = IcsPublishAllRequestDto & { type: typeof TransactionType.CAPACITY_BATCH };

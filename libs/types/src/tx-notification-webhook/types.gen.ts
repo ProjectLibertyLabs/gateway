@@ -4,48 +4,67 @@ export type ClientOptions = {
   baseURL: `${string}://${string}` | (string & {});
 };
 
-export enum TransactionType {
+export const TransactionStatus = {
+  /**
+   * SUCCESS
+   */
+  SUCCESS: 'SUCCESS',
+  /**
+   * FAILED
+   */
+  FAILED: 'FAILED',
+  /**
+   * EXPIRED
+   */
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus];
+
+export const TransactionType = {
   /**
    * ON_CHAIN_CONTENT
    */
-  ON_CHAIN_CONTENT = 'ON_CHAIN_CONTENT',
+  ON_CHAIN_CONTENT: 'ON_CHAIN_CONTENT',
   /**
    * CHANGE_HANDLE
    */
-  CHANGE_HANDLE = 'CHANGE_HANDLE',
+  CHANGE_HANDLE: 'CHANGE_HANDLE',
   /**
    * CREATE_HANDLE
    */
-  CREATE_HANDLE = 'CREATE_HANDLE',
+  CREATE_HANDLE: 'CREATE_HANDLE',
   /**
    * SIWF_SIGNUP
    */
-  SIWF_SIGNUP = 'SIWF_SIGNUP',
+  SIWF_SIGNUP: 'SIWF_SIGNUP',
   /**
    * SIWF_SIGNIN
    */
-  SIWF_SIGNIN = 'SIWF_SIGNIN',
+  SIWF_SIGNIN: 'SIWF_SIGNIN',
   /**
    * ADD_KEY
    */
-  ADD_KEY = 'ADD_KEY',
+  ADD_KEY: 'ADD_KEY',
   /**
    * RETIRE_MSA
    */
-  RETIRE_MSA = 'RETIRE_MSA',
+  RETIRE_MSA: 'RETIRE_MSA',
   /**
    * ADD_PUBLIC_KEY_AGREEMENT
    */
-  ADD_PUBLIC_KEY_AGREEMENT = 'ADD_PUBLIC_KEY_AGREEMENT',
+  ADD_PUBLIC_KEY_AGREEMENT: 'ADD_PUBLIC_KEY_AGREEMENT',
   /**
    * REVOKE_DELEGATION
    */
-  REVOKE_DELEGATION = 'REVOKE_DELEGATION',
+  REVOKE_DELEGATION: 'REVOKE_DELEGATION',
   /**
    * CAPACITY_BATCH
    */
-  CAPACITY_BATCH = 'CAPACITY_BATCH',
-}
+  CAPACITY_BATCH: 'CAPACITY_BATCH',
+} as const;
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export type TxWebhookRspBase = {
   blockHash: string;
@@ -53,6 +72,10 @@ export type TxWebhookRspBase = {
   referenceId: string;
   msaId?: string;
   txHash: string;
+};
+
+export type TxWebhookRspSuccessBase = TxWebhookRspBase & {
+  status: TransactionStatus & 'SUCCESS';
 };
 
 export type OnChainContentOpts = {
@@ -97,52 +120,63 @@ export type TxWebhookOpts =
   | PublishGraphKeysOpts
   | CapacityBatchAllOpts;
 
-export type CreateHandleWebhookRsp = TxWebhookRspBase &
+export type CreateHandleWebhookRsp = TxWebhookRspSuccessBase &
   PublishHandleOpts & {
     transactionType: 'CREATE_HANDLE';
   };
 
-export type OnChainContentWebhookRsp = TxWebhookRspBase &
+export type OnChainContentWebhookRsp = TxWebhookRspSuccessBase &
   OnChainContentOpts & {
     transactionType: 'ON_CHAIN_CONTENT';
   };
 
-export type ChangeHandleWebhookRsp = TxWebhookRspBase &
+export type ChangeHandleWebhookRsp = TxWebhookRspSuccessBase &
   PublishHandleOpts & {
     transactionType: 'CHANGE_HANDLE';
   };
 
 export type PublishHandleWebhookRsp = CreateHandleWebhookRsp | ChangeHandleWebhookRsp;
 
-export type SIWFWebhookRsp = TxWebhookRspBase &
+export type SIWFWebhookRsp = TxWebhookRspSuccessBase &
   SIWFOpts & {
     transactionType: 'SIWF_SIGNUP';
   };
 
-export type PublishKeysWebhookRsp = TxWebhookRspBase &
+export type PublishKeysWebhookRsp = TxWebhookRspSuccessBase &
   PublishKeysOpts & {
     transactionType: 'ADD_KEY';
   };
 
-export type PublishGraphKeysWebhookRsp = TxWebhookRspBase &
+export type PublishGraphKeysWebhookRsp = TxWebhookRspSuccessBase &
   PublishGraphKeysOpts & {
     transactionType: 'ADD_PUBLIC_KEY_AGREEMENT';
   };
 
-export type RetireMsaWebhookRsp = TxWebhookRspBase & {
+export type RetireMsaWebhookRsp = TxWebhookRspSuccessBase & {
   transactionType: 'RETIRE_MSA';
 };
 
-export type RevokeDelegationWebhookRsp = TxWebhookRspBase & {
+export type RevokeDelegationWebhookRsp = TxWebhookRspSuccessBase & {
   transactionType: 'REVOKE_DELEGATION';
 };
 
-export type CapacityBatchAllWebhookRsp = TxWebhookRspBase &
+export type CapacityBatchAllWebhookRsp = TxWebhookRspSuccessBase &
   CapacityBatchAllOpts & {
     transactionType: 'CAPACITY_BATCH';
   };
 
-export type TxWebhookRsp =
+export type TxWebhookFailureRsp = TxWebhookRspBase & {
+  status: TransactionStatus & 'FAILED';
+  error: string;
+  transactionType: TransactionType;
+};
+
+export type TxWebhookExpiredRsp = TxWebhookRspBase & {
+  status: TransactionStatus & 'EXPIRED';
+  transactionType: TransactionType;
+};
+
+export type TxWebhookSuccessRsp =
   | ({
       transactionType: 'ON_CHAIN_CONTENT';
     } & OnChainContentWebhookRsp)
@@ -170,6 +204,17 @@ export type TxWebhookRsp =
   | ({
       transactionType: 'CAPACITY_BATCH';
     } & CapacityBatchAllWebhookRsp);
+
+export type TxWebhookRsp =
+  | ({
+      status: 'SUCCESS';
+    } & TxWebhookSuccessRsp)
+  | ({
+      status: 'FAILED';
+    } & TxWebhookFailureRsp)
+  | ({
+      status: 'EXPIRED';
+    } & TxWebhookExpiredRsp);
 
 export type getHealthzData = {
   body?: never;

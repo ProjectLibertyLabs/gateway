@@ -4,7 +4,14 @@ import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { SignedBlock } from '@polkadot/types/interfaces';
 import { CapacityCheckerService } from '#blockchain/capacity-checker.service';
-import { CapacityBatchAllOpts, TransactionType, TxWebhookRsp } from '#types/tx-notification-webhook';
+import {
+  CapacityBatchAllOpts,
+  TransactionStatus,
+  TransactionType,
+  TxWebhookExpiredRsp,
+  TxWebhookFailureRsp,
+  TxWebhookRsp,
+} from '#types/tx-notification-webhook';
 import { PinoLogger } from 'nestjs-pino';
 import { BlockchainRpcQueryService } from '#blockchain/blockchain-rpc-query.service';
 import {
@@ -34,9 +41,26 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
   }
 
   public async handleTransactionFailure({
+    txStatus,
+    currentBlock,
     moduleError,
   }: IWatchedTransactionFailureContext<IBaseTxStatus>): Promise<void> {
     this.logger.error(`Extrinsic failed with error: ${JSON.stringify(moduleError)}`);
+    const { type: transactionType, providerId, referenceId, txHash } = txStatus;
+    const baseResponse = {
+      transactionType,
+      providerId,
+      referenceId,
+      txHash,
+      blockHash: currentBlock.block.header.hash.toHex(),
+    };
+
+    const response: TxWebhookFailureRsp = {
+      ...baseResponse,
+      status: TransactionStatus.FAILED,
+      error: JSON.stringify(moduleError),
+    };
+    await this.sendWebhookNotification(response);
   }
 
   public async handleTransactionSuccess({
@@ -45,10 +69,13 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     currentBlock,
     extrinsicEvents,
     currentBlockNumber,
-    successEvent,
   }: IWatchedTransactionSuccessContext<IBaseTxStatus>): Promise<void> {
     this.logger.trace(`Successfully found transaction ${txStatus.txHash} in block ${currentBlockNumber}`);
-    const baseResponse = { ...txStatus, blockHash: currentBlock.block.header.hash.toHex() };
+    const baseResponse = {
+      ...txStatus,
+      blockHash: currentBlock.block.header.hash.toHex(),
+      status: TransactionStatus.SUCCESS,
+    };
     let webhookResponse: TxWebhookRsp | undefined;
 
     if (txStatus.type === TransactionType.CAPACITY_BATCH) {
@@ -75,13 +102,17 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
       return;
     }
 
+    await this.sendWebhookNotification(webhookResponse);
+  }
+
+  private async sendWebhookNotification(webhookResponse: TxWebhookRsp): Promise<void> {
     let retries = 0;
     while (retries < this.workerConfig.healthCheckMaxRetries) {
       try {
         this.logger.debug(webhookResponse, 'Sending transaction notification to webhook');
         await this.providerWebhookService.notify(webhookResponse);
         this.logger.debug('Transaction Notification sent to webhook');
-        break;
+        return;
       } catch (error) {
         this.logger.error(error, 'Failed to send notification to webhook');
         retries += 1;
@@ -89,9 +120,23 @@ export class TxnNotifierService extends WatchedTransactionScannerService<IBaseTx
     }
   }
 
-  public async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlockNumber: number): Promise<void> {
+  public async handleTransactionExpired(txStatus: IBaseTxStatus, currentBlock: SignedBlock): Promise<void> {
     this.logger.trace(
-      `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlockNumber})`,
+      `Tx ${txStatus.txHash} expired (birth: ${txStatus.birth}, death: ${txStatus.death}, currentBlock: ${currentBlock.block.header.number.toNumber()})`,
     );
+    const { type: transactionType, providerId, referenceId, txHash } = txStatus;
+    const baseResponse = {
+      transactionType,
+      providerId,
+      referenceId,
+      txHash,
+      blockHash: currentBlock.block.header.hash.toHex(),
+    };
+
+    const response: TxWebhookExpiredRsp = {
+      ...baseResponse,
+      status: TransactionStatus.EXPIRED,
+    };
+    await this.sendWebhookNotification(response);
   }
 }

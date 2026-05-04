@@ -117,7 +117,7 @@ export class AddNewPublicKeyAgreementPayloadRequest {
 }
 
 export type PublicKeyAgreementRequestDto = AddNewPublicKeyAgreementRequestDto & {
-  type: TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
+  type: typeof TransactionType.ADD_PUBLIC_KEY_AGREEMENT;
 };
 
 export class PublicKeyAgreementsKeyPayload {

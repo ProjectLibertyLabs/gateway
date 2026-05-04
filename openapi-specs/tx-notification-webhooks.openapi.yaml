@@ -36,6 +36,17 @@ paths:
 
 components:
   schemas:
+    TransactionStatus:
+      type: string
+      enum:
+        - SUCCESS
+        - FAILED
+        - EXPIRED
+      x-enum-varnames:
+        - SUCCESS
+        - FAILED
+        - EXPIRED
+
     TransactionType:
       type: string
       enum:
@@ -81,6 +92,20 @@ components:
           type: string
         txHash:
           type: string
+
+    TxWebhookRspSuccessBase:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - type: object
+          required: [status]
+          properties:
+            status:
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - SUCCESS
 
     OnChainContentOpts:
       type: object
@@ -173,7 +198,7 @@ components:
     CreateHandleWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/PublishHandleOpts'
         - type: object
           properties:
@@ -187,7 +212,7 @@ components:
     OnChainContentWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/OnChainContentOpts'
         - type: object
           properties:
@@ -201,7 +226,7 @@ components:
     ChangeHandleWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/PublishHandleOpts'
         - type: object
           properties:
@@ -221,7 +246,7 @@ components:
     SIWFWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/SIWFOpts'
         - type: object
           properties:
@@ -235,7 +260,7 @@ components:
     PublishKeysWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/PublishKeysOpts'
         - type: object
           properties:
@@ -249,7 +274,7 @@ components:
     PublishGraphKeysWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/PublishGraphKeysOpts'
         - type: object
           properties:
@@ -263,7 +288,7 @@ components:
     RetireMsaWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - type: object
           properties:
             transactionType:
@@ -276,7 +301,7 @@ components:
     RevokeDelegationWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - type: object
           properties:
             transactionType:
@@ -289,7 +314,7 @@ components:
     CapacityBatchAllWebhookRsp:
       type: object
       allOf:
-        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - $ref: '#/components/schemas/TxWebhookRspSuccessBase'
         - $ref: '#/components/schemas/CapacityBatchAllOpts'
         - type: object
           properties:
@@ -300,7 +325,41 @@ components:
           required:
             - transactionType
 
-    TxWebhookRsp:
+    TxWebhookFailureRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - type: object
+          required: [status, error, transactionType]
+          properties:
+            status:
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - FAILED
+            error:
+              type: string
+            transactionType:
+              $ref: '#/components/schemas/TransactionType'
+
+    TxWebhookExpiredRsp:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TxWebhookRspBase'
+        - type: object
+          required: [status, transactionType]
+          properties:
+            status:
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - EXPIRED
+            transactionType:
+              $ref: '#/components/schemas/TransactionType'
+
+    TxWebhookSuccessRsp:
       discriminator:
         propertyName: transactionType
         mapping:
@@ -323,3 +382,15 @@ components:
         - $ref: '#/components/schemas/RetireMsaWebhookRsp'
         - $ref: '#/components/schemas/RevokeDelegationWebhookRsp'
         - $ref: '#/components/schemas/CapacityBatchAllWebhookRsp'
+
+    TxWebhookRsp:
+      discriminator:
+        propertyName: status
+        mapping:
+          SUCCESS: '#/components/schemas/TxWebhookSuccessRsp'
+          FAILED: '#/components/schemas/TxWebhookFailureRsp'
+          EXPIRED: '#/components/schemas/TxWebhookExpiredRsp'
+      oneOf:
+        - $ref: '#/components/schemas/TxWebhookSuccessRsp'
+        - $ref: '#/components/schemas/TxWebhookFailureRsp'
+        - $ref: '#/components/schemas/TxWebhookExpiredRsp'

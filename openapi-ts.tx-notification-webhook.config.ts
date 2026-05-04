@@ -19,7 +19,7 @@ export default defineConfig({
       name: '@hey-api/typescript',
       case: 'preserve',
       enums: {
-        mode: 'typescript',
+        mode: 'javascript',
         case: 'preserve',
       },
     },

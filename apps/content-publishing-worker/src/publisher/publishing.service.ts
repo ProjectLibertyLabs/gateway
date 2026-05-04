@@ -67,7 +67,7 @@ export class PublishingService extends BaseConsumer implements OnApplicationBoot
       }
       this.logger.debug(`Processing job ${job.id} of type ${job.name}`);
 
-      let txType = TransactionType.CAPACITY_BATCH;
+      let txType: TransactionType = TransactionType.CAPACITY_BATCH;
 
       // Check for valid delegation if appropriate (chain would reject anyway, but this saves Capacity)
       if (isOnChainJob(jobData) && typeof jobData.data.onBehalfOf !== 'undefined') {

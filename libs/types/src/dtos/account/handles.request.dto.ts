@@ -61,11 +61,11 @@ export class ChangeHandlePayloadRequest {
 }
 
 export type CreateHandleRequest = HandleRequestDto & {
-  type: TransactionType.CREATE_HANDLE;
+  type: typeof TransactionType.CREATE_HANDLE;
 };
 
 export type ChangeHandleRequest = HandleRequestDto & {
-  type: TransactionType.CHANGE_HANDLE;
+  type: typeof TransactionType.CHANGE_HANDLE;
 };
 
 export type PublishHandleRequestDto = CreateHandleRequest | ChangeHandleRequest;

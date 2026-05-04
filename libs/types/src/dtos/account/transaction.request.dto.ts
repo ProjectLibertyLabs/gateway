@@ -1,5 +1,3 @@
-import { BlockHash } from '@polkadot/types/interfaces';
-import { HexString } from '@polkadot/util/types';
 import { PublishIcsPublishAllRequestDto } from './ics.request.dto';
 import { PublicKeyAgreementRequestDto } from './graphs.request.dto';
 import { PublishHandleRequestDto } from './handles.request.dto';
@@ -16,13 +14,13 @@ export interface EncodedExtrinsic {
 
 export type PublishSIWFSignupRequestDto = {
   calls: EncodedExtrinsic[];
-  type: TransactionType.SIWF_SIGNUP;
+  type: typeof TransactionType.SIWF_SIGNUP;
   authorizationCode?: string;
 };
 
 export type PublishCapacityBatchRequestDto = {
   calls: EncodedExtrinsic[];
-  type: TransactionType.CAPACITY_BATCH;
+  type: typeof TransactionType.CAPACITY_BATCH;
 };
 
 export type TransactionData<
@@ -38,11 +36,4 @@ export type TransactionData<
 > = RequestType & {
   providerId: string;
   referenceId: string;
-};
-
-export type TxMonitorJob = TransactionData & {
-  id: string;
-  txHash: HexString;
-  epoch: number;
-  lastFinalizedBlockHash: BlockHash;
 };

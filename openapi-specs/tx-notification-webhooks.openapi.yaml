@@ -101,9 +101,11 @@ components:
           required: [status]
           properties:
             status:
-              type: string
-              enum:
-                - SUCCESS
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - SUCCESS
 
     OnChainContentOpts:
       type: object
@@ -331,9 +333,11 @@ components:
           required: [status, error, transactionType]
           properties:
             status:
-              type: string
-              enum:
-                - FAILED
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - FAILED
             error:
               type: string
             transactionType:
@@ -347,9 +351,11 @@ components:
           required: [status, transactionType]
           properties:
             status:
-              type: string
-              enum:
-                - EXPIRED
+              allOf:
+                - $ref: '#/components/schemas/TransactionStatus'
+                - type: string
+                  enum:
+                    - EXPIRED
             transactionType:
               $ref: '#/components/schemas/TransactionType'
 

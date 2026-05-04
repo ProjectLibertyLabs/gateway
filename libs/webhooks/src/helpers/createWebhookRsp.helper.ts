@@ -26,7 +26,7 @@ import { IBaseTxStatus } from '#types/interfaces';
 export interface IBaseWebhookResponse extends IBaseTxStatus {
   msaId?: string;
   blockHash: string;
-  status: TransactionStatus;
+  status: typeof TransactionStatus.SUCCESS;
 }
 
 // Type guards

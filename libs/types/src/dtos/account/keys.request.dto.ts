@@ -65,7 +65,7 @@ export class KeysRequestDto {
 }
 
 export type AddKeyRequestDto = KeysRequestDto & {
-  type: TransactionType.ADD_KEY;
+  type: typeof TransactionType.ADD_KEY;
 };
 
 export type PublishKeysRequestDto = AddKeyRequestDto;

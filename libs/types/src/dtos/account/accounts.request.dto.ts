@@ -14,5 +14,5 @@ export class RetireMsaRequestDto extends RetireMsaPayloadResponseDto {
 }
 
 export type PublishRetireMsaRequestDto = RetireMsaRequestDto & {
-  type: TransactionType.RETIRE_MSA;
+  type: typeof TransactionType.RETIRE_MSA;
 };

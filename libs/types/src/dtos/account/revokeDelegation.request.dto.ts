@@ -46,5 +46,5 @@ export class RevokeDelegationPayloadRequestDto extends RevokeDelegationPayloadRe
 }
 
 export type PublishRevokeDelegationRequestDto = RevokeDelegationPayloadRequestDto & {
-  type: TransactionType.REVOKE_DELEGATION;
+  type: typeof TransactionType.REVOKE_DELEGATION;
 };

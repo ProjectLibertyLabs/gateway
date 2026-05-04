@@ -22,7 +22,6 @@ import {
   WatchedTransactionScannerService,
 } from '#blockchain/watched-transaction-scanner.service';
 import { BaseWebhookService } from '#webhooks-lib/base.webhook.service';
-import { base2 } from 'multiformats/bases/base2';
 import { SignedBlock } from '@polkadot/types/interfaces';
 
 // For watching transactions directly on chain.

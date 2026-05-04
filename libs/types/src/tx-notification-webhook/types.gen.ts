@@ -4,63 +4,67 @@ export type ClientOptions = {
   baseURL: `${string}://${string}` | (string & {});
 };
 
-export enum TransactionStatus {
+export const TransactionStatus = {
   /**
    * SUCCESS
    */
-  SUCCESS = 'SUCCESS',
+  SUCCESS: 'SUCCESS',
   /**
    * FAILED
    */
-  FAILED = 'FAILED',
+  FAILED: 'FAILED',
   /**
    * EXPIRED
    */
-  EXPIRED = 'EXPIRED',
-}
+  EXPIRED: 'EXPIRED',
+} as const;
 
-export enum TransactionType {
+export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus];
+
+export const TransactionType = {
   /**
    * ON_CHAIN_CONTENT
    */
-  ON_CHAIN_CONTENT = 'ON_CHAIN_CONTENT',
+  ON_CHAIN_CONTENT: 'ON_CHAIN_CONTENT',
   /**
    * CHANGE_HANDLE
    */
-  CHANGE_HANDLE = 'CHANGE_HANDLE',
+  CHANGE_HANDLE: 'CHANGE_HANDLE',
   /**
    * CREATE_HANDLE
    */
-  CREATE_HANDLE = 'CREATE_HANDLE',
+  CREATE_HANDLE: 'CREATE_HANDLE',
   /**
    * SIWF_SIGNUP
    */
-  SIWF_SIGNUP = 'SIWF_SIGNUP',
+  SIWF_SIGNUP: 'SIWF_SIGNUP',
   /**
    * SIWF_SIGNIN
    */
-  SIWF_SIGNIN = 'SIWF_SIGNIN',
+  SIWF_SIGNIN: 'SIWF_SIGNIN',
   /**
    * ADD_KEY
    */
-  ADD_KEY = 'ADD_KEY',
+  ADD_KEY: 'ADD_KEY',
   /**
    * RETIRE_MSA
    */
-  RETIRE_MSA = 'RETIRE_MSA',
+  RETIRE_MSA: 'RETIRE_MSA',
   /**
    * ADD_PUBLIC_KEY_AGREEMENT
    */
-  ADD_PUBLIC_KEY_AGREEMENT = 'ADD_PUBLIC_KEY_AGREEMENT',
+  ADD_PUBLIC_KEY_AGREEMENT: 'ADD_PUBLIC_KEY_AGREEMENT',
   /**
    * REVOKE_DELEGATION
    */
-  REVOKE_DELEGATION = 'REVOKE_DELEGATION',
+  REVOKE_DELEGATION: 'REVOKE_DELEGATION',
   /**
    * CAPACITY_BATCH
    */
-  CAPACITY_BATCH = 'CAPACITY_BATCH',
-}
+  CAPACITY_BATCH: 'CAPACITY_BATCH',
+} as const;
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType];
 
 export type TxWebhookRspBase = {
   blockHash: string;
@@ -71,7 +75,7 @@ export type TxWebhookRspBase = {
 };
 
 export type TxWebhookRspSuccessBase = TxWebhookRspBase & {
-  status: 'SUCCESS';
+  status: TransactionStatus & 'SUCCESS';
 };
 
 export type OnChainContentOpts = {
@@ -162,13 +166,13 @@ export type CapacityBatchAllWebhookRsp = TxWebhookRspSuccessBase &
   };
 
 export type TxWebhookFailureRsp = TxWebhookRspBase & {
-  status: 'FAILED';
+  status: TransactionStatus & 'FAILED';
   error: string;
   transactionType: TransactionType;
 };
 
 export type TxWebhookExpiredRsp = TxWebhookRspBase & {
-  status: 'EXPIRED';
+  status: TransactionStatus & 'EXPIRED';
   transactionType: TransactionType;
 };
 

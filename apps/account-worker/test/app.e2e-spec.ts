@@ -25,10 +25,29 @@ import { createServer, IncomingHttpHeaders, IncomingMessage, Server, ServerRespo
 import { AddressInfo } from 'net';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import path from 'path';
+import Redis from 'ioredis';
+import { DEFAULT_REDIS_NAMESPACE, getRedisToken } from '@songkeys/nestjs-redis';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { ApiPromise } from '@polkadot/api';
 
-process.env.CACHE_KEY_PREFIX = 'account-worker-e2e:';
+const CACHE_KEY_PREFIX = 'account-worker-e2e:';
+process.env.CACHE_KEY_PREFIX = CACHE_KEY_PREFIX;
 jest.setTimeout(120_000);
 
+async function clearAllRedisKeys(redis: Redis) {
+  const keys = await redis.keys(`${CACHE_KEY_PREFIX}*`);
+  let pipeline = redis.pipeline();
+  keys.forEach((k) => {
+    pipeline = pipeline.del(k.replace(CACHE_KEY_PREFIX, ''));
+  });
+  await pipeline.exec();
+}
+
+async function runBlocks(api: ApiPromise, count: number = 64) {
+  for (let i = 0; i <= count; i++) {
+    await api.rpc.engine.createBlock(true, true);
+  }
+}
 describe('Account Service E2E request verification!', () => {
   const WEBHOOK_TRANSACTION_NOTIFY_PATH: postWebhooksTransactionNotifyData['url'] = '/webhooks/transaction-notify';
   const HEALTHZ_PATH: getHealthzData['url'] = '/healthz';
@@ -44,6 +63,7 @@ describe('Account Service E2E request verification!', () => {
   let blockchainService: BlockchainService;
   let prismProcess: ChildProcessWithoutNullStreams | undefined;
   let captureServer: Server | undefined;
+  let redisConnection: Redis;
   const receivedWebhooks: { body: TxWebhookRsp; headers: IncomingHttpHeaders }[] = [];
 
   const getFreePort = async (): Promise<number> =>
@@ -198,6 +218,7 @@ describe('Account Service E2E request verification!', () => {
     await txQueueEvents.waitUntilReady();
     txNotifier = app.get<TxnNotifierService>(TxnNotifierService);
     blockchainService = app.get<BlockchainService>(BlockchainService);
+    redisConnection = app.get<Redis>(getRedisToken(DEFAULT_REDIS_NAMESPACE));
     const chainConfig = app.get<IBlockchainConfig>(blockchainConfig.KEY);
     providerId = chainConfig.providerId.toString();
 
@@ -214,6 +235,9 @@ describe('Account Service E2E request verification!', () => {
     if (txQueueEvents) {
       await txQueueEvents.close();
     }
+    if (redisConnection) {
+      await clearAllRedisKeys(redisConnection);
+    }
     if (app) {
       await app.close();
     }
@@ -227,147 +251,178 @@ describe('Account Service E2E request verification!', () => {
     });
   });
 
-  it(`(GET) ${HEALTHZ_PATH}`, () =>
-    request(httpServer)
-      .get(HEALTHZ_PATH)
-      .expect(200)
-      .then((res) => {
-        const baseConfigExpectation: { [key: string]: any } = {
-          apiBodyJsonLimit: expect.any(String),
-          apiPort: expect.any(Number),
-          apiTimeoutMs: expect.any(Number),
-          blockchainScanIntervalSeconds: expect.any(Number),
-          healthCheckMaxRetries: expect.any(Number),
-          healthCheckMaxRetryIntervalSeconds: expect.any(Number),
-          healthCheckSuccessThreshold: expect.any(Number),
-          providerApiToken: expect.any(String),
-          trustUnfinalizedBlocks: expect.any(Boolean),
-          webhookBaseUrl: expect.any(String),
-          webhookFailureThreshold: expect.any(Number),
-          webhookRetryIntervalSeconds: expect.any(Number),
-        };
+  describe('health and metrics endpoints', () => {
+    it(`(GET) ${HEALTHZ_PATH}`, () =>
+      request(httpServer)
+        .get(HEALTHZ_PATH)
+        .expect(200)
+        .then((res) => {
+          const baseConfigExpectation: { [key: string]: any } = {
+            apiBodyJsonLimit: expect.any(String),
+            apiPort: expect.any(Number),
+            apiTimeoutMs: expect.any(Number),
+            blockchainScanIntervalSeconds: expect.any(Number),
+            healthCheckMaxRetries: expect.any(Number),
+            healthCheckMaxRetryIntervalSeconds: expect.any(Number),
+            healthCheckSuccessThreshold: expect.any(Number),
+            providerApiToken: expect.any(String),
+            trustUnfinalizedBlocks: expect.any(Boolean),
+            webhookBaseUrl: expect.any(String),
+            webhookFailureThreshold: expect.any(Number),
+            webhookRetryIntervalSeconds: expect.any(Number),
+          };
 
-        expect(res.body).toEqual(
-          expect.objectContaining({
-            status: 200,
-            message: 'Service is healthy',
-            timestamp: expect.any(Number),
-            config: expect.objectContaining(baseConfigExpectation),
-            redisStatus: expect.objectContaining({
-              connected_clients: expect.any(Number),
-              maxmemory: expect.any(Number),
-              redis_version: expect.any(String),
-              uptime_in_seconds: expect.any(Number),
-              used_memory: expect.any(Number),
-              queues: expect.arrayContaining([
-                expect.objectContaining({
-                  name: expect.any(String),
-                  waiting: expect.any(Number),
-                  active: expect.any(Number),
-                  completed: expect.any(Number),
-                  failed: expect.any(Number),
-                  delayed: expect.any(Number),
+          expect(res.body).toEqual(
+            expect.objectContaining({
+              status: 200,
+              message: 'Service is healthy',
+              timestamp: expect.any(Number),
+              config: expect.objectContaining(baseConfigExpectation),
+              redisStatus: expect.objectContaining({
+                connected_clients: expect.any(Number),
+                maxmemory: expect.any(Number),
+                redis_version: expect.any(String),
+                uptime_in_seconds: expect.any(Number),
+                used_memory: expect.any(Number),
+                queues: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: expect.any(String),
+                    waiting: expect.any(Number),
+                    active: expect.any(Number),
+                    completed: expect.any(Number),
+                    failed: expect.any(Number),
+                    delayed: expect.any(Number),
+                  }),
+                ]),
+              }),
+              blockchainStatus: expect.objectContaining({
+                frequencyApiWsUrl: expect.any(String),
+                latestBlockHeader: expect.objectContaining({
+                  blockHash: expect.any(String),
+                  number: expect.any(Number),
+                  parentHash: expect.any(String),
                 }),
-              ]),
-            }),
-            blockchainStatus: expect.objectContaining({
-              frequencyApiWsUrl: expect.any(String),
-              latestBlockHeader: expect.objectContaining({
-                blockHash: expect.any(String),
-                number: expect.any(Number),
-                parentHash: expect.any(String),
               }),
             }),
-          }),
-        );
-      }));
+          );
+        }));
 
-  it('(GET) /livez', () =>
-    request(httpServer).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
+    it('(GET) /livez', () =>
+      request(httpServer).get('/livez').expect(200).expect({ status: 200, message: 'Service is live' }));
 
-  it('(GET) /readyz', () =>
-    request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
+    it('(GET) /readyz', () =>
+      request(httpServer).get('/readyz').expect(200).expect({ status: 200, message: 'Service is ready' }));
 
-  it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+    it('(GET) /metrics', () => request(httpServer).get('/metrics').expect(200));
+  });
 
-  it('submits CAPACITY_BATCH and posts expected webhook payload', async () => {
-    const referenceId = `capacity-batch-${Date.now()}`;
-    const api = (await blockchainService.getApi()) as any;
-    const delegatorKeypair = new Keyring({ type: 'sr25519' }).addFromUri(`//${referenceId}`);
-    const currentBlock = (await blockchainService.getBlockForSigning()).number;
-    const addProviderPayload = api.registry.createType('PalletMsaAddProvider', {
-      authorizedMsaId: providerId,
-      intentIds: [],
-      expiration: currentBlock + 10,
+  describe('Transaction submission and webhook notification', () => {
+    let delegatorKeypair: KeyringPair;
+
+    beforeAll(() => {
+      delegatorKeypair = new Keyring({ type: 'sr25519' }).addFromUri(`//${Date.now()}`);
     });
-    const encodedCall = api.tx.msa
-      .createSponsoredAccountWithDelegation(
-        delegatorKeypair.address,
-        signPayloadSr25519(delegatorKeypair, addProviderPayload),
-        addProviderPayload,
-      )
-      .toHex();
 
-    const job = await txQueue.add(
-      referenceId,
-      {
-        type: TransactionType.CAPACITY_BATCH,
-        providerId,
-        referenceId,
-        calls: [
-          {
-            pallet: 'system',
-            extrinsicName: 'remarkWithEvent',
-            encodedExtrinsic: encodedCall,
-          },
-        ],
-      } as any,
-      { jobId: referenceId },
-    );
+    beforeEach(async () => {
+      await clearAllRedisKeys(redisConnection);
+      while (receivedWebhooks.pop()) {}
+    });
 
-    await job.waitUntilFinished(txQueueEvents);
-
-    const webhookPayload = await (async () => {
-      const timeoutMs = 20_000;
-      const pollMs = 1_000;
-      const end = Date.now() + timeoutMs;
-
-      while (Date.now() < end) {
-        await (txNotifier as unknown as any).setLastSeenBlockNumber(currentBlock);
-        await txNotifier.scan();
-        const matchedCall = receivedWebhooks.find(
-          ({ body }) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
-        );
-        if (matchedCall) {
-          return matchedCall;
-        }
-        await new Promise<void>((resolve) => {
-          setTimeout(() => resolve(), pollMs);
+    it.each([TransactionStatus.SUCCESS, TransactionStatus.FAILED, TransactionStatus.EXPIRED])(
+      'submits CAPACITY_BATCH and posts expected webhook payload with %s status',
+      async (status) => {
+        const referenceId = `capacity-batch-${Date.now()}`;
+        const api = (await blockchainService.getApi()) as any;
+        const currentBlock = (await blockchainService.getBlockForSigning()).number;
+        const addProviderPayload = api.registry.createType('PalletMsaAddProvider', {
+          authorizedMsaId: providerId,
+          intentIds: [],
+          expiration: currentBlock + 10,
         });
-      }
+        const encodedCall = api.tx.msa
+          .createSponsoredAccountWithDelegation(
+            delegatorKeypair.address,
+            signPayloadSr25519(delegatorKeypair, addProviderPayload),
+            addProviderPayload,
+          )
+          .toHex();
 
-      throw new Error('Timed out waiting for CAPACITY_BATCH webhook');
-    })();
+        // Skip a nonce so that this transaction will stay in the queue until mortality
+        if (status === TransactionStatus.EXPIRED) {
+          await blockchainService.reserveNextNonce();
+        }
 
-    expect(webhookPayload.body).toEqual({
-      blockHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
-      calls: [
-        {
-          section: 'msa',
-          method: 'createSponsoredAccountWithDelegation',
-        },
-      ],
-      capacityWithdrawnEvent: {
-        amount: expect.stringMatching(/^[0-9]+$/),
-        msaId: providerId,
+        const job = await txQueue.add(
+          referenceId,
+          {
+            type: TransactionType.CAPACITY_BATCH,
+            providerId,
+            referenceId,
+            calls: [
+              {
+                pallet: 'msa',
+                extrinsicName: 'createSponsoredAccountWithDelegation',
+                encodedExtrinsic: encodedCall,
+              },
+            ],
+          } as any,
+          { jobId: referenceId },
+        );
+
+        await job.waitUntilFinished(txQueueEvents);
+        await runBlocks(api);
+
+        const webhookPayload = await (async () => {
+          const timeoutMs = 20_000;
+          const pollMs = 1_000;
+          const end = Date.now() + timeoutMs;
+
+          while (Date.now() < end) {
+            await (txNotifier as unknown as any).setLastSeenBlockNumber(currentBlock);
+            await txNotifier.scan();
+            const matchedCall = receivedWebhooks.find(
+              ({ body }) => (body as TxWebhookRsp | undefined)?.transactionType === TransactionType.CAPACITY_BATCH,
+            );
+            if (matchedCall) {
+              return matchedCall;
+            }
+            await new Promise<void>((resolve) => {
+              setTimeout(() => resolve(), pollMs);
+            });
+          }
+
+          throw new Error('Timed out waiting for CAPACITY_BATCH webhook');
+        })();
+
+        expect(webhookPayload.body).toEqual({
+          blockHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
+          calls:
+            status !== TransactionStatus.SUCCESS
+              ? undefined
+              : [
+                  {
+                    section: 'msa',
+                    method: 'createSponsoredAccountWithDelegation',
+                  },
+                ],
+          capacityWithdrawnEvent:
+            status !== TransactionStatus.SUCCESS
+              ? undefined
+              : {
+                  amount: expect.stringMatching(/^[0-9]+$/),
+                  msaId: providerId,
+                },
+          providerId,
+          referenceId,
+          error: status === TransactionStatus.FAILED ? expect.any(String) : undefined,
+          status,
+          transactionType: TransactionType.CAPACITY_BATCH,
+          txHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
+        });
+        expect(webhookPayload.headers.authorization).toBe(providerApiToken);
+        expect(receivedWebhooks.length).toBeGreaterThan(0);
       },
-      providerId,
-      referenceId,
-      status: TransactionStatus.SUCCESS,
-      transactionType: TransactionType.CAPACITY_BATCH,
-      txHash: expect.stringMatching(/0x[a-fA-F0-9]{32}/),
-    });
-    expect(webhookPayload.headers.authorization).toBe(providerApiToken);
-    expect(receivedWebhooks.length).toBeGreaterThan(0);
-  }, 30_000);
+      30_000,
+    );
+  });
 });

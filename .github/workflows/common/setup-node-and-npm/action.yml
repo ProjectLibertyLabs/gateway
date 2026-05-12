@@ -1,0 +1,32 @@
+name: "Setup Node and npm"
+description: "Set up Node.js and ensure an npm supporting 'id-token' is installed"
+
+inputs:
+  node-version:
+    description: "Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0."
+    required: false
+    default: "22.x"
+  cache:
+    description: "Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm."
+    required: false
+    default: "npm"
+  cache-dependency-path:
+    description: "Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      # Use whatever version of setup-node you actually want here
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.cache }}
+        cache-dependency-path: ${{ inputs.cache-dependency-path }}
+
+    - name: Update npm to latest 11.x
+      shell: bash
+      run: |
+        npm install -g 'npm@^11'
+        echo "npm version: $(npm --version)"

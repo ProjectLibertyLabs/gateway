@@ -4,11 +4,7 @@
   "description": "Monorepo for Frequency Developer Gateway shared packages",
   "author": "Project Liberty, LLC",
   "license": "Apache-2.0",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "postinstall": "patch-package",
     "build:account": "nest build account-api && nest build account-worker",
     "build:content-publishing": "nest build content-publishing-api && nest build content-publishing-worker",
     "build:content-watcher": "nest build content-watcher",
@@ -99,7 +95,8 @@
     "setup:content-watcher:publish": "node scripts/content-watcher/content-setup.js",
     "setup:content-watcher:webhook": "node scripts/content-watcher/webhook-cat.cjs",
     "setup:common:chain": "node scripts/local-init.cjs",
-    "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts"
+    "setup:sign-with-uri": "tsx setup/src/sign-with-uri/main.ts",
+    "patch:apply": "patch-package"
   },
   "dependencies": {
     "@bull-board/api": "6.12.7",
@@ -139,7 +136,7 @@
     "@types/express": "5.0.3",
     "@types/multer": "2.0.0",
     "@willsoto/nestjs-prometheus": "6.0.2",
-    "axios": "1.12.2",
+    "axios": "1.15.2",
     "bullmq": "5.58.2",
     "busboy": "1.6.0",
     "class-transformer": "0.5.1",
@@ -187,7 +184,6 @@
     "@typescript-eslint/parser": "8.41.0",
     "base64url": "3.0.1",
     "bats": "1.12.0",
-    "clinic": "13.0.0",
     "dotenv": "17.2.1",
     "eslint": "9.34.0",
     "eslint-config-prettier": "10.1.8",
@@ -217,6 +213,10 @@
     "tsx": "4.20.5",
     "typescript": "5.9.2",
     "unique-names-generator": "^4.7.1"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=11.10.1"
   },
   "overrides": {
     "@frequency-chain/api-augment": "2.0.0",

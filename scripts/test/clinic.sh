@@ -11,6 +11,9 @@
 # NOTE - passing in the npm script that runs -all- of a suite of k6 tests causes clinic to hang/fail
 # NOTE2 - bubbleprof is not working as of 2025-09-26
 
+echo "Installation and use of clinic is disabled until vulnerabilities can be patched or a replacement is found."
+exit 1
+
 export PATH="${PATH}:./node_modules/.bin"
 CMD=${1:-'doctor'}
 

@@ -11,7 +11,7 @@ DOCKER_BUILD_TARGETS=$(DOCKER_SERVICES:%=docker-build-%)
 .PHONY: build test test-e2e lint format docker-build $(TEST_TARGETS) $(E2E_TARGETS) $(DOCKER_BUILD_TARGETS)
 
 deps:
-	@npm ci
+	@npm ci --ignore-scripts
 
 update-packages:
 	@npm i

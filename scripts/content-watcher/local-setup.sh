@@ -63,7 +63,7 @@ function startup() {
     docker compose --project-name ${PROJECT_NAME} up -d frequency
 
     # Set up chain scenario, i.e. set provider, delegation and schemas
-    ( cd ${TOPDIR} && npm i && npm run local:init )
+    ( cd ${TOPDIR} && npm ci --ignore-scripts && npm run local:init )
 
     # start rest of services
     docker compose --project-name ${PROJECT_NAME} up -d
@@ -72,13 +72,13 @@ function startup() {
     sleep 5
 
     # publish some content
-    ( cd ${TOPDIR}/scripts/content-setup && npm i && npm run main)
+    ( cd ${TOPDIR}/scripts/content-setup && npm ci --ignore-scripts && npm run main)
 
     # Make sure pm2 is installed
     if ! which pm2 >| /dev/null
     then
         echo "Installing pm2"
-        npm i --global pm2
+        npm i  --ignore-scripts --global pm2
     fi
 }
 

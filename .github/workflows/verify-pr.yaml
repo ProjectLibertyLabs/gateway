@@ -16,10 +16,10 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node and npm
+        uses: ./.github/workflows/common/setup-node-and-npm
         with:
-          node-version: 22
+          cache-dependency-path: package-lock.json
 
       - name: Set up mdBook 📚
         uses: ./.github/workflows/common/set-up-mdbook
@@ -28,4 +28,4 @@ jobs:
 
       - name: Build mdBook 📚
         working-directory: docs
-        run: npm i && mdbook build && ls book
+        run: npm ci --ignore-scripts && mdbook build && ls book

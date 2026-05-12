@@ -73,8 +73,8 @@ Ensure you have the following installed:
 3. Install dependencies:
 
    ```bash
-   npm install --ignore-scripts
-   ```
+npm ci --ignore-scripts && npm run patch:apply
+```
 
 4. Start supporting services (local frequency node, redis) using Docker:
 

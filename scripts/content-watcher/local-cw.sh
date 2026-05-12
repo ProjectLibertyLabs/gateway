@@ -21,7 +21,7 @@ done
 
 export TOPDIR=$( dirname $( dirname $( dirname $( readlink -f ${0} ) ) ) )
 pushd ${TOPDIR}/backend
-npm ci
+npm ci --ignore-scripts
 npm run build
 
 # Make sure the correct set of services is running

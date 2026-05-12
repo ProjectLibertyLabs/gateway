@@ -81,16 +81,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node and npm
+        uses: ./.github/workflows/common/setup-node-and-npm
         with:
           node-version: 22
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: ./package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: 'Bats start.sh Tests'
         run: |
@@ -127,17 +125,18 @@ jobs:
       - name: Checkout
         if: ${{ steps.should.outputs.RUN == 'true' }}
         uses: actions/checkout@v4
-      - name: Install Node.js
+      - name: Setup Node and npm
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        uses: actions/setup-node@v4
+        uses: ./.github/workflows/common/setup-node-and-npm
         with:
           node-version: 22
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
           cache-dependency-path: ./package-lock.json
       - name: Install dependencies
         if: ${{ steps.should.outputs.RUN == 'true' }}
-        run: npm ci
+        run: npm ci --ignore-scripts
+      - name: Apply patches
+        if: ${{ steps.should.outputs.RUN == 'true' }}
+        run: npm run patch:apply
       - name: Build NestJS
         if: ${{ steps.should.outputs.RUN == 'true' }}
         run: npm run build:${{ matrix.service }}

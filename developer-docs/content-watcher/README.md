@@ -70,8 +70,8 @@ Ensure you have the following installed:
 2. Install dependencies:
 
    ```bash
-   npm install --ignore-scripts
-   ```
+npm ci --ignore-scripts && npm run patch:apply
+```
 
 3. Start auxiliary services:
 

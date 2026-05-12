@@ -195,7 +195,7 @@ Use this script when you need to stop all running Gateway services.
   cargo install mdbook-mermaid@0.15.0
 
   cd docs
-  npm install
+  npm ci --ignore-scripts
   mdbook build
 ```
 

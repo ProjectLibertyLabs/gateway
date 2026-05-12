@@ -13,13 +13,18 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Node.js
-      uses: actions/setup-node@v4
+    - name: Setup Node and npm
+      uses: ./.github/workflows/common/setup-node-and-npm
       with:
         node-version: 22
+        cache-dependency-path: ./package-lock.json
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --ignore-scripts
+      shell: bash
+
+    - name: Apply patches
+      run: npm run patch:apply
       shell: bash
 
     - name: Generate OpenAPI/Swagger JSON

@@ -70,7 +70,7 @@ Ensure you have the following installed:
 2. Install dependencies:
 
    ```bash
-   npm install
+   npm install --ignore-scripts
    ```
 
 3. Start auxiliary services:

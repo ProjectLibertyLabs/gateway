@@ -125,7 +125,7 @@ Install this project with:
 Install NPM Dependencies:
 
 ```sh
-  npm install
+  npm install --ignore-scripts
 ```
 
 ### Usage

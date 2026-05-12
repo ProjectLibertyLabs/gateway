@@ -27,5 +27,5 @@ sleep 15
 
 # Run make setup
 echo "Running setup to provision Provider with capacity, etc..."
-npm i || exit_err "Running npm install failed."
+npm i --ignore-scripts || exit_err "Running npm install failed."
 npx tsx apps/account-api/test/setup.ts || exit_err "Running setup script failed."

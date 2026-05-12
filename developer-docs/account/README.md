@@ -73,7 +73,7 @@ Ensure you have the following installed:
 3. Install dependencies:
 
    ```bash
-   npm install
+   npm install --ignore-scripts
    ```
 
 4. Start supporting services (local frequency node, redis) using Docker:

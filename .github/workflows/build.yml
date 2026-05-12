@@ -94,7 +94,7 @@ jobs:
 
       - name: 'Bats start.sh Tests'
         run: |
-          npm install -g bats
+          npm install -g bats --ignore-scripts
           npm run test:bats-start
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
